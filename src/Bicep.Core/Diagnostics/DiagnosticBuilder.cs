@@ -809,6 +809,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP141",
                 "The expression cannot be used as a decorator as it is not callable.");
+
+            public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
+                TextSpan,
+                "BCP142",
+                $"Output \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
+
+            public ErrorDiagnostic ExpectedOutputType() => new(
+                TextSpan,
+                "BCP143",
+                $"Expected an output type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

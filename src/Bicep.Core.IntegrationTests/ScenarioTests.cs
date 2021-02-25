@@ -709,6 +709,94 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
                 });
             }
         }
+        
+        [TestMethod]
+        public void Test_Issue1364()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+targetScope = 'blablah'
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'\" but the provided value is of type \"'blablah'\"."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_success()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+param myparam string
+var myvar = 'hello'
+        
+output myparam string = myparam
+output myvar string = myvar
+");
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['myparam'].value")!.Should().DeepEqual("[parameters('myparam')]");
+                template!.SelectToken("$.outputs['myvar'].value")!.Should().DeepEqual("[variables('myvar')]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_duplicates()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+output duplicate string = 'hello'
+output duplicate string = 'hello'
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP142", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
+                    ("BCP142", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_outputs_cannot_be_referenced()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+output output1 string = 'hello'
+output output2 string = output1
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP058", DiagnosticLevel.Error, "The name \"output1\" is an output. Outputs cannot be referenced in expressions."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1599()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+param x string = 't'
+output xx = x
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP143", DiagnosticLevel.Error, "Expected an output type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
+                });
+            }
+        }
     }
 }
 
