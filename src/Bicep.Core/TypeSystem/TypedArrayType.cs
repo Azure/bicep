@@ -15,9 +15,6 @@ namespace Bicep.Core.TypeSystem
  
         public override TypeSymbolValidationFlags ValidationFlags { get; }
 
-        private static string FormatTypeName(ITypeReference itemReference) =>
-            itemReference.Type is UnionType
-                ? $"({itemReference.Type.Name})[]"
-                : $"{itemReference.Type.Name}[]";
+        private static string FormatTypeName(ITypeReference itemReference) => $"{itemReference.Type.FormatNameForCompoundTypes()}[]";
     }
 }

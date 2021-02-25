@@ -260,7 +260,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     baz.id
-//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "module[] | resource | module | resource[]", but the provided item was of type "string". |baz.id|
+//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". |baz.id|
   ]
 }
 
@@ -270,9 +270,9 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     'hello'
-//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "module[] | resource | module | resource[]", but the provided item was of type "'hello'". |'hello'|
+//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'hello'". |'hello'|
     true
-//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "module[] | resource | module | resource[]", but the provided item was of type "bool". |true|
+//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "bool". |true|
   ]
 }
 
