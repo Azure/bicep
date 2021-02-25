@@ -871,12 +871,7 @@ namespace Bicep.Core.TypeSystem
                 CollectErrors(errors, expressionType);
             }
 
-            if (errors.Count > 0)
-            {
-                diagnostics.WriteMultiple(errors);
-
-                return LanguageConstants.Any;
-            }
+            diagnostics.WriteMultiple(errors);
 
             // There must exist at least one decorator for MissingDeclarationSyntax.
             var lastDecoratorSyntax = syntax.Decorators.Last();
