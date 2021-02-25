@@ -5759,7 +5759,7 @@ resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for
 //@[86:96)    IdentifierSyntax
 //@[86:96)     Identifier |emptyArray|
 //@[96:97)   Colon |:|
-//@[97:98)   IntegerLiteralSyntax
+//@[97:98)   SkippedTriviaSyntax
 //@[97:98)    Integer |4|
 //@[98:99)   RightSquare |]|
 //@[99:103) NewLine |\r\n\r\n|
@@ -7061,4 +7061,55 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+// resource loop body that isn't an object
+//@[42:44) NewLine |\r\n|
+resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
+//@[0:102) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:34)  IdentifierSyntax
+//@[9:34)   Identifier |nonObjectResourceLoopBody|
+//@[35:74)  StringSyntax
+//@[35:74)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[75:76)  Assignment |=|
+//@[77:102)  ForSyntax
+//@[77:78)   LeftSquare |[|
+//@[78:81)   Identifier |for|
+//@[82:87)   LocalVariableSyntax
+//@[82:87)    IdentifierSyntax
+//@[82:87)     Identifier |thing|
+//@[88:90)   Identifier |in|
+//@[91:93)   ArraySyntax
+//@[91:92)    LeftSquare |[|
+//@[92:93)    RightSquare |]|
+//@[93:94)   Colon |:|
+//@[95:101)   SkippedTriviaSyntax
+//@[95:101)    StringComplete |'test'|
+//@[101:102)   RightSquare |]|
+//@[102:104) NewLine |\r\n|
+resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
+//@[0:110) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |nonObjectResourceLoopBody2|
+//@[36:75)  StringSyntax
+//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[76:77)  Assignment |=|
+//@[78:110)  ForSyntax
+//@[78:79)   LeftSquare |[|
+//@[79:82)   Identifier |for|
+//@[83:88)   LocalVariableSyntax
+//@[83:88)    IdentifierSyntax
+//@[83:88)     Identifier |thing|
+//@[89:91)   Identifier |in|
+//@[92:94)   ArraySyntax
+//@[92:93)    LeftSquare |[|
+//@[93:94)    RightSquare |]|
+//@[94:95)   Colon |:|
+//@[96:109)   SkippedTriviaSyntax
+//@[96:107)    Identifier |environment|
+//@[107:108)    LeftParen |(|
+//@[108:109)    RightParen |)|
+//@[109:110)   RightSquare |]|
+//@[110:110) EndOfFile ||

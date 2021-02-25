@@ -1138,12 +1138,12 @@ resource expectedColon 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x i
 
 resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y:]
 //@[85:86) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-//@[87:88) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+//@[87:88) [BCP018 (Error)] Expected the "{" character at this location. |]|
 
 // loop semantic analysis cases
 var emptyArray = []
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-//@[97:98) [BCP033 (Error)] Expected a value of type "Microsoft.Storage/storageAccounts" but the provided value is of type "int". |4|
+//@[97:98) [BCP018 (Error)] Expected the "{" character at this location. |4|
 
 // errors in the array expression
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
@@ -1323,3 +1323,9 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 //@[4:61) [BCP143 (Error)] For-expressions cannot be used with properties whose names are also expressions. |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
   }
 }
+
+// resource loop body that isn't an object
+resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
+//@[95:101) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
+resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
+//@[96:107) [BCP018 (Error)] Expected the "{" character at this location. |environment|

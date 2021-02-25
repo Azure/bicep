@@ -404,12 +404,12 @@ module expectedColon 'modulea.bicep' = [for x in y]
 
 module expectedLoopBody 'modulea.bicep' = [for x in y:]
 //@[52:53) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-//@[54:55) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+//@[54:55) [BCP018 (Error)] Expected the "{" character at this location. |]|
 
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
-//@[64:65) [BCP033 (Error)] Expected a value of type "module" but the provided value is of type "int". |4|
+//@[64:65) [BCP018 (Error)] Expected the "{" character at this location. |4|
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
@@ -495,3 +495,9 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
     stringParamB: ''
   }
 }]
+
+// module body that isn't an object
+module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
+//@[63:70) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
+module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
+//@[64:70) [BCP018 (Error)] Expected the "{" character at this location. |concat|

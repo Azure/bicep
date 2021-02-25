@@ -820,7 +820,7 @@ resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 
 // loop semantic analysis cases
 var emptyArray = []
-resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray: 4]
+resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
 
 // errors in the array expression
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {}]
@@ -967,3 +967,7 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
   }
 }
+
+// resource loop body that isn't an object
+resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
+resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]

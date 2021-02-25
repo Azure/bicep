@@ -1243,3 +1243,11 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 //@[68:73) Local thing. Type: any. Declaration start char: 68, length: 5
   }
 }
+
+// resource loop body that isn't an object
+resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
+//@[82:87) Local thing. Type: any. Declaration start char: 82, length: 5
+//@[9:34) Resource nonObjectResourceLoopBody. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 102
+resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
+//@[83:88) Local thing. Type: any. Declaration start char: 83, length: 5
+//@[9:35) Resource nonObjectResourceLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110

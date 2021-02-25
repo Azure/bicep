@@ -1005,3 +1005,7 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
   }
 }
+
+// resource loop body that isn't an object
+resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
+resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]

@@ -372,3 +372,7 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
     stringParamB: ''
   }
 }]
+
+// module body that isn't an object
+module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
+module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]

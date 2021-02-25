@@ -269,7 +269,7 @@ module expectedLoopBody 'modulea.bicep' = [for x in y:]
 
 // wrong loop body type
 var emptyArray = []
-module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray: 4]
+module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {}]
@@ -336,3 +336,7 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
     stringParamB: ''
   }
 }]
+
+// module body that isn't an object
+module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
+module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]

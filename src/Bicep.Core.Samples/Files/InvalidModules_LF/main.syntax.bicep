@@ -1913,7 +1913,7 @@ module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 //@[53:63)    IdentifierSyntax
 //@[53:63)     Identifier |emptyArray|
 //@[63:64)   Colon |:|
-//@[64:65)   IntegerLiteralSyntax
+//@[64:65)   SkippedTriviaSyntax
 //@[64:65)    Integer |4|
 //@[65:66)   RightSquare |]|
 //@[66:68) NewLine |\n\n|
@@ -2476,4 +2476,55 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
-//@[2:2) EndOfFile ||
+//@[2:4) NewLine |\n\n|
+
+// module body that isn't an object
+//@[35:36) NewLine |\n|
+module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
+//@[0:71) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |nonObjectModuleBody|
+//@[27:42)  StringSyntax
+//@[27:42)   StringComplete |'modulea.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:71)  ForSyntax
+//@[45:46)   LeftSquare |[|
+//@[46:49)   Identifier |for|
+//@[50:55)   LocalVariableSyntax
+//@[50:55)    IdentifierSyntax
+//@[50:55)     Identifier |thing|
+//@[56:58)   Identifier |in|
+//@[59:61)   ArraySyntax
+//@[59:60)    LeftSquare |[|
+//@[60:61)    RightSquare |]|
+//@[61:62)   Colon |:|
+//@[63:70)   SkippedTriviaSyntax
+//@[63:70)    StringComplete |'hello'|
+//@[70:71)   RightSquare |]|
+//@[71:72) NewLine |\n|
+module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
+//@[0:73) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:27)  IdentifierSyntax
+//@[7:27)   Identifier |nonObjectModuleBody2|
+//@[28:43)  StringSyntax
+//@[28:43)   StringComplete |'modulea.bicep'|
+//@[44:45)  Assignment |=|
+//@[46:73)  ForSyntax
+//@[46:47)   LeftSquare |[|
+//@[47:50)   Identifier |for|
+//@[51:56)   LocalVariableSyntax
+//@[51:56)    IdentifierSyntax
+//@[51:56)     Identifier |thing|
+//@[57:59)   Identifier |in|
+//@[60:62)   ArraySyntax
+//@[60:61)    LeftSquare |[|
+//@[61:62)    RightSquare |]|
+//@[62:63)   Colon |:|
+//@[64:72)   SkippedTriviaSyntax
+//@[64:70)    Identifier |concat|
+//@[70:71)    LeftParen |(|
+//@[71:72)    RightParen |)|
+//@[72:73)   RightSquare |]|
+//@[73:73) EndOfFile ||

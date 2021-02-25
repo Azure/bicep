@@ -1445,6 +1445,34 @@
     }
   },
   {
+    "label": "nonObjectModuleBody",
+    "kind": "module",
+    "detail": "nonObjectModuleBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectModuleBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectModuleBody"
+    }
+  },
+  {
+    "label": "nonObjectModuleBody2",
+    "kind": "module",
+    "detail": "nonObjectModuleBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectModuleBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectModuleBody2"
+    }
+  },
+  {
     "label": "nonexistentArrays",
     "kind": "module",
     "detail": "nonexistentArrays",

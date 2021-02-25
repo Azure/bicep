@@ -2299,6 +2299,34 @@
     }
   },
   {
+    "label": "nonObjectResourceLoopBody",
+    "kind": "interface",
+    "detail": "nonObjectResourceLoopBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectResourceLoopBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectResourceLoopBody"
+    }
+  },
+  {
+    "label": "nonObjectResourceLoopBody2",
+    "kind": "interface",
+    "detail": "nonObjectResourceLoopBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectResourceLoopBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectResourceLoopBody2"
+    }
+  },
+  {
     "label": "nonexistentArrays",
     "kind": "interface",
     "detail": "nonexistentArrays",
