@@ -197,26 +197,39 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public override void VisitForSyntax(ForSyntax syntax)
+        protected override void VisitInternal(SyntaxBase syntax)
         {
+            // any node can be a binding scope
             if (!this.allLocalScopes.TryGetValue(syntax, out var localScope))
             {
-                // code defect in the declaration visitor
-                throw new InvalidOperationException($"Local scope is missing for {syntax.GetType().Name} at {syntax.Span}");
+                // not a binding scope
+                // visit children normally
+                base.VisitInternal(syntax);
+                return;
             }
 
+            // we are in a binding scope
             // push it to the stack of active scopes
             // as a result this scope will be used to resolve symbols first
             // (then all the previous one and then finally the global scope)
             this.activeScopes.Push(localScope);
 
             // visit all the children
-            base.VisitForSyntax(syntax);
+            base.VisitInternal(syntax);
 
             // we are leaving the loop scope
             // pop the scope - no symbols will be resolved against it ever again
             var lastPopped = this.activeScopes.Pop();
             Debug.Assert(ReferenceEquals(lastPopped, localScope), "ReferenceEquals(lastPopped, localScope)");
+        }
+
+        public override void VisitForSyntax(ForSyntax syntax)
+        {
+            // we must have a scope in the map for the loop body - otherwise binding won't work
+            Debug.Assert(this.allLocalScopes.ContainsKey(syntax.Body), "this.allLocalScopes.ContainsKey(syntax.Body)");
+            
+            // visit all the children
+            base.VisitForSyntax(syntax);
         }
 
         private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) => 
@@ -298,7 +311,7 @@ namespace Bicep.Core.Semantics
 
             public override void VisitLocalScope(LocalScope symbol)
             {
-                this.ScopeMap.Add(symbol.EnclosingSyntax, symbol);
+                this.ScopeMap.Add(symbol.BindingSyntax, symbol);
                 base.VisitLocalScope(symbol);
             }
 

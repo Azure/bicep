@@ -85,7 +85,7 @@ namespace Bicep.Core.Semantics
             var itemVariable = new LocalVariableSymbol(this.context, syntax.ItemVariable.Name.IdentifierName, syntax.ItemVariable);
 
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, itemVariable.AsEnumerable(), ImmutableArray<LocalScope>.Empty);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, itemVariable.AsEnumerable(), ImmutableArray<LocalScope>.Empty);
 
             this.PushScope(scope);
 

@@ -5,6 +5,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Diagnostics;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
@@ -46,5 +47,7 @@ namespace Bicep.Core.Semantics
                 yield return this.Type;
             }
         }
+
+        public bool IsCollection => this.Context.TypeManager.GetTypeInfo(this.DeclaringModule) is ArrayType;
     }
 }

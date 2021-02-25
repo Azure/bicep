@@ -38,12 +38,15 @@ namespace Bicep.Core.TypeSystem
 
         public static TypeSymbol Create(params ITypeReference[] members) => Create((IEnumerable<ITypeReference>) members);
 
+        public override string FormatNameForCompoundTypes() => this.WrapTypeName();
+
         private static IEnumerable<ITypeReference> FlattenMembers(IEnumerable<ITypeReference> members) => 
             members.SelectMany(member => member.Type is UnionType union 
                 ? FlattenMembers(union.Members)
                 : member.AsEnumerable());
 
-        private static string FormatName(IEnumerable<ITypeReference> unionMembers) => unionMembers.Select(m => m.Type.Name).ConcatString(" | ");
+        private static string FormatName(IEnumerable<ITypeReference> unionMembers) => 
+            unionMembers.Select(m => m.Type.FormatNameForCompoundTypes()).ConcatString(" | ");
     }
 }
 

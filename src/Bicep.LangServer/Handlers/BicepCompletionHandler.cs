@@ -37,7 +37,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
-            var completionContext = BicepCompletionContext.Create(compilationContext.Compilation.SyntaxTreeGrouping.EntryPoint, offset);
+            var completionContext = BicepCompletionContext.Create(compilationContext.Compilation, offset);
             var completions = Enumerable.Empty<CompletionItem>();
             try
             {

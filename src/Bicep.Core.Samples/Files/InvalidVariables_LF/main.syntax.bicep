@@ -987,4 +987,121 @@ var a☕ = true
 //@[7:8)   Assignment |=|
 //@[9:13)   TrueKeyword |true|
 //@[13:13)  SkippedTriviaSyntax
-//@[13:13) EndOfFile ||
+//@[13:15) NewLine |\n\n|
+
+// loops are not allowed in variables
+//@[37:38) NewLine |\n|
+var noVariableLoopsYet = [for thing in stuff: 4]
+//@[0:48) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |noVariableLoopsYet|
+//@[23:24)  Assignment |=|
+//@[25:48)  ForSyntax
+//@[25:26)   LeftSquare |[|
+//@[26:29)   Identifier |for|
+//@[30:35)   LocalVariableSyntax
+//@[30:35)    IdentifierSyntax
+//@[30:35)     Identifier |thing|
+//@[36:38)   Identifier |in|
+//@[39:44)   VariableAccessSyntax
+//@[39:44)    IdentifierSyntax
+//@[39:44)     Identifier |stuff|
+//@[44:45)   Colon |:|
+//@[46:47)   IntegerLiteralSyntax
+//@[46:47)    Integer |4|
+//@[47:48)   RightSquare |]|
+//@[48:50) NewLine |\n\n|
+
+// nested loops are also not allowed
+//@[36:37) NewLine |\n|
+var noNestedVariableLoopsEither = [for thing in stuff: {
+//@[0:89) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:31)  IdentifierSyntax
+//@[4:31)   Identifier |noNestedVariableLoopsEither|
+//@[32:33)  Assignment |=|
+//@[34:89)  ForSyntax
+//@[34:35)   LeftSquare |[|
+//@[35:38)   Identifier |for|
+//@[39:44)   LocalVariableSyntax
+//@[39:44)    IdentifierSyntax
+//@[39:44)     Identifier |thing|
+//@[45:47)   Identifier |in|
+//@[48:53)   VariableAccessSyntax
+//@[48:53)    IdentifierSyntax
+//@[48:53)     Identifier |stuff|
+//@[53:54)   Colon |:|
+//@[55:88)   ObjectSyntax
+//@[55:56)    LeftBrace |{|
+//@[56:57)    NewLine |\n|
+  hello: [for thing in []: 4]
+//@[2:29)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |hello|
+//@[7:8)     Colon |:|
+//@[9:29)     ForSyntax
+//@[9:10)      LeftSquare |[|
+//@[10:13)      Identifier |for|
+//@[14:19)      LocalVariableSyntax
+//@[14:19)       IdentifierSyntax
+//@[14:19)        Identifier |thing|
+//@[20:22)      Identifier |in|
+//@[23:25)      ArraySyntax
+//@[23:24)       LeftSquare |[|
+//@[24:25)       RightSquare |]|
+//@[25:26)      Colon |:|
+//@[27:28)      IntegerLiteralSyntax
+//@[27:28)       Integer |4|
+//@[28:29)      RightSquare |]|
+//@[29:30)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+// cannot use loops in expressions
+//@[34:35) NewLine |\n|
+var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
+//@[0:79) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:18)  IdentifierSyntax
+//@[4:18)   Identifier |loopExpression|
+//@[19:20)  Assignment |=|
+//@[21:79)  FunctionCallSyntax
+//@[21:26)   IdentifierSyntax
+//@[21:26)    Identifier |union|
+//@[26:27)   LeftParen |(|
+//@[27:51)   FunctionArgumentSyntax
+//@[27:50)    ForSyntax
+//@[27:28)     LeftSquare |[|
+//@[28:31)     Identifier |for|
+//@[32:37)     LocalVariableSyntax
+//@[32:37)      IdentifierSyntax
+//@[32:37)       Identifier |thing|
+//@[38:40)     Identifier |in|
+//@[41:46)     VariableAccessSyntax
+//@[41:46)      IdentifierSyntax
+//@[41:46)       Identifier |stuff|
+//@[46:47)     Colon |:|
+//@[48:49)     IntegerLiteralSyntax
+//@[48:49)      Integer |4|
+//@[49:50)     RightSquare |]|
+//@[50:51)    Comma |,|
+//@[52:78)   FunctionArgumentSyntax
+//@[52:78)    ForSyntax
+//@[52:53)     LeftSquare |[|
+//@[53:56)     Identifier |for|
+//@[57:62)     LocalVariableSyntax
+//@[57:62)      IdentifierSyntax
+//@[57:62)       Identifier |thing|
+//@[63:65)     Identifier |in|
+//@[66:71)     VariableAccessSyntax
+//@[66:71)      IdentifierSyntax
+//@[66:71)       Identifier |stuff|
+//@[71:72)     Colon |:|
+//@[73:77)     BooleanLiteralSyntax
+//@[73:77)      TrueKeyword |true|
+//@[77:78)     RightSquare |]|
+//@[78:79)   RightParen |)|
+//@[79:79) EndOfFile ||

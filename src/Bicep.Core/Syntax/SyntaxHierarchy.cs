@@ -33,6 +33,21 @@ namespace Bicep.Core.Syntax
             return parent;
         }
 
+        public bool IsDescendant(SyntaxBase node, SyntaxBase potentialAncestor)
+        {
+            var current = node;
+            while(current != null)
+            {
+                current = this.GetParent(current);
+                if(ReferenceEquals(current,potentialAncestor))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private sealed class ParentTrackingVisitor: SyntaxVisitor
         {
             private readonly Dictionary<SyntaxBase, SyntaxBase?> parentMap;

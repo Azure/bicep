@@ -208,3 +208,22 @@ var ☕ = true
 //@[4:5) Variable <error>. Type: bool. Declaration start char: 0, length: 12
 var a☕ = true
 //@[4:5) Variable a. Type: error. Declaration start char: 0, length: 13
+
+// loops are not allowed in variables
+var noVariableLoopsYet = [for thing in stuff: 4]
+//@[30:35) Local thing. Type: any. Declaration start char: 30, length: 5
+//@[4:22) Variable noVariableLoopsYet. Type: error. Declaration start char: 0, length: 48
+
+// nested loops are also not allowed
+var noNestedVariableLoopsEither = [for thing in stuff: {
+//@[39:44) Local thing. Type: any. Declaration start char: 39, length: 5
+//@[4:31) Variable noNestedVariableLoopsEither. Type: error. Declaration start char: 0, length: 89
+  hello: [for thing in []: 4]
+//@[14:19) Local thing. Type: any. Declaration start char: 14, length: 5
+}]
+
+// cannot use loops in expressions
+var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
+//@[32:37) Local thing. Type: any. Declaration start char: 32, length: 5
+//@[57:62) Local thing. Type: any. Declaration start char: 57, length: 5
+//@[4:18) Variable loopExpression. Type: error. Declaration start char: 0, length: 79

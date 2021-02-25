@@ -758,8 +758,8 @@ output duplicate string = 'hello'
             {
                 template!.Should().BeNull();
                 diags.Should().HaveDiagnostics(new[] {
-                    ("BCP142", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
-                    ("BCP142", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
+                    ("BCP145", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
+                    ("BCP145", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
                 });
             }
         }
@@ -793,7 +793,7 @@ output xx = x
             {
                 template!.Should().BeNull();
                 diags.Should().HaveDiagnostics(new[] {
-                    ("BCP143", DiagnosticLevel.Error, "Expected an output type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
+                    ("BCP146", DiagnosticLevel.Error, "Expected an output type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
                 });
             }
         }

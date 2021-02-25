@@ -29,5 +29,13 @@ namespace Bicep.Core.TypeSystem
         {
             return this.Name;
         }
+
+        /// <summary>
+        /// Returns a name for this type that was formatted for inclusion in the name of another compount type.
+        /// For most types, this is the same as name.
+        /// </summary>
+        public virtual string FormatNameForCompoundTypes() => this.Name;
+
+        protected string WrapTypeName() => $"({this.Name})";
     }
 }

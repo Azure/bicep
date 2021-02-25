@@ -754,7 +754,7 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(startIndex: int, count: int): array",
+    "typeSignature": "(startIndex: int, count: int): int[]",
     "parameterTypeSignatures": [
       "startIndex: int",
       "count: int"

@@ -60,6 +60,9 @@ namespace Bicep.Core.TypeSystem
                     // checking for valid combinations of scopes happens after type checking. this allows us to provide a richer & more intuitive error message.
                     return sourceType is IScopeReference;
 
+                case UnionType union when ReferenceEquals(union, LanguageConstants.ResourceOrResourceCollectionRefItem):
+                    return sourceType is IScopeReference || sourceType is ArrayType {Item: IScopeReference};
+
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
                     // When assigning a resource, we're really assigning the value of the resource body.
                     return AreTypesAssignable(sourceResourceType.Body.Type, targetType);
@@ -217,7 +220,7 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType is UnionType targetUnionType)
             {
-                return UnionType.Create(targetUnionType.Members.Where(x => AreTypesAssignable(expressionType, x.Type) == true));
+                return UnionType.Create(targetUnionType.Members.Where(x => AreTypesAssignable(expressionType, x.Type)));
             }
 
             return targetType;

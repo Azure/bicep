@@ -283,7 +283,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 foreach (var symbol in symbols)
                 {
-                    if (!result.ContainsKey(symbol.Name) && !ReferenceEquals(symbol, enclosingDeclarationSymbol) && !string.Equals(symbol.Name, enclosingDeclarationSymbol?.Name, LanguageConstants.IdentifierComparison))
+                    if (!result.ContainsKey(symbol.Name) && !ReferenceEquals(symbol, enclosingDeclarationSymbol))
                     {
                         // the symbol satisfies the following conditions:
                         // - we have not added a symbol with the same name (avoids duplicate completions)
@@ -313,8 +313,14 @@ namespace Bicep.LanguageServer.Completions
                 // add namespaces first
                 AddSymbolCompletions(completions, model.Root.ImportedNamespaces.Values);
 
-                // add the non-output declarations with valid identifiers 
-                AddSymbolCompletions(completions, model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid && decl is not OutputSymbol));
+                // add accessible symbols from innermost scope and then move to outer scopes
+                // reverse loop iteration
+                for (int depth = context.ActiveScopes.Length - 1; depth >= 0; depth--)
+                {
+                    // add the non-output declarations with valid identifiers at current scope
+                    var currentScope = context.ActiveScopes[depth];
+                    AddSymbolCompletions(completions, currentScope.AllDeclarations.Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
+                }
             }
             else
             {
@@ -745,6 +751,8 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.Parameter => CompletionItemKind.Field,
                 SymbolKind.Resource => CompletionItemKind.Interface,
                 SymbolKind.Module => CompletionItemKind.Module,
+                SymbolKind.Local => CompletionItemKind.Variable,
+
                 _ => CompletionItemKind.Text
             };
 
