@@ -1095,7 +1095,7 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 }
 
 @concat('foo', 'bar')
-//@[1:7) [BCP127 (Error)] Function "concat" cannot be used as a resource decorator. |concat|
+//@[1:7) [BCP147 (Error)] Function "concat" cannot be used as a decorator. |concat|
 @secure()
 //@[1:7) [BCP127 (Error)] Function "secure" cannot be used as a resource decorator. |secure|
 resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {

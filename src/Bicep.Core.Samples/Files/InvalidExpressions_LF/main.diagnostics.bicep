@@ -457,13 +457,14 @@ var partialObject = {
 
 // dangling decorators - to make sure the tests work, please do not add contents after this line
 @concat()
+//@[1:7) [BCP147 (Error)] Function "concat" cannot be used as a decorator. |concat|
 @sys.secure()
 xxxxx
 //@[0:5) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |xxxxx|
 
 
 @minLength()
-//@[0:12) [BCP132 (Error)] Expected a declaration after the decorator. |@minLength()|
+//@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. |()|
 
 
 

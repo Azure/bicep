@@ -757,7 +757,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP131",
                 "Parameter modifiers and decorators cannot be used together. Please use decorators only.");
 
-            public ErrorDiagnostic ExpectDeclarationAfterDecorator() => new(
+            public ErrorDiagnostic ExpectedDeclarationAfterDecorator() => new(
                 TextSpan,
                 "BCP132",
                 "Expected a declaration after the decorator.");
@@ -809,6 +809,36 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP141",
                 "The expression cannot be used as a decorator as it is not callable.");
+
+            public ErrorDiagnostic ExpectedParameterDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP142",
+                "Expected a parameter declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedVariableDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP143",
+                "Expected a variable declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedResourceDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP144",
+                "Expected a resource declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedModuleDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP145",
+                "Expected a module declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedOutputDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP146",
+                "Expected an output declaration after the decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsDecorator(string functionName) => new(
+                TextSpan,
+                "BCP147",
+                $"Function \"{functionName}\" cannot be used as a decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

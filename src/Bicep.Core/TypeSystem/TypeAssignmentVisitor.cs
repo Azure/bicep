@@ -855,6 +855,54 @@ namespace Bicep.Core.TypeSystem
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
             });
 
+        public override void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => AssignTypeWithDiagnostics(syntax, diagnostics =>
+        {
+            if (syntax.HasParseErrors())
+            {
+                // Skip adding semantic errors if there are parsing errors, as it might be a bit overwhelming.
+                return LanguageConstants.Any;
+            }
+
+            List<ErrorDiagnostic> errors = new();
+
+            foreach (var decoratorSyntax in syntax.Decorators)
+            {
+                var expressionType = this.typeManager.GetTypeInfo(decoratorSyntax.Expression);
+                CollectErrors(errors, expressionType);
+            }
+
+            if (errors.Count > 0)
+            {
+                diagnostics.WriteMultiple(errors);
+
+                return LanguageConstants.Any;
+            }
+
+            // There must exist at least one decorator for MissingDeclarationSyntax.
+            var lastDecoratorSyntax = syntax.Decorators.Last();
+
+            if (this.binder.GetSymbolInfo(lastDecoratorSyntax.Expression) is FunctionSymbol functionSymbol)
+            {
+                var diagnosticBuilder = DiagnosticBuilder.ForPosition(lastDecoratorSyntax);
+                var diagnostic = functionSymbol.FunctionFlags switch
+                {
+                    FunctionFlags.ParameterDecorator => diagnosticBuilder.ExpectedParameterDeclarationAfterDecorator(),
+                    FunctionFlags.VariableDecorator => diagnosticBuilder.ExpectedVariableDeclarationAfterDecorator(),
+                    FunctionFlags.ResoureDecorator => diagnosticBuilder.ExpectedResourceDeclarationAfterDecorator(),
+                    FunctionFlags.ModuleDecorator => diagnosticBuilder.ExpectedModuleDeclarationAfterDecorator(),
+                    FunctionFlags.OutputDecorator => diagnosticBuilder.ExpectedOutputDeclarationAfterDecorator(),
+                    _ => null,
+                };
+
+                if (diagnostic is not null)
+                {
+                    diagnostics.Write(diagnostic);
+                }
+            }
+
+            return LanguageConstants.Any;
+        });
+
         private TypeSymbol VisitDeclaredSymbol(VariableAccessSyntax syntax, DeclaredSymbol declaredSymbol)
         {
             var declaringType = typeManager.GetTypeInfo(declaredSymbol.DeclaringSyntax);
