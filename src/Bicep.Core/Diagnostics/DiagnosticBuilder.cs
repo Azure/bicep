@@ -789,7 +789,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP137",
                 $"Loop expected an expression of type \"{LanguageConstants.Array}\" but the provided value is of type \"{actualType}\".");
 
-            public ErrorDiagnostic LoopsNotSupported() => new(
+            public ErrorDiagnostic ForExpressionsNotSupportedHere() => new(
                 TextSpan,
                 "BCP138",
                 "For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties.");
@@ -810,7 +810,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP141",
                 "The expression cannot be used as a decorator as it is not callable.");
 
-            public ErrorDiagnostic TooManyPropertyLoops() => new(
+            public ErrorDiagnostic TooManyPropertyForExpressions() => new(
                 TextSpan,
                 "BCP142",
                 "Property value for-expressions cannot be nested.");

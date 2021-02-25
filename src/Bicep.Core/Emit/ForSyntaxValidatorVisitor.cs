@@ -53,12 +53,12 @@ namespace Bicep.Core.Emit
             if (!item.IsValidParent)
             {
                 // this loop was used incorrectly
-                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).LoopsNotSupported());
+                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).ForExpressionsNotSupportedHere());
             }
             else if (item.PropertyLoopCount > 1)
             {
                 // too many property loops
-                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).TooManyPropertyLoops());
+                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).TooManyPropertyForExpressions());
             }
 
             // push the parent to the stack

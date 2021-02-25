@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Bicep.Cli": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\GitHub\\Azure\\bicep\\src\\Bicep.Core.Samples\\Files\\Loops_LF\\main.bicep",
-      "remoteDebugEnabled": false
-    }
-  }
-}

@@ -1232,6 +1232,34 @@
     }
   },
   {
+    "label": "expressionInPropertyLoopVar",
+    "kind": "variable",
+    "detail": "expressionInPropertyLoopVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expressionInPropertyLoopVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expressionInPropertyLoopVar"
+    }
+  },
+  {
+    "label": "expressionsInPropertyLoopName",
+    "kind": "interface",
+    "detail": "expressionsInPropertyLoopName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expressionsInPropertyLoopName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expressionsInPropertyLoopName"
+    }
+  },
+  {
     "label": "extensionResourceId",
     "kind": "function",
     "detail": "extensionResourceId()",

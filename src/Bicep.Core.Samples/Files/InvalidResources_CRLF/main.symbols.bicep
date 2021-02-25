@@ -1231,3 +1231,15 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
     subnets: premiumStorages
   }
 }]
+
+var expressionInPropertyLoopVar = true
+//@[4:31) Variable expressionInPropertyLoopVar. Type: bool. Declaration start char: 0, length: 38
+resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[9:38) Resource expressionsInPropertyLoopName. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 232
+  name: 'hello'
+  location: 'eastus'
+  properties: {
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
+//@[68:73) Local thing. Type: any. Declaration start char: 68, length: 5
+  }
+}

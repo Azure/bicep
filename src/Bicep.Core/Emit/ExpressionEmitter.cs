@@ -101,7 +101,7 @@ namespace Bicep.Core.Emit
         {
             var converterForContext = this.converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resourceSymbol), indexExpression, newContext);
             
-            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resourceSymbol, newContext);
+            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resourceSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
@@ -111,7 +111,7 @@ namespace Bicep.Core.Emit
         {
             var converterForContext = this.converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext);
             
-            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(moduleSymbol, newContext);
+            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(moduleSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);

@@ -137,7 +137,7 @@ namespace Bicep.Core.Emit
             return null;
         }
 
-        public static LanguageExpression FormatFullyQualifiedResourceId(EmitterContext context, ExpressionConverter converter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments, SyntaxBase newContext)
+        public static LanguageExpression FormatFullyQualifiedResourceId(EmitterContext context, ExpressionConverter converter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {
             switch (scopeData.RequestedScope)
             {
@@ -207,8 +207,7 @@ namespace Bicep.Core.Emit
                         converter,
                         context.ResourceScopeData[scopeData.ResourceScopeSymbol],
                         parentTypeReference.FullyQualifiedType,
-                        converter.GetResourceNameSegments(scopeData.ResourceScopeSymbol, parentTypeReference),
-                        newContext);
+                        converter.GetResourceNameSegments(scopeData.ResourceScopeSymbol, parentTypeReference));
 
                     return ExpressionConverter.GenerateExtensionResourceId(
                         parentResourceId,

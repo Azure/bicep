@@ -12,14 +12,10 @@ namespace Bicep.Core.DataFlow
     public class DataFlowAnalyzer
     {
         private readonly SemanticModel semanticModel;
-        private readonly SymbolHierarchy hierarchy;
-
+        
         public DataFlowAnalyzer(SemanticModel semanticModel)
         {
             this.semanticModel = semanticModel;
-            
-            this.hierarchy = new();
-            this.hierarchy.AddRoot(this.semanticModel.Root);
         }
 
         public IList<LocalVariableSymbol> GetInaccessibleLocalsAfterSyntaxMove(SyntaxBase syntax, SyntaxBase newParent)
@@ -47,7 +43,7 @@ namespace Bicep.Core.DataFlow
         /// <param name="symbol">the local variable symbol</param>
         private SyntaxBase GetScopeBindingContainer(LocalVariableSymbol symbol)
         {
-            var parent = this.hierarchy.GetParent(symbol);
+            var parent = this.semanticModel.GetSymbolParent(symbol);
             if(parent is LocalScope scope)
             {
                 return scope.BindingSyntax;

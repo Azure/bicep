@@ -6985,4 +6985,80 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
-//@[2:2) EndOfFile ||
+//@[2:6) NewLine |\r\n\r\n|
+
+var expressionInPropertyLoopVar = true
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:31)  IdentifierSyntax
+//@[4:31)   Identifier |expressionInPropertyLoopVar|
+//@[32:33)  Assignment |=|
+//@[34:38)  BooleanLiteralSyntax
+//@[34:38)   TrueKeyword |true|
+//@[38:40) NewLine |\r\n|
+resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[0:232) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:38)  IdentifierSyntax
+//@[9:38)   Identifier |expressionsInPropertyLoopName|
+//@[39:78)  StringSyntax
+//@[39:78)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[79:80)  Assignment |=|
+//@[81:232)  ObjectSyntax
+//@[81:82)   LeftBrace |{|
+//@[82:84)   NewLine |\r\n|
+  name: 'hello'
+//@[2:15)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:15)    StringSyntax
+//@[8:15)     StringComplete |'hello'|
+//@[15:17)   NewLine |\r\n|
+  location: 'eastus'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'eastus'|
+//@[20:22)   NewLine |\r\n|
+  properties: {
+//@[2:106)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:106)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
+//@[4:84)     ObjectPropertySyntax
+//@[4:61)      StringSyntax
+//@[4:32)       StringLeftPiece |'resolutionVirtualNetworks${|
+//@[32:59)       VariableAccessSyntax
+//@[32:59)        IdentifierSyntax
+//@[32:59)         Identifier |expressionInPropertyLoopVar|
+//@[59:61)       StringRightPiece |}'|
+//@[61:62)      Colon |:|
+//@[63:84)      ForSyntax
+//@[63:64)       LeftSquare |[|
+//@[64:67)       Identifier |for|
+//@[68:73)       LocalVariableSyntax
+//@[68:73)        IdentifierSyntax
+//@[68:73)         Identifier |thing|
+//@[74:76)       Identifier |in|
+//@[77:79)       ArraySyntax
+//@[77:78)        LeftSquare |[|
+//@[78:79)        RightSquare |]|
+//@[79:80)       Colon |:|
+//@[81:83)       ObjectSyntax
+//@[81:82)        LeftBrace |{|
+//@[82:83)        RightBrace |}|
+//@[83:84)       RightSquare |]|
+//@[84:86)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

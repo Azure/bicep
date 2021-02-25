@@ -996,3 +996,12 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
     subnets: premiumStorages
   }
 }]
+
+var expressionInPropertyLoopVar = true
+resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'hello'
+  location: 'eastus'
+  properties: {
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
+  }
+}

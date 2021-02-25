@@ -4,7 +4,7 @@
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.DataFlow
 {
@@ -19,12 +19,12 @@ namespace Bicep.Core.DataFlow
 
         private HashSet<LocalVariableSymbol> SymbolDependencies { get; } = new();
 
-        public static ISet<LocalVariableSymbol> GetLocalSymbolDependencies(SemanticModel semanticModel, SyntaxBase syntax)
+        public static ImmutableHashSet<LocalVariableSymbol> GetLocalSymbolDependencies(SemanticModel semanticModel, SyntaxBase syntax)
         {
             var visitor = new LocalSymbolDependencyVisitor(semanticModel);
             visitor.Visit(syntax);
 
-            return visitor.SymbolDependencies;
+            return visitor.SymbolDependencies.ToImmutableHashSet();
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)

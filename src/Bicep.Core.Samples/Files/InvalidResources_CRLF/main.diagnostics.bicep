@@ -1312,3 +1312,14 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 //@[13:28) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
   }
 }]
+
+var expressionInPropertyLoopVar = true
+resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'hello'
+  location: 'eastus'
+  properties: {
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
+//@[4:61) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type "ZoneProperties". Permissible properties include "registrationVirtualNetworks", "resolutionVirtualNetworks", "zoneType". |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
+//@[4:61) [BCP143 (Error)] For-expressions cannot be used with properties whose names are also expressions. |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
+  }
+}

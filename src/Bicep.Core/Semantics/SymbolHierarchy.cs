@@ -8,6 +8,10 @@ using System.Text;
 
 namespace Bicep.Core.Semantics
 {
+    /// <summary>
+    /// Represents the hierarchy between symbols. For example, all global declarations have a parent that is a FileSymbol. All local scopes
+    /// have parents who can be a local scope or the global scope represented by the FileSymbol.
+    /// </summary>
     public class SymbolHierarchy
     {
         private readonly Dictionary<Symbol, Symbol?> parentMap = new Dictionary<Symbol, Symbol?>();
@@ -23,7 +27,7 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
-        /// Gets the parent of the specified node. Returns null for root nodes. Throws an exception for nodes that have not been indexed.
+        /// Gets the parent of the specified symbol. Returns null for root nodes. Throws an exception for nodes that have not been indexed.
         /// </summary>
         /// <param name="node">The node</param>
         public Symbol? GetParent(Symbol node)

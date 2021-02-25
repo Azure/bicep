@@ -8,7 +8,6 @@ using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -312,15 +311,17 @@ namespace Bicep.Core.Emit
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
             SyntaxBase body = resourceSymbol.DeclaringResource.Value;
-            if (body is IfConditionSyntax ifCondition)
+            switch (body)
             {
-                body = ifCondition.Body;
-                emitter.EmitProperty("condition", ifCondition.ConditionExpression);
-            }
-            else if (body is ForSyntax @for)
-            {
-                body = @for.Body;
-                emitter.EmitProperty("copy", () => emitter.EmitCopyObject(resourceSymbol.Name, @for, input: null));
+                case IfConditionSyntax ifCondition:
+                    body = ifCondition.Body;
+                    emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+                    break;
+
+                case ForSyntax @for:
+                    body = @for.Body;
+                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(resourceSymbol.Name, @for, input: null));
+                    break;
             }
 
             emitter.EmitProperty("type", typeReference.FullyQualifiedType);

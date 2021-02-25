@@ -80,13 +80,14 @@ namespace Bicep.Core
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
 
+        // type used for the item type in the dependsOn array type
         public static readonly TypeSymbol ResourceOrResourceCollectionRefItem = UnionType.Create(
             ResourceRef,
             new TypedArrayType(CreateResourceScopeReference(ResourceScope.Module), TypeSymbolValidationFlags.Default),
             new TypedArrayType(CreateResourceScopeReference(ResourceScope.Resource), TypeSymbolValidationFlags.Default));
 
-        public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = //new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
-          new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
+        // the type of the dependsOn property in module and resource bodies
+        public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
         
         public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
