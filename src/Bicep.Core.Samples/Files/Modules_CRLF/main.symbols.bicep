@@ -211,3 +211,59 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
   }
 }]
 
+module propertyLoopInsideParameterValue 'modulea.bicep' = {
+//@[7:39) Module propertyLoopInsideParameterValue. Type: module. Declaration start char: 0, length: 438
+  name: 'propertyLoopInsideParameterValue'
+  params: {
+    objParam: {
+      a: [for i in range(0,10): i]
+//@[14:15) Local i. Type: int. Declaration start char: 14, length: 1
+      b: [for i in range(1,2): i]
+//@[14:15) Local i. Type: int. Declaration start char: 14, length: 1
+      c: {
+        d: [for j in range(2,3): j]
+//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+      }
+      e: [for k in range(4,4): {
+//@[14:15) Local k. Type: int. Declaration start char: 14, length: 1
+        f: k
+      }]
+    }
+    stringParamB: ''
+    arrayParam: [
+      {
+        e: [for j in range(7,7): j]
+//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+      }
+    ]
+  }
+}
+
+module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
+//@[79:84) Local thing. Type: int. Declaration start char: 79, length: 5
+//@[7:55) Module propertyLoopInsideParameterValueInsideModuleLoop. Type: module[]. Declaration start char: 0, length: 529
+  name: 'propertyLoopInsideParameterValueInsideModuleLoop'
+  params: {
+    objParam: {
+      a: [for i in range(0,10): i + thing]
+//@[14:15) Local i. Type: int. Declaration start char: 14, length: 1
+      b: [for i in range(1,2): i * thing]
+//@[14:15) Local i. Type: int. Declaration start char: 14, length: 1
+      c: {
+        d: [for j in range(2,3): j]
+//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+      }
+      e: [for k in range(4,4): {
+//@[14:15) Local k. Type: int. Declaration start char: 14, length: 1
+        f: k - thing
+      }]
+    }
+    stringParamB: ''
+    arrayParam: [
+      {
+        e: [for j in range(7,7): j % thing]
+//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+      }
+    ]
+  }
+}]

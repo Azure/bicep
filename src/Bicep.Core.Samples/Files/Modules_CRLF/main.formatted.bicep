@@ -173,3 +173,47 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
     arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
   }
 }]
+
+module propertyLoopInsideParameterValue 'modulea.bicep' = {
+  name: 'propertyLoopInsideParameterValue'
+  params: {
+    objParam: {
+      a: [for i in range(0, 10): i]
+      b: [for i in range(1, 2): i]
+      c: {
+        d: [for j in range(2, 3): j]
+      }
+      e: [for k in range(4, 4): {
+        f: k
+      }]
+    }
+    stringParamB: ''
+    arrayParam: [
+      {
+        e: [for j in range(7, 7): j]
+      }
+    ]
+  }
+}
+
+module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0, 1): {
+  name: 'propertyLoopInsideParameterValueInsideModuleLoop'
+  params: {
+    objParam: {
+      a: [for i in range(0, 10): i + thing]
+      b: [for i in range(1, 2): i * thing]
+      c: {
+        d: [for j in range(2, 3): j]
+      }
+      e: [for k in range(4, 4): {
+        f: k - thing
+      }]
+    }
+    stringParamB: ''
+    arrayParam: [
+      {
+        e: [for j in range(7, 7): j % thing]
+      }
+    ]
+  }
+}]

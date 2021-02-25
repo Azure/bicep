@@ -156,7 +156,6 @@ namespace Bicep.Core.Emit
                         // TODO: Can this return a language expression?
                         return resourceConverter.ToFunctionExpression(arrayAccess.BaseExpression);
 
-                    // TODO: Verify that this is unreachable
                     case ModuleSymbol { IsCollection: true } moduleSymbol:
                         var moduleConverter = this.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), arrayAccess.IndexExpression, arrayAccess);
 
