@@ -288,4 +288,31 @@ output secondaryKey string = secondaryKeyIntermediateVar
 //@[20:26) Identifier |string|
 //@[27:28) Assignment |=|
 //@[29:56) Identifier |secondaryKeyIntermediateVar|
-//@[56:56) EndOfFile ||
+//@[56:60) NewLine |\r\n\r\n|
+
+var varWithOverlappingOutput = 'hello'
+//@[0:3) Identifier |var|
+//@[4:28) Identifier |varWithOverlappingOutput|
+//@[29:30) Assignment |=|
+//@[31:38) StringComplete |'hello'|
+//@[38:40) NewLine |\r\n|
+param paramWithOverlappingOutput string
+//@[0:5) Identifier |param|
+//@[6:32) Identifier |paramWithOverlappingOutput|
+//@[33:39) Identifier |string|
+//@[39:43) NewLine |\r\n\r\n|
+
+output varWithOverlappingOutput string = varWithOverlappingOutput
+//@[0:6) Identifier |output|
+//@[7:31) Identifier |varWithOverlappingOutput|
+//@[32:38) Identifier |string|
+//@[39:40) Assignment |=|
+//@[41:65) Identifier |varWithOverlappingOutput|
+//@[65:67) NewLine |\r\n|
+output paramWithOverlappingOutput string = paramWithOverlappingOutput
+//@[0:6) Identifier |output|
+//@[7:33) Identifier |paramWithOverlappingOutput|
+//@[34:40) Identifier |string|
+//@[41:42) Assignment |=|
+//@[43:69) Identifier |paramWithOverlappingOutput|
+//@[69:69) EndOfFile ||

@@ -140,6 +140,11 @@ output bad int = true && !4
 output deeper bool = true ? -true : (14 && 's') + 10
 //@[7:13) Output deeper. Type: bool. Declaration start char: 0, length: 52
 
+output myOutput string = 'hello'
+//@[7:15) Output myOutput. Type: string. Declaration start char: 0, length: 32
+var attemptToReferenceAnOutput = myOutput
+//@[4:30) Variable attemptToReferenceAnOutput. Type: error. Declaration start char: 0, length: 41
+
 @sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32

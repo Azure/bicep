@@ -23,7 +23,7 @@ resource naME2_resource 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   }
 }
 
-output name1_output string = name1_resource.properties.val1
-//@[55:59) [BCP053 (Warning)] The type "ResourceGroupProperties" does not contain property "val1". Available properties include "provisioningState". |val1|
-output Name2_output string = naME2_resource.properties.val2
-//@[55:59) [BCP053 (Warning)] The type "ResourceGroupProperties" does not contain property "val2". Available properties include "provisioningState". |val2|
+output name1 string = name1_resource.properties.val1
+//@[48:52) [BCP053 (Warning)] The type "ResourceGroupProperties" does not contain property "val1". Available properties include "provisioningState". |val1|
+output Name2 string = naME2_resource.properties.val2
+//@[48:52) [BCP053 (Warning)] The type "ResourceGroupProperties" does not contain property "val2". Available properties include "provisioningState". |val2|

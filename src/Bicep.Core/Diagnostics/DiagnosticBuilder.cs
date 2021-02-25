@@ -824,6 +824,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP144",
                 "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.");
+
+            public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
+                TextSpan,
+                "BCP145",
+                $"Output \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
+
+            public ErrorDiagnostic ExpectedOutputType() => new(
+                TextSpan,
+                "BCP146",
+                $"Expected an output type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

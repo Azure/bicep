@@ -280,7 +280,7 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedOutputType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(assignment), TokenType.NewLine);
 
