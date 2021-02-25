@@ -115,20 +115,14 @@ namespace Bicep.Core.Semantics
                 var nonOutputDeclarations = scope.AllDeclarations.Where(decl => decl is not OutputSymbol);
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
-                this.Diagnostics.AddRange(nonOutputDeclarations
-                    .Where(decl => decl.NameSyntax.IsValid)
-                    .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
-                    .Where(group => group.Count() > 1)
-                    .SelectMany(group => group)
+                this.Diagnostics.AddRange(
+                    FindDuplicateNamedSymbols(nonOutputDeclarations)
                     .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).IdentifierMultipleDeclarations(decl.Name)));
 
                 // output symbols cannot be referenced, so the names declared by them do not need to be unique in the scope.
                 // we still need to ensure that they unique among other outputs.
-                this.Diagnostics.AddRange(outputDeclarations
-                    .Where(decl => decl.NameSyntax.IsValid)
-                    .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
-                    .Where(group => group.Count() > 1)
-                    .SelectMany(group => group)
+                this.Diagnostics.AddRange(
+                    FindDuplicateNamedSymbols(outputDeclarations)
                     .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).OutputMultipleDeclarations(decl.Name)));
 
                 // imported namespaces are reserved in all the scopes
@@ -138,6 +132,13 @@ namespace Bicep.Core.Semantics
                     .Where(decl => decl.NameSyntax.IsValid && this.importedNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.importedNamespaces.Keys)));
             }
+
+            private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
+                => symbols
+                .Where(decl => decl.NameSyntax.IsValid)
+                .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
+                .Where(group => group.Count() > 1)
+                .SelectMany(group => group);
         }
     }
 }
