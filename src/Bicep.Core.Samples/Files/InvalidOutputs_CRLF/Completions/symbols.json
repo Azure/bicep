@@ -34,6 +34,20 @@
     }
   },
   {
+    "label": "attemptToReferenceAnOutput",
+    "kind": "variable",
+    "detail": "attemptToReferenceAnOutput",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_attemptToReferenceAnOutput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "attemptToReferenceAnOutput"
+    }
+  },
+  {
     "label": "az",
     "kind": "folder",
     "detail": "az",

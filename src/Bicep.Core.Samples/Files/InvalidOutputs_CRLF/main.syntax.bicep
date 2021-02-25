@@ -600,6 +600,28 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[50:52)     Integer |10|
 //@[52:56) NewLine |\r\n\r\n|
 
+output myOutput string = 'hello'
+//@[0:32) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:15)  IdentifierSyntax
+//@[7:15)   Identifier |myOutput|
+//@[16:22)  TypeSyntax
+//@[16:22)   Identifier |string|
+//@[23:24)  Assignment |=|
+//@[25:32)  StringSyntax
+//@[25:32)   StringComplete |'hello'|
+//@[32:34) NewLine |\r\n|
+var attemptToReferenceAnOutput = myOutput
+//@[0:41) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:30)  IdentifierSyntax
+//@[4:30)   Identifier |attemptToReferenceAnOutput|
+//@[31:32)  Assignment |=|
+//@[33:41)  VariableAccessSyntax
+//@[33:41)   IdentifierSyntax
+//@[33:41)    Identifier |myOutput|
+//@[41:45) NewLine |\r\n\r\n|
+
 @sys.maxValue(20)
 //@[0:73) OutputDeclarationSyntax
 //@[0:17)  DecoratorSyntax
