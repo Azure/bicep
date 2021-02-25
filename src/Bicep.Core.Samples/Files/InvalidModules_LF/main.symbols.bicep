@@ -478,6 +478,24 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
   }
 }]
 
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
+//@[81:85) Local test. Type: any. Declaration start char: 81, length: 4
+//@[7:57) Module directRefToCollectionViaLoopBodyWithExtraDependsOn. Type: module[]. Declaration start char: 0, length: 309
+  name: 'hello4'
+  params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+    objParam: {}
+    stringParamB: ''
+    dependsOn: [
+      nonexistentArrays
+    ]
+  }
+  dependsOn: [
+    
+  ]
+}]
+
+
 // module body that isn't an object
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
 //@[50:55) Local thing. Type: any. Declaration start char: 50, length: 5

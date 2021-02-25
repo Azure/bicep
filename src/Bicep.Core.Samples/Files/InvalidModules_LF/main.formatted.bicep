@@ -337,6 +337,19 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
   }
 }]
 
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
+  name: 'hello4'
+  params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+    objParam: {}
+    stringParamB: ''
+    dependsOn: [
+      nonexistentArrays
+    ]
+  }
+  dependsOn: []
+}]
+
 // module body that isn't an object
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
 module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]

@@ -1232,6 +1232,21 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
   }
 }]
 
+resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[116:117) Local i. Type: int. Declaration start char: 116, length: 1
+//@[9:61) Resource directRefViaSingleLoopResourceBodyWithExtraDependsOn. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 287
+  name: 'vnet-${i}'
+  properties: {
+    subnets: premiumStorages
+    dependsOn: [
+      premiumStorages
+    ]
+  }
+  dependsOn: [
+    
+  ]
+}]
+
 var expressionInPropertyLoopVar = true
 //@[4:31) Variable expressionInPropertyLoopVar. Type: bool. Declaration start char: 0, length: 38
 resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {

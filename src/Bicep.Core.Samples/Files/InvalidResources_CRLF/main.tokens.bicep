@@ -4533,6 +4533,70 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 //@[1:2) RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
+resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[0:8) Identifier |resource|
+//@[9:61) Identifier |directRefViaSingleLoopResourceBodyWithExtraDependsOn|
+//@[62:108) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[109:110) Assignment |=|
+//@[111:112) LeftSquare |[|
+//@[112:115) Identifier |for|
+//@[116:117) Identifier |i|
+//@[118:120) Identifier |in|
+//@[121:126) Identifier |range|
+//@[126:127) LeftParen |(|
+//@[127:128) Integer |0|
+//@[128:129) Comma |,|
+//@[130:131) Integer |3|
+//@[131:132) RightParen |)|
+//@[132:133) Colon |:|
+//@[134:135) LeftBrace |{|
+//@[135:137) NewLine |\r\n|
+  name: 'vnet-${i}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringLeftPiece |'vnet-${|
+//@[16:17) Identifier |i|
+//@[17:19) StringRightPiece |}'|
+//@[19:21) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    subnets: premiumStorages
+//@[4:11) Identifier |subnets|
+//@[11:12) Colon |:|
+//@[13:28) Identifier |premiumStorages|
+//@[28:30) NewLine |\r\n|
+    dependsOn: [
+//@[4:13) Identifier |dependsOn|
+//@[13:14) Colon |:|
+//@[15:16) LeftSquare |[|
+//@[16:18) NewLine |\r\n|
+      premiumStorages
+//@[6:21) Identifier |premiumStorages|
+//@[21:23) NewLine |\r\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+    
+//@[4:6) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
 var expressionInPropertyLoopVar = true
 //@[0:3) Identifier |var|
 //@[4:31) Identifier |expressionInPropertyLoopVar|

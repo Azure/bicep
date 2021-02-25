@@ -496,6 +496,26 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
   }
 }]
 
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
+  name: 'hello4'
+  params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
+//@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
+    objParam: {}
+    stringParamB: ''
+    dependsOn: [
+//@[4:13) [BCP038 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
+      nonexistentArrays
+//@[6:23) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
+    ]
+  }
+  dependsOn: [
+    
+  ]
+}]
+
+
 // module body that isn't an object
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
 //@[63:70) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|

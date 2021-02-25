@@ -1617,6 +1617,81 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
 //@[1:2) RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
+//@[0:6) Identifier |module|
+//@[7:57) Identifier |directRefToCollectionViaLoopBodyWithExtraDependsOn|
+//@[58:73) StringComplete |'modulea.bicep'|
+//@[74:75) Assignment |=|
+//@[76:77) LeftSquare |[|
+//@[77:80) Identifier |for|
+//@[81:85) Identifier |test|
+//@[86:88) Identifier |in|
+//@[89:90) LeftSquare |[|
+//@[90:91) RightSquare |]|
+//@[91:92) Colon |:|
+//@[93:94) LeftBrace |{|
+//@[94:95) NewLine |\n|
+  name: 'hello4'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'hello4'|
+//@[16:17) NewLine |\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:22) Identifier |concat|
+//@[22:23) LeftParen |(|
+//@[23:49) Identifier |wrongModuleParameterInLoop|
+//@[49:50) Comma |,|
+//@[51:68) Identifier |nonexistentArrays|
+//@[68:69) RightParen |)|
+//@[69:70) NewLine |\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:17) NewLine |\n|
+    stringParamB: ''
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:20) StringComplete |''|
+//@[20:21) NewLine |\n|
+    dependsOn: [
+//@[4:13) Identifier |dependsOn|
+//@[13:14) Colon |:|
+//@[15:16) LeftSquare |[|
+//@[16:17) NewLine |\n|
+      nonexistentArrays
+//@[6:23) Identifier |nonexistentArrays|
+//@[23:24) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+    
+//@[4:5) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:5) NewLine |\n\n\n|
+
+
 // module body that isn't an object
 //@[35:36) NewLine |\n|
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']

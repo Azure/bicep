@@ -400,6 +400,20 @@
     }
   },
   {
+    "label": "directRefToCollectionViaLoopBodyWithExtraDependsOn",
+    "kind": "module",
+    "detail": "directRefToCollectionViaLoopBodyWithExtraDependsOn",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefToCollectionViaLoopBodyWithExtraDependsOn",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefToCollectionViaLoopBodyWithExtraDependsOn"
+    }
+  },
+  {
     "label": "directRefToCollectionViaSingleBody",
     "kind": "module",
     "detail": "directRefToCollectionViaSingleBody",

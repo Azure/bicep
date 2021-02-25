@@ -470,6 +470,20 @@
     }
   },
   {
+    "label": "directRefViaSingleLoopResourceBodyWithExtraDependsOn",
+    "kind": "interface",
+    "detail": "directRefViaSingleLoopResourceBodyWithExtraDependsOn",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaSingleLoopResourceBodyWithExtraDependsOn",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaSingleLoopResourceBodyWithExtraDependsOn"
+    }
+  },
+  {
     "label": "directRefViaSingleResourceBody",
     "kind": "interface",
     "detail": "directRefViaSingleResourceBody",

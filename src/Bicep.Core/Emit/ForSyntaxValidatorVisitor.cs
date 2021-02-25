@@ -17,7 +17,10 @@ namespace Bicep.Core.Emit
 
         private readonly Stack<LoopValidationItem> loopParents;
 
-        private SyntaxBase? currentDependsOnPropertyValue = null;
+        // points to the top level dependsOn property in the resource/module declaration currently being processed
+        private ObjectPropertySyntax? currentDependsOnProperty = null;
+
+        private bool insideTopLevelDependsOn = false;
 
         private ForSyntaxValidatorVisitor(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
@@ -43,7 +46,20 @@ namespace Bicep.Core.Emit
                 this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.Key).ExpressionedPropertiesNotAllowedWithLoops());
             }
 
+            bool insideDependsOnInThisScope = ReferenceEquals(this.currentDependsOnProperty, syntax);
+
+            // set this to true if the current property is the top-level dependsOn property
+            // leave it true if already set to true
+            this.insideTopLevelDependsOn = this.insideTopLevelDependsOn || insideDependsOnInThisScope;
+            
+            // visit children
             base.VisitObjectPropertySyntax(syntax);
+
+            // clear the flag after we leave the dependsOn property
+            if(insideDependsOnInThisScope)
+            {
+                this.insideTopLevelDependsOn = false;
+            }
         }
 
         public override void VisitForSyntax(ForSyntax syntax)
@@ -79,7 +95,7 @@ namespace Bicep.Core.Emit
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
                 var parent = this.semanticModel.Binder.GetParent(syntax);
-                if (this.currentDependsOnPropertyValue is null && parent is not ArrayAccessSyntax)
+                if (!this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
                 {
                     // the parent is not array access, which means that someone is doing a direct reference to the collection
                     // which is not allowed outside of the dependsOn properties
@@ -94,25 +110,25 @@ namespace Bicep.Core.Emit
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             // stash the body (handles loops and conditions as well)
-            this.currentDependsOnPropertyValue = TryGetDependsOnPropertyValue(syntax.TryGetBody());
+            this.currentDependsOnProperty = TryGetDependsOnProperty(syntax.TryGetBody());
 
             // visit children
             base.VisitResourceDeclarationSyntax(syntax);
             
             // clear the stash
-            this.currentDependsOnPropertyValue = null;
+            this.currentDependsOnProperty = null;
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
             // stash the body (handles loops and conditions as well)
-            this.currentDependsOnPropertyValue = TryGetDependsOnPropertyValue(syntax.TryGetBody());
+            this.currentDependsOnProperty = TryGetDependsOnProperty(syntax.TryGetBody());
 
             // visit children
             base.VisitModuleDeclarationSyntax(syntax);
 
             // clear the stash
-            this.currentDependsOnPropertyValue = null;
+            this.currentDependsOnProperty = null;
         }
 
         private LoopValidationItem CreateValidationItem(ForSyntax syntax)
@@ -140,7 +156,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private SyntaxBase? TryGetDependsOnPropertyValue(ObjectSyntax? body) => body?.SafeGetPropertyByName("dependsOn")?.Value;
+        private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.SafeGetPropertyByName("dependsOn");
 
         private class LoopValidationItem
         {

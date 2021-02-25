@@ -1313,6 +1313,22 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
   }
 }]
 
+resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+  name: 'vnet-${i}'
+  properties: {
+    subnets: premiumStorages
+//@[13:28) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+    dependsOn: [
+//@[4:13) [BCP038 (Warning)] The property "dependsOn" is not allowed on objects of type "VirtualNetworkPropertiesFormat". Permissible properties include "addressSpace", "bgpCommunities", "ddosProtectionPlan", "dhcpOptions", "enableDdosProtection", "enableVmProtection", "ipAllocations", "virtualNetworkPeerings". |dependsOn|
+      premiumStorages
+//@[6:21) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+    ]
+  }
+  dependsOn: [
+    
+  ]
+}]
+
 var expressionInPropertyLoopVar = true
 resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'hello'
