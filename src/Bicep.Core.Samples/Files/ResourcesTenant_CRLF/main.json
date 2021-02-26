@@ -66,16 +66,9 @@
         "displayName": "[format('{0} ({1}) (set 2)', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG')).displayName)]"
       },
       "dependsOn": [
-        "[tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[0].name, '-one'))]",
-        "[tenantResourceId('Microsoft.Management/managementGroups', 'myMG')]"
+        "[tenantResourceId('Microsoft.Management/managementGroups', 'myMG')]",
+        "[tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[0].name, '-one'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "16395904780268713330"
-    }
-  }
+  ]
 }

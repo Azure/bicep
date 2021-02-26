@@ -52,16 +52,9 @@
         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Authorization/roleAssignments', guid('contributor', parameters('contributorPrincipals')[0]))]",
-        "[subscriptionResourceId('Microsoft.Authorization/roleAssignments', guid('owner', parameters('ownerPrincipalId')))]"
+        "[subscriptionResourceId('Microsoft.Authorization/roleAssignments', guid('owner', parameters('ownerPrincipalId')))]",
+        "[subscriptionResourceId('Microsoft.Authorization/roleAssignments', guid('contributor', parameters('contributorPrincipals')[0]))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "7667211657200818100"
-    }
-  }
+  ]
 }
