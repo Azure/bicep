@@ -46,6 +46,28 @@ namespace Bicep.Core.Syntax
         public static ArrayItemSyntax CreateArrayItem(SyntaxBase value)
             => new ArrayItemSyntax(value);
 
+        public static ForSyntax CreateForSyntax(string indexIdentifier, SyntaxBase count, SyntaxBase body)
+        {
+            return new ForSyntax(
+                CreateToken(TokenType.LeftSquare, "["),
+                CreateToken(TokenType.Identifier, "for"),
+                new LocalVariableSyntax(new IdentifierSyntax(CreateToken(TokenType.Identifier, indexIdentifier))),
+                CreateToken(TokenType.Identifier, "in"),
+                new FunctionCallSyntax(
+                    new IdentifierSyntax(CreateToken(TokenType.Identifier, "range")),
+                    CreateToken(TokenType.LeftParen, "("),
+                    new FunctionArgumentSyntax[] {
+                        new FunctionArgumentSyntax(
+                            new IntegerLiteralSyntax(CreateToken(TokenType.Integer, "0"), 0),
+                            CreateToken(TokenType.Comma, ",")),
+                        new FunctionArgumentSyntax(count, null),
+                    },
+                    CreateToken(TokenType.RightParen, ")")),
+                CreateToken(TokenType.Colon, ":"),
+                body,
+                CreateToken(TokenType.RightSquare, "]"));
+        }
+
         public static ArraySyntax CreateArray(IEnumerable<SyntaxBase> items)
         {
             var children = new List<SyntaxBase> { NewlineToken };

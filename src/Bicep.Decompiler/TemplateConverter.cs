@@ -535,8 +535,39 @@ namespace Bicep.Decompiler
             var properties = new List<ObjectPropertySyntax>();
             foreach (var (key, value) in jObject)
             {
-                ObjectPropertySyntax objectProperty;
-                if (ExpressionsEngine.IsLanguageExpression(key))
+                if (key == "copy" && value is JArray)
+                {
+                    foreach (var copyProperty in value)
+                    {
+                        // TODO fix this
+                        var name = copyProperty["name"]!.Value<string>();
+                        var count = copyProperty["count"];
+                        var input = copyProperty["input"]!;
+
+                        input = ExpressionHelpers.ReplaceFunctionExpressions(input, function => {
+                            if (function.Function == "copyIndex" &&
+                                function.Parameters.Length == 1 &&
+                                function.Parameters[0] is JTokenExpression copyIndexName &&
+                                copyIndexName.Value.ToString() == name)
+                            {
+                                function.Function = "variables";
+                                // TODO fix this - use scoped name resolver?
+                                function.Parameters = new LanguageExpression[]
+                                {
+                                    new JTokenExpression("i"),
+                                };
+                            }
+                        });
+
+                        // TODO fix this - use scoped name resolver?
+                        nameResolver.TryRequestName(NameType.Variable, "i");
+                        var objectVal = SyntaxFactory.CreateForSyntax("i", ParseJToken(count), ParseJToken(input));
+
+                        var objectProperty = SyntaxFactory.CreateObjectProperty(name, objectVal);
+                        properties.Add(objectProperty);
+                    }
+                }
+                else if (ExpressionsEngine.IsLanguageExpression(key))
                 {
                     var keySyntax = ParseString(key);
                     if (keySyntax is not StringSyntax)
@@ -544,14 +575,14 @@ namespace Bicep.Decompiler
                         keySyntax = SyntaxFactory.CreateInterpolatedKey(keySyntax);
                     }
                     
-                    objectProperty = new ObjectPropertySyntax(keySyntax, SyntaxFactory.CreateToken(TokenType.Colon, ":"), ParseJToken(value));
+                    var objectProperty = new ObjectPropertySyntax(keySyntax, SyntaxFactory.CreateToken(TokenType.Colon, ":"), ParseJToken(value));
+                    properties.Add(objectProperty);
                 }
                 else
                 {
-                    objectProperty = SyntaxFactory.CreateObjectProperty(key, ParseJToken(value));
+                    var objectProperty = SyntaxFactory.CreateObjectProperty(key, ParseJToken(value));
+                    properties.Add(objectProperty);
                 }
-
-                properties.Add(objectProperty);
             }
 
             return SyntaxFactory.CreateObject(properties);
@@ -655,7 +686,83 @@ namespace Bicep.Decompiler
             return SyntaxFactory.CreateStringLiteral(filePath);
         }
 
-        private SyntaxBase ProcessCondition(JObject resource, ObjectSyntax body)
+        private (SyntaxBase body, IEnumerable<SyntaxBase> decorators) ProcessResourceCopy(JObject resource, Func<JObject, SyntaxBase> resourceBodyFunc)
+        {
+            var copyProperty = TemplateHelpers.GetProperty(resource, "copy");
+            if (copyProperty is null)
+            {
+                return (resourceBodyFunc(resource), Enumerable.Empty<SyntaxBase>());
+            }
+
+            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'copy' property is not supported in conjunction with the 'condition' property");
+
+            // TODO fix the nullability checks
+            var name = copyProperty.Value["name"]!.Value<string>();
+            var count = copyProperty.Value["count"];
+            var mode = copyProperty.Value["mode"];
+            var batchSize = copyProperty.Value["batchSize"];
+
+            var input = ExpressionHelpers.ReplaceFunctionExpressions(resource, function => {
+                if (function.Function == "copyIndex")
+                {
+                    if (function.Parameters.Length == 0)
+                    {
+                        function.Function = "variables";
+                        // TODO fix this - use scoped name resolver?
+                        function.Parameters = new LanguageExpression[]
+                        {
+                            new JTokenExpression("x"),
+                        };
+                    }
+                    else if (function.Parameters.Length == 1)
+                    {
+                        function.Function = "add";
+                        // TODO fix this - use scoped name resolver?
+                        function.Parameters = new LanguageExpression[]
+                        {
+                            new FunctionExpression(
+                                "variables",
+                                new LanguageExpression[]
+                                {
+                                    new JTokenExpression("x"),
+                                },
+                                Array.Empty<LanguageExpression>()),
+                            function.Parameters[0],
+                        };
+                    }
+                }
+            });
+
+            // TODO fix this - use scoped name resolver?
+            nameResolver.TryRequestName(NameType.Variable, "x");
+            var bodySyntax = SyntaxFactory.CreateForSyntax("x", ParseJToken(count), resourceBodyFunc((input as JObject)!));
+
+            var decorators = new List<SyntaxBase>();
+            /* TODO implement when we have batchSize support (https://github.com/Azure/bicep/issues/1625)
+            if (mode is not null)
+            {
+                decorators.Add(new DecoratorSyntax(
+                    SyntaxFactory.CreateToken(TokenType.At, "@"),
+                    SyntaxFactory.CreateFunctionCall("mode", new SyntaxBase[] {
+                        ParseJToken(mode),
+                    })));
+                decorators.Add(SyntaxFactory.NewlineToken);
+            }
+            if (batchSize is not null)
+            {
+                decorators.Add(new DecoratorSyntax(
+                    SyntaxFactory.CreateToken(TokenType.At, "@"),
+                    SyntaxFactory.CreateFunctionCall("batchSize", new SyntaxBase[] {
+                        ParseJToken(batchSize),
+                    })));
+                decorators.Add(SyntaxFactory.NewlineToken);
+            }
+            */
+
+            return (bodySyntax, decorators);
+        }
+
+        private SyntaxBase ProcessCondition(JObject resource, SyntaxBase body)
         {
             JProperty? conditionProperty = TemplateHelpers.GetProperty(resource, "condition");
 
@@ -764,7 +871,6 @@ namespace Bicep.Decompiler
         private SyntaxBase ParseModule(JObject resource, string typeString, string nameString)
         {
             var expectedProps = new HashSet<string>(new [] {
-                "condition",
                 "name",
                 "type",
                 "apiVersion",
@@ -775,11 +881,12 @@ namespace Bicep.Decompiler
             }, StringComparer.OrdinalIgnoreCase);
 
             var propsToOmit = new HashSet<string>(new [] {
+                "condition",
+                "copy",
                 "resourceGroup",
                 "subscriptionId",
             }, StringComparer.OrdinalIgnoreCase);
 
-            TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
             foreach (var prop in resource.Properties())
             {
@@ -794,7 +901,7 @@ namespace Bicep.Decompiler
                 }
             }
 
-            var body = ProcessModuleBody(resource, nameString);
+            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(x, nameString));
             var value = ProcessCondition(resource, body);
 
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
@@ -825,8 +932,7 @@ namespace Bicep.Decompiler
                 workspace.UpsertSyntaxTrees(nestedSyntaxTree.AsEnumerable());
 
                 return new ModuleDeclarationSyntax(
-                    // TODO: add support to decorators for loops.
-                    Enumerable.Empty<SyntaxBase>(),
+                    decorators,
                     SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
                     SyntaxFactory.CreateIdentifier(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
@@ -841,8 +947,7 @@ namespace Bicep.Decompiler
             }
 
             return new ModuleDeclarationSyntax(
-                // TODO: add support to decorators for loops.
-                Enumerable.Empty<SyntaxBase>(),
+                decorators,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 GetModuleFilePath(resource, templateLinkString),
@@ -900,9 +1005,9 @@ namespace Bicep.Decompiler
             throw new ConversionFailedException($"Parsing failed for property value {scopeProperty}", scopeProperty);
         }
 
-        public SyntaxBase ParseResource(JToken value)
+        public SyntaxBase ParseResource(JToken token)
         {
-            var resource = (value as JObject) ?? throw new ConversionFailedException("Incorrect resource format", value);
+            var resource = (token as JObject) ?? throw new ConversionFailedException("Incorrect resource format", token);
 
             // mandatory properties
             var (typeString, nameString, apiVersionString) = TemplateHelpers.ParseResource(resource);
@@ -912,26 +1017,25 @@ namespace Bicep.Decompiler
                 return ParseModule(resource, typeString, nameString);
             }
             
-            var body = ProcessResourceBody(resource);
+            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessResourceBody(x));
+            var value = ProcessCondition(resource, body);
 
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
 
             return new ResourceDeclarationSyntax(
-                // TODO: add support to decorators for loops.
-                Enumerable.Empty<SyntaxBase>(),
+                decorators,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "resource"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 ParseString($"{typeString}@{apiVersionString}"),
                 null,
                 SyntaxFactory.CreateToken(TokenType.Assignment, "="),
-                ProcessCondition(resource, body));
+                value);
         }
 
         private ObjectSyntax ProcessResourceBody(JObject resource)
         {
             var expectedResourceProps = new HashSet<string>(new[]
             {
-                "condition",
                 "name",
                 "type",
                 "apiVersion",
@@ -956,14 +1060,13 @@ namespace Bicep.Decompiler
             var resourcePropsToOmit = new HashSet<string>(new[]
             {
                 "condition",
+                "copy",
                 "type",
                 "apiVersion",
                 "dependsOn",
                 "comments",
                 "scope",
             }, StringComparer.OrdinalIgnoreCase);
-
-            TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
 
             var topLevelProperties = new List<ObjectPropertySyntax>();
             foreach (var prop in resource.Properties())

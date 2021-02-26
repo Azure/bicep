@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
@@ -242,6 +244,35 @@ namespace Bicep.Decompiler.ArmHelpers
             }
 
             return jTokenExpression.Value.ToString().Trim('/');
+        }
+
+        public static JToken ReplaceFunctionExpressions(JToken token, Action<FunctionExpression> onFunctionExpression)
+        {
+            var expressionRewriter = new LanguageExpressionVisitor
+            {
+                OnFunctionExpression = onFunctionExpression,
+            };
+
+            string RewriteStringValue(string value)
+            {
+                if (!ExpressionsEngine.IsLanguageExpression(value))
+                {
+                    return value;
+                }
+
+                var expression = ExpressionsEngine.ParseLanguageExpression(value);
+                expression.Accept(expressionRewriter);
+
+                return ExpressionsEngine.SerializeExpression(expression);
+            }
+
+            if (token.Type == JTokenType.String)
+            {
+                return RewriteStringValue(token.Value<string>());
+            }
+
+            JTokenHelper.TransformJsonStringValues(token, (key, value) => RewriteStringValue(value));
+            return token;
         }
     }
 }
