@@ -164,11 +164,15 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitCopyObject(string name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null)
+        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null)
         {
             writer.WriteStartObject();
 
-            this.EmitProperty("name", name);
+            if (name is not null)
+            {
+                this.EmitProperty("name", name);
+            }
+
             // construct the length ARM expression from the Bicep array expression
             // type check has already ensured that the array expression is an array
             this.EmitPropertyWithTransform(

@@ -242,20 +242,32 @@ var a☕ = true
 
 // loops are not allowed in variables
 var noVariableLoopsYet = [for thing in stuff: 4]
-//@[26:29) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[26:29) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 //@[39:44) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
 
 // nested loops are also not allowed
 var noNestedVariableLoopsEither = [for thing in stuff: {
-//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 //@[48:53) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
   hello: [for thing in []: 4]
-//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 }]
+
+// loops in inner properties of a variable are also not supported
+var innerPropertyLoop = {
+  a: [for i in range(0,10): i]
+//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+}
+var innerPropertyLoop2 = {
+  b: {
+    a: [for i in range(0,10): i]
+//@[8:11) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+  }
+}
 
 // cannot use loops in expressions
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
-//@[28:31) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[28:31) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 //@[41:46) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
-//@[53:56) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[53:56) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 //@[66:71) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|

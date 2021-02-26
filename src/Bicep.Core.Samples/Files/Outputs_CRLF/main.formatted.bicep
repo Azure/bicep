@@ -58,3 +58,6 @@ param paramWithOverlappingOutput string
 
 output varWithOverlappingOutput string = varWithOverlappingOutput
 output paramWithOverlappingOutput string = paramWithOverlappingOutput
+
+// top-level output loops are supported
+output generatedArray array = [for i in range(0, 10): i]

@@ -44,3 +44,8 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for
     anotherSet[0]
   ]
 }]
+
+output managementGroupIds array = [for i in range(0, length(managementGroups)): {
+  name: yetAnotherSet[i].name
+  displayName: yetAnotherSet[i].properties.displayName
+}]

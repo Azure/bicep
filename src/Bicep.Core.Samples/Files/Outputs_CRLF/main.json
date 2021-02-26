@@ -96,13 +96,20 @@
     "paramWithOverlappingOutput": {
       "type": "string",
       "value": "[parameters('paramWithOverlappingOutput')]"
+    },
+    "generatedArray": {
+      "type": "array",
+      "copy": {
+        "count": "[length(range(0, 10))]",
+        "input": "[range(0, 10)[copyIndex()]]"
+      }
     }
   },
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1256202099191963895"
+      "templateHash": "1156384088476024037"
     }
   }
 }
