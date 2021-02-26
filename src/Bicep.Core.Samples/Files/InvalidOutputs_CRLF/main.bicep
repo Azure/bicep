@@ -103,15 +103,22 @@ var attemptToReferenceAnOutput = myOutput
 @minValue(10)
 output notAttachableDecorators int = 32
 
-// loops in outputs not allowed
-output noLoops array = [for thing in things: 4]
-
-// no nested loops either
+// nested loops inside output loops are not supported
 output noNestedLoops array = [for thing in things: {
   something: [
     [for thing in things: true]
   ]
 }]
+
+// loops in inner properties inside outputs are not supported
+output noInnerLoopsInOutputs object = {
+  a: [for i in range(0,10): i]
+}
+output noInnerLoopsInOutputs2 object = {
+  a: [for i in range(0,10): {
+    b: [for j in range(0,10): i+j]
+  }]
+}
 
 // #completionTest(1) -> decoratorsPlusNamespace
 @
