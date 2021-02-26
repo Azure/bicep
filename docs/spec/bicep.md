@@ -106,7 +106,7 @@ is ${blocked}'''
 ```
 
 ### Numbers
-Number literals are formatted as integers - a list of digits optionally preceeded by a `-`. Floating point, decimal or binary formats are not currently supported.
+Number literals are formatted as integers - a list of digits optionally preceded by a `-`. Floating point, decimal or binary formats are not currently supported.
 
 #### Examples
 ```bicep

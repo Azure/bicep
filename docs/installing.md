@@ -86,7 +86,7 @@ bicep --help
 >**Note**: The Bicep VS code extension versions older than 0.2 must be uninstalled before or after the installation of the new version. Otherwise, both extension versions will run side by side and you will see duplicated and/or inconsistent errors. Versions 0.2 or newer do not require uninstallation and will upgrade correctly.
 
 ### Installing via the Visual Studio Marketplace
-* Open your brownser and navigate to https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep
+* Open your browser and navigate to https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep
 * Click "Install" which should open VS code extension installation page
 * Click "Install" in VS Code.
 
