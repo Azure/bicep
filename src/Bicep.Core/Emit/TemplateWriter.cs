@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
@@ -473,10 +474,20 @@ namespace Bicep.Core.Emit
                 return;
             }
 
+            // De-duplicate dependencies which are based on a resource collection
+            var dedupedDependencies = new HashSet<ResourceDependency>();
+            foreach (var dependency in dependencies)
+            {
+                if (!dedupedDependencies.Any(d => d.Resource == dependency.Resource && (d.IndexExpression as IntegerLiteralSyntax)?.Value == (dependency.IndexExpression as IntegerLiteralSyntax)?.Value))
+                {
+                    dedupedDependencies.Add(dependency);
+                }
+            }
+
             memoryWriter.WritePropertyName("dependsOn");
             memoryWriter.WriteStartArray();
             // need to put dependencies in a deterministic order to generate a deterministic template
-            foreach (var dependency in dependencies.OrderBy(x => x.Resource.Name))
+            foreach (var dependency in dedupedDependencies.OrderBy(x => x.Resource.Name).OrderBy(x => (x.IndexExpression as IntegerLiteralSyntax)?.Value))
             {
                 switch (dependency.Resource)
                 {
