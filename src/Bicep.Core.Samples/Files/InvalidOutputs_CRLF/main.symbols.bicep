@@ -140,10 +140,30 @@ output bad int = true && !4
 output deeper bool = true ? -true : (14 && 's') + 10
 //@[7:13) Output deeper. Type: bool. Declaration start char: 0, length: 52
 
+output myOutput string = 'hello'
+//@[7:15) Output myOutput. Type: string. Declaration start char: 0, length: 32
+var attemptToReferenceAnOutput = myOutput
+//@[4:30) Variable attemptToReferenceAnOutput. Type: error. Declaration start char: 0, length: 41
+
 @sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32
 //@[7:30) Output notAttachableDecorators. Type: int. Declaration start char: 0, length: 73
+
+// loops in outputs not allowed
+output noLoops array = [for thing in things: 4]
+//@[28:33) Local thing. Type: any. Declaration start char: 28, length: 5
+//@[7:14) Output noLoops. Type: array. Declaration start char: 0, length: 47
+
+// no nested loops either
+output noNestedLoops array = [for thing in things: {
+//@[34:39) Local thing. Type: any. Declaration start char: 34, length: 5
+//@[7:20) Output noNestedLoops. Type: array. Declaration start char: 0, length: 110
+  something: [
+    [for thing in things: true]
+//@[9:14) Local thing. Type: any. Declaration start char: 9, length: 5
+  ]
+}]
 
 // #completionTest(1) -> decoratorsPlusNamespace
 @

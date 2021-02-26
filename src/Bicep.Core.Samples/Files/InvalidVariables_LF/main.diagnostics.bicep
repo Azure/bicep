@@ -239,3 +239,23 @@ var a☕ = true
 //@[5:6) [BCP018 (Error)] Expected the "=" character at this location. |☕|
 //@[5:6) [BCP001 (Error)] The following token is not recognized: "☕". |☕|
 //@[13:13) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// loops are not allowed in variables
+var noVariableLoopsYet = [for thing in stuff: 4]
+//@[26:29) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[39:44) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+
+// nested loops are also not allowed
+var noNestedVariableLoopsEither = [for thing in stuff: {
+//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[48:53) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+  hello: [for thing in []: 4]
+//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+}]
+
+// cannot use loops in expressions
+var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
+//@[28:31) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[41:46) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+//@[53:56) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[66:71) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|

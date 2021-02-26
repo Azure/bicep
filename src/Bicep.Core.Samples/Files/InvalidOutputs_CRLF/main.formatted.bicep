@@ -88,9 +88,22 @@ output union string = true ? 's' : 1
 output bad int = true && !4
 output deeper bool = true ? -true : (14 && 's') + 10
 
+output myOutput string = 'hello'
+var attemptToReferenceAnOutput = myOutput
+
 @sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32
+
+// loops in outputs not allowed
+output noLoops array = [for thing in things: 4]
+
+// no nested loops either
+output noNestedLoops array = [for thing in things: {
+  something: [
+    [for thing in things: true]
+  ]
+}]
 
 // #completionTest(1) -> decoratorsPlusNamespace
 @

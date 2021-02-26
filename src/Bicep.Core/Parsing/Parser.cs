@@ -266,7 +266,7 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedOutputType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(assignment), TokenType.NewLine);
 
@@ -300,7 +300,7 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
                         TokenType.LeftBrace => this.Object(),
-                        TokenType.LeftSquare => this.ForExpression(),
+                        TokenType.LeftSquare => this.ForExpression(requireObjectLiteral: true),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
                     };
                 },
@@ -329,7 +329,7 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
                         TokenType.LeftBrace => this.Object(),
-                        TokenType.LeftSquare => this.ForExpression(),
+                        TokenType.LeftSquare => this.ForExpression(requireObjectLiteral: true),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
                     };
                 },
@@ -501,7 +501,7 @@ namespace Bicep.Core.Parsing
 
                 case TokenType.LeftSquare when allowComplexLiterals:
                     return CheckKeyword(this.reader.PeekAhead(), LanguageConstants.ForKeyword) 
-                        ? this.ForExpression() 
+                        ? this.ForExpression(requireObjectLiteral: false) 
                         : this.Array();
 
                 case TokenType.LeftBrace:
@@ -882,7 +882,7 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SyntaxBase ForExpression()
+        private SyntaxBase ForExpression(bool requireObjectLiteral)
         {
             var openBracket = this.Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
             var forKeyword = this.ExpectKeyword(LanguageConstants.ForKeyword);
@@ -890,7 +890,10 @@ namespace Bicep.Core.Parsing
             var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), GetSuppressionFlag(identifier.Name), TokenType.RightSquare, TokenType.NewLine);
             var expression = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(inKeyword), TokenType.Colon, TokenType.RightSquare, TokenType.NewLine);
             var colon = this.WithRecovery(() => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(expression), TokenType.RightSquare, TokenType.NewLine);
-            var body = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(colon), TokenType.RightSquare, TokenType.NewLine);
+            var body = this.WithRecovery(
+                () => requireObjectLiteral ? this.Object() : this.Expression(allowComplexLiterals: true),
+                GetSuppressionFlag(colon),
+                TokenType.RightSquare, TokenType.NewLine);
             var closeBracket = this.WithRecovery(() => this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]")), GetSuppressionFlag(body), TokenType.RightSquare, TokenType.NewLine);
 
             return new ForSyntax(openBracket, forKeyword, identifier, inKeyword, expression, colon, body, closeBracket);

@@ -14,6 +14,7 @@ namespace Bicep.Core.Semantics
     public class SemanticModel
     {
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
+        private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
 
         public SemanticModel(Compilation compilation, SyntaxTree syntaxTree)
         {
@@ -34,6 +35,13 @@ namespace Bicep.Core.Semantics
             symbolContext.Unlock();
 
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
+            this.symbolHierarchyLazy = new Lazy<SymbolHierarchy>(() =>
+            {
+                var hierarchy = new SymbolHierarchy();
+                hierarchy.AddRoot(this.Root);
+
+                return hierarchy;
+            });
         }
 
         public SyntaxTree SyntaxTree { get; }
@@ -93,6 +101,8 @@ namespace Bicep.Core.Semantics
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.TypeManager.GetDeclaredType(syntax);
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) => this.TypeManager.GetDeclaredTypeAssignment(syntax);
+
+        public Symbol? GetSymbolParent(Symbol symbol) => this.symbolHierarchyLazy.Value.GetParent(symbol);
 
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,

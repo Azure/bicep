@@ -280,7 +280,7 @@ namespace Bicep.Core.Diagnostics
                 for (int i = 0; i < overloadCount; i++)
                 {
                     messageBuilder
-                        .Append("\n")
+                        .Append('\n')
                         .Append($"  Overload {i + 1} of {overloadCount}, \"{overloadSignatures[i]}\", gave the following error:\n")
                         .Append($"    Argument of type \"{argumentType}\" is not assignable to parameter of type \"{parameterTypes[i]}\".");
                 }
@@ -789,10 +789,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP137",
                 $"Loop expected an expression of type \"{LanguageConstants.Array}\" but the provided value is of type \"{actualType}\".");
 
-            public ErrorDiagnostic LoopsNotSupported() => new(
+            public ErrorDiagnostic ForExpressionsNotSupportedHere() => new(
                 TextSpan,
                 "BCP138",
-                "Loops are not currently supported.");
+                "For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties.");
 
             public Diagnostic InvalidCrossResourceScope() => new(
                 TextSpan,
@@ -810,34 +810,59 @@ namespace Bicep.Core.Diagnostics
                 "BCP141",
                 "The expression cannot be used as a decorator as it is not callable.");
 
-            public ErrorDiagnostic ExpectedParameterDeclarationAfterDecorator() => new(
+            public ErrorDiagnostic TooManyPropertyForExpressions() => new(
                 TextSpan,
                 "BCP142",
+                "Property value for-expressions cannot be nested.");
+
+            public ErrorDiagnostic ExpressionedPropertiesNotAllowedWithLoops() => new(
+                TextSpan,
+                "BCP143",
+                "For-expressions cannot be used with properties whose names are also expressions.");
+
+            public ErrorDiagnostic DirectAccessToCollectionNotSupported() => new(
+                TextSpan,
+                "BCP144",
+                "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.");
+
+            public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
+                TextSpan,
+                "BCP145",
+                $"Output \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
+
+            public ErrorDiagnostic ExpectedOutputType() => new(
+                TextSpan,
+                "BCP146",
+                $"Expected an output type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
+
+            public ErrorDiagnostic ExpectedParameterDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP147",
                 "Expected a parameter declaration after the decorator.");
 
             public ErrorDiagnostic ExpectedVariableDeclarationAfterDecorator() => new(
                 TextSpan,
-                "BCP143",
+                "BCP148",
                 "Expected a variable declaration after the decorator.");
 
             public ErrorDiagnostic ExpectedResourceDeclarationAfterDecorator() => new(
                 TextSpan,
-                "BCP144",
+                "BCP149",
                 "Expected a resource declaration after the decorator.");
 
             public ErrorDiagnostic ExpectedModuleDeclarationAfterDecorator() => new(
                 TextSpan,
-                "BCP145",
+                "BCP150",
                 "Expected a module declaration after the decorator.");
 
             public ErrorDiagnostic ExpectedOutputDeclarationAfterDecorator() => new(
                 TextSpan,
-                "BCP146",
+                "BCP151",
                 "Expected an output declaration after the decorator.");
 
             public ErrorDiagnostic CannotUseFunctionAsDecorator(string functionName) => new(
                 TextSpan,
-                "BCP147",
+                "BCP152",
                 $"Function \"{functionName}\" cannot be used as a decorator.");
         }
 

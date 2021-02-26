@@ -52,3 +52,9 @@ var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), 
 
 output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01').primaryKey
 output secondaryKey string = secondaryKeyIntermediateVar
+
+var varWithOverlappingOutput = 'hello'
+param paramWithOverlappingOutput string
+
+output varWithOverlappingOutput string = varWithOverlappingOutput
+output paramWithOverlappingOutput string = paramWithOverlappingOutput

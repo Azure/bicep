@@ -160,3 +160,14 @@ var anotherThing = true
 // invalid identifier character classes
 var ☕ = true
 var a☕ = true
+
+// loops are not allowed in variables
+var noVariableLoopsYet = [for thing in stuff: 4]
+
+// nested loops are also not allowed
+var noNestedVariableLoopsEither = [for thing in stuff: {
+  hello: [for thing in []: 4]
+}]
+
+// cannot use loops in expressions
+var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])

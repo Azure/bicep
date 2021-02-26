@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 template!.Should().BeNull();
                 diagnostics.Should().HaveDiagnostics(new[] {
-                    ("BCP142", DiagnosticLevel.Error, "Expected a parameter declaration after the decorator."),
+                    ("BCP147", DiagnosticLevel.Error, "Expected a parameter declaration after the decorator."),
                 });
             }
         }
@@ -103,8 +103,8 @@ param inputb string
             {
                 template!.Should().BeNull();
                 diagnostics.Should().HaveDiagnostics(new[] {
-                    ("BCP147", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
-                    ("BCP147", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
+                    ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
+                    ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
                 });
             }
         }
@@ -162,11 +162,11 @@ param inputb string
             using (new AssertionScope())
             {
                 diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
-                    ("BCP147", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
-                    ("BCP147", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
-                    ("BCP147", DiagnosticLevel.Error, "Function \"environment\" cannot be used as a decorator."),
-                    ("BCP147", DiagnosticLevel.Error, "Function \"union\" cannot be used as a decorator."),
-                    ("BCP147", DiagnosticLevel.Error, "Function \"guid\" cannot be used as a decorator."),
+                    ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
+                    ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
+                    ("BCP152", DiagnosticLevel.Error, "Function \"environment\" cannot be used as a decorator."),
+                    ("BCP152", DiagnosticLevel.Error, "Function \"union\" cannot be used as a decorator."),
+                    ("BCP152", DiagnosticLevel.Error, "Function \"guid\" cannot be used as a decorator."),
                 });
                 success.Should().BeFalse();
             }

@@ -64,7 +64,12 @@ namespace Bicep.Core.TypeSystem
             => GetTypeAssignment(syntax).Reference.Type;
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
-            => assignedTypes.Values.SelectMany(x => x.Diagnostics);
+        {
+            // ensure we've visited all of the syntax nodes
+            Visit(this.binder.FileSymbol.Syntax);
+
+            return assignedTypes.Values.SelectMany(x => x.Diagnostics);
+        }
 
         private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc)
         {

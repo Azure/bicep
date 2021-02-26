@@ -11,20 +11,22 @@ namespace Bicep.Core.Emit
     {
         /// <summary>
         /// Gets the resource type reference from a resource symbol, assuming it has already been type-checked.
+        /// Works for single resources and resource collections.
         /// </summary>
         /// <param name="resourceSymbol">The resource symbol</param>
         /// <exception cref="ArgumentException">If the resource symbol is not for a valid resource type.</exception>
         public static ResourceTypeReference GetTypeReference(ResourceSymbol resourceSymbol)
         {
             // TODO: come up with safety mechanism to ensure type checking has already occurred
-            if (!(resourceSymbol.Type is ResourceType resourceType))
+            return resourceSymbol.Type switch
             {
+                ResourceType resourceType => resourceType.TypeReference,
+                ArrayType { Item: ResourceType resourceType } => resourceType.TypeReference,
+
                 // throw here because the semantic model should be completely valid at this point
                 // (it's a code defect if it some errors were not emitted)
-                throw new ArgumentException($"Resource symbol does not have a valid type (found {resourceSymbol.Type.Name})");
-            }
-
-            return resourceType.TypeReference;
+                _ => throw new ArgumentException($"Resource symbol does not have a valid type (found {resourceSymbol.Type.Name})")
+            };
         }
     }
 }
