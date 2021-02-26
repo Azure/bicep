@@ -56,5 +56,12 @@
         "[subscriptionResourceId('Microsoft.Authorization/roleAssignments', guid('contributor', parameters('contributorPrincipals')[0]))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13659334392010558753"
+    }
+  }
 }
