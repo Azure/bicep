@@ -16,7 +16,7 @@ Bicep compiles down to standard ARM Template JSON files, which means the ARM JSO
 1. The language should provide a *transparent abstraction* for the underlying platform. There must be no "onboarding step" to enable it to a new resource `type` and/or `apiVersion` in Bicep.
 1. Code should be easy to understand at a glance and straightforward to learn, regardless of your experience with other programming languages.
 1. Users should be given a lot of freedom to modularize and reuse their code. Reusing code should not require any 'copy/paste'.
-1. Tooling should provide a high level of resource discoverability and validation, and should be developed alongside the compiler rather than added at the end.
+1. Tooling should provide a high level of resource discoverability and validation and should be developed alongside the compiler rather than added at the end.
 1. Users should have a high level of confidence that their code is 'syntactically valid' before deploying.
 
 ### Non-goals
@@ -64,7 +64,7 @@ az deployment group create -f ./main.json -g my-rg
   * Previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
 * Automatic dependency management in certain scenarios. Bicep will automatically add `dependsOn` in the compiled ARM Template if the symbolic name is used in another resource declaration.
 * Richer validation and intellisense than what is available in the ARM Tools VS Code extension. For example, in bicep we have intellisense on GET properties (`output sample string = resource.properties.*`)
-* All resource type properties that exist via Azure Resource Manager are available in bicep. Since bicep produces ARM template `.json` files there are no descrepencies of what properties and settings are available. 
+* All resource type properties that exist via Azure Resource Manager are available in bicep. Since bicep produces ARM template `.json` files there are no discrepancies of what properties and settings are available. 
 
 For more detail on taking advantage of new bicep constructs that replace an equivalent from ARM Templates, you can read the [moving from ARM => Bicep](./docs/arm2bicep.md) doc.
 
