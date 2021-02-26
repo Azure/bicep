@@ -20,7 +20,7 @@
     "@types/webpack": "^4.41.26",
     "@types/webpack-dev-server": "^3.11.1",
     "copy-webpack-plugin": "^7.0.0",
-    "css-loader": "^5.0.2",
+    "css-loader": "^5.1.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.2.0",
     "monaco-editor-webpack-plugin": "^2.1.0",
