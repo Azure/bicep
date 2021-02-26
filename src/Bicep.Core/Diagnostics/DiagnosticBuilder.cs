@@ -757,7 +757,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP131",
                 "Parameter modifiers and decorators cannot be used together. Please use decorators only.");
 
-            public ErrorDiagnostic ExpectDeclarationAfterDecorator() => new(
+            public ErrorDiagnostic ExpectedDeclarationAfterDecorator() => new(
                 TextSpan,
                 "BCP132",
                 "Expected a declaration after the decorator.");
@@ -834,6 +834,36 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP146",
                 $"Expected an output type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
+
+            public ErrorDiagnostic ExpectedParameterDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP147",
+                "Expected a parameter declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedVariableDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP148",
+                "Expected a variable declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedResourceDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP149",
+                "Expected a resource declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedModuleDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP150",
+                "Expected a module declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedOutputDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP151",
+                "Expected an output declaration after the decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsDecorator(string functionName) => new(
+                TextSpan,
+                "BCP152",
+                $"Function \"{functionName}\" cannot be used as a decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -72,6 +72,12 @@ namespace Bicep.Core.Semantics
             var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
             visitor.Visit(this.Root);
 
+            foreach (var missingDeclarationSyntax in this.SyntaxTree.ProgramSyntax.Children.OfType<MissingDeclarationSyntax>())
+            {
+                // Trigger type checking manually as missing declarations are not bound to any symbol.
+                this.TypeManager.GetTypeInfo(missingDeclarationSyntax);
+            }
+
             var typeValidationDiagnostics = TypeManager.GetAllDiagnostics();
             diagnosticWriter.WriteMultiple(typeValidationDiagnostics);
 
