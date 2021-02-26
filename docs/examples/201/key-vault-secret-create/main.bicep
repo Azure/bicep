@@ -117,11 +117,8 @@ resource vault 'Microsoft.KeyVault/vaults@2019-09-01' = {
 }
 
 resource secrets 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret in secretsObject.secrets: {
-  name: '${keyVaultName}/${secret.secretName}'
+  name: '${vault.name}/${secret.secretName}'
   properties: {
     value: secret.secretValue
   }
-  dependsOn: [
-    vault
-  ]
 }]
