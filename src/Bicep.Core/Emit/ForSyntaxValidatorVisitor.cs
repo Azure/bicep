@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Diagnostics;
+using System;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -11,12 +10,15 @@ namespace Bicep.Core.Emit
 {
     public sealed class ForSyntaxValidatorVisitor : SyntaxVisitor
     {
+        // we don't support nesting of property loops right now
+        private const int MaximumNestedPropertyLoopCount = 1;
+
         private readonly IDiagnosticWriter diagnosticWriter;
-
         private readonly SemanticModel semanticModel;
-
+        
         private SyntaxBase? activeLoopCapableTopLevelDeclaration = null;
 
+        private int maximumPropertyLoopCount = 0;
         private int propertyLoopCount = 0;
 
         // points to the top level dependsOn property in the resource/module declaration currently being processed
@@ -36,6 +38,25 @@ namespace Bicep.Core.Emit
 
             // visiting writes diagnostics in some cases
             visitor.Visit(semanticModel.SyntaxTree.ProgramSyntax);
+        }
+
+        public static bool IsAddingPropertyLoopAllowed(SemanticModel semanticModel, ObjectPropertySyntax property)
+        {
+            SyntaxBase? current = property;
+            int propertyLoopCount = 0;
+            while(current is not null)
+            {
+                var parent = semanticModel.SyntaxTree.Hierarchy.GetParent(current);
+                if (current is ForSyntax @for && IsPropertyLoop(parent, @for))
+                {
+                    ++propertyLoopCount;
+                }
+
+                current = parent;
+            }
+
+            // adding a new property loop is only allowed if we're under the limit
+            return propertyLoopCount < MaximumNestedPropertyLoopCount;
         }
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
@@ -90,8 +111,9 @@ namespace Bicep.Core.Emit
                 case null:
                     // this is a property loop
                     this.propertyLoopCount += 1;
+                    this.maximumPropertyLoopCount = Math.Max(this.maximumPropertyLoopCount, this.propertyLoopCount);
 
-                    if(this.propertyLoopCount > 1)
+                    if(this.propertyLoopCount > MaximumNestedPropertyLoopCount)
                     {
                         // too many property loops
                         this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).TooManyPropertyForExpressions());
@@ -187,6 +209,11 @@ namespace Bicep.Core.Emit
         private bool IsPropertyLoop(ForSyntax syntax)
         {
             var parent = this.semanticModel.SyntaxTree.Hierarchy.GetParent(syntax);
+            return IsPropertyLoop(parent, syntax);
+        }
+
+        private static bool IsPropertyLoop(SyntaxBase? parent, ForSyntax syntax)
+        {
             return parent is ObjectPropertySyntax property && ReferenceEquals(property.Value, syntax);
         }
 

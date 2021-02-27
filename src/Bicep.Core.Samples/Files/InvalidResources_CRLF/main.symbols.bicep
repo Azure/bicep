@@ -1266,3 +1266,35 @@ resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
 //@[83:88) Local thing. Type: any. Declaration start char: 83, length: 5
 //@[9:35) Resource nonObjectResourceLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
+
+// #completionTest(54,55) -> objectPlusFor
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+//@[9:12) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 55
+
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
+//@[60:64) Local item. Type: any. Declaration start char: 60, length: 4
+//@[9:12) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 257
+  properties: {
+    // #completionTest(32,33) -> symbolsPlusArrayAndFor
+    registrationVirtualNetworks: 
+    resolutionVirtualNetworks: [for lol in []: {
+//@[36:39) Local lol. Type: any. Declaration start char: 36, length: 3
+      
+    }]
+  }
+}]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 325
+  properties: {
+    virtualNetworkPeerings: [for item in []: {
+//@[33:37) Local item. Type: any. Declaration start char: 33, length: 4
+        properties: {
+          remoteAddressSpace: {
+            // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
+            addressPrefixes: 
+          }
+        }
+    }]
+  }
+}

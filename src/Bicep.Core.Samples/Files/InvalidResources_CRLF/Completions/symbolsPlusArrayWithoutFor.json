@@ -1,20 +1,16 @@
 [
   {
-    "label": "'createMode'",
-    "kind": "property",
-    "detail": "createMode (Required)",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `'Default' | 'Restore'`  \n"
-    },
+    "label": "[]",
+    "kind": "value",
+    "detail": "[]",
     "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'createMode'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "preselect": true,
+    "sortText": "1_[]",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'createMode'"
+      "newText": "[\n\t$0\n]"
     }
   },
   {
@@ -1593,6 +1589,20 @@
     }
   },
   {
+    "label": "item",
+    "kind": "variable",
+    "detail": "item",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_item",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "item"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",
@@ -2216,6 +2226,20 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyIndexCompletions_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyIndexCompletions_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyIndexCompletions_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyIndexCompletions_if"
     }
   },
   {
@@ -3481,20 +3505,6 @@
     "textEdit": {
       "range": {},
       "newText": "validResourceForInvalidExtensionResourceDuplicateName"
-    }
-  },
-  {
-    "label": "vnet",
-    "kind": "interface",
-    "detail": "vnet",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_vnet",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "vnet"
     }
   },
   {
