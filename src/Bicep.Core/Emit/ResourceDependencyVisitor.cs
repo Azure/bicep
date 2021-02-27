@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -110,10 +111,44 @@ namespace Bicep.Core.Emit
         private void VisitVariableAccessSyntaxInternal(VariableAccessSyntax syntax)
         {
             // local function
-            SyntaxBase? GetIndexExpression(bool isCollection) =>
-                isCollection && this.model.Binder.GetParent(syntax) is ArrayAccessSyntax arrayAccess && ReferenceEquals(arrayAccess.BaseExpression, syntax)
+            SyntaxBase? GetIndexExpression(bool isCollection)
+            {
+                SyntaxBase? candidateIndexExpression = isCollection && this.model.Binder.GetParent(syntax) is ArrayAccessSyntax arrayAccess && ReferenceEquals(arrayAccess.BaseExpression, syntax)
                     ? arrayAccess.IndexExpression
                     : null;
+
+                if(candidateIndexExpression is null)
+                {
+                    // there is no index expression
+                    // depend on the entire collection instead
+                    return null;
+                }
+
+                // the index expression we just obtained could be in the scope of a property loop
+                // when dependsOn properties are generated, this would mean that a local would be taken outside of its expected scope
+                // which would result in runtime errors
+                // to avoid this we will run data flow analysis to determine if such locals are present in the index expression
+                var dfa = new DataFlowAnalyzer(this.model);
+
+                var context = this.currentDeclaration switch
+                {
+                    ResourceSymbol resourceSymbol => resourceSymbol.DeclaringResource.GetBody(),
+                    ModuleSymbol moduleSymbol => moduleSymbol.DeclaringModule.GetBody(),
+                    VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.Value,
+                    _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
+                };
+                
+                // using the resource/module body as the context to allow indexed depdnencies relying on the resource/module loop index to work as expected
+                var inaccessibleLocals = dfa.GetInaccessibleLocalsAfterSyntaxMove(candidateIndexExpression, context);
+                if(inaccessibleLocals.Any())
+                {
+                    // some local will become inaccessible
+                    // depend on the entire collection instead
+                    return null;
+                }
+
+                return candidateIndexExpression;
+            }
 
             if (currentDeclaration == null)
             {

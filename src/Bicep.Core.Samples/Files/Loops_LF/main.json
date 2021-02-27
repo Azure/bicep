@@ -28,6 +28,10 @@
       "one",
       "two",
       "three"
+    ],
+    "regions": [
+      "eastus",
+      "westus"
     ]
   },
   "resources": [
@@ -256,6 +260,136 @@
       ]
     },
     {
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('name')]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "copy": [
+                {
+                  "name": "backends",
+                  "count": "[length(range(0, length(variables('regions'))))]",
+                  "input": {
+                    "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex('backends')]], parameters('name'))), '2019-10-01').outputs.myOutput.value]",
+                    "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex('backends')]], parameters('name'))), '2019-10-01').outputs.myOutput.value]",
+                    "httpPort": 80,
+                    "httpsPort": 443,
+                    "priority": 1,
+                    "weight": 50
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "apim"
+      ]
+    },
+    {
+      "copy": {
+        "name": "indexedModuleCollectionDependency",
+        "count": "[length(range(0, length(variables('regions'))))]"
+      },
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}-{1}', parameters('name'), range(0, length(variables('regions')))[copyIndex()])]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "backends": [
+                {
+                  "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name'))), '2019-10-01').outputs.myOutput.value]",
+                  "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name'))), '2019-10-01').outputs.myOutput.value]",
+                  "httpPort": 80,
+                  "httpsPort": 443,
+                  "priority": 1,
+                  "weight": 50
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name')))]",
+        "[resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('name')]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "copy": [
+                {
+                  "name": "backends",
+                  "count": "[length(range(0, length(parameters('accounts'))))]",
+                  "input": {
+                    "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name))).primaryEndpoints.internetEndpoints.web]",
+                    "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name))).primaryEndpoints.internetEndpoints.web]",
+                    "httpPort": 80,
+                    "httpsPort": 443,
+                    "priority": 1,
+                    "weight": 50
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "storageAccounts"
+      ]
+    },
+    {
+      "copy": {
+        "name": "indexedResourceCollectionDependency",
+        "count": "[length(range(0, length(parameters('accounts'))))]"
+      },
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}-{1}', parameters('name'), range(0, length(parameters('accounts')))[copyIndex()])]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "backends": [
+                {
+                  "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name))).primaryEndpoints.internetEndpoints.web]",
+                  "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name))).primaryEndpoints.internetEndpoints.web]",
+                  "httpPort": 80,
+                  "httpsPort": 443,
+                  "priority": 1,
+                  "weight": 50
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name))]"
+      ]
+    },
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "test",
@@ -449,6 +583,43 @@
         "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))]",
         "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[sub(parameters('index'), 9)].name))]"
       ]
+    },
+    {
+      "copy": {
+        "name": "apim",
+        "count": "[length(variables('regions'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[variables('regions')[copyIndex()]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      }
     }
   ],
   "outputs": {
@@ -524,7 +695,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3867827760539149194"
+      "templateHash": "18116800430577333562"
     }
   }
 }
