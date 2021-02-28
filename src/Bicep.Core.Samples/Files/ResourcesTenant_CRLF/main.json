@@ -71,11 +71,16 @@
       ]
     }
   ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "13584384683204010949"
+  "outputs": {
+    "managementGroupIds": {
+      "type": "array",
+      "copy": {
+        "count": "[length(range(0, length(variables('managementGroups'))))]",
+        "input": {
+          "name": "[concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two')]",
+          "displayName": "[reference(tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two'))).displayName]"
+        }
+      }
     }
   }
 }
