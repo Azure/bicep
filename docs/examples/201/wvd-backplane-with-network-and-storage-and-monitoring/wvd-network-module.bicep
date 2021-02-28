@@ -20,8 +20,12 @@ resource vnet 'Microsoft.Network/virtualnetworks@2015-05-01-preview' = {
         name: subnetName
         properties: {
           addressPrefix: subnetPrefix
+          privateEndpointNetworkPolicies: 'Disabled'
         }
       }
     ]
   }
 }
+
+output subnetId string = vnet.properties.subnets[0].id
+output vnetId string = vnet.id

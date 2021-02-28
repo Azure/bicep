@@ -37,18 +37,29 @@
           {
             "name": "[parameters('subnetName')]",
             "properties": {
-              "addressPrefix": "[parameters('subnetPrefix')]"
+              "addressPrefix": "[parameters('subnetPrefix')]",
+              "privateEndpointNetworkPolicies": "Disabled"
             }
           }
         ]
       }
     }
   ],
+  "outputs": {
+    "subnetId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/virtualnetworks', parameters('vnetName'))).subnets[0].id]"
+    },
+    "vnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualnetworks', parameters('vnetName'))]"
+    }
+  },
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "11125853222491965992"
+      "version": "0.2.476.60462",
+      "templateHash": "7563517972701665491"
     }
   }
 }

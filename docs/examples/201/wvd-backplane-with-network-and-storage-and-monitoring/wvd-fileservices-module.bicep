@@ -16,6 +16,7 @@ resource sa 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
     name: storgeaccountglobalRedundancy
   }
 }
+output storageAccountId string = sa.id
 
 //Create FileShare
 resource fs 'Microsoft.Storage/storageAccounts/fileServices/shares@2020-08-01-preview' = {
