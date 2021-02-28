@@ -474,20 +474,10 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            // De-duplicate dependencies which are based on a resource collection
-            var dedupedDependencies = new HashSet<ResourceDependency>();
-            foreach (var dependency in dependencies)
-            {
-                if (!dedupedDependencies.Any(d => d.Resource == dependency.Resource && (d.IndexExpression as IntegerLiteralSyntax)?.Value == (dependency.IndexExpression as IntegerLiteralSyntax)?.Value))
-                {
-                    dedupedDependencies.Add(dependency);
-                }
-            }
-
             memoryWriter.WritePropertyName("dependsOn");
             memoryWriter.WriteStartArray();
-            // need to put dependencies in a deterministic order to generate a deterministic template
-            foreach (var dependency in dedupedDependencies.OrderBy(x => x.Resource.Name).OrderBy(x => (x.IndexExpression as IntegerLiteralSyntax)?.Value))
+            // need to deduplicate and put dependencies in a deterministic order to generate a deterministic template
+            foreach (var dependency in dependencies.Distinct(ResourceDependency.EqualityComparer).OrderBy(x => x.Resource.Name).OrderBy(x => (x.IndexExpression as IntegerLiteralSyntax)?.Value))
             {
                 switch (dependency.Resource)
                 {

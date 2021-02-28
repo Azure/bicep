@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -33,5 +34,27 @@ namespace Bicep.Core.Emit
         }
 
         public override int GetHashCode() => HashCode.Combine(this.Resource, this.IndexExpression);
+
+        public static readonly IEqualityComparer<ResourceDependency> EqualityComparer = new ResourceDependencyComparer();
+        private class ResourceDependencyComparer : IEqualityComparer<ResourceDependency>
+        {
+
+            public bool Equals(ResourceDependency x, ResourceDependency y)
+            {
+                if (x.Resource == y.Resource && (x.IndexExpression as IntegerLiteralSyntax)?.Value == (y.IndexExpression as IntegerLiteralSyntax)?.Value)
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            public int GetHashCode(ResourceDependency obj)
+            {
+                var hc = new HashCode();
+                hc.Add(obj.Resource.GetHashCode());
+                hc.Add((obj.IndexExpression as IntegerLiteralSyntax)?.Value);
+                return hc.ToHashCode();
+            }
+        }
     }
 }
