@@ -18,7 +18,6 @@ namespace Bicep.Core.Emit
         
         private SyntaxBase? activeLoopCapableTopLevelDeclaration = null;
 
-        private int maximumPropertyLoopCount = 0;
         private int propertyLoopCount = 0;
 
         // points to the top level dependsOn property in the resource/module declaration currently being processed
@@ -111,7 +110,6 @@ namespace Bicep.Core.Emit
                 case null:
                     // this is a property loop
                     this.propertyLoopCount += 1;
-                    this.maximumPropertyLoopCount = Math.Max(this.maximumPropertyLoopCount, this.propertyLoopCount);
 
                     if(this.propertyLoopCount > MaximumNestedPropertyLoopCount)
                     {
