@@ -495,4 +495,40 @@ output paramWithOverlappingOutput string = paramWithOverlappingOutput
 //@[43:69)  VariableAccessSyntax
 //@[43:69)   IdentifierSyntax
 //@[43:69)    Identifier |paramWithOverlappingOutput|
-//@[69:69) EndOfFile ||
+//@[69:73) NewLine |\r\n\r\n|
+
+// top-level output loops are supported
+//@[39:41) NewLine |\r\n|
+output generatedArray array = [for i in range(0,10): i]
+//@[0:55) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |generatedArray|
+//@[22:27)  TypeSyntax
+//@[22:27)   Identifier |array|
+//@[28:29)  Assignment |=|
+//@[30:55)  ForSyntax
+//@[30:31)   LeftSquare |[|
+//@[31:34)   Identifier |for|
+//@[35:36)   LocalVariableSyntax
+//@[35:36)    IdentifierSyntax
+//@[35:36)     Identifier |i|
+//@[37:39)   Identifier |in|
+//@[40:51)   FunctionCallSyntax
+//@[40:45)    IdentifierSyntax
+//@[40:45)     Identifier |range|
+//@[45:46)    LeftParen |(|
+//@[46:48)    FunctionArgumentSyntax
+//@[46:47)     IntegerLiteralSyntax
+//@[46:47)      Integer |0|
+//@[47:48)     Comma |,|
+//@[48:50)    FunctionArgumentSyntax
+//@[48:50)     IntegerLiteralSyntax
+//@[48:50)      Integer |10|
+//@[50:51)    RightParen |)|
+//@[51:52)   Colon |:|
+//@[53:54)   VariableAccessSyntax
+//@[53:54)    IdentifierSyntax
+//@[53:54)     Identifier |i|
+//@[54:55)   RightSquare |]|
+//@[55:55) EndOfFile ||

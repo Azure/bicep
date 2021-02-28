@@ -696,6 +696,69 @@ var noNestedVariableLoopsEither = [for thing in stuff: {
 //@[1:2) RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
+// loops in inner properties of a variable are also not supported
+//@[65:66) NewLine |\n|
+var innerPropertyLoop = {
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |innerPropertyLoop|
+//@[22:23) Assignment |=|
+//@[24:25) LeftBrace |{|
+//@[25:26) NewLine |\n|
+  a: [for i in range(0,10): i]
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:6) LeftSquare |[|
+//@[6:9) Identifier |for|
+//@[10:11) Identifier |i|
+//@[12:14) Identifier |in|
+//@[15:20) Identifier |range|
+//@[20:21) LeftParen |(|
+//@[21:22) Integer |0|
+//@[22:23) Comma |,|
+//@[23:25) Integer |10|
+//@[25:26) RightParen |)|
+//@[26:27) Colon |:|
+//@[28:29) Identifier |i|
+//@[29:30) RightSquare |]|
+//@[30:31) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:2) NewLine |\n|
+var innerPropertyLoop2 = {
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |innerPropertyLoop2|
+//@[23:24) Assignment |=|
+//@[25:26) LeftBrace |{|
+//@[26:27) NewLine |\n|
+  b: {
+//@[2:3) Identifier |b|
+//@[3:4) Colon |:|
+//@[5:6) LeftBrace |{|
+//@[6:7) NewLine |\n|
+    a: [for i in range(0,10): i]
+//@[4:5) Identifier |a|
+//@[5:6) Colon |:|
+//@[7:8) LeftSquare |[|
+//@[8:11) Identifier |for|
+//@[12:13) Identifier |i|
+//@[14:16) Identifier |in|
+//@[17:22) Identifier |range|
+//@[22:23) LeftParen |(|
+//@[23:24) Integer |0|
+//@[24:25) Comma |,|
+//@[25:27) Integer |10|
+//@[27:28) RightParen |)|
+//@[28:29) Colon |:|
+//@[30:31) Identifier |i|
+//@[31:32) RightSquare |]|
+//@[32:33) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 // cannot use loops in expressions
 //@[34:35) NewLine |\n|
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])

@@ -252,4 +252,52 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+output managementGroupIds array = [for i in range(0, length(managementGroups)): {
+//@[0:6) Identifier |output|
+//@[7:25) Identifier |managementGroupIds|
+//@[26:31) Identifier |array|
+//@[32:33) Assignment |=|
+//@[34:35) LeftSquare |[|
+//@[35:38) Identifier |for|
+//@[39:40) Identifier |i|
+//@[41:43) Identifier |in|
+//@[44:49) Identifier |range|
+//@[49:50) LeftParen |(|
+//@[50:51) Integer |0|
+//@[51:52) Comma |,|
+//@[53:59) Identifier |length|
+//@[59:60) LeftParen |(|
+//@[60:76) Identifier |managementGroups|
+//@[76:77) RightParen |)|
+//@[77:78) RightParen |)|
+//@[78:79) Colon |:|
+//@[80:81) LeftBrace |{|
+//@[81:83) NewLine |\r\n|
+  name: yetAnotherSet[i].name
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:21) Identifier |yetAnotherSet|
+//@[21:22) LeftSquare |[|
+//@[22:23) Identifier |i|
+//@[23:24) RightSquare |]|
+//@[24:25) Dot |.|
+//@[25:29) Identifier |name|
+//@[29:31) NewLine |\r\n|
+  displayName: yetAnotherSet[i].properties.displayName
+//@[2:13) Identifier |displayName|
+//@[13:14) Colon |:|
+//@[15:28) Identifier |yetAnotherSet|
+//@[28:29) LeftSquare |[|
+//@[29:30) Identifier |i|
+//@[30:31) RightSquare |]|
+//@[31:32) Dot |.|
+//@[32:42) Identifier |properties|
+//@[42:43) Dot |.|
+//@[43:54) Identifier |displayName|
+//@[54:56) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
 //@[2:2) EndOfFile ||

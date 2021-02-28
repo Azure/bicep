@@ -329,3 +329,128 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
     duplicatedNames[index]
   ]
 }]
+
+var regions = [
+//@[4:11) Variable regions. Type: array. Declaration start char: 0, length: 39
+  'eastus'
+  'westus'
+]
+
+module apim 'passthrough.bicep' = [for region in regions: {
+//@[39:45) Local region. Type: any. Declaration start char: 39, length: 6
+//@[7:11) Module apim. Type: module[]. Declaration start char: 0, length: 131
+  name: 'apim-${region}-${name}'
+  params: {
+    myInput: region
+  }
+}]
+
+resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
+//@[9:49) Resource propertyLoopDependencyOnModuleCollection. Type: Microsoft.Network/frontDoors@2020-05-01. Declaration start char: 0, length: 780
+  name: name
+  location: 'Global'
+  properties: {
+    backendPools: [
+      {
+        name: 'BackendAPIMs'
+        properties: {
+          backends: [for index in range(0, length(regions)): {
+//@[25:30) Local index. Type: int. Declaration start char: 25, length: 5
+            // we cannot codegen index correctly because the generated dependsOn property
+            // would be outside of the scope of the property loop
+            // as a result, this will generate a dependency on the entire collection
+            address: apim[index].outputs.myOutput
+            backendHostHeader: apim[index].outputs.myOutput
+            httpPort: 80
+            httpsPort: 443
+            priority: 1
+            weight: 50
+          }]
+        }
+      }
+    ]
+  }
+}
+
+resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(regions)): {
+//@[92:97) Local index. Type: int. Declaration start char: 92, length: 5
+//@[9:42) Resource indexedModuleCollectionDependency. Type: Microsoft.Network/frontDoors@2020-05-01[]. Declaration start char: 0, length: 757
+  name: '${name}-${index}'
+  location: 'Global'
+  properties: {
+    backendPools: [
+      {
+        name: 'BackendAPIMs'
+        properties: {
+          backends: [
+            {
+              // this indexed dependency on a module collection will be generated correctly because
+              // copyIndex() can be invoked in the generated dependsOn
+              address: apim[index].outputs.myOutput
+              backendHostHeader: apim[index].outputs.myOutput
+              httpPort: 80
+              httpsPort: 443
+              priority: 1
+              weight: 50
+            }
+          ]
+        }
+      }
+    ]
+  }
+}]
+
+resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
+//@[9:51) Resource propertyLoopDependencyOnResourceCollection. Type: Microsoft.Network/frontDoors@2020-05-01. Declaration start char: 0, length: 871
+  name: name
+  location: 'Global'
+  properties: {
+    backendPools: [
+      {
+        name: 'BackendAPIMs'
+        properties: {
+          backends: [for index in range(0, length(accounts)): {
+//@[25:30) Local index. Type: int. Declaration start char: 25, length: 5
+            // we cannot codegen index correctly because the generated dependsOn property
+            // would be outside of the scope of the property loop
+            // as a result, this will generate a dependency on the entire collection
+            address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+            backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+            httpPort: 80
+            httpsPort: 443
+            priority: 1
+            weight: 50
+          }]
+        }
+      }
+    ]
+  }
+}
+
+resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(accounts)): {
+//@[94:99) Local index. Type: int. Declaration start char: 94, length: 5
+//@[9:44) Resource indexedResourceCollectionDependency. Type: Microsoft.Network/frontDoors@2020-05-01[]. Declaration start char: 0, length: 848
+  name: '${name}-${index}'
+  location: 'Global'
+  properties: {
+    backendPools: [
+      {
+        name: 'BackendAPIMs'
+        properties: {
+          backends: [
+            {
+              // this indexed dependency on a module collection will be generated correctly because
+              // copyIndex() can be invoked in the generated dependsOn
+              address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+              backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+              httpPort: 80
+              httpsPort: 443
+              priority: 1
+              weight: 50
+            }
+          ]
+        }
+      }
+    ]
+  }
+}]

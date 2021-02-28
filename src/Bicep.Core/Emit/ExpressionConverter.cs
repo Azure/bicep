@@ -390,6 +390,9 @@ namespace Bicep.Core.Emit
                         ResourceDeclarationSyntax => null,
                         ModuleDeclarationSyntax => null,
 
+                        // output loops are only allowed at the top level and don't have names, either
+                        OutputDeclarationSyntax => null,
+
                         ObjectPropertySyntax property when property.TryGetKeyText() is { } key && ReferenceEquals(property.Value, @for) => key,
 
                         _ => throw new NotImplementedException("Unexpected for-expression grandparent.")

@@ -431,25 +431,8 @@ output notAttachableDecorators int = 32
 //@[37:39) Integer |32|
 //@[39:43) NewLine |\r\n\r\n|
 
-// loops in outputs not allowed
-//@[31:33) NewLine |\r\n|
-output noLoops array = [for thing in things: 4]
-//@[0:6) Identifier |output|
-//@[7:14) Identifier |noLoops|
-//@[15:20) Identifier |array|
-//@[21:22) Assignment |=|
-//@[23:24) LeftSquare |[|
-//@[24:27) Identifier |for|
-//@[28:33) Identifier |thing|
-//@[34:36) Identifier |in|
-//@[37:43) Identifier |things|
-//@[43:44) Colon |:|
-//@[45:46) Integer |4|
-//@[46:47) RightSquare |]|
-//@[47:51) NewLine |\r\n\r\n|
-
-// no nested loops either
-//@[25:27) NewLine |\r\n|
+// nested loops inside output loops are not supported
+//@[53:55) NewLine |\r\n|
 output noNestedLoops array = [for thing in things: {
 //@[0:6) Identifier |output|
 //@[7:20) Identifier |noNestedLoops|
@@ -485,6 +468,85 @@ output noNestedLoops array = [for thing in things: {
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
+
+// loops in inner properties inside outputs are not supported
+//@[61:63) NewLine |\r\n|
+output noInnerLoopsInOutputs object = {
+//@[0:6) Identifier |output|
+//@[7:28) Identifier |noInnerLoopsInOutputs|
+//@[29:35) Identifier |object|
+//@[36:37) Assignment |=|
+//@[38:39) LeftBrace |{|
+//@[39:41) NewLine |\r\n|
+  a: [for i in range(0,10): i]
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:6) LeftSquare |[|
+//@[6:9) Identifier |for|
+//@[10:11) Identifier |i|
+//@[12:14) Identifier |in|
+//@[15:20) Identifier |range|
+//@[20:21) LeftParen |(|
+//@[21:22) Integer |0|
+//@[22:23) Comma |,|
+//@[23:25) Integer |10|
+//@[25:26) RightParen |)|
+//@[26:27) Colon |:|
+//@[28:29) Identifier |i|
+//@[29:30) RightSquare |]|
+//@[30:32) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+output noInnerLoopsInOutputs2 object = {
+//@[0:6) Identifier |output|
+//@[7:29) Identifier |noInnerLoopsInOutputs2|
+//@[30:36) Identifier |object|
+//@[37:38) Assignment |=|
+//@[39:40) LeftBrace |{|
+//@[40:42) NewLine |\r\n|
+  a: [for i in range(0,10): {
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:6) LeftSquare |[|
+//@[6:9) Identifier |for|
+//@[10:11) Identifier |i|
+//@[12:14) Identifier |in|
+//@[15:20) Identifier |range|
+//@[20:21) LeftParen |(|
+//@[21:22) Integer |0|
+//@[22:23) Comma |,|
+//@[23:25) Integer |10|
+//@[25:26) RightParen |)|
+//@[26:27) Colon |:|
+//@[28:29) LeftBrace |{|
+//@[29:31) NewLine |\r\n|
+    b: [for j in range(0,10): i+j]
+//@[4:5) Identifier |b|
+//@[5:6) Colon |:|
+//@[7:8) LeftSquare |[|
+//@[8:11) Identifier |for|
+//@[12:13) Identifier |j|
+//@[14:16) Identifier |in|
+//@[17:22) Identifier |range|
+//@[22:23) LeftParen |(|
+//@[23:24) Integer |0|
+//@[24:25) Comma |,|
+//@[25:27) Integer |10|
+//@[27:28) RightParen |)|
+//@[28:29) Colon |:|
+//@[30:31) Identifier |i|
+//@[31:32) Plus |+|
+//@[32:33) Identifier |j|
+//@[33:34) RightSquare |]|
+//@[34:36) NewLine |\r\n|
+  }]
+//@[2:3) RightBrace |}|
+//@[3:4) RightSquare |]|
+//@[4:6) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
 
 // #completionTest(1) -> decoratorsPlusNamespace
 //@[48:50) NewLine |\r\n|

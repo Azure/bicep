@@ -541,7 +541,14 @@ namespace Bicep.Core.Emit
             memoryWriter.WriteStartObject();
 
             emitter.EmitProperty("type", outputSymbol.Type.Name);
-            emitter.EmitProperty("value", outputSymbol.Value);
+            if (outputSymbol.Value is ForSyntax @for)
+            {
+                emitter.EmitProperty("copy", () => emitter.EmitCopyObject(name: null, @for, @for.Body));
+            }
+            else
+            {
+                emitter.EmitProperty("value", outputSymbol.Value);
+            }
 
             memoryWriter.WriteEndObject();
         }
