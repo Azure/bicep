@@ -86,9 +86,9 @@ Since the `targetScope` has been changed to `subscription`, I will need to use t
 
 Modules are a powerful way to separate your bicep files into logical units and abstract away complex resource declarations.
 
-## Using if condition with bicep Modules
+## Using if() and for keywords with bicep Modules
 
-Modules also support the `if` keyword to conditionally deploy the module, just like a `resource` does. Let's add a new `param` called `deployStorage` and use it conditionally deploy the storage account module:
+Modules also support both the `if` and `for` keywords, just like a `resource` does. Let's add a new `param` called `deployStorage` and use it conditionally deploy the storage account module:
 
 ```bicep
 param deployStorage bool = true
@@ -99,6 +99,19 @@ module stg './storage.bicep' = if (deployStorage) {
 ```
 
 In this example if the parameter of `deployStorage` is set to `false` then everything in the module will be skipped at deployment. If `deployStorage` is set to `true` then the module will be deployed. Combining modules with the usage of the `if()` condition allows for customizing deployed components based on specific criteria/parameters.
+
+If instead I want to iterate and create multiple version of the module, I can use the same `for` syntax we just learned:
+
+```bicep
+param deployments array = [
+  'foo'
+  'bar'
+]
+
+module stg './storage.bicep' = [for item in deployments: {
+  name: '${item}storageDeploy'
+}]
+```
 
 ## Next steps
 

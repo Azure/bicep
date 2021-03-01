@@ -9,6 +9,27 @@ To get the best bicep authoring experience, you will need two components:
 <br/>
 <br/>
 
+## Options for installing the Bicep CLI
+
+* cross-plat
+  * [via Az CLI](#install-and-manage-via-azure-cli-(easiest))
+  * via Az PowerShell (coming soon)
+* Windows
+  * [Windows Installer](#windows-installer)
+  * [Chocolatey](#via-chocolatey)
+  * [WinGet](#via-winget)
+  * [Manual](#manual-with-powershell)
+* macOS
+  * [Homebrew](#via-homebrew)
+  * [Manual](#macos-manual-install)
+* Linux
+  * [Manual](#linux)
+* [Nightly build](#install-the-nightly-builds) (*experimental*)
+
+<br/>
+<br/>
+<br/>
+
 ## Install the Bicep VS Code extension
 
 Either inside of VS Code in the "Extensions" tab or in the Visual Studio marketplace, search for `bicep` and follow the prompts to install.
@@ -23,7 +44,19 @@ To veryify the extension is installed, open any file with a `.bicep` file extens
 <br/>
 <br/>
 
-## Install the Bicep CLI
+
+
+## Next steps
+
+Now that you have the tooling installed, you can start the tutorial which will teach you all of the bicep capabilities:
+
+[1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
+
+<br/>
+<br/>
+<br/>
+
+## Install the Bicep CLI (details)
 
 ### Install and manage via Azure CLI (easiest)
 
@@ -52,16 +85,6 @@ az bicep install --version v0.2.212
 ### Install and manage via Azure PowerShell
 
 The Azure PowerShell module does not yet have the capability to install the bicep CLI. Azure PowerShell (v5.6.0 or later) expects that the Bicep CLI is already installed and available on the PATH. Follow one of the [manual install methods](#manually-install) below. Once the Bicep CLI is installed, it will be called whenever it is required for a deployment cmdlet (i.e. `New-AzResourceGroupDeployment ... -TemplateFile main.bicep`).
-
-## Next steps
-
-Now that you have the tooling installed, you can start the tutorial which will teach you all of the bicep capabilities:
-
-[1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
-
-<br/>
-<br/>
-<br/>
 
 ### Manually install
 
@@ -93,7 +116,7 @@ brew tap azure/bicep https://github.com/azure/bicep
 brew install azure/bicep/bicep
 ```
 
-##### Manual install
+##### macOS manual install
 
 ```sh
 # Fetch the latest Bicep CLI binary
@@ -110,9 +133,9 @@ bicep --help
   
 ```
 
-### Windows
+#### Windows
 
-#### Installer
+#### Windows Installer
 * Download the [latest Windows installer](https://github.com/Azure/bicep/releases/latest/download/bicep-setup-win-x64.exe).
 * Run the downloaded executable. The installer does not require administrative privileges.
 * Step through the installation wizard.
@@ -122,6 +145,12 @@ bicep --help
 
 ```powershell
 choco install bicep
+```
+
+#### via winget
+
+```powershell
+winget install -e --id Microsoft.Bicep
 ```
 
 #### Manual with PowerShell
@@ -141,6 +170,6 @@ bicep --help
 # Done!
 ```
 
-### Install the "nightly" builds of bicep
+#### Install the nightly builds of bicep (experimental)
 
 If you'd like to try the latest pre-release bits of bicep before they are released, you can [follow instructions for installing the nightly builds](./installing-nightly.md). Note, these builds are much more likely to have known or unknown bugs.

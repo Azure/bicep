@@ -7,7 +7,7 @@ The Bicep CLI provides the ability to decompile any existing ARM Template to a `
 bicep decompile "path/to/file.json"
 ```
 
-You can use this command to get to a starting point for Bicep authoring. Note that because there is no guaranteed conversion from JSON to Bicep, decompilation may fail, or you may be left with errors/warnings in the generated Bicep file to fix up. See [Limitations](#limiations) for some details of what is not currently possible.
+You can use this command to get to a starting point for Bicep authoring. Note that because there is no guaranteed conversion from JSON to Bicep, decompilation may fail, or you may be left with errors/warnings in the generated Bicep file to fix up. See [Limitations](#limiations) for some details of what is not currently possible. Also note that because there is not an exact 1:1 conversion from ARM Template to Bicep, it's possible (and likely) to wind up with different ARM Template code if you go decompile then rebuild(ARM Template --`bicep decompile`--> Bicep --`bicep build`--> ARM Template).
 
 You can also use the "Decompile" button in the [Bicep Playground](https://aka.ms/bicepdemo)
 
