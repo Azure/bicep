@@ -1,20 +1,16 @@
 [
   {
-    "label": "'createMode'",
-    "kind": "property",
-    "detail": "createMode (Required)",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `'Default' | 'Restore'`  \n"
-    },
+    "label": "[]",
+    "kind": "value",
+    "detail": "[]",
     "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'createMode'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "preselect": true,
+    "sortText": "1_[]",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'createMode'"
+      "newText": "[\n\t$0\n]"
     }
   },
   {
@@ -1340,6 +1336,24 @@
     }
   },
   {
+    "label": "for",
+    "kind": "snippet",
+    "detail": "for",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for item in list: {\n\t\n}]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for ${2:item} in ${1:list}: {\n\t$0\n}]"
+    }
+  },
+  {
     "label": "format",
     "kind": "function",
     "detail": "format()",
@@ -1590,6 +1604,20 @@
     "textEdit": {
       "range": {},
       "newText": "invalidScope3"
+    }
+  },
+  {
+    "label": "item",
+    "kind": "variable",
+    "detail": "item",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_item",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "item"
     }
   },
   {
@@ -2216,6 +2244,20 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyIndexCompletions_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyIndexCompletions_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyIndexCompletions_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyIndexCompletions_if"
     }
   },
   {

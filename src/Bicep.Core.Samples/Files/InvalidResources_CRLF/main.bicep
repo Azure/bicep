@@ -1022,3 +1022,29 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 // resource loop body that isn't an object
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
+
+// #completionTest(54,55) -> objectPlusFor
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
+  properties: {
+    // #completionTest(32,33) -> symbolsPlusArrayAndFor
+    registrationVirtualNetworks: 
+    resolutionVirtualNetworks: [for lol in []: {
+      
+    }]
+  }
+}]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  properties: {
+    virtualNetworkPeerings: [for item in []: {
+        properties: {
+          remoteAddressSpace: {
+            // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
+            addressPrefixes: 
+          }
+        }
+    }]
+  }
+}
