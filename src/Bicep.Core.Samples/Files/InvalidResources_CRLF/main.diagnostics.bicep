@@ -1345,3 +1345,34 @@ resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 //@[95:101) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
 //@[96:107) [BCP018 (Error)] Expected the "{" character at this location. |environment|
+
+// #completionTest(54,55) -> objectPlusFor
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:55) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
+
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+  properties: {
+    // #completionTest(32,33) -> symbolsPlusArrayAndFor
+    registrationVirtualNetworks: 
+//@[33:33) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+    resolutionVirtualNetworks: [for lol in []: {
+      
+    }]
+  }
+}]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  properties: {
+    virtualNetworkPeerings: [for item in []: {
+        properties: {
+          remoteAddressSpace: {
+            // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
+            addressPrefixes: 
+//@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+          }
+        }
+    }]
+  }
+}

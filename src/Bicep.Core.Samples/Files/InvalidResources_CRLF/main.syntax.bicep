@@ -7210,4 +7210,169 @@ resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[107:108)    LeftParen |(|
 //@[108:109)    RightParen |)|
 //@[109:110)   RightSquare |]|
-//@[110:110) EndOfFile ||
+//@[110:114) NewLine |\r\n\r\n|
+
+// #completionTest(54,55) -> objectPlusFor
+//@[42:44) NewLine |\r\n|
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+//@[0:55) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:52)  StringSyntax
+//@[13:52)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[53:54)  Assignment |=|
+//@[55:55)  SkippedTriviaSyntax
+//@[55:59) NewLine |\r\n\r\n|
+
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
+//@[0:257) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:52)  StringSyntax
+//@[13:52)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[53:54)  Assignment |=|
+//@[55:257)  ForSyntax
+//@[55:56)   LeftSquare |[|
+//@[56:59)   Identifier |for|
+//@[60:64)   LocalVariableSyntax
+//@[60:64)    IdentifierSyntax
+//@[60:64)     Identifier |item|
+//@[65:67)   Identifier |in|
+//@[68:70)   ArraySyntax
+//@[68:69)    LeftSquare |[|
+//@[69:70)    RightSquare |]|
+//@[70:71)   Colon |:|
+//@[72:256)   ObjectSyntax
+//@[72:73)    LeftBrace |{|
+//@[73:75)    NewLine |\r\n|
+  properties: {
+//@[2:178)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:178)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    // #completionTest(32,33) -> symbolsPlusArrayAndFor
+//@[55:57)      NewLine |\r\n|
+    registrationVirtualNetworks: 
+//@[4:33)      ObjectPropertySyntax
+//@[4:31)       IdentifierSyntax
+//@[4:31)        Identifier |registrationVirtualNetworks|
+//@[31:32)       Colon |:|
+//@[33:33)       SkippedTriviaSyntax
+//@[33:35)      NewLine |\r\n|
+    resolutionVirtualNetworks: [for lol in []: {
+//@[4:64)      ObjectPropertySyntax
+//@[4:29)       IdentifierSyntax
+//@[4:29)        Identifier |resolutionVirtualNetworks|
+//@[29:30)       Colon |:|
+//@[31:64)       ForSyntax
+//@[31:32)        LeftSquare |[|
+//@[32:35)        Identifier |for|
+//@[36:39)        LocalVariableSyntax
+//@[36:39)         IdentifierSyntax
+//@[36:39)          Identifier |lol|
+//@[40:42)        Identifier |in|
+//@[43:45)        ArraySyntax
+//@[43:44)         LeftSquare |[|
+//@[44:45)         RightSquare |]|
+//@[45:46)        Colon |:|
+//@[47:63)        ObjectSyntax
+//@[47:48)         LeftBrace |{|
+//@[48:50)         NewLine |\r\n|
+      
+//@[6:8)         NewLine |\r\n|
+    }]
+//@[4:5)         RightBrace |}|
+//@[5:6)        RightSquare |]|
+//@[6:8)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[0:325) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:13)  IdentifierSyntax
+//@[9:13)   Identifier |vnet|
+//@[14:60)  StringSyntax
+//@[14:60)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[61:62)  Assignment |=|
+//@[63:325)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
+  properties: {
+//@[2:256)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:256)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    virtualNetworkPeerings: [for item in []: {
+//@[4:234)     ObjectPropertySyntax
+//@[4:26)      IdentifierSyntax
+//@[4:26)       Identifier |virtualNetworkPeerings|
+//@[26:27)      Colon |:|
+//@[28:234)      ForSyntax
+//@[28:29)       LeftSquare |[|
+//@[29:32)       Identifier |for|
+//@[33:37)       LocalVariableSyntax
+//@[33:37)        IdentifierSyntax
+//@[33:37)         Identifier |item|
+//@[38:40)       Identifier |in|
+//@[41:43)       ArraySyntax
+//@[41:42)        LeftSquare |[|
+//@[42:43)        RightSquare |]|
+//@[43:44)       Colon |:|
+//@[45:233)       ObjectSyntax
+//@[45:46)        LeftBrace |{|
+//@[46:48)        NewLine |\r\n|
+        properties: {
+//@[8:178)        ObjectPropertySyntax
+//@[8:18)         IdentifierSyntax
+//@[8:18)          Identifier |properties|
+//@[18:19)         Colon |:|
+//@[20:178)         ObjectSyntax
+//@[20:21)          LeftBrace |{|
+//@[21:23)          NewLine |\r\n|
+          remoteAddressSpace: {
+//@[10:144)          ObjectPropertySyntax
+//@[10:28)           IdentifierSyntax
+//@[10:28)            Identifier |remoteAddressSpace|
+//@[28:29)           Colon |:|
+//@[30:144)           ObjectSyntax
+//@[30:31)            LeftBrace |{|
+//@[31:33)            NewLine |\r\n|
+            // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
+//@[67:69)            NewLine |\r\n|
+            addressPrefixes: 
+//@[12:29)            ObjectPropertySyntax
+//@[12:27)             IdentifierSyntax
+//@[12:27)              Identifier |addressPrefixes|
+//@[27:28)             Colon |:|
+//@[29:29)             SkippedTriviaSyntax
+//@[29:31)            NewLine |\r\n|
+          }
+//@[10:11)            RightBrace |}|
+//@[11:13)          NewLine |\r\n|
+        }
+//@[8:9)          RightBrace |}|
+//@[9:11)        NewLine |\r\n|
+    }]
+//@[4:5)        RightBrace |}|
+//@[5:6)       RightSquare |]|
+//@[6:8)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||
