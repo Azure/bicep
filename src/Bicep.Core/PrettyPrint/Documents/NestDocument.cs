@@ -1,45 +1,60 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
-using Bicep.Core.PrettyPrint.Documents;
 
-namespace Bicep.Core.PrettyPrint.DocumentCombinators
+namespace Bicep.Core.PrettyPrint.Documents
 {
     public class NestDocument : ILinkedDocument
     {
-        public NestDocument(int level, ILinkedDocument successor)
+        private readonly int level;
+
+        private readonly ImmutableArray<ILinkedDocument> successors;
+
+        public NestDocument(int level)
+            : this(level, ImmutableArray<ILinkedDocument>.Empty)
         {
-            this.Level = level;
-            this.Successor = successor;
         }
 
-        public int Level { get; }
-
-        public ILinkedDocument Successor { get; }
+        public NestDocument(int level, ImmutableArray<ILinkedDocument> successors)
+        {
+            this.level = level;
+            this.successors = successors;
+        }
 
         public ILinkedDocument Concat(ILinkedDocument other)
         {
-            return new NestDocument(this.Level, this.Successor.Concat(other));
+            return new NestDocument(this.level, this.successors.Add(other));
         }
 
-        public ILinkedDocument Nest(int level)
+        public ILinkedDocument Nest()
         {
-            return new NestDocument(level + this.Level, this.Successor.Nest(level));
+            RuntimeHelpers.EnsureSufficientExecutionStack();
+
+            return new NestDocument(this.level + 1, this.successors.Select(s => s.Nest()).ToImmutableArray());
         }
 
         public void Layout(StringBuilder sb, string indent, string newline)
         {
+            RuntimeHelpers.EnsureSufficientExecutionStack();
+
             sb.Append(newline);
 
-            if (!(this.Successor is NestDocument))
+            // Avoid putting whitespaces between newlines.
+            if (this.successors.FirstOrDefault() is not NestDocument)
             {
-                for (int i = 0; i < this.Level; i++)
+                for (int i = 0; i < this.level; i++)
                 {
                     sb.Append(indent);
                 }
             }
-            
-            this.Successor.Layout(sb, indent, newline);
+
+            foreach (var successor in this.successors)
+            {
+                successor.Layout(sb, indent, newline);
+            }
         }
     }
 }

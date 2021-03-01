@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -31,6 +30,8 @@ namespace Bicep.Core.Samples
         public static DataSet InvalidTargetScopes_LF => CreateDataSet();
 
         public static DataSet InvalidVariables_LF => CreateDataSet();
+
+        public static DataSet LargeTemplate_LF => CreateDataSet();
 
         public static DataSet Loops_LF => CreateDataSet();
 
