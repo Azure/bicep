@@ -5,9 +5,71 @@ To get the best bicep authoring experience, you will need two components:
 * Bicep CLI (required) - Compiles bicep files into ARM templates. Cross-platform.
 * Bicep VS Code Extension - Authoring support, intellisense, validation. Optional, but recommended.
 
+<br/>
+<br/>
+<br/>
+
+## Install the Bicep VS Code extension
+
+Either inside of VS Code in the "Extensions" tab or in the Visual Studio marketplace, search for `bicep` and follow the prompts to install. The Bicep extension is also recommended for any `.bicep` file and can be installed with one click.
+
+![](./images/install-bicep-extension.PNG)
+
+### Verify the Bicep VS Code extension is running
+
+Open a file called `main.bicep` VS code. If the extension is installed, you should see syntax highlighting working, and you should see the `language mode` in the lower right hand corner of the VS code window change to `bicep`.
+
+>**Note**: The Bicep VS code extension versions prior to v0.2 must be uninstalled before or after the installation of the new version. Otherwise, both extension versions will run side by side and you will see duplicated and/or inconsistent errors. Versions 0.2 or newer do not require uninstallation and will upgrade correctly.
+
+<br/>
+<br/>
+<br/>
+
 ## Install the Bicep CLI
 
-### Linux
+### Install and manage via Azure CLI (easiest)
+
+If you already have the latest version of Az CLI installed (v2.20.0 or later), the Bicep CLI will be automatically be installed when a command that depends on it is executed (`az bicep ...` or `az deployment ... -f *.bicep`). 
+
+You can also manually install using the built-in commands:
+
+```bash
+az bicep install
+```
+
+You can upgrade to the latest version:
+
+```bash
+az bicep upgrade
+```
+
+Or you can install a specific version:
+
+```bash
+az bicep install --version v0.2.212
+```
+
+>**Note:** Az CLI will install a separate version of the Bicep CLI that will not conflict with any other bicep installs you may have and Az CLI will *not* add bicep to your PATH.
+
+### Install and manage via Azure PowerShell
+
+The Azure PowerShell module does not yet have the capability to install the bicep CLI. Azure PowerShell (v5.6.0 or later) expects that the Bicep CLI is already installed and available on the PATH. Follow one of the [manual install methods](#manually-install) below
+
+## Next steps
+
+Now that you have the tooling installed, you can start the tutorial which will teach you full bicep capabilities:
+
+[1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
+
+<br/>
+<br/>
+<br/>
+
+### Manually install
+
+All of the following methods will install the Bicep CLI and add it to your PATH.
+
+#### Linux
 ```sh
 # Fetch the latest Bicep CLI binary
 curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
@@ -21,9 +83,9 @@ bicep --help
   
 ```
 
-### macOS
+#### macOS
 
-#### Installing via homebrew
+##### via homebrew
 
 ```sh
 # Add the tap for bicep
@@ -33,7 +95,7 @@ brew tap azure/bicep https://github.com/azure/bicep
 brew install azure/bicep/bicep
 ```
 
-#### Manual install
+##### Manual install
 
 ```sh
 # Fetch the latest Bicep CLI binary
@@ -58,7 +120,13 @@ bicep --help
 * Step through the installation wizard.
 * After the installation, Bicep CLI will be added to your user PATH. If you have any command shell windows open (`cmd`, `PowerShell`, or similar), you will need to close and reopen them for the PATH change to take effect.
 
-#### PowerShell
+#### via Chocolatey
+
+```powershell
+choco install bicep
+```
+
+#### Manual with PowerShell
 ```powershell
 # Create the install folder
 $installPath = "$env:USERPROFILE\.bicep"
@@ -73,9 +141,9 @@ if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
 # Verify you can now access the 'bicep' command.
 bicep --help
 # Done!
-  
 ```
 
+<<<<<<< Updated upstream
 ## Install the Bicep VS Code extension
 
 ### Installing inside VS code
@@ -100,6 +168,8 @@ Now that you have the tooling installed, you can start the tutorial which will t
 
 [1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
 
+=======
+>>>>>>> Stashed changes
 ### Install the "nightly" builds of bicep
 
 If you'd like to try the latest pre-release bits of bicep before they are released, you can [follow instructions for installing the nightly builds](./installing-nightly.md). Note, these builds are much more likely to have known or unknown bugs.
