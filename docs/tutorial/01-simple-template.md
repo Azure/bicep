@@ -1,84 +1,34 @@
-# Working with a basic bicep file
+# Working with a basic Bicep file
 
-In this tutorial we'll start from a blank file and build up to a file with the basic bicep primitives.
+In this tutorial we'll start from a blank file and build up to a file with the basic Bicep primitives.
 
-If you haven't already, follow [these instructions](../installing.md) to install the bicep CLI and VS Code extension.
+Ensure you have met the following prerequisites:
 
-## Compile an empty bicep file
-
-Let's start by creating a blank file `main.bicep` and compiling it by running:
-
-
-1. Create the blank main.bicep file
-  - Windows
-    ```bash
-    fsutil file createnew main.bicep 0
-    ```
-  - Linux
-    ```bash
-    touch main.bicep
-    ```
-2. Run bicep build
-  ```bash
-  bicep build main.bicep
-  ```
-
-You should get an output json file of the same name in your current directory -- in this case `main.json`. It should be a skeleton ARM JSON template:
-
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "functions": [],
-  "resources": []
-}
-```
+* Bicep CLI and VS Code extension installed ([installation instructions](../installing.md))
+* Az CLI v2.20.0 or later installed ([installation instructions](https://docs.microsoft.com/cli/azure/install-azure-cli))
+* An Azure subscription and resource group available to create deployments (this tutorial uses a resource group called `my-rg`)
 
 ## Add a resource
 
-Next we will add our first `resource` to our bicep file -- a basic storage account.
+Let's start by creating a blank file `main.bicep` and add our first `resource` to it -- a basic storage account.
 
-```
+```bicep
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: 'uniquestorage001' // must be globally unique
-    location: 'eastus'
-    kind: 'Storage'
-    sku: {
-        name: 'Standard_LRS'
-    }
+  name: 'uniquestorage001' // must be globally unique
+  location: 'eastus'
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_LRS'
+  }
 }
 ```
 
 The resource declaration has four components:
 
 * `resource` keyword
-* **symbolic name** (`stg`) - this is an identifier for referencing the resource throughout your bicep file. It is *not* what the name of the resource will be when it's deployed.
-* **type** (`Microsoft.Storage/storageAccounts@2019-06-01`) - composed of the resource provider (`Microsoft.Storage`), resource type (`storageAccounts`), and apiVersion (`2019-06-01`). These properties should be familiar if you've ever deployed ARM Templates before. You can find more types and apiVersions for various Azure resources [here](https://docs.microsoft.com/en-us/rest/api/resources/).
+* **symbolic name** (`stg`) - this is an identifier for referencing the resource throughout your Bicep file. It is *not* the name of the resource that will be deployed.
+* **type** (`Microsoft.Storage/storageAccounts@2019-06-01`) - composed of the resource provider (`Microsoft.Storage`), resource type (`storageAccounts`), and api version (`2019-06-01`). These properties should be familiar if you have deployed ARM Templates before. You can browse [full list of types](https://docs.microsoft.com/rest/api/resources/) for more Azure resource types and versions.
 * **properties** (everything inside `= {...}`) - these are the specific properties you would like to specify for the given resource type. These are *exactly* the same properties available to you in an ARM Template.
-
-When we compile the template with `bicep build main.bicep`, we see the following JSON:
-
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "functions": [],
-  "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "name": "uniquestorage001",
-      "location": "eastus",
-      "kind": "Storage",
-      "sku": {
-        "name": "Standard_LRS"
-      }
-    }
-  ]
-}
-```
-
-At this point, I can deploy it like any other ARM template using the standard command line tools (`az deployment group create ...` or `New-AzResourceGroupDeployment ...`).
 
 ## Add parameters
 
@@ -89,116 +39,58 @@ param location string = 'eastus'
 param name string = 'uniquestorage001' // must be globally unique
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: name
-    location: location
-    kind: 'Storage'
-    sku: {
-        name: 'Standard_LRS'
-    }
+  name: name
+  location: location
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_LRS'
+  }
 }
 ```
 
-Notice the `parameters` can be referenced directly via their name in bicep, compared to requiring `[parameters('location')]` in ARM template JSON.
+The end of the parameter declarations (`= 'eastus'`, `= 'uniquestorage001'`) are *default* values. They can be optionally overridden at deployment time.
 
-The end of the parameter declarations (`= 'eastus', = 'uniquestorage001'`) are *default* values. They can be optionally overridden at deployment time.
+Notice the `parameters` can be referenced directly via their name in Bicep, compared to requiring `[parameters('location')]` in ARM template JSON.
 
-Let's compile with `bicep build main.bicep` and look at the output:
+I can use any number of parameter decorators to augment more behavior of the parameter, such as restricting the length. Decorators use the `@` character and must be declared directly above the symbol it is decorating.  
 
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "eastus"
-    },
-    "name": {
-      "type": "string",
-      "defaultValue": "uniquestorage001"
-    }
-  },
-  "functions": [],
-  "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "name": "[parameters('name')]",
-      "location": "[parameters('location')]",
-      "kind": "Storage",
-      "sku": {
-        "name": "Standard_LRS"
-      }
-    }
-  ]
-}
+Storage account names must be between 3 and 24 characters, so let's add those restrictions to our `name` parameter.
+
+```bicep
+@minLength(3)
+@maxLength(24)
+param name string = 'uniquestorage001' // must be globally unique
 ```
 
 ## Add variables and outputs
 
-I can also add `variables` for storing values or complex expressions, and emit `outputs` to be passed to a script or another template:
+I can also add `variables` for storing values or complex expressions, and emit `outputs` to be passed to a script or another Bicep file:
 
 ```
 param location string = 'eastus'
+
+@minLength(3)
+@maxLength(24)
 param name string = 'uniquestorage001' // must be globally unique
 
 var storageSku = 'Standard_LRS' // declare variable and assign value
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: name
-    location: location
-    kind: 'Storage'
-    sku: {
-        name: storageSku // reference variable
-    }
+  name: name
+  location: location
+  kind: 'Storage'
+  sku: {
+    name: storageSku // reference variable
+  }
 }
 
 output storageId string = stg.id // output resourceId of storage account
 ```
 
-Notice I can easily reference the resource `Id` from the symbolic name of the storage account (`stg.id`) which we will translate to the `resourceId(...)` function in the compiled template. When compiled, you should see the following ARM Template JSON:
-
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "eastus"
-    },
-    "name": {
-      "type": "string",
-      "defaultValue": "uniquestorage001"
-    }
-  },
-  "functions": [],
-  "variables": {
-    "storageSku": "Standard_LRS"
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "name": "[parameters('name')]",
-      "location": "[parameters('location')]",
-      "kind": "Storage",
-      "sku": {
-        "name": "[variables('storageSku')]"
-      }
-    }
-  ],
-  "outputs": {
-    "storageId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
-    }
-  }
-}
-```
+Notice I can easily reference the resource `id` from the symbolic name of the storage account (`stg.id`). No need to use the `resourceId()` function. This is one of the many uses of the resource identifier that will be covered more deeply in Tutorial 03.
 
 ## Next steps
 
-In the next tutorial, we will walk through compiling and deploying a bicep file:
+In the next tutorial, we will walk through deploying a Bicep file:
 
 [2 - Deploying a bicep file](./02-deploying-a-bicep-file.md)
