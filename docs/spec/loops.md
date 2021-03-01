@@ -33,7 +33,7 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
       }
     }
   }
-  kind: StorageV2
+  kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
   }
@@ -75,7 +75,7 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
       }
     }
   }
-  kind: StorageV2
+  kind: 'StorageV2'
   sku: {
     name: config.sku
   }
@@ -106,7 +106,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
       addressPrefixes: [
         '10.144.0.0/20'
       ]
-    },
+    }
     subnets: [for subnet in subnets: {
       name: subnet.name
       properties: {
