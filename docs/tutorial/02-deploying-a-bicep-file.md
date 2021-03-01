@@ -1,62 +1,62 @@
 # Deploying a bicep file
 
-Bicep files can be directly deployed via the Az CLI or PowerShell Az module, so the standard deployment commands (i.e. `az deployment group create` or `New-AzResourceGroupDeployment`) will "just work" with a `.bicep` file.
+Bicep files can be directly deployed via the Az CLI or PowerShell Az module, so the standard deployment commands (i.e. `az deployment group create` or `New-AzResourceGroupDeployment`) will "just work" with a `.bicep` file. You will need Az CLI version 2.20.0+ or PowerShell Az module version 5.6.0+.
 
 ## Deploy bicep file to a resource group
 
->**Note:** make sure you update th default value of the `name` parameter to be globally unique.
-
-Via **Az CLI**:
+**Az CLI**:
 
 ```bash
 az deployment group create -f ./main.bicep -g my-rg
 ```
 
-Via **Azure PowerShell**:
+**Azure PowerShell**:
 
 ```powershell
 New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-rg
 ```
 
+>**Note:** make sure you update the default value of the `name` parameter to be globally unique before deploying.
+
 ## Deploy with parameters
 
-Our bicep file exposed two parameters that we can override (`location` and `name`)
-
-**Note:** make sure you update your storage account `name` to be globally unique.
+Our bicep file exposed two parameters that we can be optionally overridden (`location` and `name`) by passing new values at deployment time.
 
 ### Pass parameters on the command line
 
-CLI:
+**Az CLI**:
 
 ```bash
-az deployment group create -f ./main.bicep -g my-rg --parameters location=westus name=logstorage001
+az deployment group create -f ./main.bicep -g my-rg --parameters location=westus name=uniquelogstorage001
 ```
 
-PowerShell:
+**Azure PowerShell**:
 
 ```powershell
-New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-rg -location westus -name logstorage001
+New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-rg -location westus -name uniquelogstorage001
 ```
 
 ### Use a local parameters JSON file
 
-Bicep supports providing all of the parameters for a template via a JSON file. There is no new "bicep style" syntax for passing parameters. It is the same parameters file you would use for a template deployment. You can take a look at [this parameters tutorial](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-tutorial-use-parameter-file?tabs=azure-powershell) to learn how the parameters file is structured. Once you have your parameters file, you can pass it to the deployment command-line tools:
+Bicep supports providing all of the parameters for a template via a JSON file. There is no new "bicep style" syntax for passing parameters. It is the same parameters file you would use for an ARM template deployment. You can take a look at [this parameters tutorial](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-tutorial-use-parameter-file?tabs=azure-powershell) to learn how the parameters file is structured. 
 
-CLI:
+Once you have your parameters file, you can pass it to the deployment command-line tools:
+
+**Az CLI**:
 
 ```bash
-az deployment group create -f ./main.bicep -g my-rg --parameters ./parameters.main.json
+az deployment group create -f ./main.bicep -g my-rg --parameters ./parameters.json
 ```
 
-PowerShell:
+**Azure PowerShell**:
 
 ```powershell
-New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-rg -TemplateParameterFile ./parameters.main.json
+New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-rg -TemplateParameterFile ./parameters.json
 ```
 
 ## Deploy to non-resource group scopes
 
-By default, Bicep files are set to be deployed to the resource group scope. However, you can deploy templates to any scope by specifying the `targetScope` property. See [Resource Scopes spec](../spec/resource-scopes.md) for details.
+By default, Bicep files are set to be deployed to the resource group scope. You can deploy templates to any other scope in Azure (subscription, management group, or tenant) by specifying the `targetScope` property. See [Resource Scopes spec](../spec/resource-scopes.md) for details. Note that you will need to use the appropriate deployment command for the scope you are targeting. For example, if I set `targetScope` to `managementGroup`, I will need to use the Az CLI command `az deployment mg create ...`.
 
 ## Next steps
 

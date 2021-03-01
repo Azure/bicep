@@ -1,5 +1,6 @@
 # Loops
-> **Note:** Not implemented yet.
+
+>Loops were implemented in v0.3
 
 Loops may be used to iterate over an array to declare multiple resources or to set an array property inside a resource declaration. Iteration over the array occurs over the elements of the array. The index of the iteration is also available.
 

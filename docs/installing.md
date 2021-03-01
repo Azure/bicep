@@ -11,13 +11,11 @@ To get the best bicep authoring experience, you will need two components:
 
 ## Install the Bicep VS Code extension
 
-Either inside of VS Code in the "Extensions" tab or in the Visual Studio marketplace, search for `bicep` and follow the prompts to install. The Bicep extension is also recommended for any `.bicep` file and can be installed with one click.
+Either inside of VS Code in the "Extensions" tab or in the Visual Studio marketplace, search for `bicep` and follow the prompts to install.
 
 ![](./images/install-bicep-extension.PNG)
 
-### Verify the Bicep VS Code extension is running
-
-Open a file called `main.bicep` VS code. If the extension is installed, you should see syntax highlighting working, and you should see the `language mode` in the lower right hand corner of the VS code window change to `bicep`.
+To veryify the extension is installed, open any file with a `.bicep` file extension. If the extension is properly installed, you should see the `language mode` in the lower right corner of the VS code window change to `bicep`.
 
 >**Note**: The Bicep VS code extension versions prior to v0.2 must be uninstalled before or after the installation of the new version. Otherwise, both extension versions will run side by side and you will see duplicated and/or inconsistent errors. Versions 0.2 or newer do not require uninstallation and will upgrade correctly.
 
@@ -29,9 +27,9 @@ Open a file called `main.bicep` VS code. If the extension is installed, you shou
 
 ### Install and manage via Azure CLI (easiest)
 
-If you already have the latest version of Az CLI installed (v2.20.0 or later), the Bicep CLI will be automatically be installed when a command that depends on it is executed (`az bicep ...` or `az deployment ... -f *.bicep`). 
+If you already have the latest version of Az CLI installed (v2.20.0 or later), the Bicep CLI will automatically be installed when a command that depends on it is executed (`az deployment ... -f *.bicep` or `az bicep ...`).
 
-You can also manually install using the built-in commands:
+You can also manually install the CLI using the built-in commands:
 
 ```bash
 az bicep install
@@ -53,11 +51,11 @@ az bicep install --version v0.2.212
 
 ### Install and manage via Azure PowerShell
 
-The Azure PowerShell module does not yet have the capability to install the bicep CLI. Azure PowerShell (v5.6.0 or later) expects that the Bicep CLI is already installed and available on the PATH. Follow one of the [manual install methods](#manually-install) below
+The Azure PowerShell module does not yet have the capability to install the bicep CLI. Azure PowerShell (v5.6.0 or later) expects that the Bicep CLI is already installed and available on the PATH. Follow one of the [manual install methods](#manually-install) below. Once the Bicep CLI is installed, it will be called whenever it is required for a deployment cmdlet (i.e. `New-AzResourceGroupDeployment ... -TemplateFile main.bicep`).
 
 ## Next steps
 
-Now that you have the tooling installed, you can start the tutorial which will teach you full bicep capabilities:
+Now that you have the tooling installed, you can start the tutorial which will teach you all of the bicep capabilities:
 
 [1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
 
@@ -143,33 +141,6 @@ bicep --help
 # Done!
 ```
 
-<<<<<<< Updated upstream
-## Install the Bicep VS Code extension
-
-### Installing inside VS code
-* Open VS Code
-* In the Extensions tab, search for "Bicep".
-* Click "Install"
-
->**Note**: The Bicep VS code extension versions older than 0.2 must be uninstalled before or after the installation of the new version. Otherwise, both extension versions will run side by side and you will see duplicated and/or inconsistent errors. Versions 0.2 or newer do not require uninstallation and will upgrade correctly.
-
-### Installing via the Visual Studio Marketplace
-* Open your browser and navigate to https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep
-* Click "Install" which should open VS code extension installation page
-* Click "Install" in VS Code.
-
-### Verify the Bicep VS Code extension is running
-
-Open a file called `main.bicep` VS code. If the extension is installed, you should see syntax highlighting working, and you should see the `language mode` in the lower right hand corner of the VS code window change to `bicep`.
-
-## Next steps
-
-Now that you have the tooling installed, you can start the tutorial which will teach you full bicep capabilities:
-
-[1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
-
-=======
->>>>>>> Stashed changes
 ### Install the "nightly" builds of bicep
 
 If you'd like to try the latest pre-release bits of bicep before they are released, you can [follow instructions for installing the nightly builds](./installing-nightly.md). Note, these builds are much more likely to have known or unknown bugs.

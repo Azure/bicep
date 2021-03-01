@@ -56,11 +56,6 @@ az deployment group create -f ./main.json -g my-rg
   * Advanced type validation based on all Azure resource type API definitions
   * Completions on resource properties (`output sample string = resource.properties.*`)
 * Automatic dependency management in certain scenarios. Bicep will automatically add `dependsOn` in the compiled ARM Template if the symbolic name is used in another resource declaration.
-<<<<<<< Updated upstream
-* Richer validation and intellisense than what is available in the ARM Tools VS Code extension. For example, in bicep we have intellisense on GET properties (`output sample string = resource.properties.*`)
-* All resource type properties that exist via Azure Resource Manager are available in bicep. Since bicep produces ARM template `.json` files there are no discrepancies of what properties and settings are available. 
-=======
->>>>>>> Stashed changes
 
 For more detail on taking advantage of new bicep constructs that replace an equivalent from ARM Templates, you can read the [moving from ARM => Bicep](./docs/arm2bicep.md) doc.
 
@@ -69,6 +64,7 @@ For more detail on taking advantage of new bicep constructs that replace an equi
 * Single line object and arrays (i.e. `['a', 'b', 'c']`) are not yet supported ([#146](https://github.com/Azure/bicep/issues/146)).
 * Bicep is newline sensitive. We are exploring ways we can remove/relax this restriction ([]())
 * No ability to set the ARM Template equivalent of `copy.mode` or `copy.batchSize` ([]())
+* No ability to combine loops and conditions ([]())
 
 ## FAQ
 
@@ -86,11 +82,7 @@ Fundamentally, we believe that configuration languages and tools are always goin
 Yes. As of v0.3, Bicep is now supported by Microsoft Support Plans and bicep has 100% parity with what can be accomplished with ARM Templates. As of this writing, there are no breaking changes currently planned, but **it is still possible they will need to be made in the future**.
 
 **Is this only for Azure?**
-<<<<<<< Updated upstream
-Bicep is a DSL focused on deploying end-to-end solutions in Azure. In practice, that usually means working with some non-Azure APIs (i.e. creating Kubernetes deployments or users in a database), so we expect to provide some extensibility points. That being said, in the 0.1 release, you can only create Azure resources that are exposed through the ARM API.
-=======
 Bicep is a DSL focused on deploying end-to-end solutions in Azure. In practice, that usually means working with some non-Azure APIs (i.e. creating kubernetes deployments or users in a database), so we expect to provide some extensibility points. That being said, currently only Azure resources exposed through the ARM API can be created with bicep.
->>>>>>> Stashed changes
 
 **What happens to my existing ARM Template investments?**
 One of our goals is to make the transition from ARM Templates to Bicep as easy as possible. The Bicep CLI supports a `decompile` command to generate Bicep code from an ARM template. Please see [Decompiling an ARM Template](https://github.com/Azure/bicep/blob/main/docs/decompiling.md) for usage information.
