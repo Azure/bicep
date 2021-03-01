@@ -1,6 +1,6 @@
-# Working with a basic bicep file
+# Working with a basic Bicep file
 
-In this tutorial we'll start from a blank file and build up to a file with the basic bicep primitives.
+In this tutorial we'll start from a blank file and build up to a file with the basic Bicep primitives.
 
 Ensure you have met the following prerequisites:
 
@@ -26,7 +26,7 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 The resource declaration has four components:
 
 * `resource` keyword
-* **symbolic name** (`stg`) - this is an identifier for referencing the resource throughout your bicep file. It is *not* the name of the resource that will be deployed.
+* **symbolic name** (`stg`) - this is an identifier for referencing the resource throughout your Bicep file. It is *not* the name of the resource that will be deployed.
 * **type** (`Microsoft.Storage/storageAccounts@2019-06-01`) - composed of the resource provider (`Microsoft.Storage`), resource type (`storageAccounts`), and api version (`2019-06-01`). These properties should be familiar if you have deployed ARM Templates before. You can browse [full list of types](https://docs.microsoft.com/rest/api/resources/) for more Azure resource types and versions.
 * **properties** (everything inside `= {...}`) - these are the specific properties you would like to specify for the given resource type. These are *exactly* the same properties available to you in an ARM Template.
 
@@ -50,7 +50,7 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 The end of the parameter declarations (`= 'eastus'`, `= 'uniquestorage001'`) are *default* values. They can be optionally overridden at deployment time.
 
-Notice the `parameters` can be referenced directly via their name in bicep, compared to requiring `[parameters('location')]` in ARM template JSON.
+Notice the `parameters` can be referenced directly via their name in Bicep, compared to requiring `[parameters('location')]` in ARM template JSON.
 
 I can use any number of parameter decorators to augment more behavior of the parameter, such as restricting the length. Decorators use the `@` character and must be declared directly above the symbol it is decorating.  
 
@@ -64,7 +64,7 @@ param name string = 'uniquestorage001' // must be globally unique
 
 ## Add variables and outputs
 
-I can also add `variables` for storing values or complex expressions, and emit `outputs` to be passed to a script or another bicep file:
+I can also add `variables` for storing values or complex expressions, and emit `outputs` to be passed to a script or another Bicep file:
 
 ```
 param location string = 'eastus'
@@ -91,6 +91,6 @@ Notice I can easily reference the resource `id` from the symbolic name of the st
 
 ## Next steps
 
-In the next tutorial, we will walk through deploying a bicep file:
+In the next tutorial, we will walk through deploying a Bicep file:
 
 [2 - Deploying a bicep file](./02-deploying-a-bicep-file.md)

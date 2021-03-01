@@ -2,13 +2,13 @@
 
 In the first tutorial, we declared a basic storage account resource and augmented that declaration with references to declared parameters and variables. These references are forms of **expressions**.
 
-There are lots of powerful expressions to take advantage of in your bicep files.
+There are lots of powerful expressions to take advantage of in your Bicep files.
 
-## Using a bicep function
+## Using a Bicep function
 
-Any valid [ARM Template function](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-functions) is also a valid bicep function.
+Any valid [ARM Template function](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-functions) is also a valid Bicep function.
 
-The following are all valid function calls in bicep:
+The following are all valid function calls in Bicep:
 
 ```bicep
 param currentTime string = utcNow()

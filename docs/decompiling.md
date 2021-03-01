@@ -15,13 +15,13 @@ You can also use the "Decompile" button in the [Bicep Playground](https://aka.ms
 You can pass an exported template directly to the `bicep decompile` command to effectively export a resource group to a `.bicep` file.
 
 ### Azure CLI
-The following will create a file named 'main.bicep' in the current directory:
+The following will create a file named `main.bicep` in the current directory:
 ```sh
 az group export --name "your_resource_group_name" > main.json
 bicep decompile main.json
 ```
 ### Azure PowerShell
-The following will create a file named 'main.bicep' in the current directory:
+The following will create a file named `main.bicep` in the current directory:
 ```powershell
 Export-AzResourceGroup -ResourceGroupName "your_resource_group_name" -Path ./main.json
 bicep decompile main.json

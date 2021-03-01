@@ -1,6 +1,6 @@
 # Using the symbolic resource name
 
-Let's take another look at our storage account `resource`. As we discussed earlier, the resource declaration includes a **symbolic name**, which is separate from the name of the resource that will be created. The symbolic name is simply a reference to the resource within a bicep project. It is a very useful pointer for retrieving properties of a resource and keeps your syntax readable and easy to manage.
+Let's take another look at our storage account `resource`. As we discussed earlier, the resource declaration includes a **symbolic name**, which is separate from the name of the resource that will be created. The symbolic name is simply a reference to the resource within a Bicep project. It is a very useful pointer for retrieving properties of a resource and keeps your syntax readable and easy to manage.
 
 ## Retrieving the resource ID
 
@@ -42,7 +42,7 @@ You may find you need other properties like `apiVersion` for functions like [lis
 
 ## Retrieving "run-time" properties
 
-In ARM Templates, I need to use the `reference()` function to retrieve run-time properties that only exist after the resource has been created. In a storage account, the `primaryEndpoints` property is one of those. With bicep, I no longer need to use the `reference()` function and can instead use `.` property access to retrieve the same information.
+In ARM Templates, I need to use the `reference()` function to retrieve run-time properties that only exist after the resource has been created. In a storage account, the `primaryEndpoints` property is one of those. With Bicep, I no longer need to use the `reference()` function and can instead use `.` property access to retrieve the same information.
 
 Let's add another output to retrieve this run-time property:
 
@@ -72,7 +72,7 @@ output blobEndpoint string = stg.properties.primaryEndpoints.blob // replacement
 
 In ARM Templates, you must manually specify resource dependencies with the `dependsOn` property. If we want to create a blob container in our storage account, we need to make sure the storage account gets created first.
 
-With bicep, if you reference any property of the prerequisite resource via the symbolic name, **we will automatically add the dependsOn property**.
+With Bicep, if you reference any property of the prerequisite resource via the symbolic name, **we will automatically add the dependsOn property**.
 
 Let's add a new resource for our blob container to our storage account, and reference the `name` property via symbolic name (`stg.name`):
 

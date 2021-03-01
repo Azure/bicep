@@ -1,8 +1,8 @@
-# Setup your bicep development environment
+# Setup your Bicep development environment
 
-To get the best bicep authoring experience, you will need two components:
+To get the best Bicep authoring experience, you will need two components:
 
-* Bicep CLI (required) - Compiles bicep files into ARM templates. Cross-platform.
+* Bicep CLI (required) - Compiles Bicep files into ARM templates. Cross-platform.
 * Bicep VS Code Extension - Authoring support, intellisense, validation. Optional, but recommended.
 
 <br/>
@@ -48,7 +48,7 @@ To veryify the extension is installed, open any file with a `.bicep` file extens
 
 ## Next steps
 
-Now that you have the tooling installed, you can start the tutorial which will teach you all of the bicep capabilities:
+Now that you have the tooling installed, you can start the tutorial which will teach you all of the Bicep capabilities:
 
 [1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
 
@@ -80,11 +80,11 @@ Or you can install a specific version:
 az bicep install --version v0.2.212
 ```
 
->**Note:** Az CLI will install a separate version of the Bicep CLI that will not conflict with any other bicep installs you may have and Az CLI will *not* add bicep to your PATH.
+>**Note:** Az CLI will install a separate version of the Bicep CLI that will not conflict with any other Bicep installs you may have and Az CLI will *not* add Bicep to your PATH.
 
 ### Install and manage via Azure PowerShell
 
-The Azure PowerShell module does not yet have the capability to install the bicep CLI. Azure PowerShell (v5.6.0 or later) expects that the Bicep CLI is already installed and available on the PATH. Follow one of the [manual install methods](#manually-install) below. Once the Bicep CLI is installed, it will be called whenever it is required for a deployment cmdlet (i.e. `New-AzResourceGroupDeployment ... -TemplateFile main.bicep`).
+The Azure PowerShell module does not yet have the capability to install the Bicep CLI. Azure PowerShell (v5.6.0 or later) expects that the Bicep CLI is already installed and available on the PATH. Follow one of the [manual install methods](#manually-install) below. Once the Bicep CLI is installed, it will be called whenever it is required for a deployment cmdlet (i.e. `New-AzResourceGroupDeployment ... -TemplateFile main.bicep`).
 
 ### Manually install
 
@@ -172,4 +172,4 @@ bicep --help
 
 #### Install the nightly builds of bicep (experimental)
 
-If you'd like to try the latest pre-release bits of bicep before they are released, you can [follow instructions for installing the nightly builds](./installing-nightly.md). Note, these builds are much more likely to have known or unknown bugs.
+If you'd like to try the latest pre-release bits of Bicep before they are released, you can [follow instructions for installing the nightly builds](./installing-nightly.md). Note, these builds are much more likely to have known or unknown bugs.

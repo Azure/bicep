@@ -1,8 +1,8 @@
-# Deploying a bicep file
+# Deploying a Bicep file
 
 Bicep files can be directly deployed via the Az CLI or PowerShell Az module, so the standard deployment commands (i.e. `az deployment group create` or `New-AzResourceGroupDeployment`) will "just work" with a `.bicep` file. You will need Az CLI version 2.20.0+ or PowerShell Az module version 5.6.0+.
 
-## Deploy bicep file to a resource group
+## Deploy Bicep file to a resource group
 
 **Az CLI**:
 
@@ -20,7 +20,7 @@ New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-r
 
 ## Deploy with parameters
 
-Our bicep file exposed two parameters that we can be optionally overridden (`location` and `name`) by passing new values at deployment time.
+Our Bicep file exposed two parameters that we can be optionally overridden (`location` and `name`) by passing new values at deployment time.
 
 ### Pass parameters on the command line
 
@@ -38,7 +38,7 @@ New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-r
 
 ### Use a local parameters JSON file
 
-Bicep supports providing all of the parameters for a template via a JSON file. There is no new "bicep style" syntax for passing parameters. It is the same parameters file you would use for an ARM template deployment. You can take a look at [this parameters tutorial](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-tutorial-use-parameter-file?tabs=azure-powershell) to learn how the parameters file is structured. 
+Bicep supports providing all of the parameters for a template via a JSON file. There is no new "Bicep style" syntax for passing parameters. It is the same parameters file you would use for an ARM template deployment. You can take a look at [this parameters tutorial](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-tutorial-use-parameter-file?tabs=azure-powershell) to learn how the parameters file is structured. 
 
 Once you have your parameters file, you can pass it to the deployment command-line tools:
 
@@ -60,6 +60,6 @@ By default, Bicep files are set to be deployed to the resource group scope. You 
 
 ## Next steps
 
-The next tutorial will walk you through the basics of using expressions like functions, string interpolation, and ternary operators in bicep.
+The next tutorial will walk you through the basics of using expressions like functions, string interpolation, and ternary operators in Bicep.
 
 [3 - Using expressions](./03-using-expressions.md)

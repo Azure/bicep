@@ -1,8 +1,8 @@
 # Creating and consuming modules
 
-Now that we have our immensely useful bicep file for any number of storage blob containers, we may want to share it or use it as part of a larger bicep project. To do that, we can use `modules`.
+Now that we have our immensely useful Bicep file for any number of storage blob containers, we may want to share it or use it as part of a larger Bicep project. To do that, we can use `modules`.
 
-Let's start by renaming our `main.bicep` file to `storage.bicep`. This is the file we will use as a `module`. Any bicep file can be a module, so there are no other syntax changes we need to make to this file. It can already be used as a module.
+Let's start by renaming our `main.bicep` file to `storage.bicep`. This is the file we will use as a `module`. Any Bicep file can be a module, so there are no other syntax changes we need to make to this file. It can already be used as a module.
 
 Next let's create a new, empty `main.bicep` file. Your file structure should look like this:
 
@@ -27,7 +27,7 @@ module stg './storage.bicep' = {
 
 >**Note:** All modules require a `name` property that is the name of the nested deployment (`microsoft.resources/deployments`) in the compiled ARM Template.
 
-Notice modules, just like everything in bicep, has an identifier and we can use that identifier to retrieve information like `outputs` from the module. We can add an output to `main.bicep` to retrieve the storage account name:
+Notice modules, just like everything in Bicep, has an identifier and we can use that identifier to retrieve information like `outputs` from the module. We can add an output to `main.bicep` to retrieve the storage account name:
 
 ```bicep
 module stg './storage.bicep' = {
@@ -84,9 +84,9 @@ output storageName array = stg.outputs.containerProps
 
 Since the `targetScope` has been changed to `subscription`, I will need to use the subscription deployment command (`az deployment sub create ...`).
 
-Modules are a powerful way to separate your bicep files into logical units and abstract away complex resource declarations.
+Modules are a powerful way to separate your Bicep files into logical units and abstract away complex resource declarations.
 
-## Using if() and for keywords with bicep Modules
+## Using if() and for keywords with Bicep Modules
 
 Modules also support both the `if` and `for` keywords, just like a `resource` does. Let's add a new `param` called `deployStorage` and use it conditionally deploy the storage account module:
 
@@ -115,6 +115,6 @@ module stg './storage.bicep' = [for item in deployments: {
 
 ## Next steps
 
-In the final tutorial, we will learn how to convert an arbitrary ARM template into a bicep file:
+In the final tutorial, we will learn how to convert an arbitrary ARM template into a Bicep file:
 
 [7 - Convert any ARM template into a Bicep file](./07-convert-arm-template.md)
