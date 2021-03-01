@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Bicep.Core;
 
 namespace Bicep.LangServer.IntegrationTests.Helpers
 {
@@ -12,7 +13,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
             {
                 TextDocument = new TextDocumentItem
                 {
-                    LanguageId = "bicep",
+                    LanguageId = LanguageConstants.LanguageId,
                     Version = version,
                     Uri = documentUri,
                     Text = text,

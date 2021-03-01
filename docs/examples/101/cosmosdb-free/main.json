@@ -55,5 +55,12 @@
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7648056324883186630"
+    }
+  }
 }

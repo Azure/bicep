@@ -64,6 +64,7 @@ az deployment group create -f ./main.json -g my-rg
   * Previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
 * Automatic dependency management in certain scenarios. Bicep will automatically add `dependsOn` in the compiled ARM Template if the symbolic name is used in another resource declaration.
 * Richer validation and intellisense than what is available in the ARM Tools VS Code extension. For example, in bicep we have intellisense on GET properties (`output sample string = resource.properties.*`)
+* All resource type properties that exist via Azure Resource Manager are available in bicep. Since bicep produces ARM template `.json` files there are no discrepancies of what properties and settings are available. 
 
 For more detail on taking advantage of new bicep constructs that replace an equivalent from ARM Templates, you can read the [moving from ARM => Bicep](./docs/arm2bicep.md) doc.
 
@@ -93,7 +94,7 @@ Not yet. We wanted to get the 0.1 release out quickly and get feedback while we 
 The language syntax and the tooling. Now is the best time to make breaking changes, so syntax feedback is very appreciated.
 
 **Is this only for Azure?**
-Bicep is a DSL focused on deploying end-to-end solutions in Azure. In practice, that usually means working with some non-Azure APIs (i.e. creating kubernetes deployments or users in a database), so we expect to provide some extensibility points. That being said, in the 0.1 release, you can only create Azure resources that are exposed through the ARM API.
+Bicep is a DSL focused on deploying end-to-end solutions in Azure. In practice, that usually means working with some non-Azure APIs (i.e. creating Kubernetes deployments or users in a database), so we expect to provide some extensibility points. That being said, in the 0.1 release, you can only create Azure resources that are exposed through the ARM API.
 
 **What happens to my existing ARM Template investments?**
 One of our goals is to make the transition from ARM Templates to Bicep as easy as possible. The Bicep CLI supports a `decompile` command to generate Bicep code from an ARM template. Please see [Decompiling an ARM Template](https://github.com/Azure/bicep/blob/main/docs/decompiling.md) for usage information.

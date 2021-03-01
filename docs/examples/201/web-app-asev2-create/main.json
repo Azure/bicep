@@ -60,5 +60,12 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1])]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9506361216094665237"
+    }
+  }
 }

@@ -600,6 +600,28 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[50:52)     Integer |10|
 //@[52:56) NewLine |\r\n\r\n|
 
+output myOutput string = 'hello'
+//@[0:32) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:15)  IdentifierSyntax
+//@[7:15)   Identifier |myOutput|
+//@[16:22)  TypeSyntax
+//@[16:22)   Identifier |string|
+//@[23:24)  Assignment |=|
+//@[25:32)  StringSyntax
+//@[25:32)   StringComplete |'hello'|
+//@[32:34) NewLine |\r\n|
+var attemptToReferenceAnOutput = myOutput
+//@[0:41) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:30)  IdentifierSyntax
+//@[4:30)   Identifier |attemptToReferenceAnOutput|
+//@[31:32)  Assignment |=|
+//@[33:41)  VariableAccessSyntax
+//@[33:41)   IdentifierSyntax
+//@[33:41)    Identifier |myOutput|
+//@[41:45) NewLine |\r\n\r\n|
+
 @sys.maxValue(20)
 //@[0:73) OutputDeclarationSyntax
 //@[0:17)  DecoratorSyntax
@@ -638,6 +660,213 @@ output notAttachableDecorators int = 32
 //@[35:36)  Assignment |=|
 //@[37:39)  IntegerLiteralSyntax
 //@[37:39)   Integer |32|
-//@[39:41) NewLine |\r\n|
+//@[39:43) NewLine |\r\n\r\n|
+
+// nested loops inside output loops are not supported
+//@[53:55) NewLine |\r\n|
+output noNestedLoops array = [for thing in things: {
+//@[0:110) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:20)  IdentifierSyntax
+//@[7:20)   Identifier |noNestedLoops|
+//@[21:26)  TypeSyntax
+//@[21:26)   Identifier |array|
+//@[27:28)  Assignment |=|
+//@[29:110)  ForSyntax
+//@[29:30)   LeftSquare |[|
+//@[30:33)   Identifier |for|
+//@[34:39)   LocalVariableSyntax
+//@[34:39)    IdentifierSyntax
+//@[34:39)     Identifier |thing|
+//@[40:42)   Identifier |in|
+//@[43:49)   VariableAccessSyntax
+//@[43:49)    IdentifierSyntax
+//@[43:49)     Identifier |things|
+//@[49:50)   Colon |:|
+//@[51:109)   ObjectSyntax
+//@[51:52)    LeftBrace |{|
+//@[52:54)    NewLine |\r\n|
+  something: [
+//@[2:52)    ObjectPropertySyntax
+//@[2:11)     IdentifierSyntax
+//@[2:11)      Identifier |something|
+//@[11:12)     Colon |:|
+//@[13:52)     ArraySyntax
+//@[13:14)      LeftSquare |[|
+//@[14:16)      NewLine |\r\n|
+    [for thing in things: true]
+//@[4:31)      ArrayItemSyntax
+//@[4:31)       ForSyntax
+//@[4:5)        LeftSquare |[|
+//@[5:8)        Identifier |for|
+//@[9:14)        LocalVariableSyntax
+//@[9:14)         IdentifierSyntax
+//@[9:14)          Identifier |thing|
+//@[15:17)        Identifier |in|
+//@[18:24)        VariableAccessSyntax
+//@[18:24)         IdentifierSyntax
+//@[18:24)          Identifier |things|
+//@[24:25)        Colon |:|
+//@[26:30)        BooleanLiteralSyntax
+//@[26:30)         TrueKeyword |true|
+//@[30:31)        RightSquare |]|
+//@[31:33)      NewLine |\r\n|
+  ]
+//@[2:3)      RightSquare |]|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// loops in inner properties inside outputs are not supported
+//@[61:63) NewLine |\r\n|
+output noInnerLoopsInOutputs object = {
+//@[0:74) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |noInnerLoopsInOutputs|
+//@[29:35)  TypeSyntax
+//@[29:35)   Identifier |object|
+//@[36:37)  Assignment |=|
+//@[38:74)  ObjectSyntax
+//@[38:39)   LeftBrace |{|
+//@[39:41)   NewLine |\r\n|
+  a: [for i in range(0,10): i]
+//@[2:30)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |a|
+//@[3:4)    Colon |:|
+//@[5:30)    ForSyntax
+//@[5:6)     LeftSquare |[|
+//@[6:9)     Identifier |for|
+//@[10:11)     LocalVariableSyntax
+//@[10:11)      IdentifierSyntax
+//@[10:11)       Identifier |i|
+//@[12:14)     Identifier |in|
+//@[15:26)     FunctionCallSyntax
+//@[15:20)      IdentifierSyntax
+//@[15:20)       Identifier |range|
+//@[20:21)      LeftParen |(|
+//@[21:23)      FunctionArgumentSyntax
+//@[21:22)       IntegerLiteralSyntax
+//@[21:22)        Integer |0|
+//@[22:23)       Comma |,|
+//@[23:25)      FunctionArgumentSyntax
+//@[23:25)       IntegerLiteralSyntax
+//@[23:25)        Integer |10|
+//@[25:26)      RightParen |)|
+//@[26:27)     Colon |:|
+//@[28:29)     VariableAccessSyntax
+//@[28:29)      IdentifierSyntax
+//@[28:29)       Identifier |i|
+//@[29:30)     RightSquare |]|
+//@[30:32)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+output noInnerLoopsInOutputs2 object = {
+//@[0:116) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:29)  IdentifierSyntax
+//@[7:29)   Identifier |noInnerLoopsInOutputs2|
+//@[30:36)  TypeSyntax
+//@[30:36)   Identifier |object|
+//@[37:38)  Assignment |=|
+//@[39:116)  ObjectSyntax
+//@[39:40)   LeftBrace |{|
+//@[40:42)   NewLine |\r\n|
+  a: [for i in range(0,10): {
+//@[2:71)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |a|
+//@[3:4)    Colon |:|
+//@[5:71)    ForSyntax
+//@[5:6)     LeftSquare |[|
+//@[6:9)     Identifier |for|
+//@[10:11)     LocalVariableSyntax
+//@[10:11)      IdentifierSyntax
+//@[10:11)       Identifier |i|
+//@[12:14)     Identifier |in|
+//@[15:26)     FunctionCallSyntax
+//@[15:20)      IdentifierSyntax
+//@[15:20)       Identifier |range|
+//@[20:21)      LeftParen |(|
+//@[21:23)      FunctionArgumentSyntax
+//@[21:22)       IntegerLiteralSyntax
+//@[21:22)        Integer |0|
+//@[22:23)       Comma |,|
+//@[23:25)      FunctionArgumentSyntax
+//@[23:25)       IntegerLiteralSyntax
+//@[23:25)        Integer |10|
+//@[25:26)      RightParen |)|
+//@[26:27)     Colon |:|
+//@[28:70)     ObjectSyntax
+//@[28:29)      LeftBrace |{|
+//@[29:31)      NewLine |\r\n|
+    b: [for j in range(0,10): i+j]
+//@[4:34)      ObjectPropertySyntax
+//@[4:5)       IdentifierSyntax
+//@[4:5)        Identifier |b|
+//@[5:6)       Colon |:|
+//@[7:34)       ForSyntax
+//@[7:8)        LeftSquare |[|
+//@[8:11)        Identifier |for|
+//@[12:13)        LocalVariableSyntax
+//@[12:13)         IdentifierSyntax
+//@[12:13)          Identifier |j|
+//@[14:16)        Identifier |in|
+//@[17:28)        FunctionCallSyntax
+//@[17:22)         IdentifierSyntax
+//@[17:22)          Identifier |range|
+//@[22:23)         LeftParen |(|
+//@[23:25)         FunctionArgumentSyntax
+//@[23:24)          IntegerLiteralSyntax
+//@[23:24)           Integer |0|
+//@[24:25)          Comma |,|
+//@[25:27)         FunctionArgumentSyntax
+//@[25:27)          IntegerLiteralSyntax
+//@[25:27)           Integer |10|
+//@[27:28)         RightParen |)|
+//@[28:29)        Colon |:|
+//@[30:33)        BinaryOperationSyntax
+//@[30:31)         VariableAccessSyntax
+//@[30:31)          IdentifierSyntax
+//@[30:31)           Identifier |i|
+//@[31:32)         Plus |+|
+//@[32:33)         VariableAccessSyntax
+//@[32:33)          IdentifierSyntax
+//@[32:33)           Identifier |j|
+//@[33:34)        RightSquare |]|
+//@[34:36)      NewLine |\r\n|
+  }]
+//@[2:3)      RightBrace |}|
+//@[3:4)     RightSquare |]|
+//@[4:6)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// #completionTest(1) -> decoratorsPlusNamespace
+//@[48:50) NewLine |\r\n|
+@
+//@[0:47) MissingDeclarationSyntax
+//@[0:1)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:1)   SkippedTriviaSyntax
+//@[1:3)  NewLine |\r\n|
+// #completionTest(5) -> decorators
+//@[35:37)  NewLine |\r\n|
+@sys.
+//@[0:5)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:5)   PropertyAccessSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:5)    IdentifierSyntax
+//@[5:5)     SkippedTriviaSyntax
+//@[5:7)  NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

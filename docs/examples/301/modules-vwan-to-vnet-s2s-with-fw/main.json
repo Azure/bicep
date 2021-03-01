@@ -1749,5 +1749,12 @@
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5987788707490908447"
+    }
+  }
 }

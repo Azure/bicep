@@ -3,6 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using Bicep.Core.DataFlow;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -11,33 +14,37 @@ namespace Bicep.Core.Emit
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
         private readonly SemanticModel model;
-        private IDictionary<DeclaredSymbol, HashSet<DeclaredSymbol>> resourceDependencies;
+        private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> GetResourceDependencies(SemanticModel model)
+        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(SemanticModel model)
         {
             var visitor = new ResourceDependencyVisitor(model);
             visitor.Visit(model.Root.Syntax);
 
-            var output = new Dictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>>();
+            var output = new Dictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
             foreach (var kvp in visitor.resourceDependencies)
             {
-                if (kvp.Key is ResourceSymbol resourceSymbol)
+                if (kvp.Key is ResourceSymbol || kvp.Key is ModuleSymbol)
                 {
-                    output[resourceSymbol] = kvp.Value.ToImmutableHashSet();
-                }
-                if (kvp.Key is ModuleSymbol moduleSymbol)
-                {
-                    output[moduleSymbol] = kvp.Value.ToImmutableHashSet();
+                    output[kvp.Key] = OptimizeDependencies(kvp.Value);
                 }
             }
             return output.ToImmutableDictionary();
         }
 
+        private static ImmutableHashSet<ResourceDependency> OptimizeDependencies(HashSet<ResourceDependency> dependencies) =>
+            dependencies
+                .GroupBy(dep => dep.Resource)
+                .SelectMany(group => @group.FirstOrDefault(dep => dep.IndexExpression == null) is { } dependencyWithoutIndex
+                    ? dependencyWithoutIndex.AsEnumerable()
+                    : @group)
+                .ToImmutableHashSet();
+
         private ResourceDependencyVisitor(SemanticModel model)
         {
             this.model = model;
-            this.resourceDependencies = new Dictionary<DeclaredSymbol, HashSet<DeclaredSymbol>>();
+            this.resourceDependencies = new Dictionary<DeclaredSymbol, HashSet<ResourceDependency>>();
             this.currentDeclaration = null;
         }
 
@@ -52,7 +59,7 @@ namespace Bicep.Core.Emit
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = resourceSymbol;
-            this.resourceDependencies[resourceSymbol] = new HashSet<DeclaredSymbol>();
+            this.resourceDependencies[resourceSymbol] = new HashSet<ResourceDependency>();
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -70,7 +77,7 @@ namespace Bicep.Core.Emit
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = moduleSymbol;
-            this.resourceDependencies[moduleSymbol] = new HashSet<DeclaredSymbol>();
+            this.resourceDependencies[moduleSymbol] = new HashSet<ResourceDependency>();
             base.VisitModuleDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -88,7 +95,7 @@ namespace Bicep.Core.Emit
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = variableSymbol;
-            this.resourceDependencies[variableSymbol] = new HashSet<DeclaredSymbol>();
+            this.resourceDependencies[variableSymbol] = new HashSet<ResourceDependency>();
             base.VisitVariableDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -103,6 +110,46 @@ namespace Bicep.Core.Emit
 
         private void VisitVariableAccessSyntaxInternal(VariableAccessSyntax syntax)
         {
+            // local function
+            SyntaxBase? GetIndexExpression(bool isCollection)
+            {
+                SyntaxBase? candidateIndexExpression = isCollection && this.model.Binder.GetParent(syntax) is ArrayAccessSyntax arrayAccess && ReferenceEquals(arrayAccess.BaseExpression, syntax)
+                    ? arrayAccess.IndexExpression
+                    : null;
+
+                if(candidateIndexExpression is null)
+                {
+                    // there is no index expression
+                    // depend on the entire collection instead
+                    return null;
+                }
+
+                // the index expression we just obtained could be in the scope of a property loop
+                // when dependsOn properties are generated, this would mean that a local would be taken outside of its expected scope
+                // which would result in runtime errors
+                // to avoid this we will run data flow analysis to determine if such locals are present in the index expression
+                var dfa = new DataFlowAnalyzer(this.model);
+
+                var context = this.currentDeclaration switch
+                {
+                    ResourceSymbol resourceSymbol => resourceSymbol.DeclaringResource.GetBody(),
+                    ModuleSymbol moduleSymbol => moduleSymbol.DeclaringModule.GetBody(),
+                    VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.Value,
+                    _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
+                };
+                
+                // using the resource/module body as the context to allow indexed depdnencies relying on the resource/module loop index to work as expected
+                var inaccessibleLocals = dfa.GetInaccessibleLocalsAfterSyntaxMove(candidateIndexExpression, context);
+                if(inaccessibleLocals.Any())
+                {
+                    // some local will become inaccessible
+                    // depend on the entire collection instead
+                    return null;
+                }
+
+                return candidateIndexExpression;
+            }
+
             if (currentDeclaration == null)
             {
                 return;
@@ -123,12 +170,15 @@ namespace Bicep.Core.Emit
                     {
                         resourceDependencies[currentDeclaration].Add(dependency);
                     }
+
                     return;
+
                 case ResourceSymbol resourceSymbol:
-                    resourceDependencies[currentDeclaration].Add(resourceSymbol);
+                    resourceDependencies[currentDeclaration].Add(new ResourceDependency(resourceSymbol, GetIndexExpression(resourceSymbol.IsCollection)));
                     return;
+
                 case ModuleSymbol moduleSymbol:
-                    resourceDependencies[currentDeclaration].Add(moduleSymbol);
+                    resourceDependencies[currentDeclaration].Add(new ResourceDependency(moduleSymbol, GetIndexExpression(moduleSymbol.IsCollection)));
                     return;
             }
         }

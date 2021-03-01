@@ -60,5 +60,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Storage/storageAccounts', format('cached{0}', uniqueString(resourceGroup().id)))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10486786667182115541"
+    }
   }
 }

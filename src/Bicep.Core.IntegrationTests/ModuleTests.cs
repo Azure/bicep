@@ -13,6 +13,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -264,7 +265,7 @@ module modulea 'modulea.bicep' = {
             var stringBuilder = new StringBuilder();
             var stringWriter = new StringWriter(stringBuilder);
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
             emitter.Emit(stringWriter);
 
             return stringBuilder.ToString();

@@ -35,5 +35,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Batch/batchAccounts', parameters('batchAccountName'))).accountEndpoint]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4962501741369866600"
+    }
   }
 }

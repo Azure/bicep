@@ -295,7 +295,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("range")
-                .WithReturnType(LanguageConstants.Array)
+                .WithReturnType(new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default))
                 .WithDescription("Creates an array of integers from a starting integer and containing a number of items.")
                 .WithRequiredParameter("startIndex", LanguageConstants.Int, "The first integer in the array. The sum of startIndex and count must be no greater than 2147483647.")
                 .WithRequiredParameter("count", LanguageConstants.Int, "The number of integers in the array. Must be non-negative integer up to 10000.")
@@ -418,20 +418,12 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("equals", "=="),
             BannedFunction.CreateForOperator("not", "!"),
             BannedFunction.CreateForOperator("and", "&&"),
-            BannedFunction.CreateForOperator("or", "||")
+            BannedFunction.CreateForOperator("or", "||"),
+            BannedFunction.CreateForOperator("coalesce", "??")
         }.ToImmutableArray();
 
         private static IEnumerable<Decorator> GetSystemDecorators()
         {
-            static DecoratorValidator ValidateTargetType(TypeSymbol attachableType) =>
-                (decoratorName, decoratorSyntax, targetType, _, diagnosticWriter) =>
-                {
-                    if (!TypeValidator.AreTypesAssignable(targetType, attachableType))
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).CannotAttacheDecoratorToTarget(decoratorName, attachableType, targetType));
-                    }
-                };
-
             static DecoratorEvaluator MergeToTargetObject(string propertyName, Func<DecoratorSyntax, SyntaxBase> propertyValueSelector) =>
                 (decoratorSyntax, _, targetObject) =>
                     targetObject.MergeProperty(propertyName, propertyValueSelector(decoratorSyntax));
@@ -441,7 +433,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder("secure")
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(UnionType.Create(LanguageConstants.String, LanguageConstants.Object)))
+                .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Object))
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
                     if (ReferenceEquals(targetType, LanguageConstants.String))
@@ -472,11 +464,6 @@ namespace Bicep.Core.Semantics.Namespaces
                         allowedValuesArray,
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
                         diagnosticWriter);
-
-                     if (!allowedValuesArray.Items.Any())
-                     {
-                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(allowedValuesArray).AllowedMustContainItems());
-                     }
                  })
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();
@@ -485,7 +472,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines the minimum value of the parameter.")
                 .WithRequiredParameter("value", LanguageConstants.Int, "The minimum value.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(LanguageConstants.Int))
+                .WithAttachableType(LanguageConstants.Int)
                 .WithEvaluator(MergeToTargetObject("minValue", SingleArgumentSelector))
                 .Build();
 
@@ -493,7 +480,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines the maximum value of the parameter.")
                 .WithRequiredParameter("value", LanguageConstants.Int, "The maximum value.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(LanguageConstants.Int))
+                .WithAttachableType(LanguageConstants.Int)
                 .WithEvaluator(MergeToTargetObject("maxValue", SingleArgumentSelector))
                 .Build();
 
@@ -501,7 +488,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines the minimum length of the parameter.")
                 .WithRequiredParameter("length", LanguageConstants.Int, "The minimum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array)))
+                .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
                 .WithEvaluator(MergeToTargetObject("minLength", SingleArgumentSelector))
                 .Build();
 
@@ -509,7 +496,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines the maximum length of the parameter.")
                 .WithRequiredParameter("length", LanguageConstants.Int, "The maximum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array)))
+                .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
                 .WithEvaluator(MergeToTargetObject("maxLength", SingleArgumentSelector))
                 .Build();
 
@@ -517,7 +504,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines metadata of the parameter.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
+                .WithValidator((_, decoratorSyntax, _, typeManager, diagnosticWriter) =>
                  {
                      // The type checker should already verified that there's only one object argument.
                      var metadataObject = (ObjectSyntax)SingleArgumentSelector(decoratorSyntax);

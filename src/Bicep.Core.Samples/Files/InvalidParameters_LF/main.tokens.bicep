@@ -1441,6 +1441,14 @@ param commaTwo string {
 //@[1:3) LogicalAnd |&&|
 //@[4:7) Identifier |xxx|
 //@[7:8) NewLine |\n|
+@sys
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) NewLine |\n|
+@paramAccessingVar
+//@[0:1) At |@|
+//@[1:18) Identifier |paramAccessingVar|
+//@[18:19) NewLine |\n|
 param incompleteDecorators string
 //@[0:5) Identifier |param|
 //@[6:26) Identifier |incompleteDecorators|
@@ -1524,6 +1532,18 @@ param someString string {
 //@[7:8) LeftParen |(|
 //@[8:9) RightParen |)|
 //@[9:10) NewLine |\n|
+// #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
+//@[66:67) NewLine |\n|
+@  
+//@[0:1) At |@|
+//@[3:4) NewLine |\n|
+// #completionTest(5, 6) -> intParameterDecorators
+//@[50:51) NewLine |\n|
+@sys.   
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[8:9) NewLine |\n|
 param someInteger int = 20
 //@[0:5) Identifier |param|
 //@[6:17) Identifier |someInteger|
@@ -1545,6 +1565,13 @@ param someInteger int = 20
 //@[17:18) Integer |2|
 //@[18:19) RightParen |)|
 //@[19:20) NewLine |\n|
+// #completionTest(4) -> empty
+//@[30:31) NewLine |\n|
+@az.
+//@[0:1) At |@|
+//@[1:3) Identifier |az|
+//@[3:4) Dot |.|
+//@[4:5) NewLine |\n|
 param tooManyArguments1 int = 20
 //@[0:5) Identifier |param|
 //@[6:23) Identifier |tooManyArguments1|
@@ -1566,6 +1593,24 @@ param tooManyArguments1 int = 20
 //@[18:22) TrueKeyword |true|
 //@[22:23) RightParen |)|
 //@[23:24) NewLine |\n|
+// #completionTest(2) -> stringParameterDecoratorsPlusNamespace
+//@[63:64) NewLine |\n|
+@m
+//@[0:1) At |@|
+//@[1:2) Identifier |m|
+//@[2:3) NewLine |\n|
+// #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
+//@[69:70) NewLine |\n|
+@   
+//@[0:1) At |@|
+//@[4:5) NewLine |\n|
+// #completionTest(5) -> stringParameterDecorators
+//@[50:51) NewLine |\n|
+@sys.
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:6) NewLine |\n|
 param tooManyArguments2 string
 //@[0:5) Identifier |param|
 //@[6:23) Identifier |tooManyArguments2|

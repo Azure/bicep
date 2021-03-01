@@ -54,5 +54,12 @@
         }
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13783696056051360397"
+    }
+  }
 }

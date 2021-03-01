@@ -139,7 +139,7 @@
         "mode": "Incremental",
         "parameters": {
           "appName": {
-            "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'webAppPlanDeploy'), '2019-10-01').outputs.appServiceName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy'), '2019-10-01').outputs.appServiceName.value]"
           }
         },
         "template": {
@@ -216,8 +216,15 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'webAppPlanDeploy')]"
+        "[resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17065159702106747868"
+    }
+  }
 }

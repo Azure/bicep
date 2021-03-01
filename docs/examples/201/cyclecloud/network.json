@@ -95,5 +95,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Network/virtualNetworks', 'cc-vnet')]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4664915231092251959"
+    }
   }
 }

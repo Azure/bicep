@@ -52,20 +52,6 @@ namespace Bicep.Core.Parsing
                         declarationsOrTokens.Add(newLine);
                     }
                 }
-
-                if (this.IsAtEnd() &&
-                    declarationOrToken is MissingDeclarationSyntax missingDeclaration &&
-                    !missingDeclaration.HasParseErrors())
-                {
-                    // If there are dangling decorators and we hit EOF and there's no other decorator parsing error,
-                    // ask users to add a declration.
-                    var skippedTriviaSyntax = new SkippedTriviaSyntax(
-                        reader.Peek().Span,
-                        Enumerable.Empty<SyntaxBase>(),
-                        DiagnosticBuilder.ForPosition(missingDeclaration.Decorators.Last()).ExpectDeclarationAfterDecorator().AsEnumerable());
-
-                    declarationsOrTokens.Add(skippedTriviaSyntax);
-                }
             }
 
             var endOfFile = reader.Read();
@@ -86,13 +72,14 @@ namespace Bicep.Core.Parsing
 
                         // A decorators must followed by a newline.
                         leadingNodes.Add(this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine));
-                    }
 
-                    if (leadingNodes.Count > 0 && this.Check(TokenType.NewLine))
-                    {
-                        // In case there are skipped trivial syntaxes after a decorator, we need to consume
-                        // all the newlines after them.
-                        leadingNodes.Add(this.NewLine());
+
+                        while (this.Check(TokenType.NewLine))
+                        {
+                            // In case there are skipped trivial syntaxes after a decorator, we need to consume
+                            // all the newlines after them.
+                            leadingNodes.Add(this.NewLine());
+                        }
                     }
 
                     Token current = reader.Peek();
@@ -156,7 +143,7 @@ namespace Bicep.Core.Parsing
             }
 
             Debug.Assert(initial == RecoveryFlags.None, "initial == RecoveryFlags.None");
-            
+
             // predicate must hold to preserve diagnostics
             return predicate ? RecoveryFlags.None : RecoveryFlags.SuppressDiagnostics;
         }
@@ -279,7 +266,7 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedOutputType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(assignment), TokenType.NewLine);
 
@@ -313,7 +300,7 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
                         TokenType.LeftBrace => this.Object(),
-                        TokenType.LeftSquare => this.ForExpression(),
+                        TokenType.LeftSquare => this.ForExpression(requireObjectLiteral: true),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
                     };
                 },
@@ -342,7 +329,7 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
                         TokenType.LeftBrace => this.Object(),
-                        TokenType.LeftSquare => this.ForExpression(),
+                        TokenType.LeftSquare => this.ForExpression(requireObjectLiteral: true),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
                     };
                 },
@@ -506,12 +493,15 @@ namespace Bicep.Core.Parsing
                 case TokenType.StringLeftPiece:
                     return this.InterpolableString();
 
+                case TokenType.MultilineString:
+                    return this.MultilineString();
+
                 case TokenType.LeftBrace when allowComplexLiterals:
                     return this.Object();
 
                 case TokenType.LeftSquare when allowComplexLiterals:
                     return CheckKeyword(this.reader.PeekAhead(), LanguageConstants.ForKeyword) 
-                        ? this.ForExpression() 
+                        ? this.ForExpression(requireObjectLiteral: false) 
                         : this.Array();
 
                 case TokenType.LeftBrace:
@@ -578,7 +568,7 @@ namespace Bicep.Core.Parsing
         /// <param name="allowComplexLiterals"></param>
         private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments(bool allowComplexLiterals)
         {
-            SkippedTriviaSyntax CreateDummyArgument(Token current) => 
+            SkippedTriviaSyntax CreateDummyArgument(Token current) =>
                 new SkippedTriviaSyntax(current.ToZeroLengthSpan(), ImmutableArray<SyntaxBase>.Empty, DiagnosticBuilder.ForPosition(current.ToZeroLengthSpan()).UnrecognizedExpression().AsEnumerable());
 
             if (this.Check(TokenType.RightParen))
@@ -620,7 +610,7 @@ namespace Bicep.Core.Parsing
                             // we have a trailing comma without an argument
                             // we need to allow it so signature help doesn't get interrupted
                             // by the user typing a comma without specifying a function argument
-                            
+
                             // insert a dummy argument
                             arguments.Add((CreateDummyArgument(current), null));
                         }
@@ -734,6 +724,19 @@ namespace Bicep.Core.Parsing
             // TODO: Should probably be moved to type checking
             // integer is invalid (too long to fit in an int32)
             throw new ExpectedTokenException(literal, b => b.InvalidInteger());
+        }
+
+        private SyntaxBase MultilineString()
+        {
+            var token = reader.Read();
+            var stringValue = Lexer.TryGetMultilineStringValue(token);
+            
+            if (stringValue is null)
+            {
+                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<Diagnostic>());
+            }
+
+            return new StringSyntax(token.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), stringValue.AsEnumerable());
         }
 
         private SyntaxBase InterpolableString()
@@ -879,7 +882,7 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SyntaxBase ForExpression()
+        private SyntaxBase ForExpression(bool requireObjectLiteral)
         {
             var openBracket = this.Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
             var forKeyword = this.ExpectKeyword(LanguageConstants.ForKeyword);
@@ -887,7 +890,10 @@ namespace Bicep.Core.Parsing
             var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), GetSuppressionFlag(identifier.Name), TokenType.RightSquare, TokenType.NewLine);
             var expression = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(inKeyword), TokenType.Colon, TokenType.RightSquare, TokenType.NewLine);
             var colon = this.WithRecovery(() => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(expression), TokenType.RightSquare, TokenType.NewLine);
-            var body = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(colon), TokenType.RightSquare, TokenType.NewLine);
+            var body = this.WithRecovery(
+                () => requireObjectLiteral ? this.Object() : this.Expression(allowComplexLiterals: true),
+                GetSuppressionFlag(colon),
+                TokenType.RightSquare, TokenType.NewLine);
             var closeBracket = this.WithRecovery(() => this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]")), GetSuppressionFlag(body), TokenType.RightSquare, TokenType.NewLine);
 
             return new ForSyntax(openBracket, forKeyword, identifier, inKeyword, expression, colon, body, closeBracket);
@@ -1041,7 +1047,7 @@ namespace Bicep.Core.Parsing
             var conditionExpression = this.WithRecovery(() => this.ParenthesizedExpression(true), RecoveryFlags.None, TokenType.LeftBrace, TokenType.NewLine);
             var body = this.WithRecovery(
                 this.Object,
-                GetSuppressionFlag(conditionExpression, conditionExpression is ParenthesizedExpressionSyntax {CloseParen: not SkippedTriviaSyntax}),
+                GetSuppressionFlag(conditionExpression, conditionExpression is ParenthesizedExpressionSyntax { CloseParen: not SkippedTriviaSyntax }),
                 TokenType.NewLine);
             return new IfConditionSyntax(keyword, conditionExpression, body);
         }
@@ -1213,6 +1219,9 @@ namespace Bicep.Core.Parsing
 
                 case TokenType.LogicalOr:
                     return 40;
+
+                case TokenType.DoubleQuestion:
+                    return 30;
 
                 default:
                     return -1;

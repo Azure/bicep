@@ -13,6 +13,8 @@ namespace Bicep.Core.Extensions
             FunctionFlags.ModuleDecorator |
             FunctionFlags.OutputDecorator;
 
-        public static bool HasDecoratorFlag(this FunctionFlags functionFlags) => (functionFlags & DecoratorFlags) != 0;
+        public static bool HasAnyDecoratorFlag(this FunctionFlags functionFlags) => (functionFlags & DecoratorFlags) != 0;
+
+        public static bool HasAllDecoratorFlags(this FunctionFlags functionFlags) => (functionFlags & DecoratorFlags) == DecoratorFlags;
     }
 }

@@ -9,7 +9,7 @@
     * Example syntax uses.
 4. Move the issue into "In review" and request reviews from the relevant team members.
 5. Address comments either by amending the issue or justifying why you don't think it should be adopted.
-6. If you're unable to reach a conclusion, reach out to the [Benevolant Dictator](https://github.com/marcre) to make a decision.
+6. If you're unable to reach a conclusion, reach out to the [Benevolent Dictator](https://github.com/marcre) to make a decision.
 7. Move your card to "Done" and start work on the PR to incorporate your proposal.
 
 ## Making spec changes

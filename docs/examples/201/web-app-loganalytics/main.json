@@ -147,5 +147,12 @@
         "retentionInDays": 120
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16765219456511022292"
+    }
+  }
 }

@@ -79,6 +79,31 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        // empty
+        [DataRow("''''''", "")]
+        [DataRow("'''\r\n'''", "")]
+        [DataRow("'''\n'''", "")]
+        // basic
+        [DataRow("'''abc'''", "abc")]
+        // first preceding newline should be stripped
+        [DataRow("'''\r\nabc'''", "abc")]
+        [DataRow("'''\nabc'''", "abc")]
+        [DataRow("'''\rabc'''", "abc")]
+        // only the first should be stripped!
+        [DataRow("'''\n\nabc'''", "\nabc")]
+        [DataRow("'''\n\rabc'''", "\rabc")]
+        // no escaping necessary
+        [DataRow("''' \n \r \t \\ ' ${ } '''", " \n \r \t \\ ' ${ } ")]
+        // leading and terminating ' characters
+        [DataRow("''''a''''", "'a'")]
+        public void Multiline_strings_should_parse_correctly(string text, string expectedValue)
+        {
+            var stringSyntax = ParseAndVerifyType<StringSyntax>(text);
+
+            stringSyntax.TryGetLiteralValue().Should().Be(expectedValue);
+        }
+
+        [DataTestMethod]
         [DataRow("'${>}def'")]
         [DataRow("'${b+}def'")]
         [DataRow("'${concat(}def'")]
@@ -198,6 +223,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("(2+3)*4","(((2+3))*4)")]
         [DataRow("true && (false || null)", "(true&&((false||null)))")]
         [DataRow("(null ? 1 : 2) + 3", "(((null?1:2))+3)")]
+        [DataRow("null ?? (b ?? c) ?? a", "((null??((b??c)))??a)")]
         public void ParenthesizedExpressionsShouldHaveHighestPrecedence(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
@@ -270,6 +296,16 @@ namespace Bicep.Core.UnitTests.Parsing
             var value = syntax.TryGetLiteralValue();
             value.Should().NotBeNull();
             value.Should().Be(expectedLiteralValue);
+        }
+
+        [DataTestMethod]
+        [DataRow("a ?? b", "(a??b)")]
+        [DataRow("a ?? b ?? c", "((a??b)??c)")]
+        [DataRow("a ?? b || d ?? c", "((a??(b||d))??c)")]
+        [DataRow("foo() ?? bar().v ?? null", "((foo()??(bar().v))??null)")]
+        public void CoalesceShouldParseSuccessfully(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)

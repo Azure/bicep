@@ -26,17 +26,20 @@ namespace Bicep.Cli
         private readonly TextWriter errorWriter;
         private readonly IResourceTypeProvider resourceTypeProvider;
 
-        public Program(IResourceTypeProvider resourceTypeProvider, TextWriter outputWriter, TextWriter errorWriter)
+        private readonly string assemblyFileVersion;
+
+        public Program(IResourceTypeProvider resourceTypeProvider, TextWriter outputWriter, TextWriter errorWriter, string assemblyFileVersion)
         {
             this.resourceTypeProvider = resourceTypeProvider;
             this.outputWriter = outputWriter;
             this.errorWriter = errorWriter;
+            this.assemblyFileVersion = assemblyFileVersion;
         }
 
         public static int Main(string[] args)
         {
             BicepDeploymentsInterop.Initialize();
-            var program = new Program(new AzResourceTypeProvider(), Console.Out, Console.Error);
+            var program = new Program(new AzResourceTypeProvider(), Console.Out, Console.Error, ThisAssembly.AssemblyFileVersion);
             return program.Run(args);
         }
 
@@ -100,25 +103,38 @@ namespace Bicep.Cli
         private int Build(ILogger logger, BuildArguments arguments)
         {
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
-            var bicepPaths = arguments.Files.Select(f => PathHelper.ResolvePath(f)).ToArray();
+            var bicepPath = PathHelper.ResolvePath(arguments.InputFile);
+
             if (arguments.OutputToStdOut)
             {
-                BuildManyFilesToStdOut(diagnosticLogger, bicepPaths);
+                BuildToStdout(diagnosticLogger, bicepPath);
+            }
+            else if (arguments.OutputDir is not null)
+            {
+                var outputDir = PathHelper.ResolvePath(arguments.OutputDir);
+                if (!Directory.Exists(outputDir))
+                {
+                    throw new CommandLineException($"The specified output directory \"{outputDir}\" does not exist.");
+                }
+
+                var outputPath = Path.Combine(outputDir, Path.GetFileName(bicepPath));
+
+                BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultOutputPath(outputPath));
+            }
+            else if (arguments.OutputFile is not null)
+            {
+                BuildToFile(diagnosticLogger, bicepPath, arguments.OutputFile);
             }
             else
             {
-                foreach (string bicepPath in bicepPaths)
-                {
-                    string outputPath = PathHelper.GetDefaultOutputPath(bicepPath);
-                    BuildSingleFile(diagnosticLogger, bicepPath, outputPath);
-                }
+                BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultOutputPath(bicepPath));
             }
 
             // return non-zero exit code on errors
             return diagnosticLogger.HasLoggedErrors ? 1 : 0;
         }
 
-        private bool LogDiagnosticsAndCheckSuccess(IDiagnosticLogger logger, Compilation compilation)
+        private static bool LogDiagnosticsAndCheckSuccess(IDiagnosticLogger logger, Compilation compilation)
         {
             var success = true;
             foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
@@ -133,7 +149,7 @@ namespace Bicep.Cli
             return success;
         }
 
-        private void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
+        private void BuildToFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
@@ -141,52 +157,29 @@ namespace Bicep.Cli
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
             if (success)
             {
-                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), this.assemblyFileVersion);
 
                 using var outputStream = CreateFileStream(outputPath);
                 emitter.Emit(outputStream);
             }
         }
 
-        private void BuildManyFilesToStdOut(IDiagnosticLogger logger, string[] bicepPaths)
+        private void BuildToStdout(IDiagnosticLogger logger, string bicepPath)
         {
             using var writer = new JsonTextWriter(this.outputWriter)
             {
                 Formatting = Formatting.Indented
             };
 
-            if (bicepPaths.Length > 1) {
-                writer.WriteStartArray();
-            }
-            foreach(var bicepPath in bicepPaths)
-            {
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
-                var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
+            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
-                var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
-                if (success)
-                {
-                    var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
-
-                    emitter.Emit(writer);
-                }
-            }
-            if (bicepPaths.Length > 1) {
-                writer.WriteEndArray();
-            }
-        }
-
-        private static string ReadFile(string path)
-        {
-            try
+            var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
+            if (success)
             {
-                return File.ReadAllText(path);
-            }
-            catch (Exception exception)
-            {
-                // I/O classes typically throw a large variety of exceptions
-                // instead of handling each one separately let's just trust the message we get
-                throw new BicepException(exception.Message, exception);
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), this.assemblyFileVersion);
+
+                emitter.Emit(writer);
             }
         }
 
@@ -210,21 +203,11 @@ namespace Bicep.Cli
                 "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
 
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
-            var hadErrors = false;
-            var jsonPaths = arguments.Files.Select(f => PathHelper.ResolvePath(f)).ToArray();
-            foreach (var jsonPath in jsonPaths)
-            {
-                hadErrors |= !DecompileSingleFile(diagnosticLogger, jsonPath);
-            }
+            var jsonPath = PathHelper.ResolvePath(arguments.InputFile);
 
-            return hadErrors ? 1 : 0;
-        }
-
-        private bool DecompileSingleFile(IDiagnosticLogger logger, string filePath)
-        {
             try
             {
-                var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(filePath));
+                var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
                 foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
                     File.WriteAllText(fileUri.LocalPath, bicepOutput);
@@ -233,12 +216,12 @@ namespace Bicep.Cli
                 var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepUri);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
-                return LogDiagnosticsAndCheckSuccess(logger, compilation);
+                return LogDiagnosticsAndCheckSuccess(diagnosticLogger, compilation) ? 0 : 1;
             }
             catch (Exception exception)
             {
-                this.errorWriter.WriteLine($"{filePath}: Decompilation failed with fatal error \"{exception.Message}\"");
-                return false;
+                this.errorWriter.WriteLine($"{jsonPath}: Decompilation failed with fatal error \"{exception.Message}\"");
+                return 1;
             }
         }
     }

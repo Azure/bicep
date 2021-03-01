@@ -322,6 +322,7 @@ module missingFewerLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 
 // wrong parameter in the module loop
 module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
+  // #completionTest(17) -> symbolsPlusX
   name: 'hello-${x}'
   params: {
     arrayParam: []
@@ -343,70 +344,51 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
   }
 }]
 
-/*
-  valid loop - this should be moved to Modules_* test case after E2E works
-*/ 
-var myModules = [
-  {
-    name: 'one'
-    location: 'eastus2'
-  }
-  {
-    name: 'two'
-    location: 'westus'
-  }
-]
+output directRefToCollectionViaOutput array = nonexistentArrays
 
-// duplicate identifiers across scopes are allowed (inner hides the outer)
-module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
-  name: 'hello-${x}'
+module directRefToCollectionViaSingleBody 'modulea.bicep' = {
+  name: 'hello'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
     objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: y]
+    stringParamB: ''
   }
-}]
+}
 
-// duplicate identifiers across scopes are allowed (inner hides the outer)
-var duplicateAcrossScopes = 'hello'
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
-  name: 'hello-${duplicateAcrossScopes}'
+module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) {
+  name: 'hello2'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
     objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: x]
+    stringParamB: ''
   }
-}]
+}
 
-var someDuplicate = true
-var otherDuplicate = false
-module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-  name: 'hello-${someDuplicate}'
+module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
+  name: 'hello3'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
     objParam: {}
-    stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+    stringParamB: ''
   }
 }]
 
-// simple module loop
-module storageResources 'modulea.bicep' = [for module in myModules: {
-  name: module.name
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
+  name: 'hello4'
   params: {
-    arrayParam: []
-    objParam: module
-    stringParamB: module.location
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+    objParam: {}
+    stringParamB: ''
+    dependsOn: [
+      nonexistentArrays
+    ]
   }
+  dependsOn: [
+    
+  ]
 }]
 
-// nested module loop
-module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
-  name: module.name
-  params: {
-    arrayParam: [for i in range(0,3): concat('test', i)]
-    objParam: module
-    stringParamB: module.location
-  }
-}]
+
+// module body that isn't an object
+module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
+module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]

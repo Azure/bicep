@@ -37,12 +37,12 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
-            var completionContext = BicepCompletionContext.Create(compilationContext.Compilation.SyntaxTreeGrouping.EntryPoint, offset);
+            var completionContext = BicepCompletionContext.Create(compilationContext.Compilation, offset);
             var completions = Enumerable.Empty<CompletionItem>();
-            try 
+            try
             {
                 completions = this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);
-            } 
+            }
             catch (Exception e)
             {
                 this.logger.LogError("Error with Completion in file {Uri} with {Context}. Underlying exception is: {Exception}", request.TextDocument.Uri, completionContext, e.ToString());
@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
             DocumentSelector = DocumentSelectorFactory.Create(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
-            TriggerCharacters = new Container<string>(":", " ", ".", "/", "'")
+            TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@")
         };
     }
 }

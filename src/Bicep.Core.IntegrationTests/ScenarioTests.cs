@@ -580,5 +580,223 @@ output prop1 string = foo.properties.prop1
                 template!.SelectToken("$.outputs['prop1'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.foo/bar', 'name'), '2020-01-01').prop1]");
             }
         }
+
+        [TestMethod]
+        public void Test_Issue822()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  location: 'eastus'
+  name: 'rg'
+}
+
+module vnetmodule './vnet.bicep' = {
+  scope: myRg
+  name: 'vnet'
+  params: {
+    location: 'eastus'
+    name: 'myVnet'
+  }
+}
+"),
+                ("vnet.bicep", @"
+param location string
+param name string
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].subscriptionId")!.Should().BeNull();
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].resourceGroup")!.Should().DeepEqual("rg");
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].dependsOn[0]")!.Should().DeepEqual("[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg')]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue822_scoped()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource myRg 'Microsoft.Resources/resourceGroups@2020-06-01' existing = {
+  scope: subscription('abcdef')
+  name: 'rg'
+}
+
+module vnetmodule './vnet.bicep' = {
+  scope: myRg
+  name: 'vnet'
+  params: {
+    location: 'eastus'
+    name: 'myVnet'
+  }
+}
+"),
+                ("vnet.bicep", @"
+param location string
+param name string
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].subscriptionId")!.Should().DeepEqual("abcdef");
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].resourceGroup")!.Should().DeepEqual("rg");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1388()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+param rgName string
+param location string = deployment().location
+
+param groupOwnerId string
+param groupContributorId string
+param groupReaderId string
+
+resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  name: rgName
+  location: location
+}
+
+resource rgOwner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: '${guid(rg.name, 'owner')}'
+  scope: rg
+  properties: {
+    roleDefinitionId: '${subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')}'
+    principalId: groupOwnerId
+    principalType: 'Group'
+  }
+}
+
+resource rgContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: '${guid(rg.name, 'contributor')}'
+  scope: rg
+  properties: {
+    roleDefinitionId: '${subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')}'
+    principalId: groupContributorId
+    principalType: 'Group'
+  }
+}
+
+resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: '${guid(rg.name, 'reader')}'
+  scope: rg
+  properties: {
+    roleDefinitionId: '${subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')}'
+    principalId: groupReaderId
+    principalType: 'Group'
+  }
+}
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                    ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                    ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                });
+            }
+        }
+        
+        [TestMethod]
+        public void Test_Issue1364()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+targetScope = 'blablah'
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'\" but the provided value is of type \"'blablah'\"."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_success()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+param myparam string
+var myvar = 'hello'
+        
+output myparam string = myparam
+output myvar string = myvar
+");
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['myparam'].value")!.Should().DeepEqual("[parameters('myparam')]");
+                template!.SelectToken("$.outputs['myvar'].value")!.Should().DeepEqual("[variables('myvar')]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_duplicates()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+output duplicate string = 'hello'
+output duplicate string = 'hello'
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP145", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
+                    ("BCP145", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_outputs_cannot_be_referenced()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+output output1 string = 'hello'
+output output2 string = output1
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP058", DiagnosticLevel.Error, "The name \"output1\" is an output. Outputs cannot be referenced in expressions."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1599()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+param x string = 't'
+output xx = x
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP146", DiagnosticLevel.Error, "Expected an output type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
+                });
+            }
+        }
     }
 }
+

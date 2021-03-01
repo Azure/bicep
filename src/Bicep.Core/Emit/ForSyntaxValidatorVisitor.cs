@@ -1,0 +1,209 @@
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Collections.Generic;
+using System.Diagnostics;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+
+namespace Bicep.Core.Emit
+{
+    public sealed class ForSyntaxValidatorVisitor : SyntaxVisitor
+    {
+        private readonly IDiagnosticWriter diagnosticWriter;
+
+        private readonly SemanticModel semanticModel;
+
+        private SyntaxBase? activeLoopCapableTopLevelDeclaration = null;
+
+        private int propertyLoopCount = 0;
+
+        // points to the top level dependsOn property in the resource/module declaration currently being processed
+        private ObjectPropertySyntax? currentDependsOnProperty = null;
+
+        private bool insideTopLevelDependsOn = false;
+
+        private ForSyntaxValidatorVisitor(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            this.semanticModel = semanticModel;
+            this.diagnosticWriter = diagnosticWriter;
+        }
+
+        public static void Validate(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            var visitor = new ForSyntaxValidatorVisitor(semanticModel, diagnosticWriter);
+
+            // visiting writes diagnostics in some cases
+            visitor.Visit(semanticModel.SyntaxTree.ProgramSyntax);
+        }
+
+        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+
+            // stash the body (handles loops and conditions as well)
+            this.currentDependsOnProperty = TryGetDependsOnProperty(syntax.TryGetBody());
+
+            base.VisitResourceDeclarationSyntax(syntax);
+
+            // clear the stash
+            this.currentDependsOnProperty = null;
+
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
+        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+
+            // stash the body (handles loops and conditions as well)
+            this.currentDependsOnProperty = TryGetDependsOnProperty(syntax.TryGetBody());
+
+            base.VisitModuleDeclarationSyntax(syntax);
+
+            // clear the stash
+            this.currentDependsOnProperty = null;
+
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
+        public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+            base.VisitOutputDeclarationSyntax(syntax);
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
+        public override void VisitForSyntax(ForSyntax syntax)
+        {
+            // save previous property loop count on the call stack
+            var previousPropertyLoopCount = this.propertyLoopCount;
+
+            switch(this.IsLoopAllowedHere(syntax))
+            {
+                case false:
+                    // this loop was used incorrectly
+                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).ForExpressionsNotSupportedHere());
+                    break;
+
+                case null:
+                    // this is a property loop
+                    this.propertyLoopCount += 1;
+
+                    if(this.propertyLoopCount > 1)
+                    {
+                        // too many property loops
+                        this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).TooManyPropertyForExpressions());
+                    }
+
+                    break;
+            }
+            
+            // visit children
+            base.VisitForSyntax(syntax);
+
+            // restore previous property loop count
+            this.propertyLoopCount = previousPropertyLoopCount;
+        }
+
+        public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+        {
+            if (syntax.TryGetKeyText() == null && syntax.Value is ForSyntax)
+            {
+                // block loop usage with properties whose names are expressions
+                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.Key).ExpressionedPropertiesNotAllowedWithLoops());
+            }
+
+            bool insideDependsOnInThisScope = ReferenceEquals(this.currentDependsOnProperty, syntax);
+
+            // set this to true if the current property is the top-level dependsOn property
+            // leave it true if already set to true
+            this.insideTopLevelDependsOn = this.insideTopLevelDependsOn || insideDependsOnInThisScope;
+
+            // visit children
+            base.VisitObjectPropertySyntax(syntax);
+
+            // clear the flag after we leave the dependsOn property
+            if (insideDependsOnInThisScope)
+            {
+                this.insideTopLevelDependsOn = false;
+            }
+        }
+
+        public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+        {
+            var symbol = this.semanticModel.GetSymbolInfo(syntax);
+            if (symbol is ResourceSymbol { IsCollection: true } || symbol is ModuleSymbol { IsCollection: true })
+            {
+                // we are inside a dependsOn property and the referenced symbol is a resource/module collection
+                var parent = this.semanticModel.Binder.GetParent(syntax);
+                if (!this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
+                {
+                    // the parent is not array access, which means that someone is doing a direct reference to the collection
+                    // which is not allowed outside of the dependsOn properties
+                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).DirectAccessToCollectionNotSupported());
+                }
+            }
+
+            // visit children
+            base.VisitVariableAccessSyntax(syntax);
+        }
+
+        private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.SafeGetPropertyByName("dependsOn");
+
+        private bool? IsLoopAllowedHere(ForSyntax syntax)
+        {
+            if(this.activeLoopCapableTopLevelDeclaration is null)
+            {
+                // we're not in a loop capable declaration
+                return false;
+            }
+
+            if(this.IsTopLevelLoop(syntax))
+            {
+                // this is a loop in a resource, module, or output value
+                return true;
+            }
+
+            // not a top-level loop
+            if(this.activeLoopCapableTopLevelDeclaration is OutputDeclarationSyntax)
+            {
+                // output loops are only supported in the values due to runtime limitations
+                return false;
+            }
+
+            // could be a property loop
+            if(!this.IsPropertyLoop(syntax))
+            {
+                // not a proeprty loop
+                return false;
+            }
+
+            // possibly allowed - need to check how many property loops we have in the chain
+            return null;
+        }
+
+        private bool IsPropertyLoop(ForSyntax syntax)
+        {
+            var parent = this.semanticModel.SyntaxTree.Hierarchy.GetParent(syntax);
+            return parent is ObjectPropertySyntax property && ReferenceEquals(property.Value, syntax);
+        }
+
+        private bool IsTopLevelLoop(ForSyntax syntax)
+        {
+            var parent = this.semanticModel.SyntaxTree.Hierarchy.GetParent(syntax);
+
+            switch(parent)
+            {
+                case ResourceDeclarationSyntax resource when ReferenceEquals(resource.Value, syntax):
+                case ModuleDeclarationSyntax module when ReferenceEquals(module.Value, syntax):
+                case OutputDeclarationSyntax output when ReferenceEquals(output.Value, syntax):
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+}

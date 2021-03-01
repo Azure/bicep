@@ -8,30 +8,46 @@
     }
   },
   "functions": [],
+  "variables": {
+    "myModules": [
+      {
+        "name": "one",
+        "location": "eastus2"
+      },
+      {
+        "name": "two",
+        "location": "westus"
+      }
+    ],
+    "emptyArray": [],
+    "duplicateAcrossScopes": "hello",
+    "someDuplicate": true,
+    "otherDuplicate": false
+  },
   "resources": [
     {
       "type": "Mock.Rp/mockResource",
       "apiVersion": "2020-01-01",
       "name": "harry",
       "properties": {
-        "modADep": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]",
-        "modBDep": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]"
+        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]",
+        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]"
       },
       "dependsOn": [
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest')]",
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modB')]"
+        "[resourceId('Microsoft.Resources/deployments', 'modATest')]",
+        "[resourceId('Microsoft.Resources/deployments', 'modB')]"
       ]
     },
     {
       "type": "Mock.Rp/mockResource",
       "apiVersion": "2020-01-01",
-      "name": "[format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))]",
+      "name": "[format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))]",
       "properties": {
-        "modADep": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
+        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
       },
       "dependsOn": [
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix')))]",
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]"
+        "[resourceId('Microsoft.Resources/deployments', format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix')))]",
+        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]"
       ]
     },
     {
@@ -436,7 +452,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithNoParams3')]",
+        "[resourceId('Microsoft.Resources/deployments', 'optionalWithNoParams3')]",
         "[resourceId('Mock.Rp/mockResource', 'harry')]"
       ]
     },
@@ -451,7 +467,7 @@
         "mode": "Incremental",
         "parameters": {
           "optionalString": {
-            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
           },
           "optionalInt": {
             "value": 42
@@ -506,14 +522,14 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
+        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
         "[resourceId('Mock.Rp/mockResource', 'harry')]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))]",
+      "name": "[format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -521,7 +537,7 @@
         "mode": "Incremental",
         "parameters": {
           "optionalString": {
-            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
           },
           "optionalInt": {
             "value": 42
@@ -576,31 +592,709 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
+        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
         "[resourceId('Mock.Rp/mockResource', 'harry')]"
       ]
+    },
+    {
+      "copy": {
+        "name": "storageResources",
+        "count": "[length(variables('myModules'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('myModules')[copyIndex()].name]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "arrayParam": {
+            "value": []
+          },
+          "objParam": {
+            "value": "[variables('myModules')[copyIndex()]]"
+          },
+          "stringParamB": {
+            "value": "[variables('myModules')[copyIndex()].location]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "nestedModuleLoop",
+        "count": "[length(variables('myModules'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('myModules')[copyIndex()].name]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "arrayParam": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(range(0, 3))]",
+                "input": "[concat('test-', range(0, 3)[copyIndex('value')], '-', variables('myModules')[copyIndex()].name)]"
+              }
+            ]
+          },
+          "objParam": {
+            "value": "[variables('myModules')[copyIndex()]]"
+          },
+          "stringParamB": {
+            "value": "[variables('myModules')[copyIndex()].location]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicateIdentifiersWithinLoop",
+        "count": "[length(variables('emptyArray'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('hello-{0}', variables('emptyArray')[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {}
+          },
+          "stringParamA": {
+            "value": "test"
+          },
+          "stringParamB": {
+            "value": "test"
+          },
+          "arrayParam": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(variables('emptyArray'))]",
+                "input": "[variables('emptyArray')[copyIndex('value')]]"
+              }
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicateInGlobalAndOneLoop",
+        "count": "[length(createArray())]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {}
+          },
+          "stringParamA": {
+            "value": "test"
+          },
+          "stringParamB": {
+            "value": "test"
+          },
+          "arrayParam": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(variables('emptyArray'))]",
+                "input": "[variables('emptyArray')[copyIndex('value')]]"
+              }
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicatesEverywhere",
+        "count": "[length(createArray())]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {}
+          },
+          "stringParamB": {
+            "value": "test"
+          },
+          "arrayParam": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(variables('emptyArray'))]",
+                "input": "[format('{0}-{1}', createArray()[copyIndex()], variables('emptyArray')[copyIndex('value')])]"
+              }
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "propertyLoopInsideParameterValue",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {
+              "copy": [
+                {
+                  "name": "a",
+                  "count": "[length(range(0, 10))]",
+                  "input": "[range(0, 10)[copyIndex('a')]]"
+                },
+                {
+                  "name": "b",
+                  "count": "[length(range(1, 2))]",
+                  "input": "[range(1, 2)[copyIndex('b')]]"
+                },
+                {
+                  "name": "e",
+                  "count": "[length(range(4, 4))]",
+                  "input": {
+                    "f": "[range(4, 4)[copyIndex('e')]]"
+                  }
+                }
+              ],
+              "c": {
+                "copy": [
+                  {
+                    "name": "d",
+                    "count": "[length(range(2, 3))]",
+                    "input": "[range(2, 3)[copyIndex('d')]]"
+                  }
+                ]
+              }
+            }
+          },
+          "stringParamB": {
+            "value": ""
+          },
+          "arrayParam": {
+            "value": [
+              {
+                "copy": [
+                  {
+                    "name": "e",
+                    "count": "[length(range(7, 7))]",
+                    "input": "[range(7, 7)[copyIndex('e')]]"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "propertyLoopInsideParameterValueInsideModuleLoop",
+        "count": "[length(range(0, 1))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "propertyLoopInsideParameterValueInsideModuleLoop",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {
+              "copy": [
+                {
+                  "name": "a",
+                  "count": "[length(range(0, 10))]",
+                  "input": "[add(range(0, 10)[copyIndex('a')], range(0, 1)[copyIndex()])]"
+                },
+                {
+                  "name": "b",
+                  "count": "[length(range(1, 2))]",
+                  "input": "[mul(range(1, 2)[copyIndex('b')], range(0, 1)[copyIndex()])]"
+                },
+                {
+                  "name": "e",
+                  "count": "[length(range(4, 4))]",
+                  "input": {
+                    "f": "[sub(range(4, 4)[copyIndex('e')], range(0, 1)[copyIndex()])]"
+                  }
+                }
+              ],
+              "c": {
+                "copy": [
+                  {
+                    "name": "d",
+                    "count": "[length(range(2, 3))]",
+                    "input": "[range(2, 3)[copyIndex('d')]]"
+                  }
+                ]
+              }
+            }
+          },
+          "stringParamB": {
+            "value": ""
+          },
+          "arrayParam": {
+            "value": [
+              {
+                "copy": [
+                  {
+                    "name": "e",
+                    "count": "[length(range(7, 7))]",
+                    "input": "[mod(range(7, 7)[copyIndex('e')], range(0, 1)[copyIndex()])]"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "outputs": {
     "stringOutputA": {
       "type": "string",
-      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]"
     },
     "stringOutputB": {
       "type": "string",
-      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputB.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputB.value]"
     },
     "objOutput": {
       "type": "object",
-      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.objOutput.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.objOutput.value]"
     },
     "arrayOutput": {
       "type": "array",
-      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.arrayOutput.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.arrayOutput.value]"
     },
     "modCalculatedNameOutput": {
       "type": "object",
-      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5916075395955971227"
     }
   }
 }

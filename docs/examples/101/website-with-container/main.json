@@ -98,5 +98,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Web/sites', variables('websiteName'))).ftpUsername]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11671505077922500538"
+    }
   }
 }

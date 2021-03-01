@@ -1,9 +1,5 @@
-param location string {
-  metadata: {
-    description: 'Location for all resources.'
-  }
-  default: resourceGroup().location
-}
+@description('Location for all resources.')
+param location string = resourceGroup().location
 
 var fooName = 'Foo!'
 
@@ -48,6 +44,6 @@ resource fooName_blah2 'Foo.Rp/bar@2019-06-01' = {
   }
   dependsOn: [
     'Foo.Rp/bar${fooName}bar'
-//@[4:29) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "string". |'Foo.Rp/bar${fooName}bar'|
+//@[4:29) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". |'Foo.Rp/bar${fooName}bar'|
   ]
 }

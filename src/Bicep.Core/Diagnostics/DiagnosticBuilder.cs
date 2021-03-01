@@ -280,7 +280,7 @@ namespace Bicep.Core.Diagnostics
                 for (int i = 0; i < overloadCount; i++)
                 {
                     messageBuilder
-                        .Append("\n")
+                        .Append('\n')
                         .Append($"  Overload {i + 1} of {overloadCount}, \"{overloadSignatures[i]}\", gave the following error:\n")
                         .Append($"    Argument of type \"{argumentType}\" is not assignable to parameter of type \"{parameterTypes[i]}\".");
                 }
@@ -694,7 +694,7 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain) {
                 var variableDependencyChainClause = variableDependencyChain != null ? 
                  $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
-                
+
                 return new ErrorDiagnostic(
                 TextSpan,
                 "BCP120",
@@ -703,12 +703,12 @@ namespace Bicep.Core.Diagnostics
             }
 
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
-                TextSpan,                
+                TextSpan,
                 "BCP121",
                 $"Resources: {ToQuotedString(resourceNames)} are defined with this same name in a file. Rename them or split into different modules.");
 
             public ErrorDiagnostic ModuleMultipleDeclarations(IEnumerable<string> moduleNames) => new(
-                TextSpan,                
+                TextSpan,
                 "BCP122",
                 $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
 
@@ -757,7 +757,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP131",
                 "Parameter modifiers and decorators cannot be used together. Please use decorators only.");
 
-            public ErrorDiagnostic ExpectDeclarationAfterDecorator() => new(
+            public ErrorDiagnostic ExpectedDeclarationAfterDecorator() => new(
                 TextSpan,
                 "BCP132",
                 "Expected a declaration after the decorator.");
@@ -789,10 +789,81 @@ namespace Bicep.Core.Diagnostics
                 "BCP137",
                 $"Loop expected an expression of type \"{LanguageConstants.Array}\" but the provided value is of type \"{actualType}\".");
 
-            public ErrorDiagnostic LoopsNotSupported() => new(
+            public ErrorDiagnostic ForExpressionsNotSupportedHere() => new(
                 TextSpan,
                 "BCP138",
-                "Loops are not currently supported.");
+                "For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs.");
+
+            public Diagnostic InvalidCrossResourceScope() => new(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP139",
+                $"The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module.");
+
+            public ErrorDiagnostic UnterminatedMultilineString() => new(
+                TextSpan,
+                "BCP140",
+                $"The multi-line string at this location is not terminated. Terminate it with \"'''\".");
+
+            public ErrorDiagnostic ExpressionNotCallable() => new(
+                TextSpan,
+                "BCP141",
+                "The expression cannot be used as a decorator as it is not callable.");
+
+            public ErrorDiagnostic TooManyPropertyForExpressions() => new(
+                TextSpan,
+                "BCP142",
+                "Property value for-expressions cannot be nested.");
+
+            public ErrorDiagnostic ExpressionedPropertiesNotAllowedWithLoops() => new(
+                TextSpan,
+                "BCP143",
+                "For-expressions cannot be used with properties whose names are also expressions.");
+
+            public ErrorDiagnostic DirectAccessToCollectionNotSupported() => new(
+                TextSpan,
+                "BCP144",
+                "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.");
+
+            public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
+                TextSpan,
+                "BCP145",
+                $"Output \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
+
+            public ErrorDiagnostic ExpectedOutputType() => new(
+                TextSpan,
+                "BCP146",
+                $"Expected an output type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
+
+            public ErrorDiagnostic ExpectedParameterDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP147",
+                "Expected a parameter declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedVariableDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP148",
+                "Expected a variable declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedResourceDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP149",
+                "Expected a resource declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedModuleDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP150",
+                "Expected a module declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedOutputDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP151",
+                "Expected an output declaration after the decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsDecorator(string functionName) => new(
+                TextSpan,
+                "BCP152",
+                $"Function \"{functionName}\" cannot be used as a decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

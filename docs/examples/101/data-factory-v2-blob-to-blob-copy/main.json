@@ -166,5 +166,12 @@
         "[resourceId('Microsoft.DataFactory/factories/datasets', split(format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetOutName')), '/')[0], split(format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetOutName')), '/')[1])]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6897753619463271757"
+    }
+  }
 }

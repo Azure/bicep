@@ -124,7 +124,7 @@ output storageName string = stg.outputs.computedStorageName
 
 ## Deploying modules to a different scope
 
-Modules also support a `scope` property, which allows you to specify a scope that is different that the target scope of the deployment. For example, we may want the storage module to be deployed to a different resource group. To do so, let's add the `scope` property to our module declaration:
+Modules also support a `scope` property, which allows you to specify a scope that is different than the target scope of the deployment. For example, we may want the storage module to be deployed to a different resource group. To do so, let's add the `scope` property to our module declaration:
 
 ```
 module stg './storage.bicep' = {
@@ -138,7 +138,7 @@ module stg './storage.bicep' = {
 output storageName string = stg.outputs.computedStorageName
 ```
 
-Bicep files assume that the target scope of the deployment is a resource group, but you can override this as well. Let's make a final change our `main.bicep` file to change the `targetScope` to `subscription` and create a simple role assignment resource.
+Bicep files assume that the target scope of the deployment is a resource group, but you can override this as well. Let's make a final change to our `main.bicep` file to change the `targetScope` to `subscription` and create a simple role assignment resource.
 
 ```
 targetScope = 'subscription'

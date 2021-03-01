@@ -613,6 +613,25 @@ var something = 1
 //@[16:17) Integer |1|
 //@[17:19) NewLine |\n\n|
 
+// #completionTest(1) -> empty
+//@[30:31) NewLine |\n|
+@
+//@[0:1) At |@|
+//@[1:2) NewLine |\n|
+// #completionTest(5) -> empty
+//@[30:31) NewLine |\n|
+@sys.
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:6) NewLine |\n|
+var anotherThing = true
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |anotherThing|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[23:25) NewLine |\n\n|
+
 // invalid identifier character classes
 //@[39:40) NewLine |\n|
 var ☕ = true
@@ -627,4 +646,143 @@ var a☕ = true
 //@[5:6) Unrecognized |☕|
 //@[7:8) Assignment |=|
 //@[9:13) TrueKeyword |true|
-//@[13:13) EndOfFile ||
+//@[13:15) NewLine |\n\n|
+
+// loops are not allowed in variables
+//@[37:38) NewLine |\n|
+var noVariableLoopsYet = [for thing in stuff: 4]
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |noVariableLoopsYet|
+//@[23:24) Assignment |=|
+//@[25:26) LeftSquare |[|
+//@[26:29) Identifier |for|
+//@[30:35) Identifier |thing|
+//@[36:38) Identifier |in|
+//@[39:44) Identifier |stuff|
+//@[44:45) Colon |:|
+//@[46:47) Integer |4|
+//@[47:48) RightSquare |]|
+//@[48:50) NewLine |\n\n|
+
+// nested loops are also not allowed
+//@[36:37) NewLine |\n|
+var noNestedVariableLoopsEither = [for thing in stuff: {
+//@[0:3) Identifier |var|
+//@[4:31) Identifier |noNestedVariableLoopsEither|
+//@[32:33) Assignment |=|
+//@[34:35) LeftSquare |[|
+//@[35:38) Identifier |for|
+//@[39:44) Identifier |thing|
+//@[45:47) Identifier |in|
+//@[48:53) Identifier |stuff|
+//@[53:54) Colon |:|
+//@[55:56) LeftBrace |{|
+//@[56:57) NewLine |\n|
+  hello: [for thing in []: 4]
+//@[2:7) Identifier |hello|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:19) Identifier |thing|
+//@[20:22) Identifier |in|
+//@[23:24) LeftSquare |[|
+//@[24:25) RightSquare |]|
+//@[25:26) Colon |:|
+//@[27:28) Integer |4|
+//@[28:29) RightSquare |]|
+//@[29:30) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+// loops in inner properties of a variable are also not supported
+//@[65:66) NewLine |\n|
+var innerPropertyLoop = {
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |innerPropertyLoop|
+//@[22:23) Assignment |=|
+//@[24:25) LeftBrace |{|
+//@[25:26) NewLine |\n|
+  a: [for i in range(0,10): i]
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:6) LeftSquare |[|
+//@[6:9) Identifier |for|
+//@[10:11) Identifier |i|
+//@[12:14) Identifier |in|
+//@[15:20) Identifier |range|
+//@[20:21) LeftParen |(|
+//@[21:22) Integer |0|
+//@[22:23) Comma |,|
+//@[23:25) Integer |10|
+//@[25:26) RightParen |)|
+//@[26:27) Colon |:|
+//@[28:29) Identifier |i|
+//@[29:30) RightSquare |]|
+//@[30:31) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:2) NewLine |\n|
+var innerPropertyLoop2 = {
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |innerPropertyLoop2|
+//@[23:24) Assignment |=|
+//@[25:26) LeftBrace |{|
+//@[26:27) NewLine |\n|
+  b: {
+//@[2:3) Identifier |b|
+//@[3:4) Colon |:|
+//@[5:6) LeftBrace |{|
+//@[6:7) NewLine |\n|
+    a: [for i in range(0,10): i]
+//@[4:5) Identifier |a|
+//@[5:6) Colon |:|
+//@[7:8) LeftSquare |[|
+//@[8:11) Identifier |for|
+//@[12:13) Identifier |i|
+//@[14:16) Identifier |in|
+//@[17:22) Identifier |range|
+//@[22:23) LeftParen |(|
+//@[23:24) Integer |0|
+//@[24:25) Comma |,|
+//@[25:27) Integer |10|
+//@[27:28) RightParen |)|
+//@[28:29) Colon |:|
+//@[30:31) Identifier |i|
+//@[31:32) RightSquare |]|
+//@[32:33) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// cannot use loops in expressions
+//@[34:35) NewLine |\n|
+var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
+//@[0:3) Identifier |var|
+//@[4:18) Identifier |loopExpression|
+//@[19:20) Assignment |=|
+//@[21:26) Identifier |union|
+//@[26:27) LeftParen |(|
+//@[27:28) LeftSquare |[|
+//@[28:31) Identifier |for|
+//@[32:37) Identifier |thing|
+//@[38:40) Identifier |in|
+//@[41:46) Identifier |stuff|
+//@[46:47) Colon |:|
+//@[48:49) Integer |4|
+//@[49:50) RightSquare |]|
+//@[50:51) Comma |,|
+//@[52:53) LeftSquare |[|
+//@[53:56) Identifier |for|
+//@[57:62) Identifier |thing|
+//@[63:65) Identifier |in|
+//@[66:71) Identifier |stuff|
+//@[71:72) Colon |:|
+//@[73:77) TrueKeyword |true|
+//@[77:78) RightSquare |]|
+//@[78:79) RightParen |)|
+//@[79:79) EndOfFile ||

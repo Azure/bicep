@@ -108,5 +108,12 @@
       "location": "[parameters('location')]",
       "properties": "[if(equals(parameters('fwtype'), 'VNet'), variables('vnetfwproperties').properties, if(equals(parameters('fwtype'), 'vWAN'), variables('hubfwproperties').properties, null()))]"
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12898515349131983239"
+    }
+  }
 }

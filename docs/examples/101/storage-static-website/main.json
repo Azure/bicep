@@ -80,7 +80,7 @@
       },
       "properties": {
         "azPowerShellVersion": "3.0",
-        "scriptContent": "param([string] $ResourceGroupName, [string] $StorageAccountName, [string] $IndexDocument, [string] $ErrorDocument404Path)\n$ErrorActionPreference = 'Stop'\n$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -AccountName $StorageAccountName\n$ctx = $storageAccount.Context\nEnable-AzStorageStaticWebsite -Context $ctx -IndexDocument $IndexDocument -ErrorDocument404Path $ErrorDocument404Path",
+        "scriptContent": "param(\n    [string] $ResourceGroupName,\n    [string] $StorageAccountName,\n    [string] $IndexDocument,\n    [string] $ErrorDocument404Path)\n\n$ErrorActionPreference = 'Stop'\n$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -AccountName $StorageAccountName\n\n$ctx = $storageAccount.Context\nEnable-AzStorageStaticWebsite -Context $ctx -IndexDocument $IndexDocument -ErrorDocument404Path $ErrorDocument404Path\n",
         "forceUpdateTag": "[parameters('deploymentScriptTimestamp')]",
         "retentionInterval": "PT4H",
         "arguments": "[format('-ResourceGroupName {0} -StorageAccountName {1} -IndexDocument {2} -ErrorDocument404Path {3}', resourceGroup().name, parameters('accountName'), parameters('indexDocument'), parameters('errorDocument404Path'))]"
@@ -100,6 +100,13 @@
     "staticWebsiteHostName": {
       "type": "string",
       "value": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))).primaryEndpoints.web, 'https://', ''), '/', '')]"
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4092422444022037119"
     }
   }
 }

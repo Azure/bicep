@@ -34,7 +34,19 @@
       "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
     },
     "setResourceCRef": true,
-    "myInterpKey": "abc"
+    "myInterpKey": "abc",
+    "storageAccounts": [
+      {
+        "name": "one",
+        "location": "eastus2"
+      },
+      {
+        "name": "two",
+        "location": "westus"
+      }
+    ],
+    "canHaveDuplicatesAcrossScopes": "hello",
+    "duplicatesEverywhere": "hello"
   },
   "resources": [
     {
@@ -270,7 +282,7 @@
     {
       "type": "My.Rp/extensionResource",
       "apiVersion": "2020-12-01",
-      "scope": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
+      "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
       "name": "extension",
       "dependsOn": [
         "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
@@ -297,9 +309,103 @@
     {
       "type": "My.Rp/extensionResource",
       "apiVersion": "2020-12-01",
-      "scope": "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
+      "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "extension3",
       "dependsOn": []
+    },
+    {
+      "copy": {
+        "name": "storageResources",
+        "count": "[length(variables('storageAccounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storageAccounts')[copyIndex()].name]",
+      "location": "[variables('storageAccounts')[copyIndex()].location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "copy": {
+        "name": "vnet",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 3)[copyIndex()], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicateIdentifiersWithinLoop",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicateInGlobalAndOneLoop",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicateInGlobalAndTwoLoops",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}', range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
     }
   ],
   "outputs": {
@@ -310,6 +416,13 @@
     "siteType": {
       "type": "string",
       "value": "Microsoft.Web/sites"
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14814389154615864983"
     }
   }
 }

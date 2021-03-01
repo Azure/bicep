@@ -15,8 +15,8 @@ namespace Bicep.Core.Syntax
 
         public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = Enumerable.Empty<SyntaxTrivia>();
 
-        public static Token CreateToken(TokenType tokenType, string text)
-            => new Token(tokenType, EmptySpan, text, EmptyTrivia, EmptyTrivia);
+        public static Token CreateToken(TokenType tokenType, string text = "")
+            => new Token(tokenType, EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);
 
         public static IdentifierSyntax CreateIdentifier(string text)
             => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
@@ -90,6 +90,17 @@ namespace Bicep.Core.Syntax
             return CreateToken(TokenType.StringComplete, $"'{EscapeBicepString(value)}'");
         }
 
+        public static StringSyntax CreateInterpolatedKey(SyntaxBase syntax)
+        {
+            var startToken = CreateStringInterpolationToken(true, false, "");
+            var endToken = CreateStringInterpolationToken(false, true, "");
+
+            return new StringSyntax(
+                new [] { startToken, endToken },
+                syntax.AsEnumerable(),
+                new [] { "", "" });
+        }
+
         public static Token CreateStringInterpolationToken(bool isStart, bool isEnd, string value)
         {
             if (isStart)
@@ -105,6 +116,26 @@ namespace Bicep.Core.Syntax
             return CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{");
         }
 
+        public static FunctionCallSyntax CreateFunctionCall(string functionName, IEnumerable<SyntaxBase> argumentExpressions)
+        {
+            var arguments = argumentExpressions.Any()
+                ? argumentExpressions.SkipLast(1)
+                    .Select(expression => new FunctionArgumentSyntax(expression, CreateToken(TokenType.Comma, ",")))
+                    .Append(new FunctionArgumentSyntax(argumentExpressions.Last(), null))
+                : Enumerable.Empty<FunctionArgumentSyntax>();
+
+            return new FunctionCallSyntax(
+                CreateIdentifier(functionName),
+                CreateToken(TokenType.LeftParen, "("),
+                arguments,
+                CreateToken(TokenType.RightParen, ")"));
+        }
+
+        public static DecoratorSyntax CreateDecorator(string functionName, IEnumerable<SyntaxBase> argumentExpressions)
+        {
+            return new DecoratorSyntax(CreateToken(TokenType.At, "@"), CreateFunctionCall(functionName, argumentExpressions));
+        }
+
         private static string EscapeBicepString(string value)
             => value
             .Replace("\\", "\\\\") // must do this first!
@@ -113,5 +144,42 @@ namespace Bicep.Core.Syntax
             .Replace("\t", "\\t")
             .Replace("${", "\\${")
             .Replace("'", "\\'");
+
+        private static string TryGetTokenText(TokenType tokenType) => tokenType switch
+        {
+            TokenType.At => "@",
+            TokenType.LeftBrace => "{",
+            TokenType.RightBrace => "}",
+            TokenType.LeftParen => "(",
+            TokenType.RightParen => ")",
+            TokenType.LeftSquare => "[",
+            TokenType.RightSquare => "]",
+            TokenType.Comma => ",",
+            TokenType.Dot => ".",
+            TokenType.Question => "?",
+            TokenType.Colon => ":",
+            TokenType.Semicolon => ";",
+            TokenType.Assignment => "=",
+            TokenType.Plus => "+",
+            TokenType.Minus => "-",
+            TokenType.Asterisk => "*",
+            TokenType.Slash => "/",
+            TokenType.Modulo => "%",
+            TokenType.Exclamation => "!",
+            TokenType.LessThan => "<",
+            TokenType.GreaterThan => ">",
+            TokenType.LessThanOrEqual => "<=",
+            TokenType.GreaterThanOrEqual => ">=",
+            TokenType.Equals => "==",
+            TokenType.NotEquals => "!=",
+            TokenType.EqualsInsensitive => "=~",
+            TokenType.NotEqualsInsensitive => "!~",
+            TokenType.LogicalAnd => "&&",
+            TokenType.LogicalOr => "||",
+            TokenType.TrueKeyword => "true",
+            TokenType.FalseKeyword => "false",
+            TokenType.NullKeyword => "null",
+            _ => ""
+        };
     }
 }

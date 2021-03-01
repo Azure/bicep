@@ -8,6 +8,8 @@ namespace Bicep.Core.Semantics
     {
         private readonly FunctionOverloadBuilder functionOverloadBuilder;
 
+        private TypeSymbol attachableType;
+
         private DecoratorValidator? validator;
 
         private DecoratorEvaluator? evaluator;
@@ -15,6 +17,7 @@ namespace Bicep.Core.Semantics
         public DecoratorBuilder(string name)
         {
             this.functionOverloadBuilder = new FunctionOverloadBuilder(name);
+            this.attachableType = LanguageConstants.Any;
         }
 
         public DecoratorBuilder WithDescription(string description)
@@ -52,6 +55,13 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
+        public DecoratorBuilder WithAttachableType(TypeSymbol attachableType)
+        {
+            this.attachableType = attachableType;
+
+            return this;
+        }
+
         public DecoratorBuilder WithValidator(DecoratorValidator validator)
         {
             this.validator = validator;
@@ -66,6 +76,6 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public Decorator Build() => new Decorator(this.functionOverloadBuilder.Build(), this.validator, this.evaluator);
+        public Decorator Build() => new Decorator(this.functionOverloadBuilder.Build(), this.attachableType, this.validator, this.evaluator);
     }
 }

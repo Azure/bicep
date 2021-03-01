@@ -165,5 +165,12 @@
         "[resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10938510001943113378"
+    }
+  }
 }

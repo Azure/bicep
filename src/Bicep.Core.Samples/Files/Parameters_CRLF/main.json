@@ -230,6 +230,7 @@
     },
     "stringLiteralWithDecoratorWithAllowedValuesSuperset": {
       "type": "string",
+      "defaultValue": "[parameters('stringLiteralWithDecorator')]",
       "allowedValues": [
         "abc",
         "def",
@@ -247,10 +248,12 @@
     },
     "decoratedInt": {
       "type": "int",
+      "defaultValue": 123,
       "minValue": 200
     },
     "decoratedBool": {
       "type": "bool",
+      "defaultValue": "[not(equals(and(true(), false()), true()))]",
       "metadata": {
         "description": "A boolean.",
         "foo": "something",
@@ -262,10 +265,35 @@
       }
     },
     "decoratedObject": {
-      "type": "secureObject"
+      "type": "secureObject",
+      "defaultValue": {
+        "enabled": true,
+        "name": "this is my object",
+        "priority": 3,
+        "info": {
+          "a": "b"
+        },
+        "empty": {},
+        "array": [
+          "string item",
+          12,
+          true,
+          [
+            "inner",
+            false
+          ],
+          {
+            "a": "b"
+          }
+        ]
+      }
     },
     "decoratedArray": {
       "type": "array",
+      "defaultValue": [
+        "[utcNow()]",
+        "[newGuid()]"
+      ],
       "metadata": {
         "description": "An array."
       },
@@ -273,5 +301,12 @@
     }
   },
   "functions": [],
-  "resources": []
+  "resources": [],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1221792736613608003"
+    }
+  }
 }

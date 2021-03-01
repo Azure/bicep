@@ -179,5 +179,51 @@ namespace Bicep.Core.IntegrationTests
             // this behavior is actaully controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");
         }
+
+        [DataTestMethod]
+        [DataRow("and(variables('a'), variables('b'))", "boolean", "a && b")]
+        [DataRow("and(variables('a'), variables('b'), variables('c'))", "boolean", "a && b && c")]
+        [DataRow("or(variables('a'), variables('b'))", "boolean", "a || b")]
+        [DataRow("or(variables('a'), variables('b'), variables('c'))", "boolean", "a || b || c")]
+        [DataRow("add(variables('a'), variables('b'))", "int", "a + b")]
+        [DataRow("sub(variables('a'), variables('b'))", "int", "a - b")]
+        [DataRow("mul(variables('a'), variables('b'))", "int", "a * b")]
+        [DataRow("div(variables('a'), variables('b'))", "int", "a / b")]
+        [DataRow("mod(variables('a'), variables('b'))", "int", "a % b")]
+        [DataRow("less(variables('a'), variables('b'))", "boolean", "a < b")]
+        [DataRow("lessOrEquals(variables('a'), variables('b'))", "boolean", "a <= b")]
+        [DataRow("greater(variables('a'), variables('b'))", "boolean", "a > b")]
+        [DataRow("greaterOrEquals(variables('a'), variables('b'))", "boolean", "a >= b")]
+        [DataRow("equals(variables('a'), variables('b'))", "boolean", "a == b")]
+        public void Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
+        {
+            var template = @"{
+    ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+    ""contentVersion"": ""1.0.0.0"",
+    ""parameters"": {},
+    ""variables"": {
+        ""a"": true,
+        ""b"": false,
+        ""c"": true
+    },
+    ""resources"": [],
+    ""outputs"": {
+        ""calculated"": {
+            ""type"": """ + type + @""",
+            ""value"": ""[" + expression + @"]""
+        }
+    }
+}";
+
+            var fileUri = new Uri("file:///path/to/main.json");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [fileUri] = template,
+            });;
+
+            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
+
+            filesToSave[entryPointUri].Should().Contain($"output calculated {type} = ({expectedValue})");
+        }
     }
 }

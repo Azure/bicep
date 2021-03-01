@@ -77,6 +77,7 @@ primaryExpression ->
   functionCall |
   literalValue |
   interpString |
+  multilineString |
   array |
   forExpression |
   object |
@@ -94,11 +95,13 @@ ifCondition -> "if" parenthesizedExpression object
 
 forExpression -> "[" "for" IDENTIFIER "in" expression ":" expression(body) "]"
 
-interpString ->  interpStringLeftPiece ( expression interpStringMiddlePiece )* expression interpStringRightPiece | literalString
-interpStringLeftPiece -> "'" STRINGCHAR* "${"
-interpStringMiddlePiece -> "}" STRINGCHAR* "${"
-interpStringRightPiece -> "}" STRINGCHAR* "'"
-literalString -> "'" STRINGCHAR* "'"
+interpString ->  stringLeftPiece ( expression stringMiddlePiece )* expression stringRightPiece | stringComplete
+stringLeftPiece -> "'" STRINGCHAR* "${"
+stringMiddlePiece -> "}" STRINGCHAR* "${"
+stringRightPiece -> "}" STRINGCHAR* "'"
+stringComplete -> "'" STRINGCHAR* "'"
+
+multilineString -> "'''" + MULTILINESTRINGCHAR+ + "'''"
 
 literalValue -> NUMBER | "true" | "false" | "null"
 

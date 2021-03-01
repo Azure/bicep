@@ -11,6 +11,9 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
+        public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
+        public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
+
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
@@ -107,7 +110,7 @@ namespace Bicep.Core.TypeSystem.Az
             else
             {
                 // TODO: remove 'dependsOn' from the type library
-                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceRefArray, TypePropertyFlags.WriteOnly));
+                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly));
                 
                 // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
                 if (validParentScopes.HasFlag(ResourceScope.Resource))
@@ -117,7 +120,7 @@ namespace Bicep.Core.TypeSystem.Az
                 }
             }
             // Deployments RP
-            if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, TemplateWriter.NestedDeploymentResourceType))
+            if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, ResourceTypeDeployments))
             {
                 properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));

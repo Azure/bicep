@@ -135,5 +135,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12627680286591408003"
+    }
   }
 }

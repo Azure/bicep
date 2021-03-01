@@ -177,7 +177,7 @@
             "value": "[resourceId('Microsoft.Compute/proximityPlacementGroups', 'Zone1')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(resourceId('Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "anchor"
@@ -318,7 +318,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network')]",
+        "[resourceId('Microsoft.Resources/deployments', 'network')]",
         "[resourceId('Microsoft.Compute/proximityPlacementGroups', 'Zone1')]"
       ]
     },
@@ -339,7 +339,7 @@
             "value": "[resourceId('Microsoft.Compute/availabilitySets', 'as1')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(resourceId('Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm01"
@@ -446,7 +446,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Compute/availabilitySets', 'as1')]",
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network')]"
+        "[resourceId('Microsoft.Resources/deployments', 'network')]"
       ]
     },
     {
@@ -466,7 +466,7 @@
             "value": "[resourceId('Microsoft.Compute/availabilitySets', 'as1')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(resourceId('Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm02"
@@ -573,8 +573,15 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Compute/availabilitySets', 'as1')]",
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network')]"
+        "[resourceId('Microsoft.Resources/deployments', 'network')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13498508086631125826"
+    }
+  }
 }

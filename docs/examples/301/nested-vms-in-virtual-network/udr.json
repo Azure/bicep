@@ -35,5 +35,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9661340652054080845"
+    }
   }
 }

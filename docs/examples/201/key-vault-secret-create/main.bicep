@@ -116,29 +116,9 @@ resource vault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   }
 }
 
-// workaround for missing loop support - just using the first secret for now
-var firstSecretName = first(secretsObject.secrets).secretName
-var firstSecretValue = first(secretsObject.secrets).secretValue
-
-resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
-  name: '${vault.name}/${firstSecretName}'
+resource secrets 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret in secretsObject.secrets: {
+  name: '${vault.name}/${secret.secretName}'
   properties: {
-    value: firstSecretValue
+    value: secret.secretValue
   }
-}
-/*
-TODO: Replace the first secret workaround above with this once we have loops
-
-resource[] secrets 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [
-  for secret in secretsObject.secrets: {
-    dependsOn: [
-      vault
-    ]
-    name: '${keyVaultName}/${secret.secretName}'
-    properties: {
-      value: secret.secretValue
-    }
-  }
-]
-
-*/
+}]

@@ -288,4 +288,53 @@ output secondaryKey string = secondaryKeyIntermediateVar
 //@[20:26) Identifier |string|
 //@[27:28) Assignment |=|
 //@[29:56) Identifier |secondaryKeyIntermediateVar|
-//@[56:56) EndOfFile ||
+//@[56:60) NewLine |\r\n\r\n|
+
+var varWithOverlappingOutput = 'hello'
+//@[0:3) Identifier |var|
+//@[4:28) Identifier |varWithOverlappingOutput|
+//@[29:30) Assignment |=|
+//@[31:38) StringComplete |'hello'|
+//@[38:40) NewLine |\r\n|
+param paramWithOverlappingOutput string
+//@[0:5) Identifier |param|
+//@[6:32) Identifier |paramWithOverlappingOutput|
+//@[33:39) Identifier |string|
+//@[39:43) NewLine |\r\n\r\n|
+
+output varWithOverlappingOutput string = varWithOverlappingOutput
+//@[0:6) Identifier |output|
+//@[7:31) Identifier |varWithOverlappingOutput|
+//@[32:38) Identifier |string|
+//@[39:40) Assignment |=|
+//@[41:65) Identifier |varWithOverlappingOutput|
+//@[65:67) NewLine |\r\n|
+output paramWithOverlappingOutput string = paramWithOverlappingOutput
+//@[0:6) Identifier |output|
+//@[7:33) Identifier |paramWithOverlappingOutput|
+//@[34:40) Identifier |string|
+//@[41:42) Assignment |=|
+//@[43:69) Identifier |paramWithOverlappingOutput|
+//@[69:73) NewLine |\r\n\r\n|
+
+// top-level output loops are supported
+//@[39:41) NewLine |\r\n|
+output generatedArray array = [for i in range(0,10): i]
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |generatedArray|
+//@[22:27) Identifier |array|
+//@[28:29) Assignment |=|
+//@[30:31) LeftSquare |[|
+//@[31:34) Identifier |for|
+//@[35:36) Identifier |i|
+//@[37:39) Identifier |in|
+//@[40:45) Identifier |range|
+//@[45:46) LeftParen |(|
+//@[46:47) Integer |0|
+//@[47:48) Comma |,|
+//@[48:50) Integer |10|
+//@[50:51) RightParen |)|
+//@[51:52) Colon |:|
+//@[53:54) Identifier |i|
+//@[54:55) RightSquare |]|
+//@[55:55) EndOfFile ||

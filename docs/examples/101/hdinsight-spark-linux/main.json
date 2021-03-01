@@ -139,5 +139,12 @@
       "type": "object",
       "value": "[reference(resourceId('Microsoft.HDInsight/clusters', parameters('clusterName')))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3663460412733172607"
+    }
   }
 }

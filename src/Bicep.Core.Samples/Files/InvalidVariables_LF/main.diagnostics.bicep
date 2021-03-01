@@ -151,7 +151,7 @@ var invalidLocationVar = deployment().location
 //@[38:46) [BCP053 (Error)] The type "deployment" does not contain property "location". Available properties include "name", "properties". |location|
 
 var invalidEnvironmentVar = environment().aosdufhsad
-//@[42:52) [BCP053 (Error)] The type "environment" does not contain property "aosdufhsad". Available properties include "activeDirectoryDataLake", "authentication", "batch", "gallery", "graph", "graphAudience", "locations", "media", "name", "portal", "resourceManager", "sqlManagement", "suffixes", "vmImageAliasDoc". |aosdufhsad|
+//@[42:52) [BCP053 (Error)] The type "environment" does not contain property "aosdufhsad". Available properties include "activeDirectoryDataLake", "authentication", "batch", "gallery", "graph", "graphAudience", "media", "name", "portal", "resourceManager", "sqlManagement", "suffixes", "vmImageAliasDoc". |aosdufhsad|
 var invalidEnvAuthVar = environment().authentication.asdgdsag
 //@[53:61) [BCP053 (Error)] The type "authentication" does not contain property "asdgdsag". Available properties include "audiences", "identityProvider", "loginEndpoint", "tenant". |asdgdsag|
 
@@ -223,6 +223,14 @@ var myFloat = 3.14
 //@[5:11) [BCP126 (Error)] Function "secure" cannot be used as a variable decorator. |secure|
 var something = 1
 
+// #completionTest(1) -> empty
+@
+//@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
+// #completionTest(5) -> empty
+@sys.
+//@[5:5) [BCP020 (Error)] Expected a function or property name at this location. ||
+var anotherThing = true
+
 // invalid identifier character classes
 var ☕ = true
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |☕|
@@ -231,3 +239,35 @@ var a☕ = true
 //@[5:6) [BCP018 (Error)] Expected the "=" character at this location. |☕|
 //@[5:6) [BCP001 (Error)] The following token is not recognized: "☕". |☕|
 //@[13:13) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// loops are not allowed in variables
+var noVariableLoopsYet = [for thing in stuff: 4]
+//@[26:29) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[39:44) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+
+// nested loops are also not allowed
+var noNestedVariableLoopsEither = [for thing in stuff: {
+//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[48:53) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+  hello: [for thing in []: 4]
+//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+}]
+
+// loops in inner properties of a variable are also not supported
+var innerPropertyLoop = {
+  a: [for i in range(0,10): i]
+//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+}
+var innerPropertyLoop2 = {
+  b: {
+    a: [for i in range(0,10): i]
+//@[8:11) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+  }
+}
+
+// cannot use loops in expressions
+var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
+//@[28:31) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[41:46) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+//@[53:56) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[66:71) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|

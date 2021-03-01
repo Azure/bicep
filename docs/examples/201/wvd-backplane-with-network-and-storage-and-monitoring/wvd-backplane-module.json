@@ -287,5 +287,12 @@
         "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10575007669665108430"
+    }
+  }
 }

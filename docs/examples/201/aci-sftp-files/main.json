@@ -164,5 +164,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', variables('sftpContainerGroupName'))).ipAddress.ip]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14175436468841110201"
+    }
   }
 }

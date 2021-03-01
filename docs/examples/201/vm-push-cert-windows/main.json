@@ -179,5 +179,12 @@
         "[resourceId('Microsoft.Network/networkInterfaces', 'certNic')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "18032415092249524688"
+    }
+  }
 }

@@ -96,6 +96,31 @@ output union string = true ? 's' : 1
 output bad int = true && !4
 output deeper bool = true ? -true : (14 && 's') + 10
 
+output myOutput string = 'hello'
+var attemptToReferenceAnOutput = myOutput
+
 @sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32
+
+// nested loops inside output loops are not supported
+output noNestedLoops array = [for thing in things: {
+  something: [
+    [for thing in things: true]
+  ]
+}]
+
+// loops in inner properties inside outputs are not supported
+output noInnerLoopsInOutputs object = {
+  a: [for i in range(0,10): i]
+}
+output noInnerLoopsInOutputs2 object = {
+  a: [for i in range(0,10): {
+    b: [for j in range(0,10): i+j]
+  }]
+}
+
+// #completionTest(1) -> decoratorsPlusNamespace
+@
+// #completionTest(5) -> decorators
+@sys.

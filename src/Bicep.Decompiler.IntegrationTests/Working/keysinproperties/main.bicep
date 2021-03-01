@@ -1,36 +1,22 @@
-param storageAccountType string {
-  allowed: [
-    'Standard_LRS'
-    'Standard_GRS'
-  ]
-  metadata: {
-    description: 'Storage account type'
-  }
-  default: 'Standard_LRS'
-}
-param fileShareName string {
-  metadata: {
-    description: 'Name of file share to be created'
-  }
-  default: 'sftpfileshare'
-}
-param sftpUser string {
-  metadata: {
-    description: 'Username to use for SFTP access'
-  }
-}
-param sftpPassword string {
-  metadata: {
-    description: 'Password to use for SFTP access'
-  }
-  secure: true
-}
-param location string {
-  metadata: {
-    description: 'Primary location for resources'
-  }
-  default: resourceGroup().location
-}
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+])
+@description('Storage account type')
+param storageAccountType string = 'Standard_LRS'
+
+@description('Name of file share to be created')
+param fileShareName string = 'sftpfileshare'
+
+@description('Username to use for SFTP access')
+param sftpUser string
+
+@description('Password to use for SFTP access')
+@secure()
+param sftpPassword string
+
+@description('Primary location for resources')
+param location string = resourceGroup().location
 
 var scriptName_var = 'createFileShare'
 var identityName_var = 'scratch'

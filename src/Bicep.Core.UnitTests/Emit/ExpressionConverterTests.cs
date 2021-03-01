@@ -54,6 +54,10 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("[\n[]\n[\n12\n's'\n][1]\n\n]","[createArray(createArray(), createArray(12, 's')[1])]")]
         [DataRow("42[33].foo","[int(42)[33].foo]")]
         [DataRow("'foo'[x()]","[string('foo')[x()]]")]
+        [DataRow("1 ?? 2 ?? 3","[coalesce(coalesce(1, 2), 3)]")]
+        [DataRow("5 ?? 3 + 2 ?? 7", "[coalesce(coalesce(5, add(3, 2)), 7)]")]
+        [DataRow("true ?? true && false ?? false || true", "[coalesce(coalesce(true(), and(true(), false())), or(false(), true()))]")]
+        [DataRow("null ?? true", "[coalesce(null(), true())]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var programText = $"var test = {text}";

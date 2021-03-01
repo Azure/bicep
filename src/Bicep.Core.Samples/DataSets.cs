@@ -32,6 +32,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidVariables_LF => CreateDataSet();
 
+        public static DataSet Loops_LF => CreateDataSet();
+
         public static DataSet Outputs_CRLF => CreateDataSet();
 
         public static DataSet Parameters_CRLF => CreateDataSet();
@@ -39,6 +41,12 @@ namespace Bicep.Core.Samples
         public static DataSet Parameters_LF => CreateDataSet();
 
         public static DataSet Resources_CRLF => CreateDataSet();
+
+        public static DataSet ResourcesSubscription_CRLF => CreateDataSet();
+
+        public static DataSet ResourcesManagementGroup_CRLF => CreateDataSet();
+
+        public static DataSet ResourcesTenant_CRLF => CreateDataSet();
 
         public static DataSet Unicode_LF => CreateDataSet();
 
@@ -61,6 +69,8 @@ namespace Bicep.Core.Samples
         public static DataSet InvalidModulesManagementGroup_LF => CreateDataSet();
 
         public static DataSet InvalidModulesSubscription_LF => CreateDataSet();
+
+        public static DataSet InvalidMultilineString_CRLF => CreateDataSet();
 
         public static IEnumerable<DataSet> AllDataSets =>
             typeof(DataSets)

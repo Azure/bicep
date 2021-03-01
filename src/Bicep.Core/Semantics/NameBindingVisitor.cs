@@ -146,12 +146,23 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.Default;
         }
 
+        public override void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.ParameterDecorator |
+                FunctionFlags.VariableDecorator |
+                FunctionFlags.ResoureDecorator |
+                FunctionFlags.ModuleDecorator |
+                FunctionFlags.OutputDecorator;
+            base.VisitMissingDeclarationSyntax(syntax);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             FunctionFlags currentFlags = allowedFlags;
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
-            allowedFlags = allowedFlags.HasDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
+            allowedFlags = allowedFlags.HasAnyDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
             this.VisitNodes(syntax.Arguments);
             this.Visit(syntax.CloseParen);
             allowedFlags = currentFlags;
@@ -169,7 +180,7 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Dot);
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
-            allowedFlags = allowedFlags.HasDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
+            allowedFlags = allowedFlags.HasAnyDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
             this.VisitNodes(syntax.Arguments);
             this.Visit(syntax.CloseParen);
             allowedFlags = currentFlags;
@@ -185,7 +196,7 @@ namespace Bicep.Core.Semantics
 
             if (bindings.TryGetValue(syntax.BaseExpression, out var baseSymbol) && baseSymbol is NamespaceSymbol namespaceSymbol)
             {
-                var functionSymbol = allowedFlags.HasDecoratorFlag()
+                var functionSymbol = allowedFlags.HasAnyDecoratorFlag()
                     // Decorator functions are only valid when HasDecoratorFlag() is true which means
                     // the instance function call is the top level expression of a DecoratorSyntax node.
                     ? namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name) ?? namespaceSymbol.Type.DecoratorResolver.TryGetSymbol(syntax.Name)
@@ -197,26 +208,39 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public override void VisitForSyntax(ForSyntax syntax)
+        protected override void VisitInternal(SyntaxBase syntax)
         {
+            // any node can be a binding scope
             if (!this.allLocalScopes.TryGetValue(syntax, out var localScope))
             {
-                // code defect in the declaration visitor
-                throw new InvalidOperationException($"Local scope is missing for {syntax.GetType().Name} at {syntax.Span}");
+                // not a binding scope
+                // visit children normally
+                base.VisitInternal(syntax);
+                return;
             }
 
+            // we are in a binding scope
             // push it to the stack of active scopes
             // as a result this scope will be used to resolve symbols first
             // (then all the previous one and then finally the global scope)
             this.activeScopes.Push(localScope);
 
             // visit all the children
-            base.VisitForSyntax(syntax);
+            base.VisitInternal(syntax);
 
             // we are leaving the loop scope
             // pop the scope - no symbols will be resolved against it ever again
             var lastPopped = this.activeScopes.Pop();
             Debug.Assert(ReferenceEquals(lastPopped, localScope), "ReferenceEquals(lastPopped, localScope)");
+        }
+
+        public override void VisitForSyntax(ForSyntax syntax)
+        {
+            // we must have a scope in the map for the loop body - otherwise binding won't work
+            Debug.Assert(this.allLocalScopes.ContainsKey(syntax.Body), "this.allLocalScopes.ContainsKey(syntax.Body)");
+            
+            // visit all the children
+            base.VisitForSyntax(syntax);
         }
 
         private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) => 
@@ -276,7 +300,7 @@ namespace Bicep.Core.Semantics
 
             // attempt to find function in all imported namespaces
             var foundSymbols = this.namespaces
-                .Select(kvp => allowedFlags.HasDecoratorFlag()
+                .Select(kvp => allowedFlags.HasAnyDecoratorFlag()
                     ? kvp.Value.Type.MethodResolver.TryGetSymbol(identifierSyntax) ?? kvp.Value.Type.DecoratorResolver.TryGetSymbol(identifierSyntax)
                     : kvp.Value.Type.MethodResolver.TryGetSymbol(identifierSyntax))
                 .Where(symbol => symbol != null)
@@ -298,7 +322,7 @@ namespace Bicep.Core.Semantics
 
             public override void VisitLocalScope(LocalScope symbol)
             {
-                this.ScopeMap.Add(symbol.EnclosingSyntax, symbol);
+                this.ScopeMap.Add(symbol.BindingSyntax, symbol);
                 base.VisitLocalScope(symbol);
             }
 

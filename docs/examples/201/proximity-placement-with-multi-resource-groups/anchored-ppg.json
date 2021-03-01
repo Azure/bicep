@@ -139,5 +139,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Compute/proximityPlacementGroups', format('Zone-{0}', parameters('zone')))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12150089343636218628"
+    }
   }
 }

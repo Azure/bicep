@@ -452,4 +452,83 @@ output secondaryKey string = secondaryKeyIntermediateVar
 //@[29:56)  VariableAccessSyntax
 //@[29:56)   IdentifierSyntax
 //@[29:56)    Identifier |secondaryKeyIntermediateVar|
-//@[56:56) EndOfFile ||
+//@[56:60) NewLine |\r\n\r\n|
+
+var varWithOverlappingOutput = 'hello'
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:28)  IdentifierSyntax
+//@[4:28)   Identifier |varWithOverlappingOutput|
+//@[29:30)  Assignment |=|
+//@[31:38)  StringSyntax
+//@[31:38)   StringComplete |'hello'|
+//@[38:40) NewLine |\r\n|
+param paramWithOverlappingOutput string
+//@[0:39) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:32)  IdentifierSyntax
+//@[6:32)   Identifier |paramWithOverlappingOutput|
+//@[33:39)  TypeSyntax
+//@[33:39)   Identifier |string|
+//@[39:43) NewLine |\r\n\r\n|
+
+output varWithOverlappingOutput string = varWithOverlappingOutput
+//@[0:65) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:31)  IdentifierSyntax
+//@[7:31)   Identifier |varWithOverlappingOutput|
+//@[32:38)  TypeSyntax
+//@[32:38)   Identifier |string|
+//@[39:40)  Assignment |=|
+//@[41:65)  VariableAccessSyntax
+//@[41:65)   IdentifierSyntax
+//@[41:65)    Identifier |varWithOverlappingOutput|
+//@[65:67) NewLine |\r\n|
+output paramWithOverlappingOutput string = paramWithOverlappingOutput
+//@[0:69) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:33)  IdentifierSyntax
+//@[7:33)   Identifier |paramWithOverlappingOutput|
+//@[34:40)  TypeSyntax
+//@[34:40)   Identifier |string|
+//@[41:42)  Assignment |=|
+//@[43:69)  VariableAccessSyntax
+//@[43:69)   IdentifierSyntax
+//@[43:69)    Identifier |paramWithOverlappingOutput|
+//@[69:73) NewLine |\r\n\r\n|
+
+// top-level output loops are supported
+//@[39:41) NewLine |\r\n|
+output generatedArray array = [for i in range(0,10): i]
+//@[0:55) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |generatedArray|
+//@[22:27)  TypeSyntax
+//@[22:27)   Identifier |array|
+//@[28:29)  Assignment |=|
+//@[30:55)  ForSyntax
+//@[30:31)   LeftSquare |[|
+//@[31:34)   Identifier |for|
+//@[35:36)   LocalVariableSyntax
+//@[35:36)    IdentifierSyntax
+//@[35:36)     Identifier |i|
+//@[37:39)   Identifier |in|
+//@[40:51)   FunctionCallSyntax
+//@[40:45)    IdentifierSyntax
+//@[40:45)     Identifier |range|
+//@[45:46)    LeftParen |(|
+//@[46:48)    FunctionArgumentSyntax
+//@[46:47)     IntegerLiteralSyntax
+//@[46:47)      Integer |0|
+//@[47:48)     Comma |,|
+//@[48:50)    FunctionArgumentSyntax
+//@[48:50)     IntegerLiteralSyntax
+//@[48:50)      Integer |10|
+//@[50:51)    RightParen |)|
+//@[51:52)   Colon |:|
+//@[53:54)   VariableAccessSyntax
+//@[53:54)    IdentifierSyntax
+//@[53:54)     Identifier |i|
+//@[54:55)   RightSquare |]|
+//@[55:55) EndOfFile ||
