@@ -34,12 +34,22 @@ namespace Bicep.Decompiler.ArmHelpers
         public static bool HasProperty(JObject parent, string name)
             => GetProperty(parent, name) != null;
 
-        public static void AssertUnsupportedProperty(JObject resource, string propertyName, string message)
+        public static void AssertUnsupportedProperty(JObject parent, string propertyName, string message)
         {
-            if (HasProperty(resource, propertyName))
+            if (HasProperty(parent, propertyName))
             {
-                throw new ConversionFailedException(message, resource);
+                throw new ConversionFailedException(message, parent);
             }
+        }
+
+        public static JToken AssertRequiredProperty(JObject parent, string propertyName, string message)
+        {
+            if (GetProperty(parent, propertyName) is not {} value)
+            {
+                throw new ConversionFailedException(message, parent);
+            }
+
+            return value.Value;            
         }
 
         public static (string type, string name, string apiVersion) ParseResource(JObject resource)

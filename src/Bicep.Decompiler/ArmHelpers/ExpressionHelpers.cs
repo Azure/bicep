@@ -246,7 +246,8 @@ namespace Bicep.Decompiler.ArmHelpers
             return jTokenExpression.Value.ToString().Trim('/');
         }
 
-        public static JToken ReplaceFunctionExpressions(JToken token, Action<FunctionExpression> onFunctionExpression)
+        public static TToken ReplaceFunctionExpressions<TToken>(TToken token, Action<FunctionExpression> onFunctionExpression)
+            where TToken : JToken
         {
             var expressionRewriter = new LanguageExpressionVisitor
             {
@@ -266,12 +267,16 @@ namespace Bicep.Decompiler.ArmHelpers
                 return ExpressionsEngine.SerializeExpression(expression);
             }
 
-            if (token.Type == JTokenType.String)
+            if (token is JValue && token.Type == JTokenType.String)
             {
-                return RewriteStringValue(token.Value<string>());
+                var rewritten = RewriteStringValue(token.Value<string>());
+
+                return (new JValue(rewritten) as TToken)!;
             }
 
+            // transform in-place
             JTokenHelper.TransformJsonStringValues(token, (key, value) => RewriteStringValue(value));
+
             return token;
         }
     }

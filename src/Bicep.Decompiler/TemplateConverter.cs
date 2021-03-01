@@ -23,7 +23,10 @@ namespace Bicep.Decompiler
 {
     public class TemplateConverter
     {
-        private readonly INamingResolver nameResolver;
+        private const string ResourceCopyLoopIndexVar = "i";
+        private const string PropertyCopyLoopIndexVar = "j";
+
+        private INamingResolver nameResolver;
         private readonly Workspace workspace;
         private readonly IFileResolver fileResolver;
         private readonly Uri fileUri;
@@ -345,6 +348,34 @@ namespace Bicep.Decompiler
             return new StringSyntax(stringTokens, expressions, rawSegments);
         }
 
+        private bool CanInterpolate(FunctionExpression function)
+        {
+            if (StringComparer.OrdinalIgnoreCase.Equals(function.Function, "format"))
+            {
+                return true;
+            }
+
+            if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, "concat"))
+            {
+                return false;
+            }
+
+            foreach (var parameter in function.Parameters)
+            {
+                if (parameter is JTokenExpression jTokenExpression && jTokenExpression.Value.Type == JTokenType.String)
+                {
+                    return true;
+                }
+
+                if (parameter is FunctionExpression paramFunction && CanInterpolate(paramFunction))
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
         private SyntaxBase ParseFunctionExpression(FunctionExpression expression)
         {
             SyntaxBase? baseSyntax = null;
@@ -411,16 +442,9 @@ namespace Bicep.Decompiler
                 }
                 case "concat":
                 {
-                    var canInterpolate = expression.Parameters.Any(p => p is JTokenExpression jTokenExpression && jTokenExpression.Value.Type == JTokenType.String);
-                    if (!canInterpolate)
+                    if (!CanInterpolate(expression))
                     {
                         // we might be dealing with an array
-                        break;
-                    }
-
-                    if (expression.Parameters.Length < 1)
-                    {
-                        // empty concat statement - let's just ignore that...
                         break;
                     }
 
@@ -537,33 +561,39 @@ namespace Bicep.Decompiler
             {
                 if (key == "copy" && value is JArray)
                 {
-                    foreach (var copyProperty in value)
+                    foreach (var entry in value)
                     {
-                        // TODO fix this
-                        var name = copyProperty["name"]!.Value<string>();
-                        var count = copyProperty["count"];
-                        var input = copyProperty["input"]!;
+                        if (entry is not JObject copyProperty)
+                        {
+                            throw new ConversionFailedException($"Expected a copy object", entry);
+                        }
 
-                        input = ExpressionHelpers.ReplaceFunctionExpressions(input, function => {
-                            if (function.Function == "copyIndex" &&
-                                function.Parameters.Length == 1 &&
-                                function.Parameters[0] is JTokenExpression copyIndexName &&
-                                copyIndexName.Value.ToString() == name)
-                            {
-                                function.Function = "variables";
-                                // TODO fix this - use scoped name resolver?
-                                function.Parameters = new LanguageExpression[]
+                        var name = TemplateHelpers.AssertRequiredProperty(copyProperty, "name", "The copy object is missing a \"name\" property").ToString();
+                        var count = TemplateHelpers.AssertRequiredProperty(copyProperty, "count", "The copy object is missing a \"count\" property");
+                        var input = TemplateHelpers.AssertRequiredProperty(copyProperty, "input", "The copy object is missing a \"input\" property");
+
+                        var objectProperty = PerformScopedAction(() => {
+                            input = ExpressionHelpers.ReplaceFunctionExpressions(input, function => {
+                                if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
                                 {
-                                    new JTokenExpression("i"),
-                                };
-                            }
-                        });
+                                    return;
+                                }
 
-                        // TODO fix this - use scoped name resolver?
-                        nameResolver.TryRequestName(NameType.Variable, "i");
-                        var objectVal = SyntaxFactory.CreateForSyntax("i", ParseJToken(count), ParseJToken(input));
+                                if (function.Parameters.Length == 1 && function.Parameters[0] is JTokenExpression copyIndexName && copyIndexName.Value.ToString() == name)
+                                {
+                                    function.Function = "variables";
+                                    function.Parameters = new LanguageExpression[]
+                                    {
+                                        new JTokenExpression(PropertyCopyLoopIndexVar),
+                                    };
+                                }
+                            });
 
-                        var objectProperty = SyntaxFactory.CreateObjectProperty(name, objectVal);
+                            var objectVal = SyntaxFactory.CreateRangedForSyntax(PropertyCopyLoopIndexVar, ParseJToken(count), ParseJToken(input));
+
+                            return SyntaxFactory.CreateObjectProperty(name, objectVal);
+                        }, new [] { PropertyCopyLoopIndexVar });
+
                         properties.Add(objectProperty);
                     }
                 }
@@ -688,78 +718,78 @@ namespace Bicep.Decompiler
 
         private (SyntaxBase body, IEnumerable<SyntaxBase> decorators) ProcessResourceCopy(JObject resource, Func<JObject, SyntaxBase> resourceBodyFunc)
         {
-            var copyProperty = TemplateHelpers.GetProperty(resource, "copy");
-            if (copyProperty is null)
+            if (TemplateHelpers.GetProperty(resource, "copy")?.Value is not JObject copyProperty)
             {
                 return (resourceBodyFunc(resource), Enumerable.Empty<SyntaxBase>());
             }
 
             TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'copy' property is not supported in conjunction with the 'condition' property");
 
-            // TODO fix the nullability checks
-            var name = copyProperty.Value["name"]!.Value<string>();
-            var count = copyProperty.Value["count"];
-            var mode = copyProperty.Value["mode"];
-            var batchSize = copyProperty.Value["batchSize"];
+            var name = TemplateHelpers.AssertRequiredProperty(copyProperty, "name", "The copy object is missing a \"name\" property");
+            var count = TemplateHelpers.AssertRequiredProperty(copyProperty, "count", "The copy object is missing a \"count\" property");
 
-            var input = ExpressionHelpers.ReplaceFunctionExpressions(resource, function => {
-                if (function.Function == "copyIndex")
-                {
+            // TODO implement when we have batchSize support (https://github.com/Azure/bicep/issues/1625)
+            TemplateHelpers.AssertUnsupportedProperty(copyProperty, "mode", "The \"mode\" property is not currently supported");
+            TemplateHelpers.AssertUnsupportedProperty(copyProperty, "batchSize", "The \"batchSize\" property is not currently supported");
+
+            return PerformScopedAction(() => {
+                resource = ExpressionHelpers.ReplaceFunctionExpressions(resource, function => {
+                    if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
+                    {
+                        return;
+                    }
+    
                     if (function.Parameters.Length == 0)
                     {
                         function.Function = "variables";
-                        // TODO fix this - use scoped name resolver?
                         function.Parameters = new LanguageExpression[]
                         {
-                            new JTokenExpression("x"),
+                            new JTokenExpression(ResourceCopyLoopIndexVar),
                         };
                     }
                     else if (function.Parameters.Length == 1)
                     {
                         function.Function = "add";
-                        // TODO fix this - use scoped name resolver?
                         function.Parameters = new LanguageExpression[]
                         {
                             new FunctionExpression(
                                 "variables",
                                 new LanguageExpression[]
                                 {
-                                    new JTokenExpression("x"),
+                                    new JTokenExpression(ResourceCopyLoopIndexVar),
                                 },
                                 Array.Empty<LanguageExpression>()),
                             function.Parameters[0],
                         };
                     }
+                });
+
+                var bodySyntax = SyntaxFactory.CreateRangedForSyntax(ResourceCopyLoopIndexVar, ParseJToken(count), resourceBodyFunc(resource));
+                var decorators = new List<SyntaxBase>();
+                /* TODO implement when we have batchSize support (https://github.com/Azure/bicep/issues/1625)
+                if (mode is not null)
+                {
+                    decorators.Add(new DecoratorSyntax(
+                        SyntaxFactory.CreateToken(TokenType.At, "@"),
+                        SyntaxFactory.CreateFunctionCall("mode", new SyntaxBase[] {
+                            ParseJToken(mode),
+                        })));
+                    decorators.Add(SyntaxFactory.NewlineToken);
                 }
-            });
+                if (batchSize is not null)
+                {
+                    decorators.Add(new DecoratorSyntax(
+                        SyntaxFactory.CreateToken(TokenType.At, "@"),
+                        SyntaxFactory.CreateFunctionCall("batchSize", new SyntaxBase[] {
+                            ParseJToken(batchSize),
+                        })));
+                    decorators.Add(SyntaxFactory.NewlineToken);
+                }
+                */
 
-            // TODO fix this - use scoped name resolver?
-            nameResolver.TryRequestName(NameType.Variable, "x");
-            var bodySyntax = SyntaxFactory.CreateForSyntax("x", ParseJToken(count), resourceBodyFunc((input as JObject)!));
+                return (bodySyntax, decorators);
 
-            var decorators = new List<SyntaxBase>();
-            /* TODO implement when we have batchSize support (https://github.com/Azure/bicep/issues/1625)
-            if (mode is not null)
-            {
-                decorators.Add(new DecoratorSyntax(
-                    SyntaxFactory.CreateToken(TokenType.At, "@"),
-                    SyntaxFactory.CreateFunctionCall("mode", new SyntaxBase[] {
-                        ParseJToken(mode),
-                    })));
-                decorators.Add(SyntaxFactory.NewlineToken);
-            }
-            if (batchSize is not null)
-            {
-                decorators.Add(new DecoratorSyntax(
-                    SyntaxFactory.CreateToken(TokenType.At, "@"),
-                    SyntaxFactory.CreateFunctionCall("batchSize", new SyntaxBase[] {
-                        ParseJToken(batchSize),
-                    })));
-                decorators.Add(SyntaxFactory.NewlineToken);
-            }
-            */
-
-            return (bodySyntax, decorators);
+            }, new [] { ResourceCopyLoopIndexVar });
         }
 
         private SyntaxBase ProcessCondition(JObject resource, SyntaxBase body)
@@ -1201,6 +1231,22 @@ namespace Bicep.Decompiler
                 SyntaxFactory.CreateToken(TokenType.EndOfFile, ""),
                 Enumerable.Empty<Diagnostic>()
             );
+        }
+
+        private T PerformScopedAction<T>(Func<T> action, IEnumerable<string> scopeVariables)
+        {
+            var prevNameResolver = nameResolver;
+
+            try
+            {
+                nameResolver = new ScopedNamingResolver(prevNameResolver, scopeVariables);
+
+                return action();
+            }
+            finally
+            {
+                nameResolver = prevNameResolver;
+            }
         }
     }
 }

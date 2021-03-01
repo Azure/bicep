@@ -46,23 +46,32 @@ namespace Bicep.Core.Syntax
         public static ArrayItemSyntax CreateArrayItem(SyntaxBase value)
             => new ArrayItemSyntax(value);
 
-        public static ForSyntax CreateForSyntax(string indexIdentifier, SyntaxBase count, SyntaxBase body)
+        public static ForSyntax CreateRangedForSyntax(string indexIdentifier, SyntaxBase count, SyntaxBase body)
         {
-            return new ForSyntax(
+            // generates "range(0, <count>)"
+            var rangeSyntax = new FunctionCallSyntax(
+                new IdentifierSyntax(CreateToken(TokenType.Identifier, "range")),
+                CreateToken(TokenType.LeftParen, "("),
+                new FunctionArgumentSyntax[] {
+                    new FunctionArgumentSyntax(
+                        new IntegerLiteralSyntax(CreateToken(TokenType.Integer, "0"), 0),
+                        CreateToken(TokenType.Comma, ",")),
+                    new FunctionArgumentSyntax(count, null),
+                },
+                CreateToken(TokenType.RightParen, ")"));
+
+            return CreateForSyntax(indexIdentifier, rangeSyntax, body);
+        }
+
+        public static ForSyntax CreateForSyntax(string indexIdentifier, SyntaxBase inSyntax, SyntaxBase body)
+        {
+            // generates "[for <identifier> in <inSyntax>: <body>]"
+            return new(
                 CreateToken(TokenType.LeftSquare, "["),
                 CreateToken(TokenType.Identifier, "for"),
                 new LocalVariableSyntax(new IdentifierSyntax(CreateToken(TokenType.Identifier, indexIdentifier))),
                 CreateToken(TokenType.Identifier, "in"),
-                new FunctionCallSyntax(
-                    new IdentifierSyntax(CreateToken(TokenType.Identifier, "range")),
-                    CreateToken(TokenType.LeftParen, "("),
-                    new FunctionArgumentSyntax[] {
-                        new FunctionArgumentSyntax(
-                            new IntegerLiteralSyntax(CreateToken(TokenType.Integer, "0"), 0),
-                            CreateToken(TokenType.Comma, ",")),
-                        new FunctionArgumentSyntax(count, null),
-                    },
-                    CreateToken(TokenType.RightParen, ")")),
+                inSyntax,
                 CreateToken(TokenType.Colon, ":"),
                 body,
                 CreateToken(TokenType.RightSquare, "]"));
