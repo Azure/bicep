@@ -74,11 +74,9 @@ namespace Bicep.Decompiler
                 }
             }
 
-            foreach (var resource in resources)
+            foreach (var resource in resources.OfType<JObject>())
             {
-                var nameString = resource["name"]?.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'name' for resource '{resource["name"]}'", resource);
-                var typeString = resource["type"]?.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'type' for resource '{resource["name"]}'", resource);
-
+                var (typeString, nameString, _) = TemplateHelpers.ParseResource(resource);
                 if (nameResolver.TryRequestResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) == null)
                 {
                     throw new ConversionFailedException($"Unable to pick unique name for resource {typeString} {nameString}", resource);
@@ -175,9 +173,9 @@ namespace Bicep.Decompiler
                 JTokenType.String => SyntaxFactory.CreateStringLiteral(expression.Value.Value<string>()!),
                 JTokenType.Integer => new IntegerLiteralSyntax(SyntaxFactory.CreateToken(TokenType.Integer, expression.Value.ToString()), expression.Value.Value<long>()),
                 JTokenType.Boolean =>  expression.Value.Value<bool>() ?
-                    new BooleanLiteralSyntax(SyntaxFactory.CreateToken(TokenType.TrueKeyword, "true"), true) :
-                    new BooleanLiteralSyntax(SyntaxFactory.CreateToken(TokenType.FalseKeyword, "false"), false),
-                JTokenType.Null => new NullLiteralSyntax(SyntaxFactory.CreateToken(TokenType.NullKeyword, "null")),
+                    new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
+                    new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
+                JTokenType.Null => new NullLiteralSyntax(SyntaxFactory.NullKeywordToken),
                 _ => throw new NotImplementedException($"Unrecognized expression {ExpressionsEngine.SerializeExpression(expression)}"),
             };
 
@@ -224,9 +222,9 @@ namespace Bicep.Decompiler
                 }
 
                 syntax = new ParenthesizedExpressionSyntax(
-                    SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
+                    SyntaxFactory.LeftParenToken,
                     binaryOperation,
-                    SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
+                    SyntaxFactory.RightParenToken);
                 return true;
             }
 
@@ -243,11 +241,11 @@ namespace Bicep.Decompiler
                 }
 
                 syntax = new ParenthesizedExpressionSyntax(
-                    SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
+                    SyntaxFactory.LeftParenToken,
                     new UnaryOperationSyntax(
-                        SyntaxFactory.CreateToken(TokenType.Exclamation, "!"),
+                        SyntaxFactory.ExclamationToken,
                         ParseLanguageExpression(expression.Parameters[0])),
-                    SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
+                    SyntaxFactory.RightParenToken);
                 return true;
             }
 
@@ -264,14 +262,14 @@ namespace Bicep.Decompiler
                 }
 
                 syntax = new ParenthesizedExpressionSyntax(
-                    SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
+                    SyntaxFactory.LeftParenToken,
                     new TernaryOperationSyntax(
                         ParseLanguageExpression(expression.Parameters[0]),
-                        SyntaxFactory.CreateToken(TokenType.Question, "?"),
+                        SyntaxFactory.QuestionToken,
                         ParseLanguageExpression(expression.Parameters[1]),
-                        SyntaxFactory.CreateToken(TokenType.Colon, ":"),
-                        ParseLanguageExpression(expression.Parameters[2])),
-                    SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
+                        SyntaxFactory.ColonToken,
+                        ParseLanguageExpression(expression.Parameters[2])),                        
+                    SyntaxFactory.RightParenToken);
                 return true;
             }
 
@@ -416,7 +414,7 @@ namespace Bicep.Decompiler
                         {
                             baseSyntax = new PropertyAccessSyntax(
                                 new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
-                                SyntaxFactory.CreateToken(TokenType.Dot, "."),
+                                SyntaxFactory.DotToken,
                                 SyntaxFactory.CreateIdentifier("properties"));
                         }
                     }
@@ -430,7 +428,7 @@ namespace Bicep.Decompiler
                     {
                         baseSyntax = new PropertyAccessSyntax(
                             new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
-                            SyntaxFactory.CreateToken(TokenType.Dot, "."),
+                            SyntaxFactory.DotToken,
                             SyntaxFactory.CreateIdentifier("id"));
                     }
                     break;
@@ -466,11 +464,7 @@ namespace Bicep.Decompiler
 
                 var expressions = expression.Parameters.Select(ParseLanguageExpression).ToArray();
 
-                baseSyntax = new FunctionCallSyntax(
-                    SyntaxFactory.CreateIdentifier(functionName),
-                    SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
-                    expressions.Select((x, i) => new FunctionArgumentSyntax(x, i < expressions.Length - 1 ? SyntaxFactory.CreateToken(TokenType.Comma, ",") : null)),
-                    SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
+                baseSyntax = SyntaxFactory.CreateFunctionCall(functionName, expressions);
             }
 
             foreach (var property in expression.Properties)
@@ -480,16 +474,16 @@ namespace Bicep.Decompiler
                     // TODO handle special chars and generate array access instead
                     baseSyntax = new PropertyAccessSyntax(
                         baseSyntax,
-                        SyntaxFactory.CreateToken(TokenType.Dot, "."),
+                        SyntaxFactory.DotToken,
                         SyntaxFactory.CreateIdentifier(jTokenExpression.Value.Value<string>()!));
                 }
                 else
                 {
                     baseSyntax = new ArrayAccessSyntax(
                         baseSyntax,
-                        SyntaxFactory.CreateToken(TokenType.LeftSquare, "["),
+                        SyntaxFactory.LeftSquareToken,
                         ParseLanguageExpression(property),
-                        SyntaxFactory.CreateToken(TokenType.RightSquare, "]"));
+                        SyntaxFactory.RightSquareToken);
                 }
             }
 
@@ -536,9 +530,9 @@ namespace Bicep.Decompiler
                 JTokenType.Date => ParseString(value.ToString()),
                 JTokenType.Float => ParseString(value.ToString()),
                 JTokenType.Boolean =>  value.Value<bool>() ?
-                    new BooleanLiteralSyntax(SyntaxFactory.CreateToken(TokenType.TrueKeyword, "true"), true) :
-                    new BooleanLiteralSyntax(SyntaxFactory.CreateToken(TokenType.FalseKeyword, "false"), false),
-                JTokenType.Null => new NullLiteralSyntax(SyntaxFactory.CreateToken(TokenType.NullKeyword, "null")),
+                    new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
+                    new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
+                JTokenType.Null => new NullLiteralSyntax(SyntaxFactory.NullKeywordToken),
                 _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
             };
 
@@ -605,7 +599,7 @@ namespace Bicep.Decompiler
                         keySyntax = SyntaxFactory.CreateInterpolatedKey(keySyntax);
                     }
                     
-                    var objectProperty = new ObjectPropertySyntax(keySyntax, SyntaxFactory.CreateToken(TokenType.Colon, ":"), ParseJToken(value));
+                    var objectProperty = new ObjectPropertySyntax(keySyntax, SyntaxFactory.ColonToken, ParseJToken(value));
                     properties.Add(objectProperty);
                 }
                 else
@@ -640,7 +634,7 @@ namespace Bicep.Decompiler
                         expression = metadataProperty.Value;
                     }
 
-                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(functionName, expression.AsEnumerable()));
+                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(functionName, expression));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                 }
             }
@@ -650,14 +644,14 @@ namespace Bicep.Decompiler
             if (typeSyntax.TypeName == "securestring")
             {
                 typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string"));
-                decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure", Enumerable.Empty<SyntaxBase>()));
+                decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure"));
                 decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
             }
 
             if (typeSyntax.TypeName == "secureobject")
             {
                 typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "object"));
-                decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure", Enumerable.Empty<SyntaxBase>()));
+                decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure"));
                 decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
             }
 
@@ -667,7 +661,7 @@ namespace Bicep.Decompiler
                 : decoratorsAndNewLines;
 
             SyntaxBase? modifier = TryParseJToken(value.Value?["defaultValue"]) is SyntaxBase defaultValue
-                ? new ParameterDefaultValueSyntax(SyntaxFactory.CreateToken(TokenType.Assignment, "="), defaultValue)
+                ? new ParameterDefaultValueSyntax(SyntaxFactory.AssignmentToken, defaultValue)
                 : null;
 
             var identifier = nameResolver.TryLookupName(NameType.Parameter, value.Name) ?? throw new ConversionFailedException($"Unable to find parameter {value.Name}", value);
@@ -687,7 +681,7 @@ namespace Bicep.Decompiler
             return new VariableDeclarationSyntax(
                 SyntaxFactory.CreateToken(TokenType.Identifier, "var"),
                 SyntaxFactory.CreateIdentifier(identifier),
-                SyntaxFactory.CreateToken(TokenType.Assignment, "="),
+                SyntaxFactory.AssignmentToken,
                 ParseJToken(value.Value));
         }
 
@@ -749,16 +743,18 @@ namespace Bicep.Decompiler
                     }
                     else if (function.Parameters.Length == 1)
                     {
+                        var varExpression = new FunctionExpression(
+                            "variables",
+                            new LanguageExpression[]
+                            {
+                                new JTokenExpression(ResourceCopyLoopIndexVar),
+                            },
+                            Array.Empty<LanguageExpression>());
+
                         function.Function = "add";
                         function.Parameters = new LanguageExpression[]
                         {
-                            new FunctionExpression(
-                                "variables",
-                                new LanguageExpression[]
-                                {
-                                    new JTokenExpression(ResourceCopyLoopIndexVar),
-                                },
-                                Array.Empty<LanguageExpression>()),
+                            varExpression,
                             function.Parameters[0],
                         };
                     }
@@ -770,7 +766,7 @@ namespace Bicep.Decompiler
                 if (mode is not null)
                 {
                     decorators.Add(new DecoratorSyntax(
-                        SyntaxFactory.CreateToken(TokenType.At, "@"),
+                        SyntaxFactory.AtToken,
                         SyntaxFactory.CreateFunctionCall("mode", new SyntaxBase[] {
                             ParseJToken(mode),
                         })));
@@ -779,7 +775,7 @@ namespace Bicep.Decompiler
                 if (batchSize is not null)
                 {
                     decorators.Add(new DecoratorSyntax(
-                        SyntaxFactory.CreateToken(TokenType.At, "@"),
+                        SyntaxFactory.AtToken,
                         SyntaxFactory.CreateFunctionCall("batchSize", new SyntaxBase[] {
                             ParseJToken(batchSize),
                         })));
@@ -806,9 +802,9 @@ namespace Bicep.Decompiler
             if (conditionExpression is not ParenthesizedExpressionSyntax)
             {
                 conditionExpression = new ParenthesizedExpressionSyntax(
-                    SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
+                    SyntaxFactory.LeftParenToken,
                     conditionExpression,
-                    SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
+                    SyntaxFactory.RightParenToken);
             }
 
             return new IfConditionSyntax(
@@ -817,7 +813,7 @@ namespace Bicep.Decompiler
                 body);
         }
 
-        private SyntaxBase? ProcessDependsOn(JObject resource)
+        private SyntaxBase? ProcessDependsOn(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource)
         {
             var dependsOnProp = TemplateHelpers.GetProperty(resource, "dependsOn");
 
@@ -841,7 +837,7 @@ namespace Bicep.Decompiler
                 }
 
                 var entryExpression = ExpressionHelpers.ParseExpression(entryString);
-                var resourceRef = TryLookupResource(entryExpression);
+                var resourceRef = TryLookupResource(entryExpression) ?? copyResourceLookup.TryGetValue(entryString);
 
                 SyntaxBase syntaxEntry;
                 if (resourceRef != null)
@@ -869,36 +865,17 @@ namespace Bicep.Decompiler
             switch (subscriptionId, resourceGroup)
             {
                 case (JProperty subId, JProperty rgName):
-                    return new FunctionCallSyntax(
-                        SyntaxFactory.CreateIdentifier("resourceGroup"),
-                        SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
-                        new [] { 
-                            new FunctionArgumentSyntax(ParseJToken(subId.Value), SyntaxFactory.CreateToken(TokenType.Comma, ",")),
-                            new FunctionArgumentSyntax(ParseJToken(rgName.Value), null),
-                        },
-                        SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
+                    return SyntaxFactory.CreateFunctionCall("resourceGroup", ParseJToken(subId.Value), ParseJToken(rgName.Value));
                 case (null, JProperty rgName):
-                    return new FunctionCallSyntax(
-                        SyntaxFactory.CreateIdentifier("resourceGroup"),
-                        SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
-                        new [] { 
-                            new FunctionArgumentSyntax(ParseJToken(rgName.Value), null),
-                        },
-                        SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
+                    return SyntaxFactory.CreateFunctionCall("resourceGroup", ParseJToken(rgName.Value));
                 case (JProperty subId, null):
-                    return new FunctionCallSyntax(
-                        SyntaxFactory.CreateIdentifier("subscription"),
-                        SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
-                        new [] { 
-                            new FunctionArgumentSyntax(ParseJToken(subId.Value), null),
-                        },
-                        SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
+                    return SyntaxFactory.CreateFunctionCall("subscription", ParseJToken(subId.Value));
             }
 
             return null;
         }
 
-        private SyntaxBase ParseModule(JObject resource, string typeString, string nameString)
+        private SyntaxBase ParseModule(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource, string typeString, string nameString)
         {
             var expectedProps = new HashSet<string>(new [] {
                 "name",
@@ -931,7 +908,7 @@ namespace Bicep.Decompiler
                 }
             }
 
-            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(x, nameString));
+            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
             var value = ProcessCondition(resource, body);
 
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
@@ -966,7 +943,7 @@ namespace Bicep.Decompiler
                     SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
                     SyntaxFactory.CreateIdentifier(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
-                    SyntaxFactory.CreateToken(TokenType.Assignment, "="),
+                    SyntaxFactory.AssignmentToken,
                     value);
             }
 
@@ -981,11 +958,11 @@ namespace Bicep.Decompiler
                 SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 GetModuleFilePath(resource, templateLinkString),
-                SyntaxFactory.CreateToken(TokenType.Assignment, "="),
+                SyntaxFactory.AssignmentToken,
                 value);
         }
 
-        private ObjectSyntax ProcessModuleBody(JObject resource, string nameString)
+        private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource, string nameString)
         {
             var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
             var paramProperties = new List<ObjectPropertySyntax>();
@@ -1005,7 +982,7 @@ namespace Bicep.Decompiler
 
             properties.Add(SyntaxFactory.CreateObjectProperty("params", SyntaxFactory.CreateObject(paramProperties)));
 
-            var dependsOn = ProcessDependsOn(resource);
+            var dependsOn = ProcessDependsOn(copyResourceLookup, resource);
             if (dependsOn != null)
             {
                 properties.Add(SyntaxFactory.CreateObjectProperty("dependsOn", dependsOn));
@@ -1035,7 +1012,7 @@ namespace Bicep.Decompiler
             throw new ConversionFailedException($"Parsing failed for property value {scopeProperty}", scopeProperty);
         }
 
-        public SyntaxBase ParseResource(JToken token)
+        public SyntaxBase ParseResource(IReadOnlyDictionary<string, string> copyResourceLookup, JToken token)
         {
             var resource = (token as JObject) ?? throw new ConversionFailedException("Incorrect resource format", token);
 
@@ -1044,10 +1021,10 @@ namespace Bicep.Decompiler
 
             if (StringComparer.OrdinalIgnoreCase.Equals(typeString, "Microsoft.Resources/deployments"))
             {
-                return ParseModule(resource, typeString, nameString);
+                return ParseModule(copyResourceLookup, resource, typeString, nameString);
             }
             
-            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessResourceBody(x));
+            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessResourceBody(copyResourceLookup, x));
             var value = ProcessCondition(resource, body);
 
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
@@ -1058,11 +1035,11 @@ namespace Bicep.Decompiler
                 SyntaxFactory.CreateIdentifier(identifier),
                 ParseString($"{typeString}@{apiVersionString}"),
                 null,
-                SyntaxFactory.CreateToken(TokenType.Assignment, "="),
+                SyntaxFactory.AssignmentToken,
                 value);
         }
 
-        private ObjectSyntax ProcessResourceBody(JObject resource)
+        private ObjectSyntax ProcessResourceBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource)
         {
             var expectedResourceProps = new HashSet<string>(new[]
             {
@@ -1126,7 +1103,7 @@ namespace Bicep.Decompiler
                 topLevelProperties.Add(SyntaxFactory.CreateObjectProperty("scope", scope));
             }
 
-            var dependsOn = ProcessDependsOn(resource);
+            var dependsOn = ProcessDependsOn(copyResourceLookup, resource);
             if (dependsOn != null)
             {
                 topLevelProperties.Add(SyntaxFactory.CreateObjectProperty("dependsOn", dependsOn));
@@ -1145,32 +1122,39 @@ namespace Bicep.Decompiler
                 SyntaxFactory.CreateToken(TokenType.Identifier, "output"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 typeSyntax,
-                SyntaxFactory.CreateToken(TokenType.Assignment, "="),
+                SyntaxFactory.AssignmentToken,
                 ParseJToken(value.Value?["value"]));
         }
 
         private TargetScopeSyntax? ParseTargetScope(JObject template)
         {
-            switch (template["$schema"]?.ToString())
+            var schema = TemplateHelpers.AssertRequiredProperty(template, "$schema", "Unable to find a template property named $schema.");
+
+            switch (schema.ToString())
             {
                 case "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#":
                     return new TargetScopeSyntax(
                         SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
-                        SyntaxFactory.CreateToken(TokenType.Assignment, "="),
+                        SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("tenant"));
                 case "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#":
                     return new TargetScopeSyntax(
                         SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
-                        SyntaxFactory.CreateToken(TokenType.Assignment, "="),
+                        SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("managementGroup"));
                 case "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#":
                     return new TargetScopeSyntax(
                         SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
-                        SyntaxFactory.CreateToken(TokenType.Assignment, "="),
+                        SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("subscription"));
+                case "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#":
+                case "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#":
+                case "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#":
+                    // targetScope not required for rg-level templates as 'resourceGroup' is the default
+                    return null;
             }
 
-            return null;
+            throw new ConversionFailedException($"$schema value \"{schema}\" did not match any of the known ARM schemas.", schema);
         }
 
         private static void AddSyntaxBlock(IList<SyntaxBase> syntaxes, IEnumerable<SyntaxBase> syntaxesToAdd, bool newLineBetweenItems)
@@ -1221,9 +1205,25 @@ namespace Bicep.Decompiler
 
             RegisterNames(parameters, flattenedResources, variables, outputs);
 
+            var copyResourceLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var resource in resources.OfType<JObject>())
+            {
+                var loopName = TemplateHelpers.GetNestedProperty(resource, "copy", "name")?.ToString();
+                if (loopName is null)
+                {
+                    continue;
+                }
+
+                var (typeString, nameString, _) = TemplateHelpers.ParseResource(resource);
+                if (nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) is {} resourceRef)
+                {
+                    copyResourceLookup[loopName] = resourceRef;
+                }
+            }
+
             AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
             AddSyntaxBlock(statements, variables.Select(ParseVariable), false);
-            AddSyntaxBlock(statements, flattenedResources.Select(ParseResource), true);
+            AddSyntaxBlock(statements, flattenedResources.Select(resource => ParseResource(copyResourceLookup, resource)), true);
             AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
             return new ProgramSyntax(

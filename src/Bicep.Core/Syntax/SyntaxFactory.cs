@@ -21,8 +21,39 @@ namespace Bicep.Core.Syntax
         public static IdentifierSyntax CreateIdentifier(string text)
             => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
 
-        public static Token NewlineToken
-            => CreateToken(TokenType.NewLine, Environment.NewLine);
+        public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
+        public static Token AtToken => CreateToken(TokenType.At, "@");
+        public static Token LeftBraceToken => CreateToken(TokenType.LeftBrace, "{");
+        public static Token RightBraceToken => CreateToken(TokenType.RightBrace, "}");
+        public static Token LeftParenToken => CreateToken(TokenType.LeftParen, "(");
+        public static Token RightParenToken => CreateToken(TokenType.RightParen, ")");
+        public static Token LeftSquareToken => CreateToken(TokenType.LeftSquare, "[");
+        public static Token RightSquareToken => CreateToken(TokenType.RightSquare, "]");
+        public static Token CommaToken => CreateToken(TokenType.Comma, ",");
+        public static Token DotToken => CreateToken(TokenType.Dot, ".");
+        public static Token QuestionToken => CreateToken(TokenType.Question, "?");
+        public static Token ColonToken => CreateToken(TokenType.Colon, ":");
+        public static Token SemicolonToken => CreateToken(TokenType.Semicolon, ";");
+        public static Token AssignmentToken => CreateToken(TokenType.Assignment, "=");
+        public static Token PlusToken => CreateToken(TokenType.Plus, "+");
+        public static Token MinusToken => CreateToken(TokenType.Minus, "-");
+        public static Token AsteriskToken => CreateToken(TokenType.Asterisk, "*");
+        public static Token SlashToken => CreateToken(TokenType.Slash, "/");
+        public static Token ModuloToken => CreateToken(TokenType.Modulo, "%");
+        public static Token ExclamationToken => CreateToken(TokenType.Exclamation, "!");
+        public static Token LessThanToken => CreateToken(TokenType.LessThan, "<");
+        public static Token GreaterThanToken => CreateToken(TokenType.GreaterThan, ">");
+        public static Token LessThanOrEqualToken => CreateToken(TokenType.LessThanOrEqual, "<=");
+        public static Token GreaterThanOrEqualToken => CreateToken(TokenType.GreaterThanOrEqual, ">=");
+        public static Token EqualsToken => CreateToken(TokenType.Equals, "==");
+        public static Token NotEqualsToken => CreateToken(TokenType.NotEquals, "!=");
+        public static Token EqualsInsensitiveToken => CreateToken(TokenType.EqualsInsensitive, "=~");
+        public static Token NotEqualsInsensitiveToken => CreateToken(TokenType.NotEqualsInsensitive, "!~");
+        public static Token LogicalAndToken => CreateToken(TokenType.LogicalAnd, "&&");
+        public static Token LogicalOrToken => CreateToken(TokenType.LogicalOr, "||");
+        public static Token TrueKeywordToken => CreateToken(TokenType.TrueKeyword, "true");
+        public static Token FalseKeywordToken => CreateToken(TokenType.FalseKeyword, "false");
+        public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword, "null");
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
             => new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":"), value);
@@ -38,9 +69,9 @@ namespace Bicep.Core.Syntax
             }
 
             return new ObjectSyntax(
-                CreateToken(TokenType.LeftBrace, "{"),
+                LeftBraceToken,
                 children,
-                CreateToken(TokenType.RightBrace, "}"));
+                RightBraceToken);
         }
 
         public static ArrayItemSyntax CreateArrayItem(SyntaxBase value)
@@ -50,15 +81,15 @@ namespace Bicep.Core.Syntax
         {
             // generates "range(0, <count>)"
             var rangeSyntax = new FunctionCallSyntax(
-                new IdentifierSyntax(CreateToken(TokenType.Identifier, "range")),
-                CreateToken(TokenType.LeftParen, "("),
+                CreateIdentifier("range"),
+                LeftParenToken,
                 new FunctionArgumentSyntax[] {
                     new FunctionArgumentSyntax(
                         new IntegerLiteralSyntax(CreateToken(TokenType.Integer, "0"), 0),
-                        CreateToken(TokenType.Comma, ",")),
+                        CommaToken),
                     new FunctionArgumentSyntax(count, null),
                 },
-                CreateToken(TokenType.RightParen, ")"));
+                RightParenToken);
 
             return CreateForSyntax(indexIdentifier, rangeSyntax, body);
         }
@@ -67,14 +98,14 @@ namespace Bicep.Core.Syntax
         {
             // generates "[for <identifier> in <inSyntax>: <body>]"
             return new(
-                CreateToken(TokenType.LeftSquare, "["),
+                LeftSquareToken,
                 CreateToken(TokenType.Identifier, "for"),
                 new LocalVariableSyntax(new IdentifierSyntax(CreateToken(TokenType.Identifier, indexIdentifier))),
                 CreateToken(TokenType.Identifier, "in"),
                 inSyntax,
-                CreateToken(TokenType.Colon, ":"),
+                ColonToken,
                 body,
-                CreateToken(TokenType.RightSquare, "]"));
+                RightSquareToken);
         }
 
         public static ArraySyntax CreateArray(IEnumerable<SyntaxBase> items)
@@ -88,9 +119,9 @@ namespace Bicep.Core.Syntax
             }
 
             return new ArraySyntax(
-                CreateToken(TokenType.LeftSquare, "["),
+                LeftSquareToken,
                 children,
-                CreateToken(TokenType.RightSquare, "]"));
+                RightSquareToken);
         }
 
         public static SyntaxBase CreateObjectPropertyKey(string text)
@@ -147,24 +178,22 @@ namespace Bicep.Core.Syntax
             return CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{");
         }
 
-        public static FunctionCallSyntax CreateFunctionCall(string functionName, IEnumerable<SyntaxBase> argumentExpressions)
+        public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
         {
-            var arguments = argumentExpressions.Any()
-                ? argumentExpressions.SkipLast(1)
-                    .Select(expression => new FunctionArgumentSyntax(expression, CreateToken(TokenType.Comma, ",")))
-                    .Append(new FunctionArgumentSyntax(argumentExpressions.Last(), null))
-                : Enumerable.Empty<FunctionArgumentSyntax>();
+            var arguments = argumentExpressions.Select((expression, i) => new FunctionArgumentSyntax(
+                expression,
+                i < argumentExpressions.Length - 1 ? CommaToken : null));
 
             return new FunctionCallSyntax(
                 CreateIdentifier(functionName),
-                CreateToken(TokenType.LeftParen, "("),
+                LeftParenToken,
                 arguments,
-                CreateToken(TokenType.RightParen, ")"));
+                RightParenToken);
         }
 
-        public static DecoratorSyntax CreateDecorator(string functionName, IEnumerable<SyntaxBase> argumentExpressions)
+        public static DecoratorSyntax CreateDecorator(string functionName, params SyntaxBase[] argumentExpressions)
         {
-            return new DecoratorSyntax(CreateToken(TokenType.At, "@"), CreateFunctionCall(functionName, argumentExpressions));
+            return new DecoratorSyntax(AtToken, CreateFunctionCall(functionName, argumentExpressions));
         }
 
         private static string EscapeBicepString(string value)
