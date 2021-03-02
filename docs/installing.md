@@ -12,7 +12,7 @@ To get the best Bicep authoring experience, you will need two components:
 ## Options for installing the Bicep CLI
 
 * cross-plat
-  * [via Az CLI](#install-and-manage-via-azure-cli-(easiest))
+  * [via Az CLI](#install-and-manage-via-azure-cli-easiest)
   * via Az PowerShell (coming soon)
 * Windows
   * [Windows Installer](#windows-installer)
