@@ -496,6 +496,41 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+  name: 'test'
+  location: 'test'
+}]
+
+var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
+var runtimeCheckVar2 = runtimeCheckVar
+
+resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: runtimeCheckVar2
+//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |runtimeCheckVar2|
+  location: 'test'
+}
+
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+  name: runtimeCheckVar2
+//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |runtimeCheckVar2|
+  location: 'test'
+}]
+
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+  name: loopForRuntimeCheck[0].properties.zoneType
+//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |loopForRuntimeCheck[0].properties.zoneType|
+  location: 'test'
+}]
+
+var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
+var varForRuntimeCheck4b = varForRuntimeCheck4a
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+  name: varForRuntimeCheck4b
+//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |varForRuntimeCheck4b|
+  location: 'test'
+}]
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties

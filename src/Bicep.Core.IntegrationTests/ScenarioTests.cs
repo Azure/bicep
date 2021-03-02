@@ -9,6 +9,7 @@ using System;
 using Bicep.Core.UnitTests.Utils;
 using Newtonsoft.Json.Linq;
 using FluentAssertions.Execution;
+using System.ComponentModel.DataAnnotations;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -796,6 +797,102 @@ output xx = x
                     ("BCP146", DiagnosticLevel.Error, "Expected an output type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
                 });
             }
+        }
+
+        [TestMethod]
+        public void Test_Issue1661()
+        {
+            // Issue 1661 only repros if global-resources.bicep exists and kevault-secrets.bicep does not
+            var (template, diags, _) = CompilationHelper.Compile(("main.bicep", @"
+targetScope = 'subscription'
+
+param prefix string
+param deploymentId string
+param tags object
+
+param stampLocations array {
+  default: [
+    'northeurope'
+    'eastus2'
+  ]
+}
+
+resource rg_stamps 'Microsoft.Resources/resourceGroups@2020-06-01' = [for stamp in stampLocations: {
+  name: '${prefix}-${stamp}-rg'
+  location: stamp
+  tags: tags
+}]
+
+//... more modules
+
+module global_resources './global-resources.bicep' = {
+  name: 'global_resources-${deploymentId}'
+  scope: rg_global
+  params: {
+    location: rg_global.location
+    prefix: prefix
+    tags: tags
+    stamps: [for index in range(0, length(stampLocations)): {
+      location: stampLocations[index]
+      aksKubletIdentityPrincipalId: stamps[index].outputs.aksKubletIdentityPrincipalId
+      aksSubnetId: stamps[index].outputs.aksSubnetId
+      backend_fqdn: stamps[index].outputs.ingressFqdn
+    }]
+  }
+}
+
+var secrets = [
+  {
+    name: 'CosmosDb-Endpoint'
+    value: global_resources.outputs.cosmosDbEndpoint
+  }
+  {
+    name: 'CosmosDb-PrimaryKey'
+    value: global_resources.outputs.cosmosDbKey
+  }
+] 
+ 
+module stamp_0_secrets './kevault-secrets.bicep' = [for secret in secrets: {
+  name: 'stamp_0_secrets-${deploymentId}'
+  scope: resourceGroup(rg_stamps[0].name)
+  dependsOn: [
+    stamps
+  ]
+  params: {
+    keyVaultName: '${prefix}${rg_stamps[0].location}kv'
+    secretName: secret.name
+    secretValue: secret.value
+  }
+}]
+
+module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
+  name: 'stamp_1_secrets-${deploymentId}'
+  scope: resourceGroup(rg_stamps[1].name)
+  dependsOn: [
+    stamps
+  ]
+  params: {
+    keyVaultName: '${prefix}${rg_stamps[1].location}kv'
+    secretName: secret.name
+    secretValue: secret.value
+  }
+}]
+"), ("global-resources.bicep", string.Empty));
+
+            template!.Should().BeNull();
+
+            diags.Should().HaveDiagnostics(new[]
+            {
+                ("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
+                ("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\"."),
+                ("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\"."),
+                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find a part of the path 'C:\\path\\to\\kevault-secrets.bicep'."),
+                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find a part of the path 'C:\\path\\to\\kevault-secrets.bicep'.")
+            });
         }
     }
 }

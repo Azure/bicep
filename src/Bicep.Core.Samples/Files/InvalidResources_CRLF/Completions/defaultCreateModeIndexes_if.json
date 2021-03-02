@@ -2192,6 +2192,62 @@
     }
   },
   {
+    "label": "loopForRuntimeCheck",
+    "kind": "interface",
+    "detail": "loopForRuntimeCheck",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopForRuntimeCheck",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopForRuntimeCheck"
+    }
+  },
+  {
+    "label": "loopForRuntimeCheck2",
+    "kind": "interface",
+    "detail": "loopForRuntimeCheck2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopForRuntimeCheck2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopForRuntimeCheck2"
+    }
+  },
+  {
+    "label": "loopForRuntimeCheck3",
+    "kind": "interface",
+    "detail": "loopForRuntimeCheck3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopForRuntimeCheck3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopForRuntimeCheck3"
+    }
+  },
+  {
+    "label": "loopForRuntimeCheck4",
+    "kind": "interface",
+    "detail": "loopForRuntimeCheck4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopForRuntimeCheck4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopForRuntimeCheck4"
+    }
+  },
+  {
     "label": "magicString1",
     "kind": "variable",
     "detail": "magicString1",
@@ -3065,6 +3121,34 @@
     }
   },
   {
+    "label": "runtimeCheckVar",
+    "kind": "variable",
+    "detail": "runtimeCheckVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeCheckVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeCheckVar"
+    }
+  },
+  {
+    "label": "runtimeCheckVar2",
+    "kind": "variable",
+    "detail": "runtimeCheckVar2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeCheckVar2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeCheckVar2"
+    }
+  },
+  {
     "label": "runtimeInvalid",
     "kind": "variable",
     "detail": "runtimeInvalid",
@@ -3555,6 +3639,20 @@
     }
   },
   {
+    "label": "singleResourceForRuntimeCheck",
+    "kind": "interface",
+    "detail": "singleResourceForRuntimeCheck",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_singleResourceForRuntimeCheck",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "singleResourceForRuntimeCheck"
+    }
+  },
+  {
     "label": "skip",
     "kind": "function",
     "detail": "skip()",
@@ -3967,6 +4065,34 @@
     "textEdit": {
       "range": {},
       "newText": "validResourceForInvalidExtensionResourceDuplicateName"
+    }
+  },
+  {
+    "label": "varForRuntimeCheck4a",
+    "kind": "variable",
+    "detail": "varForRuntimeCheck4a",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_varForRuntimeCheck4a",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "varForRuntimeCheck4a"
+    }
+  },
+  {
+    "label": "varForRuntimeCheck4b",
+    "kind": "variable",
+    "detail": "varForRuntimeCheck4b",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_varForRuntimeCheck4b",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "varForRuntimeCheck4b"
     }
   },
   {

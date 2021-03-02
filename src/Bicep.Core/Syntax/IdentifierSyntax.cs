@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Parsing;
 
@@ -10,6 +11,7 @@ namespace Bicep.Core.Syntax
     /// <summary>
     /// Represents a well-formed identifier.
     /// </summary>
+    [DebuggerDisplay("IdentifierName = {" + nameof(IdentifierName) +"}")]
     public class IdentifierSyntax : SyntaxBase
     {
         public IdentifierSyntax(SyntaxBase child)

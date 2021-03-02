@@ -414,6 +414,50 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[76:81) Local thing. Type: any. Declaration start char: 76, length: 5
+//@[9:28) Resource loopForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 130
+  name: 'test'
+  location: 'test'
+}]
+
+var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
+//@[4:19) Variable runtimeCheckVar. Type: 'Private' | 'Public'. Declaration start char: 0, length: 64
+var runtimeCheckVar2 = runtimeCheckVar
+//@[4:20) Variable runtimeCheckVar2. Type: 'Private' | 'Public'. Declaration start char: 0, length: 38
+
+resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[9:38) Resource singleResourceForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 131
+  name: runtimeCheckVar2
+  location: 'test'
+}
+
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[77:82) Local thing. Type: any. Declaration start char: 77, length: 5
+//@[9:29) Resource loopForRuntimeCheck2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 141
+  name: runtimeCheckVar2
+  location: 'test'
+}]
+
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[77:87) Local otherThing. Type: any. Declaration start char: 77, length: 10
+//@[9:29) Resource loopForRuntimeCheck3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 172
+  name: loopForRuntimeCheck[0].properties.zoneType
+  location: 'test'
+}]
+
+var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
+//@[4:24) Variable varForRuntimeCheck4a. Type: 'Private' | 'Public'. Declaration start char: 0, length: 69
+var varForRuntimeCheck4b = varForRuntimeCheck4a
+//@[4:24) Variable varForRuntimeCheck4b. Type: 'Private' | 'Public'. Declaration start char: 0, length: 47
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[77:87) Local otherThing. Type: any. Declaration start char: 77, length: 10
+//@[9:29) Resource loopForRuntimeCheck4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 150
+  name: varForRuntimeCheck4b
+  location: 'test'
+}]
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 151
   // #completionTest(0, 1, 2) -> topLevelProperties
