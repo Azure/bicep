@@ -1,43 +1,23 @@
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the key vault should be created.'
-  }
-}
+@description('Specifies the Azure location where the key vault should be created.')
+param location string = resourceGroup().location
 
-param vnetname string {
-  default: '${location}-azfw-sample-vnet'
-  metadata: {
-    description: 'Specifies the name of the VNet.'
-  }
-}
+@description('Specifies the name of the VNet.')
+param vnetname string = '${location}-azfw-sample-vnet'
 
-param vnetaddressprefix string {
-  default: '10.0.0.0/24'
-  metadata: {
-    description: 'Specifies the address prefix to use for the VNet.'
-  }
-}
+@description('Specifies the address prefix to use for the VNet.')
+param vnetaddressprefix string = '10.0.0.0/24'
 
-param firewallsubnetprefix string {
-  default: '10.0.0.0/26'
-  metadata: {
-    description: 'Specifies the address prefix to use for the AzureFirewallSubnet'
-  }
-}
+@description('Specifies the address prefix to use for the AzureFirewallSubnet')
+param firewallsubnetprefix string = '10.0.0.0/26'
 
-param ipprefixlength int {
-  default: 31
-  allowed: [
-    28
-    29
-    30
-    31
-  ]
-  metadata: {
-    description: 'Specifies the size of the Public IP Prefix'
-  }
-}
+@allowed([
+  28
+  29
+  30
+  31
+])
+@description('Specifies the size of the Public IP Prefix')
+param ipprefixlength int = 31
 
 var firewallname = '${vnetname}-fw'
 var publicipname = '${vnetname}-pip'

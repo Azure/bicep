@@ -14,9 +14,9 @@
     },
     "responseTimeThreshold": {
       "type": "int",
-      "minValue": 1,
+      "defaultValue": 3,
       "maxValue": 10000,
-      "defaultValue": 3
+      "minValue": 1
     }
   },
   "functions": [],
@@ -109,7 +109,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7148710910195702585"
+      "templateHash": "14666046413195078371"
     }
   }
 }

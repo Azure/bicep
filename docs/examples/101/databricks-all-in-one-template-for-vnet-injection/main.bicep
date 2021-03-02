@@ -3,13 +3,13 @@ param vnetName string = 'databricks-vnet'
 param workspaceName string
 param privateSubnetName string = 'private-subnet'
 param publicSubnetName string = 'public-subnet'
-param pricingTier string {
-  default: 'premium'
-  allowed: [
-    'standard'
-    'premium'
-  ]
-}
+
+@allowed([
+  'standard'
+  'premium'
+])
+param pricingTier string = 'premium'
+
 param location string = resourceGroup().location
 param vnetCidr string = '10.179.0.0/16'
 param privateSubnetCidr string = '10.179.0.0/18'

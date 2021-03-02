@@ -7,23 +7,21 @@ param minCapacity int = 2
 param maxCapacity int = 10
 param frontendPort int = 80
 param backendPort int = 80
-param backendIPAddresses array {
-  default: [
-    {
-      IpAddress: '10.0.0.4'
-    }
-    {
-      IpAddress: '10.0.0.5'
-    }
-  ]
-}
-param cookieBasedAffinity string {
-  default: 'Disabled'
-  allowed: [
-    'Enabled'
-    'Disabled'
-  ]
-}
+param backendIPAddresses array = [
+  {
+    IpAddress: '10.0.0.4'
+  }
+  {
+    IpAddress: '10.0.0.5'
+  }
+]
+
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param cookieBasedAffinity string = 'Disabled'
+
 param location string = resourceGroup().location
 
 var appGwPublicIpName = '${applicationGatewayName}-pip'

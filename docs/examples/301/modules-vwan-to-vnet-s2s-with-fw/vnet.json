@@ -11,38 +11,38 @@
     },
     "addressprefix": {
       "type": "string",
+      "defaultValue": "10.0.1.0/24",
       "metadata": {
         "description": "Specifies the VNet Address Prefix."
-      },
-      "defaultValue": "10.0.1.0/24"
+      }
     },
     "serversubnetprefix": {
       "type": "string",
+      "defaultValue": "10.0.1.0/26",
       "metadata": {
         "description": "Specifies the Subnet Address Prefix for the server subnet"
-      },
-      "defaultValue": "10.0.1.0/26"
+      }
     },
     "bastionsubnetprefix": {
       "type": "string",
+      "defaultValue": "10.0.1.64/26",
       "metadata": {
         "description": "Specifies the Subnet Address Prefix for the bastion subnet"
-      },
-      "defaultValue": "10.0.1.64/26"
+      }
     },
     "gatewaysubnetprefix": {
       "type": "string",
+      "defaultValue": "10.0.1.128/26",
       "metadata": {
         "description": "Specifies the Subnet Address Prefix for the GatewaySubnet"
-      },
-      "defaultValue": "10.0.1.128/26"
+      }
     },
     "firewallsubnetprefix": {
       "type": "string",
+      "defaultValue": "10.0.1.192/26",
       "metadata": {
         "description": "Specifies the Subnet Address Prefix for the AzureFirewallSubnet"
-      },
-      "defaultValue": "10.0.1.192/26"
+      }
     }
   },
   "functions": [],
@@ -219,7 +219,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2338545732531257447"
+      "templateHash": "13901036147917229888"
     }
   }
 }

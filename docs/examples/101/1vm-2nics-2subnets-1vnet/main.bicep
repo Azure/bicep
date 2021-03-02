@@ -1,8 +1,8 @@
 param virtualMachineSize string
 param adminUsername string
-param adminPassword string {
-  secure: true
-}
+
+@secure()
+param adminPassword string
 param storageAccountType string
 param location string = resourceGroup().location
 

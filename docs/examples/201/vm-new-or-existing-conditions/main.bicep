@@ -1,128 +1,69 @@
-param location string {
-  metadata: {
-    description: 'Location to for the resources.'
-  }
-  default: resourceGroup().location
-}
-param vmName string {
-  metadata: {
-    description: 'Name for the Virtual Machine.'
-  }
-  default: 'linux-vm'
-}
-param adminUsername string {
-  metadata: {
-    description: 'User name for the Virtual Machine.'
-  }
-}
-param authenticationType string {
-  allowed: [
-    'password'
-    'sshPublicKey'
-  ]
-  metadata: {
-    description: 'Type of authentication to use on the Virtual Machine.'
-  }
-  default: 'sshPublicKey'
-}
-param adminPasswordOrKey string {
-  metadata: {
-    description: 'Password or ssh key for the Virtual Machine.'
-  }
-  secure: true
-}
-param vmSize string {
-  metadata: {
-    description: 'Size for the Virtual Machine.'
-  }
-  default: 'Standard_A2_v2'
-}
-param createNewStorageAccount bool {
-  metadata: {
-    description: 'Determines whether or not a new storage account should be provisioned.'
-  }
-  default: true
-}
-param storageAccountName string {
-  metadata: {
-    description: 'Name of the storage account'
-  }
-  default: 'storage${uniqueString(resourceGroup().id)}'
-}
-param storageAccountType string {
-  metadata: {
-    description: 'Storage account type'
-  }
-  default: 'Standard_LRS'
-}
-param storageAccountResourceGroupName string {
-  metadata: {
-    description: 'Name of the resource group for the existing storage account'
-  }
-  default: resourceGroup().name
-}
-param createNewVnet bool {
-  metadata: {
-    description: 'Determines whether or not a new virtual network should be provisioned.'
-  }
-  default: true
-}
-param vnetName string {
-  metadata: {
-    description: 'Name of the virtual network'
-  }
-  default: 'VirtualNetwork'
-}
-param addressPrefixes array {
-  metadata: {
-    description: 'Address prefix of the virtual network'
-  }
-  default: [
-    '10.0.0.0/16'
-  ]
-}
-param subnetName string {
-  metadata: {
-    description: 'Name of the subnet'
-  }
-  default: 'default'
-}
-param subnetPrefix string {
-  metadata: {
-    description: 'Subnet prefix of the virtual network'
-  }
-  default: '10.0.0.0/24'
-}
-param vnetResourceGroupName string {
-  metadata: {
-    description: 'Name of the resource group for the existing virtual network'
-  }
-  default: resourceGroup().name
-}
-param createNewPublicIP bool {
-  metadata: {
-    description: 'Determines whether or not a new public ip should be provisioned.'
-  }
-  default: true
-}
-param publicIPName string {
-  metadata: {
-    description: 'Name of the public ip address'
-  }
-  default: 'PublicIp'
-}
-param publicIPDns string {
-  metadata: {
-    description: 'DNS of the public ip address for the VM'
-  }
-  default: 'linux-vm-${uniqueString(resourceGroup().id)}'
-}
-param publicIPResourceGroupName string {
-  metadata: {
-    description: 'Name of the resource group for the public ip address'
-  }
-  default: resourceGroup().name
-}
+@description('Location to for the resources.')
+param location string = resourceGroup().location
+
+@description('Name for the Virtual Machine.')
+param vmName string = 'linux-vm'
+
+@description('User name for the Virtual Machine.')
+param adminUsername string
+
+@allowed([
+  'password'
+  'sshPublicKey'
+])
+@description('Type of authentication to use on the Virtual Machine.')
+param authenticationType string = 'sshPublicKey'
+
+@secure()
+@description('Password or ssh key for the Virtual Machine.')
+param adminPasswordOrKey string
+
+@description('Size for the Virtual Machine.')
+param vmSize string = 'Standard_A2_v2'
+
+@description('Determines whether or not a new storage account should be provisioned.')
+param createNewStorageAccount bool = true
+
+@description('Name of the storage account')
+param storageAccountName string = 'storage${uniqueString(resourceGroup().id)}'
+
+@description('Storage account type')
+param storageAccountType string = 'Standard_LRS'
+
+@description('Name of the resource group for the existing storage account')
+param storageAccountResourceGroupName string = resourceGroup().name
+
+@description('Determines whether or not a new virtual network should be provisioned.')
+param createNewVnet bool = true
+
+@description('Name of the virtual network')
+param vnetName string = 'VirtualNetwork'
+
+@description('Address prefix of the virtual network')
+param addressPrefixes array = [
+  '10.0.0.0/16'
+]
+
+@description('Name of the subnet')
+param subnetName string = 'default'
+
+@description('Subnet prefix of the virtual network')
+param subnetPrefix string = '10.0.0.0/24'
+
+@description('Name of the resource group for the existing virtual network')
+param vnetResourceGroupName string = resourceGroup().name
+
+@description('Determines whether or not a new public ip should be provisioned.')
+param createNewPublicIP bool = true
+
+@description('Name of the public ip address')
+param publicIPName string = 'PublicIp'
+
+@description('DNS of the public ip address for the VM')
+param publicIPDns string = 'linux-vm-${uniqueString(resourceGroup().id)}'
+
+@description('Name of the resource group for the public ip address')
+param publicIPResourceGroupName string = resourceGroup().name
 
 var storageAccountId = createNewStorageAccount ? storageAccount.id : resourceId(storageAccountResourceGroupName, 'Microsoft.Storage/storageAccounts/', storageAccountName)
 var subnetId = createNewVnet ? subnet.id : resourceId(vnetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', vnetName, subnetName)

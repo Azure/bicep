@@ -1,16 +1,11 @@
 param location string = resourceGroup().location
 param hubname string
-param hubaddressprefix string {
-  default: '10.10.0.0/24'
-  metadata: {
-    description: 'Specifies the Virtual Hub Address Prefix.'
-  }
-}
-param wanid string {
-  metadata: {
-    description: 'Virtual WAN ID'
-  }
-}
+
+@description('Specifies the Virtual Hub Address Prefix.')
+param hubaddressprefix string = '10.10.0.0/24'
+
+@description('Virtual WAN ID')
+param wanid string
 
 resource hub 'Microsoft.Network/virtualHubs@2020-06-01' = {
   name: hubname

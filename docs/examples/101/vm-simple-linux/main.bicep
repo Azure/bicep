@@ -5,13 +5,12 @@ param vmName string = 'simpleLinuxVM'
 param adminUsername string
 
 // Type of authentication to use on the Virtual Machine. SSH key is recommended.
-param authenticationType string {
-  default: 'password'
-  allowed: [
-    'sshPublicKey'
-    'password'
-  ]
-}
+
+@allowed([
+  'sshPublicKey'
+  'password'
+])
+param authenticationType string = 'password'
 
 // SSH Key or password for the Virtual Machine. SSH key is recommended.
 param adminPasswordOrKey string
@@ -20,15 +19,13 @@ param adminPasswordOrKey string
 param dnsLabelPrefix string = toLower('simplelinuxvm-${uniqueString(resourceGroup().id)}')
 
 // The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.
-param ubuntuOSVersion string {
-  default: '18.04-LTS'
-  allowed: [
-    '12.04.5-LTS'
-    '14.04.5-LTS'
-    '16.04.0-LTS'
-    '18.04-LTS'
-  ]
-}
+@allowed([
+  '12.04.5-LTS'
+  '14.04.5-LTS'
+  '16.04.0-LTS'
+  '18.04-LTS'
+])
+param ubuntuOSVersion string = '18.04-LTS'
 
 // Location for all resources.
 param location string = resourceGroup().location

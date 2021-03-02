@@ -1,8 +1,9 @@
 param virtualMachineSize string
 param adminUsername string
-param adminPassword string {
-  secure: true
-}
+
+@secure()
+param adminPassword string
+
 param location string = resourceGroup().location
 param virtualMachineName string
 param nic1Id string

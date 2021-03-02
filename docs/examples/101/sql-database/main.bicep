@@ -2,9 +2,9 @@ param serverName string = uniqueString('sql', resourceGroup().id)
 param sqlDBName string = 'SampleDB'
 param location string = resourceGroup().location
 param administratorLogin string
-param administratorLoginPassword string {
-  secure: true
-}
+
+@secure()
+param administratorLoginPassword string
 
 resource server 'Microsoft.Sql/servers@2019-06-01-preview' = {
   name: serverName

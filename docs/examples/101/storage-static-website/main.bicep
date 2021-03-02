@@ -4,14 +4,15 @@
 
 param location string
 param accountName string
-param skuName string {
-  allowed: [
-    'Standard_LRS'
-    'Standard_GRS'
-    'Standard_ZRS'
-    'Premium_LRS'
-  ]
-}
+
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_ZRS'
+  'Premium_LRS'
+])
+param skuName string
+
 param deploymentScriptTimestamp string = utcNow()
 param indexDocument string = 'index.html'
 param errorDocument404Path string = 'error.html'
