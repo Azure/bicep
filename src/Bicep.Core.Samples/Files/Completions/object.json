@@ -1,5 +1,23 @@
 [
   {
+    "label": "for",
+    "kind": "snippet",
+    "detail": "for",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for item in list: {\n\t\n}]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for ${2:item} in ${1:list}: {\n\t$0\n}]"
+    }
+  },
+  {
     "label": "{}",
     "kind": "value",
     "detail": "{}",

@@ -1090,7 +1090,7 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 }
 
 @concat('foo', 'bar')
-//@[1:7) [BCP127 (Error)] Function "concat" cannot be used as a resource decorator. |concat|
+//@[1:7) [BCP152 (Error)] Function "concat" cannot be used as a decorator. |concat|
 @secure()
 //@[1:7) [BCP127 (Error)] Function "secure" cannot be used as a resource decorator. |secure|
 resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
@@ -1259,7 +1259,7 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
   properties: {
     networkAcls: {
       virtualNetworkRules: concat([for lol in []: {
-//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
         id: '${account.name}-${account.location}'
       }])
     }
@@ -1345,3 +1345,34 @@ resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 //@[95:101) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
 //@[96:107) [BCP018 (Error)] Expected the "{" character at this location. |environment|
+
+// #completionTest(54,55) -> objectPlusFor
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:55) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
+
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+  properties: {
+    // #completionTest(32,33) -> symbolsPlusArrayAndFor
+    registrationVirtualNetworks: 
+//@[33:33) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+    resolutionVirtualNetworks: [for lol in []: {
+      
+    }]
+  }
+}]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  properties: {
+    virtualNetworkPeerings: [for item in []: {
+        properties: {
+          remoteAddressSpace: {
+            // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
+            addressPrefixes: 
+//@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+          }
+        }
+    }]
+  }
+}

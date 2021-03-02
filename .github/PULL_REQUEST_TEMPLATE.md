@@ -15,6 +15,6 @@ If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). 
 
 ## Contributing a feature
 
-* [ ] I have opened a new issue for the proposal, or commented on an existing one, and ensured that the bicep maintainers are good with the design of the feature being implemented
+* [ ] I have opened a new issue for the proposal, or commented on an existing one, and ensured that the Bicep maintainers are good with the design of the feature being implemented
 * [ ] I have included "Fixes #{issue_number}" in the PR description, so GitHub can link to the issue and close it when the PR is merged
 * [ ] I have appropriate test coverage of my new feature

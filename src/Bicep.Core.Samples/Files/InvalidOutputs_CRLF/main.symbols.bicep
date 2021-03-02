@@ -150,12 +150,7 @@ var attemptToReferenceAnOutput = myOutput
 output notAttachableDecorators int = 32
 //@[7:30) Output notAttachableDecorators. Type: int. Declaration start char: 0, length: 73
 
-// loops in outputs not allowed
-output noLoops array = [for thing in things: 4]
-//@[28:33) Local thing. Type: any. Declaration start char: 28, length: 5
-//@[7:14) Output noLoops. Type: array. Declaration start char: 0, length: 47
-
-// no nested loops either
+// nested loops inside output loops are not supported
 output noNestedLoops array = [for thing in things: {
 //@[34:39) Local thing. Type: any. Declaration start char: 34, length: 5
 //@[7:20) Output noNestedLoops. Type: array. Declaration start char: 0, length: 110
@@ -164,6 +159,21 @@ output noNestedLoops array = [for thing in things: {
 //@[9:14) Local thing. Type: any. Declaration start char: 9, length: 5
   ]
 }]
+
+// loops in inner properties inside outputs are not supported
+output noInnerLoopsInOutputs object = {
+//@[7:28) Output noInnerLoopsInOutputs. Type: object. Declaration start char: 0, length: 74
+  a: [for i in range(0,10): i]
+//@[10:11) Local i. Type: int. Declaration start char: 10, length: 1
+}
+output noInnerLoopsInOutputs2 object = {
+//@[7:29) Output noInnerLoopsInOutputs2. Type: object. Declaration start char: 0, length: 116
+  a: [for i in range(0,10): {
+//@[10:11) Local i. Type: int. Declaration start char: 10, length: 1
+    b: [for j in range(0,10): i+j]
+//@[12:13) Local j. Type: int. Declaration start char: 12, length: 1
+  }]
+}
 
 // #completionTest(1) -> decoratorsPlusNamespace
 @

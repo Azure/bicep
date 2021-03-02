@@ -222,6 +222,20 @@ var noNestedVariableLoopsEither = [for thing in stuff: {
 //@[14:19) Local thing. Type: any. Declaration start char: 14, length: 5
 }]
 
+// loops in inner properties of a variable are also not supported
+var innerPropertyLoop = {
+//@[4:21) Variable innerPropertyLoop. Type: object. Declaration start char: 0, length: 58
+  a: [for i in range(0,10): i]
+//@[10:11) Local i. Type: int. Declaration start char: 10, length: 1
+}
+var innerPropertyLoop2 = {
+//@[4:22) Variable innerPropertyLoop2. Type: object. Declaration start char: 0, length: 72
+  b: {
+    a: [for i in range(0,10): i]
+//@[12:13) Local i. Type: int. Declaration start char: 12, length: 1
+  }
+}
+
 // cannot use loops in expressions
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[32:37) Local thing. Type: any. Declaration start char: 32, length: 5

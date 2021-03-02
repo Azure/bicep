@@ -71,11 +71,23 @@
       ]
     }
   ],
+  "outputs": {
+    "managementGroupIds": {
+      "type": "array",
+      "copy": {
+        "count": "[length(range(0, length(variables('managementGroups'))))]",
+        "input": {
+          "name": "[concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two')]",
+          "displayName": "[reference(tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two'))).displayName]"
+        }
+      }
+    }
+  },
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16395904780268713330"
+      "templateHash": "15514725128482049618"
     }
   }
 }

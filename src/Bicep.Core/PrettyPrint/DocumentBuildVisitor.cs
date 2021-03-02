@@ -2,14 +2,13 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint.Documents;
-using Bicep.Core.PrettyPrint.DocumentCombinators;
 using Bicep.Core.Syntax;
-using System.Collections.Immutable;
 
 namespace Bicep.Core.PrettyPrint
 {
@@ -17,22 +16,22 @@ namespace Bicep.Core.PrettyPrint
     {
         private static readonly ILinkedDocument Nil = new NilDocument();
 
-        private static readonly ILinkedDocument Space = new TextDocument(" ", Nil);
+        private static readonly ILinkedDocument Space = new TextDocument(" ");
 
-        private static readonly ILinkedDocument Line = new NestDocument(0, Nil);
+        private static readonly ILinkedDocument Line = new NestDocument(0);
 
         private static readonly ILinkedDocument NoLine = new NilDocument();
 
-        private static readonly ILinkedDocument SingleLine = new NestDocument(0, Nil);
+        private static readonly ILinkedDocument SingleLine = new NestDocument(0);
 
-        private static readonly ILinkedDocument DoubleLine = new NestDocument(0, Line);
+        private static readonly ILinkedDocument DoubleLine = new NestDocument(0).Concat(Line);
 
         private static readonly ImmutableDictionary<string, TextDocument> CommonTextCache =
             LanguageConstants.ContextualKeywords
             .Concat(LanguageConstants.Keywords.Keys)
             .Concat(new[] { "(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!" })
             .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
-            .ToImmutableDictionary(value => value, value => new TextDocument(value, Nil));
+            .ToImmutableDictionary(value => value, value => new TextDocument(value));
 
         private readonly Stack<ILinkedDocument> documentStack = new Stack<ILinkedDocument>();
 
@@ -324,7 +323,7 @@ namespace Bicep.Core.PrettyPrint
             });
 
         private static ILinkedDocument Text(string text) =>
-            CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text, Nil);
+            CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);
 
         private static ILinkedDocument Concat(params ILinkedDocument[] combinators) =>
             Concat(combinators as IEnumerable<ILinkedDocument>);
@@ -348,7 +347,7 @@ namespace Bicep.Core.PrettyPrint
                 Debug.Assert(children.Length >= 2);
 
                 ILinkedDocument openSymbol = children[0];
-                ILinkedDocument body = Concat(children.Skip(1).SkipLast(2)).Nest(1);
+                ILinkedDocument body = Concat(children.Skip(1).SkipLast(2)).Nest();
                 ILinkedDocument lastLine = children.Length > 2 ? children[^2] : Nil;
                 ILinkedDocument closeSymbol = children[^1];
 
@@ -371,7 +370,7 @@ namespace Bicep.Core.PrettyPrint
             {
                 var splitIndex = Array.IndexOf(children, Nil);
 
-                // Need to concat leading decorators and newlines with the statment keyword.
+                // Need to concat leading decorators and the statment keyword.
                 var head = Concat(children.Take(splitIndex));
                 var tail = children.Skip(splitIndex + 1);
 

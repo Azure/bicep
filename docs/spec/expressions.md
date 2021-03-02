@@ -1,5 +1,5 @@
 # Expressions
-The bicep language supports the following operators in expressions:
+The Bicep language supports the following operators in expressions:
 
 ## Operator precedence and associativity
 The operators below are listed in descending order of precedence (the higher the position the higher the precedence). Operators listed at the same level have equal precedence.
@@ -88,7 +88,7 @@ resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
 ```
 
 ## Parentheses
-Enclosing an expression between `(` and `)` allows you to override the default bicep operator precedence. For example, the expression `x + y / z` would evaluate the division first and then the addition. However, the expression `(x + y) / z` would evaluate the addition first and division second.
+Enclosing an expression between `(` and `)` allows you to override the default Bicep operator precedence. For example, the expression `x + y / z` would evaluate the division first and then the addition. However, the expression `(x + y) / z` would evaluate the addition first and division second.
 
 ## Property accessors
 Property accessors are used to access properties of an object. They are constructed using the `.` operator. Consider the following:
@@ -120,9 +120,9 @@ var myArray = [
 ]
 ```
 
-Arrays in bicep are 0-based. In other words, the first item in an array is at index 0. As such, the expression `myArray[0]` will evaluate to `1` and `myArray[2]` will evaluate to `3`. The index of the indexer may itself be another expression. In the above example, `myArray[index]` would evaluate to `2`. Integer indexers are only allowed on expression of array types. Usage of integer indexers on other types is an error.
+Arrays in Bicep are 0-based. In other words, the first item in an array is at index 0. As such, the expression `myArray[0]` will evaluate to `1` and `myArray[2]` will evaluate to `3`. The index of the indexer may itself be another expression. In the above example, `myArray[index]` would evaluate to `2`. Integer indexers are only allowed on expression of array types. Usage of integer indexers on other types is an error.
 
-String-based indexers are also allowed in bicep. Consider the following:
+String-based indexers are also allowed in Bicep. Consider the following:
 ```
 param environment string = 'prod'
 
@@ -145,7 +145,7 @@ Given the above, the expression `environmentSettings['dev']` would evaluate to t
 
 Just like with integer indexers, the string indexer can also be an expression. Given the above example, the expression `environmentSettings[environment].name` would evaluate to `'dev'`, `'prod'`, or a runtime error depending on the value of the `environment` parameter. String-based indexers can only be used with expression of object type. Usage on expressions of other types is an error.
 
-In general, expressions are allowed anywhere where a value is specified in bicep. For example you could use the expressions above in a resource declaration as follows:
+In general, expressions are allowed anywhere where a value is specified in Bicep. For example you could use the expressions above in a resource declaration as follows:
 ```
 resource site 'microsoft.web/sites@2018-11-01' = {
   name: environmentSettings[environment].name

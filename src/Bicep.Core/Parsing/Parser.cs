@@ -52,20 +52,6 @@ namespace Bicep.Core.Parsing
                         declarationsOrTokens.Add(newLine);
                     }
                 }
-
-                if (this.IsAtEnd() &&
-                    declarationOrToken is MissingDeclarationSyntax missingDeclaration &&
-                    !missingDeclaration.HasParseErrors())
-                {
-                    // If there are dangling decorators and we hit EOF and there's no other decorator parsing error,
-                    // ask users to add a declration.
-                    var skippedTriviaSyntax = new SkippedTriviaSyntax(
-                        reader.Peek().Span,
-                        Enumerable.Empty<SyntaxBase>(),
-                        DiagnosticBuilder.ForPosition(missingDeclaration.Decorators.Last()).ExpectDeclarationAfterDecorator().AsEnumerable());
-
-                    declarationsOrTokens.Add(skippedTriviaSyntax);
-                }
             }
 
             var endOfFile = reader.Read();

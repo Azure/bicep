@@ -1,0 +1,68 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "suffix": {
+      "type": "string",
+      "defaultValue": "001"
+    },
+    "owner": {
+      "type": "string",
+      "defaultValue": "alex"
+    },
+    "costCenter": {
+      "type": "string",
+      "defaultValue": "12345"
+    },
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/15"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "vnetName": "[format('vnet-{0}', parameters('suffix'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2018-10-01",
+      "name": "[variables('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Owner": "[parameters('owner')]",
+        "CostCenter": "[parameters('costCenter')]"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('addressPrefix')]"
+          ]
+        },
+        "enableVmProtection": false,
+        "enableDdosProtection": false,
+        "subnets": [
+          {
+            "name": "subnet001",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24"
+            }
+          },
+          {
+            "name": "subnet002",
+            "properties": {
+              "addressPrefix": "10.0.1.0/24"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.2.478.16004",
+      "templateHash": "4235334483898360026"
+    }
+  }
+}

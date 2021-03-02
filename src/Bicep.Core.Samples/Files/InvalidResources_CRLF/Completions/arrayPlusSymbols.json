@@ -1336,6 +1336,24 @@
     }
   },
   {
+    "label": "for",
+    "kind": "snippet",
+    "detail": "for",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for item in list: ]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for ${2:item} in ${1:list}: $0]"
+    }
+  },
+  {
     "label": "format",
     "kind": "function",
     "detail": "format()",
@@ -3477,6 +3495,20 @@
     "textEdit": {
       "range": {},
       "newText": "validResourceForInvalidExtensionResourceDuplicateName"
+    }
+  },
+  {
+    "label": "vnet",
+    "kind": "interface",
+    "detail": "vnet",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_vnet",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "vnet"
     }
   },
   {

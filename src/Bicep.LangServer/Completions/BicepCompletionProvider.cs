@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Bicep.Core;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
@@ -117,7 +118,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetTargetScopeCompletions(SemanticModel model, BicepCompletionContext context)
         {
             return context.Kind.HasFlag(BicepCompletionContextKind.TargetScope) && context.TargetScope is { } targetScope
-                ? GetValueCompletionsForType(model.GetDeclaredType(targetScope), context.ReplacementRange)
+                ? GetValueCompletionsForType(model.GetDeclaredType(targetScope), context.ReplacementRange, model, context)
                 : Enumerable.Empty<CompletionItem>();
         }
 
@@ -262,6 +263,9 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody) || context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
             {
                 yield return CreateObjectBodyCompletion(context.ReplacementRange);
+
+                // loops are always allowed in a resource/module
+                yield return CreateLoopCompletion(context.ReplacementRange, LanguageConstants.Object);
             }
         }
 
@@ -507,7 +511,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            return GetValueCompletionsForType(declaredTypeAssignment.Reference.Type, context.ReplacementRange);
+            return GetValueCompletionsForType(declaredTypeAssignment.Reference.Type, context.ReplacementRange, model, context);
         }
 
         private IEnumerable<CompletionItem> GetArrayItemCompletions(SemanticModel model, BicepCompletionContext context)
@@ -523,10 +527,10 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            return GetValueCompletionsForType(arrayType.Item.Type, context.ReplacementRange);
+            return GetValueCompletionsForType(arrayType.Item.Type, context.ReplacementRange, model, context);
         }
 
-        private static IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? propertyType, Range replacementRange)
+        private static IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? propertyType, Range replacementRange, SemanticModel semanticModel, BicepCompletionContext context)
         {
             switch (propertyType)
             {
@@ -546,7 +550,7 @@ namespace Bicep.LanguageServer.Completions
 
                     break;
 
-                case ArrayType _:
+                case ArrayType arrayType:
                     const string arrayLabel = "[]";
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Value)
                         .WithLabel(arrayLabel)
@@ -554,6 +558,14 @@ namespace Bicep.LanguageServer.Completions
                         .WithDetail(arrayLabel)
                         .Preselect()
                         .WithSortText(GetSortText(arrayLabel, CompletionPriority.High));
+
+                    if (context.Kind.HasFlag(BicepCompletionContextKind.PropertyValue) && 
+                        context.Property is not null && 
+                        ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(semanticModel, context.Property))
+                    {
+                        // property loop is allowed here
+                        yield return CreateLoopCompletion(replacementRange, arrayType.Item.Type);
+                    }
 
                     break;
 
@@ -563,7 +575,7 @@ namespace Bicep.LanguageServer.Completions
                     break;
 
                 case UnionType union:
-                    var aggregatedCompletions = union.Members.SelectMany(typeRef => GetValueCompletionsForType(typeRef.Type, replacementRange));
+                    var aggregatedCompletions = union.Members.SelectMany(typeRef => GetValueCompletionsForType(typeRef.Type, replacementRange, semanticModel, context));
                     foreach (var completion in aggregatedCompletions)
                     {
                         yield return completion;
@@ -582,6 +594,23 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(objectLabel)
                 .Preselect()
                 .WithSortText(GetSortText(objectLabel, CompletionPriority.High));
+        }
+
+        private static CompletionItem CreateLoopCompletion(Range replacementRange, TypeSymbol arrayItemType)
+        {
+            const string loopLabel = "for";
+            
+            var assignableToObject = TypeValidator.AreTypesAssignable(arrayItemType, LanguageConstants.Object);
+            var assignableToArray = TypeValidator.AreTypesAssignable(arrayItemType, LanguageConstants.Array);
+
+            var snippet = (assignableToObject, assignableToArray) switch
+            {
+                (true, false) => "[for ${2:item} in ${1:list}: {\n\t$0\n}]",
+                (false, true) => "[for ${2:item} in ${1:list}: [\n\t$0\n]]",
+                _ => "[for ${2:item} in ${1:list}: $0]"
+            };
+
+            return CreateContextualSnippetCompletion(loopLabel, loopLabel, snippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
         }
 
         private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
@@ -686,10 +715,10 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, InsertTextMode insertTextMode = InsertTextMode.AsIs) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet)
                 .WithLabel(label)
-                .WithSnippetEdit(replacementRange, snippet)
+                .WithSnippetEdit(replacementRange, snippet, insertTextMode)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority));

@@ -3494,6 +3494,20 @@
     }
   },
   {
+    "label": "vnet",
+    "kind": "interface",
+    "detail": "vnet",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_vnet",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "vnet"
+    }
+  },
+  {
     "label": "wrongArrayType",
     "kind": "interface",
     "detail": "wrongArrayType",

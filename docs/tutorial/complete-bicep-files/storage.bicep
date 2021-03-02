@@ -1,24 +1,20 @@
-param location string = resourceGroup().location
-param namePrefix string = 'stg'
+param storageAccountName string // need to be provided since it is existing
 
-param globalRedundancy bool = true // defaults to true, but can be overridden
+param containerNames array = [
+  'dogs'
+  'cats'
+  'fish'
+]
 
-var storageAccountName = '${namePrefix}${uniqueString(resourceGroup().id)}'
-
-resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' existing = {
   name: storageAccountName
-  location: location
-  kind: 'Storage'
-  sku: {
-    name: globalRedundancy ? 'Standard_GRS' : 'Standard_LRS' // if true --> GRS, else --> LRS
-  }
 }
 
-resource blob 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06-01' = {
-  name: '${stg.name}/default/logs'
+resource blob 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06-01' = [for name in containerNames: {
+  name: '${stg.name}/default/${name}'
   // dependsOn will be added when the template is compiled
-}
+}]
 
 output storageId string = stg.id // replacement for resourceId(...)
-output computedStorageName string = stg.name
 output primaryEndpoint string = stg.properties.primaryEndpoints.blob // replacement for reference(...).*
+output containerProps array = [for i in range(0, length(containerNames)): blob[i].id]

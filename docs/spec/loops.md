@@ -1,5 +1,11 @@
 # Loops
-> **Note:** Not implemented yet.
+
+>Loops were implemented in v0.3, though there are still a handful of limitations:
+> * No variable loops
+> * No filtering (loops + conditions)
+> * No support for index syntax
+>
+> We plan to address in a subsequent 0.3.* release
 
 Loops may be used to iterate over an array to declare multiple resources or to set an array property inside a resource declaration. Iteration over the array occurs over the elements of the array. The index of the iteration is also available.
 
@@ -33,7 +39,7 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
       }
     }
   }
-  kind: StorageV2
+  kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
   }
@@ -41,6 +47,9 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
 ```
 
 ### Use the loop index
+
+>**Note:** Not yet implemented. We plan to implement in a future 0.3.* release.
+
 In the example below, we are iterating over the `storageConfiguration` array variable. Within the loop body, `config` stores the current element from the array and `i` stores the 0-based index of the current array element. Both are referenced from within the loop body.
 
 ```
@@ -75,7 +84,7 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
       }
     }
   }
-  kind: StorageV2
+  kind: 'StorageV2'
   sku: {
     name: config.sku
   }
@@ -106,7 +115,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
       addressPrefixes: [
         '10.144.0.0/20'
       ]
-    },
+    }
     subnets: [for subnet in subnets: {
       name: subnet.name
       properties: {

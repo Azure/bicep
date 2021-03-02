@@ -2452,4 +2452,964 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+var regions = [
+//@[0:39) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:11)  IdentifierSyntax
+//@[4:11)   Identifier |regions|
+//@[12:13)  Assignment |=|
+//@[14:39)  ArraySyntax
+//@[14:15)   LeftSquare |[|
+//@[15:16)   NewLine |\n|
+  'eastus'
+//@[2:10)   ArrayItemSyntax
+//@[2:10)    StringSyntax
+//@[2:10)     StringComplete |'eastus'|
+//@[10:11)   NewLine |\n|
+  'westus'
+//@[2:10)   ArrayItemSyntax
+//@[2:10)    StringSyntax
+//@[2:10)     StringComplete |'westus'|
+//@[10:11)   NewLine |\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:3) NewLine |\n\n|
+
+module apim 'passthrough.bicep' = [for region in regions: {
+//@[0:131) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:11)  IdentifierSyntax
+//@[7:11)   Identifier |apim|
+//@[12:31)  StringSyntax
+//@[12:31)   StringComplete |'passthrough.bicep'|
+//@[32:33)  Assignment |=|
+//@[34:131)  ForSyntax
+//@[34:35)   LeftSquare |[|
+//@[35:38)   Identifier |for|
+//@[39:45)   LocalVariableSyntax
+//@[39:45)    IdentifierSyntax
+//@[39:45)     Identifier |region|
+//@[46:48)   Identifier |in|
+//@[49:56)   VariableAccessSyntax
+//@[49:56)    IdentifierSyntax
+//@[49:56)     Identifier |regions|
+//@[56:57)   Colon |:|
+//@[58:130)   ObjectSyntax
+//@[58:59)    LeftBrace |{|
+//@[59:60)    NewLine |\n|
+  name: 'apim-${region}-${name}'
+//@[2:32)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:32)     StringSyntax
+//@[8:16)      StringLeftPiece |'apim-${|
+//@[16:22)      VariableAccessSyntax
+//@[16:22)       IdentifierSyntax
+//@[16:22)        Identifier |region|
+//@[22:26)      StringMiddlePiece |}-${|
+//@[26:30)      VariableAccessSyntax
+//@[26:30)       IdentifierSyntax
+//@[26:30)        Identifier |name|
+//@[30:32)      StringRightPiece |}'|
+//@[32:33)    NewLine |\n|
+  params: {
+//@[2:35)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |params|
+//@[8:9)     Colon |:|
+//@[10:35)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+    myInput: region
+//@[4:19)      ObjectPropertySyntax
+//@[4:11)       IdentifierSyntax
+//@[4:11)        Identifier |myInput|
+//@[11:12)       Colon |:|
+//@[13:19)       VariableAccessSyntax
+//@[13:19)        IdentifierSyntax
+//@[13:19)         Identifier |region|
+//@[19:20)      NewLine |\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:4)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
+//@[0:780) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:49)  IdentifierSyntax
+//@[9:49)   Identifier |propertyLoopDependencyOnModuleCollection|
+//@[50:91)  StringSyntax
+//@[50:91)   StringComplete |'Microsoft.Network/frontDoors@2020-05-01'|
+//@[92:93)  Assignment |=|
+//@[94:780)  ObjectSyntax
+//@[94:95)   LeftBrace |{|
+//@[95:96)   NewLine |\n|
+  name: name
+//@[2:12)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:12)    VariableAccessSyntax
+//@[8:12)     IdentifierSyntax
+//@[8:12)      Identifier |name|
+//@[12:13)   NewLine |\n|
+  location: 'Global'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'Global'|
+//@[20:21)   NewLine |\n|
+  properties: {
+//@[2:648)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:648)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:16)     NewLine |\n|
+    backendPools: [
+//@[4:628)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |backendPools|
+//@[16:17)      Colon |:|
+//@[18:628)      ArraySyntax
+//@[18:19)       LeftSquare |[|
+//@[19:20)       NewLine |\n|
+      {
+//@[6:602)       ArrayItemSyntax
+//@[6:602)        ObjectSyntax
+//@[6:7)         LeftBrace |{|
+//@[7:8)         NewLine |\n|
+        name: 'BackendAPIMs'
+//@[8:28)         ObjectPropertySyntax
+//@[8:12)          IdentifierSyntax
+//@[8:12)           Identifier |name|
+//@[12:13)          Colon |:|
+//@[14:28)          StringSyntax
+//@[14:28)           StringComplete |'BackendAPIMs'|
+//@[28:29)         NewLine |\n|
+        properties: {
+//@[8:557)         ObjectPropertySyntax
+//@[8:18)          IdentifierSyntax
+//@[8:18)           Identifier |properties|
+//@[18:19)          Colon |:|
+//@[20:557)          ObjectSyntax
+//@[20:21)           LeftBrace |{|
+//@[21:22)           NewLine |\n|
+          backends: [for index in range(0, length(regions)): {
+//@[10:525)           ObjectPropertySyntax
+//@[10:18)            IdentifierSyntax
+//@[10:18)             Identifier |backends|
+//@[18:19)            Colon |:|
+//@[20:525)            ForSyntax
+//@[20:21)             LeftSquare |[|
+//@[21:24)             Identifier |for|
+//@[25:30)             LocalVariableSyntax
+//@[25:30)              IdentifierSyntax
+//@[25:30)               Identifier |index|
+//@[31:33)             Identifier |in|
+//@[34:59)             FunctionCallSyntax
+//@[34:39)              IdentifierSyntax
+//@[34:39)               Identifier |range|
+//@[39:40)              LeftParen |(|
+//@[40:42)              FunctionArgumentSyntax
+//@[40:41)               IntegerLiteralSyntax
+//@[40:41)                Integer |0|
+//@[41:42)               Comma |,|
+//@[43:58)              FunctionArgumentSyntax
+//@[43:58)               FunctionCallSyntax
+//@[43:49)                IdentifierSyntax
+//@[43:49)                 Identifier |length|
+//@[49:50)                LeftParen |(|
+//@[50:57)                FunctionArgumentSyntax
+//@[50:57)                 VariableAccessSyntax
+//@[50:57)                  IdentifierSyntax
+//@[50:57)                   Identifier |regions|
+//@[57:58)                RightParen |)|
+//@[58:59)              RightParen |)|
+//@[59:60)             Colon |:|
+//@[61:524)             ObjectSyntax
+//@[61:62)              LeftBrace |{|
+//@[62:63)              NewLine |\n|
+            // we cannot codegen index correctly because the generated dependsOn property
+//@[89:90)              NewLine |\n|
+            // would be outside of the scope of the property loop
+//@[65:66)              NewLine |\n|
+            // as a result, this will generate a dependency on the entire collection
+//@[84:85)              NewLine |\n|
+            address: apim[index].outputs.myOutput
+//@[12:49)              ObjectPropertySyntax
+//@[12:19)               IdentifierSyntax
+//@[12:19)                Identifier |address|
+//@[19:20)               Colon |:|
+//@[21:49)               PropertyAccessSyntax
+//@[21:40)                PropertyAccessSyntax
+//@[21:32)                 ArrayAccessSyntax
+//@[21:25)                  VariableAccessSyntax
+//@[21:25)                   IdentifierSyntax
+//@[21:25)                    Identifier |apim|
+//@[25:26)                  LeftSquare |[|
+//@[26:31)                  VariableAccessSyntax
+//@[26:31)                   IdentifierSyntax
+//@[26:31)                    Identifier |index|
+//@[31:32)                  RightSquare |]|
+//@[32:33)                 Dot |.|
+//@[33:40)                 IdentifierSyntax
+//@[33:40)                  Identifier |outputs|
+//@[40:41)                Dot |.|
+//@[41:49)                IdentifierSyntax
+//@[41:49)                 Identifier |myOutput|
+//@[49:50)              NewLine |\n|
+            backendHostHeader: apim[index].outputs.myOutput
+//@[12:59)              ObjectPropertySyntax
+//@[12:29)               IdentifierSyntax
+//@[12:29)                Identifier |backendHostHeader|
+//@[29:30)               Colon |:|
+//@[31:59)               PropertyAccessSyntax
+//@[31:50)                PropertyAccessSyntax
+//@[31:42)                 ArrayAccessSyntax
+//@[31:35)                  VariableAccessSyntax
+//@[31:35)                   IdentifierSyntax
+//@[31:35)                    Identifier |apim|
+//@[35:36)                  LeftSquare |[|
+//@[36:41)                  VariableAccessSyntax
+//@[36:41)                   IdentifierSyntax
+//@[36:41)                    Identifier |index|
+//@[41:42)                  RightSquare |]|
+//@[42:43)                 Dot |.|
+//@[43:50)                 IdentifierSyntax
+//@[43:50)                  Identifier |outputs|
+//@[50:51)                Dot |.|
+//@[51:59)                IdentifierSyntax
+//@[51:59)                 Identifier |myOutput|
+//@[59:60)              NewLine |\n|
+            httpPort: 80
+//@[12:24)              ObjectPropertySyntax
+//@[12:20)               IdentifierSyntax
+//@[12:20)                Identifier |httpPort|
+//@[20:21)               Colon |:|
+//@[22:24)               IntegerLiteralSyntax
+//@[22:24)                Integer |80|
+//@[24:25)              NewLine |\n|
+            httpsPort: 443
+//@[12:26)              ObjectPropertySyntax
+//@[12:21)               IdentifierSyntax
+//@[12:21)                Identifier |httpsPort|
+//@[21:22)               Colon |:|
+//@[23:26)               IntegerLiteralSyntax
+//@[23:26)                Integer |443|
+//@[26:27)              NewLine |\n|
+            priority: 1
+//@[12:23)              ObjectPropertySyntax
+//@[12:20)               IdentifierSyntax
+//@[12:20)                Identifier |priority|
+//@[20:21)               Colon |:|
+//@[22:23)               IntegerLiteralSyntax
+//@[22:23)                Integer |1|
+//@[23:24)              NewLine |\n|
+            weight: 50
+//@[12:22)              ObjectPropertySyntax
+//@[12:18)               IdentifierSyntax
+//@[12:18)                Identifier |weight|
+//@[18:19)               Colon |:|
+//@[20:22)               IntegerLiteralSyntax
+//@[20:22)                Integer |50|
+//@[22:23)              NewLine |\n|
+          }]
+//@[10:11)              RightBrace |}|
+//@[11:12)             RightSquare |]|
+//@[12:13)           NewLine |\n|
+        }
+//@[8:9)           RightBrace |}|
+//@[9:10)         NewLine |\n|
+      }
+//@[6:7)         RightBrace |}|
+//@[7:8)       NewLine |\n|
+    ]
+//@[4:5)       RightSquare |]|
+//@[5:6)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(regions)): {
+//@[0:757) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:42)  IdentifierSyntax
+//@[9:42)   Identifier |indexedModuleCollectionDependency|
+//@[43:84)  StringSyntax
+//@[43:84)   StringComplete |'Microsoft.Network/frontDoors@2020-05-01'|
+//@[85:86)  Assignment |=|
+//@[87:757)  ForSyntax
+//@[87:88)   LeftSquare |[|
+//@[88:91)   Identifier |for|
+//@[92:97)   LocalVariableSyntax
+//@[92:97)    IdentifierSyntax
+//@[92:97)     Identifier |index|
+//@[98:100)   Identifier |in|
+//@[101:126)   FunctionCallSyntax
+//@[101:106)    IdentifierSyntax
+//@[101:106)     Identifier |range|
+//@[106:107)    LeftParen |(|
+//@[107:109)    FunctionArgumentSyntax
+//@[107:108)     IntegerLiteralSyntax
+//@[107:108)      Integer |0|
+//@[108:109)     Comma |,|
+//@[110:125)    FunctionArgumentSyntax
+//@[110:125)     FunctionCallSyntax
+//@[110:116)      IdentifierSyntax
+//@[110:116)       Identifier |length|
+//@[116:117)      LeftParen |(|
+//@[117:124)      FunctionArgumentSyntax
+//@[117:124)       VariableAccessSyntax
+//@[117:124)        IdentifierSyntax
+//@[117:124)         Identifier |regions|
+//@[124:125)      RightParen |)|
+//@[125:126)    RightParen |)|
+//@[126:127)   Colon |:|
+//@[128:756)   ObjectSyntax
+//@[128:129)    LeftBrace |{|
+//@[129:130)    NewLine |\n|
+  name: '${name}-${index}'
+//@[2:26)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:26)     StringSyntax
+//@[8:11)      StringLeftPiece |'${|
+//@[11:15)      VariableAccessSyntax
+//@[11:15)       IdentifierSyntax
+//@[11:15)        Identifier |name|
+//@[15:19)      StringMiddlePiece |}-${|
+//@[19:24)      VariableAccessSyntax
+//@[19:24)       IdentifierSyntax
+//@[19:24)        Identifier |index|
+//@[24:26)      StringRightPiece |}'|
+//@[26:27)    NewLine |\n|
+  location: 'Global'
+//@[2:20)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:20)     StringSyntax
+//@[12:20)      StringComplete |'Global'|
+//@[20:21)    NewLine |\n|
+  properties: {
+//@[2:576)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:576)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:16)      NewLine |\n|
+    backendPools: [
+//@[4:556)      ObjectPropertySyntax
+//@[4:16)       IdentifierSyntax
+//@[4:16)        Identifier |backendPools|
+//@[16:17)       Colon |:|
+//@[18:556)       ArraySyntax
+//@[18:19)        LeftSquare |[|
+//@[19:20)        NewLine |\n|
+      {
+//@[6:530)        ArrayItemSyntax
+//@[6:530)         ObjectSyntax
+//@[6:7)          LeftBrace |{|
+//@[7:8)          NewLine |\n|
+        name: 'BackendAPIMs'
+//@[8:28)          ObjectPropertySyntax
+//@[8:12)           IdentifierSyntax
+//@[8:12)            Identifier |name|
+//@[12:13)           Colon |:|
+//@[14:28)           StringSyntax
+//@[14:28)            StringComplete |'BackendAPIMs'|
+//@[28:29)          NewLine |\n|
+        properties: {
+//@[8:485)          ObjectPropertySyntax
+//@[8:18)           IdentifierSyntax
+//@[8:18)            Identifier |properties|
+//@[18:19)           Colon |:|
+//@[20:485)           ObjectSyntax
+//@[20:21)            LeftBrace |{|
+//@[21:22)            NewLine |\n|
+          backends: [
+//@[10:453)            ObjectPropertySyntax
+//@[10:18)             IdentifierSyntax
+//@[10:18)              Identifier |backends|
+//@[18:19)             Colon |:|
+//@[20:453)             ArraySyntax
+//@[20:21)              LeftSquare |[|
+//@[21:22)              NewLine |\n|
+            {
+//@[12:419)              ArrayItemSyntax
+//@[12:419)               ObjectSyntax
+//@[12:13)                LeftBrace |{|
+//@[13:14)                NewLine |\n|
+              // this indexed dependency on a module collection will be generated correctly because
+//@[99:100)                NewLine |\n|
+              // copyIndex() can be invoked in the generated dependsOn
+//@[70:71)                NewLine |\n|
+              address: apim[index].outputs.myOutput
+//@[14:51)                ObjectPropertySyntax
+//@[14:21)                 IdentifierSyntax
+//@[14:21)                  Identifier |address|
+//@[21:22)                 Colon |:|
+//@[23:51)                 PropertyAccessSyntax
+//@[23:42)                  PropertyAccessSyntax
+//@[23:34)                   ArrayAccessSyntax
+//@[23:27)                    VariableAccessSyntax
+//@[23:27)                     IdentifierSyntax
+//@[23:27)                      Identifier |apim|
+//@[27:28)                    LeftSquare |[|
+//@[28:33)                    VariableAccessSyntax
+//@[28:33)                     IdentifierSyntax
+//@[28:33)                      Identifier |index|
+//@[33:34)                    RightSquare |]|
+//@[34:35)                   Dot |.|
+//@[35:42)                   IdentifierSyntax
+//@[35:42)                    Identifier |outputs|
+//@[42:43)                  Dot |.|
+//@[43:51)                  IdentifierSyntax
+//@[43:51)                   Identifier |myOutput|
+//@[51:52)                NewLine |\n|
+              backendHostHeader: apim[index].outputs.myOutput
+//@[14:61)                ObjectPropertySyntax
+//@[14:31)                 IdentifierSyntax
+//@[14:31)                  Identifier |backendHostHeader|
+//@[31:32)                 Colon |:|
+//@[33:61)                 PropertyAccessSyntax
+//@[33:52)                  PropertyAccessSyntax
+//@[33:44)                   ArrayAccessSyntax
+//@[33:37)                    VariableAccessSyntax
+//@[33:37)                     IdentifierSyntax
+//@[33:37)                      Identifier |apim|
+//@[37:38)                    LeftSquare |[|
+//@[38:43)                    VariableAccessSyntax
+//@[38:43)                     IdentifierSyntax
+//@[38:43)                      Identifier |index|
+//@[43:44)                    RightSquare |]|
+//@[44:45)                   Dot |.|
+//@[45:52)                   IdentifierSyntax
+//@[45:52)                    Identifier |outputs|
+//@[52:53)                  Dot |.|
+//@[53:61)                  IdentifierSyntax
+//@[53:61)                   Identifier |myOutput|
+//@[61:62)                NewLine |\n|
+              httpPort: 80
+//@[14:26)                ObjectPropertySyntax
+//@[14:22)                 IdentifierSyntax
+//@[14:22)                  Identifier |httpPort|
+//@[22:23)                 Colon |:|
+//@[24:26)                 IntegerLiteralSyntax
+//@[24:26)                  Integer |80|
+//@[26:27)                NewLine |\n|
+              httpsPort: 443
+//@[14:28)                ObjectPropertySyntax
+//@[14:23)                 IdentifierSyntax
+//@[14:23)                  Identifier |httpsPort|
+//@[23:24)                 Colon |:|
+//@[25:28)                 IntegerLiteralSyntax
+//@[25:28)                  Integer |443|
+//@[28:29)                NewLine |\n|
+              priority: 1
+//@[14:25)                ObjectPropertySyntax
+//@[14:22)                 IdentifierSyntax
+//@[14:22)                  Identifier |priority|
+//@[22:23)                 Colon |:|
+//@[24:25)                 IntegerLiteralSyntax
+//@[24:25)                  Integer |1|
+//@[25:26)                NewLine |\n|
+              weight: 50
+//@[14:24)                ObjectPropertySyntax
+//@[14:20)                 IdentifierSyntax
+//@[14:20)                  Identifier |weight|
+//@[20:21)                 Colon |:|
+//@[22:24)                 IntegerLiteralSyntax
+//@[22:24)                  Integer |50|
+//@[24:25)                NewLine |\n|
+            }
+//@[12:13)                RightBrace |}|
+//@[13:14)              NewLine |\n|
+          ]
+//@[10:11)              RightSquare |]|
+//@[11:12)            NewLine |\n|
+        }
+//@[8:9)            RightBrace |}|
+//@[9:10)          NewLine |\n|
+      }
+//@[6:7)          RightBrace |}|
+//@[7:8)        NewLine |\n|
+    ]
+//@[4:5)        RightSquare |]|
+//@[5:6)      NewLine |\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:4)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
+//@[0:871) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:51)  IdentifierSyntax
+//@[9:51)   Identifier |propertyLoopDependencyOnResourceCollection|
+//@[52:93)  StringSyntax
+//@[52:93)   StringComplete |'Microsoft.Network/frontDoors@2020-05-01'|
+//@[94:95)  Assignment |=|
+//@[96:871)  ObjectSyntax
+//@[96:97)   LeftBrace |{|
+//@[97:98)   NewLine |\n|
+  name: name
+//@[2:12)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:12)    VariableAccessSyntax
+//@[8:12)     IdentifierSyntax
+//@[8:12)      Identifier |name|
+//@[12:13)   NewLine |\n|
+  location: 'Global'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'Global'|
+//@[20:21)   NewLine |\n|
+  properties: {
+//@[2:737)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:737)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:16)     NewLine |\n|
+    backendPools: [
+//@[4:717)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |backendPools|
+//@[16:17)      Colon |:|
+//@[18:717)      ArraySyntax
+//@[18:19)       LeftSquare |[|
+//@[19:20)       NewLine |\n|
+      {
+//@[6:691)       ArrayItemSyntax
+//@[6:691)        ObjectSyntax
+//@[6:7)         LeftBrace |{|
+//@[7:8)         NewLine |\n|
+        name: 'BackendAPIMs'
+//@[8:28)         ObjectPropertySyntax
+//@[8:12)          IdentifierSyntax
+//@[8:12)           Identifier |name|
+//@[12:13)          Colon |:|
+//@[14:28)          StringSyntax
+//@[14:28)           StringComplete |'BackendAPIMs'|
+//@[28:29)         NewLine |\n|
+        properties: {
+//@[8:646)         ObjectPropertySyntax
+//@[8:18)          IdentifierSyntax
+//@[8:18)           Identifier |properties|
+//@[18:19)          Colon |:|
+//@[20:646)          ObjectSyntax
+//@[20:21)           LeftBrace |{|
+//@[21:22)           NewLine |\n|
+          backends: [for index in range(0, length(accounts)): {
+//@[10:614)           ObjectPropertySyntax
+//@[10:18)            IdentifierSyntax
+//@[10:18)             Identifier |backends|
+//@[18:19)            Colon |:|
+//@[20:614)            ForSyntax
+//@[20:21)             LeftSquare |[|
+//@[21:24)             Identifier |for|
+//@[25:30)             LocalVariableSyntax
+//@[25:30)              IdentifierSyntax
+//@[25:30)               Identifier |index|
+//@[31:33)             Identifier |in|
+//@[34:60)             FunctionCallSyntax
+//@[34:39)              IdentifierSyntax
+//@[34:39)               Identifier |range|
+//@[39:40)              LeftParen |(|
+//@[40:42)              FunctionArgumentSyntax
+//@[40:41)               IntegerLiteralSyntax
+//@[40:41)                Integer |0|
+//@[41:42)               Comma |,|
+//@[43:59)              FunctionArgumentSyntax
+//@[43:59)               FunctionCallSyntax
+//@[43:49)                IdentifierSyntax
+//@[43:49)                 Identifier |length|
+//@[49:50)                LeftParen |(|
+//@[50:58)                FunctionArgumentSyntax
+//@[50:58)                 VariableAccessSyntax
+//@[50:58)                  IdentifierSyntax
+//@[50:58)                   Identifier |accounts|
+//@[58:59)                RightParen |)|
+//@[59:60)              RightParen |)|
+//@[60:61)             Colon |:|
+//@[62:613)             ObjectSyntax
+//@[62:63)              LeftBrace |{|
+//@[63:64)              NewLine |\n|
+            // we cannot codegen index correctly because the generated dependsOn property
+//@[89:90)              NewLine |\n|
+            // would be outside of the scope of the property loop
+//@[65:66)              NewLine |\n|
+            // as a result, this will generate a dependency on the entire collection
+//@[84:85)              NewLine |\n|
+            address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+//@[12:93)              ObjectPropertySyntax
+//@[12:19)               IdentifierSyntax
+//@[12:19)                Identifier |address|
+//@[19:20)               Colon |:|
+//@[21:93)               PropertyAccessSyntax
+//@[21:89)                PropertyAccessSyntax
+//@[21:71)                 PropertyAccessSyntax
+//@[21:54)                  PropertyAccessSyntax
+//@[21:43)                   ArrayAccessSyntax
+//@[21:36)                    VariableAccessSyntax
+//@[21:36)                     IdentifierSyntax
+//@[21:36)                      Identifier |storageAccounts|
+//@[36:37)                    LeftSquare |[|
+//@[37:42)                    VariableAccessSyntax
+//@[37:42)                     IdentifierSyntax
+//@[37:42)                      Identifier |index|
+//@[42:43)                    RightSquare |]|
+//@[43:44)                   Dot |.|
+//@[44:54)                   IdentifierSyntax
+//@[44:54)                    Identifier |properties|
+//@[54:55)                  Dot |.|
+//@[55:71)                  IdentifierSyntax
+//@[55:71)                   Identifier |primaryEndpoints|
+//@[71:72)                 Dot |.|
+//@[72:89)                 IdentifierSyntax
+//@[72:89)                  Identifier |internetEndpoints|
+//@[89:90)                Dot |.|
+//@[90:93)                IdentifierSyntax
+//@[90:93)                 Identifier |web|
+//@[93:94)              NewLine |\n|
+            backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+//@[12:103)              ObjectPropertySyntax
+//@[12:29)               IdentifierSyntax
+//@[12:29)                Identifier |backendHostHeader|
+//@[29:30)               Colon |:|
+//@[31:103)               PropertyAccessSyntax
+//@[31:99)                PropertyAccessSyntax
+//@[31:81)                 PropertyAccessSyntax
+//@[31:64)                  PropertyAccessSyntax
+//@[31:53)                   ArrayAccessSyntax
+//@[31:46)                    VariableAccessSyntax
+//@[31:46)                     IdentifierSyntax
+//@[31:46)                      Identifier |storageAccounts|
+//@[46:47)                    LeftSquare |[|
+//@[47:52)                    VariableAccessSyntax
+//@[47:52)                     IdentifierSyntax
+//@[47:52)                      Identifier |index|
+//@[52:53)                    RightSquare |]|
+//@[53:54)                   Dot |.|
+//@[54:64)                   IdentifierSyntax
+//@[54:64)                    Identifier |properties|
+//@[64:65)                  Dot |.|
+//@[65:81)                  IdentifierSyntax
+//@[65:81)                   Identifier |primaryEndpoints|
+//@[81:82)                 Dot |.|
+//@[82:99)                 IdentifierSyntax
+//@[82:99)                  Identifier |internetEndpoints|
+//@[99:100)                Dot |.|
+//@[100:103)                IdentifierSyntax
+//@[100:103)                 Identifier |web|
+//@[103:104)              NewLine |\n|
+            httpPort: 80
+//@[12:24)              ObjectPropertySyntax
+//@[12:20)               IdentifierSyntax
+//@[12:20)                Identifier |httpPort|
+//@[20:21)               Colon |:|
+//@[22:24)               IntegerLiteralSyntax
+//@[22:24)                Integer |80|
+//@[24:25)              NewLine |\n|
+            httpsPort: 443
+//@[12:26)              ObjectPropertySyntax
+//@[12:21)               IdentifierSyntax
+//@[12:21)                Identifier |httpsPort|
+//@[21:22)               Colon |:|
+//@[23:26)               IntegerLiteralSyntax
+//@[23:26)                Integer |443|
+//@[26:27)              NewLine |\n|
+            priority: 1
+//@[12:23)              ObjectPropertySyntax
+//@[12:20)               IdentifierSyntax
+//@[12:20)                Identifier |priority|
+//@[20:21)               Colon |:|
+//@[22:23)               IntegerLiteralSyntax
+//@[22:23)                Integer |1|
+//@[23:24)              NewLine |\n|
+            weight: 50
+//@[12:22)              ObjectPropertySyntax
+//@[12:18)               IdentifierSyntax
+//@[12:18)                Identifier |weight|
+//@[18:19)               Colon |:|
+//@[20:22)               IntegerLiteralSyntax
+//@[20:22)                Integer |50|
+//@[22:23)              NewLine |\n|
+          }]
+//@[10:11)              RightBrace |}|
+//@[11:12)             RightSquare |]|
+//@[12:13)           NewLine |\n|
+        }
+//@[8:9)           RightBrace |}|
+//@[9:10)         NewLine |\n|
+      }
+//@[6:7)         RightBrace |}|
+//@[7:8)       NewLine |\n|
+    ]
+//@[4:5)       RightSquare |]|
+//@[5:6)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(accounts)): {
+//@[0:848) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:44)  IdentifierSyntax
+//@[9:44)   Identifier |indexedResourceCollectionDependency|
+//@[45:86)  StringSyntax
+//@[45:86)   StringComplete |'Microsoft.Network/frontDoors@2020-05-01'|
+//@[87:88)  Assignment |=|
+//@[89:848)  ForSyntax
+//@[89:90)   LeftSquare |[|
+//@[90:93)   Identifier |for|
+//@[94:99)   LocalVariableSyntax
+//@[94:99)    IdentifierSyntax
+//@[94:99)     Identifier |index|
+//@[100:102)   Identifier |in|
+//@[103:129)   FunctionCallSyntax
+//@[103:108)    IdentifierSyntax
+//@[103:108)     Identifier |range|
+//@[108:109)    LeftParen |(|
+//@[109:111)    FunctionArgumentSyntax
+//@[109:110)     IntegerLiteralSyntax
+//@[109:110)      Integer |0|
+//@[110:111)     Comma |,|
+//@[112:128)    FunctionArgumentSyntax
+//@[112:128)     FunctionCallSyntax
+//@[112:118)      IdentifierSyntax
+//@[112:118)       Identifier |length|
+//@[118:119)      LeftParen |(|
+//@[119:127)      FunctionArgumentSyntax
+//@[119:127)       VariableAccessSyntax
+//@[119:127)        IdentifierSyntax
+//@[119:127)         Identifier |accounts|
+//@[127:128)      RightParen |)|
+//@[128:129)    RightParen |)|
+//@[129:130)   Colon |:|
+//@[131:847)   ObjectSyntax
+//@[131:132)    LeftBrace |{|
+//@[132:133)    NewLine |\n|
+  name: '${name}-${index}'
+//@[2:26)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:26)     StringSyntax
+//@[8:11)      StringLeftPiece |'${|
+//@[11:15)      VariableAccessSyntax
+//@[11:15)       IdentifierSyntax
+//@[11:15)        Identifier |name|
+//@[15:19)      StringMiddlePiece |}-${|
+//@[19:24)      VariableAccessSyntax
+//@[19:24)       IdentifierSyntax
+//@[19:24)        Identifier |index|
+//@[24:26)      StringRightPiece |}'|
+//@[26:27)    NewLine |\n|
+  location: 'Global'
+//@[2:20)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:20)     StringSyntax
+//@[12:20)      StringComplete |'Global'|
+//@[20:21)    NewLine |\n|
+  properties: {
+//@[2:664)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:664)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:16)      NewLine |\n|
+    backendPools: [
+//@[4:644)      ObjectPropertySyntax
+//@[4:16)       IdentifierSyntax
+//@[4:16)        Identifier |backendPools|
+//@[16:17)       Colon |:|
+//@[18:644)       ArraySyntax
+//@[18:19)        LeftSquare |[|
+//@[19:20)        NewLine |\n|
+      {
+//@[6:618)        ArrayItemSyntax
+//@[6:618)         ObjectSyntax
+//@[6:7)          LeftBrace |{|
+//@[7:8)          NewLine |\n|
+        name: 'BackendAPIMs'
+//@[8:28)          ObjectPropertySyntax
+//@[8:12)           IdentifierSyntax
+//@[8:12)            Identifier |name|
+//@[12:13)           Colon |:|
+//@[14:28)           StringSyntax
+//@[14:28)            StringComplete |'BackendAPIMs'|
+//@[28:29)          NewLine |\n|
+        properties: {
+//@[8:573)          ObjectPropertySyntax
+//@[8:18)           IdentifierSyntax
+//@[8:18)            Identifier |properties|
+//@[18:19)           Colon |:|
+//@[20:573)           ObjectSyntax
+//@[20:21)            LeftBrace |{|
+//@[21:22)            NewLine |\n|
+          backends: [
+//@[10:541)            ObjectPropertySyntax
+//@[10:18)             IdentifierSyntax
+//@[10:18)              Identifier |backends|
+//@[18:19)             Colon |:|
+//@[20:541)             ArraySyntax
+//@[20:21)              LeftSquare |[|
+//@[21:22)              NewLine |\n|
+            {
+//@[12:507)              ArrayItemSyntax
+//@[12:507)               ObjectSyntax
+//@[12:13)                LeftBrace |{|
+//@[13:14)                NewLine |\n|
+              // this indexed dependency on a module collection will be generated correctly because
+//@[99:100)                NewLine |\n|
+              // copyIndex() can be invoked in the generated dependsOn
+//@[70:71)                NewLine |\n|
+              address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+//@[14:95)                ObjectPropertySyntax
+//@[14:21)                 IdentifierSyntax
+//@[14:21)                  Identifier |address|
+//@[21:22)                 Colon |:|
+//@[23:95)                 PropertyAccessSyntax
+//@[23:91)                  PropertyAccessSyntax
+//@[23:73)                   PropertyAccessSyntax
+//@[23:56)                    PropertyAccessSyntax
+//@[23:45)                     ArrayAccessSyntax
+//@[23:38)                      VariableAccessSyntax
+//@[23:38)                       IdentifierSyntax
+//@[23:38)                        Identifier |storageAccounts|
+//@[38:39)                      LeftSquare |[|
+//@[39:44)                      VariableAccessSyntax
+//@[39:44)                       IdentifierSyntax
+//@[39:44)                        Identifier |index|
+//@[44:45)                      RightSquare |]|
+//@[45:46)                     Dot |.|
+//@[46:56)                     IdentifierSyntax
+//@[46:56)                      Identifier |properties|
+//@[56:57)                    Dot |.|
+//@[57:73)                    IdentifierSyntax
+//@[57:73)                     Identifier |primaryEndpoints|
+//@[73:74)                   Dot |.|
+//@[74:91)                   IdentifierSyntax
+//@[74:91)                    Identifier |internetEndpoints|
+//@[91:92)                  Dot |.|
+//@[92:95)                  IdentifierSyntax
+//@[92:95)                   Identifier |web|
+//@[95:96)                NewLine |\n|
+              backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+//@[14:105)                ObjectPropertySyntax
+//@[14:31)                 IdentifierSyntax
+//@[14:31)                  Identifier |backendHostHeader|
+//@[31:32)                 Colon |:|
+//@[33:105)                 PropertyAccessSyntax
+//@[33:101)                  PropertyAccessSyntax
+//@[33:83)                   PropertyAccessSyntax
+//@[33:66)                    PropertyAccessSyntax
+//@[33:55)                     ArrayAccessSyntax
+//@[33:48)                      VariableAccessSyntax
+//@[33:48)                       IdentifierSyntax
+//@[33:48)                        Identifier |storageAccounts|
+//@[48:49)                      LeftSquare |[|
+//@[49:54)                      VariableAccessSyntax
+//@[49:54)                       IdentifierSyntax
+//@[49:54)                        Identifier |index|
+//@[54:55)                      RightSquare |]|
+//@[55:56)                     Dot |.|
+//@[56:66)                     IdentifierSyntax
+//@[56:66)                      Identifier |properties|
+//@[66:67)                    Dot |.|
+//@[67:83)                    IdentifierSyntax
+//@[67:83)                     Identifier |primaryEndpoints|
+//@[83:84)                   Dot |.|
+//@[84:101)                   IdentifierSyntax
+//@[84:101)                    Identifier |internetEndpoints|
+//@[101:102)                  Dot |.|
+//@[102:105)                  IdentifierSyntax
+//@[102:105)                   Identifier |web|
+//@[105:106)                NewLine |\n|
+              httpPort: 80
+//@[14:26)                ObjectPropertySyntax
+//@[14:22)                 IdentifierSyntax
+//@[14:22)                  Identifier |httpPort|
+//@[22:23)                 Colon |:|
+//@[24:26)                 IntegerLiteralSyntax
+//@[24:26)                  Integer |80|
+//@[26:27)                NewLine |\n|
+              httpsPort: 443
+//@[14:28)                ObjectPropertySyntax
+//@[14:23)                 IdentifierSyntax
+//@[14:23)                  Identifier |httpsPort|
+//@[23:24)                 Colon |:|
+//@[25:28)                 IntegerLiteralSyntax
+//@[25:28)                  Integer |443|
+//@[28:29)                NewLine |\n|
+              priority: 1
+//@[14:25)                ObjectPropertySyntax
+//@[14:22)                 IdentifierSyntax
+//@[14:22)                  Identifier |priority|
+//@[22:23)                 Colon |:|
+//@[24:25)                 IntegerLiteralSyntax
+//@[24:25)                  Integer |1|
+//@[25:26)                NewLine |\n|
+              weight: 50
+//@[14:24)                ObjectPropertySyntax
+//@[14:20)                 IdentifierSyntax
+//@[14:20)                  Identifier |weight|
+//@[20:21)                 Colon |:|
+//@[22:24)                 IntegerLiteralSyntax
+//@[22:24)                  Integer |50|
+//@[24:25)                NewLine |\n|
+            }
+//@[12:13)                RightBrace |}|
+//@[13:14)              NewLine |\n|
+          ]
+//@[10:11)              RightSquare |]|
+//@[11:12)            NewLine |\n|
+        }
+//@[8:9)            RightBrace |}|
+//@[9:10)          NewLine |\n|
+      }
+//@[6:7)          RightBrace |}|
+//@[7:8)        NewLine |\n|
+    ]
+//@[4:5)        RightSquare |]|
+//@[5:6)      NewLine |\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:4)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
 //@[2:2) EndOfFile ||

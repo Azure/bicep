@@ -480,6 +480,34 @@
     }
   },
   {
+    "label": "innerPropertyLoop",
+    "kind": "variable",
+    "detail": "innerPropertyLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_innerPropertyLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "innerPropertyLoop"
+    }
+  },
+  {
+    "label": "innerPropertyLoop2",
+    "kind": "variable",
+    "detail": "innerPropertyLoop2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_innerPropertyLoop2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "innerPropertyLoop2"
+    }
+  },
+  {
     "label": "int",
     "kind": "function",
     "detail": "int()",

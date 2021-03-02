@@ -96,5 +96,8 @@ namespace Bicep.Core.Syntax
                 // blocked by assert in the constructor
                 _ => throw new NotImplementedException($"Unexpected type of resource value '{this.Value.GetType().Name}'.")
             };
+
+        public ObjectSyntax GetBody() =>
+            this.TryGetBody() ?? throw new InvalidOperationException($"A valid resource body is not available on this module due to errors. Use {nameof(TryGetBody)}() instead.");
     }
 }

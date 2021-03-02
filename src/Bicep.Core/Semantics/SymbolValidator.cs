@@ -27,7 +27,7 @@ namespace Bicep.Core.Semantics
                 {
                     var knowFunctionNames = namespaceSymbol.Type.MethodResolver.GetKnownFunctions().Keys;
 
-                    return allowedFlags.HasDecoratorFlag()
+                    return allowedFlags.HasAnyDecoratorFlag()
                         ? knowFunctionNames.Concat(namespaceSymbol.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
                         : knowFunctionNames;
                 },
@@ -56,7 +56,7 @@ namespace Bicep.Core.Semantics
                 {
                     var knowFunctionNames = x.Type.MethodResolver.GetKnownFunctions().Keys;
 
-                    return allowedFlags.HasDecoratorFlag()
+                    return allowedFlags.HasAnyDecoratorFlag()
                         ? knowFunctionNames.Concat(x.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
                         : knowFunctionNames;
                 }),
@@ -98,15 +98,25 @@ namespace Bicep.Core.Semantics
         private static Symbol ResolveFunctionFlags(FunctionFlags allowedFlags, FunctionSymbol functionSymbol, IPositionable span)
         {
             var functionFlags = functionSymbol.Overloads.Select(overload => overload.Flags).Aggregate((x, y) => x | y);
-            
+
             if (functionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !allowedFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
             }
-            
+
             if (functionFlags.HasFlag(FunctionFlags.RequiresInlining) && !allowedFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
+            }
+
+            if (functionFlags.HasAnyDecoratorFlag() && allowedFlags.HasAllDecoratorFlags())
+            {
+                return functionSymbol;
+            }
+
+            if (!functionFlags.HasAnyDecoratorFlag() && allowedFlags.HasAnyDecoratorFlag())
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsDecorator(functionSymbol.Name));
             }
 
             if (!functionFlags.HasFlag(FunctionFlags.ParameterDecorator) && allowedFlags.HasFlag(FunctionFlags.ParameterDecorator))

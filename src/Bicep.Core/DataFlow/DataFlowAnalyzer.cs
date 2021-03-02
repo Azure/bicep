@@ -33,8 +33,9 @@ namespace Bicep.Core.DataFlow
             // (the declaration is outside of that node)
             var bindingContainer = GetScopeBindingContainer(symbol);
 
-            // the symbol remains accessible IFF the newParent is below the binding container
-            return this.semanticModel.SyntaxTree.Hierarchy.IsDescendant(node: newParent, potentialAncestor: bindingContainer);
+            // the symbol remains accessible IFF the newParent is the binding container or is below the binding container
+            return ReferenceEquals(newParent, bindingContainer) ||
+                this.semanticModel.SyntaxTree.Hierarchy.IsDescendant(node: newParent, potentialAncestor: bindingContainer);
         }
 
         /// <summary>

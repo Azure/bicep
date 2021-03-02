@@ -1520,4 +1520,608 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+var regions = [
+//@[0:3) Identifier |var|
+//@[4:11) Identifier |regions|
+//@[12:13) Assignment |=|
+//@[14:15) LeftSquare |[|
+//@[15:16) NewLine |\n|
+  'eastus'
+//@[2:10) StringComplete |'eastus'|
+//@[10:11) NewLine |\n|
+  'westus'
+//@[2:10) StringComplete |'westus'|
+//@[10:11) NewLine |\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:3) NewLine |\n\n|
+
+module apim 'passthrough.bicep' = [for region in regions: {
+//@[0:6) Identifier |module|
+//@[7:11) Identifier |apim|
+//@[12:31) StringComplete |'passthrough.bicep'|
+//@[32:33) Assignment |=|
+//@[34:35) LeftSquare |[|
+//@[35:38) Identifier |for|
+//@[39:45) Identifier |region|
+//@[46:48) Identifier |in|
+//@[49:56) Identifier |regions|
+//@[56:57) Colon |:|
+//@[58:59) LeftBrace |{|
+//@[59:60) NewLine |\n|
+  name: 'apim-${region}-${name}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringLeftPiece |'apim-${|
+//@[16:22) Identifier |region|
+//@[22:26) StringMiddlePiece |}-${|
+//@[26:30) Identifier |name|
+//@[30:32) StringRightPiece |}'|
+//@[32:33) NewLine |\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    myInput: region
+//@[4:11) Identifier |myInput|
+//@[11:12) Colon |:|
+//@[13:19) Identifier |region|
+//@[19:20) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:49) Identifier |propertyLoopDependencyOnModuleCollection|
+//@[50:91) StringComplete |'Microsoft.Network/frontDoors@2020-05-01'|
+//@[92:93) Assignment |=|
+//@[94:95) LeftBrace |{|
+//@[95:96) NewLine |\n|
+  name: name
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:12) Identifier |name|
+//@[12:13) NewLine |\n|
+  location: 'Global'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'Global'|
+//@[20:21) NewLine |\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) NewLine |\n|
+    backendPools: [
+//@[4:16) Identifier |backendPools|
+//@[16:17) Colon |:|
+//@[18:19) LeftSquare |[|
+//@[19:20) NewLine |\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:8) NewLine |\n|
+        name: 'BackendAPIMs'
+//@[8:12) Identifier |name|
+//@[12:13) Colon |:|
+//@[14:28) StringComplete |'BackendAPIMs'|
+//@[28:29) NewLine |\n|
+        properties: {
+//@[8:18) Identifier |properties|
+//@[18:19) Colon |:|
+//@[20:21) LeftBrace |{|
+//@[21:22) NewLine |\n|
+          backends: [for index in range(0, length(regions)): {
+//@[10:18) Identifier |backends|
+//@[18:19) Colon |:|
+//@[20:21) LeftSquare |[|
+//@[21:24) Identifier |for|
+//@[25:30) Identifier |index|
+//@[31:33) Identifier |in|
+//@[34:39) Identifier |range|
+//@[39:40) LeftParen |(|
+//@[40:41) Integer |0|
+//@[41:42) Comma |,|
+//@[43:49) Identifier |length|
+//@[49:50) LeftParen |(|
+//@[50:57) Identifier |regions|
+//@[57:58) RightParen |)|
+//@[58:59) RightParen |)|
+//@[59:60) Colon |:|
+//@[61:62) LeftBrace |{|
+//@[62:63) NewLine |\n|
+            // we cannot codegen index correctly because the generated dependsOn property
+//@[89:90) NewLine |\n|
+            // would be outside of the scope of the property loop
+//@[65:66) NewLine |\n|
+            // as a result, this will generate a dependency on the entire collection
+//@[84:85) NewLine |\n|
+            address: apim[index].outputs.myOutput
+//@[12:19) Identifier |address|
+//@[19:20) Colon |:|
+//@[21:25) Identifier |apim|
+//@[25:26) LeftSquare |[|
+//@[26:31) Identifier |index|
+//@[31:32) RightSquare |]|
+//@[32:33) Dot |.|
+//@[33:40) Identifier |outputs|
+//@[40:41) Dot |.|
+//@[41:49) Identifier |myOutput|
+//@[49:50) NewLine |\n|
+            backendHostHeader: apim[index].outputs.myOutput
+//@[12:29) Identifier |backendHostHeader|
+//@[29:30) Colon |:|
+//@[31:35) Identifier |apim|
+//@[35:36) LeftSquare |[|
+//@[36:41) Identifier |index|
+//@[41:42) RightSquare |]|
+//@[42:43) Dot |.|
+//@[43:50) Identifier |outputs|
+//@[50:51) Dot |.|
+//@[51:59) Identifier |myOutput|
+//@[59:60) NewLine |\n|
+            httpPort: 80
+//@[12:20) Identifier |httpPort|
+//@[20:21) Colon |:|
+//@[22:24) Integer |80|
+//@[24:25) NewLine |\n|
+            httpsPort: 443
+//@[12:21) Identifier |httpsPort|
+//@[21:22) Colon |:|
+//@[23:26) Integer |443|
+//@[26:27) NewLine |\n|
+            priority: 1
+//@[12:20) Identifier |priority|
+//@[20:21) Colon |:|
+//@[22:23) Integer |1|
+//@[23:24) NewLine |\n|
+            weight: 50
+//@[12:18) Identifier |weight|
+//@[18:19) Colon |:|
+//@[20:22) Integer |50|
+//@[22:23) NewLine |\n|
+          }]
+//@[10:11) RightBrace |}|
+//@[11:12) RightSquare |]|
+//@[12:13) NewLine |\n|
+        }
+//@[8:9) RightBrace |}|
+//@[9:10) NewLine |\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:8) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(regions)): {
+//@[0:8) Identifier |resource|
+//@[9:42) Identifier |indexedModuleCollectionDependency|
+//@[43:84) StringComplete |'Microsoft.Network/frontDoors@2020-05-01'|
+//@[85:86) Assignment |=|
+//@[87:88) LeftSquare |[|
+//@[88:91) Identifier |for|
+//@[92:97) Identifier |index|
+//@[98:100) Identifier |in|
+//@[101:106) Identifier |range|
+//@[106:107) LeftParen |(|
+//@[107:108) Integer |0|
+//@[108:109) Comma |,|
+//@[110:116) Identifier |length|
+//@[116:117) LeftParen |(|
+//@[117:124) Identifier |regions|
+//@[124:125) RightParen |)|
+//@[125:126) RightParen |)|
+//@[126:127) Colon |:|
+//@[128:129) LeftBrace |{|
+//@[129:130) NewLine |\n|
+  name: '${name}-${index}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:15) Identifier |name|
+//@[15:19) StringMiddlePiece |}-${|
+//@[19:24) Identifier |index|
+//@[24:26) StringRightPiece |}'|
+//@[26:27) NewLine |\n|
+  location: 'Global'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'Global'|
+//@[20:21) NewLine |\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) NewLine |\n|
+    backendPools: [
+//@[4:16) Identifier |backendPools|
+//@[16:17) Colon |:|
+//@[18:19) LeftSquare |[|
+//@[19:20) NewLine |\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:8) NewLine |\n|
+        name: 'BackendAPIMs'
+//@[8:12) Identifier |name|
+//@[12:13) Colon |:|
+//@[14:28) StringComplete |'BackendAPIMs'|
+//@[28:29) NewLine |\n|
+        properties: {
+//@[8:18) Identifier |properties|
+//@[18:19) Colon |:|
+//@[20:21) LeftBrace |{|
+//@[21:22) NewLine |\n|
+          backends: [
+//@[10:18) Identifier |backends|
+//@[18:19) Colon |:|
+//@[20:21) LeftSquare |[|
+//@[21:22) NewLine |\n|
+            {
+//@[12:13) LeftBrace |{|
+//@[13:14) NewLine |\n|
+              // this indexed dependency on a module collection will be generated correctly because
+//@[99:100) NewLine |\n|
+              // copyIndex() can be invoked in the generated dependsOn
+//@[70:71) NewLine |\n|
+              address: apim[index].outputs.myOutput
+//@[14:21) Identifier |address|
+//@[21:22) Colon |:|
+//@[23:27) Identifier |apim|
+//@[27:28) LeftSquare |[|
+//@[28:33) Identifier |index|
+//@[33:34) RightSquare |]|
+//@[34:35) Dot |.|
+//@[35:42) Identifier |outputs|
+//@[42:43) Dot |.|
+//@[43:51) Identifier |myOutput|
+//@[51:52) NewLine |\n|
+              backendHostHeader: apim[index].outputs.myOutput
+//@[14:31) Identifier |backendHostHeader|
+//@[31:32) Colon |:|
+//@[33:37) Identifier |apim|
+//@[37:38) LeftSquare |[|
+//@[38:43) Identifier |index|
+//@[43:44) RightSquare |]|
+//@[44:45) Dot |.|
+//@[45:52) Identifier |outputs|
+//@[52:53) Dot |.|
+//@[53:61) Identifier |myOutput|
+//@[61:62) NewLine |\n|
+              httpPort: 80
+//@[14:22) Identifier |httpPort|
+//@[22:23) Colon |:|
+//@[24:26) Integer |80|
+//@[26:27) NewLine |\n|
+              httpsPort: 443
+//@[14:23) Identifier |httpsPort|
+//@[23:24) Colon |:|
+//@[25:28) Integer |443|
+//@[28:29) NewLine |\n|
+              priority: 1
+//@[14:22) Identifier |priority|
+//@[22:23) Colon |:|
+//@[24:25) Integer |1|
+//@[25:26) NewLine |\n|
+              weight: 50
+//@[14:20) Identifier |weight|
+//@[20:21) Colon |:|
+//@[22:24) Integer |50|
+//@[24:25) NewLine |\n|
+            }
+//@[12:13) RightBrace |}|
+//@[13:14) NewLine |\n|
+          ]
+//@[10:11) RightSquare |]|
+//@[11:12) NewLine |\n|
+        }
+//@[8:9) RightBrace |}|
+//@[9:10) NewLine |\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:8) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:51) Identifier |propertyLoopDependencyOnResourceCollection|
+//@[52:93) StringComplete |'Microsoft.Network/frontDoors@2020-05-01'|
+//@[94:95) Assignment |=|
+//@[96:97) LeftBrace |{|
+//@[97:98) NewLine |\n|
+  name: name
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:12) Identifier |name|
+//@[12:13) NewLine |\n|
+  location: 'Global'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'Global'|
+//@[20:21) NewLine |\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) NewLine |\n|
+    backendPools: [
+//@[4:16) Identifier |backendPools|
+//@[16:17) Colon |:|
+//@[18:19) LeftSquare |[|
+//@[19:20) NewLine |\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:8) NewLine |\n|
+        name: 'BackendAPIMs'
+//@[8:12) Identifier |name|
+//@[12:13) Colon |:|
+//@[14:28) StringComplete |'BackendAPIMs'|
+//@[28:29) NewLine |\n|
+        properties: {
+//@[8:18) Identifier |properties|
+//@[18:19) Colon |:|
+//@[20:21) LeftBrace |{|
+//@[21:22) NewLine |\n|
+          backends: [for index in range(0, length(accounts)): {
+//@[10:18) Identifier |backends|
+//@[18:19) Colon |:|
+//@[20:21) LeftSquare |[|
+//@[21:24) Identifier |for|
+//@[25:30) Identifier |index|
+//@[31:33) Identifier |in|
+//@[34:39) Identifier |range|
+//@[39:40) LeftParen |(|
+//@[40:41) Integer |0|
+//@[41:42) Comma |,|
+//@[43:49) Identifier |length|
+//@[49:50) LeftParen |(|
+//@[50:58) Identifier |accounts|
+//@[58:59) RightParen |)|
+//@[59:60) RightParen |)|
+//@[60:61) Colon |:|
+//@[62:63) LeftBrace |{|
+//@[63:64) NewLine |\n|
+            // we cannot codegen index correctly because the generated dependsOn property
+//@[89:90) NewLine |\n|
+            // would be outside of the scope of the property loop
+//@[65:66) NewLine |\n|
+            // as a result, this will generate a dependency on the entire collection
+//@[84:85) NewLine |\n|
+            address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+//@[12:19) Identifier |address|
+//@[19:20) Colon |:|
+//@[21:36) Identifier |storageAccounts|
+//@[36:37) LeftSquare |[|
+//@[37:42) Identifier |index|
+//@[42:43) RightSquare |]|
+//@[43:44) Dot |.|
+//@[44:54) Identifier |properties|
+//@[54:55) Dot |.|
+//@[55:71) Identifier |primaryEndpoints|
+//@[71:72) Dot |.|
+//@[72:89) Identifier |internetEndpoints|
+//@[89:90) Dot |.|
+//@[90:93) Identifier |web|
+//@[93:94) NewLine |\n|
+            backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+//@[12:29) Identifier |backendHostHeader|
+//@[29:30) Colon |:|
+//@[31:46) Identifier |storageAccounts|
+//@[46:47) LeftSquare |[|
+//@[47:52) Identifier |index|
+//@[52:53) RightSquare |]|
+//@[53:54) Dot |.|
+//@[54:64) Identifier |properties|
+//@[64:65) Dot |.|
+//@[65:81) Identifier |primaryEndpoints|
+//@[81:82) Dot |.|
+//@[82:99) Identifier |internetEndpoints|
+//@[99:100) Dot |.|
+//@[100:103) Identifier |web|
+//@[103:104) NewLine |\n|
+            httpPort: 80
+//@[12:20) Identifier |httpPort|
+//@[20:21) Colon |:|
+//@[22:24) Integer |80|
+//@[24:25) NewLine |\n|
+            httpsPort: 443
+//@[12:21) Identifier |httpsPort|
+//@[21:22) Colon |:|
+//@[23:26) Integer |443|
+//@[26:27) NewLine |\n|
+            priority: 1
+//@[12:20) Identifier |priority|
+//@[20:21) Colon |:|
+//@[22:23) Integer |1|
+//@[23:24) NewLine |\n|
+            weight: 50
+//@[12:18) Identifier |weight|
+//@[18:19) Colon |:|
+//@[20:22) Integer |50|
+//@[22:23) NewLine |\n|
+          }]
+//@[10:11) RightBrace |}|
+//@[11:12) RightSquare |]|
+//@[12:13) NewLine |\n|
+        }
+//@[8:9) RightBrace |}|
+//@[9:10) NewLine |\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:8) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(accounts)): {
+//@[0:8) Identifier |resource|
+//@[9:44) Identifier |indexedResourceCollectionDependency|
+//@[45:86) StringComplete |'Microsoft.Network/frontDoors@2020-05-01'|
+//@[87:88) Assignment |=|
+//@[89:90) LeftSquare |[|
+//@[90:93) Identifier |for|
+//@[94:99) Identifier |index|
+//@[100:102) Identifier |in|
+//@[103:108) Identifier |range|
+//@[108:109) LeftParen |(|
+//@[109:110) Integer |0|
+//@[110:111) Comma |,|
+//@[112:118) Identifier |length|
+//@[118:119) LeftParen |(|
+//@[119:127) Identifier |accounts|
+//@[127:128) RightParen |)|
+//@[128:129) RightParen |)|
+//@[129:130) Colon |:|
+//@[131:132) LeftBrace |{|
+//@[132:133) NewLine |\n|
+  name: '${name}-${index}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:15) Identifier |name|
+//@[15:19) StringMiddlePiece |}-${|
+//@[19:24) Identifier |index|
+//@[24:26) StringRightPiece |}'|
+//@[26:27) NewLine |\n|
+  location: 'Global'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'Global'|
+//@[20:21) NewLine |\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) NewLine |\n|
+    backendPools: [
+//@[4:16) Identifier |backendPools|
+//@[16:17) Colon |:|
+//@[18:19) LeftSquare |[|
+//@[19:20) NewLine |\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:8) NewLine |\n|
+        name: 'BackendAPIMs'
+//@[8:12) Identifier |name|
+//@[12:13) Colon |:|
+//@[14:28) StringComplete |'BackendAPIMs'|
+//@[28:29) NewLine |\n|
+        properties: {
+//@[8:18) Identifier |properties|
+//@[18:19) Colon |:|
+//@[20:21) LeftBrace |{|
+//@[21:22) NewLine |\n|
+          backends: [
+//@[10:18) Identifier |backends|
+//@[18:19) Colon |:|
+//@[20:21) LeftSquare |[|
+//@[21:22) NewLine |\n|
+            {
+//@[12:13) LeftBrace |{|
+//@[13:14) NewLine |\n|
+              // this indexed dependency on a module collection will be generated correctly because
+//@[99:100) NewLine |\n|
+              // copyIndex() can be invoked in the generated dependsOn
+//@[70:71) NewLine |\n|
+              address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+//@[14:21) Identifier |address|
+//@[21:22) Colon |:|
+//@[23:38) Identifier |storageAccounts|
+//@[38:39) LeftSquare |[|
+//@[39:44) Identifier |index|
+//@[44:45) RightSquare |]|
+//@[45:46) Dot |.|
+//@[46:56) Identifier |properties|
+//@[56:57) Dot |.|
+//@[57:73) Identifier |primaryEndpoints|
+//@[73:74) Dot |.|
+//@[74:91) Identifier |internetEndpoints|
+//@[91:92) Dot |.|
+//@[92:95) Identifier |web|
+//@[95:96) NewLine |\n|
+              backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+//@[14:31) Identifier |backendHostHeader|
+//@[31:32) Colon |:|
+//@[33:48) Identifier |storageAccounts|
+//@[48:49) LeftSquare |[|
+//@[49:54) Identifier |index|
+//@[54:55) RightSquare |]|
+//@[55:56) Dot |.|
+//@[56:66) Identifier |properties|
+//@[66:67) Dot |.|
+//@[67:83) Identifier |primaryEndpoints|
+//@[83:84) Dot |.|
+//@[84:101) Identifier |internetEndpoints|
+//@[101:102) Dot |.|
+//@[102:105) Identifier |web|
+//@[105:106) NewLine |\n|
+              httpPort: 80
+//@[14:22) Identifier |httpPort|
+//@[22:23) Colon |:|
+//@[24:26) Integer |80|
+//@[26:27) NewLine |\n|
+              httpsPort: 443
+//@[14:23) Identifier |httpsPort|
+//@[23:24) Colon |:|
+//@[25:28) Integer |443|
+//@[28:29) NewLine |\n|
+              priority: 1
+//@[14:22) Identifier |priority|
+//@[22:23) Colon |:|
+//@[24:25) Integer |1|
+//@[25:26) NewLine |\n|
+              weight: 50
+//@[14:20) Identifier |weight|
+//@[20:21) Colon |:|
+//@[22:24) Integer |50|
+//@[24:25) NewLine |\n|
+            }
+//@[12:13) RightBrace |}|
+//@[13:14) NewLine |\n|
+          ]
+//@[10:11) RightSquare |]|
+//@[11:12) NewLine |\n|
+        }
+//@[8:9) RightBrace |}|
+//@[9:10) NewLine |\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:8) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
 //@[2:2) EndOfFile ||
