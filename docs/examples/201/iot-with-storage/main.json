@@ -4,9 +4,9 @@
   "parameters": {
     "projectName": {
       "type": "string",
-      "minLength": 1,
+      "defaultValue": "contoso",
       "maxLength": 11,
-      "defaultValue": "contoso"
+      "minLength": 1
     },
     "location": {
       "type": "string",
@@ -133,7 +133,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14223046919089114320"
+      "templateHash": "12929368963968965092"
     }
   }
 }

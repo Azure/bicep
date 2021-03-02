@@ -1,36 +1,27 @@
 param adminUserName string
-param adminPassword string {
-  secure: true
-}
-param dnsLabelPrefix string
-param windowsOSVersion string {
-  default: '2016-Datacenter'
-  allowed: [
-    '2008-R2-SP1'
-    '2012-Datacenter'
-    '2012-R2-Datacenter'
-    '2016-Nano-Server'
-    '2016-Datacenter-with-Containers'
-    '2016-Datacenter'
-    '2019-Datacenter'
-  ]
-  metadata: {
-    'description': 'The Windows version for the VM. This will pick a fully patched image of this given Windows version.'
-  }
-}
-param vmSize string {
-  default: 'Standard_D2_v3'
-  metadata: {
-    description: 'Size of the virtual machine.'
-  }
-}
 
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'location for all resources'
-  }
-}
+@secure()
+param adminPassword string
+
+param dnsLabelPrefix string
+
+@allowed([
+  '2008-R2-SP1'
+  '2012-Datacenter'
+  '2012-R2-Datacenter'
+  '2016-Nano-Server'
+  '2016-Datacenter-with-Containers'
+  '2016-Datacenter'
+  '2019-Datacenter'
+])
+@description('The Windows version for the VM. This will pick a fully patched image of this given Windows version.')
+param windowsOSVersion string = '2016-Datacenter'
+
+@description('Size of the virtual machine.')
+param vmSize string = 'Standard_D2_v3'
+
+@description('location for all resources')
+param location string = resourceGroup().location
 
 var storageAccountName = concat(uniqueString(resourceGroup().id), 'sawinvm')
 var nicName = 'myVMNic'

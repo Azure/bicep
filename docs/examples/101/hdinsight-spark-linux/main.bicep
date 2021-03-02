@@ -1,42 +1,43 @@
 param clusterName string
 param clusterLoginUserName string
-param clusterLoginPassword string {
-  minLength: 10
-  secure: true
-}
+
+@minLength(10)
+@secure()
+param clusterLoginPassword string
+
 param sshUserName string
-param sshPassword string {
-  minLength: 6
-  maxLength: 72
-  secure: true
-}
+
+@minLength(6)
+@maxLength(72)
+@secure()
+param sshPassword string
+
 param location string = resourceGroup().location
-param headNodeVirtualMachineSize string {
-  allowed: [
-    'Standard_A4_v2'
-    'Standard_A8_v2'
-    'Standard_D3_v2'
-    'Standard_D4_v2'
-    'Standard_D5_v2'
-    'Standard_D12_v2'
-    'Standard_D13_v2'
-  ]
-  default: 'Standard_D3_v2'
-}
-param workerNodeVirtualMachineSize string {
-  allowed: [
-    'Standard_A4_v2'
-    'Standard_A8_v2'
-    'Standard_D1_v2'
-    'Standard_D2_v2'
-    'Standard_D3_v2'
-    'Standard_D4_v2'
-    'Standard_D5_v2'
-    'Standard_D12_v2'
-    'Standard_D13_v2'
-  ]
-  default: 'Standard_D3_v2'
-}
+
+@allowed([
+  'Standard_A4_v2'
+  'Standard_A8_v2'
+  'Standard_D3_v2'
+  'Standard_D4_v2'
+  'Standard_D5_v2'
+  'Standard_D12_v2'
+  'Standard_D13_v2'
+])
+param headNodeVirtualMachineSize string = 'Standard_D3_v2'
+
+@allowed([
+  'Standard_A4_v2'
+  'Standard_A8_v2'
+  'Standard_D1_v2'
+  'Standard_D2_v2'
+  'Standard_D3_v2'
+  'Standard_D4_v2'
+  'Standard_D5_v2'
+  'Standard_D12_v2'
+  'Standard_D13_v2'
+])
+param workerNodeVirtualMachineSize string = 'Standard_D3_v2'
+
 resource defaultStorageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'storage${uniqueString(resourceGroup().id)}'
   location: location

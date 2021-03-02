@@ -1,24 +1,25 @@
 param vmSku string = 'Standard_A1_v2'
-param windowsOSVersion string {
-  default: '2019-Datacenter'
-  allowed: [
-    '2019-Datacenter'
-    '2016-Datacenter'
-    '2012-R2-Datacenter'
-    '2012-Datacenter'
-  ]
-}
-param vmssName string {
-  maxLength: 61
-}
-param instanceCount int {
-  maxValue: 100
-  minValue: 1
-}
+
+@allowed([
+  '2019-Datacenter'
+  '2016-Datacenter'
+  '2012-R2-Datacenter'
+  '2012-Datacenter'
+])
+param windowsOSVersion string = '2019-Datacenter'
+
+@maxLength(61)
+param vmssName string
+
+@minValue(1)
+@maxValue(100)
+param instanceCount int
+
 param adminUsername string
-param adminPassword string {
-  secure: true
-}
+
+@secure()
+param adminPassword string
+
 param location string = resourceGroup().location
 
 var namingInfix = toLower(substring('${vmssName}${uniqueString(resourceGroup().id)}', 0, 9))

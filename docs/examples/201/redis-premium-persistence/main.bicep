@@ -3,15 +3,15 @@ param redisCacheName string
 // The location of the Redis Cache. For best performance, use the same location as the app to be used with the cache.
 param location string = resourceGroup().location
 // The size of the new Azure Redis Cache instance. Valid family and capacity combinations are (C0..C6, P1..P4).
-param redisCacheCapacity int {
-  allowed: [
-    1
-    2
-    3
-    4
-  ]
-  default: 1
-}
+
+@allowed([
+  1
+  2
+  3
+  4
+])
+param redisCacheCapacity int = 1
+
 // Name for the resource group containing the storage accounts
 param storageRgName string = resourceGroup().name
 // Set to true to allow access to redis on port 6379, without SSL tunneling (less secure).

@@ -2,20 +2,19 @@ param circuitName string
 param serviceProviderName string
 param peeringLocation string
 param bandwidthInMbps int
-param skuTier string {
-  default: 'Standard'
-  allowed: [
-    'Standard'
-    'Premium'
-  ]
-}
-param skuFamily string {
-  default: 'MeteredData'
-  allowed: [
-    'MeteredData'
-    'UnlimitedData'
-  ]
-}
+
+@allowed([
+  'Standard'
+  'Premium'
+])
+param skuTier string = 'Standard'
+
+@allowed([
+  'MeteredData'
+  'UnlimitedData'
+])
+param skuFamily string = 'MeteredData'
+
 param location string = resourceGroup().location
 
 resource circuit 'Microsoft.Network/expressRouteCircuits@2020-06-01' = {

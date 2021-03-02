@@ -1,8 +1,9 @@
 //define parameters
 param localAdminName string = 'localadmin'
-param localAdminPassword string {
-  secure: true
-}
+
+@secure()
+param localAdminPassword string
+
 param vnetName string = 'bicep-demo-vnet'
 param vmSku string = 'Standard_NV6'
 param vmOS string = '20h2-ent'

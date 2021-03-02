@@ -1,18 +1,15 @@
-param storageAccountType string {
-  default: 'Standard_LRS'
-  allowed: [
-    'Standard_LRS'
-    'Standard_GRS'
-    'Standard_ZRS'
-  ]
-}
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_ZRS'
+])
+param storageAccountType string = 'Standard_LRS'
 
 param storageAccountName string = uniqueString(resourceGroup().id)
 param siteName string = storageAccountName
 
-param mySqlPassword string {
-  secure: true
-}
+@secure()
+param mySqlPassword string
 
 param location string = resourceGroup().location
 

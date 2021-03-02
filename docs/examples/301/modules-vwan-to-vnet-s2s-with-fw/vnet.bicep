@@ -1,35 +1,20 @@
 param location string = resourceGroup().location
 param vnetname string
-param addressprefix string {
-  default: '10.0.1.0/24'
-  metadata: {
-    description: 'Specifies the VNet Address Prefix.'
-  }
-}
-param serversubnetprefix string {
-  default: '10.0.1.0/26'
-  metadata: {
-    description: 'Specifies the Subnet Address Prefix for the server subnet'
-  }
-}
-param bastionsubnetprefix string {
-  default: '10.0.1.64/26'
-  metadata: {
-    description: 'Specifies the Subnet Address Prefix for the bastion subnet'
-  }
-}
-param gatewaysubnetprefix string {
-  default: '10.0.1.128/26'
-  metadata: {
-    description: 'Specifies the Subnet Address Prefix for the GatewaySubnet'
-  }
-}
-param firewallsubnetprefix string {
-  default: '10.0.1.192/26'
-  metadata: {
-    description: 'Specifies the Subnet Address Prefix for the AzureFirewallSubnet'
-  }
-}
+
+@description('Specifies the VNet Address Prefix.')
+param addressprefix string = '10.0.1.0/24'
+
+@description('Specifies the Subnet Address Prefix for the server subnet')
+param serversubnetprefix string = '10.0.1.0/26'
+
+@description('Specifies the Subnet Address Prefix for the bastion subnet')
+param bastionsubnetprefix string = '10.0.1.64/26'
+
+@description('Specifies the Subnet Address Prefix for the GatewaySubnet')
+param gatewaysubnetprefix string = '10.0.1.128/26'
+
+@description('Specifies the Subnet Address Prefix for the AzureFirewallSubnet')
+param firewallsubnetprefix string = '10.0.1.192/26'
 
 var servernsgname = '${vnetname}-snet-servers-nsg'
 var bastionnsgname = '${vnetname}-AzureBastionSubnet-nsg'

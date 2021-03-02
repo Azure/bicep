@@ -4,9 +4,9 @@ param location string = resourceGroup().location
 param vmName string = 'WindowsVM'
 param vmSize string = 'Standard_DS2_v2'
 param adminUsername string
-param adminPassword string {
-  secure: true
-}
+
+@secure()
+param adminPassword string
 
 param keyVaultName string
 param subId string = subscription().subscriptionId

@@ -1,13 +1,13 @@
 param location string = resourceGroup().location
 param virtualNetworkName string = 'Vnet'
 param accountName string
-param publicNetworkAccess string {
-  default: 'Enabled'
-  allowed: [
-    'Enabled'
-    'Disabled'
-  ]
-}
+
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param publicNetworkAccess string = 'Enabled'
+
 param privateEndpointName string
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {

@@ -1,14 +1,14 @@
 param location string = resourceGroup().location
 param runtime string = 'node'
 param applicationName string = 'app${uniqueString(resourceGroup().name)}'
-param storageAccountType string {
-  default: 'Standard_LRS'
-  allowed: [
-    'Standard_LRS'
-    'Standard_GRS'
-    'Standard_RAGRS'
-  ]
-}
+
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_RAGRS'
+])
+param storageAccountType string = 'Standard_LRS'
+
 param vnetName string
 param subnetName string
 

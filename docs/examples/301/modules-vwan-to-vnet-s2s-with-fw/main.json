@@ -4,31 +4,31 @@
   "parameters": {
     "location": {
       "type": "string",
+      "defaultValue": "westeurope",
       "metadata": {
         "description": "Specify the location for the hub Virtual Network and its related resources"
-      },
-      "defaultValue": "westeurope"
+      }
     },
     "vwanlocation": {
       "type": "string",
+      "defaultValue": "eastus",
       "metadata": {
         "description": "Specify the location for the vWAN and its related resources"
-      },
-      "defaultValue": "eastus"
+      }
     },
     "nameprefix": {
       "type": "string",
+      "defaultValue": "contoso",
       "metadata": {
         "description": "Specify the name prefix for all resources and resource groups"
-      },
-      "defaultValue": "contoso"
+      }
     },
     "psk": {
       "type": "secureString",
+      "defaultValue": "[uniqueString(subscription().id)]",
       "metadata": {
         "description": "Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet"
-      },
-      "defaultValue": "[uniqueString(subscription().id)]"
+      }
     }
   },
   "functions": [],
@@ -107,38 +107,38 @@
             },
             "addressprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.0/24",
               "metadata": {
                 "description": "Specifies the VNet Address Prefix."
-              },
-              "defaultValue": "10.0.1.0/24"
+              }
             },
             "serversubnetprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.0/26",
               "metadata": {
                 "description": "Specifies the Subnet Address Prefix for the server subnet"
-              },
-              "defaultValue": "10.0.1.0/26"
+              }
             },
             "bastionsubnetprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.64/26",
               "metadata": {
                 "description": "Specifies the Subnet Address Prefix for the bastion subnet"
-              },
-              "defaultValue": "10.0.1.64/26"
+              }
             },
             "gatewaysubnetprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.128/26",
               "metadata": {
                 "description": "Specifies the Subnet Address Prefix for the GatewaySubnet"
-              },
-              "defaultValue": "10.0.1.128/26"
+              }
             },
             "firewallsubnetprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.192/26",
               "metadata": {
                 "description": "Specifies the Subnet Address Prefix for the AzureFirewallSubnet"
-              },
-              "defaultValue": "10.0.1.192/26"
+              }
             }
           },
           "functions": [],
@@ -479,12 +479,12 @@
             },
             "dnsservers": {
               "type": "array",
-              "metadata": {
-                "description": "Specify custom DNS Servers for Azure Firewall"
-              },
               "defaultValue": [
                 "168.63.129.16"
-              ]
+              ],
+              "metadata": {
+                "description": "Specify custom DNS Servers for Azure Firewall"
+              }
             }
           },
           "functions": [],
@@ -652,10 +652,10 @@
             },
             "ipprefixlength": {
               "type": "int",
+              "defaultValue": 31,
               "metadata": {
                 "description": "Specifies the size of the Public IP Prefix"
               },
-              "defaultValue": 31,
               "allowedValues": [
                 28,
                 29,
@@ -770,31 +770,31 @@
             },
             "hubid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "Virtual Hub Resource ID, used when deploying Azure Firewall to Virtual WAN"
-              },
-              "defaultValue": ""
+              }
             },
             "hubpublicipcount": {
               "type": "int",
+              "defaultValue": 1,
               "metadata": {
                 "description": "Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN"
-              },
-              "defaultValue": 1
+              }
             },
             "subnetid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "AzureFirewallSubnet ID, used when deploying Azure Firewall to Virtual Network"
-              },
-              "defaultValue": ""
+              }
             },
             "publicipid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "Azure Firewall Public IP ID, used when deploying Azure Firewall to Virtual Network"
-              },
-              "defaultValue": ""
+              }
             }
           },
           "functions": [],
@@ -895,10 +895,10 @@
             },
             "wantype": {
               "type": "string",
+              "defaultValue": "Standard",
               "metadata": {
                 "description": "Specifies the type of Virtual WAN."
               },
-              "defaultValue": "Standard",
               "allowedValues": [
                 "Standard",
                 "Basic"
@@ -969,10 +969,10 @@
             },
             "hubaddressprefix": {
               "type": "string",
+              "defaultValue": "10.10.0.0/24",
               "metadata": {
                 "description": "Specifies the Virtual Hub Address Prefix."
-              },
-              "defaultValue": "10.10.0.0/24"
+              }
             },
             "wanid": {
               "type": "string",
@@ -1048,12 +1048,12 @@
             },
             "dnsservers": {
               "type": "array",
-              "metadata": {
-                "description": "Specify custom DNS Servers for Azure Firewall"
-              },
               "defaultValue": [
                 "168.63.129.16"
-              ]
+              ],
+              "metadata": {
+                "description": "Specify custom DNS Servers for Azure Firewall"
+              }
             }
           },
           "functions": [],
@@ -1238,31 +1238,31 @@
             },
             "hubid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "Virtual Hub Resource ID, used when deploying Azure Firewall to Virtual WAN"
-              },
-              "defaultValue": ""
+              }
             },
             "hubpublicipcount": {
               "type": "int",
+              "defaultValue": 1,
               "metadata": {
                 "description": "Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN"
-              },
-              "defaultValue": 1
+              }
             },
             "subnetid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "AzureFirewallSubnet ID, used when deploying Azure Firewall to Virtual Network"
-              },
-              "defaultValue": ""
+              }
             },
             "publicipid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "Azure Firewall Public IP ID, used when deploying Azure Firewall to Virtual Network"
-              },
-              "defaultValue": ""
+              }
             }
           },
           "functions": [],
@@ -1754,7 +1754,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5987788707490908447"
+      "templateHash": "4227095110153456993"
     }
   }
 }

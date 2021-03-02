@@ -3,14 +3,13 @@ param image string = 'mcr.microsoft.com/azuredocs/aci-helloworld'
 param port int = 80
 param cpuCores int = 1
 param memoryinGb int = 2
-param restartPolicy string {
-  default: 'Always'
-  allowed: [
-    'Always'
-    'Never'
-    'OnFailure'
-  ]
-}
+
+@allowed([
+  'Always'
+  'Never'
+  'OnFailure'
+])
+param restartPolicy string = 'Always'
 param location string = resourceGroup().location
 
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01' = {

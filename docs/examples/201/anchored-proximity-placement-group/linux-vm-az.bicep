@@ -3,13 +3,13 @@ param adminSshKey string
 param proximityPlacementGroupId string
 param subnetId string
 param vmName string
-param zone int {
-  allowed: [
-    1
-    2
-    3
-  ]
-}
+
+@allowed([
+  1
+  2
+  3
+])
+param zone int
 
 resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
   name: '${vmName}-pip'

@@ -2,13 +2,13 @@ param location string = resourceGroup().location
 param adminSshKey string
 param subnetId string
 param vmName string
-param zone int {
-  allowed: [
-    1
-    2
-    3
-  ]
-}
+
+@allowed([
+  1
+  2
+  3
+])
+param zone int
 
 resource ppg 'Microsoft.Compute/proximityPlacementGroups@2020-06-01' = {
   name: 'Zone-${zone}'

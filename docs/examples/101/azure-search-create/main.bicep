@@ -1,46 +1,37 @@
-param name string {
-  minLength: 2
-  maxLength: 60
-}
+@minLength(2)
+@maxLength(60)
+param name string
 
-param sku string {
-  default: 'standard'
-  allowed: [
-    'free'
-    'basic'
-    'standard'
-    'standard2'
-    'standard3'
-    'storage_optimized_l1'
-    'storage_optimized_l2'
-  ]
-}
+@allowed([
+  'free'
+  'basic'
+  'standard'
+  'standard2'
+  'standard3'
+  'storage_optimized_l1'
+  'storage_optimized_l2'
+])
+param sku string = 'standard'
 
-param replicaCount int {
-  default: 1
-  minValue: 1
-  maxValue: 12
-}
+@minValue(1)
+@maxValue(12)
+param replicaCount int = 1
 
-param partitionCount int {
-  default: 1
-  allowed: [
-    1
-    2
-    3
-    4
-    6
-    12
-  ]
-}
+@allowed([
+  1
+  2
+  3
+  4
+  6
+  12
+])
+param partitionCount int = 1
 
-param hostingMode string {
-  default: 'default'
-  allowed: [
-    'default'
-    'highDensity'
-  ]
-}
+@allowed([
+  'default'
+  'highDensity'
+])
+param hostingMode string = 'default'
 
 param location string = resourceGroup().location
 

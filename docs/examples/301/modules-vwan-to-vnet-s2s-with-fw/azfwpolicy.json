@@ -11,12 +11,12 @@
     },
     "dnsservers": {
       "type": "array",
-      "metadata": {
-        "description": "Specify custom DNS Servers for Azure Firewall"
-      },
       "defaultValue": [
         "168.63.129.16"
-      ]
+      ],
+      "metadata": {
+        "description": "Specify custom DNS Servers for Azure Firewall"
+      }
     }
   },
   "functions": [],
@@ -140,7 +140,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12627680286591408003"
+      "templateHash": "5030222466979303740"
     }
   }
 }

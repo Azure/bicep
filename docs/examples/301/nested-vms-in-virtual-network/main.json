@@ -68,8 +68,8 @@
     },
     "HostVirtualMachineName": {
       "type": "string",
-      "maxLength": 15,
-      "defaultValue": "HVHOST"
+      "defaultValue": "HVHOST",
+      "maxLength": 15
     },
     "HostVirtualMachineSize": {
       "type": "string",
@@ -861,7 +861,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6333407413510019552"
+      "templateHash": "7524364292299147799"
     }
   }
 }

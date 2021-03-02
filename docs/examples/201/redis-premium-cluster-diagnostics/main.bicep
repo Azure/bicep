@@ -5,15 +5,15 @@ param location string = resourceGroup().location
 // Number of highly available shards to create in the cluster. Requires Premium SKU.
 param redisShardCount int
 // The size of the new Azure Redis Cache instance. Valid family and capacity combinations are (C0..C6, P1..P4).
-param redisCacheCapacity int {
-  allowed: [
-    1
-    2
-    3
-    4
-  ]
-  default: 1
-}
+
+@allowed([
+  1
+  2
+  3
+  4
+])
+param redisCacheCapacity int = 1
+
 // ResourceId of an existing storage account for diagnostics. Must be in the same subscription.
 param diagsStorageAccountId string
 // Set to true to allow access to redis on port 6379, without SSL tunneling (less secure).
