@@ -743,6 +743,14 @@ namespace Bicep.Decompiler
                     }
                     else if (function.Parameters.Length == 1)
                     {
+                        if (function.Parameters[0] is JTokenExpression jTokenExpression && 
+                            jTokenExpression.Value.Type == JTokenType.String &&
+                            !ExpressionsEngine.IsLanguageExpression(jTokenExpression.Value.Value<string>()))
+                        {
+                            // leave it alone - named copy loops are used for property copies
+                            return;
+                        }
+
                         var varExpression = new FunctionExpression(
                             "variables",
                             new LanguageExpression[]
@@ -1129,32 +1137,36 @@ namespace Bicep.Decompiler
         private TargetScopeSyntax? ParseTargetScope(JObject template)
         {
             var schema = TemplateHelpers.AssertRequiredProperty(template, "$schema", "Unable to find a template property named $schema.");
-
-            switch (schema.ToString())
+            if (!Uri.TryCreate(schema.ToString(), UriKind.Absolute, out var schemaUri))
             {
-                case "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#":
+                schemaUri = null;
+            }
+
+            switch (schemaUri?.AbsolutePath)
+            {
+                case "/schemas/2019-08-01/tenantDeploymentTemplate.json":
                     return new TargetScopeSyntax(
                         SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("tenant"));
-                case "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#":
+                case "/schemas/2019-08-01/managementGroupDeploymentTemplate.json":
                     return new TargetScopeSyntax(
                         SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("managementGroup"));
-                case "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#":
+                case "/schemas/2018-05-01/subscriptionDeploymentTemplate.json":
                     return new TargetScopeSyntax(
                         SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("subscription"));
-                case "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#":
-                case "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#":
-                case "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#":
+                case "/schemas/2014-04-01-preview/deploymentTemplate.json":
+                case "/schemas/2015-01-01/deploymentTemplate.json":
+                case "/schemas/2019-04-01/deploymentTemplate.json":
                     // targetScope not required for rg-level templates as 'resourceGroup' is the default
                     return null;
             }
 
-            throw new ConversionFailedException($"$schema value \"{schema}\" did not match any of the known ARM schemas.", schema);
+            throw new ConversionFailedException($"$schema value \"{schema}\" did not match any of the known ARM template deployment schemas.", schema);
         }
 
         private static void AddSyntaxBlock(IList<SyntaxBase> syntaxes, IEnumerable<SyntaxBase> syntaxesToAdd, bool newLineBetweenItems)
