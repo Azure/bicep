@@ -185,18 +185,13 @@ namespace Bicep.Core.TypeSystem
                     switch (syntax.IndexExpression)
                     {
                         case StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is string literalValue:
-                            if (referencedBodyType.Properties.TryGetValue(literalValue, out var propertyType) &&
-                            !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
-                            {
-                                this.errorSyntax = syntax;
-                                this.accessedSymbol = declaredSymbol.Name;
-                                this.referencedBodyType = referencedBodyType;
-                            }
+                            SetState(syntax, declaredSymbol, referencedBodyType, literalValue);
                             break;
+                        
                         default:
                             // we will block referencing module and resource properties using string interpolation and number indexing
                             this.errorSyntax = syntax;
-                            this.accessedSymbol = declaredSymbol!.Name;
+                            this.accessedSymbol = declaredSymbol.Name;
                             this.referencedBodyType = referencedBodyType;
                             break;
                     }
@@ -225,13 +220,9 @@ namespace Bicep.Core.TypeSystem
                                 this.AppendError();
                             }
 
-                            if (ExtractResourceOrModuleSymbolAndBodyType(this.model, variableAccessSyntax) is ({ } declaredSymbol, { } referencedBodyType) &&
-                                referencedBodyType.Properties.TryGetValue(syntax.PropertyName.IdentifierName, out var propertyType) &&
-                                !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                            if(ExtractResourceOrModuleSymbolAndBodyType(this.model, variableAccessSyntax) is ({ } declaredSymbol, { } referencedBodyType))
                             {
-                                this.errorSyntax = syntax;
-                                this.accessedSymbol = declaredSymbol.Name;
-                                this.referencedBodyType = referencedBodyType;
+                                SetState(syntax, declaredSymbol, referencedBodyType, syntax.PropertyName.IdentifierName);
                             }
 
                             break;
@@ -244,13 +235,9 @@ namespace Bicep.Core.TypeSystem
                                 this.AppendError();
                             }
 
-                            if (ExtractResourceOrModuleCollectionSymbolAndBodyType(this.model, baseVariableAccess) is ({ } declaredSymbol, { } referencedBodyType) &&
-                                referencedBodyType.Properties.TryGetValue(syntax.PropertyName.IdentifierName, out var propertyType) &&
-                                !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                            if (ExtractResourceOrModuleCollectionSymbolAndBodyType(this.model, baseVariableAccess) is ({ } declaredSymbol, { } referencedBodyType))
                             {
-                                this.errorSyntax = syntax;
-                                this.accessedSymbol = declaredSymbol.Name;
-                                this.referencedBodyType = referencedBodyType;
+                                SetState(syntax, declaredSymbol, referencedBodyType, syntax.PropertyName.IdentifierName);
                             }
 
                             break;
@@ -259,6 +246,16 @@ namespace Bicep.Core.TypeSystem
             }
         }
         #endregion
+
+        private void SetState(SyntaxBase syntax, DeclaredSymbol declaredSymbol, ObjectType referencedBodyType, string propertyName)
+        {
+            if(referencedBodyType.Properties.TryGetValue(propertyName, out var propertyType) && !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+            {
+                this.errorSyntax = syntax;
+                this.accessedSymbol = declaredSymbol.Name;
+                this.referencedBodyType = referencedBodyType;
+            }
+        }
 
         private void AppendError()
         {
