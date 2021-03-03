@@ -881,18 +881,13 @@ module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
 
             template!.Should().BeNull();
 
-            diags.Should().HaveDiagnostics(new[]
-            {
-                ("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context."),
-                ("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context."),
-                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
-                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
-                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
-                ("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\"."),
-                ("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\"."),
-                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find a part of the path 'C:\\path\\to\\kevault-secrets.bicep'."),
-                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find a part of the path 'C:\\path\\to\\kevault-secrets.bicep'.")
-            });
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\".");
+            diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\".");
         }
     }
 }
