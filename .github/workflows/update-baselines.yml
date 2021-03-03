@@ -1,0 +1,36 @@
+name: Update Baselines
+
+on:
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: Update Baselines
+    runs-on: ubuntu-latest
+
+    env:
+      # don't print dotnet logo
+      DOTNET_NOLOGO: true
+
+      # disable telemetry (reduces dotnet tool output in logs)
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.7.2
+      
+      - name: Test
+        continue-on-error: true
+        run: dotnet test -- 'TestRunParameters.Parameter(name="SetBaseLine", value="true")'
+      
+      - name: Commit baselines
+        run: |
+          git add .
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "Update test baselines"
+            git push
+          fi
