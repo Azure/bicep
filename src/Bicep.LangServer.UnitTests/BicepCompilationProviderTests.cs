@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
@@ -34,7 +35,8 @@ namespace Bicep.LangServer.UnitTests
             var context = provider.Create(workspace, fileUri);
 
             context.Compilation.Should().NotBeNull();
-            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            // TOOD: remove Where when the support of modifiers is dropped.
+            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Where(d => d.Code != "BCP153").Should().BeEmpty();
             context.LineStarts.Should().NotBeEmpty();
             context.LineStarts[0].Should().Be(0);
         }

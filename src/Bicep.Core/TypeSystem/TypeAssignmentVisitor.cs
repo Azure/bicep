@@ -260,9 +260,11 @@ namespace Bicep.Core.TypeSystem
 
                 if (syntax.Modifier != null)
                 {
-                    if (syntax.Decorators.Any() && syntax.Modifier is ObjectSyntax modifierSyntax)
+                    if (syntax.Modifier is ObjectSyntax modifierSyntax)
                     {
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether());
+                        diagnostics.Write(syntax.Decorators.Any()
+                            ? DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether()
+                            : DiagnosticBuilder.ForPosition(modifierSyntax).ParameterModifersDeprecated());
                     }
 
                     diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));

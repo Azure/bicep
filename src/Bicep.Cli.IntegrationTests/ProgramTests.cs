@@ -6,21 +6,18 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
-using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.IntegrationTests
@@ -132,7 +129,19 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().BeEmpty();
-                error.Should().BeEmpty();
+
+                if (dataSet.Name == "Parameters_LF" || dataSet.Name == "Parameters_CRLF")
+                {
+                    // TODO: remove this branch when the support of parameter modifiers is dropped. 
+                    foreach(var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        line.Should().Contain("BCP153");
+                    }
+                }
+                else
+                {
+                    error.Should().BeEmpty();
+                }
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -163,8 +172,20 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(0);
-                error.Should().BeEmpty();
                 output.Should().NotBeEmpty();
+
+                if (dataSet.Name == "Parameters_LF" || dataSet.Name == "Parameters_CRLF")
+                {
+                    // TODO: remove this branch when the support of parameter modifiers is dropped. 
+                    foreach(var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        line.Should().Contain("BCP153");
+                    }
+                }
+                else
+                {
+                    error.Should().BeEmpty();
+                }
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);

@@ -27,15 +27,15 @@
     },
     "osDiskSizeGB": {
       "type": "int",
-      "minValue": 0,
+      "defaultValue": 0,
       "maxValue": 1023,
-      "defaultValue": 0
+      "minValue": 0
     },
     "agentCount": {
       "type": "int",
-      "minValue": 1,
+      "defaultValue": 3,
       "maxValue": 50,
-      "defaultValue": 3
+      "minValue": 1
     },
     "agentVMSize": {
       "type": "string",
@@ -81,7 +81,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7349084890163719017"
+      "templateHash": "4172783901246427472"
     }
   }
 }
