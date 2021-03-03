@@ -1,18 +1,15 @@
 param virtualMachineAdminUserName string = 'azadmin'
-param virtualMachineAdminPassword string {
-  secure: true
-}
+@secure()
+param virtualMachineAdminPassword string
 param virtualMachineNamePrefix string = 'MyVM0'
 param virtualMachineCount int = 3
 param virtualMachineSize string = 'Standard_DS2_v2'
-param operatingSystem string {
-  default: 'Server2019'
-  allowed: [
-    'Server2012R2'
-    'Server2016'
-    'Server2019'
-  ]
-}
+@allowed([
+  'Server2012R2'
+  'Server2016'
+  'Server2019'
+])
+param operatingSystem string = 'Server2019'
 param availabilitySetName string = 'MyAvailabilitySet'
 param dnsPrefixForPublicIP string = uniqueString(resourceGroup().id)
 param location string = resourceGroup().location
