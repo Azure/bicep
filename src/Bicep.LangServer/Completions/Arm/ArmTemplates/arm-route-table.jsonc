@@ -1,0 +1,27 @@
+{
+  "context": "resources",
+  "prefix": "arm-route-table",
+  "description": "Route Table",
+  "resources": [
+    {
+      "name": "${1:routeTable1}",
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "properties": {
+        "routes": [
+          {
+            "name": "${2:route1}",
+            "properties": {
+              "addressPrefix": "${3:destinationCIDR}",
+              "nextHopType": "${4|VirtualNetworkGateway,VnetLocal,Internet,VirtualAppliance,None|}",
+              "nextHopIpAddress": "${5:0.0.0.0}"
+            }
+          }
+        ],
+        "disableBgpRoutePropagation": "${6|true,false|}"
+      }
+    }
+  ]
+}

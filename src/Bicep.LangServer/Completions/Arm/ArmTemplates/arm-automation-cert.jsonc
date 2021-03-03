@@ -1,0 +1,21 @@
+{
+  "context": "resources",
+  "prefix": "arm-automation-cert",
+  "description": "Automation Certificate",
+  "resources": [
+    {
+      "name": "${1:automationCertificate1}",
+      "type": "Microsoft.Automation/automationAccounts/certificates",
+      "apiVersion": "2015-10-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', '${2:automationAccount1}')]"
+      ],
+      "properties": {
+        "base64Value": "${3:base64Value}",
+        "description": "${4:description}",
+        "thumbprint": "${5:thumbprint}",
+        "isExportable": "${6|true,false|}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "context": "resources",
+  "prefix": "arm-function",
+  "description": "Azure Functions (v2)",
+  "resources": [
+    {
+      "name": "${1:functionName}",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "location": "[resourceGroup().location]",
+      "kind": "functionapp",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', '${2:serverFarmName}')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', '${3:storageAccountName}')]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', '${2:serverFarmName}')]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', '${3:storageAccountName}', ';AccountKey=', listKeys('${4:storageAccountID}','2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', '${3:storageAccountName}', ';AccountKey=', listKeys('${4:storageAccountID}','2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', '${3:storageAccountName}', ';AccountKey=', listKeys('${4:storageAccountID}','2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower('${1:functionName}')]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('microsoft.insights/components/', '${5:applicationInsightsName}'), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "${6|dotnet,node,java|}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

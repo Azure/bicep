@@ -1,0 +1,31 @@
+{
+  "context": "resources",
+  "prefix": "arm-log-analytics-solution",
+  "description": "Log Analytics Solution",
+  "resources": [
+    {
+      "name": "[concat('${1:logAnalyticsSolution1}', '[${2:logAnalyticsWorkspace1}]')]",
+      "type": "Microsoft.OperationsManagement/solutions",
+      "apiVersion": "2015-11-01-preview",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/views', '${2:logAnalyticsWorkspace1}', '${1:logAnalyticsSolution1}')]"
+      ],
+      "properties": {
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', '${2:logAnalyticsWorkspace1}')]",
+        "referencedResources": [],
+        "containedResources": [
+          "[resourceId('Microsoft.OperationalInsights/workspaces/views', '${2:logAnalyticsWorkspace1}', '${1:logAnalyticsSolution1}')]"
+        ]
+      },
+      "plan": {
+        "name": "[concat('${1:logAnalyticsSolution1}', '[${2:logAnalyticsWorkspace1}]')]",
+        "version": "${3:1.0.0.0}",
+        "product": "${4:product}",
+        "publisher": "${5:publisher}",
+        "promotionCode": "${6:code}"
+      }
+    }
+  ]
+}

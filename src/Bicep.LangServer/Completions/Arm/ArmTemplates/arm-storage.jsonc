@@ -1,0 +1,21 @@
+{
+  "context": "resources",
+  "prefix": "arm-storage",
+  "description": "Storage Account",
+  "resources": [
+    {
+      "name": "${1:storageaccount1}",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "tags": {
+        "displayName": "${1:storageaccount1}"
+      },
+      "location": "[resourceGroup().location]",
+      "kind": "${2|StorageV2,Storage,BlobStorage,BlockBlobStorage,FileStorage|}",
+      "sku": {
+        "name": "${3:Premium_LRS}",
+        "tier": "${4|Premium,Standard|}"
+      }
+    }
+  ]
+}

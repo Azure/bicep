@@ -1,0 +1,13 @@
+{
+  "context": "resources",
+  "prefix": "arm-managed-identity",
+  "description": "Managed Identity (User Assigned)",
+  "resources": [
+    {
+      "name": "${1:managedIdentity1}",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]"
+    }
+  ]
+}

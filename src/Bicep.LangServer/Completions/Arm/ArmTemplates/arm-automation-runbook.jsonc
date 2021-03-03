@@ -1,0 +1,27 @@
+{
+  "context": "resources",
+  "prefix": "arm-automation-runbook",
+  "description": "Automation Runbook",
+  "resources": [
+    {
+      "name": "${1:automationRunbook1}",
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2018-06-30",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', '${2:automationAccount1}')]"
+      ],
+      "properties": {
+        "logVerbose": "${3|true,false|}",
+        "logProgress": "${4|true,false|}",
+        "runbookType": "${5|Script,Graph,PowerShellWorkflow,PowerShell,GraphPowerShellWorkflow,GraphPowerShell|}",
+        "publishContentLink": {
+          "uri": "${6:uri}",
+          "version": "${7:1.0.0.0}"
+        },
+        "description": "${8:description}"
+      }
+    }
+  ]
+}

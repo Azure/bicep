@@ -1,0 +1,25 @@
+{
+  "context": "resources",
+  "prefix": "arm-automation-job-schedule",
+  "description": "Automation Job Schedule",
+  "resources": [
+    {
+      "name": "${1:automationJobSchedule1}",
+      "type": "Microsoft.Automation/automationAccounts/jobSchedules",
+      "apiVersion": "2015-10-31",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', '${2:automationAccount1}')]"
+      ],
+      "properties": {
+        "schedule": {
+          "name": "${3:automationSchedule1}"
+        },
+        "runbook": {
+          "name": "${4:automationRunbook1}"
+        }
+      }
+    }
+  ]
+}

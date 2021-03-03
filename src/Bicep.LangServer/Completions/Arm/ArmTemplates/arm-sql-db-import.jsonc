@@ -1,0 +1,26 @@
+{
+  "context": "resources",
+  "prefix": "arm-sql-db-import",
+  "description": "SQL Database Import",
+  "resources": [
+    {
+      "name": "${1:sqlDatabase1}Import1",
+      "type": "Microsoft.Sql/servers/databases/extensions",
+      "apiVersion": "2014-04-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', '${2:sqlServer1}', '${1:sqlDatabase1}')]"
+      ],
+      "tags": {
+        "displayName": "SQL Database Import for ${1:sqlDatabase1}"
+      },
+      "properties": {
+        "storageKeyType": "${3|StorageAccessKey,SharedAccessKey|}",
+        "storageKey": "${4:storageKey}",
+        "storageUri": "${5:bacpacUri}",
+        "administratorLogin": "${6:adminUsername}",
+        "administratorLoginPassword": "${7:adminPassword}",
+        "operationMode": "Import"
+      }
+    }
+  ]
+}

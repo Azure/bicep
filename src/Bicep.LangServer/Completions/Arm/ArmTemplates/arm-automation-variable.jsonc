@@ -1,0 +1,20 @@
+{
+  "context": "resources",
+  "prefix": "arm-automation-variable",
+  "description": "Automation Variable",
+  "resources": [
+    {
+      "name": "${1:automationVariable1}",
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2015-10-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', '${2:automationAccount1}')]"
+      ],
+      "properties": {
+        "value": "${3:value}",
+        "description": "${4:description}",
+        "isEncryptede": "${5|true,false|}"
+      }
+    }
+  ]
+}

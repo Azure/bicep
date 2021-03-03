@@ -1,0 +1,23 @@
+{
+  "context": "resources",
+  "prefix": "arm-automation-schedule",
+  "description": "Automation Schedule",
+  "resources": [
+    {
+      "name": "${1:automationSchedule1}",
+      "type": "Microsoft.Automation/automationAccounts/schedules",
+      "apiVersion": "2015-10-31",
+      "tags": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', '${2:automationAccount1}')]"
+      ],
+      "properties": {
+        "description": "${3:description}",
+        "startTime": "",
+        "isEnabled": "${4|true,false|}",
+        "interval": null,
+        "frequency": "${5|OneTime,Day,Hour,Week,Month|}"
+      }
+    }
+  ]
+}

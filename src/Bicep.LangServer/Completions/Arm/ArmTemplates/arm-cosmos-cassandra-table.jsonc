@@ -1,0 +1,25 @@
+{
+  "context": "resources",
+  "prefix": "arm-cosmos-cassandra-table",
+  "description": "Cosmos DB Cassandra Table",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables",
+      "name": "[concat('${1:account-name}', '/cassandra/', '${2:keyspace}', '/', '${3:table-name}')]",
+      "apiVersion": "2016-03-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/keyspaces', '${1:account-name}', 'cassandra', '${2:keyspace}')]"
+      ],
+      "properties": {
+        "resource": {
+          "id": "${4:table-name}",
+          "schema": {
+            "columns": [],
+            "partitionKeys": []
+          }
+        },
+        "options": {}
+      }
+    }
+  ]
+}

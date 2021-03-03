@@ -1,0 +1,20 @@
+{
+  "context": "resources",
+  "prefix": "arm-automation-cred",
+  "description": "Automation Credential",
+  "resources": [
+    {
+      "name": "${1:automationCredential}",
+      "type": "Microsoft.Automation/automationAccounts/credentials",
+      "apiVersion": "2015-10-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', '${2:automationAccount1}')]"
+      ],
+      "properties": {
+        "userName": "${3:userName}",
+        "password": "${4:password}",
+        "description": "${5:description}"
+      }
+    }
+  ]
+}

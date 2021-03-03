@@ -1,0 +1,23 @@
+{
+  "context": "resources",
+  "prefix": "arm-redis",
+  "description": "Redis Cache",
+  "resources": [
+    {
+      "name": "${1:redisCache1}",
+      "type": "Microsoft.Cache/Redis",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${1:redisCache1}"
+      },
+      "properties": {
+        "sku": {
+          "name": "Basic",
+          "family": "C",
+          "capacity": 0
+        }
+      }
+    }
+  ]
+}

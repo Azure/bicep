@@ -1,0 +1,21 @@
+{
+  "context": "resources",
+  "prefix": "arm-ip-prefix",
+  "description": "Public IP Prefix",
+  "resources": [
+    {
+      "name": "${1:publicIPPrefix1}",
+      "type": "Microsoft.Network/publicIPPrefixes",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "prefixLength": "${2:28}"
+      }
+    }
+  ]
+}

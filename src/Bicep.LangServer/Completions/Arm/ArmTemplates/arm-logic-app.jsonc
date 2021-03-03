@@ -1,0 +1,24 @@
+{
+  "context": "resources",
+  "prefix": "arm-logic-app",
+  "description": "Logic App",
+  "resources": [
+    {
+      "name": "${1:logicApp1}",
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "triggers": {},
+          "actions": {},
+          "outputs": {}
+        },
+        "parameters": {}
+      }
+    }
+  ]
+}

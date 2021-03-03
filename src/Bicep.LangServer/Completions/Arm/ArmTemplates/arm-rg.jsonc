@@ -1,0 +1,15 @@
+{
+  "context": "resources",
+  "prefix": "arm-rg",
+  "description": "Resource Group",
+  "resources": [
+    {
+      "name": "${1:resourceGroup}",
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2019-10-01",
+      "location": "${2:eastus}",
+      "dependsOn": [],
+      "tags": {}
+    }
+  ]
+}

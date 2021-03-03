@@ -1,0 +1,100 @@
+{
+  "context": "resources",
+  "prefix": "arm-app-gateway",
+  "description": "Application Gateway",
+  "resources": [
+    {
+      "type": "Microsoft.Network/applicationGateways",
+      "apiVersion": "2019-11-01",
+      "name": "${1:applicationGatewayName}",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', '${2:virtualNetwork1}')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', '${3:publicIPAddress1}')]"
+      ],
+      "properties": {
+        "sku": {
+          "name": "${4|Standard_Small,Standard_Medium,Standard_Large,WAF_Medium,WAF_Large,Standard_v2,WAF_v2|}",
+          "tier": "${5|Standard,WAF,Standard_v2,WAF_v2|}",
+          "capacity": "2"
+        },
+        "gatewayIPConfigurations": [
+          {
+            "name": "${6:appGatewayIpConfig}",
+            "properties": {
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', '${2:virtualNetwork1}', 'Subnet-1')]"
+              }
+            }
+          }
+        ],
+        "frontendIPConfigurations": [
+          {
+            "name": "${7:appGatewayFrontendIP}",
+            "properties": {
+              "PublicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', '${3:publicIPAddress1}')]"
+              }
+            }
+          }
+        ],
+        "frontendPorts": [
+          {
+            "name": "${8:appGatewayFrontendPort}",
+            "properties": {
+              "Port": "${9:80}"
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "${10:appGatewayBackendPool}",
+            "properties": {}
+          }
+        ],
+        "backendHttpSettingsCollection": [
+          {
+            "name": "${13:appGatewayBackendHttpSettings}",
+            "properties": {
+              "Port": "${14:80}",
+              "Protocol": "${15|Http,Https|}",
+              "CookieBasedAffinity": "Disabled"
+            }
+          }
+        ],
+        "httpListeners": [
+          {
+            "name": "${16:appGatewayHttpListener}",
+            "properties": {
+              "FrontendIPConfiguration": {
+                "Id": "[resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', '${1:applicationGatewayName}', '${7:appGatewayFrontendIP}')]"
+              },
+              "FrontendPort": {
+                "Id": "[resourceId('Microsoft.Network/applicationGateways/frontendPorts',  '${1:applicationGatewayName}', '${8:appGatewayFrontendPort}')]"
+              },
+              "Protocol": "${17|Http,Https|}",
+              "SslCertificate": "null"
+            }
+          }
+        ],
+        "requestRoutingRules": [
+          {
+            "Name": "${18:ruleName}",
+            "properties": {
+              "RuleType": "${19|Basic,PathBasedRouting|}",
+              "httpListener": {
+                "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners', '${1:applicationGatewayName}', '${16:appGatewayHttpListener}')]"
+              },
+              "backendAddressPool": {
+                "id": "[resourceId('Microsoft.Network/applicationGateways/backendAddressPools', '${1:applicationGatewayName}', '${10:appGatewayBackendPool}')]"
+              },
+              "backendHttpSettings": {
+                "id": "[resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', '${1:applicationGatewayName}', '${13:appGatewayBackendHttpSettings}')]"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

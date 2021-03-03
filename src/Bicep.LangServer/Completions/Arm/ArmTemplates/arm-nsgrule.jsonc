@@ -1,0 +1,23 @@
+{
+  "context": "resources",
+  "prefix": "arm-nsgrule",
+  "description": "Network Security Group Rule",
+  "resources": [
+    {
+      "name": "${1:networkSecurityGroupRuleName}",
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2019-11-01",
+      "properties": {
+        "description": "${2:nsgRuleDescription}",
+        "protocol": "${3|*,Ah,Esp,Icmp,Tcp,Udb|}",
+        "sourcePortRange": "${4:nsgRuleSourcePortRange}",
+        "destinationPortRange": "${5:nsgRuleDestinationPortRange}",
+        "sourceAddressPrefix": "${6:nsgRuleSourceAddressPrefix}",
+        "destinationAddressPrefix": "${7:nsgRileDestinationAddressRange}",
+        "access": "${8|Allow,Deny|}",
+        "priority": "${9:100}",
+        "direction": "${10|Inbound,Outbound|}"
+      }
+    }
+  ]
+}

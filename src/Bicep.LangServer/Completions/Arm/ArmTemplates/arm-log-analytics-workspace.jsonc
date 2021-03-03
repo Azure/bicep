@@ -1,0 +1,21 @@
+{
+  "context": "resources",
+  "prefix": "arm-log-analytics-workspace",
+  "description": "Log Analytics Workspace",
+  "resources": [
+    {
+      "name": "${1:logAnalyticsWorkspace1}",
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2015-11-01-preview",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "name": "${2|Free,Standard,Premium,Unlimited,PerNode,PerGB2018,Standalone|}"
+        },
+        "features": {
+          "searchVersion": 1
+        }
+      }
+    }
+  ]
+}

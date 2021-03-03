@@ -142,7 +142,6 @@ namespace Bicep.Core.Syntax
             .Replace("\r", "\\r")
             .Replace("\n", "\\n")
             .Replace("\t", "\\t")
-            .Replace("${", "\\${")
             .Replace("'", "\\'");
 
         private static string TryGetTokenText(TokenType tokenType) => tokenType switch

@@ -1,0 +1,20 @@
+{
+  "context": "resources",
+  "prefix": "arm-dns-record",
+  "description": "DNS Record",
+  "resources": [
+    {
+      "name": "${1:dnsRecord1}",
+      "type": "Microsoft.Network/dnsZones/${2|A,AAAA,CNAME,MX,NS,PTR,SOA,SRV,TXT|}",
+      "apiVersion": "2018-05-01",
+      "location": "global",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsZones', '${3:dnsZone1}')]"
+      ],
+      "properties": {
+        "TTL": 3600,
+        "${9|Arecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}": []
+      }
+    }
+  ]
+}

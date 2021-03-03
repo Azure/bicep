@@ -1,0 +1,35 @@
+{
+  "context": "resources",
+  "prefix": "arm-sql-server",
+  "description": "SQL Server",
+  "resources": [
+    {
+      "name": "${1:sqlServer1}",
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2014-04-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${1:sqlServer1}"
+      },
+      "properties": {
+        "administratorLogin": "${2:adminUsername}",
+        "administratorLoginPassword": "${3:adminPassword}"
+      },
+      "resources": [
+        {
+          "type": "firewallRules",
+          "apiVersion": "2014-04-01",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', '${1:sqlServer1}')]"
+          ],
+          "location": "[resourceGroup().location]",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        }
+      ]
+    }
+  ]
+}

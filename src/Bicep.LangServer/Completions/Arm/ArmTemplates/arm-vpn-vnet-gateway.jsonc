@@ -1,0 +1,40 @@
+{
+  "context": "resources",
+  "prefix": "arm-vpn-vnet-gateway",
+  "description": "VPN Virtual Network Gateway",
+  "resources": [
+    {
+      "name": "${1:virtualNetworkGateway1}",
+      "type": "Microsoft.Network/virtualNetworkGateways",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', '${2:publicIPAddress1}')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', '${3:virtualNetwork1}')]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "vnetGatewayConfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', '${3:virtualNetwork1}', '${4:subnet1}')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', '${2:publicIPAddress1}')]"
+              }
+            }
+          }
+        ],
+        "sku": {
+          "name": "${5|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}",
+          "tier": "${6|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}"
+        },
+        "gatewayType": "${7|Vpn,ExpressRoute|}",
+        "vpnType": "${8|PolicyBased,RouteBased|}",
+        "enableBgp": "${9|true,false|}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "context": "resources",
+  "prefix": "arm-cosmos-mongo-database",
+  "description": "Cosmos DB Mongo Database",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
+      "name": "[concat('${1:account-name}', '/mongodb/', '${2:database-name}', '/', '${3:collectionName}')]",
+      "apiVersion": "2016-03-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/', '${1:account-name}')]"
+      ],
+      "properties": {
+        "resource": {
+          "throughput": "${4:400}",
+          "id": "${5:database-id}"
+        },
+        "options": {}
+      }
+    }
+  ]
+}

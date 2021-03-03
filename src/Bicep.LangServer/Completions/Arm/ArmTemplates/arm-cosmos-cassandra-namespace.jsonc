@@ -1,0 +1,23 @@
+{
+  "context": "resources",
+  "prefix": "arm-cosmos-cassandra-namespace",
+  "description": "Cosmos DB Cassandra Namespace",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/apis/keyspaces",
+      "name": "[concat('${1:account-name}', '/cassandra/', '${2:database-name}')]",
+      "apiVersion": "2016-03-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/', '${1:account-name}')]"
+      ],
+      "properties": {
+        "resource": {
+          "id": "${3:keyspace}"
+        },
+        "options": {
+          "throughput": "${4:400}"
+        }
+      }
+    }
+  ]
+}

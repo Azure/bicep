@@ -1,0 +1,17 @@
+{
+  "context": "resources",
+  "prefix": "arm-availability-set",
+  "description": "Availability Set",
+  "resources": [
+    {
+      "name": "${1:availabilitySet1}",
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${1:availabilitySet1}"
+      },
+      "properties": {}
+    }
+  ]
+}

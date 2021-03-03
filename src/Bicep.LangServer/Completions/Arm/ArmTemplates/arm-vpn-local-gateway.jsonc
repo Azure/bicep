@@ -1,0 +1,21 @@
+{
+  "context": "resources",
+  "prefix": "arm-vpn-local-gateway",
+  "description": "VPN Local Network Gateway",
+  "resources": [
+    {
+      "name": "${1:localNetworkGateway1}",
+      "type": "Microsoft.Network/localNetworkGateways",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "localNetworkAddressSpace": {
+          "addressPrefixes": [
+            "${2:networkprefix}"
+          ]
+        },
+        "gatewayIpAddress": "${3:gatewayIP}"
+      }
+    }
+  ]
+}

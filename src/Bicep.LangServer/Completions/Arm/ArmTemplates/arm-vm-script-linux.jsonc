@@ -1,0 +1,33 @@
+{
+  "context": "resources",
+  "prefix": "arm-vm-script-linux",
+  "description": "Custom script extension for Linux Virtual Machine",
+  "resources": [
+    {
+      "name": "${1:ubuntuVM1}/${2:customScript1}",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${2:customScript1} for Linux VM"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', '${1:ubuntuVM1}')]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[concat('${3:artifactsLocation}', '/${4:scripts}/${5:customScript.sh}', '${6:artifactsLocationSasToken}')]"
+          ]
+        },
+        "protectedSettings": {
+          "commandToExecute": "sh ${5:customScript.sh}"
+        }
+      }
+    }
+  ]
+}

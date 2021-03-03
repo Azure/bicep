@@ -1,0 +1,31 @@
+{
+  "context": "resources",
+  "prefix": "arm-vm-dsc",
+  "description": "Desired State Configuration PowerShell script for a Windows Virtual Machine",
+  "resources": [
+    {
+      "name": "${1:windowsVM1}/${2:dscScript1}",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${1:windowsVM1}/${2:dscScript1}"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', '${1:windowsVM1}')]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.9",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "modulesUrl": "[concat('${3:artifactsLocation}', '/${4:DSCModules}/${5:dsc.zip}')]",
+          "sasToken": "${6:artifactsLocationSasToken}",
+          "configurationFunction": "${7:Configure}"
+        },
+        "protectedSettings": {}
+      }
+    }
+  ]
+}

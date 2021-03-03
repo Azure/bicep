@@ -1,0 +1,15 @@
+{
+  "context": "resources",
+  "prefix": "arm-app-security-group",
+  "description": "Application Security Group",
+  "resources": [
+    {
+      "name": "${1:applicationSecurityGroup1}",
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "properties": {}
+    }
+  ]
+}

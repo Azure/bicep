@@ -1,0 +1,18 @@
+{
+  "context": "resources",
+  "prefix": "arm-recovery-service-vault",
+  "description": "Recovery Service Vault",
+  "resources": [
+    {
+      "name": "${1:recoveryServiceVault1}",
+      "type": "Microsoft.RecoveryServices/vaults",
+      "apiVersion": "2018-01-10",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "${2|RS0,Standard|}",
+        "tier": "Standard"
+      },
+      "properties": {}
+    }
+  ]
+}

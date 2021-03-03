@@ -1,0 +1,55 @@
+{
+  "context": "resources",
+  "prefix": "arm-keyvault",
+  "description": "KeyVault with a Secret",
+  "resources": [
+    {
+      "name": "${1:keyVault1}",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2016-10-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${1:keyVault1}"
+      },
+      "properties": {
+        "enabledForDeployment": true,
+        "enabledForTemplateDeployment": true,
+        "enabledForDiskEncryption": true,
+        "tenantId": "${2:tenantId}",
+        "accessPolicies": [
+          {
+            "tenantId": "${2:tenantId}",
+            "objectId": "${3:objectId}",
+            "permissions": {
+              "keys": [
+                "Get"
+              ],
+              "secrets": [
+                "List",
+                "Get",
+                "Set"
+              ]
+            }
+          }
+        ],
+        "sku": {
+          "name": "standard",
+          "family": "A"
+        }
+      },
+      "resources": [
+        {
+          "type": "secrets",
+          "name": "${4:keyVaultSecret1}",
+          "apiVersion": "2016-10-01",
+          "dependsOn": [
+            "[resourceId('Microsoft.KeyVault/vaults', '${1:keyVault1}')]"
+          ],
+          "properties": {
+            "value": "${5:secretValue}"
+          }
+        }
+      ]
+    }
+  ]
+}

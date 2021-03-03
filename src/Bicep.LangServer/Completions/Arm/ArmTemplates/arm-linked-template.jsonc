@@ -1,0 +1,20 @@
+{
+  "context": "resources",
+  "prefix": "arm-linked-template",
+  "description": "Linked Deployment",
+  "resources": [
+    {
+      "name": "${1:linkedDeployment1}",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('${2:artifactsLocation}', '/${3:linkedTemplates}/${4:linkedTemplate.json}', '${5:artifactsLocationSasToken}')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {}
+      }
+    }
+  ]
+}

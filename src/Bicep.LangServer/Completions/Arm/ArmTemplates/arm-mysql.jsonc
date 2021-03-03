@@ -1,0 +1,18 @@
+{
+  "context": "resources",
+  "prefix": "arm-mysql",
+  "description": "MySQL Database",
+  "resources": [
+    {
+      "name": "${1:MySQLdb1}",
+      "type": "Microsoft.DBforMySQL/servers",
+      "apiVersion": "2017-12-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "administratorLogin": "${2:adminUsername}",
+        "administratorLoginPassword": "${3:adminPassword}",
+        "createMode": "${4|Default,GeoRestore,PointInTimeRestore,Replica|}"
+      }
+    }
+  ]
+}

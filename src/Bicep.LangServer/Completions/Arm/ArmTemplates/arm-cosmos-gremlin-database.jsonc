@@ -1,0 +1,23 @@
+{
+  "context": "resources",
+  "prefix": "arm-cosmos-gremlin-database",
+  "description": "Cosmos DB Gremlin Database",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
+      "name": "[concat('${1:account-name}', '/gremlin/', '${2:database-name}')]",
+      "apiVersion": "2016-03-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/', '${1:account-name}')]"
+      ],
+      "properties": {
+        "resource": {
+          "id": "${2:database-name}"
+        },
+        "options": {
+          "throughput": "${3:400}"
+        }
+      }
+    }
+  ]
+}

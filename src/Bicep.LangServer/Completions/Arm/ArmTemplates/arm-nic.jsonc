@@ -1,0 +1,32 @@
+{
+  "context": "resources",
+  "prefix": "arm-nic",
+  "description": "Network Interface",
+  "resources": [
+    {
+      "name": "${1:networkInterface1}",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${1:networkInterface1}"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', '${2:virtualNetwork1}')]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', '${2:virtualNetwork1}', '${3:subnet1}')]"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

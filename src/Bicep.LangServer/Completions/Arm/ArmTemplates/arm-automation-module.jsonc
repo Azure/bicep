@@ -1,0 +1,20 @@
+{
+  "context": "resources",
+  "prefix": "arm-automation-module",
+  "description": "Automation Module",
+  "resources": [
+    {
+      "name": "[concat('${2:automationAccount1}', '/${1:automationVariable1}')]",
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2015-10-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', '${2:automationAccount1}')]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "${3:https://content-url.nupkg}"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "context": "resources",
+  "prefix": "arm-plan",
+  "description": "Application Service Plan (Server Farm)",
+  "resources": [
+    {
+      "name": "${1:appServicePlan1}",
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "F1",
+        "capacity": "1"
+      },
+      "tags": {
+        "displayName": "${1:appServicePlan1}"
+      },
+      "properties": {
+        "name": "${1:appServicePlan1}"
+      }
+    }
+  ]
+}

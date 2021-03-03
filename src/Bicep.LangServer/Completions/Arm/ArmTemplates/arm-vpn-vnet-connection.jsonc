@@ -1,0 +1,28 @@
+{
+  "context": "resources",
+  "prefix": "arm-vpn-vnet-connection",
+  "description": "VPN Virtual Network Connection",
+  "resources": [
+    {
+      "name": "${1:vpnVnetConnection1}",
+      "type": "Microsoft.Network/connections",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworkGateways', '${2:vnetGateway1}')]",
+        "[resourceId('Microsoft.Network/localNetworkGateways', '${3:localGateway1}')]"
+      ],
+      "properties": {
+        "virtualNetworkGateway1": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', '${2:vnetGateway1}')]"
+        },
+        "localNetworkGateway2": {
+          "id": "[resourceId('Microsoft.Network/localNetworkGateways', '${3:localGateway1}')]"
+        },
+        "connectionType": "${4|IPsec,Vnet2Vnet,ExpressRoute,VPNClient|}",
+        "routingWeight": "${5:0}",
+        "sharedKey": "${6:sharedkey}"
+      }
+    }
+  ]
+}

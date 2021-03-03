@@ -14,6 +14,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.LanguageServer.Completions.Arm;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -112,6 +113,14 @@ namespace Bicep.LanguageServer.Completions
 }", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
+
+                foreach (KeyValuePair<string, (string?, string?)> keyValuePair in ArmSnippetsBuilder.GetSnippets())
+                {
+                    yield return CreateContextualSnippetCompletion(keyValuePair.Key,
+                                                                   keyValuePair.Value.Item2!, 
+                                                                   keyValuePair.Value.Item1!, 
+                                                                   context.ReplacementRange);
+                }
             }
         }
 

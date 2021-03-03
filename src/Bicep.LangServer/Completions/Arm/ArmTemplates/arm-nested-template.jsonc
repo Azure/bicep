@@ -1,0 +1,26 @@
+{
+  "context": "resources",
+  "prefix": "arm-nested-template",
+  "description": "Nested (inline) Deployment",
+  "resources": [
+    {
+      "name": "${1:nestedDeployment1}",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "${2|outer,inner|}"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [],
+          "outputs": {}
+        }
+      }
+    }
+  ]
+}

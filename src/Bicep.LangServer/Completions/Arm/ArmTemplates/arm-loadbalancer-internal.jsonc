@@ -1,0 +1,67 @@
+{
+  "context": "resources",
+  "prefix": "arm-loadbalancer-internal",
+  "description": "Load Balancer Internal",
+  "resources": [
+    {
+      "name": "${1:loadBalancerInternal1}",
+      "type": "Microsoft.Network/loadBalancers",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', '${2:virtualNetwork1}')]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd1",
+            "properties": {
+              "privateIPAddress": "${4:0.0.0.0}",
+              "privateIPAllocationMethod": "Static",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', '${2:virtualNetwork1}', '${3:subnet1}')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "loadBalancerBackEndPool1"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "LBRule1",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', '${1:loadBalancerInternal1}', 'loadBalancerFrontEnd1')]"
+              },
+              "backendAddressPool": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', '${1:loadBalancerInternal1}', 'loadBalancerBackEndPool1')]"
+              },
+              "protocol": "${5|Tcp,Udp,All|}",
+              "frontendPort": "${6:80}",
+              "backendPort": "${7:80}",
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', '${1:loadBalancerInternal1}', 'tcpProbe1')]"
+              }
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "tcpProbe1",
+            "properties": {
+              "protocol": "${5|Tcp,Udp,All|}",
+              "port": "${7:80}",
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

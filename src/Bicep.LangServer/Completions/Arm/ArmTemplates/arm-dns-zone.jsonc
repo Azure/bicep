@@ -1,0 +1,14 @@
+{
+  "context": "resources",
+  "prefix": "arm-dns-zone",
+  "description": "DNS Zone",
+  "resources": [
+    {
+      "name": "${1:dnsZone1}",
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "location": "global",
+      "properties": {}
+    }
+  ]
+}

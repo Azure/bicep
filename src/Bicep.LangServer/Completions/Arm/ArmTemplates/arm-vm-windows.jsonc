@@ -1,0 +1,167 @@
+{
+  "context": "resources",
+  "prefix": "arm-vm-windows",
+  "description": "Windows Virtual Machine",
+  "resources": [
+    {
+      "name": "[toLower('${1:windowsVM1}storage')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${1:windowsVM1} Storage Account"
+      },
+      "sku": {
+        "name": "${2:Standard_LRS}"
+      },
+      "kind": "${3|Storage,StorageV2|}"
+    },
+    {
+      "name": "${1:windowsVM1}-PublicIP",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "PublicIPAddress"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[toLower('${1:windowsVM1}')]"
+        }
+      }
+    },
+    {
+      "name": "${1:windowsVM1}-nsg",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2018-08-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "${4:nsgRule1}",
+            "properties": {
+              "description": "${5:description}",
+              "protocol": "${6|Tcp,Udp,*|}",
+              "sourcePortRange": "${7:*}",
+              "destinationPortRange": "${8:3389}",
+              "sourceAddressPrefix": "${9:*}",
+              "destinationAddressPrefix": "${10:*}",
+              "access": "${11|Allow,Deny|}",
+              "priority": "${12:100}",
+              "direction": "${13|Inbound,Outbound|}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "${1:windowsVM1}-VirtualNetwork",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', '${1:windowsVM1}-nsg')]"
+      ],
+      "tags": {
+        "displayName": "${1:windowsVM1}-VirtualNetwork"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "${1:windowsVM1}-VirtualNetwork-Subnet",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', '${1:windowsVM1}-nsg')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "${1:windowsVM1}-NetworkInterface",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', '${1:windowsVM1}-PublicIP')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', '${1:windowsVM1}-VirtualNetwork')]"
+      ],
+      "tags": {
+        "displayName": "${1:windowsVM1} Network Interface"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', '${1:windowsVM1}-PublicIP')]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', '${1:windowsVM1}-VirtualNetwork', '${1:windowsVM1}-VirtualNetwork-Subnet')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "${1:windowsVM1}",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower('${1:windowsVM1}storage'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', '${1:windowsVM1}-NetworkInterface')]"
+      ],
+      "tags": {
+        "displayName": "${1:windowsVM1}"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_A2_v2"
+        },
+        "osProfile": {
+          "computerName": "${1:windowsVM1}",
+          "adminUsername": "${14:adminUsername}",
+          "adminPassword": "${15:adminPassword}"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2012-R2-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "${1:windowsVM1}OSDisk",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', '${1:windowsVM1}-NetworkInterface')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('${1:windowsVM1}storage'))).primaryEndpoints.blob]"
+          }
+        }
+      }
+    }
+  ]
+}

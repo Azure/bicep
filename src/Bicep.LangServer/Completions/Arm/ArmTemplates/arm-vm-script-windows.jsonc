@@ -1,0 +1,33 @@
+{
+  "context": "resources",
+  "prefix": "arm-vm-script-windows",
+  "description": "Custom script extension for a Windows Virtual Machine",
+  "resources": [
+    {
+      "name": "${1:windowsVM1}/${2:customScript1}",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "${2:customScript1} for Windows VM"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', '${1:windowsVM1}')]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[concat('${3:artifactsLocation}', '/${4:scripts}/${5:customScript.ps1}', '${6:artifactsLocationSasToken}')]"
+          ]
+        },
+        "protectedSettings": {
+          "commandToExecute": "powershell -ExecutionPolicy Bypass -file ${5:customScript.ps1}"
+        }
+      }
+    }
+  ]
+}

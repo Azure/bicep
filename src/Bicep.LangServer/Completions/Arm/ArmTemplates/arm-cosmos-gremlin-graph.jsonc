@@ -1,0 +1,47 @@
+{
+  "context": "resources",
+  "prefix": "arm-cosmos-gremlin-graph",
+  "description": "",
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs",
+      "name": "[concat('${1:account-name}', '/gremlin/', '${2:database-name}', '/', '${3:graph-name}')]",
+      "apiVersion": "2016-03-31",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', '${1:account-name}', 'gremlin', '${2:database-name}')]"
+      ],
+      "properties": {
+        "resource": {
+          "id": "${3:graph-name}",
+          "partitionKey": {
+            "paths": [
+              "/{4:partition-key}"
+            ],
+            "kind": "${5|hash,range|}"
+          },
+          "indexingPolicy": {
+            "indexingMode": "${6|consistent,lazy,none|}",
+            "includedPaths": [
+              {
+                "path": "/*",
+                "indexes": [
+                  {
+                    "kind": "${7|Hash,Range,Spatial|}",
+                    "dataType": "${8|String,Number,Point,Polygon,LineString,MultiPolygon|}",
+                    "precision": -1
+                  }
+                ]
+              }
+            ],
+            "excludedPaths": [
+              {
+                "path": "/${9:PathToNotIndex}/*"
+              }
+            ]
+          }
+        },
+        "options": {}
+      }
+    }
+  ]
+}

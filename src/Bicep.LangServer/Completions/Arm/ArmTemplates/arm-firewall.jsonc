@@ -1,0 +1,140 @@
+{
+  "context": "resources",
+  "prefix": "arm-firewall",
+  "description": "Azure Firewall",
+  "resources": [
+    {
+      "name": "${1:firewall1}",
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "properties": {
+        "applicationRuleCollections": [
+          {
+            "name": "${2:appCollectionName1}",
+            "properties": {
+              "priority": "${3:100}",
+              "action": {
+                "type": "${4|Allow,Deny|}"
+              },
+              "rules": [
+                {
+                  "name": "${5:appRuleName1}",
+                  "description": "${6:appRuleDescription}",
+                  "sourceAddresses": [
+                    "${7:10.0.0.4}"
+                  ],
+                  "protocols": [
+                    {
+                      "protocolType": "${8|Http,Https,Mssql|}",
+                      "port": "${9|80,443,1433|}"
+                    }
+                  ],
+                  "targetFqdns": [
+                    "${10:www.microsoft.com}"
+                  ],
+                  "fqdnTags": []
+                }
+              ]
+            }
+          }
+        ],
+        "natRuleCollections": [
+          {
+            "name": "${11:natCollectionName1}",
+            "properties": {
+              "priority": "${12:100}",
+              "action": {
+                "type": "${13|Dnat, Snat|}"
+              },
+              "rules": [
+                {
+                  "name": "${14:natRuleName1}",
+                  "description": "${15:natRuleDescription}",
+                  "sourceAddresses": [
+                    "${16:10.0.0.4}"
+                  ],
+                  "destinationAddresses": [
+                    "[reference(resourceId('Microsoft.Network/publicIPAddresses', '${34:publicIPAddress1}')).ipAddress]"
+                  ],
+                  "destinationPorts": [
+                    "${18:3389}"
+                  ],
+                  "protocols": [
+                    "${19|TCP,UDP,Any,ICMP|}"
+                  ],
+                  "translatedAddress": "${20:10.0.0.254}",
+                  "translatedPort": "${21:2500}"
+                }
+              ]
+            }
+          }
+        ],
+        "networkRuleCollections": [
+          {
+            "name": "${22:networkCollectionName}",
+            "properties": {
+              "priority": "${23:100}",
+              "action": {
+                "type": "${24|Deny,Allow|}"
+              },
+              "rules": [
+                {
+                  "name": "${25:networkRuleName}",
+                  "description": "${26:networkRuleDescription}",
+                  "sourceAddresses": [
+                    "${27:10.0.0.4}"
+                  ],
+                  "destinationAddresses": [
+                    "${28:10.0.1.4}"
+                  ],
+                  "destinationPorts": [
+                    "${29:1}"
+                  ],
+                  "protocols": [
+                    "${30|TCP,UDP,Any,ICMP|}"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "ipConfigurations": [
+          {
+            "name": "${31:ipConfigName}",
+            "properties": {
+              "subnet": {
+                "id": "[resourceId('${32:virtualNetworkResourceGroup}', 'Microsoft.Network/virtualNetworks/subnets', '${33:virtualNetworkName}', 'AzureFirewallSubnet')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', '${34:publicIPAddress1}')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', '${34:publicIPAddress1}')]"
+      ]
+    },
+    {
+      "name": "${34:publicIPAddress1}",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "standard"
+      },
+      "tags": {
+        "createdFor": "${1:firewall1}"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[concat('${1:firewall1}', uniqueString(resourceGroup().id))]"
+        }
+      }
+    }
+  ]
+}

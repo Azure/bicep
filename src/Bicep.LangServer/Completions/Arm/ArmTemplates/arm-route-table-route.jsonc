@@ -1,0 +1,17 @@
+{
+  "context": "resources",
+  "prefix": "arm-route-table-route",
+  "description": "Azure Route Table Route",
+  "resources": [
+    {
+      "name": "${1:route-name}",
+      "type": "Microsoft.Network/routeTables/routes",
+      "apiVersion": "2019-11-01",
+      "properties": {
+        "addressPrefix": "${2:address-prefix}",
+        "nextHopType": "${3|VirtualNetworkGateway,VnetLocal,Internet,VirtualAppliance,None|}",
+        "nextHopIpAddress": "${4:next-hop-ip}"
+      }
+    }
+  ]
+}

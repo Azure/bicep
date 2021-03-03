@@ -1,0 +1,31 @@
+{
+  "context": "resources",
+  "prefix": "arm-nsg",
+  "description": "Network Security Group",
+  "resources": [
+    {
+      "name": "${1:networkSecurityGroup1}",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "${2:nsgRule1}",
+            "properties": {
+              "description": "${3:description}",
+              "protocol": "${4|Tcp,Udp,*|}",
+              "sourcePortRange": "${5:*}",
+              "destinationPortRange": "${6:*}",
+              "sourceAddressPrefix": "${7:*}",
+              "destinationAddressPrefix": "${8:*}",
+              "access": "${9|Allow,Deny|}",
+              "priority": "${10:100}",
+              "direction": "${11|Inbound,Outbound|}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
