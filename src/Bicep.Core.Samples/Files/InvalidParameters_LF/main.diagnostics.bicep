@@ -558,7 +558,14 @@ param tooManyArguments1 int = 20
 //@[5:5) [BCP020 (Error)] Expected a function or property name at this location. ||
 param tooManyArguments2 string
 
+@description(sys.concat(2))
+//@[13:26) [BCP032 (Error)] The value must be a compile-time constant. |sys.concat(2)|
+@allowed([for thing in []: 's'])
+//@[9:31) [BCP032 (Error)] The value must be a compile-time constant. |[for thing in []: 's']|
+//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+param nonConstantInDecorator string
 
 // unterminated multi-line comment
 /*    
-//@[0:6) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    |
+//@[0:7) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    \n|
+

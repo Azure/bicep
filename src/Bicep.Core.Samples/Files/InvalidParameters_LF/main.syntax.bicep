@@ -2504,10 +2504,65 @@ param tooManyArguments2 string
 //@[6:23)   Identifier |tooManyArguments2|
 //@[24:30)  TypeSyntax
 //@[24:30)   Identifier |string|
-//@[30:33) NewLine |\n\n\n|
+//@[30:32) NewLine |\n\n|
 
+@description(sys.concat(2))
+//@[0:96) ParameterDeclarationSyntax
+//@[0:27)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:27)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:26)    FunctionArgumentSyntax
+//@[13:26)     InstanceFunctionCallSyntax
+//@[13:16)      VariableAccessSyntax
+//@[13:16)       IdentifierSyntax
+//@[13:16)        Identifier |sys|
+//@[16:17)      Dot |.|
+//@[17:23)      IdentifierSyntax
+//@[17:23)       Identifier |concat|
+//@[23:24)      LeftParen |(|
+//@[24:25)      FunctionArgumentSyntax
+//@[24:25)       IntegerLiteralSyntax
+//@[24:25)        Integer |2|
+//@[25:26)      RightParen |)|
+//@[26:27)    RightParen |)|
+//@[27:28)  NewLine |\n|
+@allowed([for thing in []: 's'])
+//@[0:32)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:32)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:31)    FunctionArgumentSyntax
+//@[9:31)     ForSyntax
+//@[9:10)      LeftSquare |[|
+//@[10:13)      Identifier |for|
+//@[14:19)      LocalVariableSyntax
+//@[14:19)       IdentifierSyntax
+//@[14:19)        Identifier |thing|
+//@[20:22)      Identifier |in|
+//@[23:25)      ArraySyntax
+//@[23:24)       LeftSquare |[|
+//@[24:25)       RightSquare |]|
+//@[25:26)      Colon |:|
+//@[27:30)      StringSyntax
+//@[27:30)       StringComplete |'s'|
+//@[30:31)      RightSquare |]|
+//@[31:32)    RightParen |)|
+//@[32:33)  NewLine |\n|
+param nonConstantInDecorator string
+//@[0:5)  Identifier |param|
+//@[6:28)  IdentifierSyntax
+//@[6:28)   Identifier |nonConstantInDecorator|
+//@[29:35)  TypeSyntax
+//@[29:35)   Identifier |string|
+//@[35:37) NewLine |\n\n|
 
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    
-//@[6:6) EndOfFile ||
+
+//@[0:0) EndOfFile ||
