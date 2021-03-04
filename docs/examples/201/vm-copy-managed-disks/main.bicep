@@ -1,17 +1,25 @@
 param virtualMachineAdminUserName string = 'azadmin'
+
 @secure()
 param virtualMachineAdminPassword string
+
 param virtualMachineNamePrefix string = 'MyVM0'
+
 param virtualMachineCount int = 3
+
 param virtualMachineSize string = 'Standard_DS2_v2'
+
 @allowed([
   'Server2012R2'
   'Server2016'
   'Server2019'
 ])
 param operatingSystem string = 'Server2019'
+
 param availabilitySetName string = 'MyAvailabilitySet'
+
 param dnsPrefixForPublicIP string = uniqueString(resourceGroup().id)
+
 param location string = resourceGroup().location
 
 var myVNETName = 'myVNET'
