@@ -553,6 +553,7 @@ namespace Bicep.Decompiler
             var properties = new List<ObjectPropertySyntax>();
             foreach (var (key, value) in jObject)
             {
+                // here we're handling a property copy
                 if (key == "copy" && value is JArray)
                 {
                     foreach (var entry in value)
@@ -573,12 +574,31 @@ namespace Bicep.Decompiler
                                     return;
                                 }
 
-                                if (function.Parameters.Length == 1 && function.Parameters[0] is JTokenExpression copyIndexName && copyIndexName.Value.ToString() == name)
+                                if (function.Parameters.Length == 1 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == name)
                                 {
+                                    // copyIndex(<name>) - replace with 'j'
                                     function.Function = "variables";
                                     function.Parameters = new LanguageExpression[]
                                     {
                                         new JTokenExpression(PropertyCopyLoopIndexVar),
+                                    };
+                                }
+                                else if (function.Parameters.Length == 2 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == name)
+                                {
+                                    // copyIndex(<name>, <offset>) - replace with 'j + <offset>'
+                                    var varExpression = new FunctionExpression(
+                                        "variables",
+                                        new LanguageExpression[]
+                                        {
+                                            new JTokenExpression(PropertyCopyLoopIndexVar),
+                                        },
+                                        Array.Empty<LanguageExpression>());
+
+                                    function.Function = "add";
+                                    function.Parameters = new LanguageExpression[]
+                                    {
+                                        varExpression,
+                                        function.Parameters[1],
                                     };
                                 }
                             });
@@ -735,22 +755,16 @@ namespace Bicep.Decompiler
     
                     if (function.Parameters.Length == 0)
                     {
+                        // copyIndex() - replace with 'i'
                         function.Function = "variables";
                         function.Parameters = new LanguageExpression[]
                         {
                             new JTokenExpression(ResourceCopyLoopIndexVar),
                         };
                     }
-                    else if (function.Parameters.Length == 1)
+                    else if (function.Parameters.Length == 1 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == null) // exclude 'named' copyIndex - it does not apply to resources.
                     {
-                        if (function.Parameters[0] is JTokenExpression jTokenExpression && 
-                            jTokenExpression.Value.Type == JTokenType.String &&
-                            !ExpressionsEngine.IsLanguageExpression(jTokenExpression.Value.Value<string>()))
-                        {
-                            // leave it alone - named copy loops are used for property copies
-                            return;
-                        }
-
+                        // copyIndex(<offset>) - replace with 'i + <offset>'
                         var varExpression = new FunctionExpression(
                             "variables",
                             new LanguageExpression[]

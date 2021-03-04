@@ -26,7 +26,7 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [for
       vmSize: vmSize
     }
     osProfile: {
-      computerName: '${vmPrefix}-${i}'
+      computerName: '${vmPrefix}-${(i + 13)}'
       adminUsername: 'vmadmin'
       adminPassword: adminPassword
     }
@@ -42,7 +42,7 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [for
       }
       dataDisks: [for j in range(0, dataDiskCount): {
         diskSizeGB: 1023
-        lun: j
+        lun: (j + 17)
         createOption: 'Empty'
       }]
     }

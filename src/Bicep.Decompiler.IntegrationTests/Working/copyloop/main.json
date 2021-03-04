@@ -53,7 +53,7 @@
                     "vmSize": "[parameters('vmSize')]"
                 },
                 "osProfile": {
-                    "computerName": "[concat(parameters('vmPrefix'), '-', copyIndex())]",
+                    "computerName": "[concat(parameters('vmPrefix'), '-', copyIndex(13))]",
                     "adminUsername": "vmadmin",
                     "adminPassword": "[parameters('adminPassword')]"
                 },
@@ -73,7 +73,7 @@
                             "count": "[parameters('dataDiskCount')]",
                             "input": {
                                 "diskSizeGB": 1023,
-                                "lun": "[copyIndex('dataDisks')]",
+                                "lun": "[copyIndex('dataDisks', 17)]",
                                 "createOption": "Empty"
                             }
                         }

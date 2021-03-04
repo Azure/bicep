@@ -279,5 +279,20 @@ namespace Bicep.Decompiler.ArmHelpers
 
             return token;
         }
+
+        public static string? TryGetStringValue(LanguageExpression expression)
+        {
+            if (expression is not JTokenExpression jTokenExpression)
+            {
+                return null;
+            }
+
+            if (jTokenExpression.Value.Type != JTokenType.String)
+            {
+                return null;
+            }
+
+            return jTokenExpression.Value.ToString();
+        }
     }
 }
