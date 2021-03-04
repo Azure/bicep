@@ -1,4 +1,6 @@
 name: Update Baselines
+# This action can be run on-demand against a branch.
+# It attempts to update the baseline files, and commits and pushes changes if there are any.
 
 on:
   workflow_dispatch:
