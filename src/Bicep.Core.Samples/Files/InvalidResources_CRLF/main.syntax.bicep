@@ -7207,8 +7207,17 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
 //@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+@batchSize()
+//@[0:208) ResourceDeclarationSyntax
+//@[0:12)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:12)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |batchSize|
+//@[10:11)    LeftParen |(|
+//@[11:12)    RightParen |)|
+//@[12:14)  NewLine |\r\n|
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:194) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:43)  IdentifierSyntax
 //@[9:43)   Identifier |directRefViaSingleLoopResourceBody|
@@ -7275,8 +7284,20 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 //@[1:2)   RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
+@batchSize(0)
+//@[0:302) ResourceDeclarationSyntax
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |batchSize|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |0|
+//@[12:13)    RightParen |)|
+//@[13:15)  NewLine |\r\n|
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:287) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:61)  IdentifierSyntax
 //@[9:61)   Identifier |directRefViaSingleLoopResourceBodyWithExtraDependsOn|
@@ -7451,8 +7472,22 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 
 // resource loop body that isn't an object
 //@[42:44) NewLine |\r\n|
+@batchSize(-1)
+//@[0:118) ResourceDeclarationSyntax
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |batchSize|
+//@[10:11)    LeftParen |(|
+//@[11:13)    FunctionArgumentSyntax
+//@[11:13)     UnaryOperationSyntax
+//@[11:12)      Minus |-|
+//@[12:13)      IntegerLiteralSyntax
+//@[12:13)       Integer |1|
+//@[13:14)    RightParen |)|
+//@[14:16)  NewLine |\r\n|
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
-//@[0:102) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:34)  IdentifierSyntax
 //@[9:34)   Identifier |nonObjectResourceLoopBody|
@@ -7663,4 +7698,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

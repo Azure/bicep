@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.TypeSystem;
+using System;
 
 namespace Bicep.Core.Semantics
 {
@@ -50,6 +51,12 @@ namespace Bicep.Core.Semantics
 
         public DecoratorBuilder WithFlags(FunctionFlags flags)
         {
+            if(!Enum.IsDefined(typeof(FunctionFlags), flags))
+            {
+                // VisitMissingDeclarationSyntax in the TypeAssignmentVisitor uses the flags to determine the error message in cases of dangling decorators
+                throw new ArgumentException($"The specified flags value is not explicitly defined in the {nameof(FunctionFlags)} enumeration. Define the combination and update usages to ensure the combination is handled correctly.");
+            }
+
             this.functionOverloadBuilder.WithFlags(flags);
 
             return this;

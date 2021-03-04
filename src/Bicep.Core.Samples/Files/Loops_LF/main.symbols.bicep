@@ -37,9 +37,10 @@ resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-0
 }
 
 // resource collection
+@batchSize(42)
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
 //@[79:86) Local account. Type: any. Declaration start char: 79, length: 7
-//@[9:24) Resource storageAccounts. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 274
+//@[9:24) Resource storageAccounts. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 289
   name: '${name}-collection-${account.name}'
   location: account.location
   kind: 'StorageV2'
@@ -73,9 +74,10 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 }]
 
 // cascade extend the extension
+@batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
 //@[72:73) Local i. Type: int. Declaration start char: 72, length: 1
-//@[9:21) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 222
+//@[9:21) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 236
   name: 'lock-the-lock-${i}'
   properties: {
     level: i == 0 ? 'CanNotDelete' : 'ReadOnly'
@@ -237,9 +239,10 @@ var moduleSetup = [
 ]
 
 // module collection plus explicit dependency on single module
+@sys.batchSize(3)
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleName in moduleSetup: {
 //@[71:81) Local moduleName. Type: any. Declaration start char: 71, length: 10
-//@[7:43) Module moduleCollectionWithSingleDependency. Type: module[]. Declaration start char: 0, length: 224
+//@[7:43) Module moduleCollectionWithSingleDependency. Type: module[]. Declaration start char: 0, length: 242
   name: moduleName
   params: {
     myInput: 'in-${moduleName}'
@@ -454,3 +457,4 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
     ]
   }
 }]
+

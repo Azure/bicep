@@ -181,3 +181,6 @@ var innerPropertyLoop2 = {
 
 // cannot use loops in expressions
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
+
+@batchSize(1)
+var batchSizeMakesNoSenseHere = false
