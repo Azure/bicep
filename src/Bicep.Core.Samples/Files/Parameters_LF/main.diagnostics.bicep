@@ -53,7 +53,7 @@ param myArrayParam array = [
 
 // alternative array parameter
 param myAlternativeArrayParam array {
-//@[36:107) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  default: [\n    'a'\n    'b'\n    'c'\n    newGuid()\n    utcNow()\n  ]\n}|
+//@[36:107) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: [\n    'a'\n    'b'\n    'c'\n    newGuid()\n    utcNow()\n  ]\n}|
   default: [
     'a'
     'b'
@@ -65,7 +65,7 @@ param myAlternativeArrayParam array {
 
 // secure string
 param password string {
-//@[22:40) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  secure: true\n}|
+//@[22:40) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: true\n}|
   secure: true
 }
 
@@ -74,13 +74,13 @@ param passwordWithDecorator string
 
 // non-secure string
 param nonSecure string {
-//@[23:42) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  secure: false\n}|
+//@[23:42) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: false\n}|
   secure: false
 }
 
 // secure object
 param secretObject object {
-//@[26:44) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  secure: true\n}|
+//@[26:44) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: true\n}|
   secure: true
 }
 
@@ -89,7 +89,7 @@ param secureObjectWithDecorator object
 
 // enum parameter
 param storageSku string {
-//@[24:82) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  allowed: [\n    'Standard_LRS'\n    'Standard_GRS'\n  ]\n}|
+//@[24:82) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'Standard_LRS'\n    'Standard_GRS'\n  ]\n}|
   allowed: [
     'Standard_LRS'
     'Standard_GRS'
@@ -104,7 +104,7 @@ param storageSkuWithDecorator string
 
 // length constraint on a string
 param storageName string {
-//@[25:59) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  minLength: 3\n  maxLength: 24\n}|
+//@[25:59) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  minLength: 3\n  maxLength: 24\n}|
   minLength: 3
   maxLength: 24
 }
@@ -115,7 +115,7 @@ param storageNameWithDecorator string
 
 // length constraint on an array
 param someArray array {
-//@[22:56) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  minLength: 3\n  maxLength: 24\n}|
+//@[22:56) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  minLength: 3\n  maxLength: 24\n}|
   minLength: 3
   maxLength: 24
 }
@@ -126,7 +126,7 @@ param someArrayWithDecorator array
 
 // empty metadata
 param emptyMetadata string {
-//@[27:48) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  metadata: {\n  }\n}|
+//@[27:48) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  metadata: {\n  }\n}|
   metadata: {
   }
 }
@@ -136,7 +136,7 @@ param emptyMetadataWithDecorator string
 
 // description
 param description string {
-//@[25:80) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  metadata: {\n    description: 'my description'\n  }\n}|
+//@[25:80) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  metadata: {\n    description: 'my description'\n  }\n}|
   metadata: {
     description: 'my description'
   }
@@ -152,7 +152,7 @@ param descriptionWithDecorator2 string
 
 // random extra metadata
 param additionalMetadata string {
-//@[32:156) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  metadata: {\n    description: 'my description'\n    a: 1\n    b: true\n    c: [\n    ]\n    d: {\n      test: 'abc'\n    }\n  }\n}|
+//@[32:156) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  metadata: {\n    description: 'my description'\n    a: 1\n    b: true\n    c: [\n    ]\n    d: {\n      test: 'abc'\n    }\n  }\n}|
   metadata: {
     description: 'my description'
     a: 1
@@ -179,7 +179,7 @@ param additionalMetadataWithDecorator string
 
 // all modifiers together
 param someParameter string {
-//@[27:207) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  secure: true\n  minLength: 3\n  maxLength: 24\n  default: 'one'\n  allowed: [\n    'one'\n    'two'\n    'three'\n  ]\n  metadata: {\n    description: 'Name of the storage account'\n  }\n}|
+//@[27:207) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: true\n  minLength: 3\n  maxLength: 24\n  default: 'one'\n  allowed: [\n    'one'\n    'two'\n    'three'\n  ]\n  metadata: {\n    description: 'Name of the storage account'\n  }\n}|
   secure: true
   minLength: 3
   maxLength: 24
@@ -208,7 +208,7 @@ param someParameter string {
 param someParameterWithDecorator string = 'one'
 
 param defaultValueExpression int {
-//@[33:66) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. |{\n  default: true ? 4 + 2*3 : 0\n}|
+//@[33:66) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: true ? 4 + 2*3 : 0\n}|
   default: true ? 4 + 2*3 : 0
 }
 
