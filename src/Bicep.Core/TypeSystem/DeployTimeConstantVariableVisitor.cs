@@ -20,7 +20,7 @@ namespace Bicep.Core.TypeSystem
             this.VisitedStack = new Stack<string>();
         }
 
-        public Stack<string> VisitedStack { get; private set; }
+        public Stack<string> VisitedStack { get; }
 
         public ObjectType? InvalidReferencedBodyType { get; private set; }
 
