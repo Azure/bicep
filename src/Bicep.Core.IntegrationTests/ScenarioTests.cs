@@ -889,6 +889,54 @@ module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
             diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\".");
             diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\".");
         }
+
+        [TestMethod]
+        public void Test_Issue1592()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+              ("main.bicep", @"
+module foo 'test.bicep' = {
+  name: 'foo'
+}
+
+output fooName string = foo.name
+    "),
+              ("test.bicep", @""));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['fooName'].value")!.Should().DeepEqual("foo");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1592_special_cases()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+              ("main.bicep", @"
+param someParam string
+
+module foo 'test.bicep' = {
+  name: '${someParam}-test'
+}
+
+output fooName string = foo.name
+output fooOutput string = foo.outputs.test
+    "),
+              ("test.bicep", @"
+output test string = 'hello'
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['fooName'].value")!.Should().DeepEqual("[format('{0}-test', parameters('someParam'))]");
+                template!.SelectToken("$.outputs['fooOutput'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2019-10-01').outputs.test.value]");
+            }
+        }
     }
 }
 

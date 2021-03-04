@@ -206,6 +206,20 @@ namespace Bicep.Core.Emit
                 return null;
             }
 
+            LanguageExpression? ConvertModulePropertyAccess(ModuleSymbol moduleSymbol, SyntaxBase? indexExpression)
+            {
+                switch (propertyAccess.PropertyName.IdentifierName)
+                {
+                    case "name":
+                        // the name is dependent on the name expression which could involve locals in case of a resource collection
+                        return this
+                            .CreateConverterForIndexReplacement(GetModuleNameSyntax(moduleSymbol), indexExpression, propertyAccess)
+                            .GetModuleNameExpression(moduleSymbol);
+                }
+
+                return null;
+            }
+
             if (propertyAccess.BaseExpression is VariableAccessSyntax propVariableAccess &&
                 context.SemanticModel.GetSymbolInfo(propVariableAccess) is ResourceSymbol resourceSymbol &&
                 ConvertResourcePropertyAccess(resourceSymbol, indexExpression: null) is { } convertedSingle)
@@ -215,7 +229,7 @@ namespace Bicep.Core.Emit
                 return convertedSingle;
             }
 
-            if(propertyAccess.BaseExpression is ArrayAccessSyntax propArrayAccess &&
+            if (propertyAccess.BaseExpression is ArrayAccessSyntax propArrayAccess &&
                 propArrayAccess.BaseExpression is VariableAccessSyntax arrayVariableAccess &&
                 context.SemanticModel.GetSymbolInfo(arrayVariableAccess) is ResourceSymbol resourceCollectionSymbol && 
                 ConvertResourcePropertyAccess(resourceCollectionSymbol, propArrayAccess.IndexExpression) is { } convertedCollection)
@@ -226,15 +240,35 @@ namespace Bicep.Core.Emit
                 return convertedCollection;
             }
 
+            if (propertyAccess.BaseExpression is VariableAccessSyntax modulePropVariableAccess &&
+                context.SemanticModel.GetSymbolInfo(modulePropVariableAccess) is ModuleSymbol moduleSymbol &&
+                ConvertModulePropertyAccess(moduleSymbol, indexExpression: null) is { } moduleConvertedSingle)
+            {
+                // we are doing property access on a single module
+                // and we are dealing with special case properties
+                return moduleConvertedSingle;
+            }
+
+            if (propertyAccess.BaseExpression is ArrayAccessSyntax modulePropArrayAccess &&
+                modulePropArrayAccess.BaseExpression is VariableAccessSyntax moduleArrayVariableAccess &&
+                context.SemanticModel.GetSymbolInfo(moduleArrayVariableAccess) is ModuleSymbol moduleCollectionSymbol && 
+                ConvertModulePropertyAccess(moduleCollectionSymbol, modulePropArrayAccess.IndexExpression) is { } moduleConvertedCollection)
+            {
+
+                // we are doing property access on an array access of a module collection
+                // and we are dealing with special case properties
+                return moduleConvertedCollection;
+            }
+
             // is this a (<child>.outputs).<prop> propertyAccess?
             if (propertyAccess.BaseExpression is PropertyAccessSyntax childPropertyAccess && childPropertyAccess.PropertyName.IdentifierName == LanguageConstants.ModuleOutputsPropertyName)
             {
                 // is <child> a variable which points to a non-collection module symbol?
                 if (childPropertyAccess.BaseExpression is VariableAccessSyntax grandChildVariableAccess &&
-                    context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is ModuleSymbol { IsCollection: false } moduleSymbol)
+                    context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is ModuleSymbol { IsCollection: false } outputsModuleSymbol)
                 {
                     return AppendProperties(
-                        this.GetModuleOutputsReferenceExpression(moduleSymbol),
+                        this.GetModuleOutputsReferenceExpression(outputsModuleSymbol),
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
                         new JTokenExpression("value"));
                 }
@@ -242,11 +276,11 @@ namespace Bicep.Core.Emit
                 // is <child> an array access operating on a module collection
                 if (childPropertyAccess.BaseExpression is ArrayAccessSyntax grandChildArrayAccess &&
                     grandChildArrayAccess.BaseExpression is VariableAccessSyntax grandGrandChildVariableAccess &&
-                    context.SemanticModel.GetSymbolInfo(grandGrandChildVariableAccess) is ModuleSymbol { IsCollection: true } moduleCollectionSymbol)
+                    context.SemanticModel.GetSymbolInfo(grandGrandChildVariableAccess) is ModuleSymbol { IsCollection: true } outputsModuleCollectionSymbol)
                 {
-                    var updatedConverter = this.CreateConverterForIndexReplacement(GetModuleNameSyntax(moduleCollectionSymbol), grandChildArrayAccess.IndexExpression, propertyAccess);
+                    var updatedConverter = this.CreateConverterForIndexReplacement(GetModuleNameSyntax(outputsModuleCollectionSymbol), grandChildArrayAccess.IndexExpression, propertyAccess);
                     return AppendProperties(
-                        updatedConverter.GetModuleOutputsReferenceExpression(moduleCollectionSymbol),
+                        updatedConverter.GetModuleOutputsReferenceExpression(outputsModuleCollectionSymbol),
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
                         new JTokenExpression("value"));
                 }
