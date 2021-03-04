@@ -43,6 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // construct a parallel compilation
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
@@ -176,7 +177,8 @@ namespace Bicep.LangServer.IntegrationTests
                     break;
 
                 case VariableSymbol variable:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"var {variable.Name}: {variable.Type}");
+                    // the hovers with errors don't appear in VS code and only occur in tests
+                    hover.Contents.MarkupContent.Value.Should().Match(value => value.Contains($"var {variable.Name}: {variable.Type}") || value.Contains($"var {variable.Name}: error"));
                     break;
 
                 case ResourceSymbol resource:

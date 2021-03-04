@@ -8,7 +8,6 @@ using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
-using FluentAssertions.Execution;
 using FluentAssertions;
 using System;
 using Bicep.Core.TypeSystem;

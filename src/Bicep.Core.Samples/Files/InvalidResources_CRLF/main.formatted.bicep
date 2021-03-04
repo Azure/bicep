@@ -330,6 +330,36 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+  name: 'test'
+  location: 'test'
+}]
+
+var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
+var runtimeCheckVar2 = runtimeCheckVar
+
+resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: runtimeCheckVar2
+  location: 'test'
+}
+
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+  name: runtimeCheckVar2
+  location: 'test'
+}]
+
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+  name: loopForRuntimeCheck[0].properties.zoneType
+  location: 'test'
+}]
+
+var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
+var varForRuntimeCheck4b = varForRuntimeCheck4a
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+  name: varForRuntimeCheck4b
+  location: 'test'
+}]
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
   // #completionTest(0, 1, 2) -> topLevelProperties
 }

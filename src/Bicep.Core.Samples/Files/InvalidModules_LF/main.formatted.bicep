@@ -201,6 +201,27 @@ module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 }
 
+module singleModuleForRuntimeCheck 'modulea.bicep' = {
+  name: 'test'
+}
+
+var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
+var moduleRuntimeCheck2 = moduleRuntimeCheck
+
+module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
+  name: moduleRuntimeCheck2
+}]
+
+var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
+var moduleRuntimeCheck4 = moduleRuntimeCheck3
+module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
+  name: moduleRuntimeCheck4
+}]
+
+module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
+  name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA)
+}]
+
 module moduleWithDuplicateName1 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
   scope: resourceGroup()

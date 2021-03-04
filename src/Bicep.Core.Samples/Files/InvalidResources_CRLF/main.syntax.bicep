@@ -2571,7 +2571,295 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
 //@[25:27)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:7) NewLine |\r\n\r\n\r\n|
+
+
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[0:130) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |loopForRuntimeCheck|
+//@[29:68)  StringSyntax
+//@[29:68)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[69:70)  Assignment |=|
+//@[71:130)  ForSyntax
+//@[71:72)   LeftSquare |[|
+//@[72:75)   Identifier |for|
+//@[76:81)   LocalVariableSyntax
+//@[76:81)    IdentifierSyntax
+//@[76:81)     Identifier |thing|
+//@[82:84)   Identifier |in|
+//@[85:87)   ArraySyntax
+//@[85:86)    LeftSquare |[|
+//@[86:87)    RightSquare |]|
+//@[87:88)   Colon |:|
+//@[89:129)   ObjectSyntax
+//@[89:90)    LeftBrace |{|
+//@[90:92)    NewLine |\r\n|
+  name: 'test'
+//@[2:14)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:14)     StringSyntax
+//@[8:14)      StringComplete |'test'|
+//@[14:16)    NewLine |\r\n|
+  location: 'test'
+//@[2:18)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:18)     StringSyntax
+//@[12:18)      StringComplete |'test'|
+//@[18:20)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
+//@[0:64) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |runtimeCheckVar|
+//@[20:21)  Assignment |=|
+//@[22:64)  PropertyAccessSyntax
+//@[22:55)   PropertyAccessSyntax
+//@[22:44)    ArrayAccessSyntax
+//@[22:41)     VariableAccessSyntax
+//@[22:41)      IdentifierSyntax
+//@[22:41)       Identifier |loopForRuntimeCheck|
+//@[41:42)     LeftSquare |[|
+//@[42:43)     IntegerLiteralSyntax
+//@[42:43)      Integer |0|
+//@[43:44)     RightSquare |]|
+//@[44:45)    Dot |.|
+//@[45:55)    IdentifierSyntax
+//@[45:55)     Identifier |properties|
+//@[55:56)   Dot |.|
+//@[56:64)   IdentifierSyntax
+//@[56:64)    Identifier |zoneType|
+//@[64:66) NewLine |\r\n|
+var runtimeCheckVar2 = runtimeCheckVar
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:20)  IdentifierSyntax
+//@[4:20)   Identifier |runtimeCheckVar2|
+//@[21:22)  Assignment |=|
+//@[23:38)  VariableAccessSyntax
+//@[23:38)   IdentifierSyntax
+//@[23:38)    Identifier |runtimeCheckVar|
+//@[38:42) NewLine |\r\n\r\n|
+
+resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[0:131) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:38)  IdentifierSyntax
+//@[9:38)   Identifier |singleResourceForRuntimeCheck|
+//@[39:78)  StringSyntax
+//@[39:78)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[79:80)  Assignment |=|
+//@[81:131)  ObjectSyntax
+//@[81:82)   LeftBrace |{|
+//@[82:84)   NewLine |\r\n|
+  name: runtimeCheckVar2
+//@[2:24)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:24)    VariableAccessSyntax
+//@[8:24)     IdentifierSyntax
+//@[8:24)      Identifier |runtimeCheckVar2|
+//@[24:26)   NewLine |\r\n|
+  location: 'test'
+//@[2:18)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:18)    StringSyntax
+//@[12:18)     StringComplete |'test'|
+//@[18:20)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
+
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[0:141) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:29)  IdentifierSyntax
+//@[9:29)   Identifier |loopForRuntimeCheck2|
+//@[30:69)  StringSyntax
+//@[30:69)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[70:71)  Assignment |=|
+//@[72:141)  ForSyntax
+//@[72:73)   LeftSquare |[|
+//@[73:76)   Identifier |for|
+//@[77:82)   LocalVariableSyntax
+//@[77:82)    IdentifierSyntax
+//@[77:82)     Identifier |thing|
+//@[83:85)   Identifier |in|
+//@[86:88)   ArraySyntax
+//@[86:87)    LeftSquare |[|
+//@[87:88)    RightSquare |]|
+//@[88:89)   Colon |:|
+//@[90:140)   ObjectSyntax
+//@[90:91)    LeftBrace |{|
+//@[91:93)    NewLine |\r\n|
+  name: runtimeCheckVar2
+//@[2:24)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeCheckVar2|
+//@[24:26)    NewLine |\r\n|
+  location: 'test'
+//@[2:18)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:18)     StringSyntax
+//@[12:18)      StringComplete |'test'|
+//@[18:20)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[0:172) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:29)  IdentifierSyntax
+//@[9:29)   Identifier |loopForRuntimeCheck3|
+//@[30:69)  StringSyntax
+//@[30:69)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[70:71)  Assignment |=|
+//@[72:172)  ForSyntax
+//@[72:73)   LeftSquare |[|
+//@[73:76)   Identifier |for|
+//@[77:87)   LocalVariableSyntax
+//@[77:87)    IdentifierSyntax
+//@[77:87)     Identifier |otherThing|
+//@[88:90)   Identifier |in|
+//@[91:93)   ArraySyntax
+//@[91:92)    LeftSquare |[|
+//@[92:93)    RightSquare |]|
+//@[93:94)   Colon |:|
+//@[95:171)   ObjectSyntax
+//@[95:96)    LeftBrace |{|
+//@[96:98)    NewLine |\r\n|
+  name: loopForRuntimeCheck[0].properties.zoneType
+//@[2:50)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:50)     PropertyAccessSyntax
+//@[8:41)      PropertyAccessSyntax
+//@[8:30)       ArrayAccessSyntax
+//@[8:27)        VariableAccessSyntax
+//@[8:27)         IdentifierSyntax
+//@[8:27)          Identifier |loopForRuntimeCheck|
+//@[27:28)        LeftSquare |[|
+//@[28:29)        IntegerLiteralSyntax
+//@[28:29)         Integer |0|
+//@[29:30)        RightSquare |]|
+//@[30:31)       Dot |.|
+//@[31:41)       IdentifierSyntax
+//@[31:41)        Identifier |properties|
+//@[41:42)      Dot |.|
+//@[42:50)      IdentifierSyntax
+//@[42:50)       Identifier |zoneType|
+//@[50:52)    NewLine |\r\n|
+  location: 'test'
+//@[2:18)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:18)     StringSyntax
+//@[12:18)      StringComplete |'test'|
+//@[18:20)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
+//@[0:69) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |varForRuntimeCheck4a|
+//@[25:26)  Assignment |=|
+//@[27:69)  PropertyAccessSyntax
+//@[27:60)   PropertyAccessSyntax
+//@[27:49)    ArrayAccessSyntax
+//@[27:46)     VariableAccessSyntax
+//@[27:46)      IdentifierSyntax
+//@[27:46)       Identifier |loopForRuntimeCheck|
+//@[46:47)     LeftSquare |[|
+//@[47:48)     IntegerLiteralSyntax
+//@[47:48)      Integer |0|
+//@[48:49)     RightSquare |]|
+//@[49:50)    Dot |.|
+//@[50:60)    IdentifierSyntax
+//@[50:60)     Identifier |properties|
+//@[60:61)   Dot |.|
+//@[61:69)   IdentifierSyntax
+//@[61:69)    Identifier |zoneType|
+//@[69:71) NewLine |\r\n|
+var varForRuntimeCheck4b = varForRuntimeCheck4a
+//@[0:47) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |varForRuntimeCheck4b|
+//@[25:26)  Assignment |=|
+//@[27:47)  VariableAccessSyntax
+//@[27:47)   IdentifierSyntax
+//@[27:47)    Identifier |varForRuntimeCheck4a|
+//@[47:49) NewLine |\r\n|
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[0:150) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:29)  IdentifierSyntax
+//@[9:29)   Identifier |loopForRuntimeCheck4|
+//@[30:69)  StringSyntax
+//@[30:69)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[70:71)  Assignment |=|
+//@[72:150)  ForSyntax
+//@[72:73)   LeftSquare |[|
+//@[73:76)   Identifier |for|
+//@[77:87)   LocalVariableSyntax
+//@[77:87)    IdentifierSyntax
+//@[77:87)     Identifier |otherThing|
+//@[88:90)   Identifier |in|
+//@[91:93)   ArraySyntax
+//@[91:92)    LeftSquare |[|
+//@[92:93)    RightSquare |]|
+//@[93:94)   Colon |:|
+//@[95:149)   ObjectSyntax
+//@[95:96)    LeftBrace |{|
+//@[96:98)    NewLine |\r\n|
+  name: varForRuntimeCheck4b
+//@[2:28)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:28)     VariableAccessSyntax
+//@[8:28)      IdentifierSyntax
+//@[8:28)       Identifier |varForRuntimeCheck4b|
+//@[28:30)    NewLine |\r\n|
+  location: 'test'
+//@[2:18)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:18)     StringSyntax
+//@[12:18)      StringComplete |'test'|
+//@[18:20)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[0:151) ResourceDeclarationSyntax
