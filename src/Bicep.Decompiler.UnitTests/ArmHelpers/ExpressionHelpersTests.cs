@@ -6,6 +6,8 @@ using Azure.Deployments.Expression.Serializers;
 using Bicep.Decompiler.ArmHelpers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
+using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.Core.IntegrationTests.ArmHelpers
 {
@@ -90,6 +92,22 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             var output = ExpressionHelpers.TryGetLocalFilePathForTemplateLink(inputExpression);
 
             output.Should().BeNull();
+        }
+
+        [DataTestMethod]
+        [DataRow("{\"val\": \"[replaceMe()]\"}", "{\"val\": \"[replaced()]\"}")]
+        [DataRow("{\"val\": [\"[replaceMe()]\"]}", "{\"val\": [\"[replaced()]\"]}")]
+        [DataRow("\"[replaceMe()]\"", "\"[replaced()]\"")]
+        public void ReplaceFunctionExpressions_replaces_function_expressions(string jsonInput, string expectedJsonOutput)
+        {
+            var input = JToken.Parse(jsonInput);
+            var output = ExpressionHelpers.ReplaceFunctionExpressions(input, function => {
+                if (function.Function == "replaceMe") {
+                    function.Function = "replaced";
+                }
+            });
+
+            output.Should().DeepEqual(JToken.Parse(expectedJsonOutput));
         }
     }
 }

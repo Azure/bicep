@@ -5,13 +5,16 @@
         "storageCount": {
             "type": "int",
             "defaultValue": 2
+        },
+        "storagePrefix": {
+            "type": "string"
         }
     },
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-04-01",
-            "name": "[concat(copyIndex(),'storage', uniqueString(resourceGroup().id))]",
+            "name": "[tolower(concat(copyIndex(), parameters('storagePrefix'), uniqueString(resourceGroup().id)))]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS"
@@ -21,7 +24,8 @@
             "copy": {
                 "name": "storagecopy",
                 "count": "[parameters('storageCount')]"
-            }
+            },
+            "condition": "[equals(copyIndex(), 1)]"
         }
     ],
     "outputs": {}

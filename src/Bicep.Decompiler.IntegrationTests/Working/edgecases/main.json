@@ -9,7 +9,13 @@
     "variables": {
         "test": "[concat('abc', format('{0}/{2}.{1}', concat('def', parameters('test'), 'ghi'), parameters('test'), 'jkl', 'mno'))]",
         "concats": "[concat(concat(concat(concat(concat(concat('abc'), 'def'), 'ghi'), 'jkl'), 'lmo'), 'pqr')]",
-        "formats": "[format('>>{0}<<>>{1}<<', 'abc', format('---{0}---', format('{0}.{1}', 'abc', 'def')))]"
+        "formats": "[format('>>{0}<<>>{1}<<', 'abc', format('---{0}---', format('{0}.{1}', 'abc', 'def')))]",
+        "escaped": "[[]",
+        "keyescaping": {
+            "[[]": "shouldbeescaped",
+            "[format('>>{0}<<>>{1}<<', 'abc', format('---{0}---', format('{0}.{1}', 'abc', 'def')))]": "shouldbeescaped",
+            "[concat('abc', format('{0}/{2}.{1}', concat('def', parameters('test'), 'ghi'), parameters('test'), 'jkl', 'mno'))]": "shouldbeescaped"
+        }
     },
     "resources": [],
     "outputs": {}
