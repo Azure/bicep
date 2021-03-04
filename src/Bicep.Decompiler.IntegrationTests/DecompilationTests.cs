@@ -138,6 +138,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("NonWorking/nested-outer.json", "[11:23]: Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information Microsoft.Resources/deployments pid-00000000-0000-0000-0000-000000000000")]
         [DataRow("NonWorking/condition-loop.json", "[14:9]: The 'copy' property is not supported in conjunction with the 'condition' property")]
         [DataRow("NonWorking/invalid-schema.json", "[2:98]: $schema value \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\" did not match any of the known ARM template deployment schemas.")]
+        [DataRow("NonWorking/batchsize.json", "[24:21]: The \"mode\" property is not currently supported")]
         public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
             Action onDecompile = () => {
