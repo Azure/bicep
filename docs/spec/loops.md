@@ -17,7 +17,7 @@ Filtering the loop is also allowed via the `where` keyword. (See the examples be
 
 ### Declare multiple identical resources
 In the below example, we are looping over `storageAccounts` array. For each loop iteration, `storageName` is set to the current array item and is referenced by name in the loop body.
-```
+```bicep
 // array of storage account names
 param storageAccounts array
 
@@ -52,7 +52,7 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
 
 In the example below, we are iterating over the `storageConfiguration` array variable. Within the loop body, `config` stores the current element from the array and `i` stores the 0-based index of the current array element. Both are referenced from within the loop body.
 
-```
+```bicep
 param storageAccountNamePrefix string
 
 var storageConfigurations = [
@@ -95,7 +95,7 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
 ### Generate an array property using a loop
 In the example below, we are constructing a `subnets` property of a virtual network resource from the `subnets` array. On each loop iteration, the `subnet` variable is set to the current element of the array.
 
-```
+```bicep
 var subnets = [
   {
     name: 'api'
@@ -129,7 +129,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
 ### Nested loops and filtering.
 The example below demonstrates a nested loop combined with filters at each loop. Filters must be expressions that evaluate to a boolean value.
 
-```
+```bicep
 resource parentResources 'Microsoft.Example/examples@2020-06-06' = [for parent in parents where parent.enabled: {
   name: parent.name
   properties: {
@@ -141,10 +141,28 @@ resource parentResources 'Microsoft.Example/examples@2020-06-06' = [for parent i
 }]
 ```
 
+### Batch size decorator
+By default for-expressions used in values of module or resource declarations will be deployed concurrently in a non-deterministic order at runtime. This behavior can be changed with the `@batchSize` decorator. The decorator is allowed on resource or module declarations whose values are a for-expression. The decorator accepts one integer literal parameter with value equal or greater than 1.
+
+When the decorator is specified the resources or modules part of the same declaration will be deployed sequentially in batches of the specified size. Each batch will be deployed concurrently. For purely sequential deployment, set the batch size to 1.
+
+The following example deploys 10 resource groups 2 at a time:
+```bicep
+targetScope = 'subscription'
+
+@batchSize(2)
+resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-06-01' = [for i in range(0,10): {
+  name: 'my-rg-{i}'
+  location: 'eastus'
+}]
+```
+
+See [Serial or Parallel](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/copy-resources#serial-or-parallel) for more information.
+
 ### Output loops.
 Directly referencing a resource module or module collection is not currently supported in output loops. In order to loop outputs we need to apply an array indexer to the expression.
 
-```
+```bicep
 var nsgNames = [
   'nsg1'
   'nsg2'
