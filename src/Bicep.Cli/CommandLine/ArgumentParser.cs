@@ -37,7 +37,7 @@ namespace Bicep.Cli.CommandLine
             var versionSplit = ThisAssembly.AssemblyInformationalVersion.Split('+');
 
             // <major>.<minor>.<patch> (<commmithash>)
-            return $"{versionSplit[0]} ({versionSplit[1]})";
+            return $"{versionSplit[0]} ({(versionSplit.Length > 1 ? versionSplit[1] : "custom")})";
         }
 
         public static void PrintVersion(TextWriter writer)
