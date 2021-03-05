@@ -26,8 +26,8 @@ param myParam string = resourceGroup().location
 
 A parameter cannot have the same name as a [variable](./variables.md), [resource](./resources.md), [output](./outputs.md) or another parameter in the same scope.
 
-## Declration with decorators
-Decorators provide a way to attach constrains and metadata to a parameter. Decorators are placed above the paramter declaration to be decorated. They use the form @expression, where expression must be a function call:
+## Declaration with decorators
+Decorators provide a way to attach constrains and metadata to a parameter. Decorators are placed above the parameter declaration to be decorated. They use the form @expression, where expression must be a function call:
 
 ```
 @expression
@@ -35,7 +35,7 @@ param myParam string
 ```
 
 ### Secure parameters
-If you are familiar with ARM template parameters, you will notice a conspicuous absense of `secureString` and `secureObject` types. In this language, these types are annotated with the `@secure` decorator.
+If you are familiar with ARM template parameters, you will notice a conspicuous absence of `secureString` and `secureObject` types. In this language, these types are annotated with the `@secure` decorator.
 
 The following declarations will compile into a `secureString` and `secureObject` parameters, respectively.
 ```
