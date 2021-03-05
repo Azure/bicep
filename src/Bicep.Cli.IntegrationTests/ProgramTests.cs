@@ -129,19 +129,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().BeEmpty();
-
-                if (dataSet.Name == "Parameters_LF" || dataSet.Name == "Parameters_CRLF")
-                {
-                    // TODO: remove this branch when the support of parameter modifiers is dropped. 
-                    foreach(var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        line.Should().Contain("BCP153");
-                    }
-                }
-                else
-                {
-                    error.Should().BeEmpty();
-                }
+                AssertEmptyOrDeprecatedError(error, dataSet.Name);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -173,19 +161,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
-
-                if (dataSet.Name == "Parameters_LF" || dataSet.Name == "Parameters_CRLF")
-                {
-                    // TODO: remove this branch when the support of parameter modifiers is dropped. 
-                    foreach(var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        line.Should().Contain("BCP153");
-                    }
-                }
-                else
-                {
-                    error.Should().BeEmpty();
-                }
+                AssertEmptyOrDeprecatedError(error, dataSet.Name);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -358,7 +334,7 @@ output myOutput string = 'hello!'
             }
         }
 
-        private IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
+        private static IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
         {
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
             var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
@@ -385,6 +361,22 @@ output myOutput string = 'hello!'
             .AllDataSets
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
+
+        private static void AssertEmptyOrDeprecatedError(string error, string dataSetName)
+        {
+            if (dataSetName == "Parameters_LF" || dataSetName == "Parameters_CRLF")
+            {
+                // TODO: remove this branch when the support of parameter modifiers is dropped. 
+                foreach(var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    line.Should().Contain("BCP153");
+                }
+            }
+            else
+            {
+                error.Should().BeEmpty();
+            }
+        }
     }
 }
 

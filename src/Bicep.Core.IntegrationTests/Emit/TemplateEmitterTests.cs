@@ -38,8 +38,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             // emitting the template should be successful
             var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), compiledFilePath, BicepTestConstants.DevAssemblyFileVersion);
             result.Status.Should().Be(EmitStatus.Succeeded);
-            // TODO: remove Where when the the support of parameter modifiers is dropped.
-            result.Diagnostics.Where(d => d.Code != "BCP153").Should().BeEmpty();
+            result.Diagnostics.Should().BeEmptyOrContainDeprecatedDiagnosticOnly();
 
             var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
@@ -78,8 +77,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should be successful
             var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), memoryStream, BicepTestConstants.DevAssemblyFileVersion);
-            // TODO: remove Where when the the support of parameter modifiers is dropped.
-            result.Diagnostics.Where(d => d.Code != "BCP153").Should().BeEmpty();
+            result.Diagnostics.Should().BeEmptyOrContainDeprecatedDiagnosticOnly();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             // normalizing the formatting in case there are differences in indentation
@@ -104,8 +102,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should be successful
             var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), memoryStream, ThisAssembly.AssemblyFileVersion);
-            // TODO: remove Where when the the support of parameter modifiers is dropped.
-            result.Diagnostics.Where(d => d.Code != "BCP153").Should().BeEmpty();
+            result.Diagnostics.Should().BeEmptyOrContainDeprecatedDiagnosticOnly();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             var actual = JToken.ReadFrom(new JsonTextReader(new StreamReader(new MemoryStream(memoryStream.ToArray()))));

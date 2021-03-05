@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Collections;
@@ -46,6 +47,14 @@ namespace Bicep.Core.UnitTests.Assertions
             }
 
             AssertionExtensions.Should(Subject).SatisfyRespectively(actions, because, becauseArgs);
+
+            return new AndConstraint<DiagnosticCollectionAssertions>(this);
+        }
+
+        public AndConstraint<DiagnosticCollectionAssertions> BeEmptyOrContainDeprecatedDiagnosticOnly(string because = "", params object[] becauseArgs)
+        {
+            // TODO: remove this extension method when the the support of parameter modifiers is dropped.
+            AssertionExtensions.Should(Subject.Where(x => x.Code != "BCP153")).BeEmpty(because, becauseArgs);
 
             return new AndConstraint<DiagnosticCollectionAssertions>(this);
         }

@@ -873,7 +873,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ParameterModifersDeprecated() => new(
                 TextSpan,
-                DiagnosticLevel.Warning,
+                DiagnosticLevel.Info,
                 "BCP153",
                 "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples).",
                 DiagnosticLabel.Deprecated);
