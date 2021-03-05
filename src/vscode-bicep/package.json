@@ -114,7 +114,7 @@
     "semver": "^7.3.4",
     "ts-loader": "^8.0.17",
     "ts-node": "^9.1.1",
-    "typescript": "^4.2.2",
+    "typescript": "^4.2.3",
     "vsce": "^1.85.1",
     "vscode-test": "^1.5.1",
     "webpack": "^5.24.3",
