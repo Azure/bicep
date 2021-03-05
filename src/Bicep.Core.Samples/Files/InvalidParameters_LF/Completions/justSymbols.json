@@ -980,6 +980,20 @@
     }
   },
   {
+    "label": "nonConstantInDecorator",
+    "kind": "field",
+    "detail": "nonConstantInDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonConstantInDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonConstantInDecorator"
+    }
+  },
+  {
     "label": "padLeft",
     "kind": "function",
     "detail": "padLeft()",

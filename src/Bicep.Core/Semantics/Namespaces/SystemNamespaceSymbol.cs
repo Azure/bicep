@@ -456,14 +456,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
                  {
-                     // The type checker should already verified that there's only one array argument.
-                     var allowedValuesArray = (ArraySyntax)SingleArgumentSelector(decoratorSyntax);
-
-                     TypeValidator.NarrowTypeAndCollectDiagnostics(
-                        typeManager,
-                        allowedValuesArray,
-                        new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
-                        diagnosticWriter);
+                     // The type checker should already verified that the one argument is assignable to array
+                     if (SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValuesArray)
+                     {
+                         TypeValidator.NarrowTypeAndCollectDiagnostics(
+                            typeManager,
+                            allowedValuesArray,
+                            new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
+                            diagnosticWriter);
+                     }
                  })
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();

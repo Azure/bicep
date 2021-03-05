@@ -394,6 +394,9 @@ param tooManyArguments1 int = 20
 @sys.
 param tooManyArguments2 string
 
+@description(sys.concat(2))
+@allowed([for thing in []: 's'])
+param nonConstantInDecorator string
 
 // unterminated multi-line comment
 /*    
