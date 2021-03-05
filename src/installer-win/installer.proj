@@ -6,6 +6,8 @@
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
+    <!-- NoTargets SDK no longer sets Language, which is required by NerdBank.GitVersioning -->
+    <Language>CSharp</Language>
   </PropertyGroup>
 
   <ItemGroup>
