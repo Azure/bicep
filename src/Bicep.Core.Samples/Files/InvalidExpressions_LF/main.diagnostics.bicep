@@ -230,7 +230,7 @@ var fakeFunc = red() + green() * orange()
 //@[23:28) [BCP057 (Error)] The name "green" does not exist in the current context. |green|
 //@[33:39) [BCP082 (Error)] The name "orange" does not exist in the current context. Did you mean "range"? |orange|
 param fakeFuncP string {
-//@[23:44) [BCP153 (Warning)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: blue()\n}|
+//@[23:44) [BCP156 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: blue()\n}|
   default: blue()
 //@[11:15) [BCP057 (Error)] The name "blue" does not exist in the current context. |blue|
 }

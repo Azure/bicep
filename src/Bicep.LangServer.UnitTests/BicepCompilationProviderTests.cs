@@ -7,7 +7,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Providers;
@@ -36,7 +35,7 @@ namespace Bicep.LangServer.UnitTests
 
             context.Compilation.Should().NotBeNull();
             // TOOD: remove Where when the support of modifiers is dropped.
-            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Where(d => d.Code != "BCP153").Should().BeEmpty();
+            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Where(d => d.Code != "BCP156").Should().BeEmpty();
             context.LineStarts.Should().NotBeEmpty();
             context.LineStarts[0].Should().Be(0);
         }

@@ -384,6 +384,10 @@
         "description": "201/traffic-manager-webapp"
     },
     {
+        "filePath": "201/vm-copy-managed-disks/main.bicep",
+        "description": "201/vm-copy-managed-disks"
+    },
+    {
         "filePath": "201/vm-domain-join/main.bicep",
         "description": "201/vm-domain-join"
     },

@@ -1,0 +1,65 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageCount": {
+            "type": "int",
+            "defaultValue": 10
+        },
+        "storagePrefix": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[tolower(concat(copyIndex(), parameters('storagePrefix'), uniqueString(resourceGroup().id)))]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "Storage",
+            "properties": {},
+            "copy": {
+                "name": "serialWithExplicitBatchSize",
+                "count": "[parameters('storageCount')]",
+                "batchSize": 3,
+                "mode": "Serial"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[tolower(concat(copyIndex(), 'one', uniqueString(resourceGroup().id)))]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "Storage",
+            "properties": {},
+            "copy": {
+                "name": "serialWithDefaultBatchSize",
+                "count": "[parameters('storageCount')]",
+                "mode": "Serial"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[tolower(concat(copyIndex(), 'two', uniqueString(resourceGroup().id)))]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "Storage",
+            "properties": {},
+            "copy": {
+                "name": "parallel",
+                "count": "[parameters('storageCount')]",
+                "mode": "Parallel"
+            }
+        }
+    ],
+    "outputs": {}
+}

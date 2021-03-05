@@ -972,6 +972,149 @@ module runtimeInvalidModule6 'empty.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module singleModuleForRuntimeCheck 'modulea.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:34) Identifier |singleModuleForRuntimeCheck|
+//@[35:50) StringComplete |'modulea.bicep'|
+//@[51:52) Assignment |=|
+//@[53:54) LeftBrace |{|
+//@[54:55) NewLine |\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:15) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |moduleRuntimeCheck|
+//@[23:24) Assignment |=|
+//@[25:52) Identifier |singleModuleForRuntimeCheck|
+//@[52:53) Dot |.|
+//@[53:60) Identifier |outputs|
+//@[60:61) Dot |.|
+//@[61:74) Identifier |stringOutputA|
+//@[74:75) NewLine |\n|
+var moduleRuntimeCheck2 = moduleRuntimeCheck
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |moduleRuntimeCheck2|
+//@[24:25) Assignment |=|
+//@[26:44) Identifier |moduleRuntimeCheck|
+//@[44:46) NewLine |\n\n|
+
+module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
+//@[0:6) Identifier |module|
+//@[7:32) Identifier |moduleLoopForRuntimeCheck|
+//@[33:48) StringComplete |'modulea.bicep'|
+//@[49:50) Assignment |=|
+//@[51:52) LeftSquare |[|
+//@[52:55) Identifier |for|
+//@[56:61) Identifier |thing|
+//@[62:64) Identifier |in|
+//@[65:66) LeftSquare |[|
+//@[66:67) RightSquare |]|
+//@[67:68) Colon |:|
+//@[69:70) LeftBrace |{|
+//@[70:71) NewLine |\n|
+  name: moduleRuntimeCheck2
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:27) Identifier |moduleRuntimeCheck2|
+//@[27:28) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |moduleRuntimeCheck3|
+//@[24:25) Assignment |=|
+//@[26:51) Identifier |moduleLoopForRuntimeCheck|
+//@[51:52) LeftSquare |[|
+//@[52:53) Integer |1|
+//@[53:54) RightSquare |]|
+//@[54:55) Dot |.|
+//@[55:62) Identifier |outputs|
+//@[62:63) Dot |.|
+//@[63:76) Identifier |stringOutputB|
+//@[76:77) NewLine |\n|
+var moduleRuntimeCheck4 = moduleRuntimeCheck3
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |moduleRuntimeCheck4|
+//@[24:25) Assignment |=|
+//@[26:45) Identifier |moduleRuntimeCheck3|
+//@[45:46) NewLine |\n|
+module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
+//@[0:6) Identifier |module|
+//@[7:33) Identifier |moduleLoopForRuntimeCheck2|
+//@[34:49) StringComplete |'modulea.bicep'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftSquare |[|
+//@[53:56) Identifier |for|
+//@[57:62) Identifier |thing|
+//@[63:65) Identifier |in|
+//@[66:67) LeftSquare |[|
+//@[67:68) RightSquare |]|
+//@[68:69) Colon |:|
+//@[70:71) LeftBrace |{|
+//@[71:72) NewLine |\n|
+  name: moduleRuntimeCheck4
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:27) Identifier |moduleRuntimeCheck4|
+//@[27:28) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
+//@[0:6) Identifier |module|
+//@[7:33) Identifier |moduleLoopForRuntimeCheck3|
+//@[34:49) StringComplete |'modulea.bicep'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftSquare |[|
+//@[53:56) Identifier |for|
+//@[57:62) Identifier |thing|
+//@[63:65) Identifier |in|
+//@[66:67) LeftSquare |[|
+//@[67:68) RightSquare |]|
+//@[68:69) Colon |:|
+//@[70:71) LeftBrace |{|
+//@[71:72) NewLine |\n|
+  name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) Identifier |concat|
+//@[14:15) LeftParen |(|
+//@[15:40) Identifier |moduleLoopForRuntimeCheck|
+//@[40:41) LeftSquare |[|
+//@[41:42) Integer |1|
+//@[42:43) RightSquare |]|
+//@[43:44) Dot |.|
+//@[44:51) Identifier |outputs|
+//@[51:52) Dot |.|
+//@[52:65) Identifier |stringOutputB|
+//@[65:66) Comma |,|
+//@[67:92) Identifier |moduleLoopForRuntimeCheck|
+//@[92:93) LeftSquare |[|
+//@[93:94) Integer |1|
+//@[94:95) RightSquare |]|
+//@[95:96) Dot |.|
+//@[96:103) Identifier |outputs|
+//@[103:104) Dot |.|
+//@[104:117) Identifier |stringOutputA|
+//@[118:119) RightParen |)|
+//@[119:120) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
 module moduleWithDuplicateName1 './empty.bicep' = {
 //@[0:6) Identifier |module|
 //@[7:31) Identifier |moduleWithDuplicateName1|

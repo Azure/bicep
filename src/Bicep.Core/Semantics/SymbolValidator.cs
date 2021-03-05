@@ -129,7 +129,7 @@ namespace Bicep.Core.Semantics
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsVariableDecorator(functionSymbol.Name));
             }
 
-            if (!functionFlags.HasFlag(FunctionFlags.ResoureDecorator) && allowedFlags.HasFlag(FunctionFlags.ResoureDecorator))
+            if (!functionFlags.HasFlag(FunctionFlags.ResourceDecorator) && allowedFlags.HasFlag(FunctionFlags.ResourceDecorator))
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsResourceDecorator(functionSymbol.Name));
             }

@@ -119,6 +119,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return 0;
             }
 
+            if(parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
+            {
+                return 0;
+            }
+
             if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
             {
                 return false;

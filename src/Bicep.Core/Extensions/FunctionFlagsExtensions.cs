@@ -9,7 +9,7 @@ namespace Bicep.Core.Extensions
         private const FunctionFlags DecoratorFlags =
             FunctionFlags.ParameterDecorator |
             FunctionFlags.VariableDecorator |
-            FunctionFlags.ResoureDecorator |
+            FunctionFlags.ResourceDecorator |
             FunctionFlags.ModuleDecorator |
             FunctionFlags.OutputDecorator;
 

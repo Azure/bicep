@@ -1081,6 +1081,48 @@
     }
   },
   {
+    "label": "moduleLoopForRuntimeCheck",
+    "kind": "module",
+    "detail": "moduleLoopForRuntimeCheck",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduleLoopForRuntimeCheck",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "moduleLoopForRuntimeCheck"
+    }
+  },
+  {
+    "label": "moduleLoopForRuntimeCheck2",
+    "kind": "module",
+    "detail": "moduleLoopForRuntimeCheck2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduleLoopForRuntimeCheck2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "moduleLoopForRuntimeCheck2"
+    }
+  },
+  {
+    "label": "moduleLoopForRuntimeCheck3",
+    "kind": "module",
+    "detail": "moduleLoopForRuntimeCheck3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduleLoopForRuntimeCheck3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "moduleLoopForRuntimeCheck3"
+    }
+  },
+  {
     "label": "moduleOutputsCompletions",
     "kind": "variable",
     "detail": "moduleOutputsCompletions",
@@ -1106,6 +1148,62 @@
     "textEdit": {
       "range": {},
       "newText": "modulePropertyAccessCompletions"
+    }
+  },
+  {
+    "label": "moduleRuntimeCheck",
+    "kind": "variable",
+    "detail": "moduleRuntimeCheck",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduleRuntimeCheck",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "moduleRuntimeCheck"
+    }
+  },
+  {
+    "label": "moduleRuntimeCheck2",
+    "kind": "variable",
+    "detail": "moduleRuntimeCheck2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduleRuntimeCheck2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "moduleRuntimeCheck2"
+    }
+  },
+  {
+    "label": "moduleRuntimeCheck3",
+    "kind": "variable",
+    "detail": "moduleRuntimeCheck3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduleRuntimeCheck3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "moduleRuntimeCheck3"
+    }
+  },
+  {
+    "label": "moduleRuntimeCheck4",
+    "kind": "variable",
+    "detail": "moduleRuntimeCheck4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduleRuntimeCheck4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "moduleRuntimeCheck4"
     }
   },
   {
@@ -1760,6 +1858,20 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes1"
+    }
+  },
+  {
+    "label": "singleModuleForRuntimeCheck",
+    "kind": "module",
+    "detail": "singleModuleForRuntimeCheck",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_singleModuleForRuntimeCheck",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "singleModuleForRuntimeCheck"
     }
   },
   {

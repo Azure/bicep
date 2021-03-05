@@ -55,7 +55,7 @@ namespace Bicep.Core.Semantics
             // No custom validator provided. Just validate the target type. 
             if (!this.CanAttachTo(targetType))
             {
-                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).CannotAttacheDecoratorToTarget(this.Overload.Name, attachableType, targetType));
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).CannotAttachDecoratorToTarget(this.Overload.Name, attachableType, targetType));
             }
         }
 

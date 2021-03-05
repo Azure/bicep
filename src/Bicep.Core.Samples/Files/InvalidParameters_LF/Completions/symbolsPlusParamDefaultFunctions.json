@@ -493,6 +493,20 @@
     }
   },
   {
+    "label": "fatalErrorInIssue1713",
+    "kind": "field",
+    "detail": "fatalErrorInIssue1713",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_fatalErrorInIssue1713",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "fatalErrorInIssue1713"
+    }
+  },
+  {
     "label": "first",
     "kind": "function",
     "detail": "first()",
@@ -977,6 +991,20 @@
     "textEdit": {
       "range": {},
       "newText": "nonCompileTimeConstantWithDecorator"
+    }
+  },
+  {
+    "label": "nonConstantInDecorator",
+    "kind": "field",
+    "detail": "nonConstantInDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonConstantInDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonConstantInDecorator"
     }
   },
   {

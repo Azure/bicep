@@ -137,6 +137,10 @@ param wrongIntModifier int {
 @metadata('wrong')
 param wrongIntModifierWithDecorator int = true
 
+@metadata(any([]))
+@allowed(any(2))
+param fatalErrorInIssue1713
+
 // wrong metadata schema
 param wrongMetadataSchema string {
   metadata: {
@@ -394,6 +398,9 @@ param tooManyArguments1 int = 20
 @sys.
 param tooManyArguments2 string
 
+@description(sys.concat(2))
+@allowed([for thing in []: 's'])
+param nonConstantInDecorator string
 
 // unterminated multi-line comment
 /*    

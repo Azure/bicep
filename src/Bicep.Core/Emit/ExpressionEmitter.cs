@@ -164,7 +164,7 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null)
+        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null, long? batchSize = null)
         {
             writer.WriteStartObject();
 
@@ -179,6 +179,12 @@ namespace Bicep.Core.Emit
                 "count",
                 syntax.Expression,
                 arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
+
+            if(batchSize.HasValue)
+            {
+                this.EmitProperty("mode", "serial");
+                this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
+            }
 
             if (input != null)
             {

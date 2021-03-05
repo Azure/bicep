@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests.Assertions
         public AndConstraint<DiagnosticCollectionAssertions> BeEmptyOrContainDeprecatedDiagnosticOnly(string because = "", params object[] becauseArgs)
         {
             // TODO: remove this extension method when the the support of parameter modifiers is dropped.
-            AssertionExtensions.Should(Subject.Where(x => x.Code != "BCP153")).BeEmpty(because, becauseArgs);
+            AssertionExtensions.Should(Subject.Where(x => x.Code != "BCP156")).BeEmpty(because, becauseArgs);
 
             return new AndConstraint<DiagnosticCollectionAssertions>(this);
         }

@@ -289,6 +289,38 @@ module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 }
 
+module singleModuleForRuntimeCheck 'modulea.bicep' = {
+//@[7:34) Module singleModuleForRuntimeCheck. Type: module. Declaration start char: 0, length: 71
+  name: 'test'
+}
+
+var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
+//@[4:22) Variable moduleRuntimeCheck. Type: string. Declaration start char: 0, length: 74
+var moduleRuntimeCheck2 = moduleRuntimeCheck
+//@[4:23) Variable moduleRuntimeCheck2. Type: string. Declaration start char: 0, length: 44
+
+module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
+//@[56:61) Local thing. Type: any. Declaration start char: 56, length: 5
+//@[7:32) Module moduleLoopForRuntimeCheck. Type: module[]. Declaration start char: 0, length: 101
+  name: moduleRuntimeCheck2
+}]
+
+var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
+//@[4:23) Variable moduleRuntimeCheck3. Type: string. Declaration start char: 0, length: 76
+var moduleRuntimeCheck4 = moduleRuntimeCheck3
+//@[4:23) Variable moduleRuntimeCheck4. Type: string. Declaration start char: 0, length: 45
+module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
+//@[57:62) Local thing. Type: any. Declaration start char: 57, length: 5
+//@[7:33) Module moduleLoopForRuntimeCheck2. Type: module[]. Declaration start char: 0, length: 102
+  name: moduleRuntimeCheck4
+}]
+
+module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
+//@[57:62) Local thing. Type: any. Declaration start char: 57, length: 5
+//@[7:33) Module moduleLoopForRuntimeCheck3. Type: module[]. Declaration start char: 0, length: 194
+  name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
+}]
+
 module moduleWithDuplicateName1 './empty.bicep' = {
 //@[7:31) Module moduleWithDuplicateName1. Type: module. Declaration start char: 0, length: 112
   name: 'moduleWithDuplicateName'
