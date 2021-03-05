@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ValidBicep_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
 
@@ -73,7 +73,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ValidBicepTextWriter_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             MemoryStream memoryStream = new MemoryStream();
 
@@ -98,7 +98,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ValidBicepTextWriter_TemplateEmiterTemplateHashCheck(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             MemoryStream memoryStream = new MemoryStream();
 
@@ -132,7 +132,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void InvalidBicep_TemplateEmiterShouldNotProduceAnyTemplate(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             string filePath = FileHelper.GetResultFilePath(this.TestContext, $"{dataSet.Name}_Compiled_Original.json");
 
