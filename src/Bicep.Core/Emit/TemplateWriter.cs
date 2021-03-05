@@ -166,6 +166,31 @@ namespace Bicep.Core.Emit
             memoryWriter.WriteEndObject();
         }
 
+        private ObjectSyntax EvaluateDecorators(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
+        {
+            var result = input;
+            foreach (var decoratorSyntax in statement.Decorators.Reverse())
+            {
+                var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
+
+                if (symbol is FunctionSymbol decoratorSymbol)
+                {
+                    var argumentTypes = decoratorSyntax.Arguments
+                        .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
+                        .ToArray();
+
+                    // There should be exact one matching decorator since there's no errors.
+                    Decorator decorator = this.context.SemanticModel.Root.ImportedNamespaces
+                        .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
+                        .Single();
+
+                    result = decorator.Evaluate(decoratorSyntax, targetType, result);
+                }
+            }
+
+            return result;
+        }
+
         private void EmitParameter(JsonTextWriter memoryWriter, ParameterSymbol parameterSymbol, ExpressionEmitter emitter)
         {
             // local function
@@ -189,25 +214,7 @@ namespace Bicep.Core.Emit
                     parameterObject = parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
                 }
 
-                foreach (var decoratorSyntax in parameterSymbol.DeclaringParameter.Decorators.Reverse())
-                {
-
-                    var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
-
-                    if (symbol is FunctionSymbol decoratorSymbol)
-                    {
-                        var argumentTypes = decoratorSyntax.Arguments
-                            .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
-                            .ToArray();
-
-                        // There should be exact one matching decorator since there's no errors.
-                        Decorator decorator = this.context.SemanticModel.Root.ImportedNamespaces
-                            .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
-                            .Single();
-
-                        parameterObject = decorator.Evaluate(decoratorSyntax, primitiveType, parameterObject);
-                    }
-                }
+                parameterObject = EvaluateDecorators(parameterSymbol.DeclaringParameter, parameterObject, primitiveType);
 
                 foreach (var property in parameterObject.Properties)
                 {
@@ -305,6 +312,18 @@ namespace Bicep.Core.Emit
             memoryWriter.WriteEndArray();
         }
 
+        private long? GetBatchSize(StatementSyntax decoratedSyntax)
+        {
+            var evaluated = this.EvaluateDecorators(decoratedSyntax, SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), LanguageConstants.Array);
+            var batchSizeProperty = evaluated.SafeGetPropertyByName("batchSize");
+
+            return batchSizeProperty switch
+            {
+                ObjectPropertySyntax { Value: IntegerLiteralSyntax integerLiteral } => integerLiteral.Value,
+                _ => null
+            };
+        }
+
         private void EmitResource(JsonTextWriter memoryWriter, ResourceSymbol resourceSymbol, ExpressionEmitter emitter)
         {
             memoryWriter.WriteStartObject();
@@ -320,7 +339,11 @@ namespace Bicep.Core.Emit
 
                 case ForSyntax @for:
                     body = @for.Body;
-                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(resourceSymbol.Name, @for, input: null));
+                    emitter.EmitProperty("copy", () =>
+                    {
+                        var batchSize = GetBatchSize(resourceSymbol.DeclaringResource);
+                        emitter.EmitCopyObject(resourceSymbol.Name, @for, input: null, batchSize: batchSize);
+                    });
                     break;
             }
 
@@ -399,7 +422,8 @@ namespace Bicep.Core.Emit
 
                 case ForSyntax @for:
                     body = @for.Body;
-                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null));
+                    var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
+                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
                     break;
             }
 

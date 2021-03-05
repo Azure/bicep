@@ -200,26 +200,24 @@ namespace Bicep.Core.TypeSystem
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declaredType = syntax.GetDeclaredType(resourceTypeProvider);
+                var singleResourceDeclaredType = syntax.GetDeclaredType(resourceTypeProvider);
+                var singleOrCollectionDeclaredType = syntax.Value is ForSyntax
+                    ? new TypedArrayType(singleResourceDeclaredType, TypeSymbolValidationFlags.Default)
+                    : singleResourceDeclaredType;
 
-                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+                this.ValidateDecorators(syntax.Decorators, singleOrCollectionDeclaredType, diagnostics);
 
-                if (declaredType is ErrorType)
+                if (singleResourceDeclaredType is ErrorType)
                 {
-                    return declaredType;
+                    return singleResourceDeclaredType;
                 }
 
-                if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
+                if (singleResourceDeclaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
 
-                if (syntax.Value is ForSyntax)
-                {
-                    return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, new TypedArrayType(declaredType, TypeSymbolValidationFlags.Default), diagnostics);
-                }
-
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -235,21 +233,19 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(failureDiagnostic);
                 }
 
-                var declaredType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
+                var singleModuleDeclaredType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
+                var singleOrCollectionDeclaredType = syntax.Value is ForSyntax
+                    ? new TypedArrayType(singleModuleDeclaredType, TypeSymbolValidationFlags.Default)
+                    : singleModuleDeclaredType;
 
-                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+                this.ValidateDecorators(syntax.Decorators, singleOrCollectionDeclaredType, diagnostics);
 
                 if (moduleSemanticModel.HasErrors())
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }
 
-                if (syntax.Value is ForSyntax)
-                {
-                    return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, new TypedArrayType(declaredType, TypeSymbolValidationFlags.Default), diagnostics);
-                }
-                
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -888,9 +884,10 @@ namespace Bicep.Core.TypeSystem
                 {
                     FunctionFlags.ParameterDecorator => diagnosticBuilder.ExpectedParameterDeclarationAfterDecorator(),
                     FunctionFlags.VariableDecorator => diagnosticBuilder.ExpectedVariableDeclarationAfterDecorator(),
-                    FunctionFlags.ResoureDecorator => diagnosticBuilder.ExpectedResourceDeclarationAfterDecorator(),
+                    FunctionFlags.ResourceDecorator => diagnosticBuilder.ExpectedResourceDeclarationAfterDecorator(),
                     FunctionFlags.ModuleDecorator => diagnosticBuilder.ExpectedModuleDeclarationAfterDecorator(),
                     FunctionFlags.OutputDecorator => diagnosticBuilder.ExpectedOutputDeclarationAfterDecorator(),
+                    FunctionFlags.ResourceOrModuleDecorator => diagnosticBuilder.ExpectedResourceOrModuleDeclarationAfterDecorator(),
                     _ => null,
                 };
 

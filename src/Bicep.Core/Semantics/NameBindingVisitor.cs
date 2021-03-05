@@ -70,7 +70,7 @@ namespace Bicep.Core.Semantics
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            allowedFlags = FunctionFlags.ResoureDecorator;
+            allowedFlags = FunctionFlags.ResourceDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
@@ -150,7 +150,7 @@ namespace Bicep.Core.Semantics
         {
             allowedFlags = FunctionFlags.ParameterDecorator |
                 FunctionFlags.VariableDecorator |
-                FunctionFlags.ResoureDecorator |
+                FunctionFlags.ResourceDecorator |
                 FunctionFlags.ModuleDecorator |
                 FunctionFlags.OutputDecorator;
             base.VisitMissingDeclarationSyntax(syntax);

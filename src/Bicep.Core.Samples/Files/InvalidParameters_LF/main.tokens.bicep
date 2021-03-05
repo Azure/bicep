@@ -580,6 +580,32 @@ param wrongIntModifierWithDecorator int = true
 //@[42:46) TrueKeyword |true|
 //@[46:48) NewLine |\n\n|
 
+@metadata(any([]))
+//@[0:1) At |@|
+//@[1:9) Identifier |metadata|
+//@[9:10) LeftParen |(|
+//@[10:13) Identifier |any|
+//@[13:14) LeftParen |(|
+//@[14:15) LeftSquare |[|
+//@[15:16) RightSquare |]|
+//@[16:17) RightParen |)|
+//@[17:18) RightParen |)|
+//@[18:19) NewLine |\n|
+@allowed(any(2))
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:14) Integer |2|
+//@[14:15) RightParen |)|
+//@[15:16) RightParen |)|
+//@[16:17) NewLine |\n|
+param fatalErrorInIssue1713
+//@[0:5) Identifier |param|
+//@[6:27) Identifier |fatalErrorInIssue1713|
+//@[27:29) NewLine |\n\n|
+
 // wrong metadata schema
 //@[24:25) NewLine |\n|
 param wrongMetadataSchema string {

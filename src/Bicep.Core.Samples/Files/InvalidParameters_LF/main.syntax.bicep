@@ -905,6 +905,51 @@ param wrongIntModifierWithDecorator int = true
 //@[42:46)    TrueKeyword |true|
 //@[46:48) NewLine |\n\n|
 
+@metadata(any([]))
+//@[0:63) ParameterDeclarationSyntax
+//@[0:18)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:18)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:17)    FunctionArgumentSyntax
+//@[10:17)     FunctionCallSyntax
+//@[10:13)      IdentifierSyntax
+//@[10:13)       Identifier |any|
+//@[13:14)      LeftParen |(|
+//@[14:16)      FunctionArgumentSyntax
+//@[14:16)       ArraySyntax
+//@[14:15)        LeftSquare |[|
+//@[15:16)        RightSquare |]|
+//@[16:17)      RightParen |)|
+//@[17:18)    RightParen |)|
+//@[18:19)  NewLine |\n|
+@allowed(any(2))
+//@[0:16)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:16)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:15)    FunctionArgumentSyntax
+//@[9:15)     FunctionCallSyntax
+//@[9:12)      IdentifierSyntax
+//@[9:12)       Identifier |any|
+//@[12:13)      LeftParen |(|
+//@[13:14)      FunctionArgumentSyntax
+//@[13:14)       IntegerLiteralSyntax
+//@[13:14)        Integer |2|
+//@[14:15)      RightParen |)|
+//@[15:16)    RightParen |)|
+//@[16:17)  NewLine |\n|
+param fatalErrorInIssue1713
+//@[0:5)  Identifier |param|
+//@[6:27)  IdentifierSyntax
+//@[6:27)   Identifier |fatalErrorInIssue1713|
+//@[27:27)  SkippedTriviaSyntax
+//@[27:29) NewLine |\n\n|
+
 // wrong metadata schema
 //@[24:25) NewLine |\n|
 param wrongMetadataSchema string {

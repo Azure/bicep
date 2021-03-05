@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
@@ -133,6 +134,9 @@ namespace Bicep.Core.Syntax
 
             return CreateStringLiteral(text);
         }
+
+        public static IntegerLiteralSyntax CreateIntegerLiteral(long value) =>
+            new IntegerLiteralSyntax(CreateToken(TokenType.Integer, value.ToString()), value);
 
         public static StringSyntax CreateStringLiteral(string value)
         {

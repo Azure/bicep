@@ -455,17 +455,11 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
-                 {
-                     // The type checker should already verified that the one argument is assignable to array
-                     if (SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValuesArray)
-                     {
-                         TypeValidator.NarrowTypeAndCollectDiagnostics(
+                     TypeValidator.NarrowTypeAndCollectDiagnostics(
                             typeManager,
-                            allowedValuesArray,
-                            new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
-                            diagnosticWriter);
-                     }
-                 })
+                        SingleArgumentSelector(decoratorSyntax),
+                        new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
+                        diagnosticWriter))
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();
 
@@ -505,12 +499,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines metadata of the parameter.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((_, decoratorSyntax, _, typeManager, diagnosticWriter) =>
-                 {
-                     // The type checker should already verified that there's only one object argument.
-                     var metadataObject = (ObjectSyntax)SingleArgumentSelector(decoratorSyntax);
-                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, metadataObject, LanguageConstants.ParameterModifierMetadata, diagnosticWriter);
-                 })
+                .WithValidator((_, decoratorSyntax, _, typeManager, diagnosticWriter) => 
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata, diagnosticWriter))
                 .WithEvaluator(MergeToTargetObject("metadata", SingleArgumentSelector))
                 .Build();
 
@@ -520,6 +510,33 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithEvaluator(MergeToTargetObject("metadata", decoratorSyntax => SyntaxFactory.CreateObject(
                     SyntaxFactory.CreateObjectProperty("description", SingleArgumentSelector(decoratorSyntax)).AsEnumerable())))
+                .Build();
+
+            yield return new DecoratorBuilder("batchSize")
+                .WithDescription("Causes the resource or module for-expression to be run in sequential batches of specified size instead of the default behavior where all the resources or modules are deployed in parallel.")
+                .WithRequiredParameter("batchSize", LanguageConstants.Int, "The size of the batch")
+                .WithFlags(FunctionFlags.ResourceOrModuleDecorator)
+                // the decorator is constrained to resources and modules already - checking for array alone is simple and should be sufficient
+                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
+                {
+                    if (!TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Array))
+                    {
+                        // the resource/module declaration is not a collection
+                        // (the compile-time constnat and resource/module placement is already enforced, so we don't need a deeper type check)
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).BatchSizeNotAllowed(decoratorName));
+                    }
+
+                    // do not rely on casting - the type checker does not guarantee IntegerLiteralSyntax
+                    if (SingleArgumentSelector(decoratorSyntax) is IntegerLiteralSyntax batchSizeSyntax)
+                    {
+                        const long MinimumBatchSize = 1;
+                        if (batchSizeSyntax.Value < MinimumBatchSize)
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSizeSyntax.Value, MinimumBatchSize));
+                        }
+                    }
+                })
+                .WithEvaluator(MergeToTargetObject("batchSize", SingleArgumentSelector))
                 .Build();
         }
 

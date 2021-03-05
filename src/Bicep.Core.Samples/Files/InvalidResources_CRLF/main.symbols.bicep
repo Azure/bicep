@@ -1267,18 +1267,20 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
   }
 }
 
+@batchSize()
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[98:99) Local i. Type: int. Declaration start char: 98, length: 1
-//@[9:43) Resource directRefViaSingleLoopResourceBody. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 194
+//@[9:43) Resource directRefViaSingleLoopResourceBody. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 208
   name: 'vnet-${i}'
   properties: {
     subnets: premiumStorages
   }
 }]
 
+@batchSize(0)
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[116:117) Local i. Type: int. Declaration start char: 116, length: 1
-//@[9:61) Resource directRefViaSingleLoopResourceBodyWithExtraDependsOn. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 287
+//@[9:61) Resource directRefViaSingleLoopResourceBodyWithExtraDependsOn. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 302
   name: 'vnet-${i}'
   properties: {
     subnets: premiumStorages
@@ -1304,9 +1306,10 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 }
 
 // resource loop body that isn't an object
+@batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 //@[82:87) Local thing. Type: any. Declaration start char: 82, length: 5
-//@[9:34) Resource nonObjectResourceLoopBody. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 102
+//@[9:34) Resource nonObjectResourceLoopBody. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 118
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
 //@[83:88) Local thing. Type: any. Declaration start char: 83, length: 5
 //@[9:35) Resource nonObjectResourceLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
@@ -1342,3 +1345,4 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     }]
   }
 }
+

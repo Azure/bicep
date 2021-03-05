@@ -515,11 +515,10 @@ namespace Bicep.Decompiler
             return SyntaxFactory.CreateStringLiteral(value);
         }
 
-        private static SyntaxBase ParseIntegerJToken(JValue value)
+        private static IntegerLiteralSyntax ParseIntegerJToken(JValue value)
         {
             var longValue = value.Value<long>();
-
-            return new IntegerLiteralSyntax(SyntaxFactory.CreateToken(TokenType.Integer, value.ToString()), longValue);
+            return SyntaxFactory.CreateIntegerLiteral(longValue);
         }
 
         private SyntaxBase ParseJValue(JValue value)
@@ -790,41 +789,71 @@ namespace Bicep.Decompiler
             {
                 return (resourceBodyFunc(resource), Enumerable.Empty<SyntaxBase>());
             }
-    
+
             TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'copy' property is not supported in conjunction with the 'condition' property");
 
             var name = TemplateHelpers.AssertRequiredProperty(copyProperty, "name", "The copy object is missing a \"name\" property");
             var count = TemplateHelpers.AssertRequiredProperty(copyProperty, "count", "The copy object is missing a \"count\" property");
 
-            // TODO implement when we have batchSize support (https://github.com/Azure/bicep/issues/1625)
-            TemplateHelpers.AssertUnsupportedProperty(copyProperty, "mode", "The \"mode\" property is not currently supported");
-            TemplateHelpers.AssertUnsupportedProperty(copyProperty, "batchSize", "The \"batchSize\" property is not currently supported");
-
             var bodySyntax = ProcessUnnamedCopySyntax(resource, ResourceCopyLoopIndexVar, resource => resourceBodyFunc(resource), count);
 
-            var decorators = new List<SyntaxBase>();
-            /* TODO implement when we have batchSize support (https://github.com/Azure/bicep/issues/1625)
-            if (mode is not null)
-            {
-                decorators.Add(new DecoratorSyntax(
-                    SyntaxFactory.AtToken,
-                    SyntaxFactory.CreateFunctionCall("mode", new SyntaxBase[] {
-                        ParseJToken(mode),
-                    })));
-                decorators.Add(SyntaxFactory.NewlineToken);
-            }
-            if (batchSize is not null)
-            {
-                decorators.Add(new DecoratorSyntax(
-                    SyntaxFactory.AtToken,
-                    SyntaxFactory.CreateFunctionCall("batchSize", new SyntaxBase[] {
-                        ParseJToken(batchSize),
-                    })));
-                decorators.Add(SyntaxFactory.NewlineToken);
-            }
-            */
+            var decoratorAndNewLines = new List<SyntaxBase>();
 
-            return (bodySyntax, decorators);
+            if(IsSerialMode(TemplateHelpers.GetProperty(copyProperty, "mode")?.Value, resource))
+            {
+                var batchSize = ParseBatchSize(TemplateHelpers.GetProperty(copyProperty, "batchSize")?.Value, resource);
+                decoratorAndNewLines.Add(SyntaxFactory.CreateDecorator("batchSize", batchSize));
+                decoratorAndNewLines.Add(SyntaxFactory.NewlineToken);
+            }
+
+            return (bodySyntax, decoratorAndNewLines);
+        }
+
+        private static IntegerLiteralSyntax ParseBatchSize(JToken? batchSize, JObject resource)
+        {
+            if(batchSize is null)
+            {
+                // default batch size is 1
+                return SyntaxFactory.CreateIntegerLiteral(1);
+            }
+
+            if(batchSize is not JValue value || batchSize.Type != JTokenType.Integer)
+            {
+                throw new ConversionFailedException("Expected the value of the \"batchSize\" property to be an integer.", resource);
+            }
+
+            return ParseIntegerJToken(value);
+        }
+
+        private static bool IsSerialMode(JToken? mode, JObject resource)
+        {
+            const string Serial = "serial";
+            const string Parallel = "parallel";
+
+            if (mode is null)
+            {
+                // default mode is parallel
+                return false;
+            }
+
+            if (mode.Type != JTokenType.String)
+            {
+                throw new ConversionFailedException("Expected the value of the \"mode\" property in a property copy object to be a string.", resource);
+            }
+
+            var value = mode.ToString();
+            
+            if (string.Equals(value, Serial, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+                        
+            if (string.Equals(value, Parallel, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            throw new ConversionFailedException($"Expected the value of the \"mode\" property to be either \"{Serial}\" or \"{Parallel}\", but the provided value was \"{value}\".", resource);
         }
 
         private SyntaxBase ProcessCondition(JObject resource, SyntaxBase body)

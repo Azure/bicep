@@ -1021,6 +1021,7 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
   }
 }
 
+@batchSize()
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
   name: 'vnet-${i}'
   properties: {
@@ -1028,6 +1029,7 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
   }
 }]
 
+@batchSize(0)
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
   name: 'vnet-${i}'
   properties: {
@@ -1051,6 +1053,7 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 }
 
 // resource loop body that isn't an object
+@batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
 

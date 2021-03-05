@@ -135,6 +135,13 @@ resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-0
 
 // resource collection
 //@[22:23) NewLine |\n|
+@batchSize(42)
+//@[0:1) At |@|
+//@[1:10) Identifier |batchSize|
+//@[10:11) LeftParen |(|
+//@[11:13) Integer |42|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
 //@[0:8) Identifier |resource|
 //@[9:24) Identifier |storageAccounts|
@@ -299,6 +306,13 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 
 // cascade extend the extension
 //@[31:32) NewLine |\n|
+@batchSize(1)
+//@[0:1) At |@|
+//@[1:10) Identifier |batchSize|
+//@[10:11) LeftParen |(|
+//@[11:12) Integer |1|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
 //@[0:8) Identifier |resource|
 //@[9:21) Identifier |lockTheLocks|
@@ -1054,6 +1068,15 @@ var moduleSetup = [
 
 // module collection plus explicit dependency on single module
 //@[62:63) NewLine |\n|
+@sys.batchSize(3)
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:14) Identifier |batchSize|
+//@[14:15) LeftParen |(|
+//@[15:16) Integer |3|
+//@[16:17) RightParen |)|
+//@[17:18) NewLine |\n|
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleName in moduleSetup: {
 //@[0:6) Identifier |module|
 //@[7:43) Identifier |moduleCollectionWithSingleDependency|
@@ -2124,4 +2147,6 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
-//@[2:2) EndOfFile ||
+//@[2:3) NewLine |\n|
+
+//@[0:0) EndOfFile ||
