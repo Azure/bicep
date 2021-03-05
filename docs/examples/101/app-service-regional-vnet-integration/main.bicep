@@ -15,7 +15,7 @@ resource appsvc 'Microsoft.Web/serverfarms@2020-06-01' = {
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: '${nameprefix}vnet'
   location: location
-  properties:{
+  properties: {
     addressSpace: {
       addressPrefixes: [
         vnetAddressPrefix
