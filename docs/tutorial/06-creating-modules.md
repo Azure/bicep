@@ -37,7 +37,7 @@ module stg './storage.bicep' = {
   }
 }
 
-output storageName string = stg.outputs.computedStorageName
+output storageName array = stg.outputs.containerProps
 ```
 
 ## Deploying modules to a different scope
