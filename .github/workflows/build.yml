@@ -87,7 +87,7 @@ jobs:
           flags: dotnet
 
   build-bicep-linux-musl-x64:
-    name: 'Build CLI'
+    name: 'Build CLI (linux-musl-x64)'
     runs-on: 'ubuntu-latest'
     needs: build-bicep
 
