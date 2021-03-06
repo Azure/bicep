@@ -487,6 +487,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP082",
                 $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?",
+                null,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public FixableDiagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new(
@@ -494,6 +495,7 @@ namespace Bicep.Core.Diagnostics
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
+                null,
                 new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
             public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new(
@@ -521,6 +523,7 @@ namespace Bicep.Core.Diagnostics
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP088",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?",
+                null,
                 new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeManipulator.Replace(TextSpan, suggestedStringLiteral)));
 
             public FixableDiagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => new(
@@ -528,6 +531,7 @@ namespace Bicep.Core.Diagnostics
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP089",
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?",
+                null,
                 new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
             public ErrorDiagnostic ModulePathHasNotBeenSpecified() => new(
@@ -624,6 +628,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP108",
                 $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\". Did you mean \"{suggestedName}\"?",
+                null,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public ErrorDiagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => new(
@@ -635,6 +640,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP110",
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
+                null,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public ErrorDiagnostic ModulePathContainsControlChars() => new(
@@ -743,7 +749,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP128",
                 $"Function \"{functionName}\" cannot be used as a module decorator.");
 
-            public ErrorDiagnostic CannotUseFunctionAsOuputDecorator(string functionName) => new(
+            public ErrorDiagnostic CannotUseFunctionAsOutputDecorator(string functionName) => new(
                 TextSpan,
                 "BCP129",
                 $"Function \"{functionName}\" cannot be used as an output decorator.");
@@ -905,6 +911,13 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP160",
                 $"A nested resource cannot appear inside of a resource with a for-expression.");
+
+            public Diagnostic ParameterModifiersDeprecated() => new(
+                TextSpan,
+                DiagnosticLevel.Info,
+                "BCP161",
+                "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples).",
+                DiagnosticLabel.Deprecated);
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

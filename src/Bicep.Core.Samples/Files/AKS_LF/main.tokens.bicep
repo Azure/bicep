@@ -14,35 +14,31 @@ param sshRSAPublicKey string
 //@[0:5) Identifier |param|
 //@[6:21) Identifier |sshRSAPublicKey|
 //@[22:28) Identifier |string|
-//@[28:29) NewLine |\n|
-param servcePrincipalClientId string {
+//@[28:30) NewLine |\n\n|
+
+@secure()
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:10) NewLine |\n|
+param servcePrincipalClientId string
 //@[0:5) Identifier |param|
 //@[6:29) Identifier |servcePrincipalClientId|
 //@[30:36) Identifier |string|
-//@[37:38) LeftBrace |{|
-//@[38:39) NewLine |\n|
-    secure: true
-//@[4:10) Identifier |secure|
-//@[10:11) Colon |:|
-//@[12:16) TrueKeyword |true|
-//@[16:17) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
-param servicePrincipalClientSecret string {
+//@[36:38) NewLine |\n\n|
+
+@secure()
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:10) NewLine |\n|
+param servicePrincipalClientSecret string
 //@[0:5) Identifier |param|
 //@[6:34) Identifier |servicePrincipalClientSecret|
 //@[35:41) Identifier |string|
-//@[42:43) LeftBrace |{|
-//@[43:44) NewLine |\n|
-    secure: true
-//@[4:10) Identifier |secure|
-//@[10:11) Colon |:|
-//@[12:16) TrueKeyword |true|
-//@[16:17) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[41:43) NewLine |\n\n|
 
 // optional params
 //@[18:19) NewLine |\n|
@@ -63,55 +59,52 @@ param location string = resourceGroup().location
 //@[38:39) RightParen |)|
 //@[39:40) Dot |.|
 //@[40:48) Identifier |location|
-//@[48:49) NewLine |\n|
-param osDiskSizeGB int {
+//@[48:50) NewLine |\n\n|
+
+@minValue(0)
+//@[0:1) At |@|
+//@[1:9) Identifier |minValue|
+//@[9:10) LeftParen |(|
+//@[10:11) Integer |0|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+@maxValue(1023)
+//@[0:1) At |@|
+//@[1:9) Identifier |maxValue|
+//@[9:10) LeftParen |(|
+//@[10:14) Integer |1023|
+//@[14:15) RightParen |)|
+//@[15:16) NewLine |\n|
+param osDiskSizeGB int = 0
 //@[0:5) Identifier |param|
 //@[6:18) Identifier |osDiskSizeGB|
 //@[19:22) Identifier |int|
-//@[23:24) LeftBrace |{|
-//@[24:25) NewLine |\n|
-    default: 0
-//@[4:11) Identifier |default|
-//@[11:12) Colon |:|
-//@[13:14) Integer |0|
-//@[14:15) NewLine |\n|
-    minValue: 0
-//@[4:12) Identifier |minValue|
-//@[12:13) Colon |:|
-//@[14:15) Integer |0|
-//@[15:16) NewLine |\n|
-    maxValue: 1023
-//@[4:12) Identifier |maxValue|
-//@[12:13) Colon |:|
-//@[14:18) Integer |1023|
-//@[18:19) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
-param agentCount int {
+//@[23:24) Assignment |=|
+//@[25:26) Integer |0|
+//@[26:28) NewLine |\n\n|
+
+@minValue(1)
+//@[0:1) At |@|
+//@[1:9) Identifier |minValue|
+//@[9:10) LeftParen |(|
+//@[10:11) Integer |1|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+@maxValue(50)
+//@[0:1) At |@|
+//@[1:9) Identifier |maxValue|
+//@[9:10) LeftParen |(|
+//@[10:12) Integer |50|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+param agentCount int = 3
 //@[0:5) Identifier |param|
 //@[6:16) Identifier |agentCount|
 //@[17:20) Identifier |int|
-//@[21:22) LeftBrace |{|
-//@[22:23) NewLine |\n|
-    default: 3
-//@[4:11) Identifier |default|
-//@[11:12) Colon |:|
-//@[13:14) Integer |3|
-//@[14:15) NewLine |\n|
-    minValue: 1
-//@[4:12) Identifier |minValue|
-//@[12:13) Colon |:|
-//@[14:15) Integer |1|
-//@[15:16) NewLine |\n|
-    maxValue: 50
-//@[4:12) Identifier |maxValue|
-//@[12:13) Colon |:|
-//@[14:16) Integer |50|
-//@[16:17) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[21:22) Assignment |=|
+//@[23:24) Integer |3|
+//@[24:26) NewLine |\n\n|
+
 param agentVMSize string = 'Standard_DS2_v2'
 //@[0:5) Identifier |param|
 //@[6:17) Identifier |agentVMSize|
