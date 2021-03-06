@@ -122,7 +122,7 @@ resource myParent 'My.Rp/parentType@2020-01-01' = {
     }
   }
 
-  // 'myChild' can be referened inside the body of 'myParent'
+  // 'myChild' can be referenced inside the body of 'myParent'
   resource mySibling 'childType' = {
     name: 'mySibling'
     properties: {
