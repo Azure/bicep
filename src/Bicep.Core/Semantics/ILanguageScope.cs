@@ -9,6 +9,6 @@ namespace Bicep.Core.Semantics
     {
         IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name);
 
-        IEnumerable<DeclaredSymbol> AllDeclarations { get; }
+        IEnumerable<DeclaredSymbol> Declarations { get; }
     }
 }

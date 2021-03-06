@@ -200,7 +200,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var singleResourceDeclaredType = syntax.GetDeclaredType(resourceTypeProvider);
+                var singleResourceDeclaredType = syntax.GetDeclaredType(binder, resourceTypeProvider);
                 var singleOrCollectionDeclaredType = syntax.Value is ForSyntax
                     ? new TypedArrayType(singleResourceDeclaredType, TypeSymbolValidationFlags.Default)
                     : singleResourceDeclaredType;
@@ -768,6 +768,51 @@ namespace Bicep.Core.TypeSystem
                         // can only access properties of objects
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
                 }
+            });
+
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                var errors = new List<ErrorDiagnostic>();
+
+                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
+                CollectErrors(errors, baseType);
+
+                if (PropagateErrorType(errors, baseType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                if (baseType is not ResourceType)
+                {
+                    // can only access children of resources
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(baseType.Name));
+                }
+
+                if (!syntax.ResourceName.IsValid)
+                {
+                    // the resource name is not valid
+                    // there's already a parse error for it, so we don't need to add a type error as well
+                    return ErrorType.Empty();
+                }
+
+                // Should have a symbol from name binding.
+                var symbol = binder.GetSymbolInfo(syntax);
+                if (symbol == null)
+                {
+                    throw new InvalidOperationException("ResourceAccessSyntax was not assigned a symbol during name binding.");
+                }
+
+                if (symbol is ErrorSymbol error)
+                {
+                    return ErrorType.Create(error.GetDiagnostics());
+                }
+                else if (symbol is not ResourceSymbol)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(baseType.Kind.ToString()));
+                }
+
+                // This is a valid nested resource. Return its type.
+                return typeManager.GetTypeInfo(((ResourceSymbol)symbol).DeclaringResource);
             });
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)

@@ -24,6 +24,13 @@ namespace Bicep.Core.UnitTests.Assertions
         {
         }
 
+        public AndConstraint<DiagnosticCollectionAssertions> BeEmpty()
+        {
+            AssertionExtensions.Should(Subject).BeEmpty("contained diagnostics: {0}", string.Join(Environment.NewLine, Subject.Select(d => d.ToString())));
+
+            return new AndConstraint<DiagnosticCollectionAssertions>(this);
+        }
+
         public AndConstraint<DiagnosticCollectionAssertions> ContainDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
         {
             AssertionExtensions.Should(Subject).Contain(x => x.Code == code && x.Level == level && x.Message == message, because, becauseArgs);
@@ -54,7 +61,7 @@ namespace Bicep.Core.UnitTests.Assertions
         public AndConstraint<DiagnosticCollectionAssertions> BeEmptyOrContainDeprecatedDiagnosticOnly(string because = "", params object[] becauseArgs)
         {
             // TODO: remove this extension method when the the support of parameter modifiers is dropped.
-            AssertionExtensions.Should(Subject.Where(x => x.Code != "BCP156")).BeEmpty(because, becauseArgs);
+            AssertionExtensions.Should(Subject.Where(x => x.Code != "BCP161")).BeEmpty(because, becauseArgs);
 
             return new AndConstraint<DiagnosticCollectionAssertions>(this);
         }

@@ -37,5 +37,10 @@ namespace Bicep.Core.Syntax
         /// Gets the object properties. May return duplicate properties.
         /// </summary>
         public IEnumerable<ObjectPropertySyntax> Properties => this.Children.OfType<ObjectPropertySyntax>();
+
+        /// <summary>
+        /// Gets the child resources of this object.
+        /// </summary>
+        public IEnumerable<ResourceDeclarationSyntax> Resources => this.Children.OfType<ResourceDeclarationSyntax>();
     }
 }

@@ -35,7 +35,7 @@ namespace Bicep.LangServer.UnitTests
 
             context.Compilation.Should().NotBeNull();
             // TOOD: remove Where when the support of modifiers is dropped.
-            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Where(d => d.Code != "BCP156").Should().BeEmpty();
+            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Where(d => d.Code != "BCP161").Should().BeEmpty();
             context.LineStarts.Should().NotBeEmpty();
             context.LineStarts[0].Should().Be(0);
         }

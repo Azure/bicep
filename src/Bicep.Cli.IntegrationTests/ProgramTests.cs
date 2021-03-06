@@ -369,7 +369,7 @@ output myOutput string = 'hello!'
                 // TODO: remove this branch when the support of parameter modifiers is dropped. 
                 foreach(var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    line.Should().Contain("BCP156");
+                    line.Should().Contain("BCP161");
                 }
             }
             else

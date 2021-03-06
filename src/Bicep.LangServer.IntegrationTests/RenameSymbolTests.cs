@@ -45,13 +45,13 @@ namespace Bicep.LangServer.IntegrationTests
                 .ToLookup(pair => pair.Value, pair => pair.Key);
 
             var validVariableAccessPairs = symbolTable
-                .Where(pair => (pair.Key is VariableAccessSyntax || pair.Key is ITopLevelNamedDeclarationSyntax)
+                .Where(pair => (pair.Key is VariableAccessSyntax || pair.Key is ResourceAccessSyntax || pair.Key is ITopLevelNamedDeclarationSyntax)
                                && pair.Value.Kind != SymbolKind.Error
                                && pair.Value.Kind != SymbolKind.Function
                                && pair.Value.Kind != SymbolKind.Namespace
                                // symbols whose identifiers have parse errors will have a name like <error> or <missing>
                                && pair.Value.Name.Contains("<") == false);
-
+            
             const string expectedNewText = "NewIdentifier";
             foreach (var (syntax, symbol) in validVariableAccessPairs)
             {

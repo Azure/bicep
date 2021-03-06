@@ -60,17 +60,26 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
+            // This check is separate from IsLoopAllowedHere because this is about the appearance of a
+            // nested resource **inside** a loop.
+            if (this.semanticModel.Binder.GetNearestAncestor<ForSyntax>(syntax) is ForSyntax)
+            {
+                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.Span).NestedResourceNotAllowedInLoop());
+            }
+
+            // Resources can be nested, support recursion of resource declarations
+            var previousLoopCapableTopLevelDeclaration = this.activeLoopCapableTopLevelDeclaration;
             this.activeLoopCapableTopLevelDeclaration = syntax;
 
             // stash the body (handles loops and conditions as well)
+            var previousDependsOnProperty = this.currentDependsOnProperty;
             this.currentDependsOnProperty = TryGetDependsOnProperty(syntax.TryGetBody());
 
             base.VisitResourceDeclarationSyntax(syntax);
 
-            // clear the stash
-            this.currentDependsOnProperty = null;
-
-            this.activeLoopCapableTopLevelDeclaration = null;
+            // restore state
+            this.currentDependsOnProperty = previousDependsOnProperty;
+            this.activeLoopCapableTopLevelDeclaration = previousLoopCapableTopLevelDeclaration;
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)

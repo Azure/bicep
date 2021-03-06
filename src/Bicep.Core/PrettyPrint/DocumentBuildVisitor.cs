@@ -150,6 +150,9 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax) =>
             this.BuildWithConcat(() => base.VisitPropertyAccessSyntax(syntax));
 
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax) =>
+            this.BuildWithConcat(() => base.VisitResourceAccessSyntax(syntax));
+
         public override void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax) =>
             this.BuildWithConcat(() => base.VisitParenthesizedExpressionSyntax(syntax));
 
