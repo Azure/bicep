@@ -474,6 +474,21 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitPropertyAccessSyntax(PropertyAccessSyntax syntax) => ReplaceCurrent(syntax, ReplacePropertyAccessSyntax);
 
+        protected virtual ResourceAccessSyntax ReplaceResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            var hasChanges = Rewrite(syntax.BaseExpression, out var baseExpression);
+            hasChanges |= Rewrite(syntax.Colon, out var colon);
+            hasChanges |= Rewrite(syntax.ResourceName, out var propertyName);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ResourceAccessSyntax(baseExpression, colon, propertyName);
+        }
+        void ISyntaxVisitor.VisitResourceAccessSyntax(ResourceAccessSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceAccessSyntax);
+
         protected virtual ParenthesizedExpressionSyntax ReplaceParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)
         {
             var hasChanges = Rewrite(syntax.OpenParen, out var openParen);

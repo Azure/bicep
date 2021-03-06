@@ -46,6 +46,8 @@ namespace Bicep.Core.Syntax
 
         void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax);
 
+        void VisitResourceAccessSyntax(ResourceAccessSyntax syntax);
+
         void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax);
 
         void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax);

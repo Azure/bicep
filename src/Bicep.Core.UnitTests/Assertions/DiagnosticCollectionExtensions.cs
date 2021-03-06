@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Collections;
@@ -21,6 +22,13 @@ namespace Bicep.Core.UnitTests.Assertions
         public DiagnosticCollectionAssertions(IEnumerable<Diagnostic> diagnostics)
             : base(diagnostics)
         {
+        }
+
+        public AndConstraint<DiagnosticCollectionAssertions> BeEmpty()
+        {
+            AssertionExtensions.Should(Subject).BeEmpty("contained diagnostics: {0}", string.Join(Environment.NewLine, Subject.Select(d => d.ToString())));
+
+            return new AndConstraint<DiagnosticCollectionAssertions>(this);
         }
 
         public AndConstraint<DiagnosticCollectionAssertions> ContainDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
