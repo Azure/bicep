@@ -748,7 +748,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP128",
                 $"Function \"{functionName}\" cannot be used as a module decorator.");
 
-            public ErrorDiagnostic CannotUseFunctionAsOuputDecorator(string functionName) => new(
+            public ErrorDiagnostic CannotUseFunctionAsOutputDecorator(string functionName) => new(
                 TextSpan,
                 "BCP129",
                 $"Function \"{functionName}\" cannot be used as an output decorator.");
@@ -886,7 +886,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP155",
                 $"The decorator \"{decoratorName}\" can only be attached to resource or module collections.");
 
-            public Diagnostic ParameterModifersDeprecated() => new(
+            public Diagnostic ParameterModifiersDeprecated() => new(
                 TextSpan,
                 DiagnosticLevel.Info,
                 "BCP156",

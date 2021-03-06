@@ -260,7 +260,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         diagnostics.Write(syntax.Decorators.Any()
                             ? DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether()
-                            : DiagnosticBuilder.ForPosition(modifierSyntax).ParameterModifersDeprecated());
+                            : DiagnosticBuilder.ForPosition(modifierSyntax).ParameterModifiersDeprecated());
                     }
 
                     diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
