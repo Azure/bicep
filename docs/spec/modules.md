@@ -72,3 +72,43 @@ module publicIp './publicIpAddress.bicep' = {
 ```
 
 Please see [Resource Scopes](./resource-scopes.md) for more information and advanced usage.
+
+## Using existing Key Vault's secret as input for secure string module parameter
+
+When a module expects a `string` parameter with `secure: true` modifier, you can use existing secret from a Key Vault. To obtain the secret you need to use special method `getSecret` that can be called on a Microsoft.KeyVault/vaults resource only and can be used only with parameter with `secure: true` or `@secure()` decorator. For example:
+
+```bicep
+// Module accepting secure string
+param myPassword string { 
+  secure: true
+}
+
+@secure()
+param mySecondPassword string
+```
+```bicep
+param keyVaultName string
+param keyVaultSubscription string
+param keyVaultResourceGroup string
+param secret1Name string
+param secret1Version  string
+param secret2Name string
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: keyVaultName
+  scope: resourceGroup(keyVaultSubscription, keyVaultResourceGroup)
+}
+
+module secretModule './secretModule.bicep' = {
+  name: 'secretModule'  
+  params: {
+    myPassword: kv.getSecret(secret1Name, secret1Version)
+    mySecondPassword: kv.getSecret(secret2Name)
+  }
+}
+```
+
+### Notes
+* Key Vault must have `enabledForDeployment` property set to `true`
+* Key Vault and secret must exist before entire deployment starts.
+* Secret version is optional

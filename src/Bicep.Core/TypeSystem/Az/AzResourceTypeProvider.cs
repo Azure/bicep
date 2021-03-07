@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Linq;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
 using Bicep.Core.Emit;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -111,7 +112,7 @@ namespace Bicep.Core.TypeSystem.Az
             {
                 // TODO: remove 'dependsOn' from the type library
                 properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly));
-                
+
                 // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
                 if (validParentScopes.HasFlag(ResourceScope.Resource))
                 {
@@ -125,12 +126,32 @@ namespace Bicep.Core.TypeSystem.Az
                 properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
+
+            var functions = GetTypeBicepFunctions(objectType.Name);
+
             return new NamedObjectType(
                 objectType.Name,
                 objectType.ValidationFlags,
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
                 objectType.AdditionalPropertiesType,
-                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags);
+                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
+                functions);
+        }
+
+        private static IEnumerable<FunctionOverload> GetTypeBicepFunctions(string name)
+        {
+            switch (name.ToLowerInvariant())
+            {
+                case "microsoft.keyvault/vaults":
+                    yield return new FunctionOverloadBuilder("getSecret")
+                        .WithReturnType(LanguageConstants.KeyVaultSecretReference)
+                        .WithDescription("References a secret from this key vault to be binded to a secure string module parameter")
+                        .WithFlags(FunctionFlags.ModuleParamsAssignmentOnly)
+                        .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")
+                        .WithOptionalParameter("secretVersion", LanguageConstants.String, "Secret Version")
+                        .Build();
+                    break;
+            }
         }
 
         private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)

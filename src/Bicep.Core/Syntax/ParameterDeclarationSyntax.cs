@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -21,7 +22,7 @@ namespace Bicep.Core.Syntax
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(type, nameof(type), typeof(TypeSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
-            
+
             this.Keyword = keyword;
             this.Name = name;
             this.Type = type;
@@ -29,7 +30,7 @@ namespace Bicep.Core.Syntax
         }
 
         public Token Keyword { get; }
-        
+
         public IdentifierSyntax Name { get; }
 
         public SyntaxBase Type { get; }
@@ -64,6 +65,8 @@ namespace Bicep.Core.Syntax
 
         public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax)
         {
+            static bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
+
             var assignedType = this.GetDeclaredType();
 
             // TODO: remove SyntaxHelper.TryGetAllowedSyntax when we drop parameter modifiers support.
@@ -80,6 +83,12 @@ namespace Bicep.Core.Syntax
                 if (allowedItemTypes != null && allowedItemTypes.All(itemType => itemType is StringLiteralType))
                 {
                     assignedType = UnionType.Create(allowedItemTypes);
+                }
+                else if ((Modifier is ObjectSyntax modifierSyntax && IsSecure(modifierSyntax.SafeGetPropertyByName(LanguageConstants.ParameterModifierSecureName)?.Value)) ||
+                    (this.SafeGetDecoaratorByName(LanguageConstants.ParameterModifierSecureName) is not null))
+                {
+                    //parameter can accept either LooseString (see below) or reference to key vault secret
+                    assignedType = LanguageConstants.SecureString;
                 }
                 else
                 {

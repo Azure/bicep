@@ -88,10 +88,13 @@ namespace Bicep.Core
 
         // the type of the dependsOn property in module and resource bodies
         public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
-        
-        public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
+
+        public const string StringTypeName = "string";
+        public static readonly TypeSymbol String = new PrimitiveType(StringTypeName, TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
-        public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
+        public static readonly TypeSymbol LooseString = new PrimitiveType(StringTypeName, TypeSymbolValidationFlags.AllowLooseStringAssignment);
+        public static readonly TypeSymbol SecureString = new PrimitiveType(StringTypeName, TypeSymbolValidationFlags.AllowLooseStringAssignment | TypeSymbolValidationFlags.AllowKeyVaultSecretReferenceAssignment);
+        public static readonly TypeSymbol KeyVaultSecretReference = new KeyVaultSecretReferenceType();
         public static readonly TypeSymbol Object = new ObjectType("object");
         public static readonly TypeSymbol Int = new PrimitiveType("int", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
@@ -121,6 +124,7 @@ namespace Bicep.Core
             return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", TypeSymbolValidationFlags.Default, CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
         }
 
+        public const string ParameterModifierSecureName = "secure";
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
             /*
@@ -131,7 +135,7 @@ namespace Bicep.Core
             if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object) || ReferenceEquals(primitiveType, Any))
             {
                 // only string and object types have secure equivalents
-                yield return new TypeProperty("secure", Bool, TypePropertyFlags.Constant);
+                yield return new TypeProperty(ParameterModifierSecureName, Bool, TypePropertyFlags.Constant);
             }
 
             // default value is allowed to have expressions
@@ -200,7 +204,7 @@ namespace Bicep.Core
             {
                 yield return "resourceGroup";
             }
-        }        
+        }
 
         public static ResourceScopeType CreateResourceScopeReference(ResourceScope resourceScope)
         {

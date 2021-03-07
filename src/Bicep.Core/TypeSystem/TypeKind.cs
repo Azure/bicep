@@ -63,5 +63,10 @@ namespace Bicep.Core.TypeSystem
         /// Module type
         /// </summary>
         Module,
+
+        /// <summary>
+        /// Reference to KeyVault secret
+        /// </summary>
+        KeyVaultSecretReference
     }
 }

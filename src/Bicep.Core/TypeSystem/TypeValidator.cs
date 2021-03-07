@@ -61,7 +61,7 @@ namespace Bicep.Core.TypeSystem
                     return sourceType is IScopeReference;
 
                 case UnionType union when ReferenceEquals(union, LanguageConstants.ResourceOrResourceCollectionRefItem):
-                    return sourceType is IScopeReference || sourceType is ArrayType {Item: IScopeReference};
+                    return sourceType is IScopeReference || sourceType is ArrayType { Item: IScopeReference };
 
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
                     // When assigning a resource, we're really assigning the value of the resource body.
@@ -84,6 +84,14 @@ namespace Bicep.Core.TypeSystem
                 case PrimitiveType _ when sourceType is StringLiteralType:
                     // string literals can be assigned to strings
                     return targetType.Name == LanguageConstants.String.Name;
+
+                case PrimitiveType _ when targetType.Name == LanguageConstants.StringTypeName && sourceType is KeyVaultSecretReferenceType:
+                    // key vault reference type can be assigned only to string type parameters with secure decorator
+                    return targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowKeyVaultSecretReferenceAssignment);
+
+                case KeyVaultSecretReferenceType _:
+                    //key vault secret reference type is source type only.
+                    return false;
 
                 case PrimitiveType _ when sourceType is PrimitiveType:
                     // both types are primitive
@@ -110,14 +118,14 @@ namespace Bicep.Core.TypeSystem
 
                 case TypeSymbol _ when sourceType is UnionType sourceUnion:
                     // union types are guaranteed to be flat
-                    
+
                     // TODO: Replace with some sort of set intersection
                     // are all source type members assignable to the target type?
                     return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember.Type, targetType) == true);
 
                 case UnionType targetUnion:
                     // the source type should be a singleton type
-                    Debug.Assert(!(sourceType is UnionType),"!(sourceType is UnionType)");
+                    Debug.Assert(!(sourceType is UnionType), "!(sourceType is UnionType)");
 
                     // can source type be assigned to any union member types
                     return targetUnion.Members.Any(targetMember => AreTypesAssignable(sourceType, targetMember.Type) == true);
@@ -379,7 +387,7 @@ namespace Bicep.Core.TypeSystem
                         GetPropertyMismatchErrorFactory(ShouldWarn(targetType), declaredProperty.Name),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
-                        
+
                     narrowedProperties.Add(new TypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
                 }
                 else
@@ -421,7 +429,7 @@ namespace Bicep.Core.TypeSystem
                     }
                     else
                     {
-                        error = validUnspecifiedProperties.Any() ? 
+                        error = validUnspecifiedProperties.Any() ?
                             builder.DisallowedInterpolatedKeyPropertyWithPermissibleProperties(shouldWarn, targetType, validUnspecifiedProperties) :
                             builder.DisallowedInterpolatedKeyProperty(shouldWarn, targetType);
                     }
@@ -469,13 +477,13 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            return new NamedObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags);
+            return new NamedObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver);
         }
 
         private static (IPositionable positionable, string blockName) GetMissingPropertyContext(ITypeManager typeManager, SyntaxBase expression)
         {
             var parent = typeManager.GetParent(expression);
-            
+
             // determine where to place the missing property error
             return parent switch
             {
@@ -484,7 +492,7 @@ namespace Bicep.Core.TypeSystem
 
                 // for declaration bodies, put it on the declaration identifier
                 ITopLevelNamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),
-                
+
                 // for conditionals, put it on the parent declaration identifier
                 // (the parent of a conditional can only be a resource or module declaration)
                 IfConditionSyntax ifCondition => GetMissingPropertyContext(typeManager, ifCondition),

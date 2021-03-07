@@ -9,11 +9,17 @@ namespace Bicep.Core.TypeSystem
     public class NamedObjectType : ObjectType
     {
         public NamedObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.None, IEnumerable<FunctionOverload>? functions = null)
+            : this(name, validationFlags, properties, additionalPropertiesType, additionalPropertiesFlags, FunctionResolver.Create(functions))
+        {
+
+        }
+
+        public NamedObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, FunctionResolver functionResolver)
             : base(name)
         {
             this.ValidationFlags = validationFlags;
             this.Properties = properties.ToImmutableDictionary(property => property.Name, LanguageConstants.IdentifierComparer);
-            this.MethodResolver = FunctionResolver.Create(functions);
+            this.MethodResolver = functionResolver;
             this.AdditionalPropertiesType = additionalPropertiesType;
             this.AdditionalPropertiesFlags = additionalPropertiesFlags;
         }

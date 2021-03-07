@@ -13,7 +13,7 @@ namespace Bicep.Core.Syntax
         /// Converts a syntactically valid object syntax node to a hashset of property name strings. Will throw if you provide a node with duplicate properties.
         /// </summary>
         /// <param name="syntax">The object syntax node</param>
-        public static ImmutableHashSet<string> ToKnownPropertyNames(this ObjectSyntax syntax) => 
+        public static ImmutableHashSet<string> ToKnownPropertyNames(this ObjectSyntax syntax) =>
             syntax.Properties.Select(p => p.TryGetKeyText()).ToImmutableHashSetExcludingNull(LanguageConstants.IdentifierComparer);
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Bicep.Core.Syntax
         /// Converts a syntactically valid object syntax node to a dictionary mapping property name strings to property syntax nodes. Will throw if you provide a node with duplicate properties.
         /// </summary>
         /// <param name="syntax">The object syntax node</param>
-        public static ImmutableDictionary<string, ObjectPropertySyntax> ToNamedPropertyDictionary(this ObjectSyntax syntax) =>	
+        public static ImmutableDictionary<string, ObjectPropertySyntax> ToNamedPropertyDictionary(this ObjectSyntax syntax) =>
             syntax.Properties.ToImmutableDictionaryExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer);
 
         /// <summary>
@@ -114,6 +114,11 @@ namespace Bicep.Core.Syntax
                 property.TryGetKeyText() is string propertyName
                     ? mergedObject.MergeProperty(propertyName, property.Value)
                     : mergedObject);
+        }
+
+        public static DecoratorSyntax? SafeGetDecoaratorByName(this StatementSyntax syntax, string name)
+        {
+            return syntax.Decorators.FirstOrDefault(d => d.Expression is FunctionCallSyntax func && string.Equals(func.Name.IdentifierName, name, System.StringComparison.OrdinalIgnoreCase));
         }
     }
 }

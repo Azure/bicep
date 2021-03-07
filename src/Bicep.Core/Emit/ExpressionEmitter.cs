@@ -82,7 +82,7 @@ namespace Bicep.Core.Emit
                 case ResourceAccessSyntax _:
                 case VariableAccessSyntax _:
                     EmitLanguageExpression(syntax);
-                    
+
                     break;
 
                 default:
@@ -101,7 +101,7 @@ namespace Bicep.Core.Emit
         public void EmitResourceIdReference(ResourceSymbol resourceSymbol, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
             var converterForContext = this.converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resourceSymbol), indexExpression, newContext);
-            
+
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resourceSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
@@ -111,7 +111,7 @@ namespace Bicep.Core.Emit
         public void EmitResourceIdReference(ModuleSymbol moduleSymbol, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
             var converterForContext = this.converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext);
-            
+
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(moduleSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
@@ -135,8 +135,8 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (syntax is FunctionCallSyntax functionCall && 
-                symbol is FunctionSymbol functionSymbol && 
+            if (syntax is FunctionCallSyntax functionCall &&
+                symbol is FunctionSymbol functionSymbol &&
                 string.Equals(functionSymbol.Name, "any", LanguageConstants.IdentifierComparison))
             {
                 // the outermost function in the current syntax node is the "any" function
@@ -186,7 +186,7 @@ namespace Bicep.Core.Emit
                 syntax.Expression,
                 arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
 
-            if(batchSize.HasValue)
+            if (batchSize.HasValue)
             {
                 this.EmitProperty("mode", "serial");
                 this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
@@ -216,14 +216,14 @@ namespace Bicep.Core.Emit
                                 {
                                     // it's an invocation of the copyIndex function with 1 argument with a literal value
                                     // replace the argument with the correct value
-                                    function.Parameters = new LanguageExpression[] {new JTokenExpression("value")};
+                                    function.Parameters = new LanguageExpression[] { new JTokenExpression("value") };
                                 }
                             }
                         };
 
                         // mutate the expression
                         expression.Accept(visitor);
-                        
+
                         return expression;
                     });
                 }
@@ -281,6 +281,46 @@ namespace Bicep.Core.Emit
             }
         }
 
+        public void EmitModuleParameterValue(SyntaxBase syntax)
+        {
+            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", StringComparison.Ordinal))
+            {
+                var objectSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
+                if (objectSymbol is ResourceSymbol resource)
+                {
+                    writer.WritePropertyName("reference");
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("keyVault");
+                    writer.WriteStartObject();
+
+                    writer.WritePropertyName("id");
+                    var keyVaultId = converter.GetFullyQualifiedResourceId(resource);
+                    var keyVaultIdSerialised = ExpressionSerializer.SerializeExpression(keyVaultId);
+                    writer.WriteValue(keyVaultIdSerialised);
+
+                    writer.WriteEndObject(); // keyVault
+
+                    writer.WritePropertyName("secretName");
+                    var secretName = converter.ConvertExpression(instanceFunctionCall.Arguments[0].Expression);
+                    var secretNameSerialised = ExpressionSerializer.SerializeExpression(secretName);
+                    writer.WriteValue(secretNameSerialised);
+
+                    if (instanceFunctionCall.Arguments.Length > 1)
+                    {
+                        writer.WritePropertyName("secretVersion");
+                        var secretVersion = converter.ConvertExpression(instanceFunctionCall.Arguments[1].Expression);
+                        var secretVersionSerialised = ExpressionSerializer.SerializeExpression(secretVersion);
+                        writer.WriteValue(secretVersionSerialised);
+                    }
+                    writer.WriteEndObject(); // reference
+
+                    return;
+                }
+                throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
+            }
+            EmitProperty("value", syntax);
+        }
+
         public void EmitProperty(string name, LanguageExpression expressionValue)
             => EmitPropertyInternal(new JTokenExpression(name), () =>
             {
@@ -294,7 +334,7 @@ namespace Bicep.Core.Emit
                 var converted = converter.ConvertExpression(value);
                 var transformed = convertedValueTransform(converted);
                 var serialized = ExpressionSerializer.SerializeExpression(transformed);
-                
+
                 this.writer.WriteValue(serialized);
             });
 

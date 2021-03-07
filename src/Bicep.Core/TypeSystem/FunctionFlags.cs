@@ -54,5 +54,10 @@ namespace Bicep.Core.TypeSystem
         /// The function can be used as an output decorator.
         /// </summary>
         OutputDecorator = 1 << 6,
+
+        /// <summary>
+        /// The function can be used as input for module parameter only.
+        /// </summary>
+        ModuleParamsAssignmentOnly = 1 << 7,
     }
 }

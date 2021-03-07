@@ -698,8 +698,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP119",
                 $"Unsupported scope for extension resource deployment. Expected a resource reference.");
 
-            public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain) {
-                var variableDependencyChainClause = variableDependencyChain != null ? 
+            public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = variableDependencyChain != null ?
                  $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
 
                 return new ErrorDiagnostic(
@@ -886,7 +887,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP155",
                 $"The decorator \"{decoratorName}\" can only be attached to resource or module collections.");
-       
+
             public ErrorDiagnostic InvalidResourceTypeSegment(string typeSegment) => new(
                 TextSpan,
                 "BCP156",
@@ -918,6 +919,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP161",
                 "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples).",
                 DiagnosticLabel.Deprecated);
+
+            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+                TextSpan,
+                "BCP162",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used in assigning value to a module parameter.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
