@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "actionGroupName": {
+      "type": "string",
+      "defaultValue": "AzureSpringCleanAG"
+    },
+    "actionGroupEnabled": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "actionGroupShortName": {
+      "type": "string",
+      "defaultValue": "azspgcln"
+    },
+    "actionGroupEmailName": {
+      "type": "string",
+      "defaultValue": "jloudon"
+    },
+    "actionGroupEmail": {
+      "type": "string",
+      "defaultValue": "jesse.loudon@lab3.com.au"
+    },
+    "actionGroupAlertSchema": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "microsoft.insights/actionGroups",
+      "apiVersion": "2019-06-01",
+      "location": "global",
+      "name": "[parameters('actionGroupName')]",
+      "properties": {
+        "enabled": "[parameters('actionGroupEnabled')]",
+        "groupShortName": "[parameters('actionGroupShortName')]",
+        "emailReceivers": [
+          {
+            "name": "[parameters('actionGroupEmailName')]",
+            "emailAddress": "[parameters('actionGroupEmail')]",
+            "useCommonAlertSchema": "[parameters('actionGroupAlertSchema')]"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "actionGroupId": {
+      "type": "string",
+      "value": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroupName'))]"
+    },
+    "actionGroupName": {
+      "type": "string",
+      "value": "[parameters('actionGroupName')]"
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.1.62928",
+      "templateHash": "2965522816963686339"
+    }
+  }
+}

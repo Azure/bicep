@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceGroupName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('location')]"
+    }
+  ],
+  "outputs": {
+    "rgId": {
+      "type": "string",
+      "value": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+    },
+    "rgName": {
+      "type": "string",
+      "value": "[parameters('resourceGroupName')]"
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.1.62928",
+      "templateHash": "10102168824125442384"
+    }
+  }
+}
