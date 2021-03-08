@@ -733,7 +733,7 @@ targetScope = 'blablah'
             var (template, diags, _) = CompilationHelper.Compile(@"
 param myparam string
 var myvar = 'hello'
-        
+
 output myparam string = myparam
 output myvar string = myvar
 ");
@@ -850,8 +850,8 @@ var secrets = [
     name: 'CosmosDb-PrimaryKey'
     value: global_resources.outputs.cosmosDbKey
   }
-] 
- 
+]
+
 module stamp_0_secrets './kevault-secrets.bicep' = [for secret in secrets: {
   name: 'stamp_0_secrets-${deploymentId}'
   scope: resourceGroup(rg_stamps[0].name)
@@ -889,6 +889,75 @@ module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
             diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\".");
             diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\".");
         }
+
+        [TestMethod]
+        public void Test_Issue1592()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+              ("main.bicep", @"
+module foo 'test.bicep' = {
+  name: 'foo'
+}
+
+output fooName string = foo.name
+    "),
+              ("test.bicep", @""));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['fooName'].value")!.Should().DeepEqual("foo");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1592_special_cases()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+              ("main.bicep", @"
+param someParam string
+
+module foo 'test.bicep' = {
+  name: '${someParam}-test'
+}
+
+output fooName string = foo.name
+output fooOutput string = foo.outputs.test
+    "),
+              ("test.bicep", @"
+output test string = 'hello'
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['fooName'].value")!.Should().DeepEqual("[format('{0}-test', parameters('someParam'))]");
+                template!.SelectToken("$.outputs['fooOutput'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2019-10-01').outputs.test.value]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1432()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'myVM'
+  name: 'myVm'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                    ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                });
+            }
+        }
+
         [TestMethod]
         public void Test_Issue1028_1()
         {

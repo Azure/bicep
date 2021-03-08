@@ -41,12 +41,12 @@
     {
       "type": "Mock.Rp/mockResource",
       "apiVersion": "2020-01-01",
-      "name": "[format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))]",
+      "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
       "properties": {
-        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
+        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix')))]",
+        "[resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix')))]",
         "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]"
       ]
     },
@@ -467,7 +467,7 @@
         "mode": "Incremental",
         "parameters": {
           "optionalString": {
-            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), 'optionalWithAllParamsAndManualDependency')]"
           },
           "optionalInt": {
             "value": 42
@@ -529,7 +529,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))]",
+      "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -537,7 +537,7 @@
         "mode": "Incremental",
         "parameters": {
           "optionalString": {
-            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), 'optionalWithAllParamsAndManualDependency')]"
           },
           "optionalInt": {
             "value": 42
@@ -1287,14 +1287,14 @@
     },
     "modCalculatedNameOutput": {
       "type": "object",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
     }
   },
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5916075395955971227"
+      "templateHash": "16918224688153038135"
     }
   }
 }
