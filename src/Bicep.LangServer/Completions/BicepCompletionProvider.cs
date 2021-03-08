@@ -1,10 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -201,7 +202,7 @@ namespace Bicep.LanguageServer.Completions
             //
             // The strategy when *can't* filter - due to errors - to fallback to the main path and offer full completions
             // then once the user corrects whatever's cause the error, they will be told to simplify the type.
-            if (context.EnclosingDeclaration is SyntaxBase && 
+            if (context.EnclosingDeclaration is SyntaxBase &&
                 model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(context.EnclosingDeclaration) is ResourceDeclarationSyntax parentSyntax &&
                 model.GetSymbolInfo(parentSyntax) is ResourceSymbol parentSymbol &&
                 parentSymbol.TryGetResourceTypeReference() is ResourceTypeReference parentTypeReference)
@@ -219,7 +220,7 @@ namespace Bicep.LanguageServer.Completions
                     // Doesn't matter which one of the group we take, we're leaving out the version.
                     items.Add(CreateResourceTypeSegmentCompletion(group.First(), index++, context.ReplacementRange, includeApiVersion: false, displayApiVersion: parentTypeReference.ApiVersion));
 
-                    foreach (var resourceType in group.OrderByDescending(rt => rt.ApiVersion))
+                    foreach (var resourceType in group.OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance))
                     {
                         items.Add(CreateResourceTypeSegmentCompletion(resourceType, index++, context.ReplacementRange, includeApiVersion: true, displayApiVersion: resourceType.ApiVersion));
                     }
@@ -227,12 +228,11 @@ namespace Bicep.LanguageServer.Completions
 
                 return items;
             }
-
             // we need to ensure that Microsoft.Compute/virtualMachines@whatever comes before Microsoft.Compute/virtualMachines/extensions@whatever
             // similarly, newest api versions should be shown first
             return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
                 .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
-                .ThenByDescending(rt => rt.ApiVersion)
+                .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange))
                 .ToList();
         }
@@ -246,23 +246,23 @@ namespace Bicep.LanguageServer.Completions
 
             // To provide intellisense before the quotes are typed
             if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
-                || declarationSyntax.Path is not StringSyntax stringSyntax 
+                || declarationSyntax.Path is not StringSyntax stringSyntax
                 || stringSyntax.TryGetLiteralValue() is not string entered)
             {
                 entered = "";
             }
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (FileResolver.TryResolveModulePath(model.SyntaxTree.FileUri, ".") is not {} cwdUri
-                || FileResolver.TryResolveModulePath(cwdUri, entered) is not {} query)
+            if (FileResolver.TryResolveModulePath(model.SyntaxTree.FileUri, ".") is not { } cwdUri
+                || FileResolver.TryResolveModulePath(cwdUri, entered) is not { } query)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
             var files = Enumerable.Empty<Uri>();
             var dirs = Enumerable.Empty<Uri>();
-            
-            
+
+
             // technically bicep files do not have to follow the bicep extension, so 
             // we are not enforcing *.bicep get files command
             if (FileResolver.TryDirExists(query))
@@ -270,10 +270,10 @@ namespace Bicep.LanguageServer.Completions
                 files = FileResolver.GetFiles(query, string.Empty);
                 dirs = FileResolver.GetDirectories(query, string.Empty);
             }
-            else if (FileResolver.TryResolveModulePath(query, ".") is {} queryParent)
+            else if (FileResolver.TryResolveModulePath(query, ".") is { } queryParent)
             {
                 files = FileResolver.GetFiles(queryParent, "");
-                dirs = FileResolver.GetDirectories(queryParent,"");
+                dirs = FileResolver.GetDirectories(queryParent, "");
             }
             // "./" will not be preserved when making relative Uris. We have to go and manually add it.
             // Prioritize .bicep files higher than other files.
@@ -290,12 +290,12 @@ namespace Bicep.LanguageServer.Completions
 
             var dirItems = dirs
                 .Select(dir => CreateModulePathCompletion(
-                    dir.Segments.Last(), 
+                    dir.Segments.Last(),
                     (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir).ToString(),
                     context.ReplacementRange,
                     CompletionItemKind.Folder,
                     CompletionPriority.Medium)
-                .WithCommand(new Command {Name = EditorCommands.RequestCompletions }))
+                .WithCommand(new Command { Name = EditorCommands.RequestCompletions }))
                 .ToList();
             return fileItems.Concat(dirItems);
         }
@@ -633,8 +633,8 @@ namespace Bicep.LanguageServer.Completions
                         .Preselect()
                         .WithSortText(GetSortText(arrayLabel, CompletionPriority.High));
 
-                    if (context.Kind.HasFlag(BicepCompletionContextKind.PropertyValue) && 
-                        context.Property is not null && 
+                    if (context.Kind.HasFlag(BicepCompletionContextKind.PropertyValue) &&
+                        context.Property is not null &&
                         ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(semanticModel, context.Property))
                     {
                         // property loop is allowed here
@@ -673,7 +673,7 @@ namespace Bicep.LanguageServer.Completions
         private static CompletionItem CreateLoopCompletion(Range replacementRange, TypeSymbol arrayItemType)
         {
             const string loopLabel = "for";
-            
+
             var assignableToObject = TypeValidator.AreTypesAssignable(arrayItemType, LanguageConstants.Object);
             var assignableToArray = TypeValidator.AreTypesAssignable(arrayItemType, LanguageConstants.Array);
 
@@ -770,7 +770,7 @@ namespace Bicep.LanguageServer.Completions
         private static CompletionItem CreateResourceTypeSegmentCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool includeApiVersion, string displayApiVersion)
         {
             // We create one completion with and without the API version.
-            var insertText = includeApiVersion ? 
+            var insertText = includeApiVersion ?
                 StringUtils.EscapeBicepString($"{resourceType.Types[^1]}@{resourceType.ApiVersion}") :
                 StringUtils.EscapeBicepString($"{resourceType.Types[^1]}");
             return CompletionItemBuilder.Create(CompletionItemKind.Class)
@@ -839,7 +839,7 @@ namespace Bicep.LanguageServer.Completions
                 if (hasParameters)
                 {
                     // if parameters may need to be specified, automatically request signature help
-                    completion.WithCommand(new Command {Name = EditorCommands.SignatureHelp});
+                    completion.WithCommand(new Command { Name = EditorCommands.SignatureHelp });
                 }
 
                 return completion
