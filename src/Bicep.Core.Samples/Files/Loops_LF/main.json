@@ -666,7 +666,7 @@
     },
     "indexedModulesName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2019-10-01').outputs.name]"
+      "value": "[variables('moduleSetup')[parameters('index')]]"
     },
     "indexedModuleOutput": {
       "type": "string",
@@ -701,7 +701,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "29057223099977573"
+      "templateHash": "15563763134771957148"
     }
   }
 }
