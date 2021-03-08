@@ -113,7 +113,7 @@ namespace Bicep.Core.UnitTests.Text
         }
 
         [TestMethod]
-        public void GetPosition_NegtiveOffset_ThrowsArgumentOutOfRangeException()
+        public void GetPosition_NegativeOffset_ThrowsArgumentOutOfRangeException()
         {
             IReadOnlyList<int> lineStarts = new List<int> { 0, 24 }.AsReadOnly();
             Action sut = () => TextCoordinateConverter.GetPosition(lineStarts, -9);

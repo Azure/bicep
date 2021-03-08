@@ -72,6 +72,7 @@ memberExpression ->
   memberExpression "[" expression "]" |
   memberExpression "." IDENTIFIER(property) |
   memberExpression "." functionCall
+  memberExpression ":" IDENTIFIER(name)
 
 primaryExpression ->
   functionCall |

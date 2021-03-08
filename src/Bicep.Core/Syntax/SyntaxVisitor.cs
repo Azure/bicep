@@ -249,6 +249,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.PropertyName);
         }
 
+        public virtual void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.Colon);
+            this.Visit(syntax.ResourceName);
+        }
+
         public virtual void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)
         {
             this.Visit(syntax.OpenParen);

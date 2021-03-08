@@ -200,26 +200,24 @@ namespace Bicep.Core.TypeSystem
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declaredType = syntax.GetDeclaredType(resourceTypeProvider);
+                var singleResourceDeclaredType = syntax.GetDeclaredType(binder, resourceTypeProvider);
+                var singleOrCollectionDeclaredType = syntax.Value is ForSyntax
+                    ? new TypedArrayType(singleResourceDeclaredType, TypeSymbolValidationFlags.Default)
+                    : singleResourceDeclaredType;
 
-                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+                this.ValidateDecorators(syntax.Decorators, singleOrCollectionDeclaredType, diagnostics);
 
-                if (declaredType is ErrorType)
+                if (singleResourceDeclaredType is ErrorType)
                 {
-                    return declaredType;
+                    return singleResourceDeclaredType;
                 }
 
-                if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
+                if (singleResourceDeclaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
 
-                if (syntax.Value is ForSyntax)
-                {
-                    return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, new TypedArrayType(declaredType, TypeSymbolValidationFlags.Default), diagnostics);
-                }
-
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -235,21 +233,19 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(failureDiagnostic);
                 }
 
-                var declaredType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
+                var singleModuleDeclaredType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
+                var singleOrCollectionDeclaredType = syntax.Value is ForSyntax
+                    ? new TypedArrayType(singleModuleDeclaredType, TypeSymbolValidationFlags.Default)
+                    : singleModuleDeclaredType;
 
-                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+                this.ValidateDecorators(syntax.Decorators, singleOrCollectionDeclaredType, diagnostics);
 
                 if (moduleSemanticModel.HasErrors())
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }
 
-                if (syntax.Value is ForSyntax)
-                {
-                    return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, new TypedArrayType(declaredType, TypeSymbolValidationFlags.Default), diagnostics);
-                }
-                
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -260,9 +256,11 @@ namespace Bicep.Core.TypeSystem
 
                 if (syntax.Modifier != null)
                 {
-                    if (syntax.Decorators.Any() && syntax.Modifier is ObjectSyntax modifierSyntax)
+                    if (syntax.Modifier is ObjectSyntax modifierSyntax)
                     {
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether());
+                        diagnostics.Write(syntax.Decorators.Any()
+                            ? DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether()
+                            : DiagnosticBuilder.ForPosition(modifierSyntax).ParameterModifiersDeprecated());
                     }
 
                     diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
@@ -772,6 +770,51 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                var errors = new List<ErrorDiagnostic>();
+
+                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
+                CollectErrors(errors, baseType);
+
+                if (PropagateErrorType(errors, baseType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                if (baseType is not ResourceType)
+                {
+                    // can only access children of resources
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(baseType.Name));
+                }
+
+                if (!syntax.ResourceName.IsValid)
+                {
+                    // the resource name is not valid
+                    // there's already a parse error for it, so we don't need to add a type error as well
+                    return ErrorType.Empty();
+                }
+
+                // Should have a symbol from name binding.
+                var symbol = binder.GetSymbolInfo(syntax);
+                if (symbol == null)
+                {
+                    throw new InvalidOperationException("ResourceAccessSyntax was not assigned a symbol during name binding.");
+                }
+
+                if (symbol is ErrorSymbol error)
+                {
+                    return ErrorType.Create(error.GetDiagnostics());
+                }
+                else if (symbol is not ResourceSymbol)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(baseType.Kind.ToString()));
+                }
+
+                // This is a valid nested resource. Return its type.
+                return typeManager.GetTypeInfo(((ResourceSymbol)symbol).DeclaringResource);
+            });
+
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
@@ -888,9 +931,10 @@ namespace Bicep.Core.TypeSystem
                 {
                     FunctionFlags.ParameterDecorator => diagnosticBuilder.ExpectedParameterDeclarationAfterDecorator(),
                     FunctionFlags.VariableDecorator => diagnosticBuilder.ExpectedVariableDeclarationAfterDecorator(),
-                    FunctionFlags.ResoureDecorator => diagnosticBuilder.ExpectedResourceDeclarationAfterDecorator(),
+                    FunctionFlags.ResourceDecorator => diagnosticBuilder.ExpectedResourceDeclarationAfterDecorator(),
                     FunctionFlags.ModuleDecorator => diagnosticBuilder.ExpectedModuleDeclarationAfterDecorator(),
                     FunctionFlags.OutputDecorator => diagnosticBuilder.ExpectedOutputDeclarationAfterDecorator(),
+                    FunctionFlags.ResourceOrModuleDecorator => diagnosticBuilder.ExpectedResourceOrModuleDeclarationAfterDecorator(),
                     _ => null,
                 };
 

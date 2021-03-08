@@ -37,7 +37,7 @@ namespace Bicep.Core.TypeSystem
         public static void ValidateDeployTimeConstants(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
             var deploymentTimeConstantVisitor = new DeployTimeConstantVisitor(model, diagnosticWriter);
-            foreach (var declaredSymbol in model.Root.ResourceDeclarations)
+            foreach (var declaredSymbol in model.Root.GetAllResourceDeclarations())
             {
                 deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
             }
@@ -54,6 +54,7 @@ namespace Bicep.Core.TypeSystem
             // in certain cases, errors will cause this visitor to short-circuit, 
             // which causes state to be left over after processing a peer declaration
             // let's clean it up
+            var previousBodyType = this.bodyType;
             this.bodyType = null;
             ResetState();
 
@@ -74,7 +75,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             base.VisitResourceDeclarationSyntax(syntax);
-            this.bodyType = null;
+            this.bodyType = previousBodyType;
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)

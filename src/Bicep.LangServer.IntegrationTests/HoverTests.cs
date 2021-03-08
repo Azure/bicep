@@ -63,9 +63,12 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (SyntaxBase symbolReference in symbolReferences)
             {
-                var syntaxPosition = symbolReference is ITopLevelDeclarationSyntax declaration
-                    ? declaration.Keyword.Span.Position
-                    : symbolReference.Span.Position;
+                var syntaxPosition = symbolReference switch
+                {
+                    ITopLevelDeclarationSyntax d => d.Keyword.Span.Position,
+                    ResourceAccessSyntax r => r.ResourceName.Span.Position,
+                    _ => symbolReference.Span.Position,
+                };
 
                 var hover = await client.RequestHover(new HoverParams
                 {

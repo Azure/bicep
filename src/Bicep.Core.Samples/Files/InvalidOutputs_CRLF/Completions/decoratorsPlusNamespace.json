@@ -17,6 +17,23 @@
     }
   },
   {
+    "label": "batchSize",
+    "kind": "function",
+    "detail": "batchSize()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_batchSize",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "batchSize($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "description",
     "kind": "function",
     "detail": "description()",

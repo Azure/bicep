@@ -1858,7 +1858,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes1"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "singleModuleForRuntimeCheck",

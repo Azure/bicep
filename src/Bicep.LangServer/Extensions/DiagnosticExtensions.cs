@@ -20,7 +20,8 @@ namespace Bicep.LanguageServer.Extensions
                 Code = diagnostic.Code,
                 Message = diagnostic.Message,
                 Source = LanguageConstants.LanguageId,
-                Range = diagnostic.ToRange(lineStarts)
+                Range = diagnostic.ToRange(lineStarts),
+                Tags = ToDiagnosticTags(diagnostic.Label),
             });
 
         private static DiagnosticSeverity ToDiagnosticSeverity(DiagnosticLevel level)
@@ -30,6 +31,14 @@ namespace Bicep.LanguageServer.Extensions
                 DiagnosticLevel.Error => DiagnosticSeverity.Error,
                 _ => throw new ArgumentException($"Unrecognized level {level}"),
             };
+
+        private static Container<DiagnosticTag>? ToDiagnosticTags(DiagnosticLabel? label) => label switch
+        {
+            null => null,
+            DiagnosticLabel.Unnecessary => new Container<DiagnosticTag>(DiagnosticTag.Unnecessary),
+            DiagnosticLabel.Deprecated => new Container<DiagnosticTag>(DiagnosticTag.Deprecated),
+            _ => throw new ArgumentException($"Unrecognized label {label}"),
+        };
     }
 }
 
