@@ -76,7 +76,7 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/virtualNetwork', format('{0}wa', parameters('nameprefix')))]",
       "properties": {
-        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}vnet', parameters('nameprefix')), reference(resourceId('Microsoft.Network/virtualNetworks', format('{0}vnet', parameters('nameprefix')))).subnets[0].name)]"
+        "subnetResourceId": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('{0}vnet', parameters('nameprefix')))).subnets[0].id]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', format('{0}vnet', parameters('nameprefix')))]",
@@ -87,8 +87,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "15264584213393871722"
+      "version": "0.3.1.62928",
+      "templateHash": "3784042326167100500"
     }
   }
 }

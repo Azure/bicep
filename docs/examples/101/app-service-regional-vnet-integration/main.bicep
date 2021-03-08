@@ -56,6 +56,6 @@ resource webapp1 'Microsoft.Web/sites@2020-06-01' = {
 resource webapp1vnet 'Microsoft.Web/sites/networkConfig@2020-06-01' = {
   name: '${webapp1.name}/virtualNetwork'
   properties: {
-    subnetResourceId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, vnet.properties.subnets[0].name)
+    subnetResourceId: vnet.properties.subnets[0].id
   }
 }
