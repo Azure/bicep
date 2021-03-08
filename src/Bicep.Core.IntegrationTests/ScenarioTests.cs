@@ -937,6 +937,25 @@ output test string = 'hello'
                 template!.SelectToken("$.outputs['fooOutput'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2019-10-01').outputs.test.value]");
             }
         }
+
+        [TestMethod]
+        public void Test_Issue1432()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'myVM'
+  name: 'myVm'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                    ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                });
+            }
+        }
     }
 }
-

@@ -31,7 +31,11 @@ jobs:
       
       - name: Commit baselines
         run: |
+          git config --global user.email "bicep@noreply.github.com"
+          git config --global user.name "Bicep Automation"
+
           git add .
+
           if ! git diff-index --quiet HEAD --; then
             git commit -m "Update test baselines"
             git push
