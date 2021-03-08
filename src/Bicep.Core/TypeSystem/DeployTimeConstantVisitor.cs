@@ -113,6 +113,12 @@ namespace Bicep.Core.TypeSystem
             {
                 return;
             }
+
+            if (syntax.HasParseErrors())
+            {
+                return;
+            }
+
             // Only visit the object properties if they are required to be deploy time constant.
             foreach (var deployTimeIdentifier in ObjectSyntaxExtensions.ToNamedPropertyDictionary(syntax))
             {

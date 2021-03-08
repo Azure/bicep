@@ -889,6 +889,25 @@ module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
             diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\".");
             diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\".");
         }
+
+        [TestMethod]
+        public void Test_Issue1432()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'myVM'
+  name: 'myVm'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                    ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                });
+            }
+        }
     }
 }
-
