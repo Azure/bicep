@@ -30,6 +30,9 @@ jobs:
         run: dotnet test -- 'TestRunParameters.Parameter(name="SetBaseLine", value="true")'
       
       - name: Commit baselines
+        env:
+          GIT_AUTHOR_NAME: Bicep Automation
+          GIT_AUTHOR_EMAIL: bicep@noreply.github.com
         run: |
           git add .
           if ! git diff-index --quiet HEAD --; then
