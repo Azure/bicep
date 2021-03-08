@@ -11,7 +11,7 @@
     "sshRSAPublicKey": {
       "type": "string"
     },
-    "servicePrincipalClientId": {
+    "broken": {
       "type": "string"
     },
     "servicePrincipalClientSecret": {
@@ -86,7 +86,7 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
+      "version": "v0.1.2",
       "templateHash": "4675384475882014116"
     }
   }
