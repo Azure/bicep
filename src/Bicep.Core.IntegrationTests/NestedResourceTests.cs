@@ -11,7 +11,9 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -580,6 +582,66 @@ output foo string = broken:fake
                 ("BCP118", DiagnosticLevel.Error, "Expected the \"{\" character, the \"[\" character, or the \"if\" keyword at this location."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"broken\" does not contain a nested resource named \"fake\". Known nested resources are: \"(none)\"."),
             });
+        }
+
+        [TestMethod]
+        public void NestedResources_formats_names_and_dependsOn_correctly()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  location: resourceGroup().location
+  name: 'myVnet'
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/20'
+      ]
+    }
+  }
+
+  resource subnet1 'subnets' = {
+    parent: vnet
+    name: 'subnet1'
+    properties: {
+      addressPrefix: '10.0.0.0/24'
+    }
+  }
+  
+  resource subnet2 'subnets' = {
+    parent: vnet
+    name: 'subnet2'
+    properties: {
+      addressPrefix: '10.0.1.0/24'
+    }
+  }
+}
+
+
+
+output subnet1prefix string = vnet:subnet1.properties.addressPrefix
+output subnet1name string = vnet:subnet1.name
+output subnet1type string = vnet:subnet1.type
+output subnet1id string = vnet:subnet1.id
+");
+
+            using (new AssertionScope())
+            {
+                diags.Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'myVnet', 'subnet1')]");
+                template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray { "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]" });
+
+                template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', 'myVnet', 'subnet2')]");
+                template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray { "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]" });
+
+                template.Should().HaveValueAtPath("$.resources[2].name", "myVnet");
+                template.Should().NotHaveValueAtPath("$.resources[2].dependsOn");
+
+                template.Should().HaveValueAtPath("$.outputs['subnet1prefix'].value", "[reference(resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1')).addressPrefix]");
+                template.Should().HaveValueAtPath("$.outputs['subnet1name'].value", "subnet1");
+                template.Should().HaveValueAtPath("$.outputs['subnet1type'].value", "Microsoft.Network/virtualNetworks/subnets");
+                template.Should().HaveValueAtPath("$.outputs['subnet1id'].value", "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1')]");
+            }
         }
     }
 }

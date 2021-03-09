@@ -193,9 +193,12 @@ namespace Bicep.Core.Emit
                             .GetFullyQualifiedResourceId(resourceSymbol);
                     case "name":
                         // the name is dependent on the name expression which could involve locals in case of a resource collection
+
+                        // Note that we don't want to return the fully-qualified resource name in the case of name property access.
+                        // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                         return this
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
-                            .GetResourceNameExpression(resourceSymbol);
+                            .ConvertExpression(GetResourceNameSyntax(resourceSymbol));
                     case "type":
                         return new JTokenExpression(typeReference.FullyQualifiedType);
                     case "apiVersion":
@@ -322,7 +325,7 @@ namespace Bicep.Core.Emit
                     new JTokenExpression(i)));
         }
 
-        public LanguageExpression GetResourceNameExpression(ResourceSymbol resourceSymbol)
+        public LanguageExpression GetFullyQualifiedResourceName(ResourceSymbol resourceSymbol)
         {
             var nameValueSyntax = GetResourceNameSyntax(resourceSymbol);
 

@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.Assertions
 {
     public static class JTokenAssertionsExtensions
     {
-        public static JTokenAssertions Should(this JToken instance)
+        public static JTokenAssertions Should(this JToken? instance)
         {
             return new JTokenAssertions(instance);
         }
@@ -58,6 +58,35 @@ namespace Bicep.Core.UnitTests.Assertions
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(JToken.DeepEquals(instance.Subject, expected))
                 .FailWith("Expected {0} but got {1}", expected?.ToString(), instance.Subject?.ToString());
+
+            return new AndConstraint<JTokenAssertions>(instance);
+        }
+
+        public static AndConstraint<JTokenAssertions> HaveValueAtPath(this JTokenAssertions instance, string jtokenPath, JToken expected, string because = "", params object[] becauseArgs)
+        {
+            var valueAtPath = instance.Subject?.SelectToken(jtokenPath);
+
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(valueAtPath is not null)
+                .FailWith("Expected {0} at path {1} but it was null", expected.ToString(), jtokenPath);
+
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(JToken.DeepEquals(valueAtPath, expected))
+                .FailWith("Expected {0} at path {1} but got {2}", expected.ToString(), jtokenPath, valueAtPath?.ToString());
+
+            return new AndConstraint<JTokenAssertions>(instance);
+        }
+
+        public static AndConstraint<JTokenAssertions> NotHaveValueAtPath(this JTokenAssertions instance, string jtokenPath, string because = "", params object[] becauseArgs)
+        {
+            var valueAtPath = instance.Subject?.SelectToken(jtokenPath);
+
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(valueAtPath is null)
+                .FailWith("Expected value at path {0} to be null, but it was {1}", jtokenPath, valueAtPath);
 
             return new AndConstraint<JTokenAssertions>(instance);
         }
