@@ -17,10 +17,10 @@
             "paths": [
               "/{4:partition-key}"
             ],
-            "kind": "${5|hash,range|}"
+            "kind": "${5|Hash,Range|}"
           },
           "indexingPolicy": {
-            "indexingMode": "${6|consistent,lazy,none|}",
+            "indexingMode": "${6|Consistent,Lazy,None|}",
             "includedPaths": [
               {
                 "path": "/*",

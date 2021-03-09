@@ -22,12 +22,12 @@
             "objectId": "${3:objectId}",
             "permissions": {
               "keys": [
-                "Get"
+                "get"
               ],
               "secrets": [
-                "List",
-                "Get",
-                "Set"
+                "list",
+                "get",
+                "get"
               ]
             }
           }

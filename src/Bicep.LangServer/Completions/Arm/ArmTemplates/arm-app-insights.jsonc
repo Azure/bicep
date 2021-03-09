@@ -217,8 +217,8 @@
         "[resourceId('Microsoft.Web/sites', '${3:webApp1}')]"
       ],
       "properties": {
-        "applicationId": "${3:webApp1}",
-        "application_Type": "web"
+        "ApplicationId": "${3:webApp1}",
+        "Application_Type": "web"
       }
     }
   ]

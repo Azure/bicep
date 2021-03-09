@@ -57,7 +57,7 @@
           {
             "name": "${15:appGatewayFrontendIP}",
             "properties": {
-              "PublicIPAddress": {
+              "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', '${11:publicIPAddress1}')]"
               }
             }
@@ -67,7 +67,7 @@
           {
             "name": "${16:appGatewayFrontendPort}",
             "properties": {
-              "Port": "${17:80}"
+              "port": "${17:80}"
             }
           }
         ],
@@ -81,9 +81,9 @@
           {
             "name": "${19:appGatewayBackendHttpSettings}",
             "properties": {
-              "Port": "${20:80}",
-              "Protocol": "${21|Http,Https|}",
-              "CookieBasedAffinity": "Disabled"
+              "port": "${20:80}",
+              "protocol": "${21|Http,Https|}",
+              "cookieBasedAffinity": "Disabled"
             }
           }
         ],
@@ -91,22 +91,22 @@
           {
             "name": "${22:appGatewayHttpListener}",
             "properties": {
-              "FrontendIPConfiguration": {
-                "Id": "[resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', '${9:applicationGatewayName}', '${15:appGatewayFrontendIP}')]"
+              "frontendIPConfiguration": {
+                "id": "[resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', '${9:applicationGatewayName}', '${15:appGatewayFrontendIP}')]"
               },
-              "FrontendPort": {
-                "Id": "[resourceId('Microsoft.Network/applicationGateways/frontendPorts',  '${9:applicationGatewayName}', '${16:appGatewayFrontendPort}')]"
+              "frontendPort": {
+                "id": "[resourceId('Microsoft.Network/applicationGateways/frontendPorts',  '${9:applicationGatewayName}', '${16:appGatewayFrontendPort}')]"
               },
-              "Protocol": "${23|Http,Https|}",
-              "SslCertificate": "${24:null}"
+              "protocol": "${23|Http,Https|}",
+              "sslCertificate": "${24:null}"
             }
           }
         ],
         "requestRoutingRules": [
           {
-            "Name": "${25:ruleName}",
+            "name": "${25:ruleName}",
             "properties": {
-              "RuleType": "${26|Basic,PathBasedRouting|}",
+              "ruleType": "${26|Basic,PathBasedRouting|}",
               "httpListener": {
                 "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners', '${9:applicationGatewayName}', '${22:appGatewayHttpListener}')]"
               },
