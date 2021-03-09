@@ -415,7 +415,7 @@ module expectedForKeyword2 'modulea.bicep' = [f]
 //@[46:47) [BCP012 (Error)] Expected the "for" keyword at this location. |f|
 
 module expectedLoopVar 'modulea.bicep' = [for]
-//@[45:46) [BCP136 (Error)] Expected a loop variable identifier at this location. |]|
+//@[45:45) [BCP162 (Error)] Expected a loop item variable identifier or "(" at this location. ||
 
 module expectedInKeyword 'modulea.bicep' = [for x]
 //@[49:50) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
@@ -435,14 +435,43 @@ module expectedLoopBody 'modulea.bicep' = [for x in y:]
 //@[52:53) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
 //@[54:55) [BCP018 (Error)] Expected the "{" character at this location. |]|
 
+// indexed loop parsing cases
+module expectedItemVarName 'modulea.bicep' = [for ()]
+//@[51:52) [BCP136 (Error)] Expected a loop item variable identifier at this location. |)|
+
+module expectedComma 'modulea.bicep' = [for (x)]
+//@[46:47) [BCP018 (Error)] Expected the "," character at this location. |)|
+
+module expectedIndexVarName 'modulea.bicep' = [for (x,)]
+//@[54:55) [BCP163 (Error)] Expected a loop index variable identifier at this location. |)|
+
+module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
+//@[54:55) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
+
+module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
+//@[64:65) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+
+module expectedColon2 'modulea.bicep' = [for (x,y) in z]
+//@[54:55) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[55:56) [BCP018 (Error)] Expected the ":" character at this location. |]|
+
+module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
+//@[57:58) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[59:60) [BCP018 (Error)] Expected the "{" character at this location. |]|
+
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 //@[64:65) [BCP018 (Error)] Expected the "{" character at this location. |4|
+module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
+//@[69:70) [BCP018 (Error)] Expected the "{" character at this location. |4|
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 //@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |missingLoopBodyProperties|
+}]
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |missingLoopBodyProperties2|
 }]
 
 // wrong array type
@@ -466,6 +495,19 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
   name: 'hello-${x}'
   params: {
     arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+  }
+}]
+module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
+  name: 'hello-${x}'
+  params: {
+    arrayParam: [
+      i
+    ]
     objParam: {}
     stringParamA: 'test'
     stringParamB: 'test'
@@ -550,3 +592,8 @@ module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
 //@[63:70) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
 module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
 //@[64:70) [BCP018 (Error)] Expected the "{" character at this location. |concat|
+module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
+//@[68:75) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
+module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
+//@[68:74) [BCP018 (Error)] Expected the "{" character at this location. |concat|
+

@@ -8,11 +8,9 @@ using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -115,30 +113,27 @@ namespace Bicep.Core.Emit
 
         public ExpressionConverter CreateConverterForIndexReplacement(SyntaxBase nameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            // local function
-            SyntaxBase GetArrayExpression(LocalVariableSymbol localVariable)
-            {
-                var parent = this.context.SemanticModel.Binder.GetParent(localVariable.DeclaringLocalVariable);
-                return parent switch
-                {
-                    ForSyntax @for => @for.Expression,
-                    _ => throw new NotImplementedException($"Local variable has an unexpected parent of type '{parent?.GetType().Name}")
-                };
-            }
-
             var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(nameSyntax, newContext);
-            switch (inaccessibleLocals.Count)
+            var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(local)).Distinct().ToList();
+
+            switch (inaccessibleLocalLoops.Count)
             {
                 case 0:
-                    // moving the name expression does not produce any inaccessible locals
-                    // we don't need to append replacements regardless if there is an index expression or not
+                    // moving the name expression does not produce any inaccessible locals (no locals means no loops)
+                    // regardless if there is an index expression or not, we don't need to append replacements 
                     return this;
 
                 case 1 when indexExpression != null:
-                    // TODO: Run dataflow analysis on the array expression as well. (Will be needed for nested resource loops)
-                    LocalVariableSymbol local = inaccessibleLocals.Single();
-                    var replacementValue = ExpressionConverter.AppendProperties(this.ToFunctionExpression(GetArrayExpression(local)), this.ConvertExpression(indexExpression));
-                    return this.AppendReplacement(local, replacementValue);
+                    // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
+                    var @for = inaccessibleLocalLoops.Single();
+                    var current = this;
+                    foreach(var local in inaccessibleLocals)
+                    {
+                        var replacementValue = GetLoopVariableExpression(local, @for, this.ConvertExpression(indexExpression));
+                        current = current.AppendReplacement(local, replacementValue);
+                    }
+
+                    return current;
 
                 default:
                     throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index replacement.");
@@ -434,44 +429,82 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression GetLocalVariableExpression(LocalVariableSymbol localVariableSymbol)
         {
-            var parent = this.context.SemanticModel.Binder.GetParent(localVariableSymbol.DeclaringLocalVariable);
-
-            switch (parent)
+            if (this.localReplacements.TryGetValue(localVariableSymbol, out var replacement))
             {
-                case ForSyntax @for when ReferenceEquals(@for.ItemVariable, localVariableSymbol.DeclaringLocalVariable):
-                    // this is the "item" variable of a for-expression
-                    // to emit this we need to basically index the array expression by the copyIndex() function
-
-                    if (this.localReplacements.TryGetValue(localVariableSymbol, out var replacement))
-                    {
-                        // the current context has specified an expression to be used for this local variable symbol
-                        // to override the regular conversion to copyIndex()
-                        return replacement;
-                    }
-
-                    var arrayExpression = ToFunctionExpression(@for.Expression);
-
-                    var copyIndexName = this.context.SemanticModel.Binder.GetParent(@for) switch
-                    {
-                        // copyIndex without name resolves to module/resource loop index in the runtime
-                        ResourceDeclarationSyntax => null,
-                        ModuleDeclarationSyntax => null,
-
-                        // output loops are only allowed at the top level and don't have names, either
-                        OutputDeclarationSyntax => null,
-
-                        ObjectPropertySyntax property when property.TryGetKeyText() is { } key && ReferenceEquals(property.Value, @for) => key,
-
-                        _ => throw new NotImplementedException("Unexpected for-expression grandparent.")
-                    };
-
-                    var copyIndexFunction = copyIndexName == null ? CreateFunction("copyIndex") : CreateFunction("copyIndex", new JTokenExpression(copyIndexName));
-
-                    return AppendProperties(arrayExpression, copyIndexFunction);
-
-                default:
-                    throw new NotImplementedException($"Encountered a local variable with parent of unexpected type '{parent?.GetType().Name}'.");
+                // the current context has specified an expression to be used for this local variable symbol
+                // to override the regular conversion
+                return replacement;
             }
+
+            var @for = GetEnclosingForExpression(localVariableSymbol);
+            return GetLoopVariableExpression(localVariableSymbol, @for, CreateCopyIndexFunction(@for));
+        }
+
+        private LanguageExpression GetLoopVariableExpression(LocalVariableSymbol localVariableSymbol, ForSyntax @for, LanguageExpression indexExpression)
+        {
+            return localVariableSymbol.LocalKind switch
+            {
+                // this is the "item" variable of a for-expression
+                // to emit this, we need to index the array expression by the copyIndex() function
+                LocalKind.ForExpressionItemVariable => GetLoopItemVariableExpression(@for, indexExpression),
+
+                // this is the "index" variable of a for-expression inside a variable block
+                // to emit this, we need to return a copyIndex(...) function
+                LocalKind.ForExpressionIndexVariable => indexExpression,
+
+                _ => throw new NotImplementedException($"Unexpected local variable kind '{localVariableSymbol.LocalKind}'."),
+            };
+        }
+
+        private ForSyntax GetEnclosingForExpression(LocalVariableSymbol localVariable)
+        {
+            // we're following the symbol hierarchy rather than syntax hierarchy because
+            // this guarantees a single hop in all cases
+            var symbolParent = this.context.SemanticModel.GetSymbolParent(localVariable);
+            if (symbolParent is not LocalScope localScope)
+            {
+                throw new NotImplementedException($"{nameof(LocalVariableSymbol)} has un unexpected parent of type '{symbolParent?.GetType().Name}'.");
+            }
+
+            if(localScope.DeclaringSyntax is ForSyntax @for)
+            {
+                return @for;
+            }
+
+            throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{localScope.DeclaringSyntax?.GetType().Name}'.");
+        }
+
+        private string? GetCopyIndexName(ForSyntax @for)
+        {
+            return this.context.SemanticModel.Binder.GetParent(@for) switch
+            {
+                // copyIndex without name resolves to module/resource loop index in the runtime
+                ResourceDeclarationSyntax => null,
+                ModuleDeclarationSyntax => null,
+
+                // output loops are only allowed at the top level and don't have names, either
+                OutputDeclarationSyntax => null,
+
+                ObjectPropertySyntax property when property.TryGetKeyText() is { } key && ReferenceEquals(property.Value, @for) => key,
+
+                _ => throw new NotImplementedException("Unexpected for-expression grandparent.")
+            };
+        }
+
+        private FunctionExpression CreateCopyIndexFunction(ForSyntax @for)
+        {
+            var copyIndexName = GetCopyIndexName(@for);
+            return copyIndexName is null
+                ? CreateFunction("copyIndex")
+                : CreateFunction("copyIndex", new JTokenExpression(copyIndexName));
+        }
+
+        private FunctionExpression GetLoopItemVariableExpression(ForSyntax @for, LanguageExpression indexExpression)
+        {
+            // loop item variable should be replaced with <array expression>[<index expression>]
+            var arrayExpression = ToFunctionExpression(@for.Expression);
+            
+            return AppendProperties(arrayExpression, indexExpression);
         }
 
         private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
@@ -480,7 +513,6 @@ namespace Bicep.Core.Emit
 
             var symbol = context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
 
-            // TODO: This will change to support inlined functions like reference() or list*()
             switch (symbol)
             {
                 case ParameterSymbol _:

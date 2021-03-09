@@ -329,6 +329,20 @@
     },
     {
       "copy": {
+        "name": "storageResourcesWithIndex",
+        "count": "[length(variables('storageAccounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}{1}', variables('storageAccounts')[copyIndex()].name, copyIndex())]",
+      "location": "[variables('storageAccounts')[copyIndex()].location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "copy": {
         "name": "vnet",
         "count": "[length(range(0, 3))]"
       },
@@ -422,7 +436,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14814389154615864983"
+      "templateHash": "5587874887754515167"
     }
   }
 }

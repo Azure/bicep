@@ -1002,6 +1002,128 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@[1:2)   RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
+// simple indexed module loop
+//@[29:31) NewLine |\r\n|
+module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
+//@[0:256) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:32)  IdentifierSyntax
+//@[7:32)   Identifier |storageResourcesWithIndex|
+//@[33:48)  StringSyntax
+//@[33:48)   StringComplete |'modulea.bicep'|
+//@[49:50)  Assignment |=|
+//@[51:256)  ForSyntax
+//@[51:52)   LeftSquare |[|
+//@[52:55)   Identifier |for|
+//@[56:67)   ForVariableBlockSyntax
+//@[56:57)    LeftParen |(|
+//@[57:63)    LocalVariableSyntax
+//@[57:63)     IdentifierSyntax
+//@[57:63)      Identifier |module|
+//@[63:64)    Comma |,|
+//@[65:66)    LocalVariableSyntax
+//@[65:66)     IdentifierSyntax
+//@[65:66)      Identifier |i|
+//@[66:67)    RightParen |)|
+//@[68:70)   Identifier |in|
+//@[71:80)   VariableAccessSyntax
+//@[71:80)    IdentifierSyntax
+//@[71:80)     Identifier |myModules|
+//@[80:81)   Colon |:|
+//@[82:255)   ObjectSyntax
+//@[82:83)    LeftBrace |{|
+//@[83:85)    NewLine |\r\n|
+  name: module.name
+//@[2:19)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:19)     PropertyAccessSyntax
+//@[8:14)      VariableAccessSyntax
+//@[8:14)       IdentifierSyntax
+//@[8:14)        Identifier |module|
+//@[14:15)      Dot |.|
+//@[15:19)      IdentifierSyntax
+//@[15:19)       Identifier |name|
+//@[19:21)    NewLine |\r\n|
+  params: {
+//@[2:146)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |params|
+//@[8:9)     Colon |:|
+//@[10:146)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:13)      NewLine |\r\n|
+    arrayParam: [
+//@[4:37)      ObjectPropertySyntax
+//@[4:14)       IdentifierSyntax
+//@[4:14)        Identifier |arrayParam|
+//@[14:15)       Colon |:|
+//@[16:37)       ArraySyntax
+//@[16:17)        LeftSquare |[|
+//@[17:19)        NewLine |\r\n|
+      i + 1
+//@[6:11)        ArrayItemSyntax
+//@[6:11)         BinaryOperationSyntax
+//@[6:7)          VariableAccessSyntax
+//@[6:7)           IdentifierSyntax
+//@[6:7)            Identifier |i|
+//@[8:9)          Plus |+|
+//@[10:11)          IntegerLiteralSyntax
+//@[10:11)           Integer |1|
+//@[11:13)        NewLine |\r\n|
+    ]
+//@[4:5)        RightSquare |]|
+//@[5:7)      NewLine |\r\n|
+    objParam: module
+//@[4:20)      ObjectPropertySyntax
+//@[4:12)       IdentifierSyntax
+//@[4:12)        Identifier |objParam|
+//@[12:13)       Colon |:|
+//@[14:20)       VariableAccessSyntax
+//@[14:20)        IdentifierSyntax
+//@[14:20)         Identifier |module|
+//@[20:22)      NewLine |\r\n|
+    stringParamB: module.location
+//@[4:33)      ObjectPropertySyntax
+//@[4:16)       IdentifierSyntax
+//@[4:16)        Identifier |stringParamB|
+//@[16:17)       Colon |:|
+//@[18:33)       PropertyAccessSyntax
+//@[18:24)        VariableAccessSyntax
+//@[18:24)         IdentifierSyntax
+//@[18:24)          Identifier |module|
+//@[24:25)        Dot |.|
+//@[25:33)        IdentifierSyntax
+//@[25:33)         Identifier |location|
+//@[33:35)      NewLine |\r\n|
+    stringParamA: concat('a', i)
+//@[4:32)      ObjectPropertySyntax
+//@[4:16)       IdentifierSyntax
+//@[4:16)        Identifier |stringParamA|
+//@[16:17)       Colon |:|
+//@[18:32)       FunctionCallSyntax
+//@[18:24)        IdentifierSyntax
+//@[18:24)         Identifier |concat|
+//@[24:25)        LeftParen |(|
+//@[25:29)        FunctionArgumentSyntax
+//@[25:28)         StringSyntax
+//@[25:28)          StringComplete |'a'|
+//@[28:29)         Comma |,|
+//@[30:31)        FunctionArgumentSyntax
+//@[30:31)         VariableAccessSyntax
+//@[30:31)          IdentifierSyntax
+//@[30:31)           Identifier |i|
+//@[31:32)        RightParen |)|
+//@[32:34)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
 // nested module loop
 //@[21:23) NewLine |\r\n|
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
@@ -1692,6 +1814,302 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
+//@[0:514) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:50)  IdentifierSyntax
+//@[7:50)   Identifier |propertyLoopInsideParameterValueWithIndexes|
+//@[51:66)  StringSyntax
+//@[51:66)   StringComplete |'modulea.bicep'|
+//@[67:68)  Assignment |=|
+//@[69:514)  ObjectSyntax
+//@[69:70)   LeftBrace |{|
+//@[70:72)   NewLine |\r\n|
+  name: 'propertyLoopInsideParameterValueWithIndexes'
+//@[2:53)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:53)    StringSyntax
+//@[8:53)     StringComplete |'propertyLoopInsideParameterValueWithIndexes'|
+//@[53:55)   NewLine |\r\n|
+  params: {
+//@[2:384)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:384)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:13)     NewLine |\r\n|
+    objParam: {
+//@[4:263)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |objParam|
+//@[12:13)      Colon |:|
+//@[14:263)      ObjectSyntax
+//@[14:15)       LeftBrace |{|
+//@[15:17)       NewLine |\r\n|
+      a: [for (i, i2) in range(0,10): i + i2]
+//@[6:45)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |a|
+//@[7:8)        Colon |:|
+//@[9:45)        ForSyntax
+//@[9:10)         LeftSquare |[|
+//@[10:13)         Identifier |for|
+//@[14:21)         ForVariableBlockSyntax
+//@[14:15)          LeftParen |(|
+//@[15:16)          LocalVariableSyntax
+//@[15:16)           IdentifierSyntax
+//@[15:16)            Identifier |i|
+//@[16:17)          Comma |,|
+//@[18:20)          LocalVariableSyntax
+//@[18:20)           IdentifierSyntax
+//@[18:20)            Identifier |i2|
+//@[20:21)          RightParen |)|
+//@[22:24)         Identifier |in|
+//@[25:36)         FunctionCallSyntax
+//@[25:30)          IdentifierSyntax
+//@[25:30)           Identifier |range|
+//@[30:31)          LeftParen |(|
+//@[31:33)          FunctionArgumentSyntax
+//@[31:32)           IntegerLiteralSyntax
+//@[31:32)            Integer |0|
+//@[32:33)           Comma |,|
+//@[33:35)          FunctionArgumentSyntax
+//@[33:35)           IntegerLiteralSyntax
+//@[33:35)            Integer |10|
+//@[35:36)          RightParen |)|
+//@[36:37)         Colon |:|
+//@[38:44)         BinaryOperationSyntax
+//@[38:39)          VariableAccessSyntax
+//@[38:39)           IdentifierSyntax
+//@[38:39)            Identifier |i|
+//@[40:41)          Plus |+|
+//@[42:44)          VariableAccessSyntax
+//@[42:44)           IdentifierSyntax
+//@[42:44)            Identifier |i2|
+//@[44:45)         RightSquare |]|
+//@[45:47)       NewLine |\r\n|
+      b: [for (i, i2) in range(1,2): i / i2]
+//@[6:44)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |b|
+//@[7:8)        Colon |:|
+//@[9:44)        ForSyntax
+//@[9:10)         LeftSquare |[|
+//@[10:13)         Identifier |for|
+//@[14:21)         ForVariableBlockSyntax
+//@[14:15)          LeftParen |(|
+//@[15:16)          LocalVariableSyntax
+//@[15:16)           IdentifierSyntax
+//@[15:16)            Identifier |i|
+//@[16:17)          Comma |,|
+//@[18:20)          LocalVariableSyntax
+//@[18:20)           IdentifierSyntax
+//@[18:20)            Identifier |i2|
+//@[20:21)          RightParen |)|
+//@[22:24)         Identifier |in|
+//@[25:35)         FunctionCallSyntax
+//@[25:30)          IdentifierSyntax
+//@[25:30)           Identifier |range|
+//@[30:31)          LeftParen |(|
+//@[31:33)          FunctionArgumentSyntax
+//@[31:32)           IntegerLiteralSyntax
+//@[31:32)            Integer |1|
+//@[32:33)           Comma |,|
+//@[33:34)          FunctionArgumentSyntax
+//@[33:34)           IntegerLiteralSyntax
+//@[33:34)            Integer |2|
+//@[34:35)          RightParen |)|
+//@[35:36)         Colon |:|
+//@[37:43)         BinaryOperationSyntax
+//@[37:38)          VariableAccessSyntax
+//@[37:38)           IdentifierSyntax
+//@[37:38)            Identifier |i|
+//@[39:40)          Slash |/|
+//@[41:43)          VariableAccessSyntax
+//@[41:43)           IdentifierSyntax
+//@[41:43)            Identifier |i2|
+//@[43:44)         RightSquare |]|
+//@[44:46)       NewLine |\r\n|
+      c: {
+//@[6:67)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |c|
+//@[7:8)        Colon |:|
+//@[9:67)        ObjectSyntax
+//@[9:10)         LeftBrace |{|
+//@[10:12)         NewLine |\r\n|
+        d: [for (j, j2) in range(2,3): j * j2]
+//@[8:46)         ObjectPropertySyntax
+//@[8:9)          IdentifierSyntax
+//@[8:9)           Identifier |d|
+//@[9:10)          Colon |:|
+//@[11:46)          ForSyntax
+//@[11:12)           LeftSquare |[|
+//@[12:15)           Identifier |for|
+//@[16:23)           ForVariableBlockSyntax
+//@[16:17)            LeftParen |(|
+//@[17:18)            LocalVariableSyntax
+//@[17:18)             IdentifierSyntax
+//@[17:18)              Identifier |j|
+//@[18:19)            Comma |,|
+//@[20:22)            LocalVariableSyntax
+//@[20:22)             IdentifierSyntax
+//@[20:22)              Identifier |j2|
+//@[22:23)            RightParen |)|
+//@[24:26)           Identifier |in|
+//@[27:37)           FunctionCallSyntax
+//@[27:32)            IdentifierSyntax
+//@[27:32)             Identifier |range|
+//@[32:33)            LeftParen |(|
+//@[33:35)            FunctionArgumentSyntax
+//@[33:34)             IntegerLiteralSyntax
+//@[33:34)              Integer |2|
+//@[34:35)             Comma |,|
+//@[35:36)            FunctionArgumentSyntax
+//@[35:36)             IntegerLiteralSyntax
+//@[35:36)              Integer |3|
+//@[36:37)            RightParen |)|
+//@[37:38)           Colon |:|
+//@[39:45)           BinaryOperationSyntax
+//@[39:40)            VariableAccessSyntax
+//@[39:40)             IdentifierSyntax
+//@[39:40)              Identifier |j|
+//@[41:42)            Asterisk |*|
+//@[43:45)            VariableAccessSyntax
+//@[43:45)             IdentifierSyntax
+//@[43:45)              Identifier |j2|
+//@[45:46)           RightSquare |]|
+//@[46:48)         NewLine |\r\n|
+      }
+//@[6:7)         RightBrace |}|
+//@[7:9)       NewLine |\r\n|
+      e: [for (k, k2) in range(4,4): {
+//@[6:77)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |e|
+//@[7:8)        Colon |:|
+//@[9:77)        ForSyntax
+//@[9:10)         LeftSquare |[|
+//@[10:13)         Identifier |for|
+//@[14:21)         ForVariableBlockSyntax
+//@[14:15)          LeftParen |(|
+//@[15:16)          LocalVariableSyntax
+//@[15:16)           IdentifierSyntax
+//@[15:16)            Identifier |k|
+//@[16:17)          Comma |,|
+//@[18:20)          LocalVariableSyntax
+//@[18:20)           IdentifierSyntax
+//@[18:20)            Identifier |k2|
+//@[20:21)          RightParen |)|
+//@[22:24)         Identifier |in|
+//@[25:35)         FunctionCallSyntax
+//@[25:30)          IdentifierSyntax
+//@[25:30)           Identifier |range|
+//@[30:31)          LeftParen |(|
+//@[31:33)          FunctionArgumentSyntax
+//@[31:32)           IntegerLiteralSyntax
+//@[31:32)            Integer |4|
+//@[32:33)           Comma |,|
+//@[33:34)          FunctionArgumentSyntax
+//@[33:34)           IntegerLiteralSyntax
+//@[33:34)            Integer |4|
+//@[34:35)          RightParen |)|
+//@[35:36)         Colon |:|
+//@[37:76)         ObjectSyntax
+//@[37:38)          LeftBrace |{|
+//@[38:40)          NewLine |\r\n|
+        f: k
+//@[8:12)          ObjectPropertySyntax
+//@[8:9)           IdentifierSyntax
+//@[8:9)            Identifier |f|
+//@[9:10)           Colon |:|
+//@[11:12)           VariableAccessSyntax
+//@[11:12)            IdentifierSyntax
+//@[11:12)             Identifier |k|
+//@[12:14)          NewLine |\r\n|
+        g: k2
+//@[8:13)          ObjectPropertySyntax
+//@[8:9)           IdentifierSyntax
+//@[8:9)            Identifier |g|
+//@[9:10)           Colon |:|
+//@[11:13)           VariableAccessSyntax
+//@[11:13)            IdentifierSyntax
+//@[11:13)             Identifier |k2|
+//@[13:15)          NewLine |\r\n|
+      }]
+//@[6:7)          RightBrace |}|
+//@[7:8)         RightSquare |]|
+//@[8:10)       NewLine |\r\n|
+    }
+//@[4:5)       RightBrace |}|
+//@[5:7)     NewLine |\r\n|
+    stringParamB: ''
+//@[4:20)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |stringParamB|
+//@[16:17)      Colon |:|
+//@[18:20)      StringSyntax
+//@[18:20)       StringComplete |''|
+//@[20:22)     NewLine |\r\n|
+    arrayParam: [
+//@[4:79)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |arrayParam|
+//@[14:15)      Colon |:|
+//@[16:79)      ArraySyntax
+//@[16:17)       LeftSquare |[|
+//@[17:19)       NewLine |\r\n|
+      {
+//@[6:53)       ArrayItemSyntax
+//@[6:53)        ObjectSyntax
+//@[6:7)         LeftBrace |{|
+//@[7:9)         NewLine |\r\n|
+        e: [for j in range(7,7): j]
+//@[8:35)         ObjectPropertySyntax
+//@[8:9)          IdentifierSyntax
+//@[8:9)           Identifier |e|
+//@[9:10)          Colon |:|
+//@[11:35)          ForSyntax
+//@[11:12)           LeftSquare |[|
+//@[12:15)           Identifier |for|
+//@[16:17)           LocalVariableSyntax
+//@[16:17)            IdentifierSyntax
+//@[16:17)             Identifier |j|
+//@[18:20)           Identifier |in|
+//@[21:31)           FunctionCallSyntax
+//@[21:26)            IdentifierSyntax
+//@[21:26)             Identifier |range|
+//@[26:27)            LeftParen |(|
+//@[27:29)            FunctionArgumentSyntax
+//@[27:28)             IntegerLiteralSyntax
+//@[27:28)              Integer |7|
+//@[28:29)             Comma |,|
+//@[29:30)            FunctionArgumentSyntax
+//@[29:30)             IntegerLiteralSyntax
+//@[29:30)              Integer |7|
+//@[30:31)            RightParen |)|
+//@[31:32)           Colon |:|
+//@[33:34)           VariableAccessSyntax
+//@[33:34)            IdentifierSyntax
+//@[33:34)             Identifier |j|
+//@[34:35)           RightSquare |]|
+//@[35:37)         NewLine |\r\n|
+      }
+//@[6:7)         RightBrace |}|
+//@[7:9)       NewLine |\r\n|
+    ]
+//@[4:5)       RightSquare |]|
+//@[5:7)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
 //@[0:529) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1975,4 +2393,6 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
-//@[2:2) EndOfFile ||
+//@[2:4) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

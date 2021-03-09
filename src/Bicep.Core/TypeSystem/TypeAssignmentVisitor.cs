@@ -136,37 +136,64 @@ namespace Bicep.Core.TypeSystem
         public override void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
             => AssignType(syntax, () =>
             {
-                var parent = this.binder.GetParent(syntax);
-                switch (parent)
+                // local function
+                ITypeReference GetItemType(ForSyntax @for)
                 {
-                    case ForSyntax @for when ReferenceEquals(syntax, @for.ItemVariable):
-                        // this local variable is a loop item variable
-                        // we should return item type of the array (if feasible)
+                    // get type of the loop array expression
+                    // (this shouldn't cause a stack overflow because it's a peer node of this one)
+                    var arrayExpressionType = this.typeManager.GetTypeInfo(@for.Expression);
 
-                        // get type of the loop array expression
-                        // (this shouldn't cause a stack overflow because it's a peer node of this one)
-                        var arrayExpressionType = this.typeManager.GetTypeInfo(@for.Expression);
+                    if (arrayExpressionType.TypeKind == TypeKind.Any || arrayExpressionType is not ArrayType arrayType)
+                    {
+                        // the array is of "any" type or the loop array expression isn't actually an array
+                        // in the former case, there isn't much we can do
+                        // in the latter case, we will let the ForSyntax type check rules produce the error for it
+                        return LanguageConstants.Any;
+                    }
 
-                        if (arrayExpressionType.TypeKind == TypeKind.Any || arrayExpressionType is not ArrayType arrayType)
-                        {
-                            // the array is of "any" type or the loop array expression isn't actually an array
-                            // in the former case, there isn't much we can do
-                            // in the latter case, we will let the ForSyntax type check rules produce the error for it
-                            return LanguageConstants.Any;
-                        }
-
-                        // the array expression is actually an array
-                        return arrayType.Item;
-
-                    default:
-                        throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}");
+                    // the array expression is actually an array
+                    return arrayType.Item;
                 }
+
+                var symbol = this.binder.GetSymbolInfo(syntax);
+                if(symbol is not LocalVariableSymbol localVariableSymbol)
+                {
+                    throw new InvalidOperationException($"{syntax.GetType().Name} is bound to unexpected type '{symbol?.GetType().Name}'.");
+                }
+
+                var parent = this.binder.GetParent(syntax);
+                var @for = parent switch
+                {
+                    ForSyntax forParent => forParent,
+                    ForVariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
+                    _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
+                };
+
+                return localVariableSymbol.LocalKind switch
+                {
+                    // this local variable is a loop item variable
+                    // we should return item type of the array (if feasible)
+                    LocalKind.ForExpressionItemVariable => GetItemType(@for),
+
+                    // the local variable is an index variable
+                    // index variables are always of type int
+                    LocalKind.ForExpressionIndexVariable => LanguageConstants.Int,
+
+                    _ => throw new InvalidOperationException($"Unexpected local kind '{localVariableSymbol.LocalKind}'.")
+                };
             });
 
         public override void VisitForSyntax(ForSyntax syntax)
             => AssignType(syntax, () =>
             {
                 var errors = new List<ErrorDiagnostic>();
+
+                if(syntax.ItemVariable is null)
+                {
+                    // we don't have an item variable due to parse errors
+                    // no need to add additional errors
+                    return ErrorType.Empty();
+                }
 
                 var loopItemType = typeManager.GetTypeInfo(syntax.ItemVariable);
                 CollectErrors(errors, loopItemType);
