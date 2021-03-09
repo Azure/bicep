@@ -50,22 +50,10 @@ namespace Bicep.LanguageServer.Completions.Arm
 
                 if (resources != null)
                 {
-                    string decompiledString = string.Empty;
-                    foreach (JToken childResource in resources.Children())
-                    {
-                        JToken? type = childResource["type"];
-
-                        if (childResource["name"] is not null &&
-                           type is not null &&
-                           type.Value<string>() != "Microsoft.Resources/deployments" &&
-                           childResource["apiVersion"] is not null)
-                        {
-                            Uri uri = new Uri(template);
-                            ProgramSyntax program = TemplateConverter.DecompileTemplate(new Workspace(), new FileResolver(), uri, content);
-                            var syntaxTree = new SyntaxTree(uri, ImmutableArray<int>.Empty, program);
-                            decompiledString += PrettyPrinter.PrintProgram(syntaxTree.ProgramSyntax, new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, false));
-                        }
-                    }
+                    Uri uri = new Uri(template);
+                    ProgramSyntax program = TemplateConverter.DecompileTemplate(new Workspace(), new FileResolver(), uri, content);
+                    var syntaxTree = new SyntaxTree(uri, ImmutableArray<int>.Empty, program);
+                    string decompiledString = PrettyPrinter.PrintProgram(syntaxTree.ProgramSyntax, new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, false));
 
                     if (!string.IsNullOrWhiteSpace(decompiledString))
                     {
