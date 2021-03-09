@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -130,10 +130,19 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (var syntax in unboundNodes)
             {
+                var offset = syntax switch
+                {
+                    // base expression could be a variable access which is bound and will throw off the test
+                    PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.Span.Position,
+                    ArrayAccessSyntax arrayAccess => arrayAccess.OpenSquare.Span.Position,
+
+                    _ => syntax.Span.Position
+                };
+
                 var response = await client.RequestDefinition(new DefinitionParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = PositionHelper.GetPosition(lineStarts, offset)
                 });
 
                 // go to definition on a syntax node that isn't bound to a symbol should produce an empty response

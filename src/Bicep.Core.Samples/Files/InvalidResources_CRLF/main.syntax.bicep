@@ -5896,9 +5896,7 @@ resource expectedLoopVar 'Microsoft.Storage/storageAccounts@2019-06-01' = [for]
 //@[74:79)  ForSyntax
 //@[74:75)   LeftSquare |[|
 //@[75:78)   Identifier |for|
-//@[78:78)   LocalVariableSyntax
-//@[78:78)    IdentifierSyntax
-//@[78:78)     SkippedTriviaSyntax
+//@[78:78)   SkippedTriviaSyntax
 //@[78:78)   SkippedTriviaSyntax
 //@[78:78)   SkippedTriviaSyntax
 //@[78:78)   SkippedTriviaSyntax
@@ -6016,6 +6014,265 @@ resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 //@[87:88)   RightSquare |]|
 //@[88:92) NewLine |\r\n\r\n|
 
+// loop index parsing cases
+//@[27:29) NewLine |\r\n|
+resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
+//@[0:80) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:29)  IdentifierSyntax
+//@[9:29)   Identifier |expectedLoopItemName|
+//@[30:69)  StringSyntax
+//@[30:69)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[70:71)  Assignment |=|
+//@[72:80)  ForSyntax
+//@[72:73)   LeftSquare |[|
+//@[73:76)   Identifier |for|
+//@[77:79)   ForVariableBlockSyntax
+//@[77:78)    LeftParen |(|
+//@[78:78)    LocalVariableSyntax
+//@[78:78)     IdentifierSyntax
+//@[78:78)      SkippedTriviaSyntax
+//@[78:78)    SkippedTriviaSyntax
+//@[78:78)    LocalVariableSyntax
+//@[78:78)     IdentifierSyntax
+//@[78:78)      SkippedTriviaSyntax
+//@[78:79)    RightParen |)|
+//@[79:79)   SkippedTriviaSyntax
+//@[79:79)   SkippedTriviaSyntax
+//@[79:79)   SkippedTriviaSyntax
+//@[79:79)   SkippedTriviaSyntax
+//@[79:80)   RightSquare |]|
+//@[80:84) NewLine |\r\n\r\n|
+
+resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
+//@[0:79) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |expectedLoopItemName2|
+//@[31:70)  StringSyntax
+//@[31:70)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[71:72)  Assignment |=|
+//@[73:79)  ForSyntax
+//@[73:74)   LeftSquare |[|
+//@[74:77)   Identifier |for|
+//@[78:79)   ForVariableBlockSyntax
+//@[78:79)    LeftParen |(|
+//@[79:79)    LocalVariableSyntax
+//@[79:79)     IdentifierSyntax
+//@[79:79)      SkippedTriviaSyntax
+//@[79:79)    SkippedTriviaSyntax
+//@[79:79)    LocalVariableSyntax
+//@[79:79)     IdentifierSyntax
+//@[79:79)      SkippedTriviaSyntax
+//@[79:79)    SkippedTriviaSyntax
+//@[79:79)   SkippedTriviaSyntax
+//@[79:79)   SkippedTriviaSyntax
+//@[79:79)   SkippedTriviaSyntax
+//@[79:79)   SkippedTriviaSyntax
+//@[79:79)   SkippedTriviaSyntax
+//@[79:83) NewLine |\r\n\r\n|
+
+resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
+//@[0:74) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:22)  IdentifierSyntax
+//@[9:22)   Identifier |expectedComma|
+//@[23:62)  StringSyntax
+//@[23:62)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[63:64)  Assignment |=|
+//@[65:74)  ForSyntax
+//@[65:66)   LeftSquare |[|
+//@[66:69)   Identifier |for|
+//@[70:73)   ForVariableBlockSyntax
+//@[70:71)    LeftParen |(|
+//@[71:72)    LocalVariableSyntax
+//@[71:72)     IdentifierSyntax
+//@[71:72)      Identifier |x|
+//@[72:72)    SkippedTriviaSyntax
+//@[72:72)    LocalVariableSyntax
+//@[72:72)     IdentifierSyntax
+//@[72:72)      SkippedTriviaSyntax
+//@[72:73)    RightParen |)|
+//@[73:73)   SkippedTriviaSyntax
+//@[73:73)   SkippedTriviaSyntax
+//@[73:73)   SkippedTriviaSyntax
+//@[73:73)   SkippedTriviaSyntax
+//@[73:74)   RightSquare |]|
+//@[74:78) NewLine |\r\n\r\n|
+
+resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
+//@[0:84) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |expectedLoopIndexName|
+//@[31:70)  StringSyntax
+//@[31:70)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[71:72)  Assignment |=|
+//@[73:84)  ForSyntax
+//@[73:74)   LeftSquare |[|
+//@[74:77)   Identifier |for|
+//@[78:83)   ForVariableBlockSyntax
+//@[78:79)    LeftParen |(|
+//@[79:80)    LocalVariableSyntax
+//@[79:80)     IdentifierSyntax
+//@[79:80)      Identifier |x|
+//@[80:81)    Comma |,|
+//@[82:82)    LocalVariableSyntax
+//@[82:82)     IdentifierSyntax
+//@[82:82)      SkippedTriviaSyntax
+//@[82:83)    RightParen |)|
+//@[83:83)   SkippedTriviaSyntax
+//@[83:83)   SkippedTriviaSyntax
+//@[83:83)   SkippedTriviaSyntax
+//@[83:83)   SkippedTriviaSyntax
+//@[83:84)   RightSquare |]|
+//@[84:88) NewLine |\r\n\r\n|
+
+resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
+//@[0:82) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |expectedInKeyword3|
+//@[28:67)  StringSyntax
+//@[28:67)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[68:69)  Assignment |=|
+//@[70:82)  ForSyntax
+//@[70:71)   LeftSquare |[|
+//@[71:74)   Identifier |for|
+//@[75:81)   ForVariableBlockSyntax
+//@[75:76)    LeftParen |(|
+//@[76:77)    LocalVariableSyntax
+//@[76:77)     IdentifierSyntax
+//@[76:77)      Identifier |x|
+//@[77:78)    Comma |,|
+//@[79:80)    LocalVariableSyntax
+//@[79:80)     IdentifierSyntax
+//@[79:80)      Identifier |y|
+//@[80:81)    RightParen |)|
+//@[81:81)   SkippedTriviaSyntax
+//@[81:81)   SkippedTriviaSyntax
+//@[81:81)   SkippedTriviaSyntax
+//@[81:81)   SkippedTriviaSyntax
+//@[81:82)   RightSquare |]|
+//@[82:86) NewLine |\r\n\r\n|
+
+resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
+//@[0:84) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |expectedInKeyword4|
+//@[28:67)  StringSyntax
+//@[28:67)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[68:69)  Assignment |=|
+//@[70:84)  ForSyntax
+//@[70:71)   LeftSquare |[|
+//@[71:74)   Identifier |for|
+//@[75:81)   ForVariableBlockSyntax
+//@[75:76)    LeftParen |(|
+//@[76:77)    LocalVariableSyntax
+//@[76:77)     IdentifierSyntax
+//@[76:77)      Identifier |x|
+//@[77:78)    Comma |,|
+//@[79:80)    LocalVariableSyntax
+//@[79:80)     IdentifierSyntax
+//@[79:80)      Identifier |y|
+//@[80:81)    RightParen |)|
+//@[82:83)   SkippedTriviaSyntax
+//@[82:83)    Identifier |z|
+//@[83:83)   SkippedTriviaSyntax
+//@[83:83)   SkippedTriviaSyntax
+//@[83:83)   SkippedTriviaSyntax
+//@[83:84)   RightSquare |]|
+//@[84:88) NewLine |\r\n\r\n|
+
+resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
+//@[0:92) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:33)  IdentifierSyntax
+//@[9:33)   Identifier |expectedArrayExpression2|
+//@[34:73)  StringSyntax
+//@[34:73)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[74:75)  Assignment |=|
+//@[76:92)  ForSyntax
+//@[76:77)   LeftSquare |[|
+//@[77:80)   Identifier |for|
+//@[81:87)   ForVariableBlockSyntax
+//@[81:82)    LeftParen |(|
+//@[82:83)    LocalVariableSyntax
+//@[82:83)     IdentifierSyntax
+//@[82:83)      Identifier |x|
+//@[83:84)    Comma |,|
+//@[85:86)    LocalVariableSyntax
+//@[85:86)     IdentifierSyntax
+//@[85:86)      Identifier |y|
+//@[86:87)    RightParen |)|
+//@[88:90)   Identifier |in|
+//@[91:91)   SkippedTriviaSyntax
+//@[91:91)   SkippedTriviaSyntax
+//@[91:91)   SkippedTriviaSyntax
+//@[91:92)   RightSquare |]|
+//@[92:96) NewLine |\r\n\r\n|
+
+resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
+//@[0:83) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:23)  IdentifierSyntax
+//@[9:23)   Identifier |expectedColon2|
+//@[24:63)  StringSyntax
+//@[24:63)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[64:65)  Assignment |=|
+//@[66:83)  ForSyntax
+//@[66:67)   LeftSquare |[|
+//@[67:70)   Identifier |for|
+//@[71:77)   ForVariableBlockSyntax
+//@[71:72)    LeftParen |(|
+//@[72:73)    LocalVariableSyntax
+//@[72:73)     IdentifierSyntax
+//@[72:73)      Identifier |x|
+//@[73:74)    Comma |,|
+//@[75:76)    LocalVariableSyntax
+//@[75:76)     IdentifierSyntax
+//@[75:76)      Identifier |y|
+//@[76:77)    RightParen |)|
+//@[78:80)   Identifier |in|
+//@[81:82)   VariableAccessSyntax
+//@[81:82)    IdentifierSyntax
+//@[81:82)     Identifier |z|
+//@[82:82)   SkippedTriviaSyntax
+//@[82:82)   SkippedTriviaSyntax
+//@[82:83)   RightSquare |]|
+//@[83:87) NewLine |\r\n\r\n|
+
+resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
+//@[0:87) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:26)  IdentifierSyntax
+//@[9:26)   Identifier |expectedLoopBody2|
+//@[27:66)  StringSyntax
+//@[27:66)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[67:68)  Assignment |=|
+//@[69:87)  ForSyntax
+//@[69:70)   LeftSquare |[|
+//@[70:73)   Identifier |for|
+//@[74:80)   ForVariableBlockSyntax
+//@[74:75)    LeftParen |(|
+//@[75:76)    LocalVariableSyntax
+//@[75:76)     IdentifierSyntax
+//@[75:76)      Identifier |x|
+//@[76:77)    Comma |,|
+//@[78:79)    LocalVariableSyntax
+//@[78:79)     IdentifierSyntax
+//@[78:79)      Identifier |y|
+//@[79:80)    RightParen |)|
+//@[81:83)   Identifier |in|
+//@[84:85)   VariableAccessSyntax
+//@[84:85)    IdentifierSyntax
+//@[84:85)     Identifier |z|
+//@[85:86)   Colon |:|
+//@[86:86)   SkippedTriviaSyntax
+//@[86:87)   RightSquare |]|
+//@[87:91) NewLine |\r\n\r\n|
+
 // loop semantic analysis cases
 //@[31:33) NewLine |\r\n|
 var emptyArray = []
@@ -6050,7 +6307,73 @@ resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for
 //@[97:98)   SkippedTriviaSyntax
 //@[97:98)    Integer |4|
 //@[98:99)   RightSquare |]|
-//@[99:103) NewLine |\r\n\r\n|
+//@[99:101) NewLine |\r\n|
+resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
+//@[0:105) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |wrongLoopBodyType2|
+//@[28:74)  StringSyntax
+//@[28:74)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[75:76)  Assignment |=|
+//@[77:105)  ForSyntax
+//@[77:78)   LeftSquare |[|
+//@[78:81)   Identifier |for|
+//@[82:88)   ForVariableBlockSyntax
+//@[82:83)    LeftParen |(|
+//@[83:84)    LocalVariableSyntax
+//@[83:84)     IdentifierSyntax
+//@[83:84)      Identifier |x|
+//@[85:86)    Comma |,|
+//@[86:87)    LocalVariableSyntax
+//@[86:87)     IdentifierSyntax
+//@[86:87)      Identifier |i|
+//@[87:88)    RightParen |)|
+//@[89:91)   Identifier |in|
+//@[92:102)   VariableAccessSyntax
+//@[92:102)    IdentifierSyntax
+//@[92:102)     Identifier |emptyArray|
+//@[102:103)   Colon |:|
+//@[103:104)   SkippedTriviaSyntax
+//@[103:104)    Integer |4|
+//@[104:105)   RightSquare |]|
+//@[105:109) NewLine |\r\n\r\n|
+
+// duplicate variable in the same scope
+//@[39:41) NewLine |\r\n|
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
+//@[0:112) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:29)  IdentifierSyntax
+//@[9:29)   Identifier |itemAndIndexSameName|
+//@[30:71)  StringSyntax
+//@[30:71)   StringComplete |'Microsoft.AAD/domainServices@2020-01-01'|
+//@[72:73)  Assignment |=|
+//@[74:112)  ForSyntax
+//@[74:75)   LeftSquare |[|
+//@[75:78)   Identifier |for|
+//@[79:91)   ForVariableBlockSyntax
+//@[79:80)    LeftParen |(|
+//@[80:84)    LocalVariableSyntax
+//@[80:84)     IdentifierSyntax
+//@[80:84)      Identifier |same|
+//@[84:85)    Comma |,|
+//@[86:90)    LocalVariableSyntax
+//@[86:90)     IdentifierSyntax
+//@[86:90)      Identifier |same|
+//@[90:91)    RightParen |)|
+//@[92:94)   Identifier |in|
+//@[95:105)   VariableAccessSyntax
+//@[95:105)    IdentifierSyntax
+//@[95:105)     Identifier |emptyArray|
+//@[105:106)   Colon |:|
+//@[107:111)   ObjectSyntax
+//@[107:108)    LeftBrace |{|
+//@[108:110)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
 
 // errors in the array expression
 //@[33:35) NewLine |\r\n|
@@ -6086,6 +6409,49 @@ resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = 
 //@[110:114)   ObjectSyntax
 //@[110:111)    LeftBrace |{|
 //@[111:113)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
+//@[0:120) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:31)  IdentifierSyntax
+//@[9:31)   Identifier |arrayExpressionErrors2|
+//@[32:78)  StringSyntax
+//@[32:78)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[79:80)  Assignment |=|
+//@[81:120)  ForSyntax
+//@[81:82)   LeftSquare |[|
+//@[82:85)   Identifier |for|
+//@[86:97)   ForVariableBlockSyntax
+//@[86:87)    LeftParen |(|
+//@[87:94)    LocalVariableSyntax
+//@[87:94)     IdentifierSyntax
+//@[87:94)      Identifier |account|
+//@[94:95)    Comma |,|
+//@[95:96)    LocalVariableSyntax
+//@[95:96)     IdentifierSyntax
+//@[95:96)      Identifier |k|
+//@[96:97)    RightParen |)|
+//@[98:100)   Identifier |in|
+//@[101:113)   FunctionCallSyntax
+//@[101:106)    IdentifierSyntax
+//@[101:106)     Identifier |union|
+//@[106:107)    LeftParen |(|
+//@[107:110)    FunctionArgumentSyntax
+//@[107:109)     ArraySyntax
+//@[107:108)      LeftSquare |[|
+//@[108:109)      RightSquare |]|
+//@[109:110)     Comma |,|
+//@[111:112)    FunctionArgumentSyntax
+//@[111:112)     IntegerLiteralSyntax
+//@[111:112)      Integer |2|
+//@[112:113)    RightParen |)|
+//@[113:114)   Colon |:|
+//@[115:119)   ObjectSyntax
+//@[115:116)    LeftBrace |{|
+//@[116:118)    NewLine |\r\n|
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
@@ -6127,6 +6493,39 @@ resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for ac
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
+//@[0:111) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:24)  IdentifierSyntax
+//@[9:24)   Identifier |wrongArrayType2|
+//@[25:71)  StringSyntax
+//@[25:71)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[72:73)  Assignment |=|
+//@[74:111)  ForSyntax
+//@[74:75)   LeftSquare |[|
+//@[75:78)   Identifier |for|
+//@[79:90)   ForVariableBlockSyntax
+//@[79:80)    LeftParen |(|
+//@[80:87)    LocalVariableSyntax
+//@[80:87)     IdentifierSyntax
+//@[80:87)      Identifier |account|
+//@[87:88)    Comma |,|
+//@[88:89)    LocalVariableSyntax
+//@[88:89)     IdentifierSyntax
+//@[88:89)      Identifier |i|
+//@[89:90)    RightParen |)|
+//@[91:93)   Identifier |in|
+//@[94:104)   VariableAccessSyntax
+//@[94:104)    IdentifierSyntax
+//@[94:104)     Identifier |notAnArray|
+//@[104:105)   Colon |:|
+//@[106:110)   ObjectSyntax
+//@[106:107)    LeftBrace |{|
+//@[107:109)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
 // missing required properties
@@ -6153,6 +6552,39 @@ resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01
 //@[104:108)   ObjectSyntax
 //@[104:105)    LeftBrace |{|
 //@[105:107)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
+//@[0:114) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |missingRequiredProperties2|
+//@[36:82)  StringSyntax
+//@[36:82)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[83:84)  Assignment |=|
+//@[85:114)  ForSyntax
+//@[85:86)   LeftSquare |[|
+//@[86:89)   Identifier |for|
+//@[90:101)   ForVariableBlockSyntax
+//@[90:91)    LeftParen |(|
+//@[91:98)    LocalVariableSyntax
+//@[91:98)     IdentifierSyntax
+//@[91:98)      Identifier |account|
+//@[98:99)    Comma |,|
+//@[99:100)    LocalVariableSyntax
+//@[99:100)     IdentifierSyntax
+//@[99:100)      Identifier |j|
+//@[100:101)    RightParen |)|
+//@[102:104)   Identifier |in|
+//@[105:107)   ArraySyntax
+//@[105:106)    LeftSquare |[|
+//@[106:107)    RightSquare |]|
+//@[107:108)   Colon |:|
+//@[109:113)   ObjectSyntax
+//@[109:110)    LeftBrace |{|
+//@[110:112)    NewLine |\r\n|
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
@@ -6328,6 +6760,131 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
 //@[27:28)             Identifier |j|
 //@[28:30)           StringRightPiece |}'|
 //@[30:32)         NewLine |\r\n|
+    }]
+//@[4:5)         RightBrace |}|
+//@[5:6)        RightSquare |]|
+//@[6:8)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
+//@[0:272) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |wrongPropertyInNestedLoop2|
+//@[36:82)  StringSyntax
+//@[36:82)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[83:84)  Assignment |=|
+//@[85:272)  ForSyntax
+//@[85:86)   LeftSquare |[|
+//@[86:89)   Identifier |for|
+//@[90:95)   ForVariableBlockSyntax
+//@[90:91)    LeftParen |(|
+//@[91:92)    LocalVariableSyntax
+//@[91:92)     IdentifierSyntax
+//@[91:92)      Identifier |i|
+//@[92:93)    Comma |,|
+//@[93:94)    LocalVariableSyntax
+//@[93:94)     IdentifierSyntax
+//@[93:94)      Identifier |k|
+//@[94:95)    RightParen |)|
+//@[96:98)   Identifier |in|
+//@[99:110)   FunctionCallSyntax
+//@[99:104)    IdentifierSyntax
+//@[99:104)     Identifier |range|
+//@[104:105)    LeftParen |(|
+//@[105:107)    FunctionArgumentSyntax
+//@[105:106)     IntegerLiteralSyntax
+//@[105:106)      Integer |0|
+//@[106:107)     Comma |,|
+//@[108:109)    FunctionArgumentSyntax
+//@[108:109)     IntegerLiteralSyntax
+//@[108:109)      Integer |3|
+//@[109:110)    RightParen |)|
+//@[110:111)   Colon |:|
+//@[112:271)   ObjectSyntax
+//@[112:113)    LeftBrace |{|
+//@[113:115)    NewLine |\r\n|
+  name: 'vnet-${i}'
+//@[2:19)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:19)     StringSyntax
+//@[8:16)      StringLeftPiece |'vnet-${|
+//@[16:17)      VariableAccessSyntax
+//@[16:17)       IdentifierSyntax
+//@[16:17)        Identifier |i|
+//@[17:19)      StringRightPiece |}'|
+//@[19:21)    NewLine |\r\n|
+  properties: {
+//@[2:132)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:132)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    subnets: [for j in range(0, 4): {
+//@[4:110)      ObjectPropertySyntax
+//@[4:11)       IdentifierSyntax
+//@[4:11)        Identifier |subnets|
+//@[11:12)       Colon |:|
+//@[13:110)       ForSyntax
+//@[13:14)        LeftSquare |[|
+//@[14:17)        Identifier |for|
+//@[18:19)        LocalVariableSyntax
+//@[18:19)         IdentifierSyntax
+//@[18:19)          Identifier |j|
+//@[20:22)        Identifier |in|
+//@[23:34)        FunctionCallSyntax
+//@[23:28)         IdentifierSyntax
+//@[23:28)          Identifier |range|
+//@[28:29)         LeftParen |(|
+//@[29:31)         FunctionArgumentSyntax
+//@[29:30)          IntegerLiteralSyntax
+//@[29:30)           Integer |0|
+//@[30:31)          Comma |,|
+//@[32:33)         FunctionArgumentSyntax
+//@[32:33)          IntegerLiteralSyntax
+//@[32:33)           Integer |4|
+//@[33:34)         RightParen |)|
+//@[34:35)        Colon |:|
+//@[36:109)        ObjectSyntax
+//@[36:37)         LeftBrace |{|
+//@[37:39)         NewLine |\r\n|
+      doesNotExist: 'test'
+//@[6:26)         ObjectPropertySyntax
+//@[6:18)          IdentifierSyntax
+//@[6:18)           Identifier |doesNotExist|
+//@[18:19)          Colon |:|
+//@[20:26)          StringSyntax
+//@[20:26)           StringComplete |'test'|
+//@[26:28)         NewLine |\r\n|
+      name: 'subnet-${i}-${j}-${k}'
+//@[6:35)         ObjectPropertySyntax
+//@[6:10)          IdentifierSyntax
+//@[6:10)           Identifier |name|
+//@[10:11)          Colon |:|
+//@[12:35)          StringSyntax
+//@[12:22)           StringLeftPiece |'subnet-${|
+//@[22:23)           VariableAccessSyntax
+//@[22:23)            IdentifierSyntax
+//@[22:23)             Identifier |i|
+//@[23:27)           StringMiddlePiece |}-${|
+//@[27:28)           VariableAccessSyntax
+//@[27:28)            IdentifierSyntax
+//@[27:28)             Identifier |j|
+//@[28:32)           StringMiddlePiece |}-${|
+//@[32:33)           VariableAccessSyntax
+//@[32:33)            IdentifierSyntax
+//@[32:33)             Identifier |k|
+//@[33:35)           StringRightPiece |}'|
+//@[35:37)         NewLine |\r\n|
     }]
 //@[4:5)         RightBrace |}|
 //@[5:6)        RightSquare |]|
@@ -6596,6 +7153,196 @@ resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' 
 //@[31:32)              Integer |4|
 //@[32:33)             RightSquare |]|
 //@[33:35)           NewLine |\r\n|
+      }]
+//@[6:7)           RightBrace |}|
+//@[7:8)          RightSquare |]|
+//@[8:10)        NewLine |\r\n|
+    }
+//@[4:5)        RightBrace |}|
+//@[5:7)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in storageAccounts: {
+//@[0:441) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:33)  IdentifierSyntax
+//@[9:33)   Identifier |propertyLoopsCannotNest2|
+//@[34:80)  StringSyntax
+//@[34:80)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[81:82)  Assignment |=|
+//@[83:441)  ForSyntax
+//@[83:84)   LeftSquare |[|
+//@[84:87)   Identifier |for|
+//@[88:99)   ForVariableBlockSyntax
+//@[88:89)    LeftParen |(|
+//@[89:96)    LocalVariableSyntax
+//@[89:96)     IdentifierSyntax
+//@[89:96)      Identifier |account|
+//@[96:97)    Comma |,|
+//@[97:98)    LocalVariableSyntax
+//@[97:98)     IdentifierSyntax
+//@[97:98)      Identifier |i|
+//@[98:99)    RightParen |)|
+//@[100:102)   Identifier |in|
+//@[103:118)   VariableAccessSyntax
+//@[103:118)    IdentifierSyntax
+//@[103:118)     Identifier |storageAccounts|
+//@[118:119)   Colon |:|
+//@[120:440)   ObjectSyntax
+//@[120:121)    LeftBrace |{|
+//@[121:123)    NewLine |\r\n|
+  name: account.name
+//@[2:20)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:20)     PropertyAccessSyntax
+//@[8:15)      VariableAccessSyntax
+//@[8:15)       IdentifierSyntax
+//@[8:15)        Identifier |account|
+//@[15:16)      Dot |.|
+//@[16:20)      IdentifierSyntax
+//@[16:20)       Identifier |name|
+//@[20:22)    NewLine |\r\n|
+  location: account.location
+//@[2:28)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:28)     PropertyAccessSyntax
+//@[12:19)      VariableAccessSyntax
+//@[12:19)       IdentifierSyntax
+//@[12:19)        Identifier |account|
+//@[19:20)      Dot |.|
+//@[20:28)      IdentifierSyntax
+//@[20:28)       Identifier |location|
+//@[28:30)    NewLine |\r\n|
+  sku: {
+//@[2:39)    ObjectPropertySyntax
+//@[2:5)     IdentifierSyntax
+//@[2:5)      Identifier |sku|
+//@[5:6)     Colon |:|
+//@[7:39)     ObjectSyntax
+//@[7:8)      LeftBrace |{|
+//@[8:10)      NewLine |\r\n|
+    name: 'Standard_LRS'
+//@[4:24)      ObjectPropertySyntax
+//@[4:8)       IdentifierSyntax
+//@[4:8)        Identifier |name|
+//@[8:9)       Colon |:|
+//@[10:24)       StringSyntax
+//@[10:24)        StringComplete |'Standard_LRS'|
+//@[24:26)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:19)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |kind|
+//@[6:7)     Colon |:|
+//@[8:19)     StringSyntax
+//@[8:19)      StringComplete |'StorageV2'|
+//@[19:21)    NewLine |\r\n|
+  properties: {
+//@[2:200)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:200)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:19)      NewLine |\r\n\r\n|
+
+    networkAcls: {
+//@[4:176)      ObjectPropertySyntax
+//@[4:15)       IdentifierSyntax
+//@[4:15)        Identifier |networkAcls|
+//@[15:16)       Colon |:|
+//@[17:176)       ObjectSyntax
+//@[17:18)        LeftBrace |{|
+//@[18:20)        NewLine |\r\n|
+      virtualNetworkRules: [for (rule,j) in []: {
+//@[6:149)        ObjectPropertySyntax
+//@[6:25)         IdentifierSyntax
+//@[6:25)          Identifier |virtualNetworkRules|
+//@[25:26)         Colon |:|
+//@[27:149)         ForSyntax
+//@[27:28)          LeftSquare |[|
+//@[28:31)          Identifier |for|
+//@[32:40)          ForVariableBlockSyntax
+//@[32:33)           LeftParen |(|
+//@[33:37)           LocalVariableSyntax
+//@[33:37)            IdentifierSyntax
+//@[33:37)             Identifier |rule|
+//@[37:38)           Comma |,|
+//@[38:39)           LocalVariableSyntax
+//@[38:39)            IdentifierSyntax
+//@[38:39)             Identifier |j|
+//@[39:40)           RightParen |)|
+//@[41:43)          Identifier |in|
+//@[44:46)          ArraySyntax
+//@[44:45)           LeftSquare |[|
+//@[45:46)           RightSquare |]|
+//@[46:47)          Colon |:|
+//@[48:148)          ObjectSyntax
+//@[48:49)           LeftBrace |{|
+//@[49:51)           NewLine |\r\n|
+        id: '${account.name}-${account.location}'
+//@[8:49)           ObjectPropertySyntax
+//@[8:10)            IdentifierSyntax
+//@[8:10)             Identifier |id|
+//@[10:11)            Colon |:|
+//@[12:49)            StringSyntax
+//@[12:15)             StringLeftPiece |'${|
+//@[15:27)             PropertyAccessSyntax
+//@[15:22)              VariableAccessSyntax
+//@[15:22)               IdentifierSyntax
+//@[15:22)                Identifier |account|
+//@[22:23)              Dot |.|
+//@[23:27)              IdentifierSyntax
+//@[23:27)               Identifier |name|
+//@[27:31)             StringMiddlePiece |}-${|
+//@[31:47)             PropertyAccessSyntax
+//@[31:38)              VariableAccessSyntax
+//@[31:38)               IdentifierSyntax
+//@[31:38)                Identifier |account|
+//@[38:39)              Dot |.|
+//@[39:47)              IdentifierSyntax
+//@[39:47)               Identifier |location|
+//@[47:49)             StringRightPiece |}'|
+//@[49:51)           NewLine |\r\n|
+        state: [for (lol,k) in []: 4]
+//@[8:37)           ObjectPropertySyntax
+//@[8:13)            IdentifierSyntax
+//@[8:13)             Identifier |state|
+//@[13:14)            Colon |:|
+//@[15:37)            ForSyntax
+//@[15:16)             LeftSquare |[|
+//@[16:19)             Identifier |for|
+//@[20:27)             ForVariableBlockSyntax
+//@[20:21)              LeftParen |(|
+//@[21:24)              LocalVariableSyntax
+//@[21:24)               IdentifierSyntax
+//@[21:24)                Identifier |lol|
+//@[24:25)              Comma |,|
+//@[25:26)              LocalVariableSyntax
+//@[25:26)               IdentifierSyntax
+//@[25:26)                Identifier |k|
+//@[26:27)              RightParen |)|
+//@[28:30)             Identifier |in|
+//@[31:33)             ArraySyntax
+//@[31:32)              LeftSquare |[|
+//@[32:33)              RightSquare |]|
+//@[33:34)             Colon |:|
+//@[35:36)             IntegerLiteralSyntax
+//@[35:36)              Integer |4|
+//@[36:37)             RightSquare |]|
+//@[37:39)           NewLine |\r\n|
       }]
 //@[6:7)           RightBrace |}|
 //@[7:8)          RightSquare |]|
@@ -7533,7 +8280,69 @@ resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[107:108)    LeftParen |(|
 //@[108:109)    RightParen |)|
 //@[109:110)   RightSquare |]|
-//@[110:114) NewLine |\r\n\r\n|
+//@[110:112) NewLine |\r\n|
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
+//@[0:107) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |nonObjectResourceLoopBody3|
+//@[36:75)  StringSyntax
+//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[76:77)  Assignment |=|
+//@[78:107)  ForSyntax
+//@[78:79)   LeftSquare |[|
+//@[79:82)   Identifier |for|
+//@[83:92)   ForVariableBlockSyntax
+//@[83:84)    LeftParen |(|
+//@[84:89)    LocalVariableSyntax
+//@[84:89)     IdentifierSyntax
+//@[84:89)      Identifier |thing|
+//@[89:90)    Comma |,|
+//@[90:91)    LocalVariableSyntax
+//@[90:91)     IdentifierSyntax
+//@[90:91)      Identifier |i|
+//@[91:92)    RightParen |)|
+//@[93:95)   Identifier |in|
+//@[96:98)   ArraySyntax
+//@[96:97)    LeftSquare |[|
+//@[97:98)    RightSquare |]|
+//@[98:99)   Colon |:|
+//@[100:106)   SkippedTriviaSyntax
+//@[100:106)    StringComplete |'test'|
+//@[106:107)   RightSquare |]|
+//@[107:109) NewLine |\r\n|
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
+//@[0:114) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |nonObjectResourceLoopBody4|
+//@[36:75)  StringSyntax
+//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[76:77)  Assignment |=|
+//@[78:114)  ForSyntax
+//@[78:79)   LeftSquare |[|
+//@[79:82)   Identifier |for|
+//@[83:92)   ForVariableBlockSyntax
+//@[83:84)    LeftParen |(|
+//@[84:89)    LocalVariableSyntax
+//@[84:89)     IdentifierSyntax
+//@[84:89)      Identifier |thing|
+//@[89:90)    Comma |,|
+//@[90:91)    LocalVariableSyntax
+//@[90:91)     IdentifierSyntax
+//@[90:91)      Identifier |i|
+//@[91:92)    RightParen |)|
+//@[93:95)   Identifier |in|
+//@[96:98)   ArraySyntax
+//@[96:97)    LeftSquare |[|
+//@[97:98)    RightSquare |]|
+//@[98:99)   Colon |:|
+//@[100:113)   SkippedTriviaSyntax
+//@[100:111)    Identifier |environment|
+//@[111:112)    LeftParen |(|
+//@[112:113)    RightParen |)|
+//@[113:114)   RightSquare |]|
+//@[114:118) NewLine |\r\n\r\n|
 
 // #completionTest(54,55) -> objectPlusFor
 //@[42:44) NewLine |\r\n|

@@ -318,7 +318,10 @@ namespace Bicep.LanguageServer.Completions
                 yield return CreateObjectBodyCompletion(context.ReplacementRange);
 
                 // loops are always allowed in a resource/module
-                yield return CreateLoopCompletion(context.ReplacementRange, LanguageConstants.Object);
+                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object))
+                {
+                    yield return completion;
+                }
             }
         }
 
@@ -638,7 +641,10 @@ namespace Bicep.LanguageServer.Completions
                         ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(semanticModel, context.Property))
                     {
                         // property loop is allowed here
-                        yield return CreateLoopCompletion(replacementRange, arrayType.Item.Type);
+                        foreach (var completion in CreateLoopCompletions(replacementRange, arrayType.Item.Type))
+                        {
+                            yield return completion;
+                        }
                     }
 
                     break;
@@ -670,21 +676,23 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(objectLabel, CompletionPriority.High));
         }
 
-        private static CompletionItem CreateLoopCompletion(Range replacementRange, TypeSymbol arrayItemType)
+        private static IEnumerable<CompletionItem> CreateLoopCompletions(Range replacementRange, TypeSymbol arrayItemType)
         {
             const string loopLabel = "for";
+            const string indexedLabel = "for-indexed";
 
             var assignableToObject = TypeValidator.AreTypesAssignable(arrayItemType, LanguageConstants.Object);
             var assignableToArray = TypeValidator.AreTypesAssignable(arrayItemType, LanguageConstants.Array);
 
-            var snippet = (assignableToObject, assignableToArray) switch
+            var (itemSnippet, indexedSnippet) = (assignableToObject, assignableToArray) switch
             {
-                (true, false) => "[for ${2:item} in ${1:list}: {\n\t$0\n}]",
-                (false, true) => "[for ${2:item} in ${1:list}: [\n\t$0\n]]",
-                _ => "[for ${2:item} in ${1:list}: $0]"
+                (true, false) => ("[for ${2:item} in ${1:list}: {\n\t$0\n}]", "[for (${2:item}, ${3:index}) in ${1:list}: {\n\t$0\n}]"),
+                (false, true) => ("[for ${2:item} in ${1:list}: [\n\t$0\n]]", "[for (${2:item}, ${3:index}) in ${1:list}: [\n\t$0\n]]"),
+                _ => ("[for ${2:item} in ${1:list}: $0]", "[for (${2:item}, ${3:index}) in ${1:list}: $0]")
             };
 
-            return CreateContextualSnippetCompletion(loopLabel, loopLabel, snippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
+            yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
+            yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
         }
 
         private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>

@@ -231,7 +231,7 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ParameterDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), TokenType.Identifier, TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
             var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
 
             // TODO: Need a better way to choose the terminating token
@@ -271,7 +271,7 @@ namespace Bicep.Core.Parsing
         private SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), TokenType.Assignment, TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
@@ -281,7 +281,7 @@ namespace Bicep.Core.Parsing
         private SyntaxBase OutputDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), TokenType.Identifier, TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
             var type = this.WithRecovery(() => Type(b => b.ExpectedOutputType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
@@ -292,7 +292,7 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ResourceDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ResourceKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedResourceIdentifier(), TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedResourceIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
 
             // TODO: Unify StringSyntax with TypeSyntax
             var type = this.WithRecovery(
@@ -329,7 +329,7 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ModuleKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
 
             // TODO: Unify StringSyntax with TypeSyntax
             var path = this.WithRecovery(
@@ -714,11 +714,11 @@ namespace Bicep.Core.Parsing
             return new IdentifierSyntax(skipped);
         }
 
-        private IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] terminatingTypes)
+        private IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
         {
             var identifierOrSkipped = this.WithRecovery(
                 () => Identifier(errorFunc),
-                RecoveryFlags.None,
+                flags,
                 terminatingTypes);
 
             switch (identifierOrSkipped)
@@ -917,12 +917,19 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SyntaxBase ForExpression(ExpressionFlags expressionFlags, bool requireObjectLiteral)
+        private ForSyntax ForExpression(ExpressionFlags expressionFlags, bool requireObjectLiteral)
         {
             var openBracket = this.Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
             var forKeyword = this.ExpectKeyword(LanguageConstants.ForKeyword);
-            var identifier = new LocalVariableSyntax(this.IdentifierWithRecovery(b => b.ExpectedLoopVariableIdentifier(), TokenType.Identifier, TokenType.RightSquare, TokenType.NewLine));
-            var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), GetSuppressionFlag(identifier.Name), TokenType.RightSquare, TokenType.NewLine);
+            var variableSection = this.reader.Peek().Type switch
+            {
+                TokenType.Identifier => (SyntaxBase)new LocalVariableSyntax(this.Identifier(b => b.ExpectedLoopVariableIdentifier())),
+                TokenType.LeftParen => this.ForVariableBlock(),
+                _ => this.SkipEmpty(b => b.ExpectedLoopItemIdentifierOrVariableBlockStart())
+            };
+                
+            // new LocalVariableSyntax(this.IdentifierWithRecovery(b => b.ExpectedLoopVariableIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.RightSquare, TokenType.NewLine));
+            var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), variableSection.HasParseErrors() ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None, TokenType.RightSquare, TokenType.NewLine);
             var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals | ExpressionFlags.InsideColonDelimitedContext), GetSuppressionFlag(inKeyword), TokenType.Colon, TokenType.RightSquare, TokenType.NewLine);
             var colon = this.WithRecovery(() => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(expression), TokenType.RightSquare, TokenType.NewLine);
             var body = this.WithRecovery(
@@ -931,7 +938,18 @@ namespace Bicep.Core.Parsing
                 TokenType.RightSquare, TokenType.NewLine);
             var closeBracket = this.WithRecovery(() => this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]")), GetSuppressionFlag(body), TokenType.RightSquare, TokenType.NewLine);
 
-            return new ForSyntax(openBracket, forKeyword, identifier, inKeyword, expression, colon, body, closeBracket);
+            return new(openBracket, forKeyword, variableSection, inKeyword, expression, colon, body, closeBracket);
+        }
+
+        private ForVariableBlockSyntax ForVariableBlock()
+        {
+            var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
+            var itemVariable = new LocalVariableSyntax(this.IdentifierWithRecovery(b => b.ExpectedLoopVariableIdentifier(), RecoveryFlags.None, TokenType.Comma, TokenType.RightParen, TokenType.NewLine));
+            var comma = this.WithRecovery(() => this.Expect(TokenType.Comma, b => b.ExpectedCharacter(",")), GetSuppressionFlag(itemVariable.Name), TokenType.Identifier, TokenType.RightParen, TokenType.NewLine);
+            var indexVariable = new LocalVariableSyntax(this.IdentifierWithRecovery(b => b.ExpectedLoopIndexIdentifier(), GetSuppressionFlag(comma), TokenType.RightParen, TokenType.NewLine));
+            var closeParen = this.WithRecovery(() => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")), GetSuppressionFlag(indexVariable.Name), TokenType.NewLine);
+
+            return new(openParen, itemVariable, comma, indexVariable, closeParen);
         }
 
         private SyntaxBase Array()

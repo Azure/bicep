@@ -789,7 +789,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedLoopVariableIdentifier() => new(
                 TextSpan,
                 "BCP136",
-                "Expected a loop variable identifier at this location.");
+                "Expected a loop item variable identifier at this location.");
 
             public ErrorDiagnostic LoopArrayExpressionTypeMismatch(TypeSymbol actualType) => new(
                 TextSpan,
@@ -918,6 +918,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP161",
                 "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples).",
                 DiagnosticLabel.Deprecated);
+
+            public ErrorDiagnostic ExpectedLoopItemIdentifierOrVariableBlockStart() => new(
+                TextSpan,
+                "BCP162",
+                "Expected a loop item variable identifier or \"(\" at this location.");
+
+            public ErrorDiagnostic ExpectedLoopIndexIdentifier() => new(
+                TextSpan,
+                "BCP163",
+                "Expected a loop index variable identifier at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

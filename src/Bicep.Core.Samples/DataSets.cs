@@ -35,6 +35,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet Loops_LF => CreateDataSet();
 
+        public static DataSet LoopsIndexed_LF => CreateDataSet();
+
         public static DataSet Outputs_CRLF => CreateDataSet();
 
         public static DataSet NestedResources_LF => CreateDataSet();
