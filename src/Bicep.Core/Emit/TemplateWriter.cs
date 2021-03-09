@@ -37,6 +37,7 @@ namespace Bicep.Core.Emit
 
         private static readonly ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
             LanguageConstants.ResourceScopePropertyName,
+            LanguageConstants.ResourceParentPropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
             LanguageConstants.ResourceNamePropertyName,
         }.ToImmutableHashSet();

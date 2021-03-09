@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
@@ -30,11 +31,26 @@ namespace Bicep.Core.Semantics
             }
         }
 
+        private static IEnumerable<ResourceSymbol> GetAncestorsYoungestToOldest(ImmutableDictionary<ResourceSymbol, ResourceSymbol> hierarchy, ResourceSymbol resource)
+        {
+            while (hierarchy.TryGetValue(resource, out var parentResource))
+            {
+                yield return parentResource;
+
+                resource = parentResource;
+            }
+        }
+
         public static ResourceAncestorGraph Compute(SyntaxTree syntaxTree, IBinder binder)
         {
             var visitor = new ResourceAncestorVisitor(binder);
             visitor.Visit(syntaxTree.ProgramSyntax);
-            return new ResourceAncestorGraph(visitor.Ancestry);
+
+            var ancestry = visitor.Ancestry.Keys.ToImmutableDictionary(
+                child => child,
+                child => GetAncestorsYoungestToOldest(visitor.Ancestry, child).Reverse().ToImmutableArray());
+            
+            return new ResourceAncestorGraph(ancestry);
         }
     }
 }

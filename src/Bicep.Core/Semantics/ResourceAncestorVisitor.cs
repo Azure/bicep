@@ -11,17 +11,15 @@ namespace Bicep.Core.Semantics
     public sealed class ResourceAncestorVisitor : SyntaxVisitor
     {
         private readonly IBinder binder;
-        private readonly Stack<ResourceSymbol> ancestorResources;
-        private readonly ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>>.Builder ancestry;
+        private readonly ImmutableDictionary<ResourceSymbol, ResourceSymbol>.Builder ancestry;
 
         public ResourceAncestorVisitor(IBinder binder)
         {
             this.binder = binder;
-            this.ancestorResources = new Stack<ResourceSymbol>();
-            this.ancestry = ImmutableDictionary.CreateBuilder<ResourceSymbol, ImmutableArray<ResourceSymbol>>();
+            this.ancestry = ImmutableDictionary.CreateBuilder<ResourceSymbol, ResourceSymbol>();
         }
 
-        public ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>> Ancestry 
+        public ImmutableDictionary<ResourceSymbol, ResourceSymbol> Ancestry 
             => this.ancestry.ToImmutableDictionary();
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
@@ -33,21 +31,26 @@ namespace Bicep.Core.Semantics
                 base.VisitResourceDeclarationSyntax(syntax);
                 return;
             }
-
-            // We don't need to do anything here to validate types and their relationships, that was handled during type assignment.
-            this.ancestry.Add(symbol, ImmutableArray.CreateRange(this.ancestorResources.Reverse()));
-
-            try
+            
+            if (this.binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is {} nestedParentSyntax)
             {
-                // This will recursively process the resource body - capture the 'current' declaration's declared resource
-                // type so we can validate nesting.
-                this.ancestorResources.Push(symbol);
-                base.VisitResourceDeclarationSyntax(syntax);
+                // nested resource parent syntax
+                if (this.binder.GetSymbolInfo(nestedParentSyntax) is ResourceSymbol parentSymbol)
+                {
+                    this.ancestry.Add(symbol, parentSymbol);
+                }
             }
-            finally
+            else if (symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax)
             {
-                this.ancestorResources.Pop();
+                // parent property reference syntax
+                if (this.binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentSymbol)
+                {
+                    this.ancestry.Add(symbol, parentSymbol);
+                }
             }
+
+            base.VisitResourceDeclarationSyntax(syntax);
+            return;
         }
     }
 }

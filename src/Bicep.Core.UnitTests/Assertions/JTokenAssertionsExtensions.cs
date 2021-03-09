@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(JToken.DeepEquals(instance.Subject, expected))
-                .FailWith("Expected '{0}' but got '{1}'", expected?.ToString(), instance.Subject?.ToString());
+                .FailWith("Expected {0} but got {1}", expected?.ToString(), instance.Subject?.ToString());
 
             return new AndConstraint<JTokenAssertions>(instance);
         }

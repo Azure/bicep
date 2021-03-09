@@ -69,12 +69,12 @@ namespace Bicep.Core.TypeSystem.Az
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, isExistingResource);
+                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, isExistingResource);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:
                     var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList()
                         .Select(x => x.Type as ObjectType ?? throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}"));
-                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, isExistingResource));
+                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, resourceType.TypeReference, isExistingResource));
                     bodyType = new DiscriminatedObjectType(
                         bodyDiscriminatedType.Name,
                         bodyDiscriminatedType.ValidationFlags,
@@ -90,7 +90,7 @@ namespace Bicep.Core.TypeSystem.Az
             return new ResourceType(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
         }
 
-        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, bool isExistingResource)
+        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, bool isExistingResource)
         {
             var properties = objectType.Properties;
 
@@ -119,6 +119,16 @@ namespace Bicep.Core.TypeSystem.Az
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
                 }
             }
+
+            // add the 'parent' property for child resource types
+            if (!typeReference.IsRootType)
+            {
+                var parentType = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
+                var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
+
+                properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new TypeProperty(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));
+            }
+
             // Deployments RP
             if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, ResourceTypeDeployments))
             {

@@ -918,6 +918,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP161",
                 "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples).",
                 DiagnosticLabel.Deprecated);
+
+            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+                TextSpan,
+                "BCP162",
+                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
+
+            public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
+                TextSpan,
+                "BCP163",
+                $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

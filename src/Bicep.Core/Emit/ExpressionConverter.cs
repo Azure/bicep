@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
@@ -295,6 +296,32 @@ namespace Bicep.Core.Emit
                 new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
         }
 
+        public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceSymbol resourceSymbol, ResourceTypeReference typeReference)
+        {
+            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resourceSymbol);
+            if (ancestors.Length > 0)
+            {
+                Debug.Assert(ancestors.Length + 1 == typeReference.Types.Length, "ancestors.Length + 1 == typeReference.Types.Length");
+
+                return ancestors.Concat(resourceSymbol.AsEnumerable())
+                    .Select(x => GetResourceNameSyntax(x))
+                    .Select(x => ConvertExpression(x));
+            }
+
+            var nameSyntax = GetResourceNameSyntax(resourceSymbol);
+            var nameExpression = ConvertExpression(nameSyntax);
+
+            if (typeReference.Types.Length == 1)
+            {
+                return nameExpression.AsEnumerable();
+            }
+
+            return typeReference.Types.Select(
+                (type, i) => AppendProperties(
+                    CreateFunction("split", nameExpression, new JTokenExpression("/")),
+                    new JTokenExpression(i)));
+        }
+
         public LanguageExpression GetResourceNameExpression(ResourceSymbol resourceSymbol)
         {
             var nameValueSyntax = GetResourceNameSyntax(resourceSymbol);
@@ -346,22 +373,6 @@ namespace Bicep.Core.Emit
         {
             // this condition should have already been validated by the type checker
             return moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
-        }
-
-        public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceSymbol resourceSymbol, ResourceTypeReference typeReference)
-        {
-            if (typeReference.Types.Length == 1)
-            {
-                return GetResourceNameExpression(resourceSymbol).AsEnumerable();
-            }
-
-            return typeReference.Types.Select(
-                (type, i) => AppendProperties(
-                    CreateFunction(
-                        "split",
-                        GetResourceNameExpression(resourceSymbol),
-                        new JTokenExpression("/")),
-                    new JTokenExpression(i)));
         }
 
         public LanguageExpression GetUnqualifiedResourceId(ResourceSymbol resourceSymbol)
@@ -499,6 +510,9 @@ namespace Bicep.Core.Emit
                     return GetReferenceExpression(resourceSymbol, typeReference, true);
 
                 case ModuleSymbol moduleSymbol:
+                    // referencing a module directly should be blocked at an earlier stage - there is nothing great we can codegen here.
+                    Debug.Fail("Found direct module variable access");
+
                     return GetModuleOutputsReferenceExpression(moduleSymbol);
 
                 case LocalVariableSymbol localVariableSymbol:

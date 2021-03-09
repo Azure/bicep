@@ -68,6 +68,7 @@ namespace Bicep.Core
         public const string ResourceTypePropertyName = "type";
         public const string ResourceApiVersionPropertyName = "apiVersion";
         public const string ResourceScopePropertyName = "scope";
+        public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
