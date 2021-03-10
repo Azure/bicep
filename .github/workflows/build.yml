@@ -103,11 +103,6 @@ jobs:
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
-        with:
-          node-version: 10.x
-
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1.7.2
       
@@ -119,6 +114,9 @@ jobs:
 
       - name: Publish Bicep
         run: dotnet publish --configuration release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r linux-musl-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
+
+      - name: Setup Node.js
+        run: apk add --update nodejs npm
 
       - name: Run Bicep E2E Tests
         run: npm ci && npm test
