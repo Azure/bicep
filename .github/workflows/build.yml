@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
 
       matrix:
-        rid: ['win-x64', 'linux-x64', 'macos-latest']
+        os: ['windows-latest', 'ubuntu-latest', 'macos-latest']
         include:
         - os: 'windows-latest'
           rid: 'win-x64'
