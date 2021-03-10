@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(JToken.DeepEquals(instance.Subject, expected))
-                .FailWith("Expected {0} but got {1}", expected?.ToString(), instance.Subject?.ToString());
+                .FailWith("Expected {0} but got {1}", expected.ToString(), instance.Subject?.ToString());
 
             return new AndConstraint<JTokenAssertions>(instance);
         }
@@ -69,12 +69,12 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(valueAtPath is not null)
-                .FailWith("Expected {0} at path {1} but it was null", expected.ToString(), jtokenPath);
+                .FailWith("Expected value at path {0} to be {1} but it was null", jtokenPath, expected.ToString());
 
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(JToken.DeepEquals(valueAtPath, expected))
-                .FailWith("Expected {0} at path {1} but got {2}", expected.ToString(), jtokenPath, valueAtPath?.ToString());
+                .FailWith("Expected value at path {0} to be {1} but it was {2}", jtokenPath, expected.ToString(), valueAtPath?.ToString());
 
             return new AndConstraint<JTokenAssertions>(instance);
         }
@@ -87,6 +87,16 @@ namespace Bicep.Core.UnitTests.Assertions
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(valueAtPath is null)
                 .FailWith("Expected value at path {0} to be null, but it was {1}", jtokenPath, valueAtPath);
+
+            return new AndConstraint<JTokenAssertions>(instance);
+        }
+
+        public static AndConstraint<JTokenAssertions> NotHaveValue(this JTokenAssertions instance, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(instance.Subject is null)
+                .FailWith("Expected value to be null, but it was {0}", instance.Subject?.ToString());
 
             return new AndConstraint<JTokenAssertions>(instance);
         }
