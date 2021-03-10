@@ -24,8 +24,6 @@ jobs:
       fail-fast: false
 
       matrix:
-        # The second ubuntu-latest agent is used to build linux-musl-x64
-        os: [ 'windows-latest', 'ubuntu-latest', ubuntu-latest', 'macos-latest' ]
         include:
         - os: 'windows-latest'
           rid: 'win-x64'
@@ -35,10 +33,6 @@ jobs:
           rid: 'linux-x64'
           configuration: 'release'
           publishLanguageServer: 'true'
-        - os: 'ubuntu-latest'
-          rid: 'linux-musl-x64'
-          configuration: 'release'
-          publishLanguageServer: 'false'
         - os: 'macos-latest'
           rid: 'osx-x64'
           configuration: 'release'
@@ -91,6 +85,54 @@ jobs:
         with:
           flags: dotnet
 
+  build-bicep-linux-musl-x64:
+    name: 'Build CLI (linux-musl-x64)'
+    runs-on: "ubuntu-latest"
+    container:
+      image: "alpine:3.12.4"
+
+    env:
+      # don't print dotnet logo
+      DOTNET_NOLOGO: true
+      # disable telemetry (reduces dotnet tool output in logs)
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.7.2
+      
+      - name: Build
+        run: dotnet build --configuration release
+      
+      - name: Test
+        run: dotnet test --configuration release --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings
+
+      - name: Publish Bicep
+        run: dotnet publish --configuration release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r linux-musl-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
+
+      - name: Run Bicep E2E Tests
+        run: npm ci && npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/release/net5.0/linux-musl-x64/publish/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+      
+      - name: Upload Bicep
+        uses: actions/upload-artifact@v2
+        with:
+          name: bicep-release-linux-musl-x64
+          path: ./src/Bicep.Cli/bin/release/net5.0/linux-musl-x64/publish/*
+          if-no-files-found: error
+
+      - name: Upload Code Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          flags: dotnet
+      
 
   build-windows-setup:
     name: 'Build Windows Setup'
