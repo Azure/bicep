@@ -89,7 +89,7 @@ jobs:
     name: 'Build CLI (linux-musl-x64)'
     runs-on: "ubuntu-latest"
     container:
-      image: "alpine:3.12.4"
+      image: "microsoft/azure-cli:latest"
 
     env:
       # don't print dotnet logo
