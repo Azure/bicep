@@ -177,7 +177,7 @@ namespace Bicep.Core.IntegrationTests
 
             var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
 
-            // this behavior is actaully controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
+            // this behavior is actually controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");
         }
 

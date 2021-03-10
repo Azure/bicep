@@ -585,7 +585,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = Rewrite(syntax.OpenSquare, out var openSquare);
             hasChanges |= Rewrite(syntax.ForKeyword, out var forKeyword);
-            hasChanges |= Rewrite(syntax.ItemVariable, out var itemVariable);
+            hasChanges |= Rewrite(syntax.VariableSection, out var itemVariable);
             hasChanges |= Rewrite(syntax.InKeyword, out var inKeyword);
             hasChanges |= Rewrite(syntax.Expression, out var expression);
             hasChanges |= Rewrite(syntax.Colon, out var colon);
@@ -601,6 +601,24 @@ namespace Bicep.Core.Syntax
         }
 
         void ISyntaxVisitor.VisitForSyntax(ForSyntax syntax) => ReplaceCurrent(syntax, ReplaceForSyntax);
+
+        protected virtual ForVariableBlockSyntax ReplaceForVariableBlockSyntax(ForVariableBlockSyntax syntax)
+        {
+            var hasChanges = Rewrite(syntax.OpenParen, out var openParen);
+            hasChanges |= Rewrite(syntax.ItemVariable, out var itemVariable);
+            hasChanges |= Rewrite(syntax.Comma, out var comma);
+            hasChanges |= Rewrite(syntax.IndexVariable, out var indexVariable);
+            hasChanges |= Rewrite(syntax.CloseParen, out var closeParen);
+
+            if(!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ForVariableBlockSyntax(openParen, itemVariable, comma, indexVariable, closeParen);
+        }
+
+        void ISyntaxVisitor.VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax) => ReplaceCurrent(syntax, ReplaceForVariableBlockSyntax);
 
         protected virtual DecoratorSyntax ReplaceDecoratorSyntax(DecoratorSyntax syntax)
         {

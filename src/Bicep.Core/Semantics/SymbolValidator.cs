@@ -141,7 +141,7 @@ namespace Bicep.Core.Semantics
 
             if (!functionFlags.HasFlag(FunctionFlags.OutputDecorator) && allowedFlags.HasFlag(FunctionFlags.OutputDecorator))
             {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsOuputDecorator(functionSymbol.Name));
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsOutputDecorator(functionSymbol.Name));
             }
 
             return functionSymbol;

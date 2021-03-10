@@ -335,6 +335,19 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
   kind: 'StorageV2'
 }]
 
+// storage account loop with index
+resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
+//@[90:97) Local account. Type: any. Declaration start char: 90, length: 7
+//@[99:100) Local i. Type: int. Declaration start char: 99, length: 1
+//@[9:34) Resource storageResourcesWithIndex. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 250
+  name: '${account.name}${i}'
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}]
+
 // basic nested loop
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[68:69) Local i. Type: int. Declaration start char: 68, length: 1
@@ -391,3 +404,4 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
     }]
   }
 }]
+

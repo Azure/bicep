@@ -65,7 +65,7 @@ A nested resource must specify a single type segment to declare its type. The fu
 
 Nested resource declarations should specify their `name` property with a single segment. The the example above the nested resource declares its `name` property with the value `myChild`. In ARM-JSON, child resources must declared their `name` property as a `/`-separated string containing multiple segments like: `myParent/myChild` - this is not required with nested resources.
 
-A nested resource declaration must appear at the top level of syntax of the containing resource. Declarations may be nested arbirarily deep, as long as each level is a child type of its containing resource. 
+A nested resource declaration must appear at the top level of syntax of the containing resource. Declarations may be nested arbitrarily deep, as long as each level is a child type of its containing resource. 
 
 The symbolic name of a nested resource is only accessible inside the body of its containing resource. 
 

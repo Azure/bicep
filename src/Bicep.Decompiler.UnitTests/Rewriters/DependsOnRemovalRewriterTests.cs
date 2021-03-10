@@ -12,7 +12,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
     public class DependsOnRemovalRewriterTests
     {
         [TestMethod]
-        public void Unneccessary_dependsOn_statements_are_removed()
+        public void Unnecessary_dependsOn_statements_are_removed()
         {
             var bicepFile = @"
 resource resA 'My.Rp/resA@2020-01-01' = {

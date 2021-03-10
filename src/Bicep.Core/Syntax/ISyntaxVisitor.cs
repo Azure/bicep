@@ -76,6 +76,8 @@ namespace Bicep.Core.Syntax
 
         void VisitForSyntax(ForSyntax syntax);
 
+        void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax);
+
         void VisitDecoratorSyntax(DecoratorSyntax syntax);
 
         void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax);

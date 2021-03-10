@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using Bicep.Core.PrettyPrint;
@@ -117,7 +117,7 @@ aaa: bbb
 			}
 		]
 	}
-}".Replace("\r\n", Environment.NewLine),
+}".Replace("\n", Environment.NewLine),
             new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Tab, 5, false));
 
         [TestMethod]

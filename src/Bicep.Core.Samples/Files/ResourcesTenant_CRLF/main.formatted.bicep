@@ -25,10 +25,10 @@ resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [for mg
   }
 }]
 
-resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for mg in managementGroups: {
-  name: concat(mg.name, '-one')
+resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (mg, index) in managementGroups: {
+  name: concat(mg.name, '-one-', index)
   properties: {
-    displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1)'
+    displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1) (index ${index})'
   }
   dependsOn: [
     manyGroups

@@ -50,7 +50,7 @@ namespace Bicep.Core.UnitTests.Resource
         [DataTestMethod]
         [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/virtualMachines")]
         [DataRow("Microsoft.Blueprint/blueprints/versions/artifacts@2018-11-01-preview", "Microsoft.Blueprint/blueprints/versions/artifacts")]
-        public void ValidType_FullyQualitifedTypeShouldBeCorrect(string value, string expectedFullyQualifiedType)
+        public void ValidType_FullyQualifiedTypeShouldBeCorrect(string value, string expectedFullyQualifiedType)
         {
             var actual = ResourceTypeReference.TryParse(value);
 

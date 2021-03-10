@@ -133,6 +133,19 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
   }
 }]
 
+// simple indexed module loop
+module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
+  name: module.name
+  params: {
+    arrayParam: [
+      i + 1
+    ]
+    objParam: module
+    stringParamB: module.location
+    stringParamA: concat('a', i)
+  }
+}]
+
 // nested module loop
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
   name: module.name
@@ -199,6 +212,29 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
   }
 }
 
+module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
+  name: 'propertyLoopInsideParameterValueWithIndexes'
+  params: {
+    objParam: {
+      a: [for (i, i2) in range(0,10): i + i2]
+      b: [for (i, i2) in range(1,2): i / i2]
+      c: {
+        d: [for (j, j2) in range(2,3): j * j2]
+      }
+      e: [for (k, k2) in range(4,4): {
+        f: k
+        g: k2
+      }]
+    }
+    stringParamB: ''
+    arrayParam: [
+      {
+        e: [for j in range(7,7): j]
+      }
+    ]
+  }
+}
+
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
@@ -220,3 +256,4 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
     ]
   }
 }]
+
