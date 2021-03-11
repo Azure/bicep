@@ -6,67 +6,106 @@
       "type": "string",
       "defaultValue": "BicepExampleRG"
     },
-    "location": {
+    "resourceGrouplocation": {
       "type": "string",
       "defaultValue": "australiaeast"
     },
     "actionGroupName": {
       "type": "string",
       "defaultValue": "BicepExampleAG"
+    },
+    "actionGroupEnabled": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "actionGroupShortName": {
+      "type": "string",
+      "defaultValue": "bicepag"
+    },
+    "actionGroupEmailName": {
+      "type": "string",
+      "defaultValue": "jloudon"
+    },
+    "actionGroupEmail": {
+      "type": "string",
+      "defaultValue": "jesse.loudon@lab3.com.au"
+    },
+    "actionGroupAlertSchema": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "metricAlertResourceNamespace": {
+      "type": "string",
+      "defaultValue": "Microsoft.Network/loadBalancers"
+    },
+    "metricAlertName": {
+      "type": "string",
+      "defaultValue": "DipAvailability"
+    },
+    "metricAlertDimension1": {
+      "type": "string",
+      "defaultValue": "ProtocolType"
+    },
+    "metricAlertDimension2": {
+      "type": "string",
+      "defaultValue": "FrontendIPAddress"
+    },
+    "metricAlertDimension3": {
+      "type": "string",
+      "defaultValue": "BackendIPAddress"
+    },
+    "metricAlertDescription": {
+      "type": "string",
+      "defaultValue": "Average Load Balancer health probe status per time duration"
+    },
+    "metricAlertSeverity": {
+      "type": "string",
+      "defaultValue": "2"
+    },
+    "metricAlertEnabled": {
+      "type": "string",
+      "defaultValue": "true"
+    },
+    "metricAlertEvaluationFrequency": {
+      "type": "string",
+      "defaultValue": "PT15M"
+    },
+    "metricAlertWindowSize": {
+      "type": "string",
+      "defaultValue": "PT1H"
+    },
+    "metricAlertSensitivity": {
+      "type": "string",
+      "defaultValue": "Medium"
+    },
+    "metricAlertOperator": {
+      "type": "string",
+      "defaultValue": "LessThan"
+    },
+    "metricAlertTimeAggregation": {
+      "type": "string",
+      "defaultValue": "Average"
+    },
+    "metricAlertCriterionType": {
+      "type": "string",
+      "defaultValue": "DynamicThresholdCriterion"
+    },
+    "metricAlertAutoMitigate": {
+      "type": "string",
+      "defaultValue": "true"
+    },
+    "assignmentEnforcementMode": {
+      "type": "string",
+      "defaultValue": "Default"
     }
   },
   "functions": [],
   "resources": [
     {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
-      "name": "resourceGroup",
-      "location": "[deployment().location]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "resourceGroupName": {
-            "value": "[parameters('resourceGroupName')]"
-          },
-          "location": {
-            "value": "[parameters('location')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "parameters": {
-            "resourceGroupName": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            }
-          },
-          "functions": [],
-          "resources": [
-            {
-              "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2020-06-01",
-              "name": "[parameters('resourceGroupName')]",
-              "location": "[parameters('location')]"
-            }
-          ],
-          "outputs": {
-            "rgId": {
-              "type": "string",
-              "value": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
-            },
-            "rgName": {
-              "type": "string",
-              "value": "[parameters('resourceGroupName')]"
-            }
-          }
-        }
-      }
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('resourceGrouplocation')]"
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -83,19 +122,19 @@
             "value": "[parameters('actionGroupName')]"
           },
           "actionGroupEnabled": {
-            "value": true
+            "value": "[parameters('actionGroupEnabled')]"
           },
           "actionGroupShortName": {
-            "value": "azspgcln"
+            "value": "[parameters('actionGroupShortName')]"
           },
           "actionGroupEmailName": {
-            "value": "jloudon"
+            "value": "[parameters('actionGroupEmailName')]"
           },
           "actionGroupEmail": {
-            "value": "jesse.loudon@lab3.com.au"
+            "value": "[parameters('actionGroupEmail')]"
           },
           "actionGroupAlertSchema": {
-            "value": true
+            "value": "[parameters('actionGroupAlertSchema')]"
           }
         },
         "template": {
@@ -103,28 +142,22 @@
           "contentVersion": "1.0.0.0",
           "parameters": {
             "actionGroupName": {
-              "type": "string",
-              "defaultValue": "AzureSpringCleanAG"
+              "type": "string"
             },
             "actionGroupEnabled": {
-              "type": "bool",
-              "defaultValue": true
+              "type": "bool"
             },
             "actionGroupShortName": {
-              "type": "string",
-              "defaultValue": "azspgcln"
+              "type": "string"
             },
             "actionGroupEmailName": {
-              "type": "string",
-              "defaultValue": "jloudon"
+              "type": "string"
             },
             "actionGroupEmail": {
-              "type": "string",
-              "defaultValue": "jesse.loudon@lab3.com.au"
+              "type": "string"
             },
             "actionGroupAlertSchema": {
-              "type": "bool",
-              "defaultValue": true
+              "type": "bool"
             }
           },
           "functions": [],
@@ -160,7 +193,7 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', 'resourceGroup')]"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
       ]
     },
     {
@@ -184,49 +217,49 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2019-10-01').outputs.actionGroupId.value]"
           },
           "metricAlertResourceNamespace": {
-            "value": "Microsoft.Network/loadBalancers"
+            "value": "[parameters('metricAlertResourceNamespace')]"
           },
           "metricAlertName": {
-            "value": "DipAvailability"
+            "value": "[parameters('metricAlertName')]"
           },
           "metricAlertDimension1": {
-            "value": "ProtocolType"
+            "value": "[parameters('metricAlertDimension1')]"
           },
           "metricAlertDimension2": {
-            "value": "FrontendIPAddress"
+            "value": "[parameters('metricAlertDimension2')]"
           },
           "metricAlertDimension3": {
-            "value": "BackendIPAddress"
+            "value": "[parameters('metricAlertDimension3')]"
           },
           "metricAlertDescription": {
-            "value": "Average Load Balancer health probe status per time duration"
+            "value": "[parameters('metricAlertDescription')]"
           },
           "metricAlertSeverity": {
-            "value": "2"
+            "value": "[parameters('metricAlertSeverity')]"
           },
           "metricAlertEnabled": {
-            "value": "true"
+            "value": "[parameters('metricAlertEnabled')]"
           },
           "metricAlertEvaluationFrequency": {
-            "value": "PT15M"
+            "value": "[parameters('metricAlertEvaluationFrequency')]"
           },
           "metricAlertWindowSize": {
-            "value": "PT1H"
+            "value": "[parameters('metricAlertWindowSize')]"
           },
           "metricAlertSensitivity": {
-            "value": "Medium"
+            "value": "[parameters('metricAlertSensitivity')]"
           },
           "metricAlertOperator": {
-            "value": "LessThan"
+            "value": "[parameters('metricAlertOperator')]"
           },
           "metricAlertTimeAggregation": {
-            "value": "Average"
+            "value": "[parameters('metricAlertTimeAggregation')]"
           },
           "metricAlertCriterionType": {
-            "value": "DynamicThresholdCriterion"
+            "value": "[parameters('metricAlertCriterionType')]"
           },
           "metricAlertAutoMitigate": {
-            "value": "true"
+            "value": "[parameters('metricAlertAutoMitigate')]"
           }
         },
         "template": {
@@ -400,14 +433,14 @@
                               {
                                 "type": "Microsoft.Insights/metricAlerts",
                                 "apiVersion": "2018-03-01",
-                                "name": "[format('[concat({0}''resourceName''), ''-{1}'')]', 'parameters(', parameters('metricAlertName'))]",
+                                "name": "[format('[concat(parameters(''resourceName''), ''-{0}'')]', parameters('metricAlertName'))]",
                                 "location": "global",
                                 "properties": {
                                   "description": "[parameters('metricAlertDescription')]",
                                   "severity": "[parameters('metricAlertResourceNamespace')]",
                                   "enabled": "[parameters('metricAlertEnabled')]",
                                   "scopes": [
-                                    "[format('[{0}''resourceId'')]', 'parameters(')]"
+                                    "[format('[{0}(''resourceId'')]', 'parameters')]"
                                   ],
                                   "evaluationFrequency": "[parameters('metricAlertEvaluationFrequency')]",
                                   "windowSize": "[parameters('metricAlertWindowSize')]",
@@ -454,7 +487,7 @@
                                   },
                                   "autoMitigate": "[parameters('metricAlertAutoMitigate')]",
                                   "targetResourceType": "[parameters('metricAlertResourceNamespace')]",
-                                  "targetResourceRegion": "[format('[{0}''resourceLocation'')]', 'parameters(')]",
+                                  "targetResourceRegion": "[format('[{0}(''resourceLocation'')]', 'parameters')]",
                                   "actions": [
                                     {
                                       "actionGroupId": "[parameters('actionGroupId')]",
@@ -541,11 +574,14 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "location": {
-            "value": "[parameters('location')]"
-          },
           "bicepExampleInitiativeId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy'), '2019-10-01').outputs.bicepExampleInitiativeId.value]"
+          },
+          "assignmentIdentityLocation": {
+            "value": "[parameters('resourceGrouplocation')]"
+          },
+          "assignmentEnforcementMode": {
+            "value": "[parameters('assignmentEnforcementMode')]"
           }
         },
         "template": {
@@ -555,7 +591,10 @@
             "bicepExampleInitiativeId": {
               "type": "string"
             },
-            "location": {
+            "assignmentIdentityLocation": {
+              "type": "string"
+            },
+            "assignmentEnforcementMode": {
               "type": "string"
             }
           },
@@ -565,20 +604,19 @@
               "type": "Microsoft.Authorization/policyAssignments",
               "apiVersion": "2020-09-01",
               "name": "bicepExampleAssignment",
-              "location": "[parameters('location')]",
+              "location": "[parameters('assignmentIdentityLocation')]",
               "identity": {
                 "type": "SystemAssigned"
               },
               "properties": {
                 "displayName": "Bicep Example Assignment",
                 "description": "Bicep Example Assignment",
-                "enforcementMode": "Default",
+                "enforcementMode": "[parameters('assignmentEnforcementMode')]",
                 "metadata": {
                   "source": "Bicep",
                   "version": "0.1.0"
                 },
                 "policyDefinitionId": "[parameters('bicepExampleInitiativeId')]",
-                "parameters": {},
                 "nonComplianceMessages": [
                   {
                     "message": "Resource is not compliant with a DeployIfNotExists policy"
@@ -598,7 +636,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.1.62928",
-      "templateHash": "1192602054325006482"
+      "templateHash": "7050265968239652689"
     }
   }
 }

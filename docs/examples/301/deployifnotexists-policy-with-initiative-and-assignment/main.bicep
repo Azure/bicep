@@ -1,72 +1,80 @@
-// DEPLOYMENT SCOPE
 targetScope = 'subscription'
 
 // PARAMETERS
 param resourceGroupName string = 'BicepExampleRG'
-param location string = 'australiaeast'
+param resourceGrouplocation string = 'australiaeast'
 param actionGroupName string = 'BicepExampleAG'
-
-// VARIABLES
-
-// OUTPUTS
+param actionGroupEnabled bool = true
+param actionGroupShortName string = 'bicepag'
+param actionGroupEmailName string = 'jloudon'
+param actionGroupEmail string = 'jesse.loudon@lab3.com.au'
+param actionGroupAlertSchema bool = true
+param metricAlertResourceNamespace string = 'Microsoft.Network/loadBalancers'
+param metricAlertName string = 'DipAvailability'
+param metricAlertDimension1 string = 'ProtocolType'
+param metricAlertDimension2 string = 'FrontendIPAddress'
+param metricAlertDimension3 string = 'BackendIPAddress'
+param metricAlertDescription string = 'Average Load Balancer health probe status per time duration'
+param metricAlertSeverity string = '2'
+param metricAlertEnabled string = 'true'
+param metricAlertEvaluationFrequency string = 'PT15M'
+param metricAlertWindowSize string = 'PT1H'
+param metricAlertSensitivity string = 'Medium'
+param metricAlertOperator string = 'LessThan'
+param metricAlertTimeAggregation string = 'Average'
+param metricAlertCriterionType string = 'DynamicThresholdCriterion'
+param metricAlertAutoMitigate string = 'true'
+param assignmentEnforcementMode string = 'Default'
 
 // RESOURCES
-module rg './resourceGroup.bicep' = {
-  scope: subscription()
-  name: 'resourceGroup'
-  params: {
-    resourceGroupName: resourceGroupName
-    location: location
-  }
+resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  name: resourceGroupName
+  location: resourceGrouplocation
 }
 
 module ag './actionGroup.bicep' = {
-  scope: resourceGroup(resourceGroupName)
+  scope: rg
   name: 'actionGroup'
   params: {
     actionGroupName: actionGroupName
-    actionGroupEnabled: true
-    actionGroupShortName: 'azspgcln'
-    actionGroupEmailName: 'jloudon'
-    actionGroupEmail: 'jesse.loudon@lab3.com.au'
-    actionGroupAlertSchema: true
+    actionGroupEnabled: actionGroupEnabled
+    actionGroupShortName: actionGroupShortName
+    actionGroupEmailName: actionGroupEmailName
+    actionGroupEmail: actionGroupEmail
+    actionGroupAlertSchema: actionGroupAlertSchema
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 module policy './policyDefinition.bicep' = {
-  scope: subscription()
   name: 'policy'
   params: {
     actionGroupName: ag.outputs.actionGroupName
     actionGroupRG: resourceGroupName
     actionGroupId: ag.outputs.actionGroupId
-    metricAlertResourceNamespace: 'Microsoft.Network/loadBalancers'
-    metricAlertName: 'DipAvailability'
-    metricAlertDimension1: 'ProtocolType'
-    metricAlertDimension2: 'FrontendIPAddress'
-    metricAlertDimension3: 'BackendIPAddress'
-    metricAlertDescription: 'Average Load Balancer health probe status per time duration'
-    metricAlertSeverity: '2'
-    metricAlertEnabled: 'true'
-    metricAlertEvaluationFrequency: 'PT15M'
-    metricAlertWindowSize: 'PT1H'
-    metricAlertSensitivity: 'Medium'
-    metricAlertOperator: 'LessThan'
-    metricAlertTimeAggregation: 'Average'
-    metricAlertCriterionType: 'DynamicThresholdCriterion'
-    metricAlertAutoMitigate: 'true'
+    metricAlertResourceNamespace: metricAlertResourceNamespace
+    metricAlertName: metricAlertName
+    metricAlertDimension1: metricAlertDimension1
+    metricAlertDimension2:  metricAlertDimension2
+    metricAlertDimension3: metricAlertDimension3
+    metricAlertDescription: metricAlertDescription
+    metricAlertSeverity: metricAlertSeverity
+    metricAlertEnabled: metricAlertEnabled
+    metricAlertEvaluationFrequency: metricAlertEvaluationFrequency
+    metricAlertWindowSize: metricAlertWindowSize
+    metricAlertSensitivity: metricAlertSensitivity
+    metricAlertOperator: metricAlertOperator
+    metricAlertTimeAggregation: metricAlertTimeAggregation
+    metricAlertCriterionType: metricAlertCriterionType
+    metricAlertAutoMitigate: metricAlertAutoMitigate
   }
 }
 
 module assignment './policyAssignment.bicep' = {
-  scope: subscription()
   name: 'assignment'
   params: {
-    location: location
     bicepExampleInitiativeId: policy.outputs.bicepExampleInitiativeId
+    assignmentIdentityLocation: resourceGrouplocation
+    assignmentEnforcementMode: assignmentEnforcementMode
   }
   dependsOn: [
     policy
