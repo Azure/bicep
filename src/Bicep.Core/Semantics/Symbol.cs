@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Semantics
 {
+    [DebuggerDisplay("Name = {" + nameof(Name) +"}, Kind = {" + nameof(Kind) +"}")]
     public abstract class Symbol
     {
         protected Symbol(string name)
