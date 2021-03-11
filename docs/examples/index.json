@@ -490,5 +490,9 @@
     {
         "filePath": "301/web-app-managed-identity-sql-db/main.bicep",
         "description": "301/web-app-managed-identity-sql-db"
+    },
+    {
+        "filePath": "301/deployifnotexists-policy-with-initiative-and-assignment/main.bicep",
+        "description": "301/deployifnotexists-policy-with-initiative-and-assignment"
     }
 ]

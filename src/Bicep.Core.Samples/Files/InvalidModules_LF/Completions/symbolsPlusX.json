@@ -532,6 +532,20 @@
     }
   },
   {
+    "label": "expectedArrayExpression2",
+    "kind": "module",
+    "detail": "expectedArrayExpression2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedArrayExpression2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedArrayExpression2"
+    }
+  },
+  {
     "label": "expectedColon",
     "kind": "module",
     "detail": "expectedColon",
@@ -543,6 +557,34 @@
     "textEdit": {
       "range": {},
       "newText": "expectedColon"
+    }
+  },
+  {
+    "label": "expectedColon2",
+    "kind": "module",
+    "detail": "expectedColon2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedColon2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedColon2"
+    }
+  },
+  {
+    "label": "expectedComma",
+    "kind": "module",
+    "detail": "expectedComma",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedComma",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedComma"
     }
   },
   {
@@ -602,6 +644,48 @@
     }
   },
   {
+    "label": "expectedInKeyword3",
+    "kind": "module",
+    "detail": "expectedInKeyword3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedInKeyword3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedInKeyword3"
+    }
+  },
+  {
+    "label": "expectedIndexVarName",
+    "kind": "module",
+    "detail": "expectedIndexVarName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedIndexVarName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedIndexVarName"
+    }
+  },
+  {
+    "label": "expectedItemVarName",
+    "kind": "module",
+    "detail": "expectedItemVarName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedItemVarName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedItemVarName"
+    }
+  },
+  {
     "label": "expectedLoopBody",
     "kind": "module",
     "detail": "expectedLoopBody",
@@ -613,6 +697,20 @@
     "textEdit": {
       "range": {},
       "newText": "expectedLoopBody"
+    }
+  },
+  {
+    "label": "expectedLoopBody2",
+    "kind": "module",
+    "detail": "expectedLoopBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopBody2"
     }
   },
   {
@@ -924,6 +1022,20 @@
     "textEdit": {
       "range": {},
       "newText": "missingLoopBodyProperties"
+    }
+  },
+  {
+    "label": "missingLoopBodyProperties2",
+    "kind": "module",
+    "detail": "missingLoopBodyProperties2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingLoopBodyProperties2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingLoopBodyProperties2"
     }
   },
   {
@@ -1585,6 +1697,34 @@
     }
   },
   {
+    "label": "nonObjectModuleBody3",
+    "kind": "module",
+    "detail": "nonObjectModuleBody3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectModuleBody3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectModuleBody3"
+    }
+  },
+  {
+    "label": "nonObjectModuleBody4",
+    "kind": "module",
+    "detail": "nonObjectModuleBody4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectModuleBody4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectModuleBody4"
+    }
+  },
+  {
     "label": "nonexistentArrays",
     "kind": "module",
     "detail": "nonexistentArrays",
@@ -2234,6 +2374,34 @@
     "textEdit": {
       "range": {},
       "newText": "wrongLoopBodyType"
+    }
+  },
+  {
+    "label": "wrongLoopBodyType2",
+    "kind": "module",
+    "detail": "wrongLoopBodyType2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongLoopBodyType2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongLoopBodyType2"
+    }
+  },
+  {
+    "label": "wrongModuleParameterInLoop2",
+    "kind": "module",
+    "detail": "wrongModuleParameterInLoop2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongModuleParameterInLoop2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongModuleParameterInLoop2"
     }
   },
   {

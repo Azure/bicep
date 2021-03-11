@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -237,7 +237,7 @@ namespace Bicep.LangServer.IntegrationTests
         private static string GetFullSetName(string setName) => setName + ".json";
 
         private static IEnumerable<object[]> GetData() =>
-            DataSets.AllDataSets
+            DataSets.NonStressDataSets
                 .Select(ds => (dataset: ds, triggers: CompletionTestDirectiveParser.GetTriggers(ds.Bicep)))
                 .Where(tuple => tuple.triggers.Any())
                 .SelectMany(tuple => tuple.triggers.Select(trigger => (tuple.dataset, trigger.Position, trigger.SetName)))

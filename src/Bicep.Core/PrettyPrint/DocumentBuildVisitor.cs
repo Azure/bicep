@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
@@ -163,15 +163,29 @@ namespace Bicep.Core.PrettyPrint
 
                 ILinkedDocument openBracket = children[0];
                 ILinkedDocument forKeyword = children[1];
-                ILinkedDocument loopVariable = children[2];
+                ILinkedDocument variableBlock = children[2];
                 ILinkedDocument inKeyword = children[3];
                 ILinkedDocument arrayExpression = children[4];
                 ILinkedDocument colon = children[5];
                 ILinkedDocument loopBody = children[6];
                 ILinkedDocument closeBracket = children[7];
 
-                return Concat(openBracket, Spread(forKeyword, loopVariable, inKeyword, arrayExpression), Spread(colon, loopBody), closeBracket);
+                return Concat(openBracket, Spread(forKeyword, variableBlock, inKeyword, arrayExpression), Spread(colon, loopBody), closeBracket);
             });
+
+        public override void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax) =>
+            this.Build(() => base.VisitForVariableBlockSyntax(syntax), children =>
+             {
+                 Debug.Assert(children.Length == 5);
+
+                 ILinkedDocument openParen = children[0];
+                 ILinkedDocument itemVariable = children[1];
+                 ILinkedDocument comma = children[2];
+                 ILinkedDocument indexVariable = children[3];
+                 ILinkedDocument closeParen = children[4];
+
+                 return Spread(Concat(openParen, itemVariable, comma), Concat(indexVariable, closeParen));
+             });
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax) =>
             this.Build(() => base.VisitFunctionCallSyntax(syntax), children =>
