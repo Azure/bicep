@@ -786,9 +786,10 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 
             using (new AssertionScope())
             {
-                // TODO: this should raise an error as cross-scope deployment should be blocked
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().NotBeEmpty();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP167", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
+                });
             }
         }
 
@@ -812,9 +813,10 @@ resource res2 'Microsoft.Rp2/resource2@2020-06-01' = {
 
             using (new AssertionScope())
             {
-                // TODO: this should raise an error as setting scope + parent should be blocked
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().NotBeEmpty();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP166", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
+                });
             }
         }
     }

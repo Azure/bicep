@@ -938,6 +938,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP165",
                 $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
+
+            public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
+                TextSpan,
+                "BCP166",
+                $"The \"{LanguageConstants.ResourceScopePropertyName}\" property is unsupported for a resource with a parent resource. This resource has \"{parentIdentifier}\" declared as its parent.");
+
+            public ErrorDiagnostic ScopeDisallowedForAncestorResource(string ancestorIdentifier) => new(
+                TextSpan,
+                "BCP167",
+                $"Cannot deploy a resource with ancestor under a different scope. Resource \"{ancestorIdentifier}\" has the \"{LanguageConstants.ResourceScopePropertyName}\" property set.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

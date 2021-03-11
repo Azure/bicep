@@ -363,7 +363,31 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
+                var ancestors = semanticModel.ResourceAncestors.GetAncestors(resourceSymbol);
                 var scopeProperty = resourceSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
+
+                if (ancestors.Any())
+                {
+                    if (scopeProperty is not null)
+                    {
+                        // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
+                        diagnosticWriter.Write(scopeProperty.Value, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Name));
+                        // TODO: format the ancestor name using the resource accessor (::) for nested resources
+                        continue;
+                    }
+
+                    var firstAncestor = ancestors.First();
+                    if (!resourceSymbol.DeclaringResource.IsExistingResource() && 
+                        firstAncestor.DeclaringResource.IsExistingResource() && 
+                        firstAncestor.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName) is {} firstAncestorScope)
+                    {
+                        // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
+                        diagnosticWriter.Write(resourceSymbol.DeclaringResource.Value, x => x.ScopeDisallowedForAncestorResource(firstAncestor.Name));
+                        // TODO: format the ancestor name using the resource accessor (::) for nested resources
+                        continue;
+                    }
+                }
+
                 var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resourceType.ValidParentScopes, resourceSymbol.DeclaringResource.Value, scopeProperty);
 
                 if (scopeData is null)

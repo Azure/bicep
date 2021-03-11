@@ -3,6 +3,7 @@
 using System.Linq;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -211,9 +212,10 @@ resource child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 
             using (new AssertionScope())
             {
-                // TODO: this should raise an error as cross-scope deployment should be blocked
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().NotBeEmpty();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP167", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
+                });
             }
         }
 
@@ -238,9 +240,10 @@ resource res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 
             using (new AssertionScope())
             {
-                // TODO: this should raise an error as setting scope + parent should be blocked
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().NotBeEmpty();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP166", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
+                });
             }
         }
     }
