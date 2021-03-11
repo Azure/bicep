@@ -124,3 +124,11 @@ output noInnerLoopsInOutputs2 object = {
 @
 // #completionTest(5) -> decorators
 @sys.
+
+
+//KeyVault Secret Reference
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+output keyVaultOutput string = kv.getSecret('mySecret')

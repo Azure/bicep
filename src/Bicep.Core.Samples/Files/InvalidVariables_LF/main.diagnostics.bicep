@@ -276,3 +276,12 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[1:10) [BCP126 (Error)] Function "batchSize" cannot be used as a variable decorator. |batchSize|
 var batchSizeMakesNoSenseHere = false
 
+
+//KeyVault Secret Reference
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+var keyVaultSecretVar = kv.getSecret('mySecret')
+//@[27:36) [BCP164 (Error)] Function "getSecret" is not valid at this location. It can only be used in assigning value to a module parameter. |getSecret|
+

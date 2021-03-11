@@ -14,7 +14,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    public class ScenarioTests
+    public class CommonScenarioTests
     {
         [TestMethod]
         public void Test_Issue746()
@@ -975,135 +975,6 @@ var foo = 42
                     ("BCP057", DiagnosticLevel.Error, "The name \"w\" does not exist in the current context."),
                 });
             }
-        }
-
-        [TestMethod]
-        public void Test_Issue1028_1()
-        {
-            var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", @"
-resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-  name: 'testkeyvault'
-}
-
-
-module secret 'secret.bicep' = {
-  name: 'secret'
-  params: {
-    mySecret: kv.getSecret('mySecret')
-  }
-}
-"),
-                ("secret.bicep", @"
-param mySecret string {
-  secure: true
-}
-
-output exposed string = mySecret
-"));
-
-            diags.Should().BeEmpty();
-            template!.Should().NotBeNull();
-            var parameterToken = template!.SelectToken("$.resources[?(@.name == 'secret')].properties.parameters.mySecret")!;
-            using (new AssertionScope())
-            {
-                parameterToken.SelectToken("$.value")!.Should().BeNull();
-                parameterToken.SelectToken("$.reference.keyVault.id")!.Should().DeepEqual("[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]");
-                parameterToken.SelectToken("$.reference.secretName")!.Should().DeepEqual("mySecret");
-                parameterToken.SelectToken("$.reference.secretVersion")!.Should().BeNull();
-            }
-        }
-
-        [TestMethod]
-        public void Test_Issue1028_2()
-        {
-            var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", @"
-resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-  name: 'testkeyvault'
-}
-
-module secret 'secret.bicep' = {
-  name: 'secret'
-  params: {
-    mySecret: kv.getSecret('mySecret','secretversionguid')
-  }
-}
-"),
-                ("secret.bicep", @"
-@secure()
-param mySecret string = 'defaultSecret'
-
-output exposed string = mySecret
-"));
-
-            diags.Should().BeEmpty();
-            template!.Should().NotBeNull();
-            var parameterToken = template!.SelectToken("$.resources[?(@.name == 'secret')].properties.parameters.mySecret")!;
-            using (new AssertionScope())
-            {
-                parameterToken.SelectToken("$.value")!.Should().BeNull();
-                parameterToken.SelectToken("$.reference.keyVault.id")!.Should().DeepEqual("[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]");
-                parameterToken.SelectToken("$.reference.secretName")!.Should().DeepEqual("mySecret");
-                parameterToken.SelectToken("$.reference.secretVersion")!.Should().DeepEqual("secretversionguid");
-            }
-        }
-
-        [TestMethod]
-        public void Test_Issue1028_3()
-        {
-            var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", @"
-resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-  name: 'testkeyvault'
-}
-
-output exposed string = kv.getSecret('mySecret','secretversionguid')
-"));
-
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
-        }
-
-        [TestMethod]
-        public void Test_Issue1028_4()
-        {
-            var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", @"
-resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-  name: 'testkeyvault'
-}
-
-var secret = kv.getSecret('mySecret','secretversionguid')
-"));
-
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
-        }
-
-
-        [TestMethod]
-        public void Test_Issue1028_5()
-        {
-            var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", @"
-resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-  name: 'testkeyvault'
-}
-
-module secret 'secret.bicep' = {
-  name: 'secret'
-  params: {
-    notSecret: kv.getSecret('mySecret','secretversionguid')
-  }
-}
-"),
-                ("secret.bicep", @"
-param notSecret string
-"));
-
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
         }
     }
 }

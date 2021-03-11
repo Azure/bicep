@@ -799,6 +799,38 @@ var batchSizeMakesNoSenseHere = false
 //@[4:29) Identifier |batchSizeMakesNoSenseHere|
 //@[30:31) Assignment |=|
 //@[32:37) FalseKeyword |false|
-//@[37:38) NewLine |\n|
+//@[37:40) NewLine |\n\n\n|
+
+
+//KeyVault Secret Reference
+//@[27:28) NewLine |\n|
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:11) Identifier |kv|
+//@[12:50) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[51:59) Identifier |existing|
+//@[60:61) Assignment |=|
+//@[62:63) LeftBrace |{|
+//@[63:64) NewLine |\n|
+  name: 'testkeyvault'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:22) StringComplete |'testkeyvault'|
+//@[22:23) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+var keyVaultSecretVar = kv.getSecret('mySecret')
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |keyVaultSecretVar|
+//@[22:23) Assignment |=|
+//@[24:26) Identifier |kv|
+//@[26:27) Dot |.|
+//@[27:36) Identifier |getSecret|
+//@[36:37) LeftParen |(|
+//@[37:47) StringComplete |'mySecret'|
+//@[47:48) RightParen |)|
+//@[48:49) NewLine |\n|
 
 //@[0:0) EndOfFile ||

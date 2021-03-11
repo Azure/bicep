@@ -180,3 +180,13 @@ output noInnerLoopsInOutputs2 object = {
 // #completionTest(5) -> decorators
 @sys.
 
+
+//KeyVault Secret Reference
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[9:11) Resource kv. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 170
+  name: 'testkeyvault'
+}
+
+output keyVaultOutput string = kv.getSecret('mySecret')
+//@[7:21) Output keyVaultOutput. Type: string. Declaration start char: 0, length: 55
+

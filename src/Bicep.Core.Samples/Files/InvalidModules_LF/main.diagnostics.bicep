@@ -189,9 +189,9 @@ module modAUnspecifiedInputs './modulea.bicep' = {
     stringParamB: ''
     objParam: {}
     objArray: []
-//@[4:12) [BCP038 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
+//@[4:12) [BCP038 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "secureObjectParam", "secureStringParam", "stringParamA". |objArray|
     unspecifiedInput: ''
-//@[4:20) [BCP038 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
+//@[4:20) [BCP038 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "secureObjectParam", "secureStringParam", "stringParamA". |unspecifiedInput|
   }
 }
 
@@ -499,7 +499,7 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP038 (Error)] The property "notAThing" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam". |notAThing|
   }
 }]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
@@ -512,7 +512,7 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP038 (Error)] The property "notAThing" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam". |notAThing|
   }
 }]
 
@@ -576,7 +576,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
     objParam: {}
     stringParamB: ''
     dependsOn: [
-//@[4:13) [BCP038 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
+//@[4:13) [BCP038 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam", "stringParamA". |dependsOn|
       nonexistentArrays
 //@[6:23) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     ]
@@ -596,4 +596,24 @@ module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 //@[68:75) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[68:74) [BCP018 (Error)] Expected the "{" character at this location. |concat|
+
+// Key Vault Secret Reference
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module secureModule1 'modulea.bicep' = {
+  name: 'secureModule1'
+  params: {       
+    stringParamA: kv.getSecret('mySecret')
+//@[18:42) [BCP036 (Error)] The property "stringParamA" expected a value of type "string" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
+    stringParamB: '${kv.getSecret('mySecret')}'
+    objParam: kv.getSecret('mySecret')
+    arrayParam: kv.getSecret('mySecret')
+//@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
+    secureStringParam: '${kv.getSecret('mySecret')}'
+    secureObjectParam: kv.getSecret('mySecret')
+  }
+}
 

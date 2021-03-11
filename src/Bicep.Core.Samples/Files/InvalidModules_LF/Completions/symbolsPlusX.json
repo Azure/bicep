@@ -878,6 +878,23 @@
     }
   },
   {
+    "label": "kv",
+    "kind": "interface",
+    "detail": "kv",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_kv",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "kv"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "last",
     "kind": "function",
     "detail": "last()",
@@ -2002,6 +2019,20 @@
     "commitCharacters": [
       ":"
     ]
+  },
+  {
+    "label": "secureModule1",
+    "kind": "module",
+    "detail": "secureModule1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_secureModule1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "secureModule1"
+    }
   },
   {
     "label": "singleModuleForRuntimeCheck",

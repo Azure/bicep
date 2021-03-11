@@ -65,7 +65,7 @@ namespace Bicep.Core.Syntax
 
         public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax)
         {
-            static bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
+            static bool IsBooleanTrue(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
 
             var assignedType = this.GetDeclaredType();
 
@@ -84,7 +84,7 @@ namespace Bicep.Core.Syntax
                 {
                     assignedType = UnionType.Create(allowedItemTypes);
                 }
-                else if ((Modifier is ObjectSyntax modifierSyntax && IsSecure(modifierSyntax.SafeGetPropertyByName(LanguageConstants.ParameterModifierSecureName)?.Value)) ||
+                else if ((Modifier is ObjectSyntax modifierSyntax && IsBooleanTrue(modifierSyntax.SafeGetPropertyByName(LanguageConstants.ParameterModifierSecureName)?.Value)) ||
                     (this.SafeGetDecoaratorByName(LanguageConstants.ParameterModifierSecureName) is not null))
                 {
                     //parameter can accept either LooseString (see below) or reference to key vault secret

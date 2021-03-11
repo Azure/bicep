@@ -246,3 +246,13 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 var batchSizeMakesNoSenseHere = false
 //@[4:29) Variable batchSizeMakesNoSenseHere. Type: bool. Declaration start char: 0, length: 51
 
+
+//KeyVault Secret Reference
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[9:11) Resource kv. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 88
+  name: 'testkeyvault'
+}
+
+var keyVaultSecretVar = kv.getSecret('mySecret')
+//@[4:21) Variable keyVaultSecretVar. Type: error. Declaration start char: 0, length: 48
+

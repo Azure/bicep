@@ -629,6 +629,37 @@
     }
   },
   {
+    "label": "keyVaultSecretVar",
+    "kind": "variable",
+    "detail": "keyVaultSecretVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_keyVaultSecretVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "keyVaultSecretVar"
+    }
+  },
+  {
+    "label": "kv",
+    "kind": "interface",
+    "detail": "kv",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_kv",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "kv"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "last",
     "kind": "function",
     "detail": "last()",

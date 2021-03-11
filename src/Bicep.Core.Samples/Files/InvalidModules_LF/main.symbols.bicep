@@ -603,3 +603,23 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[58:59) Local i. Type: int. Declaration start char: 58, length: 1
 //@[7:27) Module nonObjectModuleBody4. Type: module[]. Declaration start char: 0, length: 77
 
+// Key Vault Secret Reference
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[9:11) Resource kv. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 88
+  name: 'testkeyvault'
+}
+
+module secureModule1 'modulea.bicep' = {
+//@[7:20) Module secureModule1. Type: module. Declaration start char: 0, length: 361
+  name: 'secureModule1'
+  params: {       
+    stringParamA: kv.getSecret('mySecret')
+    stringParamB: '${kv.getSecret('mySecret')}'
+    objParam: kv.getSecret('mySecret')
+    arrayParam: kv.getSecret('mySecret')
+    secureStringParam: '${kv.getSecret('mySecret')}'
+    secureObjectParam: kv.getSecret('mySecret')
+  }
+}
+

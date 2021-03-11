@@ -42,6 +42,48 @@
     ]
   },
   {
+    "label": "secureObjectParam",
+    "kind": "property",
+    "detail": "secureObjectParam",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `object`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_secureObjectParam",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "secureObjectParam"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "secureStringParam",
+    "kind": "property",
+    "detail": "secureStringParam",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_secureStringParam",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "secureStringParam"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "stringParamA",
     "kind": "property",
     "detail": "stringParamA",

@@ -405,3 +405,21 @@ module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
 module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
 module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
+
+// Key Vault Secret Reference
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module secureModule1 'modulea.bicep' = {
+  name: 'secureModule1'
+  params: {
+    stringParamA: kv.getSecret('mySecret')
+    stringParamB: '${kv.getSecret('mySecret')}'
+    objParam: kv.getSecret('mySecret')
+    arrayParam: kv.getSecret('mySecret')
+    secureStringParam: '${kv.getSecret('mySecret')}'
+    secureObjectParam: kv.getSecret('mySecret')
+  }
+}

@@ -559,6 +559,39 @@ output noInnerLoopsInOutputs2 object = {
 //@[0:1) At |@|
 //@[1:4) Identifier |sys|
 //@[4:5) Dot |.|
-//@[5:7) NewLine |\r\n|
+//@[5:11) NewLine |\r\n\r\n\r\n|
+
+
+//KeyVault Secret Reference
+//@[27:29) NewLine |\r\n|
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:11) Identifier |kv|
+//@[12:50) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[51:59) Identifier |existing|
+//@[60:61) Assignment |=|
+//@[62:63) LeftBrace |{|
+//@[63:65) NewLine |\r\n|
+  name: 'testkeyvault'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:22) StringComplete |'testkeyvault'|
+//@[22:24) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output keyVaultOutput string = kv.getSecret('mySecret')
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |keyVaultOutput|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:33) Identifier |kv|
+//@[33:34) Dot |.|
+//@[34:43) Identifier |getSecret|
+//@[43:44) LeftParen |(|
+//@[44:54) StringComplete |'mySecret'|
+//@[54:55) RightParen |)|
+//@[55:57) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||
