@@ -1,4 +1,3 @@
-// DEPLOYMENT SCOPE
 targetScope = 'subscription'
 
 // PARAMETERS   
@@ -133,14 +132,14 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                                     {
                                         type: 'Microsoft.Insights/metricAlerts'
                                         apiVersion: '2018-03-01'
-                                        name: '[concat(${'parameters('}\'resourceName\'), \'-${metricAlertName}\')]'
+                                        name: '[concat(parameters(\'resourceName\'), \'-${metricAlertName}\')]'
                                         location: 'global'
                                         properties: {
                                             description: metricAlertDescription
                                             severity: metricAlertResourceNamespace
                                             enabled: metricAlertEnabled
                                             scopes: [
-                                                '[${'parameters('}\'resourceId\')]'
+                                                '[${'parameters'}(\'resourceId\')]'
                                             ]
                                             evaluationFrequency: metricAlertEvaluationFrequency
                                             windowSize: metricAlertWindowSize
@@ -187,7 +186,7 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                                             }
                                             autoMitigate: metricAlertAutoMitigate
                                             targetResourceType: metricAlertResourceNamespace
-                                            targetResourceRegion: '[${'parameters('}\'resourceLocation\')]'
+                                            targetResourceRegion: '[${'parameters'}(\'resourceLocation\')]'
                                             actions: [
                                                 {
                                                     actionGroupId: actionGroupId
