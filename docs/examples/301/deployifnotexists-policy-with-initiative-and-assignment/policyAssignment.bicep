@@ -13,13 +13,13 @@ param location string
 resource bicepExampleAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: 'bicepExampleAssignment'
   location: location
-  identity:{
+  identity: {
     type: 'SystemAssigned'
   }
   properties: {
     displayName: 'Bicep Example Assignment'
     description: 'Bicep Example Assignment'
-    enforcementMode:'Default'
+    enforcementMode: 'Default'
     metadata: {
       source: 'Bicep'
       version: '0.1.0'

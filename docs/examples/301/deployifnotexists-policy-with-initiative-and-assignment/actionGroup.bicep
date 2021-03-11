@@ -19,7 +19,7 @@ output actionGroupName string = actionGroup.name
 resource actionGroup 'microsoft.insights/actionGroups@2019-06-01' = {
   location: 'global'
   name: actionGroupName
-  properties:{
+  properties: {
     enabled: actionGroupEnabled
     groupShortName: actionGroupShortName
     emailReceivers: [
