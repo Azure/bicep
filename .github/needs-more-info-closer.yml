@@ -1,0 +1,26 @@
+name: Needs More Info Closer
+on:
+  schedule:
+    - cron: 30 5 * * * # 10:30pm PT
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout triage-actions
+        uses: actions/checkout@v2
+        with:
+          repository: "Azure/bicep"
+          path: ./bicep
+          ref: main
+      - name: npm install
+        run: npm install --production --prefix ./bicep/triage-actions
+      - name: Run Needs More Info Closer
+        uses: ./bicep/triage-actions/needs-more-info-closer
+        with:
+          token: ${{secrets.AZCODE_BOT_PAT}}
+          label: needs more info
+          closeDays: 14
+          closeComment: "This issue has been closed automatically because it needs more information and has not had recent activity."
+          readonly: true
