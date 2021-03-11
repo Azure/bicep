@@ -54,7 +54,7 @@
         "style": "[reference(resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild')).style]"
       },
       "dependsOn": [
-        "[resourceId('My.Rp/parentType/childType', 'basicParent', 'basicChild')]",
+        "[resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild')]",
         "[resourceId('My.Rp/parentType', 'basicParent')]"
       ]
     },
@@ -141,7 +141,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5089625982611449445"
+      "templateHash": "16343843471735200304"
     }
   }
 }
