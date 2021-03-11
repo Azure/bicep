@@ -1,28 +1,27 @@
-param skuName string {
-  allowed: [
-    'F1'
-    'D1'
-    'B1'
-    'B2'
-    'B3'
-    'S1'
-    'S2'
-    'S3'
-    'P1'
-    'P2'
-    'P3'
-    'P4'
-  ]
-  default: 'F1'
-}
-param skuCapacity int {
-  minValue: 1
-  default: 1
-}
+@allowed([
+  'F1'
+  'D1'
+  'B1'
+  'B2'
+  'B3'
+  'S1'
+  'S2'
+  'S3'
+  'P1'
+  'P2'
+  'P3'
+  'P4'
+])
+param skuName string = 'F1'
+
+@minValue(1)
+param skuCapacity int = 1
+
 param sqlAdministratorLogin string
-param sqlAdministratorLoginPassword string {
-  secure: true
-}
+
+@secure()
+param sqlAdministratorLoginPassword string
+
 param location string = resourceGroup().location
 
 var hostingPlanName = 'hostingplan${uniqueString(resourceGroup().id)}'

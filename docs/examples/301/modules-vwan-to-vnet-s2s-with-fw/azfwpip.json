@@ -16,10 +16,10 @@
     },
     "ipprefixlength": {
       "type": "int",
+      "defaultValue": 31,
       "metadata": {
         "description": "Specifies the size of the Public IP Prefix"
       },
-      "defaultValue": 31,
       "allowedValues": [
         28,
         29,
@@ -73,7 +73,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11163344508924143275"
+      "templateHash": "18185474887077886884"
     }
   }
 }

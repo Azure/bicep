@@ -247,8 +247,28 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        [DataRow("a:b","(a:b)")]
+        [DataRow("null:fail", "(null:fail)")]
+        [DataRow("foo():bar","(foo():bar)")]
+        public void ResourceAccessShouldParseSuccessfully(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(ResourceAccessSyntax));
+        }
+
+        // There's an ambiguity with the ternary operator that we resolve by letting ternary win when it's in between `?` and `:`
+        [DataTestMethod]
+        [DataRow("foo?bar:baz:biz","(foo?bar:(baz:biz))")]
+        [DataRow("foo?(bar:biz.prop1):baz:boo","(foo?(((bar:biz).prop1)):(baz:boo))")]
+        //[DataRow("foo:boo?bar:baz","((foo:boo)?bar:baz)")]
+        public void ResourceAccessShouldParseSuccessfullyWithTernaries(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
+        }
+
+        [DataTestMethod]
         [DataRow("a.b.c.foo()", "((a.b).c).foo()")]
         [DataRow("a.b.c.d.e.f.g.foo()", "((((((a.b).c).d).e).f).g).foo()")]
+        [DataRow("a:b:c.d:e:f:g.foo()", "((((((a:b):c).d):e):f):g).foo()")]
         public void InstanceFunctionCallShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(InstanceFunctionCallSyntax));
@@ -264,8 +284,24 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        [DataRow("a:b:c + 0","(((a:b):c)+0)")]
+        [DataRow("(a:b[c]):c[d]+q()", "((((((a:b)[c])):c)[d])+q())")]
+        public void ResourceAccessShouldBeLeftToRightAssociative(string text, string expected)
+        {
+            // this also asserts that (), [], and . have equal precedence
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [DataTestMethod]
         [DataRow("a + b.c * z[12].a && q[foo()] == c.a", "((a+((b.c)*((z[12]).a)))&&((q[foo()])==(c.a)))")]
         public void MemberAccessShouldHaveHighestPrecedence(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("a + b:c * z[12]:a && q[foo()] == c:a", "((a+((b:c)*((z[12]):a)))&&((q[foo()])==(c:a)))")]
+        public void ResourceAccessShouldHaveHighestPrecedence(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }

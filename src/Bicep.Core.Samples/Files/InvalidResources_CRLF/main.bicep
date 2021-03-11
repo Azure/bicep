@@ -338,6 +338,37 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+  name: 'test'
+  location: 'test'
+}]
+
+var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
+var runtimeCheckVar2 = runtimeCheckVar
+
+resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: runtimeCheckVar2
+  location: 'test'
+}
+
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+  name: runtimeCheckVar2
+  location: 'test'
+}]
+
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+  name: loopForRuntimeCheck[0].properties.zoneType
+  location: 'test'
+}]
+
+var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
+var varForRuntimeCheck4b = varForRuntimeCheck4a
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+  name: varForRuntimeCheck4b
+  location: 'test'
+}]
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
   // #completionTest(0, 1, 2) -> topLevelProperties
 
@@ -852,21 +883,51 @@ resource expectedColon 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x i
 
 resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y:]
 
+// loop index parsing cases
+resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
+
+resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
+
+resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
+
+resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
+
+resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
+
+resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
+
+resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
+
+resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
+
+resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
+
 // loop semantic analysis cases
 var emptyArray = []
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
+resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
+
+// duplicate variable in the same scope
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
+}]
 
 // errors in the array expression
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
+}]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
 }]
 
 // wrong array type
 var notAnArray = true
 resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
 }]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
+}]
 
 // missing required properties
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
+}]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
 }]
 
 // fewer missing required properties and a wrong property
@@ -885,6 +946,15 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
     subnets: [for j in range(0, 4): {
       doesNotExist: 'test'
       name: 'subnet-${i}-${j}'
+    }]
+  }
+}]
+resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for j in range(0, 4): {
+      doesNotExist: 'test'
+      name: 'subnet-${i}-${j}-${k}'
     }]
   }
 }]
@@ -914,6 +984,23 @@ resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' 
       virtualNetworkRules: [for rule in []: {
         id: '${account.name}-${account.location}'
         state: [for lol in []: 4]
+      }]
+    }
+  }
+}]
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in storageAccounts: {
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+
+    networkAcls: {
+      virtualNetworkRules: [for (rule,j) in []: {
+        id: '${account.name}-${account.location}'
+        state: [for (lol,k) in []: 4]
       }]
     }
   }
@@ -990,6 +1077,7 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
   }
 }
 
+@batchSize()
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
   name: 'vnet-${i}'
   properties: {
@@ -997,6 +1085,7 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
   }
 }]
 
+@batchSize(0)
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
   name: 'vnet-${i}'
   properties: {
@@ -1020,8 +1109,11 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 }
 
 // resource loop body that isn't an object
+@batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
 
 // #completionTest(54,55) -> objectPlusFor
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 

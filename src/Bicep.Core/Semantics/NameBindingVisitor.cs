@@ -52,7 +52,7 @@ namespace Bicep.Core.Semantics
             // include all the locals in the symbol table as well
             // since we only allow lookups by object and not by name,
             // a flat symbol table should be sufficient
-            foreach (var declaredSymbol in allLocalScopes.Values.SelectMany(scope => scope.AllDeclarations))
+            foreach (var declaredSymbol in allLocalScopes.Values.SelectMany(scope => scope.Declarations))
             {
                 this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
             }
@@ -68,9 +68,60 @@ namespace Bicep.Core.Semantics
             this.bindings.Add(syntax, symbol);
         }
 
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            base.VisitResourceAccessSyntax(syntax);
+
+            // we need to resolve which resource delaration the LHS is pointing to - and then 
+            // validate that we can resolve the name.
+            this.bindings.TryGetValue(syntax.BaseExpression, out var symbol);
+
+            if (symbol is ErrorSymbol)
+            {
+                this.bindings.Add(syntax, symbol);
+                return;
+            }
+            else if (symbol is null || symbol is not ResourceSymbol)
+            {
+                // symbol could be null in the case of an incomplete expression during parsing like `a:`
+                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(symbol?.Kind.ToString() ?? LanguageConstants.ErrorName));
+                this.bindings.Add(syntax, error);
+                return;
+            }
+
+            // This is the symbol of LHS and it's a valid resource.
+            var resourceSymbol = (ResourceSymbol)symbol;
+            var resourceBody = resourceSymbol.DeclaringResource.TryGetBody();
+            if (resourceBody == null)
+            {
+                // If we have no body then there will be nothing to reference.
+                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).NestedResourceNotFound(resourceSymbol.Name, syntax.ResourceName.IdentifierName, nestedResourceNames: new []{ "(none)", }));
+                this.bindings.Add(syntax, error);
+                return;
+            }
+
+            if (!this.allLocalScopes.TryGetValue(resourceBody, out var localScope))
+            {
+                // code defect in the declaration visitor
+                throw new InvalidOperationException($"Local scope is missing for {syntax.GetType().Name} at {syntax.Span}");
+            }
+
+            var referencedResource = LookupResourceSymbolByName(localScope, syntax.ResourceName);
+            if (referencedResource is null)
+            {
+                var nestedResourceNames = localScope.Declarations.OfType<ResourceSymbol>().Select(r => r.Name);
+                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).NestedResourceNotFound(resourceSymbol.Name, syntax.ResourceName.IdentifierName, nestedResourceNames));
+                this.bindings.Add(syntax, error);
+                return;
+            }
+            
+            // This is valid.
+            this.bindings.Add(syntax, referencedResource);
+        }
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            allowedFlags = FunctionFlags.ResoureDecorator;
+            allowedFlags = FunctionFlags.ResourceDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
@@ -150,7 +201,7 @@ namespace Bicep.Core.Semantics
         {
             allowedFlags = FunctionFlags.ParameterDecorator |
                 FunctionFlags.VariableDecorator |
-                FunctionFlags.ResoureDecorator |
+                FunctionFlags.ResourceDecorator |
                 FunctionFlags.ModuleDecorator |
                 FunctionFlags.OutputDecorator;
             base.VisitMissingDeclarationSyntax(syntax);
@@ -277,7 +328,12 @@ namespace Bicep.Core.Semantics
             // loops currently are the only source of local symbols
             // as a result a local scope can contain between 1 to 2 local symbols
             // linear search should be fine, but this should be revisited if the above is no longer holds true
-            scope.AllDeclarations.FirstOrDefault(symbol => string.Equals(identifierSyntax.IdentifierName, symbol.Name, LanguageConstants.IdentifierComparison));
+            scope.Declarations.FirstOrDefault(symbol => string.Equals(identifierSyntax.IdentifierName, symbol.Name, LanguageConstants.IdentifierComparison));
+
+        private static ResourceSymbol? LookupResourceSymbolByName(ILanguageScope scope, IdentifierSyntax identifierSyntax) =>
+            scope.Declarations
+                .OfType<ResourceSymbol>()
+                .FirstOrDefault(symbol => string.Equals(identifierSyntax.IdentifierName, symbol.Name, LanguageConstants.IdentifierComparison));
 
         private Symbol LookupGlobalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
         {
@@ -319,6 +375,19 @@ namespace Bicep.Core.Semantics
         private class ScopeCollectorVisitor: SymbolVisitor
         {
             private IDictionary<SyntaxBase, LocalScope> ScopeMap { get; } = new Dictionary<SyntaxBase, LocalScope>();
+
+
+            protected override void VisitInternal(Symbol node)
+            {
+                // We haven't typed checked yet, so don't visit anything that isn't a scope.
+                // 
+                // Now that resources can appear in a scope, this causes problems if we visit them and try
+                // to get type info.
+                if (node is ILanguageScope)
+                {
+                    base.VisitInternal(node);
+                }
+            }
 
             public override void VisitLocalScope(LocalScope symbol)
             {

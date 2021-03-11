@@ -5,12 +5,11 @@ param listOfAllowedLocations array = [
   'westeurope'
 ]
 
-param policyEffect string {
-  allowed: [
-    'Audit'
-    'Deny'
-  ]
-}
+@allowed([
+  'Audit'
+  'Deny'
+])
+param policyEffect string
 
 resource locationPolicyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
   name: 'custom-allowed-location'

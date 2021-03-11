@@ -4,8 +4,8 @@
   "parameters": {
     "applicationName": {
       "type": "string",
-      "maxLength": 30,
-      "defaultValue": "[format('to-do-app{0}', uniqueString(resourceGroup().id))]"
+      "defaultValue": "[format('to-do-app{0}', uniqueString(resourceGroup().id))]",
+      "maxLength": 30
     },
     "location": {
       "type": "string",
@@ -31,9 +31,9 @@
     },
     "appServicePlanInstances": {
       "type": "int",
-      "minValue": 1,
+      "defaultValue": 1,
       "maxValue": 3,
-      "defaultValue": 1
+      "minValue": 1
     },
     "repositoryUrl": {
       "type": "string",
@@ -141,7 +141,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14242616916823247017"
+      "templateHash": "8006046741903683744"
     }
   }
 }

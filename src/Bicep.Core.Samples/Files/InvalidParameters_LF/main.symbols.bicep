@@ -184,6 +184,11 @@ param wrongIntModifier int {
 param wrongIntModifierWithDecorator int = true
 //@[6:35) Parameter wrongIntModifierWithDecorator. Type: int. Declaration start char: 0, length: 125
 
+@metadata(any([]))
+@allowed(any(2))
+param fatalErrorInIssue1713
+//@[6:27) Parameter fatalErrorInIssue1713. Type: any. Declaration start char: 0, length: 63
+
 // wrong metadata schema
 param wrongMetadataSchema string {
 //@[6:25) Parameter wrongMetadataSchema. Type: string. Declaration start char: 0, length: 76
@@ -486,6 +491,12 @@ param tooManyArguments1 int = 20
 param tooManyArguments2 string
 //@[6:23) Parameter tooManyArguments2. Type: string. Declaration start char: 0, length: 253
 
+@description(sys.concat(2))
+@allowed([for thing in []: 's'])
+//@[14:19) Local thing. Type: any. Declaration start char: 14, length: 5
+param nonConstantInDecorator string
+//@[6:28) Parameter nonConstantInDecorator. Type: string. Declaration start char: 0, length: 96
 
 // unterminated multi-line comment
 /*    
+

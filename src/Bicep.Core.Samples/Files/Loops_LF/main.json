@@ -72,7 +72,9 @@
     {
       "copy": {
         "name": "storageAccounts",
-        "count": "[length(parameters('accounts'))]"
+        "count": "[length(parameters('accounts'))]",
+        "mode": "serial",
+        "batchSize": 42
       },
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
@@ -117,7 +119,9 @@
     {
       "copy": {
         "name": "lockTheLocks",
-        "count": "[length(range(0, 1))]"
+        "count": "[length(range(0, 1))]",
+        "mode": "serial",
+        "batchSize": 1
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
@@ -425,7 +429,9 @@
     {
       "copy": {
         "name": "moduleCollectionWithSingleDependency",
-        "count": "[length(variables('moduleSetup'))]"
+        "count": "[length(variables('moduleSetup'))]",
+        "mode": "serial",
+        "batchSize": 3
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
@@ -660,7 +666,7 @@
     },
     "indexedModulesName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2019-10-01').outputs.name]"
+      "value": "[variables('moduleSetup')[parameters('index')]]"
     },
     "indexedModuleOutput": {
       "type": "string",
@@ -695,7 +701,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18116800430577333562"
+      "templateHash": "15563763134771957148"
     }
   }
 }

@@ -1,11 +1,10 @@
 param workspaceName string
 param applicationInsightsName string
 param location string = resourceGroup().location
-param responseTimeThreshold int {
-  default: 3
-  minValue: 1
-  maxValue: 10000
-}
+
+@minValue(1)
+@maxValue(10000)
+param responseTimeThreshold int = 3
 
 var responseAlertName = 'ResponseTime-${applicationInsightsName}'
 

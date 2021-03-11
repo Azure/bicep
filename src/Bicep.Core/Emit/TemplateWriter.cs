@@ -3,11 +3,13 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -36,6 +38,7 @@ namespace Bicep.Core.Emit
         private static readonly ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
+            LanguageConstants.ResourceNamePropertyName,
         }.ToImmutableHashSet();
 
         private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new [] {
@@ -166,6 +169,31 @@ namespace Bicep.Core.Emit
             memoryWriter.WriteEndObject();
         }
 
+        private ObjectSyntax EvaluateDecorators(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
+        {
+            var result = input;
+            foreach (var decoratorSyntax in statement.Decorators.Reverse())
+            {
+                var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
+
+                if (symbol is FunctionSymbol decoratorSymbol)
+                {
+                    var argumentTypes = decoratorSyntax.Arguments
+                        .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
+                        .ToArray();
+
+                    // There should be exact one matching decorator since there's no errors.
+                    Decorator decorator = this.context.SemanticModel.Root.ImportedNamespaces
+                        .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
+                        .Single();
+
+                    result = decorator.Evaluate(decoratorSyntax, targetType, result);
+                }
+            }
+
+            return result;
+        }
+
         private void EmitParameter(JsonTextWriter memoryWriter, ParameterSymbol parameterSymbol, ExpressionEmitter emitter)
         {
             // local function
@@ -189,25 +217,7 @@ namespace Bicep.Core.Emit
                     parameterObject = parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
                 }
 
-                foreach (var decoratorSyntax in parameterSymbol.DeclaringParameter.Decorators.Reverse())
-                {
-
-                    var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
-
-                    if (symbol is FunctionSymbol decoratorSymbol)
-                    {
-                        var argumentTypes = decoratorSyntax.Arguments
-                            .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
-                            .ToArray();
-
-                        // There should be exact one matching decorator since there's no errors.
-                        Decorator decorator = this.context.SemanticModel.Root.ImportedNamespaces
-                            .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
-                            .Single();
-
-                        parameterObject = decorator.Evaluate(decoratorSyntax, primitiveType, parameterObject);
-                    }
-                }
+                parameterObject = EvaluateDecorators(parameterSymbol.DeclaringParameter, parameterObject, primitiveType);
 
                 foreach (var property in parameterObject.Properties)
                 {
@@ -287,7 +297,7 @@ namespace Bicep.Core.Emit
             memoryWriter.WritePropertyName("resources");
             memoryWriter.WriteStartArray();
 
-            foreach (var resourceSymbol in this.context.SemanticModel.Root.ResourceDeclarations)
+            foreach (var resourceSymbol in this.context.SemanticModel.Root.GetAllResourceDeclarations())
             {
                 if (resourceSymbol.DeclaringResource.IsExistingResource())
                 {
@@ -305,23 +315,90 @@ namespace Bicep.Core.Emit
             memoryWriter.WriteEndArray();
         }
 
+        private long? GetBatchSize(StatementSyntax decoratedSyntax)
+        {
+            var evaluated = this.EvaluateDecorators(decoratedSyntax, SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), LanguageConstants.Array);
+            var batchSizeProperty = evaluated.SafeGetPropertyByName("batchSize");
+
+            return batchSizeProperty switch
+            {
+                ObjectPropertySyntax { Value: IntegerLiteralSyntax integerLiteral } => integerLiteral.Value,
+                _ => null
+            };
+        }
+
         private void EmitResource(JsonTextWriter memoryWriter, ResourceSymbol resourceSymbol, ExpressionEmitter emitter)
         {
             memoryWriter.WriteStartObject();
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
-            SyntaxBase body = resourceSymbol.DeclaringResource.Value;
+
+            // Note: conditions STACK with nesting.
+            //
+            // Children inherit the conditions of their parents, etc. This avoids a problem
+            // where we emit a dependsOn to something that's not in the template, or not
+            // being evaulated i the template. 
+            var conditions = new List<SyntaxBase>();
+            var loops = new List<(string name, ForSyntax @for, SyntaxBase? input)>();
+
+            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resourceSymbol);
+            foreach (var ancestor in ancestors)
+            {
+                if (ancestor.DeclaringResource.Value is IfConditionSyntax ifCondition)
+                {
+                    conditions.Add(ifCondition.ConditionExpression);
+                }
+
+                if (ancestor.DeclaringResource.Value is ForSyntax @for)
+                {
+                    loops.Add((ancestor.Name, @for, null));
+                }
+            }
+
+            // Unwrap the 'real' resource body if there's a condition
+            var body = resourceSymbol.DeclaringResource.Value;
             switch (body)
             {
                 case IfConditionSyntax ifCondition:
                     body = ifCondition.Body;
-                    emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+                    conditions.Add(ifCondition.ConditionExpression);
                     break;
 
                 case ForSyntax @for:
                     body = @for.Body;
-                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(resourceSymbol.Name, @for, input: null));
+                    loops.Add((resourceSymbol.Name, @for, null));
                     break;
+            }
+
+            if (conditions.Count == 1)
+            {
+                emitter.EmitProperty("condition", conditions[0]);
+            }
+            else if (conditions.Count > 1)
+            {
+                var @operator = new BinaryOperationSyntax(
+                    conditions[0], 
+                    SyntaxFactory.CreateToken(TokenType.LogicalAnd),
+                    conditions[1]);
+                for (var i = 2; i < conditions.Count; i++)
+                {
+                    @operator = new BinaryOperationSyntax(
+                        @operator,
+                        SyntaxFactory.CreateToken(TokenType.LogicalAnd),
+                        conditions[i]);
+                }
+
+                emitter.EmitProperty("condition", @operator);
+            }
+
+            if (loops.Count == 1)
+            {
+                var batchSize = GetBatchSize(resourceSymbol.DeclaringResource);
+                emitter.EmitProperty("copy", () => emitter.EmitCopyObject(loops[0].name, loops[0].@for, loops[0].input, batchSize: batchSize));
+            }
+            else if (loops.Count > 1)
+            {
+                throw new InvalidOperationException("nested loops are not supported");
             }
 
             emitter.EmitProperty("type", typeReference.FullyQualifiedType);
@@ -330,6 +407,9 @@ namespace Bicep.Core.Emit
             {
                 emitter.EmitProperty("scope", () => emitter.EmitUnqualifiedResourceId(scopeResource));
             }
+
+            emitter.EmitProperty("name", emitter.GetResourceNameExpression(resourceSymbol));
+
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
             this.EmitDependsOn(memoryWriter, resourceSymbol, emitter, body);
@@ -399,7 +479,8 @@ namespace Bicep.Core.Emit
 
                 case ForSyntax @for:
                     body = @for.Body;
-                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null));
+                    var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
+                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
                     break;
             }
 

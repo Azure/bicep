@@ -38,12 +38,17 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can be used as a resource decorator.
         /// </summary>
-        ResoureDecorator = 1 << 4,
+        ResourceDecorator = 1 << 4,
 
         /// <summary>
         /// The function can be used as a module decorator.
         /// </summary>
         ModuleDecorator = 1 << 5,
+
+        /// <summary>
+        /// The function can be used a resource or module decorator.
+        /// </summary>
+        ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,
 
         /// <summary>
         /// The function can be used as an output decorator.

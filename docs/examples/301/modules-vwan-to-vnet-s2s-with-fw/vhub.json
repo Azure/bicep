@@ -11,10 +11,10 @@
     },
     "hubaddressprefix": {
       "type": "string",
+      "defaultValue": "10.10.0.0/24",
       "metadata": {
         "description": "Specifies the Virtual Hub Address Prefix."
-      },
-      "defaultValue": "10.10.0.0/24"
+      }
     },
     "wanid": {
       "type": "string",
@@ -56,7 +56,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8037978691182688537"
+      "templateHash": "17814864971989477056"
     }
   }
 }

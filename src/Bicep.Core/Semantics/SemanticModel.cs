@@ -15,6 +15,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
+        private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
 
         public SemanticModel(Compilation compilation, SyntaxTree syntaxTree)
         {
@@ -42,6 +43,8 @@ namespace Bicep.Core.Semantics
 
                 return hierarchy;
             });
+            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(syntaxTree, Binder));
+
         }
 
         public SyntaxTree SyntaxTree { get; }
@@ -55,6 +58,8 @@ namespace Bicep.Core.Semantics
         public ITypeManager TypeManager { get; }
 
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
+
+        public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.

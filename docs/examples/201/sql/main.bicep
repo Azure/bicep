@@ -1,15 +1,13 @@
 param sqlAdministratorLogin string
-param sqlAdministratorLoginPassword string {
-  secure: true
-}
 
-param transparentDataEncryption string {
-  default: 'Enabled'
-  allowed: [
-    'Enabled'
-    'Disabled'
-  ]
-}
+@secure()
+param sqlAdministratorLoginPassword string
+
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param transparentDataEncryption string = 'Enabled'
 
 param location string = resourceGroup().location
 

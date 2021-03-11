@@ -32,6 +32,10 @@
         "description": "101/app-config"
     },
     {
+        "filePath": "101/app-service-regional-vnet-integration/main.bicep",
+        "description": "101/app-service-regional-vnet-integration"
+    },
+    {
         "filePath": "101/application-gateway-v2-autoscale-create/main.bicep",
         "description": "101/application-gateway-v2-autoscale-create"
     },
@@ -382,6 +386,10 @@
     {
         "filePath": "201/traffic-manager-webapp/main.bicep",
         "description": "201/traffic-manager-webapp"
+    },
+    {
+        "filePath": "201/vm-copy-managed-disks/main.bicep",
+        "description": "201/vm-copy-managed-disks"
     },
     {
         "filePath": "201/vm-domain-join/main.bicep",

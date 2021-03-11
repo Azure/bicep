@@ -18,6 +18,24 @@
     }
   },
   {
+    "label": "for-indexed",
+    "kind": "snippet",
+    "detail": "for-indexed",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for (item, index) in list: {\n\t\n}]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for-indexed",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for (${2:item}, ${3:index}) in ${1:list}: {\n\t$0\n}]"
+    }
+  },
+  {
     "label": "{}",
     "kind": "value",
     "detail": "{}",

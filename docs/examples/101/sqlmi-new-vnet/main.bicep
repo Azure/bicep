@@ -1,37 +1,35 @@
 param managedInstanceName string
 param adminLogin string
-param adminPassword string {
-  secure: true
-}
+
+@secure()
+param adminPassword string
+
 param location string = resourceGroup().location
 param virtualNetworkName string = 'vnet-01'
 param virtualNetworkPrefix string = '10.0.0.0/16'
 param subnetName string = 'subnet-01'
 param subnetPrefix string = '10.0.0.0/24'
-param skuName string {
-  allowed: [
-    'GP_Gen5'
-    'BC_Gen5'
-  ]
-  default: 'GP_Gen5'
-}
-param vCores int {
-  allowed: [
-    8
-    16
-    24
-    32
-    40
-    64
-    80
-  ]
-  default: 8
-}
-param storageSizeInGB int {
-  minValue: 32
-  maxValue: 8192
-  default: 256
-}
+
+@allowed([
+  'GP_Gen5'
+  'BC_Gen5'
+])
+param skuName string = 'GP_Gen5'
+
+@allowed([
+  8
+  16
+  24
+  32
+  40
+  64
+  80
+])
+param vCores int = 8
+
+@minValue(32)
+@maxValue(8192)
+param storageSizeInGB int = 256
 
 var networkSecurityGroupName = '${managedInstanceName}-nsg'
 var routeTableName = '${managedInstanceName}-routetable'

@@ -72,6 +72,7 @@ memberExpression ->
   memberExpression "[" expression "]" |
   memberExpression "." IDENTIFIER(property) |
   memberExpression "." functionCall
+  memberExpression ":" IDENTIFIER(name)
 
 primaryExpression ->
   functionCall |
@@ -93,7 +94,8 @@ parenthesizedExpression -> "(" expression ")"
 
 ifCondition -> "if" parenthesizedExpression object
 
-forExpression -> "[" "for" IDENTIFIER "in" expression ":" expression(body) "]"
+forExpression -> "[" "for" (IDENTIFIER(item) | forVariableBlock) "in" expression ":" expression(body) "]"
+forVariableBlock -> "(" IDENTIFIER(item) "," IDENTIFIER(index) ")"
 
 interpString ->  stringLeftPiece ( expression stringMiddlePiece )* expression stringRightPiece | stringComplete
 stringLeftPiece -> "'" STRINGCHAR* "${"

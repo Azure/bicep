@@ -271,3 +271,8 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[41:46) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
 //@[53:56) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 //@[66:71) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+
+@batchSize(1)
+//@[1:10) [BCP126 (Error)] Function "batchSize" cannot be used as a variable decorator. |batchSize|
+var batchSizeMakesNoSenseHere = false
+

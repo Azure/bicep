@@ -1,19 +1,18 @@
-param publisherEmail string {
-  minLength: 1
-}
-param publisherName string {
-  minLength: 1
-}
-param sku string {
-  default: 'Developer'
-  allowed: [
-    'Consumption'
-    'Developer'
-    'Basic'
-    'Standard'
-    'Premium'
-  ]
-}
+@minLength(1)
+param publisherEmail string
+
+@minLength(1)
+param publisherName string
+
+@allowed([
+  'Consumption'
+  'Developer'
+  'Basic'
+  'Standard'
+  'Premium'
+])
+param sku string = 'Developer'
+
 param skuCount int = 1
 param location string = resourceGroup().location
 

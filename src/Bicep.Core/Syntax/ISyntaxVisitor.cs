@@ -46,6 +46,8 @@ namespace Bicep.Core.Syntax
 
         void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax);
 
+        void VisitResourceAccessSyntax(ResourceAccessSyntax syntax);
+
         void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax);
 
         void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax);
@@ -73,6 +75,8 @@ namespace Bicep.Core.Syntax
         void VisitIfConditionSyntax(IfConditionSyntax syntax);
 
         void VisitForSyntax(ForSyntax syntax);
+
+        void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax);
 
         void VisitDecoratorSyntax(DecoratorSyntax syntax);
 

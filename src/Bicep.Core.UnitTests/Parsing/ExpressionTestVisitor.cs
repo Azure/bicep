@@ -45,6 +45,13 @@ namespace Bicep.Core.UnitTests.Parsing
             this.buffer.Append(')');
         }
 
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            this.buffer.Append('(');
+            base.VisitResourceAccessSyntax(syntax);
+            this.buffer.Append(')');
+        }
+
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             this.buffer.Append('(');

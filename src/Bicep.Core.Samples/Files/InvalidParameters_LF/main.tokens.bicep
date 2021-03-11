@@ -580,6 +580,32 @@ param wrongIntModifierWithDecorator int = true
 //@[42:46) TrueKeyword |true|
 //@[46:48) NewLine |\n\n|
 
+@metadata(any([]))
+//@[0:1) At |@|
+//@[1:9) Identifier |metadata|
+//@[9:10) LeftParen |(|
+//@[10:13) Identifier |any|
+//@[13:14) LeftParen |(|
+//@[14:15) LeftSquare |[|
+//@[15:16) RightSquare |]|
+//@[16:17) RightParen |)|
+//@[17:18) RightParen |)|
+//@[18:19) NewLine |\n|
+@allowed(any(2))
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:14) Integer |2|
+//@[14:15) RightParen |)|
+//@[15:16) RightParen |)|
+//@[16:17) NewLine |\n|
+param fatalErrorInIssue1713
+//@[0:5) Identifier |param|
+//@[6:27) Identifier |fatalErrorInIssue1713|
+//@[27:29) NewLine |\n\n|
+
 // wrong metadata schema
 //@[24:25) NewLine |\n|
 param wrongMetadataSchema string {
@@ -1615,10 +1641,43 @@ param tooManyArguments2 string
 //@[0:5) Identifier |param|
 //@[6:23) Identifier |tooManyArguments2|
 //@[24:30) Identifier |string|
-//@[30:33) NewLine |\n\n\n|
+//@[30:32) NewLine |\n\n|
 
+@description(sys.concat(2))
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:16) Identifier |sys|
+//@[16:17) Dot |.|
+//@[17:23) Identifier |concat|
+//@[23:24) LeftParen |(|
+//@[24:25) Integer |2|
+//@[25:26) RightParen |)|
+//@[26:27) RightParen |)|
+//@[27:28) NewLine |\n|
+@allowed([for thing in []: 's'])
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:19) Identifier |thing|
+//@[20:22) Identifier |in|
+//@[23:24) LeftSquare |[|
+//@[24:25) RightSquare |]|
+//@[25:26) Colon |:|
+//@[27:30) StringComplete |'s'|
+//@[30:31) RightSquare |]|
+//@[31:32) RightParen |)|
+//@[32:33) NewLine |\n|
+param nonConstantInDecorator string
+//@[0:5) Identifier |param|
+//@[6:28) Identifier |nonConstantInDecorator|
+//@[29:35) Identifier |string|
+//@[35:37) NewLine |\n\n|
 
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    
-//@[6:6) EndOfFile ||
+
+//@[0:0) EndOfFile ||

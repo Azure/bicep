@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.Syntax
         }
 
         [TestMethod]
-        public void NonEmtyFile_GetParent_ShouldReturnExpectedNode()
+        public void NonEmptyFile_GetParent_ShouldReturnExpectedNode()
         {
             var hierarchy = new SyntaxHierarchy();
             var program = ParserHelper.Parse("param foo string\r\nvar bar = 42");

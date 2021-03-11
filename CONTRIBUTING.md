@@ -17,7 +17,7 @@ We are very happy to accept community contributions to Bicep, whether those are 
 
 The Bicep solution is comprised of the following main components:
 
-* **Bicep CLI** (`src/Bicep.Cli`): the `bicep` CLI exectuable.
+* **Bicep CLI** (`src/Bicep.Cli`): the `bicep` CLI executable.
 * **Bicep Language Server** (`src/Bicep.LangServer`): the LanguageServer used by the VSCode extension for parsing and providing information about a Bicep file.
 * **Bicep Core** (`src/Bicep.Core`): the library containing the majority of the Bicep compiler code.
 * **Bicep VSCode Extension** (`src/vscode-bicep`): the VSCode extension itself. This is mostly a thin wrapper around the Bicep Language Server.
