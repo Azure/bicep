@@ -6,7 +6,7 @@ using FluentAssertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 
-namespace Bicep.Core.IntegrationTests.ScenarioTests
+namespace Bicep.Core.IntegrationTests.Scenarios
 {
     [TestClass]
     public class ParamKeyVaultSecretReferenceTests

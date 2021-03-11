@@ -14,7 +14,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    public class CommonScenarioTests
+    public class ScenarioTests
     {
         [TestMethod]
         public void Test_Issue746()
