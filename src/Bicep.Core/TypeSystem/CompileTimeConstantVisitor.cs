@@ -41,6 +41,16 @@ namespace Bicep.Core.TypeSystem
             this.AppendError(syntax);
         }
 
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            this.AppendError(syntax);
+        }
+
+        public override void VisitForSyntax(ForSyntax syntax)
+        {
+            this.AppendError(syntax);
+        }
+
         public override void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)
         {
             this.AppendError(syntax);

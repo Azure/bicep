@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
@@ -13,17 +12,27 @@ namespace Bicep.Core.Semantics
     /// </summary>
     public class LocalScope : Symbol, ILanguageScope
     {
-        public LocalScope(string name, SyntaxBase enclosingSyntax, IEnumerable<LocalVariableSymbol> locals, IEnumerable<LocalScope> childScopes)
+        public LocalScope(string name, SyntaxBase declaringSyntax, SyntaxBase bindingSyntax, IEnumerable<DeclaredSymbol> locals, IEnumerable<LocalScope> childScopes)
             : base(name)
         {
-            this.EnclosingSyntax = enclosingSyntax;
+            this.DeclaringSyntax = declaringSyntax;
+            this.BindingSyntax = bindingSyntax;
             this.Locals = locals.ToImmutableArray();
             this.ChildScopes = childScopes.ToImmutableArray();
         }
 
-        public SyntaxBase EnclosingSyntax { get; }
+        /// <summary>
+        /// The syntax node that declares the scope, but may not have effect on name binding. Most commonly this will be a ForSyntax object.
+        /// </summary>
+        public SyntaxBase DeclaringSyntax { get; }
 
-        public ImmutableArray<LocalVariableSymbol> Locals { get; }
+        /// <summary>
+        /// The syntax node within which this scope will affect binding. This will typically be the Body of a ForSyntax node.
+        /// </summary>
+        /// <remarks>Identifiers within this node will first bind to symbols in this scope. Identifiers above this node will bind to the parent scope.</remarks>
+        public SyntaxBase BindingSyntax { get; }
+
+        public ImmutableArray<DeclaredSymbol> Locals { get; }
 
         public ImmutableArray<LocalScope> ChildScopes { get; }
 
@@ -33,16 +42,12 @@ namespace Bicep.Core.Semantics
 
         public override IEnumerable<Symbol> Descendants => this.ChildScopes.Concat<Symbol>(this.Locals);
 
-        public LocalScope ReplaceChildren(IEnumerable<LocalScope> newChildren) => new(this.Name, this.EnclosingSyntax, this.Locals, newChildren);
+        public LocalScope ReplaceLocals(IEnumerable<DeclaredSymbol> newLocals) => new(this.Name, this.DeclaringSyntax, this.BindingSyntax, newLocals, this.ChildScopes);
+
+        public LocalScope ReplaceChildren(IEnumerable<LocalScope> newChildren) => new(this.Name, this.DeclaringSyntax, this.BindingSyntax, this.Locals, newChildren);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.Locals.Where(symbol => symbol.NameSyntax.IsValid && string.Equals(symbol.Name, name, LanguageConstants.IdentifierComparison)).ToList();
         
-        public IEnumerable<DeclaredSymbol> AllDeclarations => this.Locals;
-
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
-        {
-            // TODO: Remove when loops codegen is done.
-            yield return DiagnosticBuilder.ForPosition(((ForSyntax) this.EnclosingSyntax).ForKeyword).LoopsNotSupported();
-        }
+        public IEnumerable<DeclaredSymbol> Declarations => this.Locals;
     }
 }

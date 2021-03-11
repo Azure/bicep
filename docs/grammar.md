@@ -72,11 +72,13 @@ memberExpression ->
   memberExpression "[" expression "]" |
   memberExpression "." IDENTIFIER(property) |
   memberExpression "." functionCall
+  memberExpression ":" IDENTIFIER(name)
 
 primaryExpression ->
   functionCall |
   literalValue |
   interpString |
+  multilineString |
   array |
   forExpression |
   object |
@@ -92,13 +94,16 @@ parenthesizedExpression -> "(" expression ")"
 
 ifCondition -> "if" parenthesizedExpression object
 
-forExpression -> "[" "for" IDENTIFIER "in" expression ":" expression(body) "]"
+forExpression -> "[" "for" (IDENTIFIER(item) | forVariableBlock) "in" expression ":" expression(body) "]"
+forVariableBlock -> "(" IDENTIFIER(item) "," IDENTIFIER(index) ")"
 
-interpString ->  interpStringLeftPiece ( expression interpStringMiddlePiece )* expression interpStringRightPiece | literalString
-interpStringLeftPiece -> "'" STRINGCHAR* "${"
-interpStringMiddlePiece -> "}" STRINGCHAR* "${"
-interpStringRightPiece -> "}" STRINGCHAR* "'"
-literalString -> "'" STRINGCHAR* "'"
+interpString ->  stringLeftPiece ( expression stringMiddlePiece )* expression stringRightPiece | stringComplete
+stringLeftPiece -> "'" STRINGCHAR* "${"
+stringMiddlePiece -> "}" STRINGCHAR* "${"
+stringRightPiece -> "}" STRINGCHAR* "'"
+stringComplete -> "'" STRINGCHAR* "'"
+
+multilineString -> "'''" + MULTILINESTRINGCHAR+ + "'''"
 
 literalValue -> NUMBER | "true" | "false" | "null"
 

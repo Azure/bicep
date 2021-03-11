@@ -84,6 +84,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
+        public void UnionTypeInvolvingResourceScopeTypesShouldProduceExpectedDisplayString()
+        {
+            var unionType = UnionType.Create(
+                new StringLiteralType("Test"),
+                LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource),
+                LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription | ResourceScope.Tenant)
+            );
+
+            unionType.Name.Should().Be("'Test' | resource | (tenant | subscription)");
+        }
+
+        [TestMethod]
         public void SingletonUnionCreationShouldProduceSingletonType()
         {
             UnionType.Create(LanguageConstants.Int).Should().BeSameAs(LanguageConstants.Int);

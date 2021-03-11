@@ -230,6 +230,7 @@ var fakeFunc = red() + green() * orange()
 //@[23:28) [BCP057 (Error)] The name "green" does not exist in the current context. |green|
 //@[33:39) [BCP082 (Error)] The name "orange" does not exist in the current context. Did you mean "range"? |orange|
 param fakeFuncP string {
+//@[23:44) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: blue()\n}|
   default: blue()
 //@[11:15) [BCP057 (Error)] The name "blue" does not exist in the current context. |blue|
 }
@@ -457,13 +458,16 @@ var partialObject = {
 
 // dangling decorators - to make sure the tests work, please do not add contents after this line
 @concat()
+//@[1:7) [BCP152 (Error)] Function "concat" cannot be used as a decorator. |concat|
 @sys.secure()
+//@[0:13) [BCP147 (Error)] Expected a parameter declaration after the decorator. |@sys.secure()|
 xxxxx
 //@[0:5) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |xxxxx|
 
 
 @minLength()
-//@[0:12) [BCP132 (Error)] Expected a declaration after the decorator. |@minLength()|
+//@[0:12) [BCP147 (Error)] Expected a parameter declaration after the decorator. |@minLength()|
+//@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. |()|
 
 
 

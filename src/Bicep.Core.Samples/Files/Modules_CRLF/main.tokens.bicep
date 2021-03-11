@@ -535,4 +535,971 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 //@[65:72) Identifier |outputs|
 //@[72:73) Dot |.|
 //@[73:82) Identifier |outputObj|
-//@[82:82) EndOfFile ||
+//@[82:86) NewLine |\r\n\r\n|
+
+/*
+  valid loop cases
+*/ 
+//@[3:5) NewLine |\r\n|
+var myModules = [
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |myModules|
+//@[14:15) Assignment |=|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+  {
+//@[2:3) LeftBrace |{|
+//@[3:5) NewLine |\r\n|
+    name: 'one'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:15) StringComplete |'one'|
+//@[15:17) NewLine |\r\n|
+    location: 'eastus2'
+//@[4:12) Identifier |location|
+//@[12:13) Colon |:|
+//@[14:23) StringComplete |'eastus2'|
+//@[23:25) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  {
+//@[2:3) LeftBrace |{|
+//@[3:5) NewLine |\r\n|
+    name: 'two'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:15) StringComplete |'two'|
+//@[15:17) NewLine |\r\n|
+    location: 'westus'
+//@[4:12) Identifier |location|
+//@[12:13) Colon |:|
+//@[14:22) StringComplete |'westus'|
+//@[22:24) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:5) NewLine |\r\n\r\n|
+
+var emptyArray = []
+//@[0:3) Identifier |var|
+//@[4:14) Identifier |emptyArray|
+//@[15:16) Assignment |=|
+//@[17:18) LeftSquare |[|
+//@[18:19) RightSquare |]|
+//@[19:23) NewLine |\r\n\r\n|
+
+// simple module loop
+//@[21:23) NewLine |\r\n|
+module storageResources 'modulea.bicep' = [for module in myModules: {
+//@[0:6) Identifier |module|
+//@[7:23) Identifier |storageResources|
+//@[24:39) StringComplete |'modulea.bicep'|
+//@[40:41) Assignment |=|
+//@[42:43) LeftSquare |[|
+//@[43:46) Identifier |for|
+//@[47:53) Identifier |module|
+//@[54:56) Identifier |in|
+//@[57:66) Identifier |myModules|
+//@[66:67) Colon |:|
+//@[68:69) LeftBrace |{|
+//@[69:71) NewLine |\r\n|
+  name: module.name
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) Identifier |module|
+//@[14:15) Dot |.|
+//@[15:19) Identifier |name|
+//@[19:21) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    arrayParam: []
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:18) RightSquare |]|
+//@[18:20) NewLine |\r\n|
+    objParam: module
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:20) Identifier |module|
+//@[20:22) NewLine |\r\n|
+    stringParamB: module.location
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:24) Identifier |module|
+//@[24:25) Dot |.|
+//@[25:33) Identifier |location|
+//@[33:35) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// simple indexed module loop
+//@[29:31) NewLine |\r\n|
+module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
+//@[0:6) Identifier |module|
+//@[7:32) Identifier |storageResourcesWithIndex|
+//@[33:48) StringComplete |'modulea.bicep'|
+//@[49:50) Assignment |=|
+//@[51:52) LeftSquare |[|
+//@[52:55) Identifier |for|
+//@[56:57) LeftParen |(|
+//@[57:63) Identifier |module|
+//@[63:64) Comma |,|
+//@[65:66) Identifier |i|
+//@[66:67) RightParen |)|
+//@[68:70) Identifier |in|
+//@[71:80) Identifier |myModules|
+//@[80:81) Colon |:|
+//@[82:83) LeftBrace |{|
+//@[83:85) NewLine |\r\n|
+  name: module.name
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) Identifier |module|
+//@[14:15) Dot |.|
+//@[15:19) Identifier |name|
+//@[19:21) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    arrayParam: [
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+      i + 1
+//@[6:7) Identifier |i|
+//@[8:9) Plus |+|
+//@[10:11) Integer |1|
+//@[11:13) NewLine |\r\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:7) NewLine |\r\n|
+    objParam: module
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:20) Identifier |module|
+//@[20:22) NewLine |\r\n|
+    stringParamB: module.location
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:24) Identifier |module|
+//@[24:25) Dot |.|
+//@[25:33) Identifier |location|
+//@[33:35) NewLine |\r\n|
+    stringParamA: concat('a', i)
+//@[4:16) Identifier |stringParamA|
+//@[16:17) Colon |:|
+//@[18:24) Identifier |concat|
+//@[24:25) LeftParen |(|
+//@[25:28) StringComplete |'a'|
+//@[28:29) Comma |,|
+//@[30:31) Identifier |i|
+//@[31:32) RightParen |)|
+//@[32:34) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// nested module loop
+//@[21:23) NewLine |\r\n|
+module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
+//@[0:6) Identifier |module|
+//@[7:23) Identifier |nestedModuleLoop|
+//@[24:39) StringComplete |'modulea.bicep'|
+//@[40:41) Assignment |=|
+//@[42:43) LeftSquare |[|
+//@[43:46) Identifier |for|
+//@[47:53) Identifier |module|
+//@[54:56) Identifier |in|
+//@[57:66) Identifier |myModules|
+//@[66:67) Colon |:|
+//@[68:69) LeftBrace |{|
+//@[69:71) NewLine |\r\n|
+  name: module.name
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) Identifier |module|
+//@[14:15) Dot |.|
+//@[15:19) Identifier |name|
+//@[19:21) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:20) Identifier |for|
+//@[21:22) Identifier |i|
+//@[23:25) Identifier |in|
+//@[26:31) Identifier |range|
+//@[31:32) LeftParen |(|
+//@[32:33) Integer |0|
+//@[33:34) Comma |,|
+//@[34:35) Integer |3|
+//@[35:36) RightParen |)|
+//@[36:37) Colon |:|
+//@[38:44) Identifier |concat|
+//@[44:45) LeftParen |(|
+//@[45:52) StringComplete |'test-'|
+//@[52:53) Comma |,|
+//@[54:55) Identifier |i|
+//@[55:56) Comma |,|
+//@[57:60) StringComplete |'-'|
+//@[60:61) Comma |,|
+//@[62:68) Identifier |module|
+//@[68:69) Dot |.|
+//@[69:73) Identifier |name|
+//@[73:74) RightParen |)|
+//@[74:75) RightSquare |]|
+//@[75:77) NewLine |\r\n|
+    objParam: module
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:20) Identifier |module|
+//@[20:22) NewLine |\r\n|
+    stringParamB: module.location
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:24) Identifier |module|
+//@[24:25) Dot |.|
+//@[25:33) Identifier |location|
+//@[33:35) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+//@[74:76) NewLine |\r\n|
+module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
+//@[0:6) Identifier |module|
+//@[7:37) Identifier |duplicateIdentifiersWithinLoop|
+//@[38:53) StringComplete |'modulea.bicep'|
+//@[54:55) Assignment |=|
+//@[56:57) LeftSquare |[|
+//@[57:60) Identifier |for|
+//@[61:62) Identifier |x|
+//@[63:65) Identifier |in|
+//@[66:76) Identifier |emptyArray|
+//@[76:77) Colon |:|
+//@[77:78) LeftBrace |{|
+//@[78:80) NewLine |\r\n|
+  name: 'hello-${x}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringLeftPiece |'hello-${|
+//@[17:18) Identifier |x|
+//@[18:20) StringRightPiece |}'|
+//@[20:22) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:18) NewLine |\r\n|
+    stringParamA: 'test'
+//@[4:16) Identifier |stringParamA|
+//@[16:17) Colon |:|
+//@[18:24) StringComplete |'test'|
+//@[24:26) NewLine |\r\n|
+    stringParamB: 'test'
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:24) StringComplete |'test'|
+//@[24:26) NewLine |\r\n|
+    arrayParam: [for x in emptyArray: x]
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:20) Identifier |for|
+//@[21:22) Identifier |x|
+//@[23:25) Identifier |in|
+//@[26:36) Identifier |emptyArray|
+//@[36:37) Colon |:|
+//@[38:39) Identifier |x|
+//@[39:40) RightSquare |]|
+//@[40:42) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+//@[74:76) NewLine |\r\n|
+var duplicateAcrossScopes = 'hello'
+//@[0:3) Identifier |var|
+//@[4:25) Identifier |duplicateAcrossScopes|
+//@[26:27) Assignment |=|
+//@[28:35) StringComplete |'hello'|
+//@[35:37) NewLine |\r\n|
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
+//@[0:6) Identifier |module|
+//@[7:34) Identifier |duplicateInGlobalAndOneLoop|
+//@[35:50) StringComplete |'modulea.bicep'|
+//@[51:52) Assignment |=|
+//@[53:54) LeftSquare |[|
+//@[54:57) Identifier |for|
+//@[58:79) Identifier |duplicateAcrossScopes|
+//@[80:82) Identifier |in|
+//@[83:84) LeftSquare |[|
+//@[84:85) RightSquare |]|
+//@[85:86) Colon |:|
+//@[87:88) LeftBrace |{|
+//@[88:90) NewLine |\r\n|
+  name: 'hello-${duplicateAcrossScopes}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringLeftPiece |'hello-${|
+//@[17:38) Identifier |duplicateAcrossScopes|
+//@[38:40) StringRightPiece |}'|
+//@[40:42) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:18) NewLine |\r\n|
+    stringParamA: 'test'
+//@[4:16) Identifier |stringParamA|
+//@[16:17) Colon |:|
+//@[18:24) StringComplete |'test'|
+//@[24:26) NewLine |\r\n|
+    stringParamB: 'test'
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:24) StringComplete |'test'|
+//@[24:26) NewLine |\r\n|
+    arrayParam: [for x in emptyArray: x]
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:20) Identifier |for|
+//@[21:22) Identifier |x|
+//@[23:25) Identifier |in|
+//@[26:36) Identifier |emptyArray|
+//@[36:37) Colon |:|
+//@[38:39) Identifier |x|
+//@[39:40) RightSquare |]|
+//@[40:42) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+var someDuplicate = true
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |someDuplicate|
+//@[18:19) Assignment |=|
+//@[20:24) TrueKeyword |true|
+//@[24:26) NewLine |\r\n|
+var otherDuplicate = false
+//@[0:3) Identifier |var|
+//@[4:18) Identifier |otherDuplicate|
+//@[19:20) Assignment |=|
+//@[21:26) FalseKeyword |false|
+//@[26:28) NewLine |\r\n|
+module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
+//@[0:6) Identifier |module|
+//@[7:27) Identifier |duplicatesEverywhere|
+//@[28:43) StringComplete |'modulea.bicep'|
+//@[44:45) Assignment |=|
+//@[46:47) LeftSquare |[|
+//@[47:50) Identifier |for|
+//@[51:64) Identifier |someDuplicate|
+//@[65:67) Identifier |in|
+//@[68:69) LeftSquare |[|
+//@[69:70) RightSquare |]|
+//@[70:71) Colon |:|
+//@[72:73) LeftBrace |{|
+//@[73:75) NewLine |\r\n|
+  name: 'hello-${someDuplicate}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringLeftPiece |'hello-${|
+//@[17:30) Identifier |someDuplicate|
+//@[30:32) StringRightPiece |}'|
+//@[32:34) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:18) NewLine |\r\n|
+    stringParamB: 'test'
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:24) StringComplete |'test'|
+//@[24:26) NewLine |\r\n|
+    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:20) Identifier |for|
+//@[21:35) Identifier |otherDuplicate|
+//@[36:38) Identifier |in|
+//@[39:49) Identifier |emptyArray|
+//@[49:50) Colon |:|
+//@[51:54) StringLeftPiece |'${|
+//@[54:67) Identifier |someDuplicate|
+//@[67:71) StringMiddlePiece |}-${|
+//@[71:85) Identifier |otherDuplicate|
+//@[85:87) StringRightPiece |}'|
+//@[87:88) RightSquare |]|
+//@[88:90) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+module propertyLoopInsideParameterValue 'modulea.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:39) Identifier |propertyLoopInsideParameterValue|
+//@[40:55) StringComplete |'modulea.bicep'|
+//@[56:57) Assignment |=|
+//@[58:59) LeftBrace |{|
+//@[59:61) NewLine |\r\n|
+  name: 'propertyLoopInsideParameterValue'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:42) StringComplete |'propertyLoopInsideParameterValue'|
+//@[42:44) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    objParam: {
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+      a: [for i in range(0,10): i]
+//@[6:7) Identifier |a|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) Identifier |i|
+//@[16:18) Identifier |in|
+//@[19:24) Identifier |range|
+//@[24:25) LeftParen |(|
+//@[25:26) Integer |0|
+//@[26:27) Comma |,|
+//@[27:29) Integer |10|
+//@[29:30) RightParen |)|
+//@[30:31) Colon |:|
+//@[32:33) Identifier |i|
+//@[33:34) RightSquare |]|
+//@[34:36) NewLine |\r\n|
+      b: [for i in range(1,2): i]
+//@[6:7) Identifier |b|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) Identifier |i|
+//@[16:18) Identifier |in|
+//@[19:24) Identifier |range|
+//@[24:25) LeftParen |(|
+//@[25:26) Integer |1|
+//@[26:27) Comma |,|
+//@[27:28) Integer |2|
+//@[28:29) RightParen |)|
+//@[29:30) Colon |:|
+//@[31:32) Identifier |i|
+//@[32:33) RightSquare |]|
+//@[33:35) NewLine |\r\n|
+      c: {
+//@[6:7) Identifier |c|
+//@[7:8) Colon |:|
+//@[9:10) LeftBrace |{|
+//@[10:12) NewLine |\r\n|
+        d: [for j in range(2,3): j]
+//@[8:9) Identifier |d|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:15) Identifier |for|
+//@[16:17) Identifier |j|
+//@[18:20) Identifier |in|
+//@[21:26) Identifier |range|
+//@[26:27) LeftParen |(|
+//@[27:28) Integer |2|
+//@[28:29) Comma |,|
+//@[29:30) Integer |3|
+//@[30:31) RightParen |)|
+//@[31:32) Colon |:|
+//@[33:34) Identifier |j|
+//@[34:35) RightSquare |]|
+//@[35:37) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+      e: [for k in range(4,4): {
+//@[6:7) Identifier |e|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) Identifier |k|
+//@[16:18) Identifier |in|
+//@[19:24) Identifier |range|
+//@[24:25) LeftParen |(|
+//@[25:26) Integer |4|
+//@[26:27) Comma |,|
+//@[27:28) Integer |4|
+//@[28:29) RightParen |)|
+//@[29:30) Colon |:|
+//@[31:32) LeftBrace |{|
+//@[32:34) NewLine |\r\n|
+        f: k
+//@[8:9) Identifier |f|
+//@[9:10) Colon |:|
+//@[11:12) Identifier |k|
+//@[12:14) NewLine |\r\n|
+      }]
+//@[6:7) RightBrace |}|
+//@[7:8) RightSquare |]|
+//@[8:10) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+    stringParamB: ''
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:20) StringComplete |''|
+//@[20:22) NewLine |\r\n|
+    arrayParam: [
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:9) NewLine |\r\n|
+        e: [for j in range(7,7): j]
+//@[8:9) Identifier |e|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:15) Identifier |for|
+//@[16:17) Identifier |j|
+//@[18:20) Identifier |in|
+//@[21:26) Identifier |range|
+//@[26:27) LeftParen |(|
+//@[27:28) Integer |7|
+//@[28:29) Comma |,|
+//@[29:30) Integer |7|
+//@[30:31) RightParen |)|
+//@[31:32) Colon |:|
+//@[33:34) Identifier |j|
+//@[34:35) RightSquare |]|
+//@[35:37) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:50) Identifier |propertyLoopInsideParameterValueWithIndexes|
+//@[51:66) StringComplete |'modulea.bicep'|
+//@[67:68) Assignment |=|
+//@[69:70) LeftBrace |{|
+//@[70:72) NewLine |\r\n|
+  name: 'propertyLoopInsideParameterValueWithIndexes'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:53) StringComplete |'propertyLoopInsideParameterValueWithIndexes'|
+//@[53:55) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    objParam: {
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+      a: [for (i, i2) in range(0,10): i + i2]
+//@[6:7) Identifier |a|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) LeftParen |(|
+//@[15:16) Identifier |i|
+//@[16:17) Comma |,|
+//@[18:20) Identifier |i2|
+//@[20:21) RightParen |)|
+//@[22:24) Identifier |in|
+//@[25:30) Identifier |range|
+//@[30:31) LeftParen |(|
+//@[31:32) Integer |0|
+//@[32:33) Comma |,|
+//@[33:35) Integer |10|
+//@[35:36) RightParen |)|
+//@[36:37) Colon |:|
+//@[38:39) Identifier |i|
+//@[40:41) Plus |+|
+//@[42:44) Identifier |i2|
+//@[44:45) RightSquare |]|
+//@[45:47) NewLine |\r\n|
+      b: [for (i, i2) in range(1,2): i / i2]
+//@[6:7) Identifier |b|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) LeftParen |(|
+//@[15:16) Identifier |i|
+//@[16:17) Comma |,|
+//@[18:20) Identifier |i2|
+//@[20:21) RightParen |)|
+//@[22:24) Identifier |in|
+//@[25:30) Identifier |range|
+//@[30:31) LeftParen |(|
+//@[31:32) Integer |1|
+//@[32:33) Comma |,|
+//@[33:34) Integer |2|
+//@[34:35) RightParen |)|
+//@[35:36) Colon |:|
+//@[37:38) Identifier |i|
+//@[39:40) Slash |/|
+//@[41:43) Identifier |i2|
+//@[43:44) RightSquare |]|
+//@[44:46) NewLine |\r\n|
+      c: {
+//@[6:7) Identifier |c|
+//@[7:8) Colon |:|
+//@[9:10) LeftBrace |{|
+//@[10:12) NewLine |\r\n|
+        d: [for (j, j2) in range(2,3): j * j2]
+//@[8:9) Identifier |d|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:15) Identifier |for|
+//@[16:17) LeftParen |(|
+//@[17:18) Identifier |j|
+//@[18:19) Comma |,|
+//@[20:22) Identifier |j2|
+//@[22:23) RightParen |)|
+//@[24:26) Identifier |in|
+//@[27:32) Identifier |range|
+//@[32:33) LeftParen |(|
+//@[33:34) Integer |2|
+//@[34:35) Comma |,|
+//@[35:36) Integer |3|
+//@[36:37) RightParen |)|
+//@[37:38) Colon |:|
+//@[39:40) Identifier |j|
+//@[41:42) Asterisk |*|
+//@[43:45) Identifier |j2|
+//@[45:46) RightSquare |]|
+//@[46:48) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+      e: [for (k, k2) in range(4,4): {
+//@[6:7) Identifier |e|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) LeftParen |(|
+//@[15:16) Identifier |k|
+//@[16:17) Comma |,|
+//@[18:20) Identifier |k2|
+//@[20:21) RightParen |)|
+//@[22:24) Identifier |in|
+//@[25:30) Identifier |range|
+//@[30:31) LeftParen |(|
+//@[31:32) Integer |4|
+//@[32:33) Comma |,|
+//@[33:34) Integer |4|
+//@[34:35) RightParen |)|
+//@[35:36) Colon |:|
+//@[37:38) LeftBrace |{|
+//@[38:40) NewLine |\r\n|
+        f: k
+//@[8:9) Identifier |f|
+//@[9:10) Colon |:|
+//@[11:12) Identifier |k|
+//@[12:14) NewLine |\r\n|
+        g: k2
+//@[8:9) Identifier |g|
+//@[9:10) Colon |:|
+//@[11:13) Identifier |k2|
+//@[13:15) NewLine |\r\n|
+      }]
+//@[6:7) RightBrace |}|
+//@[7:8) RightSquare |]|
+//@[8:10) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+    stringParamB: ''
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:20) StringComplete |''|
+//@[20:22) NewLine |\r\n|
+    arrayParam: [
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:9) NewLine |\r\n|
+        e: [for j in range(7,7): j]
+//@[8:9) Identifier |e|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:15) Identifier |for|
+//@[16:17) Identifier |j|
+//@[18:20) Identifier |in|
+//@[21:26) Identifier |range|
+//@[26:27) LeftParen |(|
+//@[27:28) Integer |7|
+//@[28:29) Comma |,|
+//@[29:30) Integer |7|
+//@[30:31) RightParen |)|
+//@[31:32) Colon |:|
+//@[33:34) Identifier |j|
+//@[34:35) RightSquare |]|
+//@[35:37) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
+//@[0:6) Identifier |module|
+//@[7:55) Identifier |propertyLoopInsideParameterValueInsideModuleLoop|
+//@[56:71) StringComplete |'modulea.bicep'|
+//@[72:73) Assignment |=|
+//@[74:75) LeftSquare |[|
+//@[75:78) Identifier |for|
+//@[79:84) Identifier |thing|
+//@[85:87) Identifier |in|
+//@[88:93) Identifier |range|
+//@[93:94) LeftParen |(|
+//@[94:95) Integer |0|
+//@[95:96) Comma |,|
+//@[96:97) Integer |1|
+//@[97:98) RightParen |)|
+//@[98:99) Colon |:|
+//@[100:101) LeftBrace |{|
+//@[101:103) NewLine |\r\n|
+  name: 'propertyLoopInsideParameterValueInsideModuleLoop'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:58) StringComplete |'propertyLoopInsideParameterValueInsideModuleLoop'|
+//@[58:60) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    objParam: {
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+      a: [for i in range(0,10): i + thing]
+//@[6:7) Identifier |a|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) Identifier |i|
+//@[16:18) Identifier |in|
+//@[19:24) Identifier |range|
+//@[24:25) LeftParen |(|
+//@[25:26) Integer |0|
+//@[26:27) Comma |,|
+//@[27:29) Integer |10|
+//@[29:30) RightParen |)|
+//@[30:31) Colon |:|
+//@[32:33) Identifier |i|
+//@[34:35) Plus |+|
+//@[36:41) Identifier |thing|
+//@[41:42) RightSquare |]|
+//@[42:44) NewLine |\r\n|
+      b: [for i in range(1,2): i * thing]
+//@[6:7) Identifier |b|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) Identifier |i|
+//@[16:18) Identifier |in|
+//@[19:24) Identifier |range|
+//@[24:25) LeftParen |(|
+//@[25:26) Integer |1|
+//@[26:27) Comma |,|
+//@[27:28) Integer |2|
+//@[28:29) RightParen |)|
+//@[29:30) Colon |:|
+//@[31:32) Identifier |i|
+//@[33:34) Asterisk |*|
+//@[35:40) Identifier |thing|
+//@[40:41) RightSquare |]|
+//@[41:43) NewLine |\r\n|
+      c: {
+//@[6:7) Identifier |c|
+//@[7:8) Colon |:|
+//@[9:10) LeftBrace |{|
+//@[10:12) NewLine |\r\n|
+        d: [for j in range(2,3): j]
+//@[8:9) Identifier |d|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:15) Identifier |for|
+//@[16:17) Identifier |j|
+//@[18:20) Identifier |in|
+//@[21:26) Identifier |range|
+//@[26:27) LeftParen |(|
+//@[27:28) Integer |2|
+//@[28:29) Comma |,|
+//@[29:30) Integer |3|
+//@[30:31) RightParen |)|
+//@[31:32) Colon |:|
+//@[33:34) Identifier |j|
+//@[34:35) RightSquare |]|
+//@[35:37) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+      e: [for k in range(4,4): {
+//@[6:7) Identifier |e|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:13) Identifier |for|
+//@[14:15) Identifier |k|
+//@[16:18) Identifier |in|
+//@[19:24) Identifier |range|
+//@[24:25) LeftParen |(|
+//@[25:26) Integer |4|
+//@[26:27) Comma |,|
+//@[27:28) Integer |4|
+//@[28:29) RightParen |)|
+//@[29:30) Colon |:|
+//@[31:32) LeftBrace |{|
+//@[32:34) NewLine |\r\n|
+        f: k - thing
+//@[8:9) Identifier |f|
+//@[9:10) Colon |:|
+//@[11:12) Identifier |k|
+//@[13:14) Minus |-|
+//@[15:20) Identifier |thing|
+//@[20:22) NewLine |\r\n|
+      }]
+//@[6:7) RightBrace |}|
+//@[7:8) RightSquare |]|
+//@[8:10) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+    stringParamB: ''
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:20) StringComplete |''|
+//@[20:22) NewLine |\r\n|
+    arrayParam: [
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:9) NewLine |\r\n|
+        e: [for j in range(7,7): j % thing]
+//@[8:9) Identifier |e|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:15) Identifier |for|
+//@[16:17) Identifier |j|
+//@[18:20) Identifier |in|
+//@[21:26) Identifier |range|
+//@[26:27) LeftParen |(|
+//@[27:28) Integer |7|
+//@[28:29) Comma |,|
+//@[29:30) Integer |7|
+//@[30:31) RightParen |)|
+//@[31:32) Colon |:|
+//@[33:34) Identifier |j|
+//@[35:36) Modulo |%|
+//@[37:42) Identifier |thing|
+//@[42:43) RightSquare |]|
+//@[43:45) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

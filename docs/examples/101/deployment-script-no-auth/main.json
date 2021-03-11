@@ -20,12 +20,12 @@
     {
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2020-10-01",
-      "kind": "AzurePowerShell",
       "name": "[parameters('dsName')]",
+      "kind": "AzurePowerShell",
       "location": "[parameters('location')]",
       "properties": {
         "azPowerShellVersion": "3.0",
-        "scriptContent": "$DeploymentScriptOutputs[\"test\"] = \"test this output\"",
+        "scriptContent": "$DeploymentScriptOutputs[\"test\"] = \"test this output\"\n",
         "forceUpdateTag": "[parameters('timestamp')]",
         "retentionInterval": "PT4H"
       }
@@ -41,7 +41,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13005776583137759674"
+      "templateHash": "5388873385114824013"
     }
   }
 }

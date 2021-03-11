@@ -21,6 +21,8 @@ namespace Bicep.Core.Emit
             var resourceScopeData = ScopeHelper.GetResoureScopeInfo(model, diagnosticWriter);
             DeployTimeConstantVisitor.ValidateDeployTimeConstants(model, diagnosticWriter);
 
+            ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
+
             diagnosticWriter.WriteMultiple(DetectDuplicateNames(model, resourceScopeData, moduleScopeData));
 
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
@@ -81,7 +83,7 @@ namespace Bicep.Core.Emit
 
         private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData)
         {
-            foreach (var resource in semanticModel.Root.ResourceDeclarations)
+            foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
             {
                 if (resource.DeclaringResource.IsExistingResource())
                 {
@@ -89,9 +91,15 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                if (!resourceScopeData.TryGetValue(resource, out var scopeData))
+                // Determine the scope - this is either something like a resource group/subscription or another resource
+                ResourceSymbol? scopeSymbol;
+                if (resourceScopeData.TryGetValue(resource, out var scopeData) && scopeData.ResourceScopeSymbol is ResourceSymbol)
                 {
-                    scopeData = null;
+                    scopeSymbol = scopeData.ResourceScopeSymbol;
+                }
+                else
+                {
+                    scopeSymbol = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault();
                 }
 
                 if (resource.Type is not ResourceType resourceType || resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
@@ -100,7 +108,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                yield return new ResourceDefinition(resource.Name, scopeData?.ResourceScopeSymbol, resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
+                yield return new ResourceDefinition(resource.Name, scopeSymbol, resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
             }
         }
     }

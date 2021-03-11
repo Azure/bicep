@@ -27,31 +27,31 @@
     },
     "hubid": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Virtual Hub Resource ID, used when deploying Azure Firewall to Virtual WAN"
-      },
-      "defaultValue": ""
+      }
     },
     "hubpublicipcount": {
       "type": "int",
+      "defaultValue": 1,
       "metadata": {
         "description": "Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN"
-      },
-      "defaultValue": 1
+      }
     },
     "subnetid": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "AzureFirewallSubnet ID, used when deploying Azure Firewall to Virtual Network"
-      },
-      "defaultValue": ""
+      }
     },
     "publicipid": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Azure Firewall Public IP ID, used when deploying Azure Firewall to Virtual Network"
-      },
-      "defaultValue": ""
+      }
     }
   },
   "functions": [],
@@ -113,7 +113,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12898515349131983239"
+      "templateHash": "797249695265074914"
     }
   }
 }

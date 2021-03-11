@@ -128,6 +128,12 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitPropertyAccessSyntax(syntax);
         }
 
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            AddTokenType(syntax.ResourceName, SemanticTokenType.Property);
+            base.VisitResourceAccessSyntax(syntax);
+        }
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
@@ -152,10 +158,16 @@ namespace Bicep.Wasm.LanguageHelpers
         public override void VisitForSyntax(ForSyntax syntax)
         {
             AddTokenType(syntax.ForKeyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.ItemVariable.Name, SemanticTokenType.Variable);
             AddContextualKeyword(syntax.InKeyword, LanguageConstants.InKeyword);
             base.VisitForSyntax(syntax);
         }
+
+        public override void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
+        {
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitLocalVariableSyntax(syntax);
+        }
+
 
         private void AddStringToken(Token token)
         {
@@ -207,6 +219,7 @@ namespace Bicep.Wasm.LanguageHelpers
                 case TokenType.StringLeftPiece:
                 case TokenType.StringMiddlePiece:
                 case TokenType.StringRightPiece:
+                case TokenType.MultilineString:
                     AddStringToken(token);
                     break;
                 default:

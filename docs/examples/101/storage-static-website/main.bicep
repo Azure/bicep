@@ -4,14 +4,15 @@
 
 param location string
 param accountName string
-param skuName string {
-  allowed: [
-    'Standard_LRS'
-    'Standard_GRS'
-    'Standard_ZRS'
-    'Premium_LRS'
-  ]
-}
+
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_ZRS'
+  'Premium_LRS'
+])
+param skuName string
+
 param deploymentScriptTimestamp string = utcNow()
 param indexDocument string = 'index.html'
 param errorDocument404Path string = 'error.html'
@@ -58,7 +59,19 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   ]
   properties: {
     azPowerShellVersion: '3.0'
-    scriptContent: 'param([string] $ResourceGroupName, [string] $StorageAccountName, [string] $IndexDocument, [string] $ErrorDocument404Path)\n$ErrorActionPreference = \'Stop\'\n$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -AccountName $StorageAccountName\n$ctx = $storageAccount.Context\nEnable-AzStorageStaticWebsite -Context $ctx -IndexDocument $IndexDocument -ErrorDocument404Path $ErrorDocument404Path'
+    scriptContent: '''
+param(
+    [string] $ResourceGroupName,
+    [string] $StorageAccountName,
+    [string] $IndexDocument,
+    [string] $ErrorDocument404Path)
+
+$ErrorActionPreference = 'Stop'
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -AccountName $StorageAccountName
+
+$ctx = $storageAccount.Context
+Enable-AzStorageStaticWebsite -Context $ctx -IndexDocument $IndexDocument -ErrorDocument404Path $ErrorDocument404Path
+'''
     forceUpdateTag: deploymentScriptTimestamp
     retentionInterval: 'PT4H'
     arguments: '-ResourceGroupName ${resourceGroup().name} -StorageAccountName ${accountName} -IndexDocument ${indexDocument} -ErrorDocument404Path ${errorDocument404Path}'

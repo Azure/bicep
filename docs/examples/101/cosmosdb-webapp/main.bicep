@@ -1,32 +1,27 @@
-param applicationName string {
-  default: 'to-do-app${uniqueString(resourceGroup().id)}'
-  maxLength: 30
-}
+@maxLength(30)
+param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
+
 param location string = resourceGroup().location
 
-param appServicePlanTier string {
-  default: 'F1'
-  allowed: [
-    'F1'
-    'D1'
-    'B1'
-    'B2'
-    'B3'
-    'S1'
-    'S2'
-    'S3'
-    'P1'
-    'P2'
-    'P3'
-    'P4'
-  ]
-}
+@allowed([
+  'F1'
+  'D1'
+  'B1'
+  'B2'
+  'B3'
+  'S1'
+  'S2'
+  'S3'
+  'P1'
+  'P2'
+  'P3'
+  'P4'
+])
+param appServicePlanTier string = 'F1'
 
-param appServicePlanInstances int {
-  default: 1
-  minValue: 1
-  maxValue: 3
-}
+@minValue(1)
+@maxValue(3)
+param appServicePlanInstances int = 1
 
 param repositoryUrl string = 'https://github.com/Azure-Samples/cosmos-dotnet-core-todo-app.git'
 param branch string = 'master'

@@ -1,30 +1,17 @@
 targetScope = 'subscription'
 
-param location string {
-  default: 'westeurope'
-  metadata: {
-    description: 'Specify the location for the hub Virtual Network and its related resources'
-  }
-}
-param vwanlocation string {
-  default: 'eastus'
-  metadata: {
-    description: 'Specify the location for the vWAN and its related resources'
-  }
-}
-param nameprefix string {
-  default: 'contoso'
-  metadata: {
-    description: 'Specify the name prefix for all resources and resource groups'
-  }
-}
-param psk string {
-  secure: true
-  default: uniqueString(subscription().id)
-  metadata: {
-    'description': 'Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet'
-  }
-}
+@description('Specify the location for the hub Virtual Network and its related resources')
+param location string = 'westeurope'
+
+@description('Specify the location for the vWAN and its related resources')
+param vwanlocation string = 'eastus'
+
+@description('Specify the name prefix for all resources and resource groups')
+param nameprefix string = 'contoso'
+
+@secure()
+@description('Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet')
+param psk string = uniqueString(subscription().id)
 
 var vnetname = '${nameprefix}-vnet'
 var vpngwname = '${vnetname}-vpn-gw'

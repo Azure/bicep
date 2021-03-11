@@ -9,6 +9,7 @@ using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -34,8 +35,10 @@ namespace Bicep.LanguageServer.Completions
             ObjectPropertySyntax? property,
             ArraySyntax? array,
             PropertyAccessSyntax? propertyAccess,
+            ResourceAccessSyntax? resourceAccess,
             ArrayAccessSyntax? arrayAccess,
-            TargetScopeSyntax? targetScope)
+            TargetScopeSyntax? targetScope,
+            ImmutableArray<ILanguageScope> activeScopes)
         {
             this.Kind = kind;
             this.ReplacementRange = replacementRange;
@@ -44,8 +47,10 @@ namespace Bicep.LanguageServer.Completions
             this.Property = property;
             this.Array = array;
             this.PropertyAccess = propertyAccess;
+            this.ResourceAccess = resourceAccess;
             this.ArrayAccess = arrayAccess;
             this.TargetScope = targetScope;
+            this.ActiveScopes = activeScopes;
         }
 
         public BicepCompletionContextKind Kind { get; }
@@ -60,50 +65,60 @@ namespace Bicep.LanguageServer.Completions
 
         public PropertyAccessSyntax? PropertyAccess { get; }
 
+        public ResourceAccessSyntax? ResourceAccess { get; }
+
         public ArrayAccessSyntax? ArrayAccess { get; }
 
         public TargetScopeSyntax? TargetScope { get; }
 
+        public ImmutableArray<ILanguageScope> ActiveScopes { get; }
+
         public Range ReplacementRange { get; }
 
 
-        public static BicepCompletionContext Create(SyntaxTree syntaxTree, int offset)
+        public static BicepCompletionContext Create(Compilation compilation, int offset)
         {
+            var syntaxTree = compilation.SyntaxTreeGrouping.EntryPoint;
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(syntaxTree.ProgramSyntax, offset);
             if (!matchingNodes.Any())
             {
                 // this indicates a bug
                 throw new ArgumentException($"The specified offset {offset} is outside the span of the specified {nameof(ProgramSyntax)} node.");
             }
-            
+
             // the check at the beginning guarantees we have at least 1 node
             var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
 
             var matchingTriviaType = FindTriviaMatchingOffset(syntaxTree.ProgramSyntax, offset)?.Type;
             if (matchingTriviaType is not null && (matchingTriviaType == SyntaxTriviaType.MultiLineComment || matchingTriviaType == SyntaxTriviaType.SingleLineComment)) {
                 //we're in a comment, no hints here
-                return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null);
+                return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
-            var topLeveldeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
+            var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
             var objectInfo = SyntaxMatcher.FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
             var propertyInfo = SyntaxMatcher.FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
             var arrayInfo = SyntaxMatcher.FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
             var propertyAccessInfo = SyntaxMatcher.FindLastNodeOfType<PropertyAccessSyntax, PropertyAccessSyntax>(matchingNodes);
+            var resourceAccessInfo = SyntaxMatcher.FindLastNodeOfType<ResourceAccessSyntax, ResourceAccessSyntax>(matchingNodes);
             var arrayAccessInfo = SyntaxMatcher.FindLastNodeOfType<ArrayAccessSyntax, ArrayAccessSyntax>(matchingNodes);
             var targetScopeInfo = SyntaxMatcher.FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
+            var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, offset);
 
             var kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
+                       ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
                        ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
                        ConvertFlag(IsMemberAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
-                       ConvertFlag(IsArrayIndexContext(matchingNodes,arrayAccessInfo), BicepCompletionContextKind.ArrayIndex | BicepCompletionContextKind.Expression) |
+                       ConvertFlag(IsResourceAccessContext(matchingNodes, resourceAccessInfo, offset), BicepCompletionContextKind.ResourceAccess) |
+                       ConvertFlag(IsArrayIndexContext(matchingNodes, arrayAccessInfo), BicepCompletionContextKind.ArrayIndex | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsPropertyValueContext(matchingNodes, propertyInfo), BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
                        ConvertFlag(IsModuleBodyContext(matchingNodes, offset), BicepCompletionContextKind.ModuleBody) |
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
-                       ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope);
+                       ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
+                       ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName);
 
             if (kind == BicepCompletionContextKind.None)
             {
@@ -112,7 +127,18 @@ namespace Bicep.LanguageServer.Completions
                 kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes), BicepCompletionContextKind.Expression);
             }
 
-            return new BicepCompletionContext(kind, replacementRange, topLeveldeclarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node, arrayAccessInfo.node, targetScopeInfo.node);
+            return new BicepCompletionContext(
+                kind,
+                replacementRange,
+                topLevelDeclarationInfo.node,
+                objectInfo.node,
+                propertyInfo.node,
+                arrayInfo.node,
+                propertyAccessInfo.node,
+                resourceAccessInfo.node,
+                arrayAccessInfo.node,
+                targetScopeInfo.node,
+                activeScopes);
         }
 
         /// <summary>
@@ -233,6 +259,57 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
+        private static bool IsNestedResourceStartContext(List<SyntaxBase> matchingNodes, (SyntaxBase? node, int index) topLevelDeclarationInfo, (ObjectSyntax? node, int index) objectInfo, int offset)
+        {
+            // A nested resource must be at the top level of a resource declaration (not nested within another level of object).
+            if (objectInfo.node == null)
+            {
+                // none of the matching nodes are ObjectSyntax,
+                // so we cannot possibly be in a position to begin an object property
+                return false;
+            }
+
+            if (topLevelDeclarationInfo.node == null || topLevelDeclarationInfo.node is not ResourceDeclarationSyntax resourceDeclarationSyntax)
+            {
+                // not inside of a resource, top level declarations are handled separately.
+                return false;
+            }
+
+            if (!object.ReferenceEquals(resourceDeclarationSyntax.TryGetBody(), objectInfo.node))
+            {
+                // we're inside of an object, but it's not the body of a resource.
+                return false;
+            }
+
+            switch (matchingNodes[^1])
+            {
+                case ObjectSyntax _:
+                    // we are somewhere in the trivia portion of the object node (trivia span is not included in the token span)
+                    // which is why the last node in the list of matching nodes is not a Token.
+                    return true;
+
+                case Token token:
+                    int nodeCount = matchingNodes.Count - objectInfo.index;
+
+                    switch (nodeCount)
+                    {
+                        case 2 when token.Type == TokenType.NewLine:
+                            return true;
+
+                        case 4 when matchingNodes[^2] is IdentifierSyntax identifier && matchingNodes[^3] is ObjectPropertySyntax property && ReferenceEquals(property.Key, identifier):
+                            // we are in a partial or full property name 
+                            return true;
+
+                        case 4 when matchingNodes[^2] is SkippedTriviaSyntax skipped && matchingNodes[^3] is ObjectPropertySyntax property && ReferenceEquals(property.Key, skipped):
+                            return true;
+                    }
+
+                    break;
+            }
+
+            return false;
+        }
+
         private static bool IsMemberAccessContext(List<SyntaxBase> matchingNodes, (PropertyAccessSyntax? node, int index) propertyAccessInfo, int offset)
         {
             return propertyAccessInfo.node != null &&
@@ -245,6 +322,20 @@ namespace Bicep.LanguageServer.Completions
                     SyntaxMatcher.IsTailMatch<PropertyAccessSyntax>(
                         matchingNodes,
                         propertyAccess => offset > propertyAccess.Dot.Span.Position));
+        }
+
+        private static bool IsResourceAccessContext(List<SyntaxBase> matchingNodes, (ResourceAccessSyntax? node, int index) resourceAccessInfo, int offset)
+        {
+            return resourceAccessInfo.node != null &&
+                   (SyntaxMatcher.IsTailMatch<ResourceAccessSyntax, IdentifierSyntax, Token>(
+                        matchingNodes,
+                        (propertyAccess, identifier, token) => ReferenceEquals(propertyAccess.ResourceName, identifier) && token.Type == TokenType.Identifier) ||
+                    SyntaxMatcher.IsTailMatch<ResourceAccessSyntax, Token>(
+                        matchingNodes,
+                        (propertyAccess, token) => token.Type == TokenType.Colon && ReferenceEquals(propertyAccess.Colon, token)) ||
+                    SyntaxMatcher.IsTailMatch<ResourceAccessSyntax>(
+                        matchingNodes,
+                        propertyAccess => offset > propertyAccess.Colon.Span.Position));
         }
 
         private static bool IsArrayIndexContext(List<SyntaxBase> matchingNodes, (ArrayAccessSyntax? node, int index) arrayAccessInfo)
@@ -422,6 +513,14 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
+        private static bool IsDecoratorNameContext(List<SyntaxBase> matchingNodes, int offset) =>
+            SyntaxMatcher.IsTailMatch<DecoratorSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
+            SyntaxMatcher.IsTailMatch<DecoratorSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.At) ||
+            SyntaxMatcher.IsTailMatch<DecoratorSyntax>(matchingNodes, decoratorSyntax => offset > decoratorSyntax.At.Span.Position) ||
+            SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
+            SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Dot) ||
+            SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax>(matchingNodes, (_, propertyAccessSyntax) => offset > propertyAccessSyntax.Dot.Span.Position);
+
         private static bool IsOuterExpressionContext(List<SyntaxBase> matchingNodes, int offset)
         {
             switch (matchingNodes[^1])
@@ -486,6 +585,49 @@ namespace Bicep.LanguageServer.Completions
             // (non-replaceable tokens include colons, newlines, parens, etc.)
             // produce an insertion edit
             return new TextSpan(offset, 0).ToRange(syntaxTree.LineStarts);
+        }
+
+        private class ActiveScopesVisitor : SymbolVisitor
+        {
+            private readonly int offset;
+
+            private ActiveScopesVisitor(int offset)
+            {
+                this.offset = offset;
+            }
+
+            public override void VisitFileSymbol(FileSymbol symbol)
+            {
+                // global scope is always active
+                this.ActiveScopes.Add(symbol);
+
+                base.VisitFileSymbol(symbol);
+            }
+
+            public override void VisitLocalScope(LocalScope symbol)
+            {
+                // use binding syntax because this is used to find accessible symbols
+                // in a child scope
+                if (symbol.BindingSyntax.Span.Contains(this.offset))
+                {
+                    // the offset is inside the binding scope
+                    // this scope is active
+                    this.ActiveScopes.Add(symbol);
+
+                    // visit children to find more active scopes within
+                    base.VisitLocalScope(symbol);
+                }
+            }
+
+            private IList<ILanguageScope> ActiveScopes { get; } = new List<ILanguageScope>();
+
+            public static ImmutableArray<ILanguageScope> GetActiveScopes(FileSymbol file, int offset)
+            {
+                var visitor = new ActiveScopesVisitor(offset);
+                visitor.Visit(file);
+
+                return visitor.ActiveScopes.ToImmutableArray();
+            }
         }
     }
 }

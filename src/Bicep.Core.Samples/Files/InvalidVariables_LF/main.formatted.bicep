@@ -150,6 +150,36 @@ var myFloat = 3. 14
 @sys.secure()
 var something = 1
 
+// #completionTest(1) -> empty
+@
+// #completionTest(5) -> empty
+@sys.
+var anotherThing = true
+
 // invalid identifier character classes
 var ☕ = true
 var a☕ = true
+
+// loops are not allowed in variables
+var noVariableLoopsYet = [for thing in stuff: 4]
+
+// nested loops are also not allowed
+var noNestedVariableLoopsEither = [for thing in stuff: {
+  hello: [for thing in []: 4]
+}]
+
+// loops in inner properties of a variable are also not supported
+var innerPropertyLoop = {
+  a: [for i in range(0, 10): i]
+}
+var innerPropertyLoop2 = {
+  b: {
+    a: [for i in range(0, 10): i]
+  }
+}
+
+// cannot use loops in expressions
+var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
+
+@batchSize(1)
+var batchSizeMakesNoSenseHere = false

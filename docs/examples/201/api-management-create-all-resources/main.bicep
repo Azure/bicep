@@ -1,25 +1,27 @@
 param publisherEmail string
 param publisherName string
-param sku string {
-  default: 'Standard'
-  allowed: [
-    'Developer'
-    'Standard'
-    'Premium'
-  ]
-}
+
+@allowed([
+  'Developer'
+  'Standard'
+  'Premium'
+])
+param sku string = 'Standard'
+
 param skuCount int = 1
-param mutualAuthenticationCertificate string {
-  secure: true
-}
+
+@secure()
+param mutualAuthenticationCertificate string
+
 param certificatePassword string
 param eventHubNamespaceConnectionString string
-param googleClientSecret string {
-  secure: true
-}
-param openIdConnectClientSecret string {
-  secure: true
-}
+
+@secure()
+param googleClientSecret string
+
+@secure()
+param openIdConnectClientSecret string
+
 param tenantPolicy string
 param apiPolicy string
 param operationPolicy string

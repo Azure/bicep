@@ -307,3 +307,101 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
   name: 'extension3'
   scope: existing1
 }
+
+/*
+  valid loop cases
+*/ 
+var storageAccounts = [
+//@[4:19) Variable storageAccounts. Type: array. Declaration start char: 0, length: 129
+  {
+    name: 'one'
+    location: 'eastus2'
+  }
+  {
+    name: 'two'
+    location: 'westus'
+  }
+]
+
+// just a storage account loop
+resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[80:87) Local account. Type: any. Declaration start char: 80, length: 7
+//@[9:25) Resource storageResources. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 227
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}]
+
+// storage account loop with index
+resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
+//@[90:97) Local account. Type: any. Declaration start char: 90, length: 7
+//@[99:100) Local i. Type: int. Declaration start char: 99, length: 1
+//@[9:34) Resource storageResourcesWithIndex. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 250
+  name: '${account.name}${i}'
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}]
+
+// basic nested loop
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[68:69) Local i. Type: int. Declaration start char: 68, length: 1
+//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 279
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for j in range(0, 4): {
+//@[18:19) Local j. Type: int. Declaration start char: 18, length: 1
+      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
+      name: 'subnet-${i}-${j}'
+    }]
+  }
+}]
+
+// duplicate identifiers within the loop are allowed
+resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[94:95) Local i. Type: int. Declaration start char: 94, length: 1
+//@[9:39) Resource duplicateIdentifiersWithinLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 239
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+//@[18:19) Local i. Type: int. Declaration start char: 18, length: 1
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+
+// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+var canHaveDuplicatesAcrossScopes = 'hello'
+//@[4:33) Variable canHaveDuplicatesAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 43
+resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
+//@[91:120) Local canHaveDuplicatesAcrossScopes. Type: int. Declaration start char: 91, length: 29
+//@[9:36) Resource duplicateInGlobalAndOneLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 292
+  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+//@[18:19) Local i. Type: int. Declaration start char: 18, length: 1
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+
+// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
+var duplicatesEverywhere = 'hello'
+//@[4:24) Variable duplicatesEverywhere. Type: 'hello'. Declaration start char: 0, length: 34
+resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
+//@[92:112) Local duplicatesEverywhere. Type: int. Declaration start char: 92, length: 20
+//@[9:37) Resource duplicateInGlobalAndTwoLoops. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 308
+  name: 'vnet-${duplicatesEverywhere}'
+  properties: {
+    subnets: [for duplicatesEverywhere in range(0, 4): {
+//@[18:38) Local duplicatesEverywhere. Type: int. Declaration start char: 18, length: 20
+      name: 'subnet-${duplicatesEverywhere}'
+    }]
+  }
+}]
+

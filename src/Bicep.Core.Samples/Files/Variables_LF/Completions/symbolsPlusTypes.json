@@ -1140,6 +1140,118 @@
     }
   },
   {
+    "label": "multilineEmpty",
+    "kind": "variable",
+    "detail": "multilineEmpty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineEmpty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineEmpty"
+    }
+  },
+  {
+    "label": "multilineEmptyNewline",
+    "kind": "variable",
+    "detail": "multilineEmptyNewline",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineEmptyNewline",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineEmptyNewline"
+    }
+  },
+  {
+    "label": "multilineExtraQuotes",
+    "kind": "variable",
+    "detail": "multilineExtraQuotes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineExtraQuotes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineExtraQuotes"
+    }
+  },
+  {
+    "label": "multilineExtraQuotesNewlines",
+    "kind": "variable",
+    "detail": "multilineExtraQuotesNewlines",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineExtraQuotesNewlines",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineExtraQuotesNewlines"
+    }
+  },
+  {
+    "label": "multilineFormatted",
+    "kind": "variable",
+    "detail": "multilineFormatted",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineFormatted",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineFormatted"
+    }
+  },
+  {
+    "label": "multilineJavaScript",
+    "kind": "variable",
+    "detail": "multilineJavaScript",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineJavaScript",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineJavaScript"
+    }
+  },
+  {
+    "label": "multilineSingleLine",
+    "kind": "variable",
+    "detail": "multilineSingleLine",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineSingleLine",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineSingleLine"
+    }
+  },
+  {
+    "label": "multilineString",
+    "kind": "variable",
+    "detail": "multilineString",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineString",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineString"
+    }
+  },
+  {
     "label": "myArr",
     "kind": "variable",
     "detail": "myArr",

@@ -9,7 +9,9 @@ resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   // identity property no longer required
   properties: {
     azPowerShellVersion: '3.0'
-    scriptContent: '$DeploymentScriptOutputs["test"] = "test this output"'
+    scriptContent: '''
+$DeploymentScriptOutputs["test"] = "test this output"
+'''
     forceUpdateTag: timestamp // script will run every time
     retentionInterval: 'PT4H' // deploymentScript resource will delete itself in 4 hours
   }

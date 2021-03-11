@@ -1,37 +1,25 @@
 param location string = resourceGroup().location
 param localnetworkgwname string
 param connectionname string = 'onprem-hub-cn'
-param addressprefixes array {
-  metadata: {
-    description: 'Specifices the address prefixes of the remote site'
-  }
-}
-param bgppeeringpddress string {
-  metadata: {
-    description: 'Specifices the VPN Sites BGP Peering IP Addresses'
-  }
-}
-param gwipaddress string {
-  metadata: {
-    description: 'Specifices the VPN Sites VPN Device IP Address'
-  }
-}
-param vpngwid string {
-  metadata: {
-    description: 'Specifices the resource ID of the VPN Gateway to connect to the site to site vpn'
-  }
-}
-param psk string {
-  secure: true
-  metadata: {
-    description: 'Specifies the pre-shared key to use for the VPN Connection'
-  }
-}
-param remotesiteasn int {
-  metadata: {
-    description: 'BGP AS-number used by the remote site'
-  }
-}
+
+@description('Specifices the address prefixes of the remote site')
+param addressprefixes array
+
+@description('Specifices the VPN Sites BGP Peering IP Addresses')
+param bgppeeringpddress string
+
+@description('Specifices the VPN Sites VPN Device IP Address')
+param gwipaddress string
+
+@description('Specifices the resource ID of the VPN Gateway to connect to the site to site vpn')
+param vpngwid string
+
+@secure()
+@description('Specifies the pre-shared key to use for the VPN Connection')
+param psk string
+
+@description('BGP AS-number used by the remote site')
+param remotesiteasn int
 
 resource localnetworkgw 'Microsoft.Network/localNetworkGateways@2020-06-01' = {
   name: localnetworkgwname

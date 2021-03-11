@@ -36,7 +36,7 @@ namespace Bicep.LangServer.UnitTests
 
             var provider = new BicepCompletionProvider(new FileResolver());
 
-            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, 0));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, 0));
 
             var snippetCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Snippet)
@@ -102,7 +102,7 @@ namespace Bicep.LangServer.UnitTests
 
             var provider = new BicepCompletionProvider(new FileResolver());
 
-            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, 0));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, 0));
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -181,7 +181,7 @@ output o int = 42
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             
             var provider = new BicepCompletionProvider(new FileResolver());
-            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+            var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
             
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
@@ -198,7 +198,7 @@ output o int = 42
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
             resourceCompletion.TextEdit!.NewText.Should().Be(expectedResource);
-            resourceCompletion.CommitCharacters.Should().BeNull();
+            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new[]{ ":", });
             resourceCompletion.Detail.Should().Be(expectedResource);
 
             const string expectedParam = "p";
@@ -222,7 +222,7 @@ output o int = 42
             var provider = new BicepCompletionProvider(new FileResolver());
             var completions = provider.GetFilteredCompletions(
                 compilation,
-                BicepCompletionContext.Create(grouping.EntryPoint, offset)).ToList();
+                BicepCompletionContext.Create(compilation, offset)).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
 
@@ -248,7 +248,7 @@ output o int = 42
             var offset = ((ObjectSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).Properties.Single().Value.Span.Position;
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+            var context = BicepCompletionContext.Create(compilation, offset);
 
             var provider = new BicepCompletionProvider(new FileResolver());
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
@@ -282,7 +282,7 @@ output length int =
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider(new FileResolver());
-            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+            var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] {"sys.concat", "az.resourceGroup", "sys.base64"});
@@ -305,7 +305,7 @@ output length int =
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
             resourceCompletion.TextEdit!.NewText.Should().Be(expectedResource);
-            resourceCompletion.CommitCharacters.Should().BeNull();
+            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new []{ ":", });
             resourceCompletion.Detail.Should().Be(expectedResource);
 
             const string expectedParam = "concat";
@@ -327,7 +327,7 @@ output length int =
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Type.Span.Position;
 
-            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -344,7 +344,7 @@ output length int =
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
 
-            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -388,7 +388,7 @@ output length int =
 
         var offset = codeFragment.IndexOf('|');
 
-        var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
+        var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset));
 
         completions.Should().BeEmpty();
         }

@@ -1,36 +1,20 @@
 // params
-param dnsPrefix string {
-  default: 'cl01'
-  metadata: {
-    description: 'The DNS prefix to use with hosted Kubernetes API server FQDN.'
-  }
-}
-param clusterName string {
-  default: 'aks101'
-  metadata: {
-    description: 'The name of the Managed Cluster resource.'
-  }
-}
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the key vault should be created.'
-  }
-}
-param agentCount int {
-  default: 1
-  minValue: 1
-  maxValue: 50
-  metadata: {
-    description: 'The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production'
-  }
-}
-param agentVMSize string {
-  default: 'Standard_D2_v3'
-  metadata: {
-    description: 'The size of the Virtual Machine.'
-  }
-}
+@description('The DNS prefix to use with hosted Kubernetes API server FQDN.')
+param dnsPrefix string = 'cl01'
+
+@description('The name of the Managed Cluster resource.')
+param clusterName string = 'aks101'
+
+@description('Specifies the Azure location where the key vault should be created.')
+param location string = resourceGroup().location
+
+@minValue(1)
+@maxValue(50)
+@description('The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production')
+param agentCount int = 1
+
+@description('The size of the Virtual Machine.')
+param agentVMSize string = 'Standard_D2_v3'
 
 // vars
 var kubernetesVersion = '1.19.0'

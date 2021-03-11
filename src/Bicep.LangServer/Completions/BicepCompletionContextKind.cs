@@ -71,15 +71,30 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is accessing properties or methods.
         /// </summary>
         MemberAccess = 1 << 11,
+
+        /// <summary>
+        /// The current location is accessing a nested resource.
+        /// </summary>
+        ResourceAccess = 1 << 12,
         
         /// <summary>
         /// The current location needs target scope value.
         /// </summary>
-        TargetScope = 1 << 12,
+        TargetScope = 1 << 13,
 
         /// <summary>
         /// The current location needs an array index.
         /// </summary>
-        ArrayIndex = 1 << 13
+        ArrayIndex = 1 << 14,
+
+        /// <summary>
+        /// The current location needs a decorator name.
+        /// </summary>
+        DecoratorName = 1 << 15,
+
+        /// <summary>
+        /// The current location could be the start of a nested resource declaration.
+        /// </summary>
+        NestedResourceDeclarationStart = 1 << 16,
     }
 }

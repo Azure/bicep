@@ -260,7 +260,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     baz.id
-//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "string". |baz.id|
+//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". |baz.id|
   ]
 }
 
@@ -270,9 +270,9 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     'hello'
-//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'hello'". |'hello'|
+//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'hello'". |'hello'|
     true
-//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "bool". |true|
+//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "bool". |true|
   ]
 }
 
@@ -496,6 +496,41 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+  name: 'test'
+  location: 'test'
+}]
+
+var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
+var runtimeCheckVar2 = runtimeCheckVar
+
+resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: runtimeCheckVar2
+//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |runtimeCheckVar2|
+  location: 'test'
+}
+
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+  name: runtimeCheckVar2
+//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |runtimeCheckVar2|
+  location: 'test'
+}]
+
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+  name: loopForRuntimeCheck[0].properties.zoneType
+//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |loopForRuntimeCheck[0].properties.zoneType|
+  location: 'test'
+}]
+
+var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
+var varForRuntimeCheck4b = varForRuntimeCheck4a
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+  name: varForRuntimeCheck4b
+//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |varForRuntimeCheck4b|
+  location: 'test'
+}]
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
@@ -554,7 +589,6 @@ resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-
 Discriminator key missing (loop)
 */
 resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[91:94) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[108:170) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
   
@@ -601,7 +635,6 @@ var discriminatorKeyValueMissingCompletions3_if = discriminatorKeyValueMissing_i
 Discriminator key value missing with property access (loops)
 */
 resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[96:99) [BCP138 (Error)] Loops are not currently supported. |for|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
   kind:   
 //@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
@@ -609,6 +642,7 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
+//@[38:70) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |discriminatorKeyValueMissing_for|
 //@[71:75) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. |kind|
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
@@ -676,7 +710,6 @@ Discriminator value set 1 (loop)
 */
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
 //@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for|
-//@[91:94) [BCP138 (Error)] Loops are not currently supported. |for|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
@@ -758,7 +791,6 @@ Discriminator value set 2 (loops)
 */
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
 //@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for|
-//@[90:93) [BCP138 (Error)] Loops are not currently supported. |for|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
@@ -903,7 +935,6 @@ var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissin
 Nested discriminator missing key (loop)
 */
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[105:108) [BCP138 (Error)] Loops are not currently supported. |for|
   name: 'test'
   location: 'l'
   properties: {
@@ -987,7 +1018,6 @@ var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.propert
 Nested discriminator (loop)
 */
 resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[95:98) [BCP138 (Error)] Loops are not currently supported. |for|
   name: 'test'
   location: 'l'
   properties: {
@@ -1095,7 +1125,7 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 }
 
 @concat('foo', 'bar')
-//@[1:7) [BCP127 (Error)] Function "concat" cannot be used as a resource decorator. |concat|
+//@[1:7) [BCP152 (Error)] Function "concat" cannot be used as a decorator. |concat|
 @secure()
 //@[1:7) [BCP127 (Error)] Function "secure" cannot be used as a resource decorator. |secure|
 resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
@@ -1125,61 +1155,99 @@ resource expectedForKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [f
 //@[79:80) [BCP012 (Error)] Expected the "for" keyword at this location. |f|
 
 resource expectedLoopVar 'Microsoft.Storage/storageAccounts@2019-06-01' = [for]
-//@[75:78) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[78:79) [BCP136 (Error)] Expected a loop variable identifier at this location. |]|
+//@[78:78) [BCP162 (Error)] Expected a loop item variable identifier or "(" at this location. ||
 
 resource expectedInKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x]
-//@[77:80) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[82:83) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
 
 resource expectedInKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x b]
-//@[78:81) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[84:85) [BCP012 (Error)] Expected the "in" keyword at this location. |b|
 //@[85:86) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
 
 resource expectedArrayExpression 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in]
-//@[83:86) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[91:92) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
 
 resource expectedColon 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y]
-//@[73:76) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[82:83) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
 //@[83:84) [BCP018 (Error)] Expected the ":" character at this location. |]|
 
 resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y:]
-//@[76:79) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[85:86) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-//@[87:88) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+//@[87:88) [BCP018 (Error)] Expected the "{" character at this location. |]|
+
+// loop index parsing cases
+resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
+//@[78:79) [BCP136 (Error)] Expected a loop item variable identifier at this location. |)|
+
+resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
+//@[79:79) [BCP136 (Error)] Expected a loop item variable identifier at this location. ||
+
+resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
+//@[72:73) [BCP018 (Error)] Expected the "," character at this location. |)|
+
+resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
+//@[82:83) [BCP163 (Error)] Expected a loop index variable identifier at this location. |)|
+
+resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
+//@[81:82) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
+
+resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
+//@[82:83) [BCP012 (Error)] Expected the "in" keyword at this location. |z|
+//@[83:84) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+
+resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
+//@[91:92) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+
+resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
+//@[81:82) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[82:83) [BCP018 (Error)] Expected the ":" character at this location. |]|
+
+resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
+//@[84:85) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[86:87) [BCP018 (Error)] Expected the "{" character at this location. |]|
 
 // loop semantic analysis cases
 var emptyArray = []
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-//@[77:80) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[97:98) [BCP033 (Error)] Expected a value of type "Microsoft.Storage/storageAccounts" but the provided value is of type "int". |4|
+//@[97:98) [BCP018 (Error)] Expected the "{" character at this location. |4|
+resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
+//@[103:104) [BCP018 (Error)] Expected the "{" character at this location. |4|
+
+// duplicate variable in the same scope
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
+//@[9:29) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |itemAndIndexSameName|
+//@[80:84) [BCP028 (Error)] Identifier "same" is declared multiple times. Remove or rename the duplicates. |same|
+//@[86:90) [BCP028 (Error)] Identifier "same" is declared multiple times. Remove or rename the duplicates. |same|
+}]
 
 // errors in the array expression
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
-//@[81:84) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[106:107) [BCP070 (Error)] Argument of type "int" is not assignable to parameter of type "array". |2|
+}]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
+//@[111:112) [BCP070 (Error)] Argument of type "int" is not assignable to parameter of type "array". |2|
 }]
 
 // wrong array type
 var notAnArray = true
 resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
-//@[74:77) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[89:99) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "bool". |notAnArray|
+}]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
+//@[94:104) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "bool". |notAnArray|
 }]
 
 // missing required properties
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingRequiredProperties|
-//@[85:88) [BCP138 (Error)] Loops are not currently supported. |for|
+}]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingRequiredProperties2|
 }]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
 //@[9:39) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "sku". |missingFewerRequiredProperties|
-//@[90:93) [BCP138 (Error)] Loops are not currently supported. |for|
   name: account
   location: 'eastus42'
   properties: {
@@ -1190,27 +1258,33 @@ resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-
 
 // wrong property inside the nested property loop
 resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[85:88) [BCP138 (Error)] Loops are not currently supported. |for|
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
       doesNotExist: 'test'
 //@[6:18) [BCP038 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
       name: 'subnet-${i}-${j}'
     }]
   }
 }]
+resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for j in range(0, 4): {
+      doesNotExist: 'test'
+//@[6:18) [BCP038 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
+      name: 'subnet-${i}-${j}-${k}'
+    }]
+  }
+}]
 
 // nonexistent arrays and loop variables
 resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
-//@[77:80) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[86:95) [BCP057 (Error)] The name "notAThing" does not exist in the current context. |notAThing|
   name: 'vnet-${justPlainWrong}'
 //@[16:30) [BCP057 (Error)] The name "justPlainWrong" does not exist in the current context. |justPlainWrong|
   properties: {
     subnets: [for j in alsoNotAThing: {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[23:36) [BCP057 (Error)] The name "alsoNotAThing" does not exist in the current context. |alsoNotAThing|
       doesNotExist: 'test'
       name: 'subnet-${fake}-${totallyFake}'
@@ -1220,67 +1294,97 @@ resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for
   }
 }]
 
-/*
-  valid loop cases - this should be moved to Resources_* test case after codegen works
-*/ 
-var storageAccounts = [
-  {
-    name: 'one'
-    location: 'eastus2'
-  }
-  {
-    name: 'two'
-    location: 'westus'
-  }
-]
-// duplicate identifiers within the loop are allowed
-resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[90:93) [BCP138 (Error)] Loops are not currently supported. |for|
-  name: 'vnet-${i}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
-var canHaveDuplicatesAcrossScopes = 'hello'
-resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
-//@[87:90) [BCP138 (Error)] Loops are not currently supported. |for|
-  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
-var duplicatesEverywhere = 'hello'
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
-//@[88:91) [BCP138 (Error)] Loops are not currently supported. |for|
-  name: 'vnet-${duplicatesEverywhere}'
-  properties: {
-    subnets: [for duplicatesEverywhere in range(0, 4): {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
-      name: 'subnet-${duplicatesEverywhere}'
-    }]
-  }
-}]
-// just a storage account loop
-resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[76:79) [BCP138 (Error)] Loops are not currently supported. |for|
+// property loops cannot be nested
+resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[98:113) [BCP057 (Error)] The name "storageAccounts" does not exist in the current context. |storageAccounts|
   name: account.name
   location: account.location
   sku: {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
+  properties: {
+
+    networkAcls: {
+      virtualNetworkRules: [for rule in []: {
+        id: '${account.name}-${account.location}'
+        state: [for lol in []: 4]
+//@[16:19) [BCP142 (Error)] Property value for-expressions cannot be nested. |for|
+      }]
+    }
+  }
 }]
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in storageAccounts: {
+//@[9:33) [BCP028 (Error)] Identifier "propertyLoopsCannotNest2" is declared multiple times. Remove or rename the duplicates. |propertyLoopsCannotNest2|
+//@[103:118) [BCP057 (Error)] The name "storageAccounts" does not exist in the current context. |storageAccounts|
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+
+    networkAcls: {
+      virtualNetworkRules: [for (rule,j) in []: {
+        id: '${account.name}-${account.location}'
+        state: [for (lol,k) in []: 4]
+//@[16:19) [BCP142 (Error)] Property value for-expressions cannot be nested. |for|
+      }]
+    }
+  }
+}]
+
+// property loops cannot be nested (even more nesting)
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[9:33) [BCP028 (Error)] Identifier "propertyLoopsCannotNest2" is declared multiple times. Remove or rename the duplicates. |propertyLoopsCannotNest2|
+//@[99:114) [BCP057 (Error)] The name "storageAccounts" does not exist in the current context. |storageAccounts|
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    // #completionTest(17) -> symbolsPlusAccount
+    networkAcls: {
+      virtualNetworkRules: [for rule in []: {
+        // #completionTest(12,15,31) -> symbolsPlusRule
+        id: '${account.name}-${account.location}'
+        state: [for state in []: {
+//@[16:19) [BCP142 (Error)] Property value for-expressions cannot be nested. |for|
+          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+          fake: [for something in []: true]
+//@[17:20) [BCP142 (Error)] Property value for-expressions cannot be nested. |for|
+        }]
+      }]
+    }
+  }
+}]
+
+// loops cannot be used inside of expressions
+resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[81:96) [BCP057 (Error)] The name "storageAccounts" does not exist in the current context. |storageAccounts|
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    networkAcls: {
+      virtualNetworkRules: concat([for lol in []: {
+//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+        id: '${account.name}-${account.location}'
+      }])
+    }
+  }
+}]
+
 // using the same loop variable in a new language scope should be allowed
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[75:78) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[90:105) [BCP057 (Error)] The name "storageAccounts" does not exist in the current context. |storageAccounts|
+  // #completionTest(7,8) -> symbolsPlusAccount2
   name: account.name
   location: account.location
   sku: {
@@ -1290,15 +1394,111 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
   }
   kind: 'StorageV2'
 }]
-// basic nested loop
-resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[64:67) [BCP138 (Error)] Loops are not currently supported. |for|
+
+var directRefViaVar = premiumStorages
+//@[22:37) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+output directRefViaOutput array = union(premiumStorages, stuffs)
+//@[40:55) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+//@[57:63) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |stuffs|
+
+resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
+  name: 'myZone2'
+  location: 'global'
+  properties: {
+    registrationVirtualNetworks: premiumStorages
+//@[33:48) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+  }
+}
+
+resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' = if(true) {
+  name: 'myZone3'
+  location: 'global'
+  properties: {
+    registrationVirtualNetworks: concat(premiumStorages, stuffs)
+//@[40:55) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+//@[57:63) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |stuffs|
+  }
+}
+
+@batchSize()
+//@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. |()|
+resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
   name: 'vnet-${i}'
   properties: {
-    subnets: [for j in range(0, 4): {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
-      name: 'subnet-${i}-${j}'
+    subnets: premiumStorages
+//@[13:28) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+  }
+}]
+
+@batchSize(0)
+//@[11:12) [BCP154 (Error)] Expected a batch size of at least 1 but the specified value was "0". |0|
+resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+  name: 'vnet-${i}'
+  properties: {
+    subnets: premiumStorages
+//@[13:28) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+    dependsOn: [
+//@[4:13) [BCP038 (Warning)] The property "dependsOn" is not allowed on objects of type "VirtualNetworkPropertiesFormat". Permissible properties include "addressSpace", "bgpCommunities", "ddosProtectionPlan", "dhcpOptions", "enableDdosProtection", "enableVmProtection", "ipAllocations", "virtualNetworkPeerings". |dependsOn|
+      premiumStorages
+//@[6:21) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
+    ]
+  }
+  dependsOn: [
+    
+  ]
+}]
+
+var expressionInPropertyLoopVar = true
+resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'hello'
+  location: 'eastus'
+  properties: {
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
+//@[4:61) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type "ZoneProperties". Permissible properties include "registrationVirtualNetworks", "resolutionVirtualNetworks", "zoneType". |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
+//@[4:61) [BCP143 (Error)] For-expressions cannot be used with properties whose names are also expressions. |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
+  }
+}
+
+// resource loop body that isn't an object
+@batchSize(-1)
+//@[11:13) [BCP032 (Error)] The value must be a compile-time constant. |-1|
+resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
+//@[95:101) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
+resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
+//@[96:107) [BCP018 (Error)] Expected the "{" character at this location. |environment|
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
+//@[100:106) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
+//@[100:111) [BCP018 (Error)] Expected the "{" character at this location. |environment|
+
+// #completionTest(54,55) -> objectPlusFor
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:55) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
+
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+  properties: {
+    // #completionTest(32,33) -> symbolsPlusArrayAndFor
+    registrationVirtualNetworks: 
+//@[33:33) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+    resolutionVirtualNetworks: [for lol in []: {
+      
     }]
   }
 }]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  properties: {
+    virtualNetworkPeerings: [for item in []: {
+        properties: {
+          remoteAddressSpace: {
+            // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
+            addressPrefixes: 
+//@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+          }
+        }
+    }]
+  }
+}
+

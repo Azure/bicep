@@ -54,9 +54,9 @@
     },
     "storageSizeInGB": {
       "type": "int",
-      "minValue": 32,
+      "defaultValue": 256,
       "maxValue": 8192,
-      "defaultValue": 256
+      "minValue": 32
     }
   },
   "functions": [],
@@ -207,7 +207,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12534528881795377871"
+      "templateHash": "3486813932302788383"
     }
   }
 }

@@ -20,18 +20,23 @@ namespace Bicep.Core.Semantics
 
     public class Decorator
     {
+        private readonly TypeSymbol attachableType;
+
         private readonly DecoratorValidator? validator;
 
         private readonly DecoratorEvaluator? evaluator;
 
-        public Decorator(FunctionOverload overload, DecoratorValidator? validator, DecoratorEvaluator? evaluator)
+        public Decorator(FunctionOverload overload, TypeSymbol attachableType, DecoratorValidator? validator, DecoratorEvaluator? evaluator)
         {
             this.Overload = overload;
+            this.attachableType = attachableType;
             this.validator = validator;
             this.evaluator = evaluator;
         }
 
         public FunctionOverload Overload { get; }
+
+        public bool CanAttachTo(TypeSymbol targetType) => TypeValidator.AreTypesAssignable(targetType, attachableType);
 
         public void Validate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
         {
@@ -40,7 +45,18 @@ namespace Bicep.Core.Semantics
                 return;
             }
 
-            this.validator?.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, diagnosticWriter);
+            if (this.validator != null)
+            {
+                this.validator.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, diagnosticWriter);
+
+                return;
+            }
+
+            // No custom validator provided. Just validate the target type. 
+            if (!this.CanAttachTo(targetType))
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).CannotAttachDecoratorToTarget(this.Overload.Name, attachableType, targetType));
+            }
         }
 
         public ObjectSyntax? Evaluate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ObjectSyntax? targetObject)

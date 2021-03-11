@@ -305,6 +305,35 @@ module runtimeInvalidModule6 'empty.bicep' = {
 //@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
 }
 
+module singleModuleForRuntimeCheck 'modulea.bicep' = {
+//@[7:34) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |singleModuleForRuntimeCheck|
+  name: 'test'
+}
+
+var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
+var moduleRuntimeCheck2 = moduleRuntimeCheck
+
+module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck|
+  name: moduleRuntimeCheck2
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Accessible properties of singleModuleForRuntimeCheck are "name", "scope". |moduleRuntimeCheck2|
+}]
+
+var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
+var moduleRuntimeCheck4 = moduleRuntimeCheck3
+module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck2|
+  name: moduleRuntimeCheck4
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleRuntimeCheck4|
+}]
+
+module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck3|
+  name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
+//@[15:65) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleLoopForRuntimeCheck[1].outputs.stringOutputB|
+//@[67:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleLoopForRuntimeCheck[1].outputs.stringOutputA|
+}]
+
 module moduleWithDuplicateName1 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
 //@[8:33) [BCP122 (Error)] Modules: "moduleWithDuplicateName1", "moduleWithDuplicateName2" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'moduleWithDuplicateName'|
@@ -386,54 +415,73 @@ module expectedForKeyword2 'modulea.bicep' = [f]
 //@[46:47) [BCP012 (Error)] Expected the "for" keyword at this location. |f|
 
 module expectedLoopVar 'modulea.bicep' = [for]
-//@[42:45) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[45:46) [BCP136 (Error)] Expected a loop variable identifier at this location. |]|
+//@[45:45) [BCP162 (Error)] Expected a loop item variable identifier or "(" at this location. ||
 
 module expectedInKeyword 'modulea.bicep' = [for x]
-//@[44:47) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[49:50) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
 
 module expectedInKeyword2 'modulea.bicep' = [for x b]
-//@[45:48) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[51:52) [BCP012 (Error)] Expected the "in" keyword at this location. |b|
 //@[52:53) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
 
 module expectedArrayExpression 'modulea.bicep' = [for x in]
-//@[50:53) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[58:59) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
 
 module expectedColon 'modulea.bicep' = [for x in y]
-//@[40:43) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[49:50) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
 //@[50:51) [BCP018 (Error)] Expected the ":" character at this location. |]|
 
 module expectedLoopBody 'modulea.bicep' = [for x in y:]
-//@[43:46) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[52:53) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-//@[54:55) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+//@[54:55) [BCP018 (Error)] Expected the "{" character at this location. |]|
+
+// indexed loop parsing cases
+module expectedItemVarName 'modulea.bicep' = [for ()]
+//@[51:52) [BCP136 (Error)] Expected a loop item variable identifier at this location. |)|
+
+module expectedComma 'modulea.bicep' = [for (x)]
+//@[46:47) [BCP018 (Error)] Expected the "," character at this location. |)|
+
+module expectedIndexVarName 'modulea.bicep' = [for (x,)]
+//@[54:55) [BCP163 (Error)] Expected a loop index variable identifier at this location. |)|
+
+module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
+//@[54:55) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
+
+module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
+//@[64:65) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+
+module expectedColon2 'modulea.bicep' = [for (x,y) in z]
+//@[54:55) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[55:56) [BCP018 (Error)] Expected the ":" character at this location. |]|
+
+module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
+//@[57:58) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[59:60) [BCP018 (Error)] Expected the "{" character at this location. |]|
 
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
-//@[44:47) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[64:65) [BCP033 (Error)] Expected a value of type "module" but the provided value is of type "int". |4|
+//@[64:65) [BCP018 (Error)] Expected the "{" character at this location. |4|
+module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
+//@[69:70) [BCP018 (Error)] Expected the "{" character at this location. |4|
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 //@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |missingLoopBodyProperties|
-//@[52:55) [BCP138 (Error)] Loops are not currently supported. |for|
+}]
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |missingLoopBodyProperties2|
 }]
 
 // wrong array type
 var notAnArray = true
 module wrongArrayType 'modulea.bicep' = [for x in notAnArray:{
-//@[41:44) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[50:60) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "bool". |notAnArray|
 }]
 
 // missing fewer properties
 module missingFewerLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
-//@[57:60) [BCP138 (Error)] Loops are not currently supported. |for|
   name: 'hello-${x}'
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
@@ -443,10 +491,23 @@ module missingFewerLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 
 // wrong parameter in the module loop
 module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
-//@[53:56) [BCP138 (Error)] Loops are not currently supported. |for|
+  // #completionTest(17) -> symbolsPlusX
   name: 'hello-${x}'
   params: {
     arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+  }
+}]
+module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
+  name: 'hello-${x}'
+  params: {
+    arrayParam: [
+      i
+    ]
     objParam: {}
     stringParamA: 'test'
     stringParamB: 'test'
@@ -458,7 +519,6 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'
 module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
-//@[44:47) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[70:86) [BCP057 (Error)] The name "alsoDoesNotExist" does not exist in the current context. |alsoDoesNotExist|
   name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
 //@[17:55) [BCP057 (Error)] The name "whyChooseRealVariablesWhenWeCanPretend" does not exist in the current context. |whyChooseRealVariablesWhenWeCanPretend|
@@ -466,86 +526,74 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
     objParam: {}
     stringParamB: 'test'
     arrayParam: [for evenMoreDuplicates in totallyFake: doesNotExist]
-//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
 //@[43:54) [BCP057 (Error)] The name "totallyFake" does not exist in the current context. |totallyFake|
 //@[56:68) [BCP057 (Error)] The name "doesNotExist" does not exist in the current context. |doesNotExist|
   }
 }]
 
-/*
-  valid loop - this should be moved to Modules_* test case after E2E works
-*/ 
-var myModules = [
-  {
-    name: 'one'
-    location: 'eastus2'
-  }
-  {
-    name: 'two'
-    location: 'westus'
-  }
-]
+output directRefToCollectionViaOutput array = nonexistentArrays
+//@[46:63) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
 
-// duplicate identifiers across scopes are allowed (inner hides the outer)
-module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
-//@[57:60) [BCP138 (Error)] Loops are not currently supported. |for|
-  name: 'hello-${x}'
+module directRefToCollectionViaSingleBody 'modulea.bicep' = {
+  name: 'hello'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
+//@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: y]
-//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[38:39) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+    stringParamB: ''
   }
-}]
+}
 
-// duplicate identifiers across scopes are allowed (inner hides the outer)
-var duplicateAcrossScopes = 'hello'
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
-//@[54:57) [BCP138 (Error)] Loops are not currently supported. |for|
-  name: 'hello-${duplicateAcrossScopes}'
+module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) {
+  name: 'hello2'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
+//@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: x]
-//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+    stringParamB: ''
   }
-}]
+}
 
-var someDuplicate = true
-var otherDuplicate = false
-module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-//@[47:50) [BCP138 (Error)] Loops are not currently supported. |for|
-  name: 'hello-${someDuplicate}'
+module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
+  name: 'hello3'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
+//@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     objParam: {}
-    stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
-//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+    stringParamB: ''
   }
 }]
 
-// simple module loop
-module storageResources 'modulea.bicep' = [for module in myModules: {
-//@[43:46) [BCP138 (Error)] Loops are not currently supported. |for|
-  name: module.name
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
+  name: 'hello4'
   params: {
-    arrayParam: []
-    objParam: module
-    stringParamB: module.location
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
+//@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
+    objParam: {}
+    stringParamB: ''
+    dependsOn: [
+//@[4:13) [BCP038 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
+      nonexistentArrays
+//@[6:23) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
+    ]
   }
+  dependsOn: [
+    
+  ]
 }]
 
-// nested module loop
-module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
-//@[43:46) [BCP138 (Error)] Loops are not currently supported. |for|
-  name: module.name
-  params: {
-    arrayParam: [for i in range(0,3): concat('test', i)]
-//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
-    objParam: module
-    stringParamB: module.location
-  }
-}]
+
+// module body that isn't an object
+module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
+//@[63:70) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
+module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
+//@[64:70) [BCP018 (Error)] Expected the "{" character at this location. |concat|
+module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
+//@[68:75) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
+module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
+//@[68:74) [BCP018 (Error)] Expected the "{" character at this location. |concat|
+

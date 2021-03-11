@@ -6,21 +6,18 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
-using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.IntegrationTests
@@ -132,7 +129,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().BeEmpty();
-                error.Should().BeEmpty();
+                AssertEmptyOrDeprecatedError(error, dataSet.Name);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -163,8 +160,8 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(0);
-                error.Should().BeEmpty();
                 output.Should().NotBeEmpty();
+                AssertEmptyOrDeprecatedError(error, dataSet.Name);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -337,7 +334,7 @@ output myOutput string = 'hello!'
             }
         }
 
-        private IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
+        private static IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
         {
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
             var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
@@ -364,6 +361,22 @@ output myOutput string = 'hello!'
             .AllDataSets
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
+
+        private static void AssertEmptyOrDeprecatedError(string error, string dataSetName)
+        {
+            if (dataSetName == "Parameters_LF" || dataSetName == "Parameters_CRLF")
+            {
+                // TODO: remove this branch when the support of parameter modifiers is dropped. 
+                foreach(var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    line.Should().Contain("BCP161");
+                }
+            }
+            else
+            {
+                error.Should().BeEmpty();
+            }
+        }
     }
 }
 

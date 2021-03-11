@@ -32,7 +32,7 @@ Arrays in Bicep are equivalent to JSON arrays. The `array` type represents an ar
 A union type is a type that represent a value that can one of several types. For example the type of a value that could either a string or an integer can be represented by the type `string | int`. Union types most often arise in expressions containing the ternary conditional operator, due to `allowedValues` constraint in a parameter modifier, or enum properties in resource declarations.
 
 ### Literal Types
-As the name suggests, literal types are literal values that are treated as a type. In bicep, we only support string literal types. This allows a constant string value such as `'Hello!'` to be its own type. Literal types are most commonly used in conjunction with union types to construct enum types with a limited set of allowed values. For example the type `'One' | 'Two' | 'Three'` is a subtype of `string` that allows three values: `'One'`, `'Two'`, and `'Three'`.
+As the name suggests, literal types are literal values that are treated as a type. In Bicep, we only support string literal types. This allows a constant string value such as `'Hello!'` to be its own type. Literal types are most commonly used in conjunction with union types to construct enum types with a limited set of allowed values. For example the type `'One' | 'Two' | 'Three'` is a subtype of `string` that allows three values: `'One'`, `'Two'`, and `'Three'`.
 
 ## Declaration Types
 In Bicep, new data types cannot be directly created. Parameters, resources, modules, and outputs declare one of the existing types in their own declaration. (Variables do not have a declared type and instead take on the type of the assigned expression.) 

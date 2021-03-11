@@ -14,6 +14,8 @@ namespace Bicep.Core.Semantics
     public class SemanticModel
     {
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
+        private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
+        private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
 
         public SemanticModel(Compilation compilation, SyntaxTree syntaxTree)
         {
@@ -34,6 +36,15 @@ namespace Bicep.Core.Semantics
             symbolContext.Unlock();
 
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
+            this.symbolHierarchyLazy = new Lazy<SymbolHierarchy>(() =>
+            {
+                var hierarchy = new SymbolHierarchy();
+                hierarchy.AddRoot(this.Root);
+
+                return hierarchy;
+            });
+            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(syntaxTree, Binder));
+
         }
 
         public SyntaxTree SyntaxTree { get; }
@@ -47,6 +58,8 @@ namespace Bicep.Core.Semantics
         public ITypeManager TypeManager { get; }
 
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
+
+        public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
@@ -63,6 +76,12 @@ namespace Bicep.Core.Semantics
 
             var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
             visitor.Visit(this.Root);
+
+            foreach (var missingDeclarationSyntax in this.SyntaxTree.ProgramSyntax.Children.OfType<MissingDeclarationSyntax>())
+            {
+                // Trigger type checking manually as missing declarations are not bound to any symbol.
+                this.TypeManager.GetTypeInfo(missingDeclarationSyntax);
+            }
 
             var typeValidationDiagnostics = TypeManager.GetAllDiagnostics();
             diagnosticWriter.WriteMultiple(typeValidationDiagnostics);
@@ -87,6 +106,8 @@ namespace Bicep.Core.Semantics
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.TypeManager.GetDeclaredType(syntax);
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) => this.TypeManager.GetDeclaredTypeAssignment(syntax);
+
+        public Symbol? GetSymbolParent(Symbol symbol) => this.symbolHierarchyLazy.Value.GetParent(symbol);
 
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,

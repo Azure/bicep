@@ -2546,5 +2546,4 @@ xxxxx
 
 
 
-//@[0:0) SkippedTriviaSyntax
 //@[0:0) EndOfFile ||

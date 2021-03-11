@@ -8,6 +8,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Parsing
@@ -221,6 +222,56 @@ namespace Bicep.Core.UnitTests.Parsing
 
             var spanText = text[new Range(diagnostic.Span.Position, diagnostic.Span.GetEndPosition())];
             spanText.Should().Be(expectedSpanText);
+        }
+
+        // empty
+        [DataRow("''''''", "")]
+        [DataRow("'''\r\n'''", "")]
+        [DataRow("'''\n'''", "")]
+        // basic
+        [DataRow("'''abc'''", "abc")]
+        // first preceding newline should be stripped
+        [DataRow("'''\r\nabc'''", "abc")]
+        [DataRow("'''\nabc'''", "abc")]
+        [DataRow("'''\rabc'''", "abc")]
+        // only the first should be stripped!
+        [DataRow("'''\n\nabc'''", "\nabc")]
+        [DataRow("'''\n\rabc'''", "\rabc")]
+        // no escaping necessary
+        [DataRow("''' \n \r \t \\ ' ${ } '''", " \n \r \t \\ ' ${ } ")]
+        // leading and terminating ' characters
+        [DataRow("''''a''''", "'a'")]
+        [DataTestMethod]
+        public void Multiline_strings_should_lex_correctly(string text, string expectedValue)
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create(); 
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.MultilineString, TokenType.EndOfFile);
+
+            var multilineToken = lexer.GetTokens().First();
+            multilineToken.Text.Should().Be(text);
+            Lexer.TryGetMultilineStringValue(multilineToken).Should().Be(expectedValue);
+        }
+
+        [DataRow("'''abc")]
+        [DataRow("'''abc''")]
+        [DataTestMethod]
+        public void Unterminated_multiline_strings_should_attach_a_diagnostic(string text)
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create(); 
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.MultilineString, TokenType.EndOfFile);
+            var diagnostics = diagnosticWriter.GetDiagnostics().ToList();
+
+            diagnostics.Should().HaveCount(1);
+            var diagnostic = diagnostics.Single();
+
+            diagnostic.Code.Should().Be("BCP140");
+            diagnostic.Message.Should().Be($"The multi-line string at this location is not terminated. Terminate it with \"'''\".");
         }
 
         private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedMessage, string expectedCode, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)

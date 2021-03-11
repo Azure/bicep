@@ -14,6 +14,20 @@
     }
   },
   {
+    "label": "anotherThing",
+    "kind": "variable",
+    "detail": "anotherThing",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anotherThing",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "anotherThing"
+    }
+  },
+  {
     "label": "any",
     "kind": "function",
     "detail": "any()",
@@ -169,6 +183,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "batchSizeMakesNoSenseHere",
+    "kind": "variable",
+    "detail": "batchSizeMakesNoSenseHere",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_batchSizeMakesNoSenseHere",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "batchSizeMakesNoSenseHere"
     }
   },
   {
@@ -466,6 +494,34 @@
     }
   },
   {
+    "label": "innerPropertyLoop",
+    "kind": "variable",
+    "detail": "innerPropertyLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_innerPropertyLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "innerPropertyLoop"
+    }
+  },
+  {
+    "label": "innerPropertyLoop2",
+    "kind": "variable",
+    "detail": "innerPropertyLoop2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_innerPropertyLoop2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "innerPropertyLoop2"
+    }
+  },
+  {
     "label": "int",
     "kind": "function",
     "detail": "int()",
@@ -624,6 +680,20 @@
     }
   },
   {
+    "label": "loopExpression",
+    "kind": "variable",
+    "detail": "loopExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopExpression"
+    }
+  },
+  {
     "label": "managementGroup",
     "kind": "function",
     "detail": "managementGroup()",
@@ -742,6 +812,34 @@
     "textEdit": {
       "range": {},
       "newText": "mySum"
+    }
+  },
+  {
+    "label": "noNestedVariableLoopsEither",
+    "kind": "variable",
+    "detail": "noNestedVariableLoopsEither",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noNestedVariableLoopsEither",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "noNestedVariableLoopsEither"
+    }
+  },
+  {
+    "label": "noVariableLoopsYet",
+    "kind": "variable",
+    "detail": "noVariableLoopsYet",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noVariableLoopsYet",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "noVariableLoopsYet"
     }
   },
   {

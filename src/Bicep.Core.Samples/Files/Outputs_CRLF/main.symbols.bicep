@@ -71,3 +71,18 @@ output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-0
 //@[7:17) Output primaryKey. Type: string. Declaration start char: 0, length: 97
 output secondaryKey string = secondaryKeyIntermediateVar
 //@[7:19) Output secondaryKey. Type: string. Declaration start char: 0, length: 56
+
+var varWithOverlappingOutput = 'hello'
+//@[4:28) Variable varWithOverlappingOutput. Type: 'hello'. Declaration start char: 0, length: 38
+param paramWithOverlappingOutput string
+//@[6:32) Parameter paramWithOverlappingOutput. Type: string. Declaration start char: 0, length: 39
+
+output varWithOverlappingOutput string = varWithOverlappingOutput
+//@[7:31) Output varWithOverlappingOutput. Type: string. Declaration start char: 0, length: 65
+output paramWithOverlappingOutput string = paramWithOverlappingOutput
+//@[7:33) Output paramWithOverlappingOutput. Type: string. Declaration start char: 0, length: 69
+
+// top-level output loops are supported
+output generatedArray array = [for i in range(0,10): i]
+//@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
+//@[7:21) Output generatedArray. Type: array. Declaration start char: 0, length: 55

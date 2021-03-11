@@ -137,6 +137,10 @@ param wrongIntModifier int {
 @metadata('wrong')
 param wrongIntModifierWithDecorator int = true
 
+@metadata(any([]))
+@allowed(any(2))
+param fatalErrorInIssue1713
+
 // wrong metadata schema
 param wrongMetadataSchema string {
   metadata: {
@@ -354,6 +358,8 @@ param commaTwo string {
 @secure
 @
 @&& xxx
+@sys
+@paramAccessingVar
 param incompleteDecorators string
 
 @concat(1, 2)
@@ -372,14 +378,29 @@ param someString string {
     'foo'
 ])
 @secure()
+// #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
+@  
+// #completionTest(5, 6) -> intParameterDecorators
+@sys.   
 param someInteger int = 20
 
 @allowed([], [], 2)
+// #completionTest(4) -> empty
+@az.
 param tooManyArguments1 int = 20
 
 @metadata({}, {}, true)
+// #completionTest(2) -> stringParameterDecoratorsPlusNamespace
+@m
+// #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
+@   
+// #completionTest(5) -> stringParameterDecorators
+@sys.
 param tooManyArguments2 string
 
+@description(sys.concat(2))
+@allowed([for thing in []: 's'])
+param nonConstantInDecorator string
 
 // unterminated multi-line comment
 /*    

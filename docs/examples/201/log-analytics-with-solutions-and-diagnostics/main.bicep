@@ -1,7 +1,4 @@
-param location string {
-  default: resourceGroup().location
-}
-
+param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = 'la-${uniqueString(resourceGroup().id)}'
 
 var vmInsights = {

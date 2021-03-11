@@ -9,6 +9,7 @@ using System;
 using Bicep.Core.UnitTests.Utils;
 using Newtonsoft.Json.Linq;
 using FluentAssertions.Execution;
+using System.ComponentModel.DataAnnotations;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -709,6 +710,252 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
                 });
             }
         }
-    }
+        
+        [TestMethod]
+        public void Test_Issue1364()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+targetScope = 'blablah'
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'\" but the provided value is of type \"'blablah'\"."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_success()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+param myparam string
+var myvar = 'hello'
+        
+output myparam string = myparam
+output myvar string = myvar
+");
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['myparam'].value")!.Should().DeepEqual("[parameters('myparam')]");
+                template!.SelectToken("$.outputs['myvar'].value")!.Should().DeepEqual("[variables('myvar')]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_duplicates()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+output duplicate string = 'hello'
+output duplicate string = 'hello'
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP145", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
+                    ("BCP145", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue569_outputs_cannot_be_referenced()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+output output1 string = 'hello'
+output output2 string = output1
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP058", DiagnosticLevel.Error, "The name \"output1\" is an output. Outputs cannot be referenced in expressions."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1599()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+param x string = 't'
+output xx = x
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP146", DiagnosticLevel.Error, "Expected an output type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1661()
+        {
+            // Issue 1661 only repros if global-resources.bicep exists and kevault-secrets.bicep does not
+            var (template, diags, _) = CompilationHelper.Compile(("main.bicep", @"
+targetScope = 'subscription'
+
+param prefix string
+param deploymentId string
+param tags object
+
+param stampLocations array {
+  default: [
+    'northeurope'
+    'eastus2'
+  ]
 }
 
+resource rg_stamps 'Microsoft.Resources/resourceGroups@2020-06-01' = [for stamp in stampLocations: {
+  name: '${prefix}-${stamp}-rg'
+  location: stamp
+  tags: tags
+}]
+
+//... more modules
+
+module global_resources './global-resources.bicep' = {
+  name: 'global_resources-${deploymentId}'
+  scope: rg_global
+  params: {
+    location: rg_global.location
+    prefix: prefix
+    tags: tags
+    stamps: [for index in range(0, length(stampLocations)): {
+      location: stampLocations[index]
+      aksKubletIdentityPrincipalId: stamps[index].outputs.aksKubletIdentityPrincipalId
+      aksSubnetId: stamps[index].outputs.aksSubnetId
+      backend_fqdn: stamps[index].outputs.ingressFqdn
+    }]
+  }
+}
+
+var secrets = [
+  {
+    name: 'CosmosDb-Endpoint'
+    value: global_resources.outputs.cosmosDbEndpoint
+  }
+  {
+    name: 'CosmosDb-PrimaryKey'
+    value: global_resources.outputs.cosmosDbKey
+  }
+] 
+ 
+module stamp_0_secrets './kevault-secrets.bicep' = [for secret in secrets: {
+  name: 'stamp_0_secrets-${deploymentId}'
+  scope: resourceGroup(rg_stamps[0].name)
+  dependsOn: [
+    stamps
+  ]
+  params: {
+    keyVaultName: '${prefix}${rg_stamps[0].location}kv'
+    secretName: secret.name
+    secretValue: secret.value
+  }
+}]
+
+module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
+  name: 'stamp_1_secrets-${deploymentId}'
+  scope: resourceGroup(rg_stamps[1].name)
+  dependsOn: [
+    stamps
+  ]
+  params: {
+    keyVaultName: '${prefix}${rg_stamps[1].location}kv'
+    secretName: secret.name
+    secretValue: secret.value
+  }
+}]
+"), ("global-resources.bicep", string.Empty));
+
+            template!.Should().BeNull();
+
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\".");
+            diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\".");
+        }
+
+        [TestMethod]
+        public void Test_Issue1592()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+              ("main.bicep", @"
+module foo 'test.bicep' = {
+  name: 'foo'
+}
+
+output fooName string = foo.name
+    "),
+              ("test.bicep", @""));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['fooName'].value")!.Should().DeepEqual("foo");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1592_special_cases()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+              ("main.bicep", @"
+param someParam string
+
+module foo 'test.bicep' = {
+  name: '${someParam}-test'
+}
+
+output fooName string = foo.name
+output fooOutput string = foo.outputs.test
+    "),
+              ("test.bicep", @"
+output test string = 'hello'
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['fooName'].value")!.Should().DeepEqual("[format('{0}-test', parameters('someParam'))]");
+                template!.SelectToken("$.outputs['fooOutput'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2019-10-01').outputs.test.value]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1432()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'myVM'
+  name: 'myVm'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                    ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                });
+            }
+        }
+    }
+}

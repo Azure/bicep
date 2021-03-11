@@ -11,10 +11,10 @@
     },
     "wantype": {
       "type": "string",
+      "defaultValue": "Standard",
       "metadata": {
         "description": "Specifies the type of Virtual WAN."
       },
-      "defaultValue": "Standard",
       "allowedValues": [
         "Standard",
         "Basic"
@@ -46,7 +46,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9960402964273790596"
+      "templateHash": "2228582985603010524"
     }
   }
 }

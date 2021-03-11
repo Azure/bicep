@@ -289,6 +289,38 @@ module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 }
 
+module singleModuleForRuntimeCheck 'modulea.bicep' = {
+//@[7:34) Module singleModuleForRuntimeCheck. Type: module. Declaration start char: 0, length: 71
+  name: 'test'
+}
+
+var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
+//@[4:22) Variable moduleRuntimeCheck. Type: string. Declaration start char: 0, length: 74
+var moduleRuntimeCheck2 = moduleRuntimeCheck
+//@[4:23) Variable moduleRuntimeCheck2. Type: string. Declaration start char: 0, length: 44
+
+module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
+//@[56:61) Local thing. Type: any. Declaration start char: 56, length: 5
+//@[7:32) Module moduleLoopForRuntimeCheck. Type: module[]. Declaration start char: 0, length: 101
+  name: moduleRuntimeCheck2
+}]
+
+var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
+//@[4:23) Variable moduleRuntimeCheck3. Type: string. Declaration start char: 0, length: 76
+var moduleRuntimeCheck4 = moduleRuntimeCheck3
+//@[4:23) Variable moduleRuntimeCheck4. Type: string. Declaration start char: 0, length: 45
+module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
+//@[57:62) Local thing. Type: any. Declaration start char: 57, length: 5
+//@[7:33) Module moduleLoopForRuntimeCheck2. Type: module[]. Declaration start char: 0, length: 102
+  name: moduleRuntimeCheck4
+}]
+
+module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
+//@[57:62) Local thing. Type: any. Declaration start char: 57, length: 5
+//@[7:33) Module moduleLoopForRuntimeCheck3. Type: module[]. Declaration start char: 0, length: 194
+  name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
+}]
+
 module moduleWithDuplicateName1 './empty.bicep' = {
 //@[7:31) Module moduleWithDuplicateName1. Type: module. Declaration start char: 0, length: 112
   name: 'moduleWithDuplicateName'
@@ -360,7 +392,6 @@ module expectedForKeyword2 'modulea.bicep' = [f]
 //@[7:26) Module expectedForKeyword2. Type: module. Declaration start char: 0, length: 48
 
 module expectedLoopVar 'modulea.bicep' = [for]
-//@[45:45) Local <missing>. Type: any. Declaration start char: 45, length: 0
 //@[7:22) Module expectedLoopVar. Type: module[]. Declaration start char: 0, length: 46
 
 module expectedInKeyword 'modulea.bicep' = [for x]
@@ -383,17 +414,62 @@ module expectedLoopBody 'modulea.bicep' = [for x in y:]
 //@[47:48) Local x. Type: any. Declaration start char: 47, length: 1
 //@[7:23) Module expectedLoopBody. Type: module[]. Declaration start char: 0, length: 55
 
+// indexed loop parsing cases
+module expectedItemVarName 'modulea.bicep' = [for ()]
+//@[51:51) Local <missing>. Type: any. Declaration start char: 51, length: 0
+//@[51:51) Local <missing>. Type: int. Declaration start char: 51, length: 0
+//@[7:26) Module expectedItemVarName. Type: module[]. Declaration start char: 0, length: 53
+
+module expectedComma 'modulea.bicep' = [for (x)]
+//@[45:46) Local x. Type: any. Declaration start char: 45, length: 1
+//@[46:46) Local <missing>. Type: int. Declaration start char: 46, length: 0
+//@[7:20) Module expectedComma. Type: module[]. Declaration start char: 0, length: 48
+
+module expectedIndexVarName 'modulea.bicep' = [for (x,)]
+//@[52:53) Local x. Type: any. Declaration start char: 52, length: 1
+//@[54:54) Local <missing>. Type: int. Declaration start char: 54, length: 0
+//@[7:27) Module expectedIndexVarName. Type: module[]. Declaration start char: 0, length: 56
+
+module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
+//@[50:51) Local x. Type: any. Declaration start char: 50, length: 1
+//@[52:53) Local y. Type: int. Declaration start char: 52, length: 1
+//@[7:25) Module expectedInKeyword3. Type: module[]. Declaration start char: 0, length: 55
+
+module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
+//@[56:57) Local x. Type: any. Declaration start char: 56, length: 1
+//@[58:59) Local y. Type: int. Declaration start char: 58, length: 1
+//@[7:31) Module expectedArrayExpression2. Type: module[]. Declaration start char: 0, length: 65
+
+module expectedColon2 'modulea.bicep' = [for (x,y) in z]
+//@[46:47) Local x. Type: any. Declaration start char: 46, length: 1
+//@[48:49) Local y. Type: int. Declaration start char: 48, length: 1
+//@[7:21) Module expectedColon2. Type: module[]. Declaration start char: 0, length: 56
+
+module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
+//@[49:50) Local x. Type: any. Declaration start char: 49, length: 1
+//@[51:52) Local y. Type: int. Declaration start char: 51, length: 1
+//@[7:24) Module expectedLoopBody2. Type: module[]. Declaration start char: 0, length: 60
+
 // wrong loop body type
 var emptyArray = []
 //@[4:14) Variable emptyArray. Type: array. Declaration start char: 0, length: 19
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 //@[48:49) Local x. Type: any. Declaration start char: 48, length: 1
 //@[7:24) Module wrongLoopBodyType. Type: module[]. Declaration start char: 0, length: 66
+module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
+//@[50:51) Local x. Type: any. Declaration start char: 50, length: 1
+//@[52:53) Local i. Type: int. Declaration start char: 52, length: 1
+//@[7:25) Module wrongLoopBodyType2. Type: module[]. Declaration start char: 0, length: 71
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 //@[56:57) Local x. Type: any. Declaration start char: 56, length: 1
 //@[7:32) Module missingLoopBodyProperties. Type: module[]. Declaration start char: 0, length: 76
+}]
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[58:59) Local x. Type: any. Declaration start char: 58, length: 1
+//@[60:61) Local i. Type: int. Declaration start char: 60, length: 1
+//@[7:33) Module missingLoopBodyProperties2. Type: module[]. Declaration start char: 0, length: 81
 }]
 
 // wrong array type
@@ -417,10 +493,26 @@ module missingFewerLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 // wrong parameter in the module loop
 module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[57:58) Local x. Type: any. Declaration start char: 57, length: 1
-//@[7:33) Module wrongModuleParameterInLoop. Type: module[]. Declaration start char: 0, length: 222
+//@[7:33) Module wrongModuleParameterInLoop. Type: module[]. Declaration start char: 0, length: 263
+  // #completionTest(17) -> symbolsPlusX
   name: 'hello-${x}'
   params: {
     arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+  }
+}]
+module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[59:60) Local x. Type: any. Declaration start char: 59, length: 1
+//@[61:62) Local i. Type: int. Declaration start char: 61, length: 1
+//@[7:34) Module wrongModuleParameterInLoop2. Type: module[]. Declaration start char: 0, length: 240
+  name: 'hello-${x}'
+  params: {
+    arrayParam: [
+      i
+    ]
     objParam: {}
     stringParamA: 'test'
     stringParamB: 'test'
@@ -443,88 +535,71 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
   }
 }]
 
-/*
-  valid loop - this should be moved to Modules_* test case after E2E works
-*/ 
-var myModules = [
-//@[4:13) Variable myModules. Type: array. Declaration start char: 0, length: 114
-  {
-    name: 'one'
-    location: 'eastus2'
-  }
-  {
-    name: 'two'
-    location: 'westus'
-  }
-]
+output directRefToCollectionViaOutput array = nonexistentArrays
+//@[7:37) Output directRefToCollectionViaOutput. Type: array. Declaration start char: 0, length: 63
 
-// duplicate identifiers across scopes are allowed (inner hides the outer)
-module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
-//@[61:62) Local x. Type: any. Declaration start char: 61, length: 1
-//@[7:37) Module duplicateIdentifiersWithinLoop. Type: module[]. Declaration start char: 0, length: 226
-  name: 'hello-${x}'
+module directRefToCollectionViaSingleBody 'modulea.bicep' = {
+//@[7:41) Module directRefToCollectionViaSingleBody. Type: module. Declaration start char: 0, length: 203
+  name: 'hello'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
     objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: y]
-//@[21:22) Local x. Type: any. Declaration start char: 21, length: 1
+    stringParamB: ''
   }
-}]
+}
 
-// duplicate identifiers across scopes are allowed (inner hides the outer)
-var duplicateAcrossScopes = 'hello'
-//@[4:25) Variable duplicateAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 35
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
-//@[58:79) Local duplicateAcrossScopes. Type: any. Declaration start char: 58, length: 21
-//@[7:34) Module duplicateInGlobalAndOneLoop. Type: module[]. Declaration start char: 0, length: 256
-  name: 'hello-${duplicateAcrossScopes}'
+module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) {
+//@[7:52) Module directRefToCollectionViaSingleConditionalBody. Type: module. Declaration start char: 0, length: 224
+  name: 'hello2'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
     objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: x]
-//@[21:22) Local x. Type: any. Declaration start char: 21, length: 1
+    stringParamB: ''
   }
-}]
+}
 
-var someDuplicate = true
-//@[4:17) Variable someDuplicate. Type: bool. Declaration start char: 0, length: 24
-var otherDuplicate = false
-//@[4:18) Variable otherDuplicate. Type: bool. Declaration start char: 0, length: 26
-module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-//@[51:64) Local someDuplicate. Type: any. Declaration start char: 51, length: 13
-//@[7:27) Module duplicatesEverywhere. Type: module[]. Declaration start char: 0, length: 256
-  name: 'hello-${someDuplicate}'
+module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
+//@[63:67) Local test. Type: any. Declaration start char: 63, length: 4
+//@[7:39) Module directRefToCollectionViaLoopBody. Type: module[]. Declaration start char: 0, length: 220
+  name: 'hello3'
   params: {
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
     objParam: {}
-    stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
-//@[21:35) Local otherDuplicate. Type: any. Declaration start char: 21, length: 14
+    stringParamB: ''
   }
 }]
 
-// simple module loop
-module storageResources 'modulea.bicep' = [for module in myModules: {
-//@[47:53) Local module. Type: any. Declaration start char: 47, length: 6
-//@[7:23) Module storageResources. Type: module[]. Declaration start char: 0, length: 182
-  name: module.name
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
+//@[81:85) Local test. Type: any. Declaration start char: 81, length: 4
+//@[7:57) Module directRefToCollectionViaLoopBodyWithExtraDependsOn. Type: module[]. Declaration start char: 0, length: 309
+  name: 'hello4'
   params: {
-    arrayParam: []
-    objParam: module
-    stringParamB: module.location
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+    objParam: {}
+    stringParamB: ''
+    dependsOn: [
+      nonexistentArrays
+    ]
   }
+  dependsOn: [
+    
+  ]
 }]
 
-// nested module loop
-module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
-//@[47:53) Local module. Type: any. Declaration start char: 47, length: 6
-//@[7:23) Module nestedModuleLoop. Type: module[]. Declaration start char: 0, length: 220
-  name: module.name
-  params: {
-    arrayParam: [for i in range(0,3): concat('test', i)]
-//@[21:22) Local i. Type: any. Declaration start char: 21, length: 1
-    objParam: module
-    stringParamB: module.location
-  }
-}]
+
+// module body that isn't an object
+module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
+//@[50:55) Local thing. Type: any. Declaration start char: 50, length: 5
+//@[7:26) Module nonObjectModuleBody. Type: module[]. Declaration start char: 0, length: 71
+module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
+//@[51:56) Local thing. Type: any. Declaration start char: 51, length: 5
+//@[7:27) Module nonObjectModuleBody2. Type: module[]. Declaration start char: 0, length: 73
+module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
+//@[52:57) Local thing. Type: any. Declaration start char: 52, length: 5
+//@[58:59) Local i. Type: int. Declaration start char: 58, length: 1
+//@[7:27) Module nonObjectModuleBody3. Type: module[]. Declaration start char: 0, length: 76
+module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
+//@[52:57) Local thing. Type: any. Declaration start char: 52, length: 5
+//@[58:59) Local i. Type: int. Declaration start char: 58, length: 1
+//@[7:27) Module nonObjectModuleBody4. Type: module[]. Declaration start char: 0, length: 77
+

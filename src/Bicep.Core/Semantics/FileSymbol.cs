@@ -34,7 +34,7 @@ namespace Bicep.Core.Semantics
             this.ModuleDeclarations = moduleDeclarations.ToImmutableArray();
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
 
-            this.declarationsByName = this.AllDeclarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
+            this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
         }
 
         public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces.Values
@@ -66,7 +66,7 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Returns all the top-level declaration symbols.
         /// </summary>
-        public IEnumerable<DeclaredSymbol> AllDeclarations => this.Descendants.OfType<DeclaredSymbol>();
+        public IEnumerable<DeclaredSymbol> Declarations => this.Descendants.OfType<DeclaredSymbol>();
 
         public override void Accept(SymbolVisitor visitor)
         {
@@ -76,6 +76,8 @@ namespace Bicep.Core.Semantics
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
+
+        public IEnumerable<ResourceSymbol> GetAllResourceDeclarations() => ResourceSymbolVisitor.GetAllResources(this);
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
         {
@@ -111,20 +113,34 @@ namespace Bicep.Core.Semantics
                 // collect duplicate identifiers at this scope
                 // declaring a variable in a local scope hides the parent scope variables,
                 // so we don't need to look at other levels
-                this.Diagnostics.AddRange(scope.AllDeclarations
-                    .Where(decl => decl.NameSyntax.IsValid)
-                    .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
-                    .Where(group => group.Count() > 1)
-                    .SelectMany(group => group)
+                var outputDeclarations = scope.Declarations.Where(decl => decl is OutputSymbol);
+                var nonOutputDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol);
+
+                // all symbols apart from outputs are in the same namespace, so check for uniqueness.
+                this.Diagnostics.AddRange(
+                    FindDuplicateNamedSymbols(nonOutputDeclarations)
                     .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).IdentifierMultipleDeclarations(decl.Name)));
+
+                // output symbols cannot be referenced, so the names declared by them do not need to be unique in the scope.
+                // we still need to ensure that they unique among other outputs.
+                this.Diagnostics.AddRange(
+                    FindDuplicateNamedSymbols(outputDeclarations)
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).OutputMultipleDeclarations(decl.Name)));
 
                 // imported namespaces are reserved in all the scopes
                 // otherwise the user could accidentally hide a namespace which would remove the ability
                 // to fully qualify a function
-                this.Diagnostics.AddRange(scope.AllDeclarations
+                this.Diagnostics.AddRange(nonOutputDeclarations
                     .Where(decl => decl.NameSyntax.IsValid && this.importedNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.importedNamespaces.Keys)));
             }
+
+            private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
+                => symbols
+                .Where(decl => decl.NameSyntax.IsValid)
+                .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
+                .Where(group => group.Count() > 1)
+                .SelectMany(group => group);
         }
     }
 }

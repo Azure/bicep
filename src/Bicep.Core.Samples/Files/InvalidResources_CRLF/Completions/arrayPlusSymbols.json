@@ -59,7 +59,27 @@
     "textEdit": {
       "range": {},
       "newText": "arrayExpressionErrors"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "arrayExpressionErrors2",
+    "kind": "interface",
+    "detail": "arrayExpressionErrors2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayExpressionErrors2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayExpressionErrors2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "az",
@@ -87,7 +107,10 @@
     "textEdit": {
       "range": {},
       "newText": "badDepends"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "badDepends2",
@@ -101,7 +124,10 @@
     "textEdit": {
       "range": {},
       "newText": "badDepends2"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "badDepends3",
@@ -115,7 +141,10 @@
     "textEdit": {
       "range": {},
       "newText": "badDepends3"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "badDepends4",
@@ -129,7 +158,10 @@
     "textEdit": {
       "range": {},
       "newText": "badDepends4"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "badDepends5",
@@ -143,7 +175,10 @@
     "textEdit": {
       "range": {},
       "newText": "badDepends5"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "badInterp",
@@ -157,7 +192,10 @@
     "textEdit": {
       "range": {},
       "newText": "badInterp"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "bar",
@@ -171,7 +209,10 @@
     "textEdit": {
       "range": {},
       "newText": "bar"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "base64",
@@ -236,7 +277,10 @@
     "textEdit": {
       "range": {},
       "newText": "baz"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "bool",
@@ -253,20 +297,6 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
-    }
-  },
-  {
-    "label": "canHaveDuplicatesAcrossScopes",
-    "kind": "variable",
-    "detail": "canHaveDuplicatesAcrossScopes",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_canHaveDuplicatesAcrossScopes",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "canHaveDuplicatesAcrossScopes"
     }
   },
   {
@@ -332,7 +362,10 @@
     "textEdit": {
       "range": {},
       "newText": "cyclicExistingRes"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "cyclicRes",
@@ -346,7 +379,10 @@
     "textEdit": {
       "range": {},
       "newText": "cyclicRes"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "dashesInPropertyNames",
@@ -360,7 +396,10 @@
     "textEdit": {
       "range": {},
       "newText": "dashesInPropertyNames"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "dataUri",
@@ -428,6 +467,88 @@
     }
   },
   {
+    "label": "directRefViaSingleConditionalResourceBody",
+    "kind": "interface",
+    "detail": "directRefViaSingleConditionalResourceBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaSingleConditionalResourceBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaSingleConditionalResourceBody"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "directRefViaSingleLoopResourceBody",
+    "kind": "interface",
+    "detail": "directRefViaSingleLoopResourceBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaSingleLoopResourceBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaSingleLoopResourceBody"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "directRefViaSingleLoopResourceBodyWithExtraDependsOn",
+    "kind": "interface",
+    "detail": "directRefViaSingleLoopResourceBodyWithExtraDependsOn",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaSingleLoopResourceBodyWithExtraDependsOn",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaSingleLoopResourceBodyWithExtraDependsOn"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "directRefViaSingleResourceBody",
+    "kind": "interface",
+    "detail": "directRefViaSingleResourceBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaSingleResourceBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaSingleResourceBody"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "directRefViaVar",
+    "kind": "variable",
+    "detail": "directRefViaVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaVar"
+    }
+  },
+  {
     "label": "discriminatorKeyMissing",
     "kind": "interface",
     "detail": "discriminatorKeyMissing",
@@ -439,7 +560,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyMissing"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeyMissing_for",
@@ -453,7 +577,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyMissing_for"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeyMissing_if",
@@ -467,7 +594,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyMissing_if"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeySetOne",
@@ -481,7 +611,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOne"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeySetOneCompletions",
@@ -621,7 +754,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOne_for"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeySetOne_if",
@@ -635,7 +771,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOne_if"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeySetTwo",
@@ -649,7 +788,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwo"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeySetTwoCompletions",
@@ -831,7 +973,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwo_for"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeySetTwo_if",
@@ -845,7 +990,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwo_if"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeyValueMissing",
@@ -859,7 +1007,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeyValueMissingCompletions",
@@ -999,7 +1150,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing_for"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "discriminatorKeyValueMissing_if",
@@ -1013,63 +1167,10 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing_if"
-    }
-  },
-  {
-    "label": "duplicateIdentifiersWithinLoop",
-    "kind": "interface",
-    "detail": "duplicateIdentifiersWithinLoop",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicateIdentifiersWithinLoop",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicateIdentifiersWithinLoop"
-    }
-  },
-  {
-    "label": "duplicateInGlobalAndOneLoop",
-    "kind": "interface",
-    "detail": "duplicateInGlobalAndOneLoop",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicateInGlobalAndOneLoop",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicateInGlobalAndOneLoop"
-    }
-  },
-  {
-    "label": "duplicateInGlobalAndTwoLoops",
-    "kind": "interface",
-    "detail": "duplicateInGlobalAndTwoLoops",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicateInGlobalAndTwoLoops",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicateInGlobalAndTwoLoops"
-    }
-  },
-  {
-    "label": "duplicatesEverywhere",
-    "kind": "variable",
-    "detail": "duplicatesEverywhere",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicatesEverywhere",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicatesEverywhere"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "empty",
@@ -1145,7 +1246,27 @@
     "textEdit": {
       "range": {},
       "newText": "expectedArrayExpression"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedArrayExpression2",
+    "kind": "interface",
+    "detail": "expectedArrayExpression2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedArrayExpression2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedArrayExpression2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "expectedColon",
@@ -1159,7 +1280,44 @@
     "textEdit": {
       "range": {},
       "newText": "expectedColon"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedColon2",
+    "kind": "interface",
+    "detail": "expectedColon2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedColon2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedColon2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedComma",
+    "kind": "interface",
+    "detail": "expectedComma",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedComma",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedComma"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "expectedForKeyword",
@@ -1173,7 +1331,10 @@
     "textEdit": {
       "range": {},
       "newText": "expectedForKeyword"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "expectedForKeyword2",
@@ -1187,7 +1348,10 @@
     "textEdit": {
       "range": {},
       "newText": "expectedForKeyword2"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "expectedInKeyword",
@@ -1201,7 +1365,10 @@
     "textEdit": {
       "range": {},
       "newText": "expectedInKeyword"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "expectedInKeyword2",
@@ -1215,7 +1382,44 @@
     "textEdit": {
       "range": {},
       "newText": "expectedInKeyword2"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedInKeyword3",
+    "kind": "interface",
+    "detail": "expectedInKeyword3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedInKeyword3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedInKeyword3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedInKeyword4",
+    "kind": "interface",
+    "detail": "expectedInKeyword4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedInKeyword4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedInKeyword4"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "expectedLoopBody",
@@ -1229,7 +1433,78 @@
     "textEdit": {
       "range": {},
       "newText": "expectedLoopBody"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopBody2",
+    "kind": "interface",
+    "detail": "expectedLoopBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopBody2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopIndexName",
+    "kind": "interface",
+    "detail": "expectedLoopIndexName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopIndexName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopIndexName"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopItemName",
+    "kind": "interface",
+    "detail": "expectedLoopItemName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopItemName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopItemName"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopItemName2",
+    "kind": "interface",
+    "detail": "expectedLoopItemName2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopItemName2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopItemName2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "expectedLoopVar",
@@ -1243,7 +1518,41 @@
     "textEdit": {
       "range": {},
       "newText": "expectedLoopVar"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expressionInPropertyLoopVar",
+    "kind": "variable",
+    "detail": "expressionInPropertyLoopVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expressionInPropertyLoopVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expressionInPropertyLoopVar"
     }
+  },
+  {
+    "label": "expressionsInPropertyLoopName",
+    "kind": "interface",
+    "detail": "expressionsInPropertyLoopName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expressionsInPropertyLoopName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expressionsInPropertyLoopName"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "extensionResourceId",
@@ -1291,7 +1600,10 @@
     "textEdit": {
       "range": {},
       "newText": "fo"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "foo",
@@ -1305,6 +1617,45 @@
     "textEdit": {
       "range": {},
       "newText": "foo"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "for",
+    "kind": "snippet",
+    "detail": "for",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for item in list: ]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for ${2:item} in ${1:list}: $0]"
+    }
+  },
+  {
+    "label": "for-indexed",
+    "kind": "snippet",
+    "detail": "for-indexed",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for (item, index) in list: ]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for-indexed",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for (${2:item}, ${3:index}) in ${1:list}: $0]"
     }
   },
   {
@@ -1353,7 +1704,10 @@
     "textEdit": {
       "range": {},
       "newText": "incorrectPropertiesKey"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "indexOf",
@@ -1432,7 +1786,10 @@
     "textEdit": {
       "range": {},
       "newText": "invalidDecorator"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "invalidDuplicateName1",
@@ -1446,7 +1803,10 @@
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName1"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "invalidDuplicateName2",
@@ -1460,7 +1820,10 @@
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName2"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "invalidDuplicateName3",
@@ -1474,7 +1837,10 @@
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName3"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "invalidExtensionResourceDuplicateName1",
@@ -1488,7 +1854,10 @@
     "textEdit": {
       "range": {},
       "newText": "invalidExtensionResourceDuplicateName1"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "invalidExtensionResourceDuplicateName2",
@@ -1502,7 +1871,10 @@
     "textEdit": {
       "range": {},
       "newText": "invalidExtensionResourceDuplicateName2"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "invalidScope",
@@ -1516,7 +1888,10 @@
     "textEdit": {
       "range": {},
       "newText": "invalidScope"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "invalidScope2",
@@ -1530,7 +1905,10 @@
     "textEdit": {
       "range": {},
       "newText": "invalidScope2"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "invalidScope3",
@@ -1544,7 +1922,27 @@
     "textEdit": {
       "range": {},
       "newText": "invalidScope3"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "itemAndIndexSameName",
+    "kind": "interface",
+    "detail": "itemAndIndexSameName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_itemAndIndexSameName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "itemAndIndexSameName"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "json",
@@ -1660,6 +2058,74 @@
     }
   },
   {
+    "label": "loopForRuntimeCheck",
+    "kind": "interface",
+    "detail": "loopForRuntimeCheck",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopForRuntimeCheck",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopForRuntimeCheck"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "loopForRuntimeCheck2",
+    "kind": "interface",
+    "detail": "loopForRuntimeCheck2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopForRuntimeCheck2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopForRuntimeCheck2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "loopForRuntimeCheck3",
+    "kind": "interface",
+    "detail": "loopForRuntimeCheck3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopForRuntimeCheck3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopForRuntimeCheck3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "loopForRuntimeCheck4",
+    "kind": "interface",
+    "detail": "loopForRuntimeCheck4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopForRuntimeCheck4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopForRuntimeCheck4"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "magicString1",
     "kind": "variable",
     "detail": "magicString1",
@@ -1750,7 +2216,10 @@
     "textEdit": {
       "range": {},
       "newText": "missingFewerRequiredProperties"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "missingRequiredProperties",
@@ -1764,7 +2233,27 @@
     "textEdit": {
       "range": {},
       "newText": "missingRequiredProperties"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "missingRequiredProperties2",
+    "kind": "interface",
+    "detail": "missingRequiredProperties2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingRequiredProperties2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingRequiredProperties2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "missingTopLevelProperties",
@@ -1778,7 +2267,10 @@
     "textEdit": {
       "range": {},
       "newText": "missingTopLevelProperties"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "missingTopLevelPropertiesExceptName",
@@ -1792,7 +2284,10 @@
     "textEdit": {
       "range": {},
       "newText": "missingTopLevelPropertiesExceptName"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "missingType",
@@ -1806,7 +2301,10 @@
     "textEdit": {
       "range": {},
       "newText": "missingType"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "mock",
@@ -1834,7 +2332,10 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminator"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "nestedDiscriminatorArrayIndexCompletions",
@@ -2058,7 +2559,10 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKey"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "nestedDiscriminatorMissingKeyCompletions",
@@ -2198,7 +2702,10 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKey_for"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "nestedDiscriminatorMissingKey_if",
@@ -2212,7 +2719,10 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKey_if"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "nestedDiscriminator_for",
@@ -2226,7 +2736,10 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminator_for"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "nestedDiscriminator_if",
@@ -2240,7 +2753,10 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminator_if"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "nestedPropertyAccessOnConditional",
@@ -2254,7 +2770,78 @@
     "textEdit": {
       "range": {},
       "newText": "nestedPropertyAccessOnConditional"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nonObjectResourceLoopBody",
+    "kind": "interface",
+    "detail": "nonObjectResourceLoopBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectResourceLoopBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectResourceLoopBody"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nonObjectResourceLoopBody2",
+    "kind": "interface",
+    "detail": "nonObjectResourceLoopBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectResourceLoopBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectResourceLoopBody2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nonObjectResourceLoopBody3",
+    "kind": "interface",
+    "detail": "nonObjectResourceLoopBody3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectResourceLoopBody3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectResourceLoopBody3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nonObjectResourceLoopBody4",
+    "kind": "interface",
+    "detail": "nonObjectResourceLoopBody4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectResourceLoopBody4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectResourceLoopBody4"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "nonexistentArrays",
@@ -2268,7 +2855,10 @@
     "textEdit": {
       "range": {},
       "newText": "nonexistentArrays"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "notAResource",
@@ -2344,7 +2934,44 @@
     "textEdit": {
       "range": {},
       "newText": "premiumStorages"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "propertyLoopsCannotNest",
+    "kind": "interface",
+    "detail": "propertyLoopsCannotNest",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_propertyLoopsCannotNest",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "propertyLoopsCannotNest"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "propertyLoopsCannotNest2",
+    "kind": "interface",
+    "detail": "propertyLoopsCannotNest2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_propertyLoopsCannotNest2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "propertyLoopsCannotNest2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "providers",
@@ -2491,6 +3118,34 @@
     }
   },
   {
+    "label": "runtimeCheckVar",
+    "kind": "variable",
+    "detail": "runtimeCheckVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeCheckVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeCheckVar"
+    }
+  },
+  {
+    "label": "runtimeCheckVar2",
+    "kind": "variable",
+    "detail": "runtimeCheckVar2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeCheckVar2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeCheckVar2"
+    }
+  },
+  {
     "label": "runtimeInvalid",
     "kind": "variable",
     "detail": "runtimeInvalid",
@@ -2516,7 +3171,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes1"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes10",
@@ -2530,7 +3188,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes10"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes11",
@@ -2544,7 +3205,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes11"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes12",
@@ -2558,7 +3222,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes12"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes13",
@@ -2572,7 +3239,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes13"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes14",
@@ -2586,7 +3256,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes14"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes15",
@@ -2600,7 +3273,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes15"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes16",
@@ -2614,7 +3290,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes16"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes17",
@@ -2628,7 +3307,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes17"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes18",
@@ -2642,7 +3324,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes18"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes2",
@@ -2656,7 +3341,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes2"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes3",
@@ -2670,7 +3358,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes3"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes4",
@@ -2684,7 +3375,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes4"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes5",
@@ -2698,7 +3392,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes5"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes6",
@@ -2712,7 +3409,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes6"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes7",
@@ -2726,7 +3426,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes7"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes8",
@@ -2740,7 +3443,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes8"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeInvalidRes9",
@@ -2754,7 +3460,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes9"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValid",
@@ -2782,7 +3491,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes1"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValidRes2",
@@ -2796,7 +3508,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes2"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValidRes3",
@@ -2810,7 +3525,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes3"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValidRes4",
@@ -2824,7 +3542,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes4"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValidRes5",
@@ -2838,7 +3559,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes5"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValidRes6",
@@ -2852,7 +3576,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes6"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValidRes7",
@@ -2866,7 +3593,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes7"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValidRes8",
@@ -2880,7 +3610,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes8"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimeValidRes9",
@@ -2894,7 +3627,10 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes9"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "runtimefoo1",
@@ -2964,7 +3700,10 @@
     "textEdit": {
       "range": {},
       "newText": "selfScope"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "sigh",
@@ -2979,6 +3718,23 @@
       "range": {},
       "newText": "sigh"
     }
+  },
+  {
+    "label": "singleResourceForRuntimeCheck",
+    "kind": "interface",
+    "detail": "singleResourceForRuntimeCheck",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_singleResourceForRuntimeCheck",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "singleResourceForRuntimeCheck"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "skip",
@@ -3026,7 +3782,10 @@
     "textEdit": {
       "range": {},
       "newText": "startedTypingTypeWithQuotes"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "startedTypingTypeWithoutQuotes",
@@ -3040,7 +3799,10 @@
     "textEdit": {
       "range": {},
       "newText": "startedTypingTypeWithoutQuotes"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "startsWith",
@@ -3060,34 +3822,6 @@
     }
   },
   {
-    "label": "storageAccounts",
-    "kind": "variable",
-    "detail": "storageAccounts",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_storageAccounts",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "storageAccounts"
-    }
-  },
-  {
-    "label": "storageResources",
-    "kind": "interface",
-    "detail": "storageResources",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_storageResources",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "storageResources"
-    }
-  },
-  {
     "label": "string",
     "kind": "function",
     "detail": "string()",
@@ -3103,6 +3837,23 @@
     "command": {
       "command": "editor.action.triggerParameterHints"
     }
+  },
+  {
+    "label": "stuffs",
+    "kind": "interface",
+    "detail": "stuffs",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_stuffs",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "stuffs"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "subscription",
@@ -3263,7 +4014,10 @@
     "textEdit": {
       "range": {},
       "newText": "trailingSpace"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "trim",
@@ -3294,7 +4048,10 @@
     "textEdit": {
       "range": {},
       "newText": "unfinishedVnet"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "union",
@@ -3407,6 +4164,37 @@
     "textEdit": {
       "range": {},
       "newText": "validResourceForInvalidExtensionResourceDuplicateName"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "varForRuntimeCheck4a",
+    "kind": "variable",
+    "detail": "varForRuntimeCheck4a",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_varForRuntimeCheck4a",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "varForRuntimeCheck4a"
+    }
+  },
+  {
+    "label": "varForRuntimeCheck4b",
+    "kind": "variable",
+    "detail": "varForRuntimeCheck4b",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_varForRuntimeCheck4b",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "varForRuntimeCheck4b"
     }
   },
   {
@@ -3421,7 +4209,10 @@
     "textEdit": {
       "range": {},
       "newText": "vnet"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "wrongArrayType",
@@ -3435,7 +4226,27 @@
     "textEdit": {
       "range": {},
       "newText": "wrongArrayType"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "wrongArrayType2",
+    "kind": "interface",
+    "detail": "wrongArrayType2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongArrayType2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongArrayType2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "wrongLoopBodyType",
@@ -3449,7 +4260,27 @@
     "textEdit": {
       "range": {},
       "newText": "wrongLoopBodyType"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "wrongLoopBodyType2",
+    "kind": "interface",
+    "detail": "wrongLoopBodyType2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongLoopBodyType2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongLoopBodyType2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "wrongPropertyInNestedLoop",
@@ -3463,6 +4294,26 @@
     "textEdit": {
       "range": {},
       "newText": "wrongPropertyInNestedLoop"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "wrongPropertyInNestedLoop2",
+    "kind": "interface",
+    "detail": "wrongPropertyInNestedLoop2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongPropertyInNestedLoop2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongPropertyInNestedLoop2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   }
 ]

@@ -414,6 +414,50 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[76:81) Local thing. Type: any. Declaration start char: 76, length: 5
+//@[9:28) Resource loopForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 130
+  name: 'test'
+  location: 'test'
+}]
+
+var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
+//@[4:19) Variable runtimeCheckVar. Type: 'Private' | 'Public'. Declaration start char: 0, length: 64
+var runtimeCheckVar2 = runtimeCheckVar
+//@[4:20) Variable runtimeCheckVar2. Type: 'Private' | 'Public'. Declaration start char: 0, length: 38
+
+resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[9:38) Resource singleResourceForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 131
+  name: runtimeCheckVar2
+  location: 'test'
+}
+
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[77:82) Local thing. Type: any. Declaration start char: 77, length: 5
+//@[9:29) Resource loopForRuntimeCheck2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 141
+  name: runtimeCheckVar2
+  location: 'test'
+}]
+
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[77:87) Local otherThing. Type: any. Declaration start char: 77, length: 10
+//@[9:29) Resource loopForRuntimeCheck3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 172
+  name: loopForRuntimeCheck[0].properties.zoneType
+  location: 'test'
+}]
+
+var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
+//@[4:24) Variable varForRuntimeCheck4a. Type: 'Private' | 'Public'. Declaration start char: 0, length: 69
+var varForRuntimeCheck4b = varForRuntimeCheck4a
+//@[4:24) Variable varForRuntimeCheck4b. Type: 'Private' | 'Public'. Declaration start char: 0, length: 47
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[77:87) Local otherThing. Type: any. Declaration start char: 77, length: 10
+//@[9:29) Resource loopForRuntimeCheck4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 150
+  name: varForRuntimeCheck4b
+  location: 'test'
+}]
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 151
   // #completionTest(0, 1, 2) -> topLevelProperties
@@ -1026,7 +1070,6 @@ resource expectedForKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [f
 //@[9:28) Resource expectedForKeyword2. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 81
 
 resource expectedLoopVar 'Microsoft.Storage/storageAccounts@2019-06-01' = [for]
-//@[78:78) Local <missing>. Type: any. Declaration start char: 78, length: 0
 //@[9:24) Resource expectedLoopVar. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 79
 
 resource expectedInKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x]
@@ -1049,17 +1092,79 @@ resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 //@[80:81) Local x. Type: any. Declaration start char: 80, length: 1
 //@[9:25) Resource expectedLoopBody. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 88
 
+// loop index parsing cases
+resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
+//@[78:78) Local <missing>. Type: any. Declaration start char: 78, length: 0
+//@[78:78) Local <missing>. Type: int. Declaration start char: 78, length: 0
+//@[9:29) Resource expectedLoopItemName. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 80
+
+resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
+//@[79:79) Local <missing>. Type: any. Declaration start char: 79, length: 0
+//@[79:79) Local <missing>. Type: int. Declaration start char: 79, length: 0
+//@[9:30) Resource expectedLoopItemName2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 79
+
+resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
+//@[71:72) Local x. Type: any. Declaration start char: 71, length: 1
+//@[72:72) Local <missing>. Type: int. Declaration start char: 72, length: 0
+//@[9:22) Resource expectedComma. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 74
+
+resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
+//@[79:80) Local x. Type: any. Declaration start char: 79, length: 1
+//@[82:82) Local <missing>. Type: int. Declaration start char: 82, length: 0
+//@[9:30) Resource expectedLoopIndexName. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 84
+
+resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
+//@[76:77) Local x. Type: any. Declaration start char: 76, length: 1
+//@[79:80) Local y. Type: int. Declaration start char: 79, length: 1
+//@[9:27) Resource expectedInKeyword3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 82
+
+resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
+//@[76:77) Local x. Type: any. Declaration start char: 76, length: 1
+//@[79:80) Local y. Type: int. Declaration start char: 79, length: 1
+//@[9:27) Resource expectedInKeyword4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 84
+
+resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
+//@[82:83) Local x. Type: any. Declaration start char: 82, length: 1
+//@[85:86) Local y. Type: int. Declaration start char: 85, length: 1
+//@[9:33) Resource expectedArrayExpression2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 92
+
+resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
+//@[72:73) Local x. Type: any. Declaration start char: 72, length: 1
+//@[75:76) Local y. Type: int. Declaration start char: 75, length: 1
+//@[9:23) Resource expectedColon2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 83
+
+resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
+//@[75:76) Local x. Type: any. Declaration start char: 75, length: 1
+//@[78:79) Local y. Type: int. Declaration start char: 78, length: 1
+//@[9:26) Resource expectedLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 87
+
 // loop semantic analysis cases
 var emptyArray = []
 //@[4:14) Variable emptyArray. Type: array. Declaration start char: 0, length: 19
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
 //@[81:82) Local x. Type: any. Declaration start char: 81, length: 1
 //@[9:26) Resource wrongLoopBodyType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 99
+resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
+//@[83:84) Local x. Type: any. Declaration start char: 83, length: 1
+//@[86:87) Local i. Type: int. Declaration start char: 86, length: 1
+//@[9:27) Resource wrongLoopBodyType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 105
+
+// duplicate variable in the same scope
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
+//@[80:84) Local same. Type: any. Declaration start char: 80, length: 4
+//@[86:90) Local same. Type: int. Declaration start char: 86, length: 4
+//@[9:29) Resource itemAndIndexSameName. Type: Microsoft.AAD/domainServices@2020-01-01[]. Declaration start char: 0, length: 112
+}]
 
 // errors in the array expression
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
 //@[85:92) Local account. Type: any. Declaration start char: 85, length: 7
 //@[9:30) Resource arrayExpressionErrors. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 115
+}]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
+//@[87:94) Local account. Type: any. Declaration start char: 87, length: 7
+//@[95:96) Local k. Type: int. Declaration start char: 95, length: 1
+//@[9:31) Resource arrayExpressionErrors2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 120
 }]
 
 // wrong array type
@@ -1069,11 +1174,21 @@ resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for ac
 //@[78:85) Local account. Type: any. Declaration start char: 78, length: 7
 //@[9:23) Resource wrongArrayType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 106
 }]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
+//@[80:87) Local account. Type: any. Declaration start char: 80, length: 7
+//@[88:89) Local i. Type: int. Declaration start char: 88, length: 1
+//@[9:24) Resource wrongArrayType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 111
+}]
 
 // missing required properties
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
 //@[89:96) Local account. Type: any. Declaration start char: 89, length: 7
 //@[9:34) Resource missingRequiredProperties. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 109
+}]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
+//@[91:98) Local account. Type: any. Declaration start char: 91, length: 7
+//@[99:100) Local j. Type: int. Declaration start char: 99, length: 1
+//@[9:35) Resource missingRequiredProperties2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 114
 }]
 
 // fewer missing required properties and a wrong property
@@ -1089,14 +1204,27 @@ resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-
 
 // wrong property inside the nested property loop
 resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[89:90) Local i. Type: any. Declaration start char: 89, length: 1
+//@[89:90) Local i. Type: int. Declaration start char: 89, length: 1
 //@[9:34) Resource wrongPropertyInNestedLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 262
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
-//@[18:19) Local j. Type: any. Declaration start char: 18, length: 1
+//@[18:19) Local j. Type: int. Declaration start char: 18, length: 1
       doesNotExist: 'test'
       name: 'subnet-${i}-${j}'
+    }]
+  }
+}]
+resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
+//@[91:92) Local i. Type: int. Declaration start char: 91, length: 1
+//@[93:94) Local k. Type: int. Declaration start char: 93, length: 1
+//@[9:35) Resource wrongPropertyInNestedLoop2. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 272
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for j in range(0, 4): {
+//@[18:19) Local j. Type: int. Declaration start char: 18, length: 1
+      doesNotExist: 'test'
+      name: 'subnet-${i}-${j}-${k}'
     }]
   }
 }]
@@ -1115,75 +1243,106 @@ resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for
   }
 }]
 
-/*
-  valid loop cases - this should be moved to Resources_* test case after codegen works
-*/ 
-var storageAccounts = [
-//@[4:19) Variable storageAccounts. Type: array. Declaration start char: 0, length: 129
-  {
-    name: 'one'
-    location: 'eastus2'
-  }
-  {
-    name: 'two'
-    location: 'westus'
-  }
-]
-// duplicate identifiers within the loop are allowed
-resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[94:95) Local i. Type: any. Declaration start char: 94, length: 1
-//@[9:39) Resource duplicateIdentifiersWithinLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 239
-  name: 'vnet-${i}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-//@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
-var canHaveDuplicatesAcrossScopes = 'hello'
-//@[4:33) Variable canHaveDuplicatesAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 43
-resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
-//@[91:120) Local canHaveDuplicatesAcrossScopes. Type: any. Declaration start char: 91, length: 29
-//@[9:36) Resource duplicateInGlobalAndOneLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 292
-  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-//@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
-var duplicatesEverywhere = 'hello'
-//@[4:24) Variable duplicatesEverywhere. Type: 'hello'. Declaration start char: 0, length: 34
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
-//@[92:112) Local duplicatesEverywhere. Type: any. Declaration start char: 92, length: 20
-//@[9:37) Resource duplicateInGlobalAndTwoLoops. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 308
-  name: 'vnet-${duplicatesEverywhere}'
-  properties: {
-    subnets: [for duplicatesEverywhere in range(0, 4): {
-//@[18:38) Local duplicatesEverywhere. Type: any. Declaration start char: 18, length: 20
-      name: 'subnet-${duplicatesEverywhere}'
-    }]
-  }
-}]
-// just a storage account loop
-resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[80:87) Local account. Type: any. Declaration start char: 80, length: 7
-//@[9:25) Resource storageResources. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 227
+// property loops cannot be nested
+resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[87:94) Local account. Type: any. Declaration start char: 87, length: 7
+//@[9:32) Resource propertyLoopsCannotNest. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 428
   name: account.name
   location: account.location
   sku: {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
+  properties: {
+
+    networkAcls: {
+      virtualNetworkRules: [for rule in []: {
+//@[32:36) Local rule. Type: any. Declaration start char: 32, length: 4
+        id: '${account.name}-${account.location}'
+        state: [for lol in []: 4]
+//@[20:23) Local lol. Type: any. Declaration start char: 20, length: 3
+      }]
+    }
+  }
 }]
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in storageAccounts: {
+//@[89:96) Local account. Type: any. Declaration start char: 89, length: 7
+//@[97:98) Local i. Type: int. Declaration start char: 97, length: 1
+//@[9:33) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 441
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+
+    networkAcls: {
+      virtualNetworkRules: [for (rule,j) in []: {
+//@[33:37) Local rule. Type: any. Declaration start char: 33, length: 4
+//@[38:39) Local j. Type: int. Declaration start char: 38, length: 1
+        id: '${account.name}-${account.location}'
+        state: [for (lol,k) in []: 4]
+//@[21:24) Local lol. Type: any. Declaration start char: 21, length: 3
+//@[25:26) Local k. Type: int. Declaration start char: 25, length: 1
+      }]
+    }
+  }
+}]
+
+// property loops cannot be nested (even more nesting)
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[88:95) Local account. Type: any. Declaration start char: 88, length: 7
+//@[9:33) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 720
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    // #completionTest(17) -> symbolsPlusAccount
+    networkAcls: {
+      virtualNetworkRules: [for rule in []: {
+//@[32:36) Local rule. Type: any. Declaration start char: 32, length: 4
+        // #completionTest(12,15,31) -> symbolsPlusRule
+        id: '${account.name}-${account.location}'
+        state: [for state in []: {
+//@[20:25) Local state. Type: any. Declaration start char: 20, length: 5
+          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+          fake: [for something in []: true]
+//@[21:30) Local something. Type: any. Declaration start char: 21, length: 9
+        }]
+      }]
+    }
+  }
+}]
+
+// loops cannot be used inside of expressions
+resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[70:77) Local account. Type: any. Declaration start char: 70, length: 7
+//@[9:15) Resource stuffs. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 381
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    networkAcls: {
+      virtualNetworkRules: concat([for lol in []: {
+//@[39:42) Local lol. Type: any. Declaration start char: 39, length: 3
+        id: '${account.name}-${account.location}'
+      }])
+    }
+  }
+}]
+
 // using the same loop variable in a new language scope should be allowed
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[79:86) Local account. Type: any. Declaration start char: 79, length: 7
-//@[9:24) Resource premiumStorages. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 271
+//@[9:24) Resource premiumStorages. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 321
+  // #completionTest(7,8) -> symbolsPlusAccount2
   name: account.name
   location: account.location
   sku: {
@@ -1192,16 +1351,114 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
   }
   kind: 'StorageV2'
 }]
-// basic nested loop
-resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[68:69) Local i. Type: any. Declaration start char: 68, length: 1
-//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 279
+
+var directRefViaVar = premiumStorages
+//@[4:19) Variable directRefViaVar. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 37
+output directRefViaOutput array = union(premiumStorages, stuffs)
+//@[7:25) Output directRefViaOutput. Type: array. Declaration start char: 0, length: 64
+
+resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
+//@[9:39) Resource directRefViaSingleResourceBody. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 199
+  name: 'myZone2'
+  location: 'global'
+  properties: {
+    registrationVirtualNetworks: premiumStorages
+  }
+}
+
+resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' = if(true) {
+//@[9:50) Resource directRefViaSingleConditionalResourceBody. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 235
+  name: 'myZone3'
+  location: 'global'
+  properties: {
+    registrationVirtualNetworks: concat(premiumStorages, stuffs)
+  }
+}
+
+@batchSize()
+resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[98:99) Local i. Type: int. Declaration start char: 98, length: 1
+//@[9:43) Resource directRefViaSingleLoopResourceBody. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 208
   name: 'vnet-${i}'
   properties: {
-    subnets: [for j in range(0, 4): {
-//@[18:19) Local j. Type: any. Declaration start char: 18, length: 1
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
-      name: 'subnet-${i}-${j}'
+    subnets: premiumStorages
+  }
+}]
+
+@batchSize(0)
+resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[116:117) Local i. Type: int. Declaration start char: 116, length: 1
+//@[9:61) Resource directRefViaSingleLoopResourceBodyWithExtraDependsOn. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 302
+  name: 'vnet-${i}'
+  properties: {
+    subnets: premiumStorages
+    dependsOn: [
+      premiumStorages
+    ]
+  }
+  dependsOn: [
+    
+  ]
+}]
+
+var expressionInPropertyLoopVar = true
+//@[4:31) Variable expressionInPropertyLoopVar. Type: bool. Declaration start char: 0, length: 38
+resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[9:38) Resource expressionsInPropertyLoopName. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 232
+  name: 'hello'
+  location: 'eastus'
+  properties: {
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
+//@[68:73) Local thing. Type: any. Declaration start char: 68, length: 5
+  }
+}
+
+// resource loop body that isn't an object
+@batchSize(-1)
+resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
+//@[82:87) Local thing. Type: any. Declaration start char: 82, length: 5
+//@[9:34) Resource nonObjectResourceLoopBody. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 118
+resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
+//@[83:88) Local thing. Type: any. Declaration start char: 83, length: 5
+//@[9:35) Resource nonObjectResourceLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
+//@[84:89) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[90:91) Local i. Type: int. Declaration start char: 90, length: 1
+//@[9:35) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 107
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
+//@[84:89) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[90:91) Local i. Type: int. Declaration start char: 90, length: 1
+//@[9:35) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 114
+
+// #completionTest(54,55) -> objectPlusFor
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+//@[9:12) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 55
+
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
+//@[60:64) Local item. Type: any. Declaration start char: 60, length: 4
+//@[9:12) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 257
+  properties: {
+    // #completionTest(32,33) -> symbolsPlusArrayAndFor
+    registrationVirtualNetworks: 
+    resolutionVirtualNetworks: [for lol in []: {
+//@[36:39) Local lol. Type: any. Declaration start char: 36, length: 3
+      
     }]
   }
 }]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 325
+  properties: {
+    virtualNetworkPeerings: [for item in []: {
+//@[33:37) Local item. Type: any. Declaration start char: 33, length: 4
+        properties: {
+          remoteAddressSpace: {
+            // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
+            addressPrefixes: 
+          }
+        }
+    }]
+  }
+}
+

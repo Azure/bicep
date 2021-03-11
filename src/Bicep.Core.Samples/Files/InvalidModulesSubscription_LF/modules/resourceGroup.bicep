@@ -1,2 +1,2 @@
-targetScope = 'resourceGgroup'
+targetScope = 'resourceGroup'
 

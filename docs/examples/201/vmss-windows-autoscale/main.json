@@ -22,8 +22,8 @@
     },
     "instanceCount": {
       "type": "int",
-      "minValue": 1,
-      "maxValue": 100
+      "maxValue": 100,
+      "minValue": 1
     },
     "adminUsername": {
       "type": "string"
@@ -269,7 +269,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4611734565961028292"
+      "templateHash": "12362748810483649058"
     }
   }
 }

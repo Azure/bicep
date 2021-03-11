@@ -1968,4 +1968,701 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 //@[18:20)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+/*
+  valid loop cases
+*/ 
+//@[3:5) NewLine |\r\n|
+var storageAccounts = [
+//@[0:129) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |storageAccounts|
+//@[20:21)  Assignment |=|
+//@[22:129)  ArraySyntax
+//@[22:23)   LeftSquare |[|
+//@[23:25)   NewLine |\r\n|
+  {
+//@[2:50)   ArrayItemSyntax
+//@[2:50)    ObjectSyntax
+//@[2:3)     LeftBrace |{|
+//@[3:5)     NewLine |\r\n|
+    name: 'one'
+//@[4:15)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:15)      StringSyntax
+//@[10:15)       StringComplete |'one'|
+//@[15:17)     NewLine |\r\n|
+    location: 'eastus2'
+//@[4:23)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |location|
+//@[12:13)      Colon |:|
+//@[14:23)      StringSyntax
+//@[14:23)       StringComplete |'eastus2'|
+//@[23:25)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  {
+//@[2:49)   ArrayItemSyntax
+//@[2:49)    ObjectSyntax
+//@[2:3)     LeftBrace |{|
+//@[3:5)     NewLine |\r\n|
+    name: 'two'
+//@[4:15)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:15)      StringSyntax
+//@[10:15)       StringComplete |'two'|
+//@[15:17)     NewLine |\r\n|
+    location: 'westus'
+//@[4:22)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |location|
+//@[12:13)      Colon |:|
+//@[14:22)      StringSyntax
+//@[14:22)       StringComplete |'westus'|
+//@[22:24)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:5) NewLine |\r\n\r\n|
+
+// just a storage account loop
+//@[30:32) NewLine |\r\n|
+resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[0:227) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |storageResources|
+//@[26:72)  StringSyntax
+//@[26:72)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[73:74)  Assignment |=|
+//@[75:227)  ForSyntax
+//@[75:76)   LeftSquare |[|
+//@[76:79)   Identifier |for|
+//@[80:87)   LocalVariableSyntax
+//@[80:87)    IdentifierSyntax
+//@[80:87)     Identifier |account|
+//@[88:90)   Identifier |in|
+//@[91:106)   VariableAccessSyntax
+//@[91:106)    IdentifierSyntax
+//@[91:106)     Identifier |storageAccounts|
+//@[106:107)   Colon |:|
+//@[108:226)   ObjectSyntax
+//@[108:109)    LeftBrace |{|
+//@[109:111)    NewLine |\r\n|
+  name: account.name
+//@[2:20)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:20)     PropertyAccessSyntax
+//@[8:15)      VariableAccessSyntax
+//@[8:15)       IdentifierSyntax
+//@[8:15)        Identifier |account|
+//@[15:16)      Dot |.|
+//@[16:20)      IdentifierSyntax
+//@[16:20)       Identifier |name|
+//@[20:22)    NewLine |\r\n|
+  location: account.location
+//@[2:28)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:28)     PropertyAccessSyntax
+//@[12:19)      VariableAccessSyntax
+//@[12:19)       IdentifierSyntax
+//@[12:19)        Identifier |account|
+//@[19:20)      Dot |.|
+//@[20:28)      IdentifierSyntax
+//@[20:28)       Identifier |location|
+//@[28:30)    NewLine |\r\n|
+  sku: {
+//@[2:39)    ObjectPropertySyntax
+//@[2:5)     IdentifierSyntax
+//@[2:5)      Identifier |sku|
+//@[5:6)     Colon |:|
+//@[7:39)     ObjectSyntax
+//@[7:8)      LeftBrace |{|
+//@[8:10)      NewLine |\r\n|
+    name: 'Standard_LRS'
+//@[4:24)      ObjectPropertySyntax
+//@[4:8)       IdentifierSyntax
+//@[4:8)        Identifier |name|
+//@[8:9)       Colon |:|
+//@[10:24)       StringSyntax
+//@[10:24)        StringComplete |'Standard_LRS'|
+//@[24:26)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:19)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |kind|
+//@[6:7)     Colon |:|
+//@[8:19)     StringSyntax
+//@[8:19)      StringComplete |'StorageV2'|
+//@[19:21)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// storage account loop with index
+//@[34:36) NewLine |\r\n|
+resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
+//@[0:250) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:34)  IdentifierSyntax
+//@[9:34)   Identifier |storageResourcesWithIndex|
+//@[35:81)  StringSyntax
+//@[35:81)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[82:83)  Assignment |=|
+//@[84:250)  ForSyntax
+//@[84:85)   LeftSquare |[|
+//@[85:88)   Identifier |for|
+//@[89:101)   ForVariableBlockSyntax
+//@[89:90)    LeftParen |(|
+//@[90:97)    LocalVariableSyntax
+//@[90:97)     IdentifierSyntax
+//@[90:97)      Identifier |account|
+//@[97:98)    Comma |,|
+//@[99:100)    LocalVariableSyntax
+//@[99:100)     IdentifierSyntax
+//@[99:100)      Identifier |i|
+//@[100:101)    RightParen |)|
+//@[102:104)   Identifier |in|
+//@[105:120)   VariableAccessSyntax
+//@[105:120)    IdentifierSyntax
+//@[105:120)     Identifier |storageAccounts|
+//@[120:121)   Colon |:|
+//@[122:249)   ObjectSyntax
+//@[122:123)    LeftBrace |{|
+//@[123:125)    NewLine |\r\n|
+  name: '${account.name}${i}'
+//@[2:29)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:29)     StringSyntax
+//@[8:11)      StringLeftPiece |'${|
+//@[11:23)      PropertyAccessSyntax
+//@[11:18)       VariableAccessSyntax
+//@[11:18)        IdentifierSyntax
+//@[11:18)         Identifier |account|
+//@[18:19)       Dot |.|
+//@[19:23)       IdentifierSyntax
+//@[19:23)        Identifier |name|
+//@[23:26)      StringMiddlePiece |}${|
+//@[26:27)      VariableAccessSyntax
+//@[26:27)       IdentifierSyntax
+//@[26:27)        Identifier |i|
+//@[27:29)      StringRightPiece |}'|
+//@[29:31)    NewLine |\r\n|
+  location: account.location
+//@[2:28)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:28)     PropertyAccessSyntax
+//@[12:19)      VariableAccessSyntax
+//@[12:19)       IdentifierSyntax
+//@[12:19)        Identifier |account|
+//@[19:20)      Dot |.|
+//@[20:28)      IdentifierSyntax
+//@[20:28)       Identifier |location|
+//@[28:30)    NewLine |\r\n|
+  sku: {
+//@[2:39)    ObjectPropertySyntax
+//@[2:5)     IdentifierSyntax
+//@[2:5)      Identifier |sku|
+//@[5:6)     Colon |:|
+//@[7:39)     ObjectSyntax
+//@[7:8)      LeftBrace |{|
+//@[8:10)      NewLine |\r\n|
+    name: 'Standard_LRS'
+//@[4:24)      ObjectPropertySyntax
+//@[4:8)       IdentifierSyntax
+//@[4:8)        Identifier |name|
+//@[8:9)       Colon |:|
+//@[10:24)       StringSyntax
+//@[10:24)        StringComplete |'Standard_LRS'|
+//@[24:26)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:19)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |kind|
+//@[6:7)     Colon |:|
+//@[8:19)     StringSyntax
+//@[8:19)      StringComplete |'StorageV2'|
+//@[19:21)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// basic nested loop
+//@[20:22) NewLine |\r\n|
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[0:279) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:13)  IdentifierSyntax
+//@[9:13)   Identifier |vnet|
+//@[14:60)  StringSyntax
+//@[14:60)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[61:62)  Assignment |=|
+//@[63:279)  ForSyntax
+//@[63:64)   LeftSquare |[|
+//@[64:67)   Identifier |for|
+//@[68:69)   LocalVariableSyntax
+//@[68:69)    IdentifierSyntax
+//@[68:69)     Identifier |i|
+//@[70:72)   Identifier |in|
+//@[73:84)   FunctionCallSyntax
+//@[73:78)    IdentifierSyntax
+//@[73:78)     Identifier |range|
+//@[78:79)    LeftParen |(|
+//@[79:81)    FunctionArgumentSyntax
+//@[79:80)     IntegerLiteralSyntax
+//@[79:80)      Integer |0|
+//@[80:81)     Comma |,|
+//@[82:83)    FunctionArgumentSyntax
+//@[82:83)     IntegerLiteralSyntax
+//@[82:83)      Integer |3|
+//@[83:84)    RightParen |)|
+//@[84:85)   Colon |:|
+//@[86:278)   ObjectSyntax
+//@[86:87)    LeftBrace |{|
+//@[87:89)    NewLine |\r\n|
+  name: 'vnet-${i}'
+//@[2:19)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:19)     StringSyntax
+//@[8:16)      StringLeftPiece |'vnet-${|
+//@[16:17)      VariableAccessSyntax
+//@[16:17)       IdentifierSyntax
+//@[16:17)        Identifier |i|
+//@[17:19)      StringRightPiece |}'|
+//@[19:21)    NewLine |\r\n|
+  properties: {
+//@[2:165)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:165)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    subnets: [for j in range(0, 4): {
+//@[4:143)      ObjectPropertySyntax
+//@[4:11)       IdentifierSyntax
+//@[4:11)        Identifier |subnets|
+//@[11:12)       Colon |:|
+//@[13:143)       ForSyntax
+//@[13:14)        LeftSquare |[|
+//@[14:17)        Identifier |for|
+//@[18:19)        LocalVariableSyntax
+//@[18:19)         IdentifierSyntax
+//@[18:19)          Identifier |j|
+//@[20:22)        Identifier |in|
+//@[23:34)        FunctionCallSyntax
+//@[23:28)         IdentifierSyntax
+//@[23:28)          Identifier |range|
+//@[28:29)         LeftParen |(|
+//@[29:31)         FunctionArgumentSyntax
+//@[29:30)          IntegerLiteralSyntax
+//@[29:30)           Integer |0|
+//@[30:31)          Comma |,|
+//@[32:33)         FunctionArgumentSyntax
+//@[32:33)          IntegerLiteralSyntax
+//@[32:33)           Integer |4|
+//@[33:34)         RightParen |)|
+//@[34:35)        Colon |:|
+//@[36:142)        ObjectSyntax
+//@[36:37)         LeftBrace |{|
+//@[37:39)         NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
+//@[64:66)         NewLine |\r\n|
+      name: 'subnet-${i}-${j}'
+//@[6:30)         ObjectPropertySyntax
+//@[6:10)          IdentifierSyntax
+//@[6:10)           Identifier |name|
+//@[10:11)          Colon |:|
+//@[12:30)          StringSyntax
+//@[12:22)           StringLeftPiece |'subnet-${|
+//@[22:23)           VariableAccessSyntax
+//@[22:23)            IdentifierSyntax
+//@[22:23)             Identifier |i|
+//@[23:27)           StringMiddlePiece |}-${|
+//@[27:28)           VariableAccessSyntax
+//@[27:28)            IdentifierSyntax
+//@[27:28)             Identifier |j|
+//@[28:30)           StringRightPiece |}'|
+//@[30:32)         NewLine |\r\n|
+    }]
+//@[4:5)         RightBrace |}|
+//@[5:6)        RightSquare |]|
+//@[6:8)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// duplicate identifiers within the loop are allowed
+//@[52:54) NewLine |\r\n|
+resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[0:239) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:39)  IdentifierSyntax
+//@[9:39)   Identifier |duplicateIdentifiersWithinLoop|
+//@[40:86)  StringSyntax
+//@[40:86)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[87:88)  Assignment |=|
+//@[89:239)  ForSyntax
+//@[89:90)   LeftSquare |[|
+//@[90:93)   Identifier |for|
+//@[94:95)   LocalVariableSyntax
+//@[94:95)    IdentifierSyntax
+//@[94:95)     Identifier |i|
+//@[96:98)   Identifier |in|
+//@[99:110)   FunctionCallSyntax
+//@[99:104)    IdentifierSyntax
+//@[99:104)     Identifier |range|
+//@[104:105)    LeftParen |(|
+//@[105:107)    FunctionArgumentSyntax
+//@[105:106)     IntegerLiteralSyntax
+//@[105:106)      Integer |0|
+//@[106:107)     Comma |,|
+//@[108:109)    FunctionArgumentSyntax
+//@[108:109)     IntegerLiteralSyntax
+//@[108:109)      Integer |3|
+//@[109:110)    RightParen |)|
+//@[110:111)   Colon |:|
+//@[112:238)   ObjectSyntax
+//@[112:113)    LeftBrace |{|
+//@[113:115)    NewLine |\r\n|
+  name: 'vnet-${i}'
+//@[2:19)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:19)     StringSyntax
+//@[8:16)      StringLeftPiece |'vnet-${|
+//@[16:17)      VariableAccessSyntax
+//@[16:17)       IdentifierSyntax
+//@[16:17)        Identifier |i|
+//@[17:19)      StringRightPiece |}'|
+//@[19:21)    NewLine |\r\n|
+  properties: {
+//@[2:99)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:99)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    subnets: [for i in range(0, 4): {
+//@[4:77)      ObjectPropertySyntax
+//@[4:11)       IdentifierSyntax
+//@[4:11)        Identifier |subnets|
+//@[11:12)       Colon |:|
+//@[13:77)       ForSyntax
+//@[13:14)        LeftSquare |[|
+//@[14:17)        Identifier |for|
+//@[18:19)        LocalVariableSyntax
+//@[18:19)         IdentifierSyntax
+//@[18:19)          Identifier |i|
+//@[20:22)        Identifier |in|
+//@[23:34)        FunctionCallSyntax
+//@[23:28)         IdentifierSyntax
+//@[23:28)          Identifier |range|
+//@[28:29)         LeftParen |(|
+//@[29:31)         FunctionArgumentSyntax
+//@[29:30)          IntegerLiteralSyntax
+//@[29:30)           Integer |0|
+//@[30:31)          Comma |,|
+//@[32:33)         FunctionArgumentSyntax
+//@[32:33)          IntegerLiteralSyntax
+//@[32:33)           Integer |4|
+//@[33:34)         RightParen |)|
+//@[34:35)        Colon |:|
+//@[36:76)        ObjectSyntax
+//@[36:37)         LeftBrace |{|
+//@[37:39)         NewLine |\r\n|
+      name: 'subnet-${i}-${i}'
+//@[6:30)         ObjectPropertySyntax
+//@[6:10)          IdentifierSyntax
+//@[6:10)           Identifier |name|
+//@[10:11)          Colon |:|
+//@[12:30)          StringSyntax
+//@[12:22)           StringLeftPiece |'subnet-${|
+//@[22:23)           VariableAccessSyntax
+//@[22:23)            IdentifierSyntax
+//@[22:23)             Identifier |i|
+//@[23:27)           StringMiddlePiece |}-${|
+//@[27:28)           VariableAccessSyntax
+//@[27:28)            IdentifierSyntax
+//@[27:28)             Identifier |i|
+//@[28:30)           StringRightPiece |}'|
+//@[30:32)         NewLine |\r\n|
+    }]
+//@[4:5)         RightBrace |}|
+//@[5:6)        RightSquare |]|
+//@[6:8)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+//@[100:102) NewLine |\r\n|
+var canHaveDuplicatesAcrossScopes = 'hello'
+//@[0:43) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:33)  IdentifierSyntax
+//@[4:33)   Identifier |canHaveDuplicatesAcrossScopes|
+//@[34:35)  Assignment |=|
+//@[36:43)  StringSyntax
+//@[36:43)   StringComplete |'hello'|
+//@[43:45) NewLine |\r\n|
+resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
+//@[0:292) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:36)  IdentifierSyntax
+//@[9:36)   Identifier |duplicateInGlobalAndOneLoop|
+//@[37:83)  StringSyntax
+//@[37:83)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[84:85)  Assignment |=|
+//@[86:292)  ForSyntax
+//@[86:87)   LeftSquare |[|
+//@[87:90)   Identifier |for|
+//@[91:120)   LocalVariableSyntax
+//@[91:120)    IdentifierSyntax
+//@[91:120)     Identifier |canHaveDuplicatesAcrossScopes|
+//@[121:123)   Identifier |in|
+//@[124:135)   FunctionCallSyntax
+//@[124:129)    IdentifierSyntax
+//@[124:129)     Identifier |range|
+//@[129:130)    LeftParen |(|
+//@[130:132)    FunctionArgumentSyntax
+//@[130:131)     IntegerLiteralSyntax
+//@[130:131)      Integer |0|
+//@[131:132)     Comma |,|
+//@[133:134)    FunctionArgumentSyntax
+//@[133:134)     IntegerLiteralSyntax
+//@[133:134)      Integer |3|
+//@[134:135)    RightParen |)|
+//@[135:136)   Colon |:|
+//@[137:291)   ObjectSyntax
+//@[137:138)    LeftBrace |{|
+//@[138:140)    NewLine |\r\n|
+  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
+//@[2:47)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:47)     StringSyntax
+//@[8:16)      StringLeftPiece |'vnet-${|
+//@[16:45)      VariableAccessSyntax
+//@[16:45)       IdentifierSyntax
+//@[16:45)        Identifier |canHaveDuplicatesAcrossScopes|
+//@[45:47)      StringRightPiece |}'|
+//@[47:49)    NewLine |\r\n|
+  properties: {
+//@[2:99)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:99)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    subnets: [for i in range(0, 4): {
+//@[4:77)      ObjectPropertySyntax
+//@[4:11)       IdentifierSyntax
+//@[4:11)        Identifier |subnets|
+//@[11:12)       Colon |:|
+//@[13:77)       ForSyntax
+//@[13:14)        LeftSquare |[|
+//@[14:17)        Identifier |for|
+//@[18:19)        LocalVariableSyntax
+//@[18:19)         IdentifierSyntax
+//@[18:19)          Identifier |i|
+//@[20:22)        Identifier |in|
+//@[23:34)        FunctionCallSyntax
+//@[23:28)         IdentifierSyntax
+//@[23:28)          Identifier |range|
+//@[28:29)         LeftParen |(|
+//@[29:31)         FunctionArgumentSyntax
+//@[29:30)          IntegerLiteralSyntax
+//@[29:30)           Integer |0|
+//@[30:31)          Comma |,|
+//@[32:33)         FunctionArgumentSyntax
+//@[32:33)          IntegerLiteralSyntax
+//@[32:33)           Integer |4|
+//@[33:34)         RightParen |)|
+//@[34:35)        Colon |:|
+//@[36:76)        ObjectSyntax
+//@[36:37)         LeftBrace |{|
+//@[37:39)         NewLine |\r\n|
+      name: 'subnet-${i}-${i}'
+//@[6:30)         ObjectPropertySyntax
+//@[6:10)          IdentifierSyntax
+//@[6:10)           Identifier |name|
+//@[10:11)          Colon |:|
+//@[12:30)          StringSyntax
+//@[12:22)           StringLeftPiece |'subnet-${|
+//@[22:23)           VariableAccessSyntax
+//@[22:23)            IdentifierSyntax
+//@[22:23)             Identifier |i|
+//@[23:27)           StringMiddlePiece |}-${|
+//@[27:28)           VariableAccessSyntax
+//@[27:28)            IdentifierSyntax
+//@[27:28)             Identifier |i|
+//@[28:30)           StringRightPiece |}'|
+//@[30:32)         NewLine |\r\n|
+    }]
+//@[4:5)         RightBrace |}|
+//@[5:6)        RightSquare |]|
+//@[6:8)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
+//@[83:85) NewLine |\r\n|
+var duplicatesEverywhere = 'hello'
+//@[0:34) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |duplicatesEverywhere|
+//@[25:26)  Assignment |=|
+//@[27:34)  StringSyntax
+//@[27:34)   StringComplete |'hello'|
+//@[34:36) NewLine |\r\n|
+resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
+//@[0:308) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:37)  IdentifierSyntax
+//@[9:37)   Identifier |duplicateInGlobalAndTwoLoops|
+//@[38:84)  StringSyntax
+//@[38:84)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[85:86)  Assignment |=|
+//@[87:308)  ForSyntax
+//@[87:88)   LeftSquare |[|
+//@[88:91)   Identifier |for|
+//@[92:112)   LocalVariableSyntax
+//@[92:112)    IdentifierSyntax
+//@[92:112)     Identifier |duplicatesEverywhere|
+//@[113:115)   Identifier |in|
+//@[116:127)   FunctionCallSyntax
+//@[116:121)    IdentifierSyntax
+//@[116:121)     Identifier |range|
+//@[121:122)    LeftParen |(|
+//@[122:124)    FunctionArgumentSyntax
+//@[122:123)     IntegerLiteralSyntax
+//@[122:123)      Integer |0|
+//@[123:124)     Comma |,|
+//@[125:126)    FunctionArgumentSyntax
+//@[125:126)     IntegerLiteralSyntax
+//@[125:126)      Integer |3|
+//@[126:127)    RightParen |)|
+//@[127:128)   Colon |:|
+//@[129:307)   ObjectSyntax
+//@[129:130)    LeftBrace |{|
+//@[130:132)    NewLine |\r\n|
+  name: 'vnet-${duplicatesEverywhere}'
+//@[2:38)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:38)     StringSyntax
+//@[8:16)      StringLeftPiece |'vnet-${|
+//@[16:36)      VariableAccessSyntax
+//@[16:36)       IdentifierSyntax
+//@[16:36)        Identifier |duplicatesEverywhere|
+//@[36:38)      StringRightPiece |}'|
+//@[38:40)    NewLine |\r\n|
+  properties: {
+//@[2:132)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:132)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    subnets: [for duplicatesEverywhere in range(0, 4): {
+//@[4:110)      ObjectPropertySyntax
+//@[4:11)       IdentifierSyntax
+//@[4:11)        Identifier |subnets|
+//@[11:12)       Colon |:|
+//@[13:110)       ForSyntax
+//@[13:14)        LeftSquare |[|
+//@[14:17)        Identifier |for|
+//@[18:38)        LocalVariableSyntax
+//@[18:38)         IdentifierSyntax
+//@[18:38)          Identifier |duplicatesEverywhere|
+//@[39:41)        Identifier |in|
+//@[42:53)        FunctionCallSyntax
+//@[42:47)         IdentifierSyntax
+//@[42:47)          Identifier |range|
+//@[47:48)         LeftParen |(|
+//@[48:50)         FunctionArgumentSyntax
+//@[48:49)          IntegerLiteralSyntax
+//@[48:49)           Integer |0|
+//@[49:50)          Comma |,|
+//@[51:52)         FunctionArgumentSyntax
+//@[51:52)          IntegerLiteralSyntax
+//@[51:52)           Integer |4|
+//@[52:53)         RightParen |)|
+//@[53:54)        Colon |:|
+//@[55:109)        ObjectSyntax
+//@[55:56)         LeftBrace |{|
+//@[56:58)         NewLine |\r\n|
+      name: 'subnet-${duplicatesEverywhere}'
+//@[6:44)         ObjectPropertySyntax
+//@[6:10)          IdentifierSyntax
+//@[6:10)           Identifier |name|
+//@[10:11)          Colon |:|
+//@[12:44)          StringSyntax
+//@[12:22)           StringLeftPiece |'subnet-${|
+//@[22:42)           VariableAccessSyntax
+//@[22:42)            IdentifierSyntax
+//@[22:42)             Identifier |duplicatesEverywhere|
+//@[42:44)           StringRightPiece |}'|
+//@[44:46)         NewLine |\r\n|
+    }]
+//@[4:5)         RightBrace |}|
+//@[5:6)        RightSquare |]|
+//@[6:8)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

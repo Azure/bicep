@@ -1,26 +1,26 @@
 param location string = resourceGroup().location
 param aseName string
-param internalLoadBalancingMode string {
-  default: 'Web,Publishing'
-  allowed: [
-    'None'
-    'Publishing'
-    'Web'
-    'Web,Publishing'
-  ]
-}
+
+@allowed([
+  'None'
+  'Publishing'
+  'Web'
+  'Web,Publishing'
+])
+param internalLoadBalancingMode string = 'Web,Publishing'
+
 param dnsSuffix string
 param websiteName string
 param appServicePlanName string
 param numberOfWorkers int = 1
-param workerPool string {
-  default: '1'
-  allowed: [
-    '1'
-    '2'
-    '3'
-  ]
-}
+
+@allowed([
+  '1'
+  '2'
+  '3'
+])
+param workerPool string = '1'
+
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'vnet-01'
   location: location

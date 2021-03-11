@@ -10,8 +10,8 @@
     },
     "dbAdminPassword": {
       "type": "secureString",
-      "minLength": 8,
-      "maxLength": 128
+      "maxLength": 128,
+      "minLength": 8
     },
     "dbSkuCapacity": {
       "type": "int",
@@ -170,7 +170,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10938510001943113378"
+      "templateHash": "8297474907643471144"
     }
   }
 }

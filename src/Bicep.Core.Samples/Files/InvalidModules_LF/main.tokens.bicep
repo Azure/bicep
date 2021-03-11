@@ -972,6 +972,149 @@ module runtimeInvalidModule6 'empty.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module singleModuleForRuntimeCheck 'modulea.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:34) Identifier |singleModuleForRuntimeCheck|
+//@[35:50) StringComplete |'modulea.bicep'|
+//@[51:52) Assignment |=|
+//@[53:54) LeftBrace |{|
+//@[54:55) NewLine |\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:15) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |moduleRuntimeCheck|
+//@[23:24) Assignment |=|
+//@[25:52) Identifier |singleModuleForRuntimeCheck|
+//@[52:53) Dot |.|
+//@[53:60) Identifier |outputs|
+//@[60:61) Dot |.|
+//@[61:74) Identifier |stringOutputA|
+//@[74:75) NewLine |\n|
+var moduleRuntimeCheck2 = moduleRuntimeCheck
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |moduleRuntimeCheck2|
+//@[24:25) Assignment |=|
+//@[26:44) Identifier |moduleRuntimeCheck|
+//@[44:46) NewLine |\n\n|
+
+module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
+//@[0:6) Identifier |module|
+//@[7:32) Identifier |moduleLoopForRuntimeCheck|
+//@[33:48) StringComplete |'modulea.bicep'|
+//@[49:50) Assignment |=|
+//@[51:52) LeftSquare |[|
+//@[52:55) Identifier |for|
+//@[56:61) Identifier |thing|
+//@[62:64) Identifier |in|
+//@[65:66) LeftSquare |[|
+//@[66:67) RightSquare |]|
+//@[67:68) Colon |:|
+//@[69:70) LeftBrace |{|
+//@[70:71) NewLine |\n|
+  name: moduleRuntimeCheck2
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:27) Identifier |moduleRuntimeCheck2|
+//@[27:28) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |moduleRuntimeCheck3|
+//@[24:25) Assignment |=|
+//@[26:51) Identifier |moduleLoopForRuntimeCheck|
+//@[51:52) LeftSquare |[|
+//@[52:53) Integer |1|
+//@[53:54) RightSquare |]|
+//@[54:55) Dot |.|
+//@[55:62) Identifier |outputs|
+//@[62:63) Dot |.|
+//@[63:76) Identifier |stringOutputB|
+//@[76:77) NewLine |\n|
+var moduleRuntimeCheck4 = moduleRuntimeCheck3
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |moduleRuntimeCheck4|
+//@[24:25) Assignment |=|
+//@[26:45) Identifier |moduleRuntimeCheck3|
+//@[45:46) NewLine |\n|
+module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
+//@[0:6) Identifier |module|
+//@[7:33) Identifier |moduleLoopForRuntimeCheck2|
+//@[34:49) StringComplete |'modulea.bicep'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftSquare |[|
+//@[53:56) Identifier |for|
+//@[57:62) Identifier |thing|
+//@[63:65) Identifier |in|
+//@[66:67) LeftSquare |[|
+//@[67:68) RightSquare |]|
+//@[68:69) Colon |:|
+//@[70:71) LeftBrace |{|
+//@[71:72) NewLine |\n|
+  name: moduleRuntimeCheck4
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:27) Identifier |moduleRuntimeCheck4|
+//@[27:28) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
+//@[0:6) Identifier |module|
+//@[7:33) Identifier |moduleLoopForRuntimeCheck3|
+//@[34:49) StringComplete |'modulea.bicep'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftSquare |[|
+//@[53:56) Identifier |for|
+//@[57:62) Identifier |thing|
+//@[63:65) Identifier |in|
+//@[66:67) LeftSquare |[|
+//@[67:68) RightSquare |]|
+//@[68:69) Colon |:|
+//@[70:71) LeftBrace |{|
+//@[71:72) NewLine |\n|
+  name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) Identifier |concat|
+//@[14:15) LeftParen |(|
+//@[15:40) Identifier |moduleLoopForRuntimeCheck|
+//@[40:41) LeftSquare |[|
+//@[41:42) Integer |1|
+//@[42:43) RightSquare |]|
+//@[43:44) Dot |.|
+//@[44:51) Identifier |outputs|
+//@[51:52) Dot |.|
+//@[52:65) Identifier |stringOutputB|
+//@[65:66) Comma |,|
+//@[67:92) Identifier |moduleLoopForRuntimeCheck|
+//@[92:93) LeftSquare |[|
+//@[93:94) Integer |1|
+//@[94:95) RightSquare |]|
+//@[95:96) Dot |.|
+//@[96:103) Identifier |outputs|
+//@[103:104) Dot |.|
+//@[104:117) Identifier |stringOutputA|
+//@[118:119) RightParen |)|
+//@[119:120) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
 module moduleWithDuplicateName1 './empty.bicep' = {
 //@[0:6) Identifier |module|
 //@[7:31) Identifier |moduleWithDuplicateName1|
@@ -1228,6 +1371,113 @@ module expectedLoopBody 'modulea.bicep' = [for x in y:]
 //@[54:55) RightSquare |]|
 //@[55:57) NewLine |\n\n|
 
+// indexed loop parsing cases
+//@[29:30) NewLine |\n|
+module expectedItemVarName 'modulea.bicep' = [for ()]
+//@[0:6) Identifier |module|
+//@[7:26) Identifier |expectedItemVarName|
+//@[27:42) StringComplete |'modulea.bicep'|
+//@[43:44) Assignment |=|
+//@[45:46) LeftSquare |[|
+//@[46:49) Identifier |for|
+//@[50:51) LeftParen |(|
+//@[51:52) RightParen |)|
+//@[52:53) RightSquare |]|
+//@[53:55) NewLine |\n\n|
+
+module expectedComma 'modulea.bicep' = [for (x)]
+//@[0:6) Identifier |module|
+//@[7:20) Identifier |expectedComma|
+//@[21:36) StringComplete |'modulea.bicep'|
+//@[37:38) Assignment |=|
+//@[39:40) LeftSquare |[|
+//@[40:43) Identifier |for|
+//@[44:45) LeftParen |(|
+//@[45:46) Identifier |x|
+//@[46:47) RightParen |)|
+//@[47:48) RightSquare |]|
+//@[48:50) NewLine |\n\n|
+
+module expectedIndexVarName 'modulea.bicep' = [for (x,)]
+//@[0:6) Identifier |module|
+//@[7:27) Identifier |expectedIndexVarName|
+//@[28:43) StringComplete |'modulea.bicep'|
+//@[44:45) Assignment |=|
+//@[46:47) LeftSquare |[|
+//@[47:50) Identifier |for|
+//@[51:52) LeftParen |(|
+//@[52:53) Identifier |x|
+//@[53:54) Comma |,|
+//@[54:55) RightParen |)|
+//@[55:56) RightSquare |]|
+//@[56:58) NewLine |\n\n|
+
+module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
+//@[0:6) Identifier |module|
+//@[7:25) Identifier |expectedInKeyword3|
+//@[26:41) StringComplete |'modulea.bicep'|
+//@[42:43) Assignment |=|
+//@[44:45) LeftSquare |[|
+//@[45:48) Identifier |for|
+//@[49:50) LeftParen |(|
+//@[50:51) Identifier |x|
+//@[51:52) Comma |,|
+//@[52:53) Identifier |y|
+//@[53:54) RightParen |)|
+//@[54:55) RightSquare |]|
+//@[55:57) NewLine |\n\n|
+
+module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
+//@[0:6) Identifier |module|
+//@[7:31) Identifier |expectedArrayExpression2|
+//@[32:47) StringComplete |'modulea.bicep'|
+//@[48:49) Assignment |=|
+//@[50:51) LeftSquare |[|
+//@[51:54) Identifier |for|
+//@[55:56) LeftParen |(|
+//@[56:57) Identifier |x|
+//@[57:58) Comma |,|
+//@[58:59) Identifier |y|
+//@[59:60) RightParen |)|
+//@[61:63) Identifier |in|
+//@[64:65) RightSquare |]|
+//@[65:67) NewLine |\n\n|
+
+module expectedColon2 'modulea.bicep' = [for (x,y) in z]
+//@[0:6) Identifier |module|
+//@[7:21) Identifier |expectedColon2|
+//@[22:37) StringComplete |'modulea.bicep'|
+//@[38:39) Assignment |=|
+//@[40:41) LeftSquare |[|
+//@[41:44) Identifier |for|
+//@[45:46) LeftParen |(|
+//@[46:47) Identifier |x|
+//@[47:48) Comma |,|
+//@[48:49) Identifier |y|
+//@[49:50) RightParen |)|
+//@[51:53) Identifier |in|
+//@[54:55) Identifier |z|
+//@[55:56) RightSquare |]|
+//@[56:58) NewLine |\n\n|
+
+module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
+//@[0:6) Identifier |module|
+//@[7:24) Identifier |expectedLoopBody2|
+//@[25:40) StringComplete |'modulea.bicep'|
+//@[41:42) Assignment |=|
+//@[43:44) LeftSquare |[|
+//@[44:47) Identifier |for|
+//@[48:49) LeftParen |(|
+//@[49:50) Identifier |x|
+//@[50:51) Comma |,|
+//@[51:52) Identifier |y|
+//@[52:53) RightParen |)|
+//@[54:56) Identifier |in|
+//@[57:58) Identifier |z|
+//@[58:59) Colon |:|
+//@[59:60) RightSquare |]|
+//@[60:62) NewLine |\n\n|
+
 // wrong loop body type
 //@[23:24) NewLine |\n|
 var emptyArray = []
@@ -1250,7 +1500,25 @@ module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 //@[63:64) Colon |:|
 //@[64:65) Integer |4|
 //@[65:66) RightSquare |]|
-//@[66:68) NewLine |\n\n|
+//@[66:67) NewLine |\n|
+module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
+//@[0:6) Identifier |module|
+//@[7:25) Identifier |wrongLoopBodyType2|
+//@[26:41) StringComplete |'modulea.bicep'|
+//@[42:43) Assignment |=|
+//@[44:45) LeftSquare |[|
+//@[45:48) Identifier |for|
+//@[49:50) LeftParen |(|
+//@[50:51) Identifier |x|
+//@[51:52) Comma |,|
+//@[52:53) Identifier |i|
+//@[53:54) RightParen |)|
+//@[55:57) Identifier |in|
+//@[58:68) Identifier |emptyArray|
+//@[68:69) Colon |:|
+//@[69:70) Integer |4|
+//@[70:71) RightSquare |]|
+//@[71:73) NewLine |\n\n|
 
 // missing loop body properties
 //@[31:32) NewLine |\n|
@@ -1267,6 +1535,27 @@ module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 //@[71:72) Colon |:|
 //@[72:73) LeftBrace |{|
 //@[73:74) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[0:6) Identifier |module|
+//@[7:33) Identifier |missingLoopBodyProperties2|
+//@[34:49) StringComplete |'modulea.bicep'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftSquare |[|
+//@[53:56) Identifier |for|
+//@[57:58) LeftParen |(|
+//@[58:59) Identifier |x|
+//@[59:60) Comma |,|
+//@[60:61) Identifier |i|
+//@[61:62) RightParen |)|
+//@[63:65) Identifier |in|
+//@[66:76) Identifier |emptyArray|
+//@[76:77) Colon |:|
+//@[77:78) LeftBrace |{|
+//@[78:79) NewLine |\n|
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
@@ -1349,6 +1638,8 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[72:73) Colon |:|
 //@[73:74) LeftBrace |{|
 //@[74:75) NewLine |\n|
+  // #completionTest(17) -> symbolsPlusX
+//@[40:41) NewLine |\n|
   name: 'hello-${x}'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -1367,6 +1658,74 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[16:17) LeftSquare |[|
 //@[17:18) RightSquare |]|
 //@[18:19) NewLine |\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:17) NewLine |\n|
+    stringParamA: 'test'
+//@[4:16) Identifier |stringParamA|
+//@[16:17) Colon |:|
+//@[18:24) StringComplete |'test'|
+//@[24:25) NewLine |\n|
+    stringParamB: 'test'
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:24) StringComplete |'test'|
+//@[24:25) NewLine |\n|
+    notAThing: 'test'
+//@[4:13) Identifier |notAThing|
+//@[13:14) Colon |:|
+//@[15:21) StringComplete |'test'|
+//@[21:22) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[0:6) Identifier |module|
+//@[7:34) Identifier |wrongModuleParameterInLoop2|
+//@[35:50) StringComplete |'modulea.bicep'|
+//@[51:52) Assignment |=|
+//@[53:54) LeftSquare |[|
+//@[54:57) Identifier |for|
+//@[58:59) LeftParen |(|
+//@[59:60) Identifier |x|
+//@[60:61) Comma |,|
+//@[61:62) Identifier |i|
+//@[62:63) RightParen |)|
+//@[64:66) Identifier |in|
+//@[67:77) Identifier |emptyArray|
+//@[77:78) Colon |:|
+//@[78:79) LeftBrace |{|
+//@[79:80) NewLine |\n|
+  name: 'hello-${x}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringLeftPiece |'hello-${|
+//@[17:18) Identifier |x|
+//@[18:20) StringRightPiece |}'|
+//@[20:21) NewLine |\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    arrayParam: [
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:18) NewLine |\n|
+      i
+//@[6:7) Identifier |i|
+//@[7:8) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
     objParam: {}
 //@[4:12) Identifier |objParam|
 //@[12:13) Colon |:|
@@ -1460,177 +1819,153 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
 //@[1:2) RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
-/*
-  valid loop - this should be moved to Modules_* test case after E2E works
-*/ 
-//@[3:4) NewLine |\n|
-var myModules = [
-//@[0:3) Identifier |var|
-//@[4:13) Identifier |myModules|
-//@[14:15) Assignment |=|
-//@[16:17) LeftSquare |[|
-//@[17:18) NewLine |\n|
-  {
-//@[2:3) LeftBrace |{|
-//@[3:4) NewLine |\n|
-    name: 'one'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:15) StringComplete |'one'|
+output directRefToCollectionViaOutput array = nonexistentArrays
+//@[0:6) Identifier |output|
+//@[7:37) Identifier |directRefToCollectionViaOutput|
+//@[38:43) Identifier |array|
+//@[44:45) Assignment |=|
+//@[46:63) Identifier |nonexistentArrays|
+//@[63:65) NewLine |\n\n|
+
+module directRefToCollectionViaSingleBody 'modulea.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:41) Identifier |directRefToCollectionViaSingleBody|
+//@[42:57) StringComplete |'modulea.bicep'|
+//@[58:59) Assignment |=|
+//@[60:61) LeftBrace |{|
+//@[61:62) NewLine |\n|
+  name: 'hello'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:15) StringComplete |'hello'|
 //@[15:16) NewLine |\n|
-    location: 'eastus2'
-//@[4:12) Identifier |location|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:22) Identifier |concat|
+//@[22:23) LeftParen |(|
+//@[23:49) Identifier |wrongModuleParameterInLoop|
+//@[49:50) Comma |,|
+//@[51:68) Identifier |nonexistentArrays|
+//@[68:69) RightParen |)|
+//@[69:70) NewLine |\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
 //@[12:13) Colon |:|
-//@[14:23) StringComplete |'eastus2'|
-//@[23:24) NewLine |\n|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:17) NewLine |\n|
+    stringParamB: ''
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:20) StringComplete |''|
+//@[20:21) NewLine |\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:4) NewLine |\n|
-  {
-//@[2:3) LeftBrace |{|
-//@[3:4) NewLine |\n|
-    name: 'two'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:15) StringComplete |'two'|
-//@[15:16) NewLine |\n|
-    location: 'westus'
-//@[4:12) Identifier |location|
-//@[12:13) Colon |:|
-//@[14:22) StringComplete |'westus'|
-//@[22:23) NewLine |\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
-]
-//@[0:1) RightSquare |]|
+}
+//@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-// duplicate identifiers across scopes are allowed (inner hides the outer)
-//@[74:75) NewLine |\n|
-module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
+module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) {
 //@[0:6) Identifier |module|
-//@[7:37) Identifier |duplicateIdentifiersWithinLoop|
-//@[38:53) StringComplete |'modulea.bicep'|
-//@[54:55) Assignment |=|
-//@[56:57) LeftSquare |[|
-//@[57:60) Identifier |for|
-//@[61:62) Identifier |x|
-//@[63:65) Identifier |in|
-//@[66:76) Identifier |emptyArray|
-//@[76:77) Colon |:|
-//@[77:78) LeftBrace |{|
-//@[78:79) NewLine |\n|
-  name: 'hello-${x}'
+//@[7:52) Identifier |directRefToCollectionViaSingleConditionalBody|
+//@[53:68) StringComplete |'modulea.bicep'|
+//@[69:70) Assignment |=|
+//@[71:73) Identifier |if|
+//@[73:74) LeftParen |(|
+//@[74:78) TrueKeyword |true|
+//@[78:79) RightParen |)|
+//@[80:81) LeftBrace |{|
+//@[81:82) NewLine |\n|
+  name: 'hello2'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
-//@[8:17) StringLeftPiece |'hello-${|
-//@[17:18) Identifier |x|
-//@[18:20) StringRightPiece |}'|
+//@[8:16) StringComplete |'hello2'|
+//@[16:17) NewLine |\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:22) Identifier |concat|
+//@[22:23) LeftParen |(|
+//@[23:49) Identifier |wrongModuleParameterInLoop|
+//@[49:50) Comma |,|
+//@[51:68) Identifier |nonexistentArrays|
+//@[68:69) RightParen |)|
+//@[69:70) NewLine |\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:17) NewLine |\n|
+    stringParamB: ''
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:20) StringComplete |''|
 //@[20:21) NewLine |\n|
-  params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
-    objParam: {}
-//@[4:12) Identifier |objParam|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) RightBrace |}|
-//@[16:17) NewLine |\n|
-    stringParamA: 'test'
-//@[4:16) Identifier |stringParamA|
-//@[16:17) Colon |:|
-//@[18:24) StringComplete |'test'|
-//@[24:25) NewLine |\n|
-    stringParamB: 'test'
-//@[4:16) Identifier |stringParamB|
-//@[16:17) Colon |:|
-//@[18:24) StringComplete |'test'|
-//@[24:25) NewLine |\n|
-    arrayParam: [for x in emptyArray: y]
-//@[4:14) Identifier |arrayParam|
-//@[14:15) Colon |:|
-//@[16:17) LeftSquare |[|
-//@[17:20) Identifier |for|
-//@[21:22) Identifier |x|
-//@[23:25) Identifier |in|
-//@[26:36) Identifier |emptyArray|
-//@[36:37) Colon |:|
-//@[38:39) Identifier |y|
-//@[39:40) RightSquare |]|
-//@[40:41) NewLine |\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:4) NewLine |\n|
-}]
+}
 //@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
-// duplicate identifiers across scopes are allowed (inner hides the outer)
-//@[74:75) NewLine |\n|
-var duplicateAcrossScopes = 'hello'
-//@[0:3) Identifier |var|
-//@[4:25) Identifier |duplicateAcrossScopes|
-//@[26:27) Assignment |=|
-//@[28:35) StringComplete |'hello'|
-//@[35:36) NewLine |\n|
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
+module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
 //@[0:6) Identifier |module|
-//@[7:34) Identifier |duplicateInGlobalAndOneLoop|
-//@[35:50) StringComplete |'modulea.bicep'|
-//@[51:52) Assignment |=|
-//@[53:54) LeftSquare |[|
-//@[54:57) Identifier |for|
-//@[58:79) Identifier |duplicateAcrossScopes|
-//@[80:82) Identifier |in|
-//@[83:84) LeftSquare |[|
-//@[84:85) RightSquare |]|
-//@[85:86) Colon |:|
-//@[87:88) LeftBrace |{|
-//@[88:89) NewLine |\n|
-  name: 'hello-${duplicateAcrossScopes}'
+//@[7:39) Identifier |directRefToCollectionViaLoopBody|
+//@[40:55) StringComplete |'modulea.bicep'|
+//@[56:57) Assignment |=|
+//@[58:59) LeftSquare |[|
+//@[59:62) Identifier |for|
+//@[63:67) Identifier |test|
+//@[68:70) Identifier |in|
+//@[71:72) LeftSquare |[|
+//@[72:73) RightSquare |]|
+//@[73:74) Colon |:|
+//@[75:76) LeftBrace |{|
+//@[76:77) NewLine |\n|
+  name: 'hello3'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
-//@[8:17) StringLeftPiece |'hello-${|
-//@[17:38) Identifier |duplicateAcrossScopes|
-//@[38:40) StringRightPiece |}'|
-//@[40:41) NewLine |\n|
+//@[8:16) StringComplete |'hello3'|
+//@[16:17) NewLine |\n|
   params: {
 //@[2:8) Identifier |params|
 //@[8:9) Colon |:|
 //@[10:11) LeftBrace |{|
 //@[11:12) NewLine |\n|
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:22) Identifier |concat|
+//@[22:23) LeftParen |(|
+//@[23:49) Identifier |wrongModuleParameterInLoop|
+//@[49:50) Comma |,|
+//@[51:68) Identifier |nonexistentArrays|
+//@[68:69) RightParen |)|
+//@[69:70) NewLine |\n|
     objParam: {}
 //@[4:12) Identifier |objParam|
 //@[12:13) Colon |:|
 //@[14:15) LeftBrace |{|
 //@[15:16) RightBrace |}|
 //@[16:17) NewLine |\n|
-    stringParamA: 'test'
-//@[4:16) Identifier |stringParamA|
-//@[16:17) Colon |:|
-//@[18:24) StringComplete |'test'|
-//@[24:25) NewLine |\n|
-    stringParamB: 'test'
+    stringParamB: ''
 //@[4:16) Identifier |stringParamB|
 //@[16:17) Colon |:|
-//@[18:24) StringComplete |'test'|
-//@[24:25) NewLine |\n|
-    arrayParam: [for x in emptyArray: x]
-//@[4:14) Identifier |arrayParam|
-//@[14:15) Colon |:|
-//@[16:17) LeftSquare |[|
-//@[17:20) Identifier |for|
-//@[21:22) Identifier |x|
-//@[23:25) Identifier |in|
-//@[26:36) Identifier |emptyArray|
-//@[36:37) Colon |:|
-//@[38:39) Identifier |x|
-//@[39:40) RightSquare |]|
-//@[40:41) NewLine |\n|
+//@[18:20) StringComplete |''|
+//@[20:21) NewLine |\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:4) NewLine |\n|
@@ -1639,197 +1974,154 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 //@[1:2) RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
-var someDuplicate = true
-//@[0:3) Identifier |var|
-//@[4:17) Identifier |someDuplicate|
-//@[18:19) Assignment |=|
-//@[20:24) TrueKeyword |true|
-//@[24:25) NewLine |\n|
-var otherDuplicate = false
-//@[0:3) Identifier |var|
-//@[4:18) Identifier |otherDuplicate|
-//@[19:20) Assignment |=|
-//@[21:26) FalseKeyword |false|
-//@[26:27) NewLine |\n|
-module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
 //@[0:6) Identifier |module|
-//@[7:27) Identifier |duplicatesEverywhere|
+//@[7:57) Identifier |directRefToCollectionViaLoopBodyWithExtraDependsOn|
+//@[58:73) StringComplete |'modulea.bicep'|
+//@[74:75) Assignment |=|
+//@[76:77) LeftSquare |[|
+//@[77:80) Identifier |for|
+//@[81:85) Identifier |test|
+//@[86:88) Identifier |in|
+//@[89:90) LeftSquare |[|
+//@[90:91) RightSquare |]|
+//@[91:92) Colon |:|
+//@[93:94) LeftBrace |{|
+//@[94:95) NewLine |\n|
+  name: 'hello4'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'hello4'|
+//@[16:17) NewLine |\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+//@[4:14) Identifier |arrayParam|
+//@[14:15) Colon |:|
+//@[16:22) Identifier |concat|
+//@[22:23) LeftParen |(|
+//@[23:49) Identifier |wrongModuleParameterInLoop|
+//@[49:50) Comma |,|
+//@[51:68) Identifier |nonexistentArrays|
+//@[68:69) RightParen |)|
+//@[69:70) NewLine |\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:17) NewLine |\n|
+    stringParamB: ''
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:20) StringComplete |''|
+//@[20:21) NewLine |\n|
+    dependsOn: [
+//@[4:13) Identifier |dependsOn|
+//@[13:14) Colon |:|
+//@[15:16) LeftSquare |[|
+//@[16:17) NewLine |\n|
+      nonexistentArrays
+//@[6:23) Identifier |nonexistentArrays|
+//@[23:24) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+    
+//@[4:5) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:5) NewLine |\n\n\n|
+
+
+// module body that isn't an object
+//@[35:36) NewLine |\n|
+module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
+//@[0:6) Identifier |module|
+//@[7:26) Identifier |nonObjectModuleBody|
+//@[27:42) StringComplete |'modulea.bicep'|
+//@[43:44) Assignment |=|
+//@[45:46) LeftSquare |[|
+//@[46:49) Identifier |for|
+//@[50:55) Identifier |thing|
+//@[56:58) Identifier |in|
+//@[59:60) LeftSquare |[|
+//@[60:61) RightSquare |]|
+//@[61:62) Colon |:|
+//@[63:70) StringComplete |'hello'|
+//@[70:71) RightSquare |]|
+//@[71:72) NewLine |\n|
+module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
+//@[0:6) Identifier |module|
+//@[7:27) Identifier |nonObjectModuleBody2|
 //@[28:43) StringComplete |'modulea.bicep'|
 //@[44:45) Assignment |=|
 //@[46:47) LeftSquare |[|
 //@[47:50) Identifier |for|
-//@[51:64) Identifier |someDuplicate|
-//@[65:67) Identifier |in|
-//@[68:69) LeftSquare |[|
-//@[69:70) RightSquare |]|
-//@[70:71) Colon |:|
-//@[72:73) LeftBrace |{|
+//@[51:56) Identifier |thing|
+//@[57:59) Identifier |in|
+//@[60:61) LeftSquare |[|
+//@[61:62) RightSquare |]|
+//@[62:63) Colon |:|
+//@[64:70) Identifier |concat|
+//@[70:71) LeftParen |(|
+//@[71:72) RightParen |)|
+//@[72:73) RightSquare |]|
 //@[73:74) NewLine |\n|
-  name: 'hello-${someDuplicate}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:17) StringLeftPiece |'hello-${|
-//@[17:30) Identifier |someDuplicate|
-//@[30:32) StringRightPiece |}'|
-//@[32:33) NewLine |\n|
-  params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
-    objParam: {}
-//@[4:12) Identifier |objParam|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) RightBrace |}|
-//@[16:17) NewLine |\n|
-    stringParamB: 'test'
-//@[4:16) Identifier |stringParamB|
-//@[16:17) Colon |:|
-//@[18:24) StringComplete |'test'|
-//@[24:25) NewLine |\n|
-    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
-//@[4:14) Identifier |arrayParam|
-//@[14:15) Colon |:|
-//@[16:17) LeftSquare |[|
-//@[17:20) Identifier |for|
-//@[21:35) Identifier |otherDuplicate|
-//@[36:38) Identifier |in|
-//@[39:49) Identifier |emptyArray|
-//@[49:50) Colon |:|
-//@[51:54) StringLeftPiece |'${|
-//@[54:67) Identifier |someDuplicate|
-//@[67:71) StringMiddlePiece |}-${|
-//@[71:85) Identifier |otherDuplicate|
-//@[85:87) StringRightPiece |}'|
-//@[87:88) RightSquare |]|
-//@[88:89) NewLine |\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
-}]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
-
-// simple module loop
-//@[21:22) NewLine |\n|
-module storageResources 'modulea.bicep' = [for module in myModules: {
+module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 //@[0:6) Identifier |module|
-//@[7:23) Identifier |storageResources|
-//@[24:39) StringComplete |'modulea.bicep'|
-//@[40:41) Assignment |=|
-//@[42:43) LeftSquare |[|
-//@[43:46) Identifier |for|
-//@[47:53) Identifier |module|
-//@[54:56) Identifier |in|
-//@[57:66) Identifier |myModules|
+//@[7:27) Identifier |nonObjectModuleBody3|
+//@[28:43) StringComplete |'modulea.bicep'|
+//@[44:45) Assignment |=|
+//@[46:47) LeftSquare |[|
+//@[47:50) Identifier |for|
+//@[51:52) LeftParen |(|
+//@[52:57) Identifier |thing|
+//@[57:58) Comma |,|
+//@[58:59) Identifier |i|
+//@[59:60) RightParen |)|
+//@[61:63) Identifier |in|
+//@[64:65) LeftSquare |[|
+//@[65:66) RightSquare |]|
 //@[66:67) Colon |:|
-//@[68:69) LeftBrace |{|
-//@[69:70) NewLine |\n|
-  name: module.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) Identifier |module|
-//@[14:15) Dot |.|
-//@[15:19) Identifier |name|
-//@[19:20) NewLine |\n|
-  params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
-    arrayParam: []
-//@[4:14) Identifier |arrayParam|
-//@[14:15) Colon |:|
-//@[16:17) LeftSquare |[|
-//@[17:18) RightSquare |]|
-//@[18:19) NewLine |\n|
-    objParam: module
-//@[4:12) Identifier |objParam|
-//@[12:13) Colon |:|
-//@[14:20) Identifier |module|
-//@[20:21) NewLine |\n|
-    stringParamB: module.location
-//@[4:16) Identifier |stringParamB|
-//@[16:17) Colon |:|
-//@[18:24) Identifier |module|
-//@[24:25) Dot |.|
-//@[25:33) Identifier |location|
-//@[33:34) NewLine |\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
-}]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
-
-// nested module loop
-//@[21:22) NewLine |\n|
-module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
+//@[68:75) StringComplete |'hello'|
+//@[75:76) RightSquare |]|
+//@[76:77) NewLine |\n|
+module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[0:6) Identifier |module|
-//@[7:23) Identifier |nestedModuleLoop|
-//@[24:39) StringComplete |'modulea.bicep'|
-//@[40:41) Assignment |=|
-//@[42:43) LeftSquare |[|
-//@[43:46) Identifier |for|
-//@[47:53) Identifier |module|
-//@[54:56) Identifier |in|
-//@[57:66) Identifier |myModules|
+//@[7:27) Identifier |nonObjectModuleBody4|
+//@[28:43) StringComplete |'modulea.bicep'|
+//@[44:45) Assignment |=|
+//@[46:47) LeftSquare |[|
+//@[47:50) Identifier |for|
+//@[51:52) LeftParen |(|
+//@[52:57) Identifier |thing|
+//@[57:58) Comma |,|
+//@[58:59) Identifier |i|
+//@[59:60) RightParen |)|
+//@[61:63) Identifier |in|
+//@[64:65) LeftSquare |[|
+//@[65:66) RightSquare |]|
 //@[66:67) Colon |:|
-//@[68:69) LeftBrace |{|
-//@[69:70) NewLine |\n|
-  name: module.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) Identifier |module|
-//@[14:15) Dot |.|
-//@[15:19) Identifier |name|
-//@[19:20) NewLine |\n|
-  params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
-    arrayParam: [for i in range(0,3): concat('test', i)]
-//@[4:14) Identifier |arrayParam|
-//@[14:15) Colon |:|
-//@[16:17) LeftSquare |[|
-//@[17:20) Identifier |for|
-//@[21:22) Identifier |i|
-//@[23:25) Identifier |in|
-//@[26:31) Identifier |range|
-//@[31:32) LeftParen |(|
-//@[32:33) Integer |0|
-//@[33:34) Comma |,|
-//@[34:35) Integer |3|
-//@[35:36) RightParen |)|
-//@[36:37) Colon |:|
-//@[38:44) Identifier |concat|
-//@[44:45) LeftParen |(|
-//@[45:51) StringComplete |'test'|
-//@[51:52) Comma |,|
-//@[53:54) Identifier |i|
-//@[54:55) RightParen |)|
-//@[55:56) RightSquare |]|
-//@[56:57) NewLine |\n|
-    objParam: module
-//@[4:12) Identifier |objParam|
-//@[12:13) Colon |:|
-//@[14:20) Identifier |module|
-//@[20:21) NewLine |\n|
-    stringParamB: module.location
-//@[4:16) Identifier |stringParamB|
-//@[16:17) Colon |:|
-//@[18:24) Identifier |module|
-//@[24:25) Dot |.|
-//@[25:33) Identifier |location|
-//@[33:34) NewLine |\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
-}]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:2) EndOfFile ||
+//@[68:74) Identifier |concat|
+//@[74:75) LeftParen |(|
+//@[75:76) RightParen |)|
+//@[76:77) RightSquare |]|
+//@[77:78) NewLine |\n|
+
+//@[0:0) EndOfFile ||

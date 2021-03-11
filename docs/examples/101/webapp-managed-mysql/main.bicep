@@ -1,56 +1,54 @@
 param websiteName string
 param dbAdminLogin string
-param dbAdminPassword string {
-  secure: true
-  minLength: 8
-  maxLength: 128
-}
-param dbSkuCapacity int {
-  default: 2
-  allowed: [
-    2
-    4
-    8
-    16
-    32
-  ]
-}
-param dbSkuName string {
-  default: 'GP_Gen5_2'
-  allowed: [
-    'GP_Gen5_2'
-    'GP_Gen5_4'
-    'GP_Gen5_8'
-    'GP_Gen5_16'
-    'GP_Gen5_32'
-    'MO_Gen5_2'
-    'MO_Gen5_4'
-    'MO_Gen5_8'
-    'MO_Gen5_16'
-    'MO_Gen5_32'
-  ]
-}
-param dbSkuSizeInMB int {
-  default: 51200
-  allowed: [
-    51200
-    102400
-  ]
-}
-param dbSkuTier string {
-  default: 'GeneralPurpose'
-  allowed: [
-    'GeneralPurpose'
-    'MemoryOptimized'
-  ]
-}
+
+@secure()
+@minLength(8)
+@maxLength(128)
+param dbAdminPassword string
+
+@allowed([
+  2
+  4
+  8
+  16
+  32
+])
+param dbSkuCapacity int = 2
+
+@allowed([
+  'GP_Gen5_2'
+  'GP_Gen5_4'
+  'GP_Gen5_8'
+  'GP_Gen5_16'
+  'GP_Gen5_32'
+  'MO_Gen5_2'
+  'MO_Gen5_4'
+  'MO_Gen5_8'
+  'MO_Gen5_16'
+  'MO_Gen5_32'
+])
+param dbSkuName string = 'GP_Gen5_2'
+
+@allowed([
+  51200
+  102400
+])
+param dbSkuSizeInMB int = 51200
+
+@allowed([
+  'GeneralPurpose'
+  'MemoryOptimized'
+])
+param dbSkuTier string = 'GeneralPurpose'
+
 param dbSkuFamily string = 'Gen5'
-param mySQLVersion string {
-  allowed: [
-    '5.6'
-    '5.7'
-  ]
-}
+
+@allowed([
+  '5.6'
+  '5.7'
+])
+param mySQLVersion string
+
 param location string = resourceGroup().location
 
 var dbName = '${websiteName}-db'

@@ -9,10 +9,12 @@ namespace Bicep.Core.Extensions
         private const FunctionFlags DecoratorFlags =
             FunctionFlags.ParameterDecorator |
             FunctionFlags.VariableDecorator |
-            FunctionFlags.ResoureDecorator |
+            FunctionFlags.ResourceDecorator |
             FunctionFlags.ModuleDecorator |
             FunctionFlags.OutputDecorator;
 
-        public static bool HasDecoratorFlag(this FunctionFlags functionFlags) => (functionFlags & DecoratorFlags) != 0;
+        public static bool HasAnyDecoratorFlag(this FunctionFlags functionFlags) => (functionFlags & DecoratorFlags) != 0;
+
+        public static bool HasAllDecoratorFlags(this FunctionFlags functionFlags) => (functionFlags & DecoratorFlags) == DecoratorFlags;
     }
 }

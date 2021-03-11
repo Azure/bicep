@@ -1,16 +1,12 @@
 param location string = resourceGroup().location
 param vpngwpipname string
 param vpngwname string
-param subnetref string {
-  metadata: {
-    description: 'Specifies the resource id of the subnet to connect the VM to.'
-  }
-}
-param asn int {
-  metadata: {
-    description: 'BGP AS-number to use for the VPN Gateway'
-  }
-}
+
+@description('Specifies the resource id of the subnet to connect the VM to.')
+param subnetref string
+
+@description('BGP AS-number to use for the VPN Gateway')
+param asn int
 
 resource vpngwpip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: vpngwpipname

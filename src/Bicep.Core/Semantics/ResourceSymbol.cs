@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
@@ -24,6 +26,23 @@ namespace Bicep.Core.Semantics
             {
                 yield return this.Type;
             }
+        }
+
+        public bool IsCollection => this.Context.TypeManager.GetTypeInfo(this.DeclaringResource) is ArrayType;
+
+        public ResourceTypeReference? TryGetResourceTypeReference()
+        {
+            if (this.Type is ResourceType resourceType)
+            {
+                return resourceType.TypeReference;
+            }
+
+            if (this.Type is ArrayType arrayType && arrayType.Item.Type is ResourceType itemType)
+            {
+                return itemType.TypeReference;
+            }
+
+            return null;
         }
     }
 }

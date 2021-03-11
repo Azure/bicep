@@ -4,13 +4,12 @@ param healthProbe1EnabledState bool = false
 param frontDoorWafDeployed bool = false // Used for conditions once available in bicep 0.3
 param frontDoorWafNamePrefix string = 'AzFdWafTestingBicep'
 param frontDoorWafEnabledState bool = true
-param frontDoorWafMode string {
-  allowed: [
-    'Prevention'
-    'Detection'
-  ]
-  default: 'Prevention'
-}
+
+@allowed([
+  'Prevention'
+  'Detection'
+])
+param frontDoorWafMode string = 'Prevention'
 
 var frontDoorNameLower = toLower(frontDoorName)
 var backendPool1Name = '${frontDoorNameLower}-backendPool1'

@@ -393,6 +393,20 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[50:52) Integer |10|
 //@[52:56) NewLine |\r\n\r\n|
 
+output myOutput string = 'hello'
+//@[0:6) Identifier |output|
+//@[7:15) Identifier |myOutput|
+//@[16:22) Identifier |string|
+//@[23:24) Assignment |=|
+//@[25:32) StringComplete |'hello'|
+//@[32:34) NewLine |\r\n|
+var attemptToReferenceAnOutput = myOutput
+//@[0:3) Identifier |var|
+//@[4:30) Identifier |attemptToReferenceAnOutput|
+//@[31:32) Assignment |=|
+//@[33:41) Identifier |myOutput|
+//@[41:45) NewLine |\r\n\r\n|
+
 @sys.maxValue(20)
 //@[0:1) At |@|
 //@[1:4) Identifier |sys|
@@ -415,6 +429,136 @@ output notAttachableDecorators int = 32
 //@[31:34) Identifier |int|
 //@[35:36) Assignment |=|
 //@[37:39) Integer |32|
+//@[39:43) NewLine |\r\n\r\n|
+
+// nested loops inside output loops are not supported
+//@[53:55) NewLine |\r\n|
+output noNestedLoops array = [for thing in things: {
+//@[0:6) Identifier |output|
+//@[7:20) Identifier |noNestedLoops|
+//@[21:26) Identifier |array|
+//@[27:28) Assignment |=|
+//@[29:30) LeftSquare |[|
+//@[30:33) Identifier |for|
+//@[34:39) Identifier |thing|
+//@[40:42) Identifier |in|
+//@[43:49) Identifier |things|
+//@[49:50) Colon |:|
+//@[51:52) LeftBrace |{|
+//@[52:54) NewLine |\r\n|
+  something: [
+//@[2:11) Identifier |something|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+    [for thing in things: true]
+//@[4:5) LeftSquare |[|
+//@[5:8) Identifier |for|
+//@[9:14) Identifier |thing|
+//@[15:17) Identifier |in|
+//@[18:24) Identifier |things|
+//@[24:25) Colon |:|
+//@[26:30) TrueKeyword |true|
+//@[30:31) RightSquare |]|
+//@[31:33) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// loops in inner properties inside outputs are not supported
+//@[61:63) NewLine |\r\n|
+output noInnerLoopsInOutputs object = {
+//@[0:6) Identifier |output|
+//@[7:28) Identifier |noInnerLoopsInOutputs|
+//@[29:35) Identifier |object|
+//@[36:37) Assignment |=|
+//@[38:39) LeftBrace |{|
 //@[39:41) NewLine |\r\n|
+  a: [for i in range(0,10): i]
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:6) LeftSquare |[|
+//@[6:9) Identifier |for|
+//@[10:11) Identifier |i|
+//@[12:14) Identifier |in|
+//@[15:20) Identifier |range|
+//@[20:21) LeftParen |(|
+//@[21:22) Integer |0|
+//@[22:23) Comma |,|
+//@[23:25) Integer |10|
+//@[25:26) RightParen |)|
+//@[26:27) Colon |:|
+//@[28:29) Identifier |i|
+//@[29:30) RightSquare |]|
+//@[30:32) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+output noInnerLoopsInOutputs2 object = {
+//@[0:6) Identifier |output|
+//@[7:29) Identifier |noInnerLoopsInOutputs2|
+//@[30:36) Identifier |object|
+//@[37:38) Assignment |=|
+//@[39:40) LeftBrace |{|
+//@[40:42) NewLine |\r\n|
+  a: [for i in range(0,10): {
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:6) LeftSquare |[|
+//@[6:9) Identifier |for|
+//@[10:11) Identifier |i|
+//@[12:14) Identifier |in|
+//@[15:20) Identifier |range|
+//@[20:21) LeftParen |(|
+//@[21:22) Integer |0|
+//@[22:23) Comma |,|
+//@[23:25) Integer |10|
+//@[25:26) RightParen |)|
+//@[26:27) Colon |:|
+//@[28:29) LeftBrace |{|
+//@[29:31) NewLine |\r\n|
+    b: [for j in range(0,10): i+j]
+//@[4:5) Identifier |b|
+//@[5:6) Colon |:|
+//@[7:8) LeftSquare |[|
+//@[8:11) Identifier |for|
+//@[12:13) Identifier |j|
+//@[14:16) Identifier |in|
+//@[17:22) Identifier |range|
+//@[22:23) LeftParen |(|
+//@[23:24) Integer |0|
+//@[24:25) Comma |,|
+//@[25:27) Integer |10|
+//@[27:28) RightParen |)|
+//@[28:29) Colon |:|
+//@[30:31) Identifier |i|
+//@[31:32) Plus |+|
+//@[32:33) Identifier |j|
+//@[33:34) RightSquare |]|
+//@[34:36) NewLine |\r\n|
+  }]
+//@[2:3) RightBrace |}|
+//@[3:4) RightSquare |]|
+//@[4:6) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// #completionTest(1) -> decoratorsPlusNamespace
+//@[48:50) NewLine |\r\n|
+@
+//@[0:1) At |@|
+//@[1:3) NewLine |\r\n|
+// #completionTest(5) -> decorators
+//@[35:37) NewLine |\r\n|
+@sys.
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:7) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

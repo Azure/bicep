@@ -8,14 +8,13 @@ param subnet2Name string = 'Subnet2'
 param subnet1_CIDR string = '10.200.1.0/24'
 param subnet2_CIDR string = '10.200.2.0/24'
 param location string = resourceGroup().location
-param skuName string {
-  default: 'P1v2'
-  allowed: [
-    'P1v2'
-    'P2v2'
-    'P3v2'
-  ]
-}
+
+@allowed([
+  'P1v2'
+  'P2v2'
+  'P3v2'
+])
+param skuName string = 'P1v2'
 
 var webapp_dns_name = '.azurewebsites.net'
 var privateDNSZoneName = 'privatelink.azurewebsites.net'

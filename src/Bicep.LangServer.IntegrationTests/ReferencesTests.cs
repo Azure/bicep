@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -117,7 +117,11 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task FindReferencesOnNonSymbolsShouldProduceEmptyResult(DataSet dataSet)
         {
             // local function
-            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is ITopLevelNamedDeclarationSyntax) && !(node is Token);
+            static bool IsWrongNode(SyntaxBase node) =>
+                !(node is PropertyAccessSyntax propertyAccessSyntax && propertyAccessSyntax.BaseExpression is ISymbolReference) &&
+                node is not ISymbolReference &&
+                node is not ITopLevelNamedDeclarationSyntax &&
+                node is not Token;
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
@@ -158,9 +162,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static IEnumerable<object[]> GetData()
         {
-            return DataSets.AllDataSets.ToDynamicTestData();
+            return DataSets.NonStressDataSets.ToDynamicTestData();
         }
     }
-
-    
 }
