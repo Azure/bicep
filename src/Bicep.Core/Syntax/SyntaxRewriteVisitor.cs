@@ -153,7 +153,7 @@ namespace Bicep.Core.Syntax
 
             return new LocalVariableSyntax(name);
         }
-        
+
         void ISyntaxVisitor.VisitLocalVariableSyntax(LocalVariableSyntax syntax) => ReplaceCurrent(syntax, ReplaceLocalVariableSyntax);
 
         protected virtual TargetScopeSyntax ReplaceTargetScopeSyntax(TargetScopeSyntax syntax)
@@ -477,7 +477,7 @@ namespace Bicep.Core.Syntax
         protected virtual ResourceAccessSyntax ReplaceResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
             var hasChanges = Rewrite(syntax.BaseExpression, out var baseExpression);
-            hasChanges |= Rewrite(syntax.Colon, out var colon);
+            hasChanges |= Rewrite(syntax.DoubleColon, out var colon);
             hasChanges |= Rewrite(syntax.ResourceName, out var propertyName);
 
             if (!hasChanges)
