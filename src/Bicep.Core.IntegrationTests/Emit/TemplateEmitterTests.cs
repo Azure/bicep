@@ -124,7 +124,7 @@ this
             var (template, _, _) = CompilationHelper.Compile(StringUtils.ReplaceNewlines(inputFile, newlineSequence));
 
             var expected = string.Join(newlineSequence, new [] { "this", "  is", "    a", "      multiline", "        string", "" });
-            template!.SelectToken("$.variables.multiline")!.Should().DeepEqual(expected);
+            template.Should().HaveValueAtPath("$.variables.multiline", expected);
         }
 
         private EmitResult EmitTemplate(SyntaxTreeGrouping syntaxTreeGrouping, string filePath, string assemblyFileVersion)

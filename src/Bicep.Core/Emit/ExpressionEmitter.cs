@@ -118,9 +118,9 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public LanguageExpression GetResourceNameExpression(ResourceSymbol resourceSymbol)
+        public LanguageExpression GetFullyQualifiedResourceName(ResourceSymbol resourceSymbol)
         {
-            return converter.GetResourceNameExpression(resourceSymbol);
+            return converter.GetFullyQualifiedResourceName(resourceSymbol);
         }
 
         public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
