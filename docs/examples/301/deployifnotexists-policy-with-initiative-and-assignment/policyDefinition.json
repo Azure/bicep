@@ -110,7 +110,7 @@
                   },
                   {
                     "field": "Microsoft.Insights/metricalerts/scopes[*]",
-                    "equals": "[format('[concat(subscription().id, ''/resourceGroups/'', resourceGroup().name, ''/providers/{0}/'', {1}(''fullName''))]', parameters('metricAlertResourceNamespace'), 'field')]"
+                    "equals": "[format('[concat(subscription().id, ''/resourceGroups/'', resourceGroup().name, ''/providers/{0}/'', field(''fullName''))]', parameters('metricAlertResourceNamespace'))]"
                   }
                 ]
               },
@@ -176,7 +176,7 @@
                           "severity": "[parameters('metricAlertResourceNamespace')]",
                           "enabled": "[parameters('metricAlertEnabled')]",
                           "scopes": [
-                            "[format('[{0}(''resourceId'')]', 'parameters')]"
+                            "[[parameters('resourceId')]"
                           ],
                           "evaluationFrequency": "[parameters('metricAlertEvaluationFrequency')]",
                           "windowSize": "[parameters('metricAlertWindowSize')]",
@@ -223,7 +223,7 @@
                           },
                           "autoMitigate": "[parameters('metricAlertAutoMitigate')]",
                           "targetResourceType": "[parameters('metricAlertResourceNamespace')]",
-                          "targetResourceRegion": "[format('[{0}(''resourceLocation'')]', 'parameters')]",
+                          "targetResourceRegion": "[[parameters('resourceLocation')]",
                           "actions": [
                             {
                               "actionGroupId": "[parameters('actionGroupId')]",
@@ -236,13 +236,13 @@
                   },
                   "parameters": {
                     "resourceName": {
-                      "value": "[format('[{0}(''name'')]', 'field')]"
+                      "value": "[[field('name')]"
                     },
                     "resourceId": {
-                      "value": "[format('[{0}(''id'')]', 'field')]"
+                      "value": "[[field('id')]"
                     },
                     "resourceLocation": {
-                      "value": "[format('[{0}(''location'')]', 'field')]"
+                      "value": "[[field('location')]"
                     },
                     "actionGroupName": {
                       "value": "[parameters('actionGroupName')]"
@@ -297,7 +297,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.1.62928",
-      "templateHash": "17457279565985121707"
+      "templateHash": "15485990835438598085"
     }
   }
 }

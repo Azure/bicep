@@ -73,7 +73,7 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                             }
                             {
                                 field: 'Microsoft.Insights/metricalerts/scopes[*]'
-                                equals: '[concat(subscription().id, \'/resourceGroups/\', resourceGroup().name, \'/providers/${metricAlertResourceNamespace}/\', ${'field'}(\'fullName\'))]'
+                                equals: '[concat(subscription().id, \'/resourceGroups/\', resourceGroup().name, \'/providers/${metricAlertResourceNamespace}/\', field(\'fullName\'))]'
                             }
                         ]
                     }
@@ -139,7 +139,7 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                                             severity: metricAlertResourceNamespace
                                             enabled: metricAlertEnabled
                                             scopes: [
-                                                '[${'parameters'}(\'resourceId\')]'
+                                                '[parameters(\'resourceId\')]'
                                             ]
                                             evaluationFrequency: metricAlertEvaluationFrequency
                                             windowSize: metricAlertWindowSize
@@ -186,7 +186,7 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                                             }
                                             autoMitigate: metricAlertAutoMitigate
                                             targetResourceType: metricAlertResourceNamespace
-                                            targetResourceRegion: '[${'parameters'}(\'resourceLocation\')]'
+                                            targetResourceRegion: '[parameters(\'resourceLocation\')]'
                                             actions: [
                                                 {
                                                     actionGroupId: actionGroupId
@@ -199,13 +199,13 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                             }
                             parameters: {
                                 resourceName: {
-                                    value: '[${'field'}(\'name\')]'
+                                    value: '[field(\'name\')]'
                                 }
                                 resourceId: {
-                                    value: '[${'field'}(\'id\')]'
+                                    value: '[field(\'id\')]'
                                 }
                                 resourceLocation: {
-                                    value: '[${'field'}(\'location\')]'
+                                    value: '[field(\'location\')]'
                                 }
                                 actionGroupName: {
                                     value: actionGroupName
