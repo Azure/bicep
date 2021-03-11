@@ -19,8 +19,6 @@ namespace Bicep.Core.TypeSystem
 
         private Stack<DeclaredSymbol> currentDeclarations;
 
-        private SyntaxBase? currentDecorator;
-
         public static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             var visitor = new CyclicCheckVisitor(bindings);
@@ -113,37 +111,20 @@ namespace Bicep.Core.TypeSystem
         {
             if (!currentDeclarations.TryPeek(out var currentDeclaration))
             {
-                if (currentDecorator != null)
-                {
-                    // We are inside a dangling decorator.
-                    return;
-                }
-
-                throw new ArgumentException($"Variable access outside of declaration");
+                // we're not inside a declaration, so there should be no risk of a cycle
+                return;
             }
 
             declarationAccessDict[currentDeclaration].Add(syntax);
             base.VisitVariableAccessSyntax(syntax);
         }
 
-        public override void VisitDecoratorSyntax(DecoratorSyntax syntax)
-        {
-            this.currentDecorator = syntax;
-            base.VisitDecoratorSyntax(syntax);
-            this.currentDecorator = null;
-        }
-
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             if (!currentDeclarations.TryPeek(out var currentDeclaration))
             {
-                if (currentDecorator != null)
-                {
-                    // We are inside a dangling decorator.
-                    return;
-                }
-
-                throw new ArgumentException($"Function access outside of declaration or decorator");
+                // we're not inside a declaration, so there should be no risk of a cycle
+                return;
             }
 
             declarationAccessDict[currentDeclaration].Add(syntax);

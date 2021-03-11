@@ -957,5 +957,24 @@ resource foo 'Microsoft.Compute/virtualMachines@2020-06-01' = {
                 });
             }
         }
+
+        [TestMethod]
+        public void Test_Issue1817()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+targetScope = w
+
+var foo = 42
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                    ("BCP057", DiagnosticLevel.Error, "The name \"w\" does not exist in the current context."),
+                });
+            }
+        }
     }
 }
