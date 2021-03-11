@@ -408,7 +408,7 @@ namespace Bicep.Core.Emit
                 emitter.EmitProperty("scope", () => emitter.EmitUnqualifiedResourceId(scopeResource));
             }
 
-            emitter.EmitProperty("name", emitter.GetResourceNameExpression(resourceSymbol));
+            emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resourceSymbol));
 
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 

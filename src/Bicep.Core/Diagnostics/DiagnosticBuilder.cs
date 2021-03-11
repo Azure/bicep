@@ -930,9 +930,19 @@ namespace Bicep.Core.Diagnostics
                 "BCP163",
                 "Expected a loop index variable identifier at this location.");
 
-            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+            public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
                 TextSpan,
                 "BCP164",
+                $"The \"{LanguageConstants.ResourceScopePropertyName}\" property is unsupported for a resource with a parent resource. This resource has \"{parentIdentifier}\" declared as its parent.");
+
+            public ErrorDiagnostic ScopeDisallowedForAncestorResource(string ancestorIdentifier) => new(
+                TextSpan,
+                "BCP165",
+                $"Cannot deploy a resource with ancestor under a different scope. Resource \"{ancestorIdentifier}\" has the \"{LanguageConstants.ResourceScopePropertyName}\" property set.");
+
+            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+                TextSpan,
+                "BCP166",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used in assigning value to a module parameter.");
         }
 
