@@ -47,7 +47,7 @@
             "properties": {
               "primary": true,
               "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-              "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+              "privateIPAddress": "[parameters('staticIpAddress')]",
               "subnet": {
                 "id": "[parameters('subnetId')]"
               },
@@ -73,7 +73,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6952636270914318989"
+      "templateHash": "1027802038003643232"
     }
   }
 }
