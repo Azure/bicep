@@ -54,7 +54,7 @@ module policy './policyDefinition.bicep' = {
     metricAlertResourceNamespace: metricAlertResourceNamespace
     metricAlertName: metricAlertName
     metricAlertDimension1: metricAlertDimension1
-    metricAlertDimension2:  metricAlertDimension2
+    metricAlertDimension2: metricAlertDimension2
     metricAlertDimension3: metricAlertDimension3
     metricAlertDescription: metricAlertDescription
     metricAlertSeverity: metricAlertSeverity
