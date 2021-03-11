@@ -321,6 +321,23 @@
     ]
   },
   {
+    "label": "arrayExpressionErrors2",
+    "kind": "interface",
+    "detail": "arrayExpressionErrors2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayExpressionErrors2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayExpressionErrors2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "az",
     "kind": "folder",
     "detail": "az",
@@ -1477,6 +1494,23 @@
     ]
   },
   {
+    "label": "expectedArrayExpression2",
+    "kind": "interface",
+    "detail": "expectedArrayExpression2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedArrayExpression2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedArrayExpression2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "expectedColon",
     "kind": "interface",
     "detail": "expectedColon",
@@ -1488,6 +1522,40 @@
     "textEdit": {
       "range": {},
       "newText": "expectedColon"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedColon2",
+    "kind": "interface",
+    "detail": "expectedColon2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedColon2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedColon2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedComma",
+    "kind": "interface",
+    "detail": "expectedComma",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedComma",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedComma"
     },
     "commitCharacters": [
       ":"
@@ -1562,6 +1630,40 @@
     ]
   },
   {
+    "label": "expectedInKeyword3",
+    "kind": "interface",
+    "detail": "expectedInKeyword3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedInKeyword3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedInKeyword3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedInKeyword4",
+    "kind": "interface",
+    "detail": "expectedInKeyword4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedInKeyword4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedInKeyword4"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "expectedLoopBody",
     "kind": "interface",
     "detail": "expectedLoopBody",
@@ -1573,6 +1675,74 @@
     "textEdit": {
       "range": {},
       "newText": "expectedLoopBody"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopBody2",
+    "kind": "interface",
+    "detail": "expectedLoopBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopBody2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopIndexName",
+    "kind": "interface",
+    "detail": "expectedLoopIndexName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopIndexName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopIndexName"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopItemName",
+    "kind": "interface",
+    "detail": "expectedLoopItemName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopItemName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopItemName"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopItemName2",
+    "kind": "interface",
+    "detail": "expectedLoopItemName2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopItemName2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopItemName2"
     },
     "commitCharacters": [
       ":"
@@ -1981,6 +2151,23 @@
     ]
   },
   {
+    "label": "itemAndIndexSameName",
+    "kind": "interface",
+    "detail": "itemAndIndexSameName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_itemAndIndexSameName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "itemAndIndexSameName"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",
@@ -2269,6 +2456,23 @@
     "textEdit": {
       "range": {},
       "newText": "missingRequiredProperties"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "missingRequiredProperties2",
+    "kind": "interface",
+    "detail": "missingRequiredProperties2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingRequiredProperties2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingRequiredProperties2"
     },
     "commitCharacters": [
       ":"
@@ -2823,6 +3027,40 @@
     "textEdit": {
       "range": {},
       "newText": "nonObjectResourceLoopBody2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nonObjectResourceLoopBody3",
+    "kind": "interface",
+    "detail": "nonObjectResourceLoopBody3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectResourceLoopBody3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectResourceLoopBody3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nonObjectResourceLoopBody4",
+    "kind": "interface",
+    "detail": "nonObjectResourceLoopBody4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonObjectResourceLoopBody4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonObjectResourceLoopBody4"
     },
     "commitCharacters": [
       ":"
@@ -4217,6 +4455,23 @@
     ]
   },
   {
+    "label": "wrongArrayType2",
+    "kind": "interface",
+    "detail": "wrongArrayType2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongArrayType2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongArrayType2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "wrongLoopBodyType",
     "kind": "interface",
     "detail": "wrongLoopBodyType",
@@ -4234,6 +4489,23 @@
     ]
   },
   {
+    "label": "wrongLoopBodyType2",
+    "kind": "interface",
+    "detail": "wrongLoopBodyType2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongLoopBodyType2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongLoopBodyType2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "wrongPropertyInNestedLoop",
     "kind": "interface",
     "detail": "wrongPropertyInNestedLoop",
@@ -4245,6 +4517,23 @@
     "textEdit": {
       "range": {},
       "newText": "wrongPropertyInNestedLoop"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "wrongPropertyInNestedLoop2",
+    "kind": "interface",
+    "detail": "wrongPropertyInNestedLoop2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongPropertyInNestedLoop2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongPropertyInNestedLoop2"
     },
     "commitCharacters": [
       ":"

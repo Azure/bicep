@@ -86,6 +86,8 @@ namespace Bicep.Core.Samples
 
         public bool IsValid => this.Name.Contains("Invalid", StringComparison.Ordinal) == false;
 
+        public bool IsStress => this.Name.Contains("Stress", StringComparison.Ordinal);
+
         private Lazy<string> CreateRequired(string fileName)
         {
             return new Lazy<string>(() => this.ReadDataSetFile(fileName), LazyThreadSafetyMode.PublicationOnly);

@@ -1357,6 +1357,66 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 //@[1:2) RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
+// storage account loop with index
+//@[34:36) NewLine |\r\n|
+resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
+//@[0:8) Identifier |resource|
+//@[9:34) Identifier |storageResourcesWithIndex|
+//@[35:81) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[82:83) Assignment |=|
+//@[84:85) LeftSquare |[|
+//@[85:88) Identifier |for|
+//@[89:90) LeftParen |(|
+//@[90:97) Identifier |account|
+//@[97:98) Comma |,|
+//@[99:100) Identifier |i|
+//@[100:101) RightParen |)|
+//@[102:104) Identifier |in|
+//@[105:120) Identifier |storageAccounts|
+//@[120:121) Colon |:|
+//@[122:123) LeftBrace |{|
+//@[123:125) NewLine |\r\n|
+  name: '${account.name}${i}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:18) Identifier |account|
+//@[18:19) Dot |.|
+//@[19:23) Identifier |name|
+//@[23:26) StringMiddlePiece |}${|
+//@[26:27) Identifier |i|
+//@[27:29) StringRightPiece |}'|
+//@[29:31) NewLine |\r\n|
+  location: account.location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:19) Identifier |account|
+//@[19:20) Dot |.|
+//@[20:28) Identifier |location|
+//@[28:30) NewLine |\r\n|
+  sku: {
+//@[2:5) Identifier |sku|
+//@[5:6) Colon |:|
+//@[7:8) LeftBrace |{|
+//@[8:10) NewLine |\r\n|
+    name: 'Standard_LRS'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:24) StringComplete |'Standard_LRS'|
+//@[24:26) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'StorageV2'|
+//@[19:21) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
 // basic nested loop
 //@[20:22) NewLine |\r\n|
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
@@ -1643,4 +1703,6 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
-//@[2:2) EndOfFile ||
+//@[2:4) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

@@ -789,7 +789,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedLoopVariableIdentifier() => new(
                 TextSpan,
                 "BCP136",
-                "Expected a loop variable identifier at this location.");
+                "Expected a loop item variable identifier at this location.");
 
             public ErrorDiagnostic LoopArrayExpressionTypeMismatch(TypeSymbol actualType) => new(
                 TextSpan,
@@ -919,14 +919,24 @@ namespace Bicep.Core.Diagnostics
                 "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples).",
                 DiagnosticLabel.Deprecated);
 
-            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+            public ErrorDiagnostic ExpectedLoopItemIdentifierOrVariableBlockStart() => new(
                 TextSpan,
                 "BCP162",
+                "Expected a loop item variable identifier or \"(\" at this location.");
+
+            public ErrorDiagnostic ExpectedLoopIndexIdentifier() => new(
+                TextSpan,
+                "BCP163",
+                "Expected a loop index variable identifier at this location.");
+
+            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+                TextSpan,
+                "BCP164",
                 $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
 
             public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
                 TextSpan,
-                "BCP163",
+                "BCP165",
                 $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
         }
 

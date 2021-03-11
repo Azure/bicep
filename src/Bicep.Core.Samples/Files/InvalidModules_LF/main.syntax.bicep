@@ -1992,9 +1992,7 @@ module expectedLoopVar 'modulea.bicep' = [for]
 //@[41:46)  ForSyntax
 //@[41:42)   LeftSquare |[|
 //@[42:45)   Identifier |for|
-//@[45:45)   LocalVariableSyntax
-//@[45:45)    IdentifierSyntax
-//@[45:45)     SkippedTriviaSyntax
+//@[45:45)   SkippedTriviaSyntax
 //@[45:45)   SkippedTriviaSyntax
 //@[45:45)   SkippedTriviaSyntax
 //@[45:45)   SkippedTriviaSyntax
@@ -2112,6 +2110,208 @@ module expectedLoopBody 'modulea.bicep' = [for x in y:]
 //@[54:55)   RightSquare |]|
 //@[55:57) NewLine |\n\n|
 
+// indexed loop parsing cases
+//@[29:30) NewLine |\n|
+module expectedItemVarName 'modulea.bicep' = [for ()]
+//@[0:53) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |expectedItemVarName|
+//@[27:42)  StringSyntax
+//@[27:42)   StringComplete |'modulea.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:53)  ForSyntax
+//@[45:46)   LeftSquare |[|
+//@[46:49)   Identifier |for|
+//@[50:52)   ForVariableBlockSyntax
+//@[50:51)    LeftParen |(|
+//@[51:51)    LocalVariableSyntax
+//@[51:51)     IdentifierSyntax
+//@[51:51)      SkippedTriviaSyntax
+//@[51:51)    SkippedTriviaSyntax
+//@[51:51)    LocalVariableSyntax
+//@[51:51)     IdentifierSyntax
+//@[51:51)      SkippedTriviaSyntax
+//@[51:52)    RightParen |)|
+//@[52:52)   SkippedTriviaSyntax
+//@[52:52)   SkippedTriviaSyntax
+//@[52:52)   SkippedTriviaSyntax
+//@[52:52)   SkippedTriviaSyntax
+//@[52:53)   RightSquare |]|
+//@[53:55) NewLine |\n\n|
+
+module expectedComma 'modulea.bicep' = [for (x)]
+//@[0:48) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:20)  IdentifierSyntax
+//@[7:20)   Identifier |expectedComma|
+//@[21:36)  StringSyntax
+//@[21:36)   StringComplete |'modulea.bicep'|
+//@[37:38)  Assignment |=|
+//@[39:48)  ForSyntax
+//@[39:40)   LeftSquare |[|
+//@[40:43)   Identifier |for|
+//@[44:47)   ForVariableBlockSyntax
+//@[44:45)    LeftParen |(|
+//@[45:46)    LocalVariableSyntax
+//@[45:46)     IdentifierSyntax
+//@[45:46)      Identifier |x|
+//@[46:46)    SkippedTriviaSyntax
+//@[46:46)    LocalVariableSyntax
+//@[46:46)     IdentifierSyntax
+//@[46:46)      SkippedTriviaSyntax
+//@[46:47)    RightParen |)|
+//@[47:47)   SkippedTriviaSyntax
+//@[47:47)   SkippedTriviaSyntax
+//@[47:47)   SkippedTriviaSyntax
+//@[47:47)   SkippedTriviaSyntax
+//@[47:48)   RightSquare |]|
+//@[48:50) NewLine |\n\n|
+
+module expectedIndexVarName 'modulea.bicep' = [for (x,)]
+//@[0:56) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:27)  IdentifierSyntax
+//@[7:27)   Identifier |expectedIndexVarName|
+//@[28:43)  StringSyntax
+//@[28:43)   StringComplete |'modulea.bicep'|
+//@[44:45)  Assignment |=|
+//@[46:56)  ForSyntax
+//@[46:47)   LeftSquare |[|
+//@[47:50)   Identifier |for|
+//@[51:55)   ForVariableBlockSyntax
+//@[51:52)    LeftParen |(|
+//@[52:53)    LocalVariableSyntax
+//@[52:53)     IdentifierSyntax
+//@[52:53)      Identifier |x|
+//@[53:54)    Comma |,|
+//@[54:54)    LocalVariableSyntax
+//@[54:54)     IdentifierSyntax
+//@[54:54)      SkippedTriviaSyntax
+//@[54:55)    RightParen |)|
+//@[55:55)   SkippedTriviaSyntax
+//@[55:55)   SkippedTriviaSyntax
+//@[55:55)   SkippedTriviaSyntax
+//@[55:55)   SkippedTriviaSyntax
+//@[55:56)   RightSquare |]|
+//@[56:58) NewLine |\n\n|
+
+module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
+//@[0:55) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:25)  IdentifierSyntax
+//@[7:25)   Identifier |expectedInKeyword3|
+//@[26:41)  StringSyntax
+//@[26:41)   StringComplete |'modulea.bicep'|
+//@[42:43)  Assignment |=|
+//@[44:55)  ForSyntax
+//@[44:45)   LeftSquare |[|
+//@[45:48)   Identifier |for|
+//@[49:54)   ForVariableBlockSyntax
+//@[49:50)    LeftParen |(|
+//@[50:51)    LocalVariableSyntax
+//@[50:51)     IdentifierSyntax
+//@[50:51)      Identifier |x|
+//@[51:52)    Comma |,|
+//@[52:53)    LocalVariableSyntax
+//@[52:53)     IdentifierSyntax
+//@[52:53)      Identifier |y|
+//@[53:54)    RightParen |)|
+//@[54:54)   SkippedTriviaSyntax
+//@[54:54)   SkippedTriviaSyntax
+//@[54:54)   SkippedTriviaSyntax
+//@[54:54)   SkippedTriviaSyntax
+//@[54:55)   RightSquare |]|
+//@[55:57) NewLine |\n\n|
+
+module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
+//@[0:65) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:31)  IdentifierSyntax
+//@[7:31)   Identifier |expectedArrayExpression2|
+//@[32:47)  StringSyntax
+//@[32:47)   StringComplete |'modulea.bicep'|
+//@[48:49)  Assignment |=|
+//@[50:65)  ForSyntax
+//@[50:51)   LeftSquare |[|
+//@[51:54)   Identifier |for|
+//@[55:60)   ForVariableBlockSyntax
+//@[55:56)    LeftParen |(|
+//@[56:57)    LocalVariableSyntax
+//@[56:57)     IdentifierSyntax
+//@[56:57)      Identifier |x|
+//@[57:58)    Comma |,|
+//@[58:59)    LocalVariableSyntax
+//@[58:59)     IdentifierSyntax
+//@[58:59)      Identifier |y|
+//@[59:60)    RightParen |)|
+//@[61:63)   Identifier |in|
+//@[64:64)   SkippedTriviaSyntax
+//@[64:64)   SkippedTriviaSyntax
+//@[64:64)   SkippedTriviaSyntax
+//@[64:65)   RightSquare |]|
+//@[65:67) NewLine |\n\n|
+
+module expectedColon2 'modulea.bicep' = [for (x,y) in z]
+//@[0:56) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |expectedColon2|
+//@[22:37)  StringSyntax
+//@[22:37)   StringComplete |'modulea.bicep'|
+//@[38:39)  Assignment |=|
+//@[40:56)  ForSyntax
+//@[40:41)   LeftSquare |[|
+//@[41:44)   Identifier |for|
+//@[45:50)   ForVariableBlockSyntax
+//@[45:46)    LeftParen |(|
+//@[46:47)    LocalVariableSyntax
+//@[46:47)     IdentifierSyntax
+//@[46:47)      Identifier |x|
+//@[47:48)    Comma |,|
+//@[48:49)    LocalVariableSyntax
+//@[48:49)     IdentifierSyntax
+//@[48:49)      Identifier |y|
+//@[49:50)    RightParen |)|
+//@[51:53)   Identifier |in|
+//@[54:55)   VariableAccessSyntax
+//@[54:55)    IdentifierSyntax
+//@[54:55)     Identifier |z|
+//@[55:55)   SkippedTriviaSyntax
+//@[55:55)   SkippedTriviaSyntax
+//@[55:56)   RightSquare |]|
+//@[56:58) NewLine |\n\n|
+
+module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
+//@[0:60) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:24)  IdentifierSyntax
+//@[7:24)   Identifier |expectedLoopBody2|
+//@[25:40)  StringSyntax
+//@[25:40)   StringComplete |'modulea.bicep'|
+//@[41:42)  Assignment |=|
+//@[43:60)  ForSyntax
+//@[43:44)   LeftSquare |[|
+//@[44:47)   Identifier |for|
+//@[48:53)   ForVariableBlockSyntax
+//@[48:49)    LeftParen |(|
+//@[49:50)    LocalVariableSyntax
+//@[49:50)     IdentifierSyntax
+//@[49:50)      Identifier |x|
+//@[50:51)    Comma |,|
+//@[51:52)    LocalVariableSyntax
+//@[51:52)     IdentifierSyntax
+//@[51:52)      Identifier |y|
+//@[52:53)    RightParen |)|
+//@[54:56)   Identifier |in|
+//@[57:58)   VariableAccessSyntax
+//@[57:58)    IdentifierSyntax
+//@[57:58)     Identifier |z|
+//@[58:59)   Colon |:|
+//@[59:59)   SkippedTriviaSyntax
+//@[59:60)   RightSquare |]|
+//@[60:62) NewLine |\n\n|
+
 // wrong loop body type
 //@[23:24) NewLine |\n|
 var emptyArray = []
@@ -2146,7 +2346,37 @@ module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 //@[64:65)   SkippedTriviaSyntax
 //@[64:65)    Integer |4|
 //@[65:66)   RightSquare |]|
-//@[66:68) NewLine |\n\n|
+//@[66:67) NewLine |\n|
+module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
+//@[0:71) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:25)  IdentifierSyntax
+//@[7:25)   Identifier |wrongLoopBodyType2|
+//@[26:41)  StringSyntax
+//@[26:41)   StringComplete |'modulea.bicep'|
+//@[42:43)  Assignment |=|
+//@[44:71)  ForSyntax
+//@[44:45)   LeftSquare |[|
+//@[45:48)   Identifier |for|
+//@[49:54)   ForVariableBlockSyntax
+//@[49:50)    LeftParen |(|
+//@[50:51)    LocalVariableSyntax
+//@[50:51)     IdentifierSyntax
+//@[50:51)      Identifier |x|
+//@[51:52)    Comma |,|
+//@[52:53)    LocalVariableSyntax
+//@[52:53)     IdentifierSyntax
+//@[52:53)      Identifier |i|
+//@[53:54)    RightParen |)|
+//@[55:57)   Identifier |in|
+//@[58:68)   VariableAccessSyntax
+//@[58:68)    IdentifierSyntax
+//@[58:68)     Identifier |emptyArray|
+//@[68:69)   Colon |:|
+//@[69:70)   SkippedTriviaSyntax
+//@[69:70)    Integer |4|
+//@[70:71)   RightSquare |]|
+//@[71:73) NewLine |\n\n|
 
 // missing loop body properties
 //@[31:32) NewLine |\n|
@@ -2172,6 +2402,39 @@ module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 //@[72:75)   ObjectSyntax
 //@[72:73)    LeftBrace |{|
 //@[73:74)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:3) NewLine |\n|
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[0:81) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:33)  IdentifierSyntax
+//@[7:33)   Identifier |missingLoopBodyProperties2|
+//@[34:49)  StringSyntax
+//@[34:49)   StringComplete |'modulea.bicep'|
+//@[50:51)  Assignment |=|
+//@[52:81)  ForSyntax
+//@[52:53)   LeftSquare |[|
+//@[53:56)   Identifier |for|
+//@[57:62)   ForVariableBlockSyntax
+//@[57:58)    LeftParen |(|
+//@[58:59)    LocalVariableSyntax
+//@[58:59)     IdentifierSyntax
+//@[58:59)      Identifier |x|
+//@[59:60)    Comma |,|
+//@[60:61)    LocalVariableSyntax
+//@[60:61)     IdentifierSyntax
+//@[60:61)      Identifier |i|
+//@[61:62)    RightParen |)|
+//@[63:65)   Identifier |in|
+//@[66:76)   VariableAccessSyntax
+//@[66:76)    IdentifierSyntax
+//@[66:76)     Identifier |emptyArray|
+//@[76:77)   Colon |:|
+//@[77:80)   ObjectSyntax
+//@[77:78)    LeftBrace |{|
+//@[78:79)    NewLine |\n|
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
@@ -2323,6 +2586,112 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[16:17)        LeftSquare |[|
 //@[17:18)        RightSquare |]|
 //@[18:19)      NewLine |\n|
+    objParam: {}
+//@[4:16)      ObjectPropertySyntax
+//@[4:12)       IdentifierSyntax
+//@[4:12)        Identifier |objParam|
+//@[12:13)       Colon |:|
+//@[14:16)       ObjectSyntax
+//@[14:15)        LeftBrace |{|
+//@[15:16)        RightBrace |}|
+//@[16:17)      NewLine |\n|
+    stringParamA: 'test'
+//@[4:24)      ObjectPropertySyntax
+//@[4:16)       IdentifierSyntax
+//@[4:16)        Identifier |stringParamA|
+//@[16:17)       Colon |:|
+//@[18:24)       StringSyntax
+//@[18:24)        StringComplete |'test'|
+//@[24:25)      NewLine |\n|
+    stringParamB: 'test'
+//@[4:24)      ObjectPropertySyntax
+//@[4:16)       IdentifierSyntax
+//@[4:16)        Identifier |stringParamB|
+//@[16:17)       Colon |:|
+//@[18:24)       StringSyntax
+//@[18:24)        StringComplete |'test'|
+//@[24:25)      NewLine |\n|
+    notAThing: 'test'
+//@[4:21)      ObjectPropertySyntax
+//@[4:13)       IdentifierSyntax
+//@[4:13)        Identifier |notAThing|
+//@[13:14)       Colon |:|
+//@[15:21)       StringSyntax
+//@[15:21)        StringComplete |'test'|
+//@[21:22)      NewLine |\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:4)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:3) NewLine |\n|
+module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[0:240) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:34)  IdentifierSyntax
+//@[7:34)   Identifier |wrongModuleParameterInLoop2|
+//@[35:50)  StringSyntax
+//@[35:50)   StringComplete |'modulea.bicep'|
+//@[51:52)  Assignment |=|
+//@[53:240)  ForSyntax
+//@[53:54)   LeftSquare |[|
+//@[54:57)   Identifier |for|
+//@[58:63)   ForVariableBlockSyntax
+//@[58:59)    LeftParen |(|
+//@[59:60)    LocalVariableSyntax
+//@[59:60)     IdentifierSyntax
+//@[59:60)      Identifier |x|
+//@[60:61)    Comma |,|
+//@[61:62)    LocalVariableSyntax
+//@[61:62)     IdentifierSyntax
+//@[61:62)      Identifier |i|
+//@[62:63)    RightParen |)|
+//@[64:66)   Identifier |in|
+//@[67:77)   VariableAccessSyntax
+//@[67:77)    IdentifierSyntax
+//@[67:77)     Identifier |emptyArray|
+//@[77:78)   Colon |:|
+//@[78:239)   ObjectSyntax
+//@[78:79)    LeftBrace |{|
+//@[79:80)    NewLine |\n|
+  name: 'hello-${x}'
+//@[2:20)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:20)     StringSyntax
+//@[8:17)      StringLeftPiece |'hello-${|
+//@[17:18)      VariableAccessSyntax
+//@[17:18)       IdentifierSyntax
+//@[17:18)        Identifier |x|
+//@[18:20)      StringRightPiece |}'|
+//@[20:21)    NewLine |\n|
+  params: {
+//@[2:136)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |params|
+//@[8:9)     Colon |:|
+//@[10:136)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+    arrayParam: [
+//@[4:31)      ObjectPropertySyntax
+//@[4:14)       IdentifierSyntax
+//@[4:14)        Identifier |arrayParam|
+//@[14:15)       Colon |:|
+//@[16:31)       ArraySyntax
+//@[16:17)        LeftSquare |[|
+//@[17:18)        NewLine |\n|
+      i
+//@[6:7)        ArrayItemSyntax
+//@[6:7)         VariableAccessSyntax
+//@[6:7)          IdentifierSyntax
+//@[6:7)           Identifier |i|
+//@[7:8)        NewLine |\n|
+    ]
+//@[4:5)        RightSquare |]|
+//@[5:6)      NewLine |\n|
     objParam: {}
 //@[4:16)      ObjectPropertySyntax
 //@[4:12)       IdentifierSyntax
@@ -2871,4 +3240,68 @@ module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
 //@[70:71)    LeftParen |(|
 //@[71:72)    RightParen |)|
 //@[72:73)   RightSquare |]|
-//@[73:73) EndOfFile ||
+//@[73:74) NewLine |\n|
+module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
+//@[0:76) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:27)  IdentifierSyntax
+//@[7:27)   Identifier |nonObjectModuleBody3|
+//@[28:43)  StringSyntax
+//@[28:43)   StringComplete |'modulea.bicep'|
+//@[44:45)  Assignment |=|
+//@[46:76)  ForSyntax
+//@[46:47)   LeftSquare |[|
+//@[47:50)   Identifier |for|
+//@[51:60)   ForVariableBlockSyntax
+//@[51:52)    LeftParen |(|
+//@[52:57)    LocalVariableSyntax
+//@[52:57)     IdentifierSyntax
+//@[52:57)      Identifier |thing|
+//@[57:58)    Comma |,|
+//@[58:59)    LocalVariableSyntax
+//@[58:59)     IdentifierSyntax
+//@[58:59)      Identifier |i|
+//@[59:60)    RightParen |)|
+//@[61:63)   Identifier |in|
+//@[64:66)   ArraySyntax
+//@[64:65)    LeftSquare |[|
+//@[65:66)    RightSquare |]|
+//@[66:67)   Colon |:|
+//@[68:75)   SkippedTriviaSyntax
+//@[68:75)    StringComplete |'hello'|
+//@[75:76)   RightSquare |]|
+//@[76:77) NewLine |\n|
+module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
+//@[0:77) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:27)  IdentifierSyntax
+//@[7:27)   Identifier |nonObjectModuleBody4|
+//@[28:43)  StringSyntax
+//@[28:43)   StringComplete |'modulea.bicep'|
+//@[44:45)  Assignment |=|
+//@[46:77)  ForSyntax
+//@[46:47)   LeftSquare |[|
+//@[47:50)   Identifier |for|
+//@[51:60)   ForVariableBlockSyntax
+//@[51:52)    LeftParen |(|
+//@[52:57)    LocalVariableSyntax
+//@[52:57)     IdentifierSyntax
+//@[52:57)      Identifier |thing|
+//@[57:58)    Comma |,|
+//@[58:59)    LocalVariableSyntax
+//@[58:59)     IdentifierSyntax
+//@[58:59)      Identifier |i|
+//@[59:60)    RightParen |)|
+//@[61:63)   Identifier |in|
+//@[64:66)   ArraySyntax
+//@[64:65)    LeftSquare |[|
+//@[65:66)    RightSquare |]|
+//@[66:67)   Colon |:|
+//@[68:76)   SkippedTriviaSyntax
+//@[68:74)    Identifier |concat|
+//@[74:75)    LeftParen |(|
+//@[75:76)    RightParen |)|
+//@[76:77)   RightSquare |]|
+//@[77:78) NewLine |\n|
+
+//@[0:0) EndOfFile ||

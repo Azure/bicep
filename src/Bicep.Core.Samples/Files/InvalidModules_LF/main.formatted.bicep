@@ -288,12 +288,29 @@ module expectedColon 'modulea.bicep' = [for x in y]
 
 module expectedLoopBody 'modulea.bicep' = [for x in y:]
 
+// indexed loop parsing cases
+module expectedItemVarName 'modulea.bicep' = [for ()]
+
+module expectedComma 'modulea.bicep' = [for (x)]
+
+module expectedIndexVarName 'modulea.bicep' = [for (x,)]
+
+module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
+
+module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
+
+module expectedColon2 'modulea.bicep' = [for (x,y) in z]
+
+module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
+
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
+module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {}]
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x, i) in emptyArray: {}]
 
 // wrong array type
 var notAnArray = true
@@ -311,6 +328,18 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray: {
   name: 'hello-${x}'
   params: {
     arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+  }
+}]
+module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x, i) in emptyArray: {
+  name: 'hello-${x}'
+  params: {
+    arrayParam: [
+      i
+    ]
     objParam: {}
     stringParamA: 'test'
     stringParamB: 'test'
@@ -374,3 +403,5 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
 // module body that isn't an object
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
 module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
+module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
+module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
