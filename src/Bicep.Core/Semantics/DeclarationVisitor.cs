@@ -100,8 +100,19 @@ namespace Bicep.Core.Semantics
              * We cannot add the local symbol to the list of declarations because it will
              * break name binding at the global namespace level
              */
-            var itemVariable = new LocalVariableSymbol(this.context, syntax.ItemVariable.Name.IdentifierName, syntax.ItemVariable);
-            DeclareSymbol(itemVariable);
+            var itemVariable = syntax.ItemVariable;
+            if (itemVariable is not null)
+            {
+                var itemVariableSymbol = new LocalVariableSymbol(this.context, itemVariable.Name.IdentifierName, itemVariable, LocalKind.ForExpressionItemVariable);
+                DeclareSymbol(itemVariableSymbol);
+            }
+
+            var indexVariable = syntax.IndexVariable;
+            if(indexVariable is not null)
+            {
+                var indexVariableSymbol = new LocalVariableSymbol(this.context, indexVariable.Name.IdentifierName, indexVariable, LocalKind.ForExpressionIndexVariable);
+                DeclareSymbol(indexVariableSymbol);
+            }
 
             // visit the children
             base.VisitForSyntax(syntax);

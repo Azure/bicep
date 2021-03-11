@@ -45,9 +45,9 @@
       },
       "type": "Microsoft.Management/managementGroups",
       "apiVersion": "2020-05-01",
-      "name": "[concat(variables('managementGroups')[copyIndex()].name, '-one')]",
+      "name": "[concat(variables('managementGroups')[copyIndex()].name, '-one-', copyIndex())]",
       "properties": {
-        "displayName": "[format('{0} ({1}) (set 1)', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG')).displayName)]"
+        "displayName": "[format('{0} ({1}) (set 1) (index {2})', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG')).displayName, copyIndex())]"
       },
       "dependsOn": [
         "manyGroups",
@@ -66,7 +66,7 @@
         "displayName": "[format('{0} ({1}) (set 2)', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG')).displayName)]"
       },
       "dependsOn": [
-        "[tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[0].name, '-one'))]",
+        "[tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[0].name, '-one-', 0))]",
         "[tenantResourceId('Microsoft.Management/managementGroups', 'myMG')]"
       ]
     }
@@ -87,7 +87,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15514725128482049618"
+      "templateHash": "657783032309376155"
     }
   }
 }

@@ -32,6 +32,10 @@
         "description": "101/app-config"
     },
     {
+        "filePath": "101/app-service-regional-vnet-integration/main.bicep",
+        "description": "101/app-service-regional-vnet-integration"
+    },
+    {
         "filePath": "101/application-gateway-v2-autoscale-create/main.bicep",
         "description": "101/application-gateway-v2-autoscale-create"
     },
