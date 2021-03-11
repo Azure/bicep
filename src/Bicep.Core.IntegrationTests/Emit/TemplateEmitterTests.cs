@@ -93,40 +93,6 @@ namespace Bicep.Core.IntegrationTests.Emit
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void ValidBicepTextWriter_TemplateEmiterTemplateHashCheck(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            MemoryStream memoryStream = new MemoryStream();
-
-            // emitting the template should be successful
-            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), memoryStream, ThisAssembly.AssemblyFileVersion);
-            result.Diagnostics.Should().BeEmptyOrContainDeprecatedDiagnosticOnly();
-            result.Status.Should().Be(EmitStatus.Succeeded);
-
-            var actual = JToken.ReadFrom(new JsonTextReader(new StreamReader(new MemoryStream(memoryStream.ToArray()))));
-            var compiled = JToken.Parse(dataSet.Compiled!);
-            
-            // TemplateHash should not be the same with difference assembly versions
-            actual.SelectToken("metadata._generator.templateHash")!.ToString().Should().NotBe(
-                compiled.SelectToken("metadata._generator.templateHash")!.ToString()
-            );
-            actual.SelectToken("metadata._generator.version")!.ToString().Should().Be(ThisAssembly.AssemblyFileVersion);
-            
-            // Aside from the different metadata, the templates should be the same
-            ((JObject) actual).Remove("metadata");
-            ((JObject) compiled).Remove("metadata");
-
-            var compiledFilePath = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), actual.ToString(Formatting.Indented));
-            actual.Should().EqualWithJsonDiffOutput(
-                TestContext, 
-                compiled,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
-                actualLocation: compiledFilePath);
-        }
-
-        [DataTestMethod]
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void InvalidBicep_TemplateEmiterShouldNotProduceAnyTemplate(DataSet dataSet)
         {
