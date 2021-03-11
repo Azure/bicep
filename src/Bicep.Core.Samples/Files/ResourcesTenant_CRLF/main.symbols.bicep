@@ -29,12 +29,13 @@ resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [for mg
   }
 }]
 
-resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for mg in managementGroups: {
-//@[78:80) Local mg. Type: any. Declaration start char: 78, length: 2
-//@[9:19) Resource anotherSet. Type: Microsoft.Management/managementGroups@2020-05-01[]. Declaration start char: 0, length: 285
-  name: concat(mg.name, '-one')
+resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (mg, index) in managementGroups: {
+//@[79:81) Local mg. Type: any. Declaration start char: 79, length: 2
+//@[83:88) Local index. Type: int. Declaration start char: 83, length: 5
+//@[9:19) Resource anotherSet. Type: Microsoft.Management/managementGroups@2020-05-01[]. Declaration start char: 0, length: 319
+  name: concat(mg.name, '-one-', index)
   properties: {
-    displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1)'
+    displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1) (index ${index})'
   }
   dependsOn: [
     manyGroups
@@ -59,3 +60,4 @@ output managementGroupIds array = [for i in range(0, length(managementGroups)): 
   name: yetAnotherSet[i].name
   displayName: yetAnotherSet[i].properties.displayName
 }]
+

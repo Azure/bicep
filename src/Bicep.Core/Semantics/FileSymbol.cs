@@ -34,7 +34,7 @@ namespace Bicep.Core.Semantics
             this.ModuleDeclarations = moduleDeclarations.ToImmutableArray();
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
 
-            this.declarationsByName = this.AllDeclarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
+            this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
         }
 
         public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces.Values
@@ -66,7 +66,7 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Returns all the top-level declaration symbols.
         /// </summary>
-        public IEnumerable<DeclaredSymbol> AllDeclarations => this.Descendants.OfType<DeclaredSymbol>();
+        public IEnumerable<DeclaredSymbol> Declarations => this.Descendants.OfType<DeclaredSymbol>();
 
         public override void Accept(SymbolVisitor visitor)
         {
@@ -76,6 +76,8 @@ namespace Bicep.Core.Semantics
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
+
+        public IEnumerable<ResourceSymbol> GetAllResourceDeclarations() => ResourceSymbolVisitor.GetAllResources(this);
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
         {
@@ -111,8 +113,8 @@ namespace Bicep.Core.Semantics
                 // collect duplicate identifiers at this scope
                 // declaring a variable in a local scope hides the parent scope variables,
                 // so we don't need to look at other levels
-                var outputDeclarations = scope.AllDeclarations.Where(decl => decl is OutputSymbol);
-                var nonOutputDeclarations = scope.AllDeclarations.Where(decl => decl is not OutputSymbol);
+                var outputDeclarations = scope.Declarations.Where(decl => decl is OutputSymbol);
+                var nonOutputDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol);
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
                 this.Diagnostics.AddRange(

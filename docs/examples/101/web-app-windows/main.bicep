@@ -7,7 +7,7 @@ var appServicePlanName = toLower('asp-${appName}')
 var webSiteName = toLower('wapp-${appName}')
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
-  name: appServicePlanName // Globally unique storage account name
+  name: appServicePlanName // app serivce plan name
   location: location // Azure Region
   sku: {
     name: skuName
@@ -20,7 +20,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
 }
 
 resource appService 'Microsoft.Web/sites@2020-06-01' = {
-  name: webSiteName
+  name: webSiteName // Globally unique app serivce name
   location: location
   identity: {
     type: 'SystemAssigned'

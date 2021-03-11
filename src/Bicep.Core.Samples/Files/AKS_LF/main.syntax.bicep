@@ -23,49 +23,43 @@ param sshRSAPublicKey string
 //@[6:21)   Identifier |sshRSAPublicKey|
 //@[22:28)  TypeSyntax
 //@[22:28)   Identifier |string|
-//@[28:29) NewLine |\n|
-param servcePrincipalClientId string {
-//@[0:57) ParameterDeclarationSyntax
+//@[28:30) NewLine |\n\n|
+
+@secure()
+//@[0:46) ParameterDeclarationSyntax
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:10)  NewLine |\n|
+param servcePrincipalClientId string
 //@[0:5)  Identifier |param|
 //@[6:29)  IdentifierSyntax
 //@[6:29)   Identifier |servcePrincipalClientId|
 //@[30:36)  TypeSyntax
 //@[30:36)   Identifier |string|
-//@[37:57)  ObjectSyntax
-//@[37:38)   LeftBrace |{|
-//@[38:39)   NewLine |\n|
-    secure: true
-//@[4:16)   ObjectPropertySyntax
-//@[4:10)    IdentifierSyntax
-//@[4:10)     Identifier |secure|
-//@[10:11)    Colon |:|
-//@[12:16)    BooleanLiteralSyntax
-//@[12:16)     TrueKeyword |true|
-//@[16:17)   NewLine |\n|
-}
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
-param servicePrincipalClientSecret string {
-//@[0:62) ParameterDeclarationSyntax
+//@[36:38) NewLine |\n\n|
+
+@secure()
+//@[0:51) ParameterDeclarationSyntax
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:10)  NewLine |\n|
+param servicePrincipalClientSecret string
 //@[0:5)  Identifier |param|
 //@[6:34)  IdentifierSyntax
 //@[6:34)   Identifier |servicePrincipalClientSecret|
 //@[35:41)  TypeSyntax
 //@[35:41)   Identifier |string|
-//@[42:62)  ObjectSyntax
-//@[42:43)   LeftBrace |{|
-//@[43:44)   NewLine |\n|
-    secure: true
-//@[4:16)   ObjectPropertySyntax
-//@[4:10)    IdentifierSyntax
-//@[4:10)     Identifier |secure|
-//@[10:11)    Colon |:|
-//@[12:16)    BooleanLiteralSyntax
-//@[12:16)     TrueKeyword |true|
-//@[16:17)   NewLine |\n|
-}
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[41:43) NewLine |\n\n|
 
 // optional params
 //@[18:19) NewLine |\n|
@@ -99,81 +93,82 @@ param location string = resourceGroup().location
 //@[39:40)    Dot |.|
 //@[40:48)    IdentifierSyntax
 //@[40:48)     Identifier |location|
-//@[48:49) NewLine |\n|
-param osDiskSizeGB int {
-//@[0:76) ParameterDeclarationSyntax
+//@[48:50) NewLine |\n\n|
+
+@minValue(0)
+//@[0:55) ParameterDeclarationSyntax
+//@[0:12)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:12)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:11)    FunctionArgumentSyntax
+//@[10:11)     IntegerLiteralSyntax
+//@[10:11)      Integer |0|
+//@[11:12)    RightParen |)|
+//@[12:13)  NewLine |\n|
+@maxValue(1023)
+//@[0:15)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:15)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |maxValue|
+//@[9:10)    LeftParen |(|
+//@[10:14)    FunctionArgumentSyntax
+//@[10:14)     IntegerLiteralSyntax
+//@[10:14)      Integer |1023|
+//@[14:15)    RightParen |)|
+//@[15:16)  NewLine |\n|
+param osDiskSizeGB int = 0
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |osDiskSizeGB|
 //@[19:22)  TypeSyntax
 //@[19:22)   Identifier |int|
-//@[23:76)  ObjectSyntax
-//@[23:24)   LeftBrace |{|
-//@[24:25)   NewLine |\n|
-    default: 0
-//@[4:14)   ObjectPropertySyntax
-//@[4:11)    IdentifierSyntax
-//@[4:11)     Identifier |default|
-//@[11:12)    Colon |:|
-//@[13:14)    IntegerLiteralSyntax
-//@[13:14)     Integer |0|
-//@[14:15)   NewLine |\n|
-    minValue: 0
-//@[4:15)   ObjectPropertySyntax
-//@[4:12)    IdentifierSyntax
-//@[4:12)     Identifier |minValue|
-//@[12:13)    Colon |:|
-//@[14:15)    IntegerLiteralSyntax
-//@[14:15)     Integer |0|
-//@[15:16)   NewLine |\n|
-    maxValue: 1023
-//@[4:18)   ObjectPropertySyntax
-//@[4:12)    IdentifierSyntax
-//@[4:12)     Identifier |maxValue|
-//@[12:13)    Colon |:|
-//@[14:18)    IntegerLiteralSyntax
-//@[14:18)     Integer |1023|
-//@[18:19)   NewLine |\n|
-}
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
-param agentCount int {
-//@[0:72) ParameterDeclarationSyntax
+//@[23:26)  ParameterDefaultValueSyntax
+//@[23:24)   Assignment |=|
+//@[25:26)   IntegerLiteralSyntax
+//@[25:26)    Integer |0|
+//@[26:28) NewLine |\n\n|
+
+@minValue(1)
+//@[0:51) ParameterDeclarationSyntax
+//@[0:12)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:12)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:11)    FunctionArgumentSyntax
+//@[10:11)     IntegerLiteralSyntax
+//@[10:11)      Integer |1|
+//@[11:12)    RightParen |)|
+//@[12:13)  NewLine |\n|
+@maxValue(50)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |maxValue|
+//@[9:10)    LeftParen |(|
+//@[10:12)    FunctionArgumentSyntax
+//@[10:12)     IntegerLiteralSyntax
+//@[10:12)      Integer |50|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+param agentCount int = 3
 //@[0:5)  Identifier |param|
 //@[6:16)  IdentifierSyntax
 //@[6:16)   Identifier |agentCount|
 //@[17:20)  TypeSyntax
 //@[17:20)   Identifier |int|
-//@[21:72)  ObjectSyntax
-//@[21:22)   LeftBrace |{|
-//@[22:23)   NewLine |\n|
-    default: 3
-//@[4:14)   ObjectPropertySyntax
-//@[4:11)    IdentifierSyntax
-//@[4:11)     Identifier |default|
-//@[11:12)    Colon |:|
-//@[13:14)    IntegerLiteralSyntax
-//@[13:14)     Integer |3|
-//@[14:15)   NewLine |\n|
-    minValue: 1
-//@[4:15)   ObjectPropertySyntax
-//@[4:12)    IdentifierSyntax
-//@[4:12)     Identifier |minValue|
-//@[12:13)    Colon |:|
-//@[14:15)    IntegerLiteralSyntax
-//@[14:15)     Integer |1|
-//@[15:16)   NewLine |\n|
-    maxValue: 50
-//@[4:16)   ObjectPropertySyntax
-//@[4:12)    IdentifierSyntax
-//@[4:12)     Identifier |maxValue|
-//@[12:13)    Colon |:|
-//@[14:16)    IntegerLiteralSyntax
-//@[14:16)     Integer |50|
-//@[16:17)   NewLine |\n|
-}
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[21:24)  ParameterDefaultValueSyntax
+//@[21:22)   Assignment |=|
+//@[23:24)   IntegerLiteralSyntax
+//@[23:24)    Integer |3|
+//@[24:26) NewLine |\n\n|
+
 param agentVMSize string = 'Standard_DS2_v2'
 //@[0:44) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|

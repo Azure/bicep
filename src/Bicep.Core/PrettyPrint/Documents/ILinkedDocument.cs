@@ -8,7 +8,7 @@ namespace Bicep.Core.PrettyPrint.Documents
     {
         ILinkedDocument Concat(ILinkedDocument other);
 
-        ILinkedDocument Nest(int level);
+        ILinkedDocument Nest();
 
         void Layout(StringBuilder sb, string indent, string newline);
     }

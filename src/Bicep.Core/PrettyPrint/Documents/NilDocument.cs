@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Text;
-using Bicep.Core.PrettyPrint.Documents;
 
-namespace Bicep.Core.PrettyPrint.DocumentCombinators
+namespace Bicep.Core.PrettyPrint.Documents
 {
     public sealed class NilDocument : ILinkedDocument
     {
@@ -12,7 +11,7 @@ namespace Bicep.Core.PrettyPrint.DocumentCombinators
             return other;
         }
 
-        public ILinkedDocument Nest(int level)
+        public ILinkedDocument Nest()
         {
             return this;
         }

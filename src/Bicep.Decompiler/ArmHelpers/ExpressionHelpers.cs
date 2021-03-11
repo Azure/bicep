@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
@@ -242,6 +244,55 @@ namespace Bicep.Decompiler.ArmHelpers
             }
 
             return jTokenExpression.Value.ToString().Trim('/');
+        }
+
+        public static TToken ReplaceFunctionExpressions<TToken>(TToken token, Action<FunctionExpression> onFunctionExpression)
+            where TToken : JToken
+        {
+            var expressionRewriter = new LanguageExpressionVisitor
+            {
+                OnFunctionExpression = onFunctionExpression,
+            };
+
+            string RewriteStringValue(string value)
+            {
+                if (!ExpressionsEngine.IsLanguageExpression(value))
+                {
+                    return value;
+                }
+
+                var expression = ExpressionsEngine.ParseLanguageExpression(value);
+                expression.Accept(expressionRewriter);
+
+                return ExpressionsEngine.SerializeExpression(expression);
+            }
+
+            if (token is JValue && token.Type == JTokenType.String)
+            {
+                var rewritten = RewriteStringValue(token.Value<string>());
+
+                return (new JValue(rewritten) as TToken)!;
+            }
+
+            // transform in-place
+            JTokenHelper.TransformJsonStringValues(token, (key, value) => RewriteStringValue(value));
+
+            return token;
+        }
+
+        public static string? TryGetStringValue(LanguageExpression expression)
+        {
+            if (expression is not JTokenExpression jTokenExpression)
+            {
+                return null;
+            }
+
+            if (jTokenExpression.Value.Type != JTokenType.String)
+            {
+                return null;
+            }
+
+            return jTokenExpression.Value.ToString();
         }
     }
 }

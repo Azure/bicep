@@ -123,20 +123,24 @@ resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [for mg
 //@[1:2) RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
-resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for mg in managementGroups: {
+resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (mg, index) in managementGroups: {
 //@[0:8) Identifier |resource|
 //@[9:19) Identifier |anotherSet|
 //@[20:70) StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
 //@[71:72) Assignment |=|
 //@[73:74) LeftSquare |[|
 //@[74:77) Identifier |for|
-//@[78:80) Identifier |mg|
-//@[81:83) Identifier |in|
-//@[84:100) Identifier |managementGroups|
-//@[100:101) Colon |:|
-//@[102:103) LeftBrace |{|
-//@[103:105) NewLine |\r\n|
-  name: concat(mg.name, '-one')
+//@[78:79) LeftParen |(|
+//@[79:81) Identifier |mg|
+//@[81:82) Comma |,|
+//@[83:88) Identifier |index|
+//@[88:89) RightParen |)|
+//@[90:92) Identifier |in|
+//@[93:109) Identifier |managementGroups|
+//@[109:110) Colon |:|
+//@[111:112) LeftBrace |{|
+//@[112:114) NewLine |\r\n|
+  name: concat(mg.name, '-one-', index)
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
 //@[8:14) Identifier |concat|
@@ -145,15 +149,17 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for mg
 //@[17:18) Dot |.|
 //@[18:22) Identifier |name|
 //@[22:23) Comma |,|
-//@[24:30) StringComplete |'-one'|
-//@[30:31) RightParen |)|
-//@[31:33) NewLine |\r\n|
+//@[24:31) StringComplete |'-one-'|
+//@[31:32) Comma |,|
+//@[33:38) Identifier |index|
+//@[38:39) RightParen |)|
+//@[39:41) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
 //@[14:15) LeftBrace |{|
 //@[15:17) NewLine |\r\n|
-    displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1)'
+    displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1) (index ${index})'
 //@[4:15) Identifier |displayName|
 //@[15:16) Colon |:|
 //@[17:20) StringLeftPiece |'${|
@@ -166,8 +172,10 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for mg
 //@[51:61) Identifier |properties|
 //@[61:62) Dot |.|
 //@[62:73) Identifier |displayName|
-//@[73:84) StringRightPiece |}) (set 1)'|
-//@[84:86) NewLine |\r\n|
+//@[73:93) StringMiddlePiece |}) (set 1) (index ${|
+//@[93:98) Identifier |index|
+//@[98:101) StringRightPiece |})'|
+//@[101:103) NewLine |\r\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:5) NewLine |\r\n|
@@ -300,4 +308,6 @@ output managementGroupIds array = [for i in range(0, length(managementGroups)): 
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
-//@[2:2) EndOfFile ||
+//@[2:4) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

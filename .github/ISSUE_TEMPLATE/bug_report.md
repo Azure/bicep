@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Bicep version**
-run `bicep --version` via the bicep CLI or via VS code by navigating to the extensions tab and searching for bicep
+run `bicep --version` via the Bicep CLI or via VS code by navigating to the extensions tab and searching for Bicep
 
 **Describe the bug**
 A clear and concise description of what the bug is vs what you expected to happen

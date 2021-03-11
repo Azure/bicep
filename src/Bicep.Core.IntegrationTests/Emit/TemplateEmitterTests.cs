@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -11,12 +10,11 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -40,7 +38,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             // emitting the template should be successful
             var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), compiledFilePath, BicepTestConstants.DevAssemblyFileVersion);
             result.Status.Should().Be(EmitStatus.Succeeded);
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.Should().BeEmptyOrContainDeprecatedDiagnosticOnly();
 
             var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
@@ -79,7 +77,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should be successful
             var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), memoryStream, BicepTestConstants.DevAssemblyFileVersion);
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.Should().BeEmptyOrContainDeprecatedDiagnosticOnly();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             // normalizing the formatting in case there are differences in indentation
@@ -104,7 +102,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should be successful
             var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), memoryStream, ThisAssembly.AssemblyFileVersion);
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.Should().BeEmptyOrContainDeprecatedDiagnosticOnly();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             var actual = JToken.ReadFrom(new JsonTextReader(new StreamReader(new MemoryStream(memoryStream.ToArray()))));

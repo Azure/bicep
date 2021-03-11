@@ -241,3 +241,8 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[32:37) Local thing. Type: any. Declaration start char: 32, length: 5
 //@[57:62) Local thing. Type: any. Declaration start char: 57, length: 5
 //@[4:18) Variable loopExpression. Type: error. Declaration start char: 0, length: 79
+
+@batchSize(1)
+var batchSizeMakesNoSenseHere = false
+//@[4:29) Variable batchSizeMakesNoSenseHere. Type: bool. Declaration start char: 0, length: 51
+

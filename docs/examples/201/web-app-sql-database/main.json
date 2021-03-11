@@ -22,8 +22,8 @@
     },
     "skuCapacity": {
       "type": "int",
-      "minValue": 1,
-      "defaultValue": 1
+      "defaultValue": 1,
+      "minValue": 1
     },
     "sqlAdministratorLogin": {
       "type": "string"
@@ -146,7 +146,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10086225423190726705"
+      "templateHash": "5125986164896305619"
     }
   }
 }

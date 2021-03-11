@@ -79,6 +79,7 @@ namespace Bicep.Core.Emit
                 case FunctionCallSyntax _:
                 case ArrayAccessSyntax _:
                 case PropertyAccessSyntax _:
+                case ResourceAccessSyntax _:
                 case VariableAccessSyntax _:
                     EmitLanguageExpression(syntax);
                     
@@ -115,6 +116,11 @@ namespace Bicep.Core.Emit
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
+        }
+
+        public LanguageExpression GetResourceNameExpression(ResourceSymbol resourceSymbol)
+        {
+            return converter.GetResourceNameExpression(resourceSymbol);
         }
 
         public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
@@ -164,7 +170,7 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null)
+        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null, long? batchSize = null)
         {
             writer.WriteStartObject();
 
@@ -179,6 +185,12 @@ namespace Bicep.Core.Emit
                 "count",
                 syntax.Expression,
                 arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
+
+            if(batchSize.HasValue)
+            {
+                this.EmitProperty("mode", "serial");
+                this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
+            }
 
             if (input != null)
             {

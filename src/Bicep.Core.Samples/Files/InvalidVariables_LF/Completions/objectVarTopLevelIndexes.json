@@ -186,6 +186,20 @@
     }
   },
   {
+    "label": "batchSizeMakesNoSenseHere",
+    "kind": "variable",
+    "detail": "batchSizeMakesNoSenseHere",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_batchSizeMakesNoSenseHere",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "batchSizeMakesNoSenseHere"
+    }
+  },
+  {
     "label": "bool",
     "kind": "function",
     "detail": "bool()",

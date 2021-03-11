@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Parsing;
+using System;
 
 namespace Bicep.Core.Syntax
 {
@@ -10,7 +11,7 @@ namespace Bicep.Core.Syntax
         public ForSyntax(
             Token openSquare,
             Token forKeyword,
-            LocalVariableSyntax itemVariable,
+            SyntaxBase itemVariableOrVariableBlock,
             SyntaxBase inKeyword,
             SyntaxBase expression,
             SyntaxBase colon,
@@ -19,6 +20,7 @@ namespace Bicep.Core.Syntax
         {
             AssertTokenType(openSquare, nameof(openSquare), TokenType.LeftSquare);
             AssertKeyword(forKeyword, nameof(forKeyword), LanguageConstants.ForKeyword);
+            AssertSyntaxType(itemVariableOrVariableBlock, nameof(itemVariableOrVariableBlock), typeof(LocalVariableSyntax), typeof(ForVariableBlockSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(inKeyword, nameof(inKeyword), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertKeyword(inKeyword as Token, nameof(inKeyword), LanguageConstants.InKeyword);
             AssertSyntaxType(colon, nameof(colon), typeof(Token), typeof(SkippedTriviaSyntax));
@@ -28,7 +30,7 @@ namespace Bicep.Core.Syntax
             
             this.OpenSquare = openSquare;
             this.ForKeyword = forKeyword;
-            this.ItemVariable = itemVariable;
+            this.VariableSection = itemVariableOrVariableBlock;
             this.InKeyword = inKeyword;
             this.Expression = expression;
             this.Colon = colon;
@@ -40,7 +42,7 @@ namespace Bicep.Core.Syntax
 
         public Token ForKeyword { get; }
 
-        public LocalVariableSyntax ItemVariable { get; }
+        public SyntaxBase VariableSection { get; }
 
         public SyntaxBase InKeyword { get; }
 
@@ -55,5 +57,21 @@ namespace Bicep.Core.Syntax
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitForSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.OpenSquare, this.CloseSquare);
+
+        public LocalVariableSyntax? ItemVariable => this.VariableSection switch
+        {
+            LocalVariableSyntax itemVariable => itemVariable,
+            ForVariableBlockSyntax block => block.ItemVariable,
+            SkippedTriviaSyntax => null,
+            _ => throw new NotImplementedException($"Unexpected loop variable section type '{this.VariableSection.GetType().Name}'.")
+        };
+
+        public LocalVariableSyntax? IndexVariable => this.VariableSection switch
+        {
+            LocalVariableSyntax itemVariable => null,
+            ForVariableBlockSyntax block => block.IndexVariable,
+            SkippedTriviaSyntax => null,
+            _ => throw new NotImplementedException($"Unexpected loop variable section type '{this.VariableSection.GetType().Name}'.")
+        };
     }
 }

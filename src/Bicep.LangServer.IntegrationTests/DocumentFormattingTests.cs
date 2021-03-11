@@ -37,7 +37,7 @@ param myParam object
 var myVar1 = 1 + mod(1, 2)
 var myVar2 = myParam.foo[1]
 
-resource myResesource 'myRP/provider@2020-11-01' = {
+resource myResource 'myRP/provider@2020-11-01' = {
 /* block
   comment
   */

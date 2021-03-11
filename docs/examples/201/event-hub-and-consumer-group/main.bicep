@@ -1,19 +1,18 @@
 param namespaceName string
-param eventHubSku string {
-  default: 'Standard'
-  allowed: [
-    'Standard'
-    'Basic'
-  ]
-}
-param skuCapacity int {
-  default: 1
-  allowed: [
-    1
-    2
-    4
-  ]
-}
+
+@allowed([
+  'Standard'
+  'Basic'
+])
+param eventHubSku string = 'Standard'
+
+@allowed([
+  1
+  2
+  4
+])
+param skuCapacity int = 1
+
 param eventHubName string
 param consumerGroupName string
 param location string = resourceGroup().location

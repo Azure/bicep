@@ -1,15 +1,15 @@
-# Adding bicep to a CI/CD pipeline
+# Adding Bicep to a CI/CD pipeline
 
-As your bicep practice matures, you will want to check-in your bicep code into source control and kick off a pipeline or workflow, which would do the following:
+As your Bicep practice matures, you will want to check-in your Bicep code into source control and kick off a pipeline or workflow, which would do the following:
 
-1. Build your bicep file into an ARM Template
+1. Build your Bicep file into an ARM Template
 1. Deploy the generated ARM template
 
-In order to do this, we need to make sure the bicep CLI is installed on the build agent. For now, bicep is not preinstalled on any build agents or tasks provided by Microsoft, but installing it manually as part of the pipeline is straightforward.
+In order to do this, we need to make sure the Bicep CLI is installed on the build agent. For now, Bicep is not preinstalled on any build agents or tasks provided by Microsoft, but installing it manually as part of the pipeline is straightforward.
 
 The following example is designed to be run in GitHub actions workflow and uses Azure CLI, but could be easily adapted to run in a Azure DevOps Pipeline. It assumes the following prerequisite:
 
-* The bicep file you want to transpile and deploy is called `main.bicep` and exists in the root of the repo
+* The Bicep file you want to transpile and deploy is called `main.bicep` and exists in the root of the repo
 * You are deploying the transpiled ARM Template to a resource group. Deploying to another scope like a subscription requires a different CLI command.
 
 ```yaml
@@ -70,4 +70,4 @@ jobs:
             az deployment group create -f ./main.json -g my-rg
 ```
 
-Instead of installing the bicep CLI manually, you may instead want to use the [community-maintained github action](https://github.com/marketplace/actions/bicep-build) from [@justinyoo](https://github.com/justinyoo) that can run `bicep build` on your behalf.
+Instead of installing the Bicep CLI manually, you may instead want to use the [community-maintained github action](https://github.com/marketplace/actions/bicep-build) from [@justinyoo](https://github.com/justinyoo) that can run `bicep build` on your behalf.

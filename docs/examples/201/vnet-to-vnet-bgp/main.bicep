@@ -1,17 +1,16 @@
 // converted from https://github.com/Azure/azure-quickstart-templates/tree/master/201-vnet-to-vnet-bgp
-param sharedKey string {
-  secure: true
-}
-param gatewaySku string {
-  allowed: [
-    'Standard'
-    'HighPerformance'
-    'VpnGw1'
-    'VpnGw2'
-    'VpnGw3'
-  ]
-  default: 'VpnGw1'
-}
+@secure()
+param sharedKey string
+
+@allowed([
+  'Standard'
+  'HighPerformance'
+  'VpnGw1'
+  'VpnGw2'
+  'VpnGw3'
+])
+param gatewaySku string = 'VpnGw1'
+
 param location string = resourceGroup().location
 
 var vnet1cfg = {

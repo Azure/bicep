@@ -17,8 +17,8 @@
     },
     "sshPassword": {
       "type": "secureString",
-      "minLength": 6,
-      "maxLength": 72
+      "maxLength": 72,
+      "minLength": 6
     },
     "location": {
       "type": "string",
@@ -144,7 +144,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3663460412733172607"
+      "templateHash": "13254724976206361615"
     }
   }
 }

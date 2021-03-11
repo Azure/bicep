@@ -3,24 +3,22 @@ param dnsPrefix string
 param linuxAdminUsername string
 param sshRSAPublicKey string
 param servicePrincipalClientId string
-param servicePrincipalClientSecret string {
-  secure: true
-}
+
+@secure()
+param servicePrincipalClientSecret string
 
 // optional params
 param clusterName string = 'aks101cluster'
 param location string = resourceGroup().location
-param osDiskSizeGB int {
-  default: 0 // a value of zero means they will use the default value (which is 128 as of this writing)
-  minValue: 0
-  maxValue: 1023
-}
 
-param agentCount int {
-  default: 3
-  minValue: 1
-  maxValue: 50
-}
+@minValue(0)
+@maxValue(1023)
+param osDiskSizeGB int = 0
+
+@minValue(1)
+@maxValue(50)
+param agentCount int = 3
+
 param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 

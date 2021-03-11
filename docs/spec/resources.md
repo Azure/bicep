@@ -42,6 +42,35 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 }
 ```
 
+## Resource nesting
+
+A resource declaration may appear inside another resource declaration when the inner resource is a child type of the containing resource. A nested resource is considered to have an implicit dependency on its containing resource for creation order. 
+
+```
+resource myParent 'My.Rp/parentType@2020-01-01' = {
+  name: 'myParent'
+  location: 'West US'
+
+  // declares a resource of type 'My.Rp/parentType/childType@2020-01-01' 
+  resource myChild 'childType' = {
+    name: 'myChild'
+    properties: {
+      displayName: 'child in ${parent.location}'
+    }
+  }
+}
+```
+
+A nested resource must specify a single type segment to declare its type. The full type of the nested resource is the containing resource's type with the additional segment appended to the list of types. In the example above `My.Rp/parentType@2020-01-01` is combined with `childType` resulting in `My.Rp/parentType/childType@2020-01-01`. The nested resource may optionally declare an API version using the syntax `<segment>@<version>`. If the nested resource omits the API version the the API version of the containing resource is used. If the nested resource specifies an API version then the API version specified will be used. If the example above were modified so that the nested resource declared its type as `childType@2020-20-20` then the fully-qualified type would be `My.Rp/parentType/childType@2020-20-20`.
+
+Nested resource declarations should specify their `name` property with a single segment. The the example above the nested resource declares its `name` property with the value `myChild`. In ARM-JSON, child resources must declared their `name` property as a `/`-separated string containing multiple segments like: `myParent/myChild` - this is not required with nested resources.
+
+A nested resource declaration must appear at the top level of syntax of the containing resource. Declarations may be nested arbitrarily deep, as long as each level is a child type of its containing resource. 
+
+The symbolic name of a nested resource is only accessible inside the body of its containing resource. 
+
+A nested resource may access properties of its containing resource. Other resources declared inside the body of the same containing resource may reference each other and the typical rules about cyclic-dependencies apply. A containing resource may not access properties of the resources it contains, this would cause a cyclic-dependency.
+
 ## Resource dependencies
 All declared resources will be deployed concurrently in the compiled template. Order of resource deployment can be influenced in the following ways:
 ### Explicit dependency
@@ -74,6 +103,20 @@ resource otherResource 'Microsoft.Example/examples@2020-06-01' = {
   properties: {
     // get read-only DNS zone property
     nameServers: dnsZone.properties.nameServers
+  }
+}
+```
+
+A nested resource has an implicit dependency on its containing resource.
+
+```
+resource myParent 'My.Rp/parentType@2020-01-01' = {
+  name: 'myParent'
+  location: 'West US'
+
+  // depends on 'myParent' implicitly
+  resource myChild 'childType' = {
+    name: 'myChild'
   }
 }
 ```

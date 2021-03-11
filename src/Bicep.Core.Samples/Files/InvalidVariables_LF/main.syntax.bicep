@@ -1202,4 +1202,28 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[73:77)      TrueKeyword |true|
 //@[77:78)     RightSquare |]|
 //@[78:79)   RightParen |)|
-//@[79:79) EndOfFile ||
+//@[79:81) NewLine |\n\n|
+
+@batchSize(1)
+//@[0:51) VariableDeclarationSyntax
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |batchSize|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |1|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+var batchSizeMakesNoSenseHere = false
+//@[0:3)  Identifier |var|
+//@[4:29)  IdentifierSyntax
+//@[4:29)   Identifier |batchSizeMakesNoSenseHere|
+//@[30:31)  Assignment |=|
+//@[32:37)  BooleanLiteralSyntax
+//@[32:37)   FalseKeyword |false|
+//@[37:38) NewLine |\n|
+
+//@[0:0) EndOfFile ||

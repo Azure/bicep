@@ -152,6 +152,22 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
   }
 }]
 
+// simple indexed module loop
+module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
+//@[57:63) Local module. Type: any. Declaration start char: 57, length: 6
+//@[65:66) Local i. Type: int. Declaration start char: 65, length: 1
+//@[7:32) Module storageResourcesWithIndex. Type: module[]. Declaration start char: 0, length: 256
+  name: module.name
+  params: {
+    arrayParam: [
+      i + 1
+    ]
+    objParam: module
+    stringParamB: module.location
+    stringParamA: concat('a', i)
+  }
+}]
+
 // nested module loop
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[47:53) Local module. Type: any. Declaration start char: 47, length: 6
@@ -239,6 +255,39 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
   }
 }
 
+module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
+//@[7:50) Module propertyLoopInsideParameterValueWithIndexes. Type: module. Declaration start char: 0, length: 514
+  name: 'propertyLoopInsideParameterValueWithIndexes'
+  params: {
+    objParam: {
+      a: [for (i, i2) in range(0,10): i + i2]
+//@[15:16) Local i. Type: int. Declaration start char: 15, length: 1
+//@[18:20) Local i2. Type: int. Declaration start char: 18, length: 2
+      b: [for (i, i2) in range(1,2): i / i2]
+//@[15:16) Local i. Type: int. Declaration start char: 15, length: 1
+//@[18:20) Local i2. Type: int. Declaration start char: 18, length: 2
+      c: {
+        d: [for (j, j2) in range(2,3): j * j2]
+//@[17:18) Local j. Type: int. Declaration start char: 17, length: 1
+//@[20:22) Local j2. Type: int. Declaration start char: 20, length: 2
+      }
+      e: [for (k, k2) in range(4,4): {
+//@[15:16) Local k. Type: int. Declaration start char: 15, length: 1
+//@[18:20) Local k2. Type: int. Declaration start char: 18, length: 2
+        f: k
+        g: k2
+      }]
+    }
+    stringParamB: ''
+    arrayParam: [
+      {
+        e: [for j in range(7,7): j]
+//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+      }
+    ]
+  }
+}
+
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
 //@[79:84) Local thing. Type: int. Declaration start char: 79, length: 5
 //@[7:55) Module propertyLoopInsideParameterValueInsideModuleLoop. Type: module[]. Declaration start char: 0, length: 529
@@ -267,3 +316,4 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
     ]
   }
 }]
+

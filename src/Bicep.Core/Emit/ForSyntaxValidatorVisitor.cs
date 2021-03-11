@@ -1,8 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Diagnostics;
+using System;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -11,10 +10,12 @@ namespace Bicep.Core.Emit
 {
     public sealed class ForSyntaxValidatorVisitor : SyntaxVisitor
     {
+        // we don't support nesting of property loops right now
+        private const int MaximumNestedPropertyLoopCount = 1;
+
         private readonly IDiagnosticWriter diagnosticWriter;
-
         private readonly SemanticModel semanticModel;
-
+        
         private SyntaxBase? activeLoopCapableTopLevelDeclaration = null;
 
         private int propertyLoopCount = 0;
@@ -38,19 +39,47 @@ namespace Bicep.Core.Emit
             visitor.Visit(semanticModel.SyntaxTree.ProgramSyntax);
         }
 
+        public static bool IsAddingPropertyLoopAllowed(SemanticModel semanticModel, ObjectPropertySyntax property)
+        {
+            SyntaxBase? current = property;
+            int propertyLoopCount = 0;
+            while(current is not null)
+            {
+                var parent = semanticModel.SyntaxTree.Hierarchy.GetParent(current);
+                if (current is ForSyntax @for && IsPropertyLoop(parent, @for))
+                {
+                    ++propertyLoopCount;
+                }
+
+                current = parent;
+            }
+
+            // adding a new property loop is only allowed if we're under the limit
+            return propertyLoopCount < MaximumNestedPropertyLoopCount;
+        }
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
+            // This check is separate from IsLoopAllowedHere because this is about the appearance of a
+            // nested resource **inside** a loop.
+            if (this.semanticModel.Binder.GetNearestAncestor<ForSyntax>(syntax) is ForSyntax)
+            {
+                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.Span).NestedResourceNotAllowedInLoop());
+            }
+
+            // Resources can be nested, support recursion of resource declarations
+            var previousLoopCapableTopLevelDeclaration = this.activeLoopCapableTopLevelDeclaration;
             this.activeLoopCapableTopLevelDeclaration = syntax;
 
             // stash the body (handles loops and conditions as well)
+            var previousDependsOnProperty = this.currentDependsOnProperty;
             this.currentDependsOnProperty = TryGetDependsOnProperty(syntax.TryGetBody());
 
             base.VisitResourceDeclarationSyntax(syntax);
 
-            // clear the stash
-            this.currentDependsOnProperty = null;
-
-            this.activeLoopCapableTopLevelDeclaration = null;
+            // restore state
+            this.currentDependsOnProperty = previousDependsOnProperty;
+            this.activeLoopCapableTopLevelDeclaration = previousLoopCapableTopLevelDeclaration;
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -91,7 +120,7 @@ namespace Bicep.Core.Emit
                     // this is a property loop
                     this.propertyLoopCount += 1;
 
-                    if(this.propertyLoopCount > 1)
+                    if(this.propertyLoopCount > MaximumNestedPropertyLoopCount)
                     {
                         // too many property loops
                         this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).TooManyPropertyForExpressions());
@@ -187,6 +216,11 @@ namespace Bicep.Core.Emit
         private bool IsPropertyLoop(ForSyntax syntax)
         {
             var parent = this.semanticModel.SyntaxTree.Hierarchy.GetParent(syntax);
+            return IsPropertyLoop(parent, syntax);
+        }
+
+        private static bool IsPropertyLoop(SyntaxBase? parent, ForSyntax syntax)
+        {
             return parent is ObjectPropertySyntax property && ReferenceEquals(property.Value, syntax);
         }
 
