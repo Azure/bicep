@@ -685,8 +685,7 @@ output res2childid string = res2:child.id
 
                 // res2
                 template.Should().HaveValueAtPath("$.resources[3].name", "res2");
-                // TODO: fix this to depend on the child (not parent id)
-                template.Should().HaveValueAtPath("$.resources[3].dependsOn", new JArray { "[resourceId('Microsoft.Rp1/resource1', 'res1')]" });
+                template.Should().HaveValueAtPath("$.resources[3].dependsOn", new JArray { "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]" });
 
                 // res2::child2
                 template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', 'res2', 'child2')]");
