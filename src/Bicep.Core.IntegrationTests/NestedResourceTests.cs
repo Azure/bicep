@@ -692,12 +692,10 @@ output res2childid string = res2:child.id
                 template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', 'res2', 'child2')]");
                 template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray { "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]" });
 
-                // TODO: fix this to use an extension resourceId
-                template.Should().HaveValueAtPath("$.outputs['res2childprop'].value", "[reference(resourceId('Microsoft.Rp2/resource2/child2', 'res2', 'child2')).someProp]");
+                template.Should().HaveValueAtPath("$.outputs['res2childprop'].value", "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')).someProp]");
                 template.Should().HaveValueAtPath("$.outputs['res2childname'].value", "child2");
                 template.Should().HaveValueAtPath("$.outputs['res2childtype'].value", "Microsoft.Rp2/resource2/child2");
-                // TODO: fix this to use an extension resourceId
-                template.Should().HaveValueAtPath("$.outputs['res2childid'].value", "[resourceId('Microsoft.Rp2/resource2/child2', 'res2', 'child2')]");
+                template.Should().HaveValueAtPath("$.outputs['res2childid'].value", "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]");
             }
         }
 
@@ -761,12 +759,10 @@ output res1childid string = res1:child.id
 
                 template.Should().NotHaveValueAtPath("$.resources[0]");
 
-                // TODO: this should be a tenant resource reference
-                template.Should().HaveValueAtPath("$.outputs['res1childprop'].value", "[reference(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), '2020-06-01').someProp]");
+                template.Should().HaveValueAtPath("$.outputs['res1childprop'].value", "[reference(tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), '2020-06-01').someProp]");
                 template.Should().HaveValueAtPath("$.outputs['res1childname'].value", "child1");
                 template.Should().HaveValueAtPath("$.outputs['res1childtype'].value", "Microsoft.Rp1/resource1/child1");
-                // TODO: this should be a tenant resourceId
-                template.Should().HaveValueAtPath("$.outputs['res1childid'].value", "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]");
+                template.Should().HaveValueAtPath("$.outputs['res1childid'].value", "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]");
             }
         }
 
