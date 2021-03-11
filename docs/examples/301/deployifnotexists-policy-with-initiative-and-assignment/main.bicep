@@ -76,7 +76,4 @@ module assignment './policyAssignment.bicep' = {
     assignmentIdentityLocation: resourceGrouplocation
     assignmentEnforcementMode: assignmentEnforcementMode
   }
-  dependsOn: [
-    policy
-  ]
 }
