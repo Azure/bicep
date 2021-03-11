@@ -5,7 +5,10 @@
     "bicepExampleInitiativeId": {
       "type": "string"
     },
-    "location": {
+    "assignmentIdentityLocation": {
+      "type": "string"
+    },
+    "assignmentEnforcementMode": {
       "type": "string"
     }
   },
@@ -15,20 +18,19 @@
       "type": "Microsoft.Authorization/policyAssignments",
       "apiVersion": "2020-09-01",
       "name": "bicepExampleAssignment",
-      "location": "[parameters('location')]",
+      "location": "[parameters('assignmentIdentityLocation')]",
       "identity": {
         "type": "SystemAssigned"
       },
       "properties": {
         "displayName": "Bicep Example Assignment",
         "description": "Bicep Example Assignment",
-        "enforcementMode": "Default",
+        "enforcementMode": "[parameters('assignmentEnforcementMode')]",
         "metadata": {
           "source": "Bicep",
           "version": "0.1.0"
         },
         "policyDefinitionId": "[parameters('bicepExampleInitiativeId')]",
-        "parameters": {},
         "nonComplianceMessages": [
           {
             "message": "Resource is not compliant with a DeployIfNotExists policy"
@@ -41,7 +43,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.1.62928",
-      "templateHash": "2797024266100348937"
+      "templateHash": "7870791294115762722"
     }
   }
 }
