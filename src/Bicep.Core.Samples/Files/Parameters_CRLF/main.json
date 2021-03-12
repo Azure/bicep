@@ -251,6 +251,16 @@
       "defaultValue": 123,
       "minValue": 200
     },
+    "negativeValues": {
+      "type": "int",
+      "maxValue": -3,
+      "minValue": -10
+    },
+    "negativeModifiers": {
+      "type": "int",
+      "minValue": -100,
+      "maxValue": -33
+    },
     "decoratedBool": {
       "type": "bool",
       "defaultValue": "[not(equals(and(true(), false()), true()))]",
@@ -306,7 +316,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1221792736613608003"
+      "templateHash": "16608949399804011015"
     }
   }
 }

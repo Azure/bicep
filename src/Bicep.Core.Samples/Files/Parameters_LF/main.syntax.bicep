@@ -1339,6 +1339,81 @@ param decoratedInt int = 123
 //@[25:28)    Integer |123|
 //@[28:30) NewLine |\n\n|
 
+// negative integer literals are allowed as decorator values
+//@[60:61) NewLine |\n|
+@minValue(-10)
+//@[0:53) ParameterDeclarationSyntax
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:13)    FunctionArgumentSyntax
+//@[10:13)     UnaryOperationSyntax
+//@[10:11)      Minus |-|
+//@[11:13)      IntegerLiteralSyntax
+//@[11:13)       Integer |10|
+//@[13:14)    RightParen |)|
+//@[14:15)  NewLine |\n|
+@maxValue(-3)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |maxValue|
+//@[9:10)    LeftParen |(|
+//@[10:12)    FunctionArgumentSyntax
+//@[10:12)     UnaryOperationSyntax
+//@[10:11)      Minus |-|
+//@[11:12)      IntegerLiteralSyntax
+//@[11:12)       Integer |3|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+param negativeValues int
+//@[0:5)  Identifier |param|
+//@[6:20)  IdentifierSyntax
+//@[6:20)   Identifier |negativeValues|
+//@[21:24)  TypeSyntax
+//@[21:24)   Identifier |int|
+//@[24:26) NewLine |\n\n|
+
+// negative integer literals in modifiers
+//@[41:42) NewLine |\n|
+param negativeModifiers int {
+//@[0:64) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |negativeModifiers|
+//@[24:27)  TypeSyntax
+//@[24:27)   Identifier |int|
+//@[28:64)  ObjectSyntax
+//@[28:29)   LeftBrace |{|
+//@[29:30)   NewLine |\n|
+  minValue: -100
+//@[2:16)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |minValue|
+//@[10:11)    Colon |:|
+//@[12:16)    UnaryOperationSyntax
+//@[12:13)     Minus |-|
+//@[13:16)     IntegerLiteralSyntax
+//@[13:16)      Integer |100|
+//@[16:17)   NewLine |\n|
+  maxValue: -33
+//@[2:15)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |maxValue|
+//@[10:11)    Colon |:|
+//@[12:15)    UnaryOperationSyntax
+//@[12:13)     Minus |-|
+//@[13:15)     IntegerLiteralSyntax
+//@[13:15)      Integer |33|
+//@[15:16)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 @sys.description('A boolean.')
 //@[0:193) ParameterDeclarationSyntax
 //@[0:30)  DecoratorSyntax

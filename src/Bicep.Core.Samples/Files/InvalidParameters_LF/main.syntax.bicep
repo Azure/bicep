@@ -2606,6 +2606,60 @@ param nonConstantInDecorator string
 //@[29:35)   Identifier |string|
 //@[35:37) NewLine |\n\n|
 
+@minValue(-length('s'))
+//@[0:83) ParameterDeclarationSyntax
+//@[0:23)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:23)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:22)    FunctionArgumentSyntax
+//@[10:22)     UnaryOperationSyntax
+//@[10:11)      Minus |-|
+//@[11:22)      FunctionCallSyntax
+//@[11:17)       IdentifierSyntax
+//@[11:17)        Identifier |length|
+//@[17:18)       LeftParen |(|
+//@[18:21)       FunctionArgumentSyntax
+//@[18:21)        StringSyntax
+//@[18:21)         StringComplete |'s'|
+//@[21:22)       RightParen |)|
+//@[22:23)    RightParen |)|
+//@[23:24)  NewLine |\n|
+@metadata({
+//@[0:28)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:28)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:27)    FunctionArgumentSyntax
+//@[10:27)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+  bool: !true
+//@[2:13)      ObjectPropertySyntax
+//@[2:6)       IdentifierSyntax
+//@[2:6)        Identifier |bool|
+//@[6:7)       Colon |:|
+//@[8:13)       UnaryOperationSyntax
+//@[8:9)        Exclamation |!|
+//@[9:13)        BooleanLiteralSyntax
+//@[9:13)         TrueKeyword |true|
+//@[13:14)      NewLine |\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param unaryMinusOnFunction int
+//@[0:5)  Identifier |param|
+//@[6:26)  IdentifierSyntax
+//@[6:26)   Identifier |unaryMinusOnFunction|
+//@[27:30)  TypeSyntax
+//@[27:30)   Identifier |int|
+//@[30:32) NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    
