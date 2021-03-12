@@ -81,6 +81,15 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new [] { "decompile" }, "The input file path was not specified")]
         [DataRow(new [] { "decompile", "file1", "file2" }, "The input file path cannot be specified multiple times")]
         [DataRow(new [] { "decompile", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
+        [DataRow(new [] { "new", "--repository" }, "The --repository parameter expects an argument")]
+        [DataRow(new [] { "new", "--repository", "dir1", "--repository", "dir2" }, "The --repository parameter cannot be specified twice")]
+        [DataRow(new [] { "new", "--template" }, "The --template parameter expects an argument")]
+        [DataRow(new [] { "new", "--template", "dir1", "--template", "dir2" }, "The --template parameter cannot be specified twice")]
+        [DataRow(new [] { "new", "--outdir" }, "The --outdir parameter expects an argument")]
+        [DataRow(new [] { "new", "--outdir", "dir1", "--outdir", "dir2" }, "The --outdir parameter cannot be specified twice")]
+        [DataRow(new [] { "new", "--outfile" }, "The --outfile parameter expects an argument")]
+        [DataRow(new [] { "new", "--outfile", "dir1", "--outfile", "dir2" }, "The --outfile parameter cannot be specified twice")]
+        [DataRow(new [] { "new", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
         //TODO
         public void Invalid_args_trigger_validation_exceptions(string[] parameters, string expectedException)
         {
@@ -193,6 +202,147 @@ namespace Bicep.Cli.UnitTests
 
             arguments!.Should().NotBeNull();
             arguments!.InputFile.Should().Be("file1");
+        }
+
+        [TestMethod]
+        public void NewWithoutTemplate_ShouldReturnListOfTemplates()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(new[] { "new"});
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().BeNull();
+            arguments!.Repository.Should().BeNull();
+            arguments!.IsCustomRepository.Should().BeFalse();
+            arguments!.OutputToStdOut.Should().BeFalse();
+            arguments!.OutputDir.Should().BeNull();
+            arguments!.OutputFile.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void NewWithoutTemplate_ShouldReturnListOfTemplatesFromCustomRepository()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(new[] { "new", "--repository", "url" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().BeNull();
+            arguments!.Repository.Should().Be("url");
+            arguments!.IsCustomRepository.Should().BeTrue();
+            arguments!.OutputToStdOut.Should().BeFalse();
+            arguments!.OutputDir.Should().BeNull();
+            arguments!.OutputFile.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void NewWithTemplate_ShouldReturnTemplateFromDefaultRepository()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(new[] { "new", "--template", "path1/path2" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().Be("path1/path2");
+            arguments!.Repository.Should().BeNull();
+            arguments!.IsCustomRepository.Should().BeFalse();
+            arguments!.OutputToStdOut.Should().BeFalse();
+            arguments!.OutputDir.Should().BeNull();
+            arguments!.OutputFile.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void NewWithTemplate_ShouldReturnTemplateFromCustomRepository()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(
+                new[] { "new", "--template", "path1/path2", "--repository", "url" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().Be("path1/path2");
+            arguments!.Repository.Should().Be("url");
+            arguments!.IsCustomRepository.Should().BeTrue();
+            arguments!.OutputToStdOut.Should().BeFalse();
+            arguments!.OutputDir.Should().BeNull();
+            arguments!.OutputFile.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void NewWithTemplate_ShouldReturnTemplateFromDefaultRepositoryToStdOut()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(
+                new[] { "new", "--template", "path1/path2", "--stdout" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().Be("path1/path2");
+            arguments!.Repository.Should().BeNull();
+            arguments!.IsCustomRepository.Should().BeFalse();
+            arguments!.OutputToStdOut.Should().BeTrue();
+            arguments!.OutputDir.Should().BeNull();
+            arguments!.OutputFile.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void NewWithTemplate_ShouldReturnTemplateFromDefaultRepositoryToOutDir()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(
+                new[] { "new", "--template", "path1/path2", "--outdir", "outdir" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().Be("path1/path2");
+            arguments!.Repository.Should().BeNull();
+            arguments!.IsCustomRepository.Should().BeFalse();
+            arguments!.OutputToStdOut.Should().BeFalse();
+            arguments!.OutputDir.Should().Be("outdir");
+            arguments!.OutputFile.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void NewWithTemplate_ShouldReturnTemplateFromDefaultRepositoryToOutFile()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(
+                new[] { "new", "--template", "path1/path2", "--outfile", "outfile" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().Be("path1/path2");
+            arguments!.Repository.Should().BeNull();
+            arguments!.IsCustomRepository.Should().BeFalse();
+            arguments!.OutputToStdOut.Should().BeFalse();
+            arguments!.OutputDir.Should().BeNull();
+            arguments!.OutputFile.Should().Be("outfile");
+        }
+
+        [TestMethod]
+        public void NewWithTemplate_ShouldReturnTemplateFromDefaultRepositoryToOutFileOutDir()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(
+                new[] { "new", "--template", "path1/path2", "--outfile", "outfile", "--outdir", "outdir" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().Be("path1/path2");
+            arguments!.Repository.Should().BeNull();
+            arguments!.IsCustomRepository.Should().BeFalse();
+            arguments!.OutputToStdOut.Should().BeFalse();
+            arguments!.OutputDir.Should().Be("outdir");
+            arguments!.OutputFile.Should().Be("outfile");
+        }
+
+        [TestMethod]
+        public void NewWithTemplate_ShouldReturnTemplateFromCustomRepositoryToOutFileOutDir()
+        {
+            var arguments = (NewArguments?)ArgumentParser.TryParse(
+                new[] { "new", "--template", "path1/path2", "--outfile", "outfile", "--outdir", "outdir", "--repository", "url" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Template.Should().Be("path1/path2");
+            arguments!.Repository.Should().Be("url");
+            arguments!.IsCustomRepository.Should().BeTrue();
+            arguments!.OutputToStdOut.Should().BeFalse();
+            arguments!.OutputDir.Should().Be("outdir");
+            arguments!.OutputFile.Should().Be("outfile");
         }
     }
 }
