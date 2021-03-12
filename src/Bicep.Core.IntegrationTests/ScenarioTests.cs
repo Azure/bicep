@@ -25,7 +25,7 @@ param l
 ");
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
                     ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
@@ -92,12 +92,11 @@ output vnetstate string = vnet.properties.provisioningState
 
             using (new AssertionScope())
             {
-                template!.Should().NotBeNull();
                 diags.Should().BeEmpty();
 
                 // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
-                template!.SelectToken("$.outputs['vnetid'].value")!.Should().DeepEqual("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");
-                template.SelectToken("$.outputs['vnetstate'].value")!.Should().DeepEqual("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetstate.value]");
+                template.Should().HaveValueAtPath("$.outputs['vnetid'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");
+                template.Should().HaveValueAtPath("$.outputs['vnetstate'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetstate.value]");
             }
         }
 
@@ -123,10 +122,9 @@ resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
 
             using (new AssertionScope())
             {
-                template!.Should().NotBeNull();
                 diags.Should().BeEmpty();
 
-                template!.SelectToken("$.outputs['config'].value")!.Should().DeepEqual("[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
+                template.Should().HaveValueAtPath("$.outputs['config'].value", "[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
             }
         }
 
@@ -166,11 +164,10 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 
             using (new AssertionScope())
             {
-                template!.Should().NotBeNull();
                 diags.Should().BeEmpty();
 
-                template!.SelectToken("$.resources[?(@.name == 'rg30')].location")!.Should().DeepEqual("[deployment().location]");
-                template.SelectToken("$.resources[?(@.name == 'rg31')].location")!.Should().DeepEqual("[deployment().location]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'rg30')].location", "[deployment().location]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'rg31')].location", "[deployment().location]");
             }
         }
 
@@ -321,14 +318,14 @@ resource routetable 'Microsoft.Network/routeTables@2020-06-01' = {
 output id string = routetable.id
 "));
 
-            template!.Should().NotBeNull();
-
-            // variable 'subnets' should have been inlined
-            template!.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value")!.Type.Should().Be(JTokenType.Array);
-            template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[0].name")!.Should().DeepEqual("GatewaySubnet");
-            template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[1].name")!.Should().DeepEqual("appsn01");
-            // there should be no definition in the variables list for 'subnets'
-            template.SelectToken("$.variables.subnets")!.Should().BeNull();
+            using (new AssertionScope())
+            {
+                // variable 'subnets' should have been inlined
+                template.Should().HaveValueAtPath("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[0].name", "GatewaySubnet");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[1].name", "appsn01");
+                // there should be no definition in the variables list for 'subnets'
+                template.Should().NotHaveValueAtPath("$.variables.subnets");
+            }
         }
 
         [TestMethod]
@@ -356,11 +353,10 @@ param mgName string
 
             using (new AssertionScope())
             {
-                template!.Should().NotBeNull();
                 diags.Should().BeEmpty();
 
                 // deploying a management group module at tenant scope requires an unqualified resource id
-                template!.SelectToken("$.resources[?(@.name == 'allupmgdeploy')].scope")!.Should().DeepEqual("[format('Microsoft.Management/managementGroups/{0}', parameters('allUpMgName'))]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'allupmgdeploy')].scope", "[format('Microsoft.Management/managementGroups/{0}', parameters('allUpMgName'))]");
             }
         }
 
@@ -378,10 +374,9 @@ var issue = true ? {
 
             using (new AssertionScope())
             {
-                template!.Should().NotBeNull();
                 diags.Should().BeEmpty();
 
-                template!.SelectToken("$.variables.issue")!.Should().DeepEqual("[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
+                template.Should().HaveValueAtPath("$.variables.issue", "[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
             }
         }
 
@@ -396,13 +391,12 @@ var myBigIntExpression = 2199023255552 * 2
 var myBigIntExpression2 = 2199023255552 * 2199023255552
 ");
 
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.variables.myInt")!.Should().DeepEqual(5);
-                template.SelectToken("$.variables.myBigInt")!.Should().DeepEqual(2199023255552);
-                template.SelectToken("$.variables.myIntExpression")!.Should().DeepEqual("[mul(5, 5)]");
-                template.SelectToken("$.variables.myBigIntExpression2")!.Should().DeepEqual("[mul(json('2199023255552'), json('2199023255552'))]");
+                template.Should().HaveValueAtPath("$.variables.myInt", 5);
+                template.Should().HaveValueAtPath("$.variables.myBigInt", 2199023255552);
+                template.Should().HaveValueAtPath("$.variables.myIntExpression", "[mul(5, 5)]");
+                template.Should().HaveValueAtPath("$.variables.myBigIntExpression2", "[mul(json('2199023255552'), json('2199023255552'))]");
             }
         }
 
@@ -421,11 +415,10 @@ module sub './modules/subscription.bicep' = {
 targetScope = 'subscription'
 "));
 
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("[subscription().subscriptionId]");
-                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'subDeploy')].subscriptionId", "[subscription().subscriptionId]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'subDeploy')].location", "[resourceGroup().location]");
             }
         }
 
@@ -444,11 +437,10 @@ module sub './modules/subscription.bicep' = {
 targetScope = 'subscription'
 "));
 
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
-                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'subDeploy')].subscriptionId", "abcd-efgh");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'subDeploy')].location", "[resourceGroup().location]");
             }
         }
 
@@ -467,12 +459,11 @@ module sub './modules/resourceGroup.bicep' = {
 targetScope = 'resourceGroup'
 "));
 
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
-                template.SelectToken("$.resources[?(@.name == 'subDeploy')].resourceGroup")!.Should().DeepEqual("bicep-rg");
-                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().BeNull();
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'subDeploy')].subscriptionId", "abcd-efgh");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'subDeploy')].resourceGroup", "bicep-rg");
+                template.Should().NotHaveValueAtPath("$.resources[?(@.name == 'subDeploy')].location");
             }
         }
 
@@ -490,12 +481,13 @@ resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
   }
 }
 ");
-            template!.Should().NotBeNull();
-            diags.Should().BeEmpty();
+
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'nestedDeployment')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
-                template.SelectToken("$.resources[?(@.name == 'nestedDeployment')].resourceGroup")!.Should().DeepEqual("bicep-rg");
+                diags.Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'nestedDeployment')].subscriptionId", "abcd-efgh");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'nestedDeployment')].resourceGroup", "bicep-rg");
             }
         }
 
@@ -559,7 +551,7 @@ resource redis 'Microsoft.Cache/Redis@2019-07-01' = {
                 
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP120", DiagnosticLevel.Error, "The property \"scope\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"appResGrp\" -> \"rg\"). Accessible properties of rg are \"name\", \"scope\"."),
                 });
@@ -575,10 +567,10 @@ resource foo 'Microsoft.foo/bar@2020-01-01' existing = {
 }
 output prop1 string = foo.properties.prop1
 ");
-            template!.Should().NotBeNull();
+
             using (new AssertionScope())
             {
-                template!.SelectToken("$.outputs['prop1'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.foo/bar', 'name'), '2020-01-01').prop1]");
+                template.Should().HaveValueAtPath("$.outputs['prop1'].value", "[reference(resourceId('Microsoft.foo/bar', 'name'), '2020-01-01').prop1]");
             }
         }
 
@@ -608,13 +600,13 @@ param location string
 param name string
 "));
 
-            diags.Should().BeEmpty();
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'vnet')].subscriptionId")!.Should().BeNull();
-                template!.SelectToken("$.resources[?(@.name == 'vnet')].resourceGroup")!.Should().DeepEqual("rg");
-                template!.SelectToken("$.resources[?(@.name == 'vnet')].dependsOn[0]")!.Should().DeepEqual("[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg')]");
+                diags.Should().BeEmpty();
+
+                template.Should().NotHaveValueAtPath("$.resources[?(@.name == 'vnet')].subscriptionId");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'vnet')].resourceGroup", "rg");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'vnet')].dependsOn[0]", "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg')]");
             }
         }
 
@@ -642,12 +634,12 @@ param location string
 param name string
 "));
 
-            diags.Should().BeEmpty();
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'vnet')].subscriptionId")!.Should().DeepEqual("abcdef");
-                template!.SelectToken("$.resources[?(@.name == 'vnet')].resourceGroup")!.Should().DeepEqual("rg");
+                diags.Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'vnet')].subscriptionId", "abcdef");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'vnet')].resourceGroup", "rg");
             }
         }
 
@@ -702,7 +694,7 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
 
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
                     ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
@@ -720,7 +712,7 @@ targetScope = 'blablah'
 
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'\" but the provided value is of type \"'blablah'\"."),
                 });
@@ -738,12 +730,12 @@ output myparam string = myparam
 output myvar string = myvar
 ");
 
-            diags.Should().BeEmpty();
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.outputs['myparam'].value")!.Should().DeepEqual("[parameters('myparam')]");
-                template!.SelectToken("$.outputs['myvar'].value")!.Should().DeepEqual("[variables('myvar')]");
+                diags.Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.outputs['myparam'].value", "[parameters('myparam')]");
+                template.Should().HaveValueAtPath("$.outputs['myvar'].value", "[variables('myvar')]");
             }
         }
 
@@ -757,7 +749,7 @@ output duplicate string = 'hello'
 
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP145", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
                     ("BCP145", DiagnosticLevel.Error, "Output \"duplicate\" is declared multiple times. Remove or rename the duplicates."),
@@ -775,7 +767,7 @@ output output2 string = output1
 
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP058", DiagnosticLevel.Error, "The name \"output1\" is an output. Outputs cannot be referenced in expressions."),
                 });
@@ -792,7 +784,7 @@ output xx = x
 
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP146", DiagnosticLevel.Error, "Expected an output type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
                 });
@@ -879,15 +871,18 @@ module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
 }]
 "), ("global-resources.bicep", string.Empty));
 
-            template!.Should().BeNull();
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
 
-            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
-            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
-            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
-            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
-            diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
-            diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\".");
-            diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\".");
+                diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
+                diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
+                diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+                diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+                diags.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+                diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\".");
+                diags.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\".");
+            }
         }
 
         [TestMethod]
@@ -903,11 +898,11 @@ output fooName string = foo.name
     "),
               ("test.bicep", @""));
 
-            diags.Should().BeEmpty();
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.outputs['fooName'].value")!.Should().DeepEqual("foo");
+                diags.Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.outputs['fooName'].value", "foo");
             }
         }
 
@@ -929,12 +924,12 @@ output fooOutput string = foo.outputs.test
 output test string = 'hello'
 "));
 
-            diags.Should().BeEmpty();
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.outputs['fooName'].value")!.Should().DeepEqual("[format('{0}-test', parameters('someParam'))]");
-                template!.SelectToken("$.outputs['fooOutput'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2019-10-01').outputs.test.value]");
+                diags.Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.outputs['fooName'].value", "[format('{0}-test', parameters('someParam'))]");
+                template.Should().HaveValueAtPath("$.outputs['fooOutput'].value", "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2019-10-01').outputs.test.value]");
             }
         }
 
@@ -950,10 +945,29 @@ resource foo 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
                     ("BCP025", DiagnosticLevel.Error, "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1817()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+targetScope = w
+
+var foo = 42
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                    ("BCP057", DiagnosticLevel.Error, "The name \"w\" does not exist in the current context."),
                 });
             }
         }

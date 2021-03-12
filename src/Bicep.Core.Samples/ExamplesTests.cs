@@ -118,7 +118,7 @@ namespace Bicep.Core.Samples
         {
             // save all the files in the containing directory to disk so that we can test module resolution
             var parentStream = GetParentStreamName(example.BicepStreamName);
-            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, example.OutputFolderName, parentStream);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             
@@ -167,7 +167,7 @@ namespace Bicep.Core.Samples
         {
             // save all the files in the containing directory to disk so that we can test module resolution
             var parentStream = GetParentStreamName(example.BicepStreamName);
-            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, example.OutputFolderName, parentStream);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, parentStream);
 
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var originalContents = File.ReadAllText(bicepFileName);

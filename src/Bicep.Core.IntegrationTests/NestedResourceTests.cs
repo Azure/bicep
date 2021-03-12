@@ -600,7 +600,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 
   resource subnet1 'subnets' = {
-    parent: vnet
     name: 'subnet1'
     properties: {
       addressPrefix: '10.0.0.0/24'
@@ -608,7 +607,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
   
   resource subnet2 'subnets' = {
-    parent: vnet
     name: 'subnet2'
     properties: {
       addressPrefix: '10.0.1.0/24'
@@ -783,7 +781,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
             {
                 template.Should().NotHaveValue();
                 diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
-                  ("BCP167", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
+                  ("BCP165", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
                 });
             }
         }
@@ -810,9 +808,10 @@ resource res2 'Microsoft.Rp2/resource2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
-                  ("BCP166", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
+                  ("BCP164", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
                 });
             }
         }
+
     }
 }

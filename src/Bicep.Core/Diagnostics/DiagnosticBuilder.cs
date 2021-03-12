@@ -929,25 +929,26 @@ namespace Bicep.Core.Diagnostics
                 "BCP163",
                 "Expected a loop index variable identifier at this location.");
 
-            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
-                TextSpan,
-                "BCP164",
-                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
-
-            public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
-                TextSpan,
-                "BCP165",
-                $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
-
             public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
                 TextSpan,
-                "BCP166",
+                "BCP164",
                 $"The \"{LanguageConstants.ResourceScopePropertyName}\" property is unsupported for a resource with a parent resource. This resource has \"{parentIdentifier}\" declared as its parent.");
 
             public ErrorDiagnostic ScopeDisallowedForAncestorResource(string ancestorIdentifier) => new(
                 TextSpan,
-                "BCP167",
+                "BCP165",
                 $"Cannot deploy a resource with ancestor under a different scope. Resource \"{ancestorIdentifier}\" has the \"{LanguageConstants.ResourceScopePropertyName}\" property set.");
+
+            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+                TextSpan,
+                "BCP166",
+                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
+
+            public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
+                TextSpan,
+                "BCP167",
+                $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

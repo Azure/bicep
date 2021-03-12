@@ -64,7 +64,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
         {
             // ensure all files are present locally
-            string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext, $"{dataSet.DisplayName}_{setName}");
+            string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext);
 
             var entryPoint = Path.Combine(basePath, "main.bicep");
             

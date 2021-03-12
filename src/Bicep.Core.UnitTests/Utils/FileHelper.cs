@@ -13,9 +13,12 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class FileHelper
     {
+        private static string GetUniqueTestOutputPath(TestContext testContext)
+            => Path.Combine(testContext.ResultsDirectory, Guid.NewGuid().ToString());
+
         public static string GetResultFilePath(TestContext testContext, string fileName)
         {
-            string filePath = Path.Combine(testContext.TestRunResultsDirectory, testContext.TestName, fileName);
+            string filePath = Path.Combine(GetUniqueTestOutputPath(testContext), fileName);
 
             Directory.CreateDirectory(Path.GetDirectoryName(filePath) ?? throw new AssertFailedException($"There is no directory path for file '{filePath}'."));
             testContext.AddResultFile(filePath);
@@ -31,10 +34,10 @@ namespace Bicep.Core.UnitTests.Utils
             return filePath;
         }
 
-        public static string SaveEmbeddedResourcesWithPathPrefix(TestContext testContext, Assembly containingAssembly, string outputDirName, string manifestFilePrefix)
+        public static string SaveEmbeddedResourcesWithPathPrefix(TestContext testContext, Assembly containingAssembly, string manifestFilePrefix)
         {
-            string outputDirectory = Path.Combine(testContext.TestRunResultsDirectory, testContext.TestName, outputDirName);
-
+            var outputDirectory = GetUniqueTestOutputPath(testContext);
+            
             var filesSaved = false;
             foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix,  StringComparison.Ordinal)))
             {
@@ -53,7 +56,8 @@ namespace Bicep.Core.UnitTests.Utils
                 manifestStream.Seek(0, SeekOrigin.Begin);
                 manifestStream.CopyTo(fileStream);
                 fileStream.Close();
-
+                
+                testContext.AddResultFile(filePath);
                 filesSaved = true;
             }
 
