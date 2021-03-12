@@ -948,7 +948,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP167",
                 $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
-
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -6,6 +6,7 @@ using System.Linq;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
 using Bicep.Core.Emit;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -19,6 +20,13 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
         private readonly IDictionary<ResourceTypeReference, ResourceType> loadedTypeCache;
         private readonly IDictionary<ResourceTypeReference, ResourceType> loadedExistingTypeCache;
+
+        private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new []
+        {
+            LanguageConstants.ResourceNamePropertyName,
+            LanguageConstants.ResourceScopePropertyName,
+            LanguageConstants.ResourceParentPropertyName,
+        }.ToImmutableHashSet();
 
         public AzResourceTypeProvider()
             : this(new TypeLoader())
@@ -147,9 +155,8 @@ namespace Bicep.Core.TypeSystem.Az
         {
             foreach (var property in properties)
             {
-                // "name" and "scope" can be set for existing resources - everything else should be read-only
-                if (property.Name == LanguageConstants.ResourceNamePropertyName ||
-                    property.Name == LanguageConstants.ResourceScopePropertyName)
+                // "name", "scope" & "parent" can be set for existing resources - everything else should be read-only
+                if (WritableExistingResourceProperties.Contains(property.Name))
                 {
                     yield return property;
                 }

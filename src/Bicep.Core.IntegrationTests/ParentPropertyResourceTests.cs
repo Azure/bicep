@@ -212,7 +212,7 @@ resource child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
-                  ("BCP167", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
+                  ("BCP165", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
                 });
             }
         }
@@ -240,7 +240,54 @@ resource res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
-                  ("BCP166", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
+                  ("BCP164", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Parent_property_blocks_invalid_child_resources()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1'
+}
+
+resource res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+  parent: res1
+  name: 'res2'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP167", DiagnosticLevel.Error, "Resource type \"Microsoft.Rp2/resource2/child2\" is not a valid child resource of parent \"Microsoft.Rp1/resource1\"."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Parent_property_blocks_non_resource_reference()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource res1 '${true}' = {
+  name: 'res1'
+}
+
+resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  parent: res1
+  name: 'res2'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP047", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the resource type."),
+                  ("BCP166", DiagnosticLevel.Error, "The resource type cannot be validated due to an error in parent resource \"res1\"."),
                 });
             }
         }
