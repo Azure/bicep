@@ -1,5 +1,5 @@
 resource basicParent 'My.Rp/parentType@2020-12-01' = {
-//@[9:20) Resource basicParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 658
+//@[9:20) Resource basicParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 659
   name: 'basicParent'
   properties: {
     size: 'large'
@@ -24,19 +24,20 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
   }
 
   resource basicSibling 'childType' = {
-//@[11:23) Resource basicSibling. Type: My.Rp/parentType/childType@2020-12-01. Declaration start char: 2, length: 187
+//@[11:23) Resource basicSibling. Type: My.Rp/parentType/childType@2020-12-01. Declaration start char: 2, length: 188
     name: 'basicSibling'
     properties: {
       size: basicParent.properties.size
-      style: basicChild:basicGrandchild.properties.style
+      style: basicChild::basicGrandchild.properties.style
     }
   }
 }
-
-output referenceBasicChild string = basicParent:basicChild.properties.size
-//@[7:26) Output referenceBasicChild. Type: string. Declaration start char: 0, length: 74
-output referenceBasicGrandchild string = basicParent:basicChild:basicGrandchild.properties.style
-//@[7:31) Output referenceBasicGrandchild. Type: string. Declaration start char: 0, length: 96
+// #completionTest(50) -> childResources
+output referenceBasicChild string = basicParent::basicChild.properties.size
+//@[7:26) Output referenceBasicChild. Type: string. Declaration start char: 0, length: 75
+// #completionTest(67) -> grandChildResources
+output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchild.properties.style
+//@[7:31) Output referenceBasicGrandchild. Type: string. Declaration start char: 0, length: 98
 
 resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
 //@[9:23) Resource existingParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 386
@@ -98,5 +99,5 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
   }]
 }
 
-output loopChildOutput string = loopParent:loopChild[0].name
-//@[7:22) Output loopChildOutput. Type: string. Declaration start char: 0, length: 60
+output loopChildOutput string = loopParent::loopChild[0].name
+//@[7:22) Output loopChildOutput. Type: string. Declaration start char: 0, length: 61

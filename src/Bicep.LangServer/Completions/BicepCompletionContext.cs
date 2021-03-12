@@ -150,7 +150,7 @@ namespace Bicep.LanguageServer.Completions
         {
             return syntax.TryFindMostSpecificTriviaInclusive(offset, current => true);
         }
-        
+
         private static BicepCompletionContextKind ConvertFlag(bool value, BicepCompletionContextKind flag) => value ? flag : BicepCompletionContextKind.None;
 
         private static BicepCompletionContextKind GetDeclarationTypeFlags(IList<SyntaxBase> matchingNodes, int offset)
@@ -238,7 +238,7 @@ namespace Bicep.LanguageServer.Completions
                         // we're in a declaration if one of the following conditions is met:
                         // 1. the token is EOF
                         // 2. the token is a newline
-                        return token.Type == TokenType.EndOfFile || 
+                        return token.Type == TokenType.EndOfFile ||
                                token.Type == TokenType.NewLine;
 
                     case SkippedTriviaSyntax _ when matchingNodes.Count >= 3:
@@ -250,7 +250,7 @@ namespace Bicep.LanguageServer.Completions
                     case ITopLevelNamedDeclarationSyntax declaration:
                         // we are in a fully or partially parsed declaration
                         // whether we are in a declaration context depends on whether our offset is within the keyword token
-                        // (by using exclusive span containment, the cursor position at the end of a keyword token 
+                        // (by using exclusive span containment, the cursor position at the end of a keyword token
                         // result counts as being outside of the declaration context)
                         return declaration.Keyword.Span.Contains(offset);
                 }
@@ -297,7 +297,7 @@ namespace Bicep.LanguageServer.Completions
                             return true;
 
                         case 4 when matchingNodes[^2] is IdentifierSyntax identifier && matchingNodes[^3] is ObjectPropertySyntax property && ReferenceEquals(property.Key, identifier):
-                            // we are in a partial or full property name 
+                            // we are in a partial or full property name
                             return true;
 
                         case 4 when matchingNodes[^2] is SkippedTriviaSyntax skipped && matchingNodes[^3] is ObjectPropertySyntax property && ReferenceEquals(property.Key, skipped):
@@ -332,10 +332,10 @@ namespace Bicep.LanguageServer.Completions
                         (propertyAccess, identifier, token) => ReferenceEquals(propertyAccess.ResourceName, identifier) && token.Type == TokenType.Identifier) ||
                     SyntaxMatcher.IsTailMatch<ResourceAccessSyntax, Token>(
                         matchingNodes,
-                        (propertyAccess, token) => token.Type == TokenType.Colon && ReferenceEquals(propertyAccess.Colon, token)) ||
+                        (propertyAccess, token) => token.Type == TokenType.DoubleColon && ReferenceEquals(propertyAccess.DoubleColon, token)) ||
                     SyntaxMatcher.IsTailMatch<ResourceAccessSyntax>(
                         matchingNodes,
-                        propertyAccess => offset > propertyAccess.Colon.Span.Position));
+                        propertyAccess => offset > propertyAccess.DoubleColon.Span.Position));
         }
 
         private static bool IsArrayIndexContext(List<SyntaxBase> matchingNodes, (ArrayAccessSyntax? node, int index) arrayAccessInfo)
@@ -360,7 +360,7 @@ namespace Bicep.LanguageServer.Completions
                 // so we cannot possibly be in a position to begin an object property
                 return false;
             }
-            
+
             switch (matchingNodes[^1])
             {
                 case ObjectSyntax _:
@@ -377,7 +377,7 @@ namespace Bicep.LanguageServer.Completions
                             return true;
 
                         case 4 when matchingNodes[^2] is IdentifierSyntax identifier && matchingNodes[^3] is ObjectPropertySyntax property && ReferenceEquals(property.Key, identifier):
-                            // we are in a partial or full property name 
+                            // we are in a partial or full property name
                             return true;
 
                         case 4 when matchingNodes[^2] is SkippedTriviaSyntax skipped && matchingNodes[^3] is ObjectPropertySyntax property && ReferenceEquals(property.Key, skipped):
@@ -551,7 +551,7 @@ namespace Bicep.LanguageServer.Completions
                         case OutputDeclarationSyntax outputDeclaration:
                             return ReferenceEquals(outputDeclaration.Value, variableAccess);
                     }
-                    
+
                     break;
 
                 case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >=2 && offset == token.GetEndPosition():
