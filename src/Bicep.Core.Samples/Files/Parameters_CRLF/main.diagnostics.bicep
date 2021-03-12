@@ -249,6 +249,18 @@ param decoratedString string
 @minValue(200)
 param decoratedInt int = 123
 
+// negative integer literals are allowed as decorator values
+@minValue(-10)
+@maxValue(-3)
+param negativeValues int
+
+// negative integer literals in modifiers
+param negativeModifiers int {
+//@[28:67) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\r\n  minValue: -100\r\n  maxValue: -33\r\n}|
+  minValue: -100
+  maxValue: -33
+}
+
 @sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'

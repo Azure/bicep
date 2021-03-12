@@ -395,6 +395,12 @@ param tooManyArguments2 string
 @allowed([for thing in []: 's'])
 param nonConstantInDecorator string
 
+@minValue(-length('s'))
+@metadata({
+  bool: !true
+})
+param unaryMinusOnFunction int
+
 // unterminated multi-line comment
 /*    
 
