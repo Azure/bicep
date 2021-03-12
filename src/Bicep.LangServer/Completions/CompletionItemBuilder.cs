@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -86,9 +86,6 @@ namespace Bicep.LanguageServer.Completions
             SetTextEditInternal(item, range, InsertTextFormat.Snippet, snippet, insertTextMode);
             return item;
         }
-
-
-
 
         public static CompletionItem WithSortText(this CompletionItem item, string sortText)
         {

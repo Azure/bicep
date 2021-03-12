@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Azure.Deployments.Core.Comparers;
@@ -14,6 +15,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
@@ -38,6 +40,8 @@ namespace Bicep.LanguageServer.Completions
         public BicepCompletionProvider(IFileResolver fileResolver)
         {
             this.FileResolver = fileResolver;
+
+            SnippetBuilder.CreateResourceSnippets();
         }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
@@ -56,6 +60,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetModulePathCompletions(model, context))
                 .Concat(GetResourceOrModuleBodyCompletions(context))
+                .Concat(GetResourceIdentifierCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context));
         }
 
@@ -321,6 +326,33 @@ namespace Bicep.LanguageServer.Completions
                 foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object))
                 {
                     yield return completion;
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetResourceIdentifierCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceIdentifier))
+            {
+                List<ResourceSnippet> resourceSnippets = SnippetBuilder.GetResourceSnippets();
+
+                if (context.EnclosingDeclaration is ResourceDeclarationSyntax)
+                {
+                    Range replacementRange = context.ReplacementRange;
+                    //Range updatedReplacementRange = new Range()
+                    //{
+                    //    Start = new Position()
+                    //    {
+                    //        Line = replacementRange.Start.Line,
+                    //        Character = 0
+                    //    },
+                    //    End = replacementRange.End
+                    //};
+
+                    foreach (ResourceSnippet resourceSnippet in resourceSnippets)
+                    {
+                        yield return CreateContextualSnippetCompletion(resourceSnippet.Name, resourceSnippet.Detail, resourceSnippet.Text.TrimStart(("resource ").ToCharArray()), replacementRange);
+                    }
                 }
             }
         }

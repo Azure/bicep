@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 
@@ -96,5 +96,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location could be the start of a nested resource declaration.
         /// </summary>
         NestedResourceDeclarationStart = 1 << 16,
+
+        /// <summary>
+        /// The current location needs a resource identifier(symbolic name)
+        /// </summary>
+        ResourceIdentifier = 1 << 16
     }
 }

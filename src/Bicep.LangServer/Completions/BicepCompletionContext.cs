@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -157,6 +157,7 @@ namespace Bicep.LanguageServer.Completions
         {
             // local function
             bool CheckTypeIsExpected(SyntaxBase name, SyntaxBase type) => name.Span.Length > 0 && offset > name.GetEndPosition() && offset <= type.Span.Position;
+            bool CheckTypeWithMissingName(SyntaxBase name, SyntaxBase type) => name.Span.Length == 0 && offset <= type.Span.Position;
 
             if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => CheckTypeIsExpected(parameter.Name, parameter.Type)) ||
                 SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
@@ -192,6 +193,14 @@ namespace Bicep.LanguageServer.Completions
                 // OR
                 // we have an identifier in the place of a type in a resoure (this allows us to show completions when user just types virtualMachines instead of 'virtualMachines')
                 return BicepCompletionContextKind.ResourceType;
+            }
+
+            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => CheckTypeWithMissingName(resource.Name, resource.Type)))
+            {
+                // the most specific matching node is a resource declaration
+                // the declaration syntax is "resource <identifier> '<type>' ..."
+                // the cursor position is after the resource and we do not have an identifier
+                return BicepCompletionContextKind.ResourceIdentifier;
             }
 
             if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => CheckTypeIsExpected(module.Name, module.Path)) ||
