@@ -948,6 +948,18 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP167",
                 $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
+
+            public ErrorDiagnostic NestedChildResourceNameContainsQualifiers() => new(
+                TextSpan,
+                "BCP168",
+                // TODO: add a docs link?
+                $"Nested child resource names should not contain any \"/\" characters.");
+
+            public ErrorDiagnostic TopLevelChildResourceNameMissingQualifiers(int expectedSlashCount) => new(
+                TextSpan,
+                "BCP169",
+                // TODO: add a docs link?
+                $"Expected {expectedSlashCount} \"/\" characters, to match the type string.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -291,5 +291,66 @@ resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
                 });
             }
         }
+
+        [TestMethod]
+        public void Parent_property_detects_invalid_child_resource_literal_names()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1'
+}
+
+resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  parent: res1
+  name: 'res1/res2'
+}
+
+resource res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  parent: res1
+  name: '${res1.name}/res2'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                  ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Top_level_resource_should_have_appropriate_number_of_slashes_in_literal_names()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1/res2'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP169", DiagnosticLevel.Error, "Expected 0 \"/\" characters, to match the type string."),
+                });
+            }
+
+            (template, diags, _) = CompilationHelper.Compile(@"
+resource res1 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  name: 'res1'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP169", DiagnosticLevel.Error, "Expected 1 \"/\" characters, to match the type string."),
+                });
+            }
+        }
     }
 }

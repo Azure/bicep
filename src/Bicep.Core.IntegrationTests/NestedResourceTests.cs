@@ -813,5 +813,31 @@ resource res2 'Microsoft.Rp2/resource2@2020-06-01' = {
             }
         }
 
+        [TestMethod]
+        public void Nested_resource_detects_invalid_child_resource_literal_names()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1'
+
+  resource res2 'child' = {
+    name: 'res1/res2'
+  }
+
+  resource res3 'child' = {
+    name: '${res1.name}/res2'
+  }
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                  ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                  ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                });
+            }
+        }
     }
 }
