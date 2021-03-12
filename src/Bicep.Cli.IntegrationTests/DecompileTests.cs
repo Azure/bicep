@@ -55,10 +55,7 @@ namespace Bicep.Cli.IntegrationTests
     }
 }";
 
-            var directoryName = Path.Combine(TestContext.TestRunResultsDirectory, TestContext.TestName);
-            Directory.CreateDirectory(directoryName);
-
-            var fileName = Path.Combine(directoryName, "main.json");
+            var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, template);
 
             var (output, error, result) = ExecuteProgram("decompile", fileName);
@@ -99,10 +96,7 @@ namespace Bicep.Cli.IntegrationTests
     ""outputs"": {}
 }";
 
-            var directoryName = Path.Combine(TestContext.TestRunResultsDirectory, TestContext.TestName);
-            Directory.CreateDirectory(directoryName);
-
-            var fileName = Path.Combine(directoryName, "main.json");
+            var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, template);
 
             var (output, error, result) = ExecuteProgram("decompile", fileName);
@@ -151,10 +145,7 @@ namespace Bicep.Cli.IntegrationTests
     ""outputs"": {}
 }";
 
-            var directoryName = Path.Combine(TestContext.TestRunResultsDirectory, TestContext.TestName);
-            Directory.CreateDirectory(directoryName);
-
-            var fileName = Path.Combine(directoryName, "main.json");
+            var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, template);
 
             var (output, error, result) = ExecuteProgram("decompile", fileName);
