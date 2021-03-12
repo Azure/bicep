@@ -1869,6 +1869,20 @@
     }
   },
   {
+    "label": "unaryMinusOnFunction",
+    "kind": "field",
+    "detail": "unaryMinusOnFunction",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_unaryMinusOnFunction",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "unaryMinusOnFunction"
+    }
+  },
+  {
     "label": "union",
     "kind": "function",
     "detail": "union()",

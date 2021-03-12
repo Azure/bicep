@@ -251,6 +251,19 @@ param decoratedString string
 param decoratedInt int = 123
 //@[6:18) Parameter decoratedInt. Type: int. Declaration start char: 0, length: 43
 
+// negative integer literals are allowed as decorator values
+@minValue(-10)
+@maxValue(-3)
+param negativeValues int
+//@[6:20) Parameter negativeValues. Type: int. Declaration start char: 0, length: 53
+
+// negative integer literals in modifiers
+param negativeModifiers int {
+//@[6:23) Parameter negativeModifiers. Type: int. Declaration start char: 0, length: 64
+  minValue: -100
+  maxValue: -33
+}
+
 @sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'

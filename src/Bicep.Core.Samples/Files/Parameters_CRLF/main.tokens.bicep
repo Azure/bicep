@@ -930,6 +930,54 @@ param decoratedInt int = 123
 //@[25:28) Integer |123|
 //@[28:32) NewLine |\r\n\r\n|
 
+// negative integer literals are allowed as decorator values
+//@[60:62) NewLine |\r\n|
+@minValue(-10)
+//@[0:1) At |@|
+//@[1:9) Identifier |minValue|
+//@[9:10) LeftParen |(|
+//@[10:11) Minus |-|
+//@[11:13) Integer |10|
+//@[13:14) RightParen |)|
+//@[14:16) NewLine |\r\n|
+@maxValue(-3)
+//@[0:1) At |@|
+//@[1:9) Identifier |maxValue|
+//@[9:10) LeftParen |(|
+//@[10:11) Minus |-|
+//@[11:12) Integer |3|
+//@[12:13) RightParen |)|
+//@[13:15) NewLine |\r\n|
+param negativeValues int
+//@[0:5) Identifier |param|
+//@[6:20) Identifier |negativeValues|
+//@[21:24) Identifier |int|
+//@[24:28) NewLine |\r\n\r\n|
+
+// negative integer literals in modifiers
+//@[41:43) NewLine |\r\n|
+param negativeModifiers int {
+//@[0:5) Identifier |param|
+//@[6:23) Identifier |negativeModifiers|
+//@[24:27) Identifier |int|
+//@[28:29) LeftBrace |{|
+//@[29:31) NewLine |\r\n|
+  minValue: -100
+//@[2:10) Identifier |minValue|
+//@[10:11) Colon |:|
+//@[12:13) Minus |-|
+//@[13:16) Integer |100|
+//@[16:18) NewLine |\r\n|
+  maxValue: -33
+//@[2:10) Identifier |maxValue|
+//@[10:11) Colon |:|
+//@[12:13) Minus |-|
+//@[13:15) Integer |33|
+//@[15:17) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 @sys.description('A boolean.')
 //@[0:1) At |@|
 //@[1:4) Identifier |sys|

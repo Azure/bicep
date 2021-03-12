@@ -497,6 +497,13 @@ param tooManyArguments2 string
 param nonConstantInDecorator string
 //@[6:28) Parameter nonConstantInDecorator. Type: string. Declaration start char: 0, length: 96
 
+@minValue(-length('s'))
+@metadata({
+  bool: !true
+})
+param unaryMinusOnFunction int
+//@[6:26) Parameter unaryMinusOnFunction. Type: int. Declaration start char: 0, length: 83
+
 // unterminated multi-line comment
 /*    
 
