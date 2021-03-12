@@ -91,7 +91,7 @@
     {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[copyIndex()].name, copyIndex()))]",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name, mod(parameters('index'), 2)))]",
       "name": "one-resource-collection-item-lock",
       "properties": {
         "level": "ReadOnly"
@@ -701,7 +701,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13208156749510403147"
+      "templateHash": "2093019376472732272"
     }
   }
 }
