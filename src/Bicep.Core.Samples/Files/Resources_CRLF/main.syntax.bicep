@@ -2663,6 +2663,293 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+/*
+  Scope values created via array access on a resource collection
+*/
 //@[2:4) NewLine |\r\n|
+resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
+//@[0:135) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:17)  IdentifierSyntax
+//@[9:17)   Identifier |dnsZones|
+//@[18:57)  StringSyntax
+//@[18:57)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[58:59)  Assignment |=|
+//@[60:135)  ForSyntax
+//@[60:61)   LeftSquare |[|
+//@[61:64)   Identifier |for|
+//@[65:69)   LocalVariableSyntax
+//@[65:69)    IdentifierSyntax
+//@[65:69)     Identifier |zone|
+//@[70:72)   Identifier |in|
+//@[73:83)   FunctionCallSyntax
+//@[73:78)    IdentifierSyntax
+//@[73:78)     Identifier |range|
+//@[78:79)    LeftParen |(|
+//@[79:81)    FunctionArgumentSyntax
+//@[79:80)     IntegerLiteralSyntax
+//@[79:80)      Integer |0|
+//@[80:81)     Comma |,|
+//@[81:82)    FunctionArgumentSyntax
+//@[81:82)     IntegerLiteralSyntax
+//@[81:82)      Integer |4|
+//@[82:83)    RightParen |)|
+//@[83:84)   Colon |:|
+//@[85:134)   ObjectSyntax
+//@[85:86)    LeftBrace |{|
+//@[86:88)    NewLine |\r\n|
+  name: 'zone${zone}'
+//@[2:21)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:21)     StringSyntax
+//@[8:15)      StringLeftPiece |'zone${|
+//@[15:19)      VariableAccessSyntax
+//@[15:19)       IdentifierSyntax
+//@[15:19)        Identifier |zone|
+//@[19:21)      StringRightPiece |}'|
+//@[21:23)    NewLine |\r\n|
+  location: 'global'
+//@[2:20)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:20)     StringSyntax
+//@[12:20)      StringComplete |'global'|
+//@[20:22)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+//@[0:194) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:21)  IdentifierSyntax
+//@[9:21)   Identifier |locksOnZones|
+//@[22:64)  StringSyntax
+//@[22:64)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[65:66)  Assignment |=|
+//@[67:194)  ForSyntax
+//@[67:68)   LeftSquare |[|
+//@[68:71)   Identifier |for|
+//@[72:76)   LocalVariableSyntax
+//@[72:76)    IdentifierSyntax
+//@[72:76)     Identifier |lock|
+//@[77:79)   Identifier |in|
+//@[80:90)   FunctionCallSyntax
+//@[80:85)    IdentifierSyntax
+//@[80:85)     Identifier |range|
+//@[85:86)    LeftParen |(|
+//@[86:88)    FunctionArgumentSyntax
+//@[86:87)     IntegerLiteralSyntax
+//@[86:87)      Integer |0|
+//@[87:88)     Comma |,|
+//@[88:89)    FunctionArgumentSyntax
+//@[88:89)     IntegerLiteralSyntax
+//@[88:89)      Integer |2|
+//@[89:90)    RightParen |)|
+//@[90:91)   Colon |:|
+//@[92:193)   ObjectSyntax
+//@[92:93)    LeftBrace |{|
+//@[93:95)    NewLine |\r\n|
+  name: 'lock${lock}'
+//@[2:21)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:21)     StringSyntax
+//@[8:15)      StringLeftPiece |'lock${|
+//@[15:19)      VariableAccessSyntax
+//@[15:19)       IdentifierSyntax
+//@[15:19)        Identifier |lock|
+//@[19:21)      StringRightPiece |}'|
+//@[21:23)    NewLine |\r\n|
+  properties: {
+//@[2:47)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:47)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    level: 'CanNotDelete'
+//@[4:25)      ObjectPropertySyntax
+//@[4:9)       IdentifierSyntax
+//@[4:9)        Identifier |level|
+//@[9:10)       Colon |:|
+//@[11:25)       StringSyntax
+//@[11:25)        StringComplete |'CanNotDelete'|
+//@[25:27)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  scope: dnsZones[lock]
+//@[2:23)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:23)     ArrayAccessSyntax
+//@[9:17)      VariableAccessSyntax
+//@[9:17)       IdentifierSyntax
+//@[9:17)        Identifier |dnsZones|
+//@[17:18)      LeftSquare |[|
+//@[18:22)      VariableAccessSyntax
+//@[18:22)       IdentifierSyntax
+//@[18:22)        Identifier |lock|
+//@[22:23)      RightSquare |]|
+//@[23:25)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+//@[0:196) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |moreLocksOnZones|
+//@[26:68)  StringSyntax
+//@[26:68)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[69:70)  Assignment |=|
+//@[71:196)  ForSyntax
+//@[71:72)   LeftSquare |[|
+//@[72:75)   Identifier |for|
+//@[76:85)   ForVariableBlockSyntax
+//@[76:77)    LeftParen |(|
+//@[77:81)    LocalVariableSyntax
+//@[77:81)     IdentifierSyntax
+//@[77:81)      Identifier |lock|
+//@[81:82)    Comma |,|
+//@[83:84)    LocalVariableSyntax
+//@[83:84)     IdentifierSyntax
+//@[83:84)      Identifier |i|
+//@[84:85)    RightParen |)|
+//@[86:88)   Identifier |in|
+//@[89:99)   FunctionCallSyntax
+//@[89:94)    IdentifierSyntax
+//@[89:94)     Identifier |range|
+//@[94:95)    LeftParen |(|
+//@[95:97)    FunctionArgumentSyntax
+//@[95:96)     IntegerLiteralSyntax
+//@[95:96)      Integer |0|
+//@[96:97)     Comma |,|
+//@[97:98)    FunctionArgumentSyntax
+//@[97:98)     IntegerLiteralSyntax
+//@[97:98)      Integer |3|
+//@[98:99)    RightParen |)|
+//@[99:100)   Colon |:|
+//@[101:195)   ObjectSyntax
+//@[101:102)    LeftBrace |{|
+//@[102:104)    NewLine |\r\n|
+  name: 'another${i}'
+//@[2:21)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:21)     StringSyntax
+//@[8:18)      StringLeftPiece |'another${|
+//@[18:19)      VariableAccessSyntax
+//@[18:19)       IdentifierSyntax
+//@[18:19)        Identifier |i|
+//@[19:21)      StringRightPiece |}'|
+//@[21:23)    NewLine |\r\n|
+  properties: {
+//@[2:43)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:43)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    level: 'ReadOnly'
+//@[4:21)      ObjectPropertySyntax
+//@[4:9)       IdentifierSyntax
+//@[4:9)        Identifier |level|
+//@[9:10)       Colon |:|
+//@[11:21)       StringSyntax
+//@[11:21)        StringComplete |'ReadOnly'|
+//@[21:23)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  scope: dnsZones[i]
+//@[2:20)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:20)     ArrayAccessSyntax
+//@[9:17)      VariableAccessSyntax
+//@[9:17)       IdentifierSyntax
+//@[9:17)        Identifier |dnsZones|
+//@[17:18)      LeftSquare |[|
+//@[18:19)      VariableAccessSyntax
+//@[18:19)       IdentifierSyntax
+//@[18:19)        Identifier |i|
+//@[19:20)      RightSquare |]|
+//@[20:22)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[0:170) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |singleLockOnFirstZone|
+//@[31:73)  StringSyntax
+//@[31:73)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[74:75)  Assignment |=|
+//@[76:170)  ObjectSyntax
+//@[76:77)   LeftBrace |{|
+//@[77:79)   NewLine |\r\n|
+  name: 'single-lock'
+//@[2:21)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:21)    StringSyntax
+//@[8:21)     StringComplete |'single-lock'|
+//@[21:23)   NewLine |\r\n|
+  properties: {
+//@[2:43)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:43)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    level: 'ReadOnly'
+//@[4:21)     ObjectPropertySyntax
+//@[4:9)      IdentifierSyntax
+//@[4:9)       Identifier |level|
+//@[9:10)      Colon |:|
+//@[11:21)      StringSyntax
+//@[11:21)       StringComplete |'ReadOnly'|
+//@[21:23)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  scope: dnsZones[0]
+//@[2:20)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:20)    ArrayAccessSyntax
+//@[9:17)     VariableAccessSyntax
+//@[9:17)      IdentifierSyntax
+//@[9:17)       Identifier |dnsZones|
+//@[17:18)     LeftSquare |[|
+//@[18:19)     IntegerLiteralSyntax
+//@[18:19)      Integer |0|
+//@[19:20)     RightSquare |]|
+//@[20:22)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

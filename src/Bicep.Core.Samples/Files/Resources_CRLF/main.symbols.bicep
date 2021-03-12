@@ -405,3 +405,43 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
   }
 }]
 
+/*
+  Scope values created via array access on a resource collection
+*/
+resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
+//@[65:69) Local zone. Type: int. Declaration start char: 65, length: 4
+//@[9:17) Resource dnsZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 135
+  name: 'zone${zone}'
+  location: 'global'
+}]
+
+resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+//@[72:76) Local lock. Type: int. Declaration start char: 72, length: 4
+//@[9:21) Resource locksOnZones. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 194
+  name: 'lock${lock}'
+  properties: {
+    level: 'CanNotDelete'
+  }
+  scope: dnsZones[lock]
+}]
+
+resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+//@[77:81) Local lock. Type: int. Declaration start char: 77, length: 4
+//@[83:84) Local i. Type: int. Declaration start char: 83, length: 1
+//@[9:25) Resource moreLocksOnZones. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 196
+  name: 'another${i}'
+  properties: {
+    level: 'ReadOnly'
+  }
+  scope: dnsZones[i]
+}]
+
+resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[9:30) Resource singleLockOnFirstZone. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 170
+  name: 'single-lock'
+  properties: {
+    level: 'ReadOnly'
+  }
+  scope: dnsZones[0]
+}
+

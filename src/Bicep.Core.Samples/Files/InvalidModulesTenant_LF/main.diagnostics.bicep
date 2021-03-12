@@ -41,3 +41,27 @@ module subscriptionModuleDuplicateName2 'modules/subscription.bicep' = {
   scope: subscription('1ad827ac-2669-4c2f-9970-282b93c3c550')
 }
 
+module managementGroupModules 'modules/managementGroup.bicep' = [for (mg, i) in []: {
+  name: 'dep-${mg}'
+  scope: managementGroup(mg)
+}]
+
+module cannotUseModuleCollectionAsScope 'modules/managementGroup.bicep' = [for (mg, i) in []: {
+  name: 'dep-${mg}'
+  scope: managementGroupModules
+//@[9:31) [BCP036 (Error)] The property "scope" expected a value of type "managementGroup" but the provided value is of type "module[]". |managementGroupModules|
+//@[9:31) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |managementGroupModules|
+}]
+
+module cannotUseSingleModuleAsScope 'modules/managementGroup.bicep' = [for (mg, i) in []: {
+  name: 'dep-${mg}'
+  scope: managementGroupModules[i]
+//@[9:34) [BCP134 (Error)] Scope "module" is not valid for this module. Permitted scopes: "managementGroup". |managementGroupModules[i]|
+}]
+
+module cannotUseSingleModuleAsScope2 'modules/managementGroup.bicep' = {
+  name: 'test'
+  scope: managementGroupModuleDuplicateName1
+//@[9:44) [BCP134 (Error)] Scope "module" is not valid for this module. Permitted scopes: "managementGroup". |managementGroupModuleDuplicateName1|
+}
+
