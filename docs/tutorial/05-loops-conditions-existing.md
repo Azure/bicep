@@ -46,7 +46,7 @@ We've gotten rid of some `params` that were only needed to create the resource, 
 Just like we can conditionally set a property with the ternary operator, we can conditionally deploy the entire resource based on a condition with the `if` keyword, which is added after the initial resource declaration (after the `=`). Conditions have the following structure:
 
 ```bicep
-resource foo 'my.provider/type@2021-03-01' = if(<BOOLEAN>) = {...}
+resource foo 'my.provider/type@2021-03-01' = if(<BOOLEAN>) {...}
 ```
 
 Let's conditionally deploy our storage blob only if it is the year 2021:
