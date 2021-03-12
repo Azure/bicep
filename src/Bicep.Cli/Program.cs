@@ -313,30 +313,32 @@ namespace Bicep.Cli
                         .Accept
                         .Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
-                    writer.Write($"Repository: {repoUri} ...\n");
+                    writer.Write($"Repository: {repoUri}");
 
                     var task = System.Threading.Tasks.Task.Run(() => httpClient.GetAsync(repoUri));
                     task.Wait();
                     System.Net.Http.HttpResponseMessage response = task.Result;
                     response.EnsureSuccessStatusCode();
-
                     string responseBody = response.Content.ReadAsStringAsync().Result;
-                    if (responseBody == null)
-                    {
-                        throw new Exception("Empty repository index");
-                    }
 
                     Newtonsoft.Json.Linq.JArray jObj =
                         JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JArray>(responseBody);
 
-                    writer.Write($"has {jObj.Count} templates:\n");
+                    writer.Write($" has {jObj.Count} templates{Environment.NewLine}");
 
-                    foreach (var item in jObj)
+                    if (jObj.Count > 0)
                     {
-                        string id = item["filePath"]?.ToString() ?? "";
+                        writer.Write($"Template ID{"|",38} Description{Environment.NewLine}");
+                        writer.Write($"{new String('-', 80)}{Environment.NewLine}");
+                        foreach (var item in jObj)
+                        {
+                            string id = item["filePath"]?.ToString() ?? "";
+                            string description = item["description"]?.ToString() ?? "";
 
-                        //TODO: is filePath a secure string ?
-                        writer.Write($"{id}\n");
+                            //TODO: is filePath a secure string ?
+                            writer.Write($"{id,-50} {description,-30}{Environment.NewLine}");
+                        }
+                        writer.Write($"{new String('-', 80)}{Environment.NewLine}");
                     }
                     writer.Flush();
 
