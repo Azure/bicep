@@ -236,14 +236,24 @@ namespace Bicep.Decompiler.ArmHelpers
                     relativePath = concatExpression.Parameters[1];
                 }
             }
+            else if (templateLinkExpression is JTokenExpression templateLinkJtoken)
+            {
+                relativePath = templateLinkJtoken;
+            }
 
             if (relativePath is not JTokenExpression jTokenExpression)
             {
                 // return the original expression so that the author can fix it up rather than failing
                 return null;
             }
+            
+            var output = jTokenExpression.Value.ToString();
+            if (output.IndexOf("./") == 0)
+            {
+                output = output.Substring(2);
+            }
 
-            return jTokenExpression.Value.ToString().Trim('/');
+            return output.Trim('/');
         }
 
         public static TToken ReplaceFunctionExpressions<TToken>(TToken token, Action<FunctionExpression> onFunctionExpression)
