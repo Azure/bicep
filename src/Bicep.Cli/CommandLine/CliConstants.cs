@@ -6,6 +6,7 @@ namespace Bicep.Cli.CommandLine
     {
         public const string CommandBuild = "build";
         public const string CommandDecompile = "decompile";
+        public const string ArgumentNew = "new";
         public const string ArgumentVersion = "--version";
         public const string ArgumentVersionShort = "-v";
         public const string ArgumentHelp = "--help";

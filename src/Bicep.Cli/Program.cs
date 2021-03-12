@@ -60,6 +60,8 @@ namespace Bicep.Cli
                             return Build(logger, buildArguments);
                         case DecompileArguments decompileArguments:
                             return Decompile(logger, decompileArguments);
+                        case NewArguments newArguments:
+                            return CommandNew(logger, newArguments, this.outputWriter);
                         case VersionArguments _: // --version
                             ArgumentParser.PrintVersion(this.outputWriter);
                             return 0;
@@ -224,6 +226,131 @@ namespace Bicep.Cli
                 return 1;
             }
         }
+ 
+        public int CommandNew(ILogger logger, NewArguments arguments, TextWriter writer)
+        {
+
+            var diagnosticLogger = new BicepDiagnosticLogger(logger);
+            
+            const string defaultRepoUri = "https://github.com/Azure/bicep/raw/main/docs/examples/index.json";
+            //const string defaultFileName = "main.bicep";
+
+            // TODO: null URIs to arguments
+            string repoUri = arguments.IsCustomRepository ? arguments.Repository ??"" : defaultRepoUri; //fix it
+
+            if (!Uri.IsWellFormedUriString(repoUri, UriKind.RelativeOrAbsolute))
+            {
+                throw new CommandLineException($"The specified repository path is invalid.");
+            }
+
+            if (arguments.Template == null)
+            {
+                return CommandNewListTemplates(writer, repoUri);
+            }
+            else
+            {
+                var outputDir = arguments.OutputDir ?? Path.GetDirectoryName(arguments.OutputFile);
+                if (outputDir != null && !Directory.Exists(outputDir))
+                {
+                    throw new CommandLineException($"The specified output directory \"{outputDir}\" does not exist.");
+                }
+
+                return CommandNewGetTemplate(writer, repoUri, arguments.Template, outputDir, arguments.OutputFile, arguments.OutputToStdOut);
+            }
+        }
+
+        private int CommandNewGetTemplate(TextWriter writer, string repoUri, string template, string? outputDir, string? outputFileName, bool printOut)
+        {
+            try
+            {
+                using (System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders
+                        .Accept
+                        .Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    string templateUri = repoUri[..(repoUri.LastIndexOf("/") + 1)] + template;
+
+                    var task = System.Threading.Tasks.Task.Run(() => httpClient.GetAsync(templateUri));
+                    task.Wait();
+                    System.Net.Http.HttpResponseMessage response = task.Result;
+                    response.EnsureSuccessStatusCode();
+                    string bicepOutput = response.Content.ReadAsStringAsync().Result;
+
+                    if (printOut)
+                    {
+                        writer.Write($"{bicepOutput}{Environment.NewLine})");
+                        writer.Flush();
+                    }
+                    else
+                    {
+                        outputFileName = Path.GetFileName(outputFileName);
+                        outputFileName ??= templateUri[(templateUri.LastIndexOf("/") + 1)..];
+                        var outputPath = PathHelper.ResolvePath(outputFileName,outputDir);
+
+                        File.WriteAllText(outputPath, bicepOutput);
+                        writer.Write($"Created {outputPath} from '{template}' template.{Environment.NewLine}");
+                        writer.Flush();
+                    }
+                }
+
+                return 0;
+            }
+            catch (Exception exception)
+            {
+                this.errorWriter.WriteLine($"failed with fatal error \"{exception.Message}\"");
+                return 1;
+            }
+        }
+
+        private int CommandNewListTemplates(TextWriter writer, string repoUri)
+        {
+            try
+            {
+                using (System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders
+                        .Accept
+                        .Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    writer.Write($"Repository: {repoUri} ...\n");
+
+                    var task = System.Threading.Tasks.Task.Run(() => httpClient.GetAsync(repoUri));
+                    task.Wait();
+                    System.Net.Http.HttpResponseMessage response = task.Result;
+                    response.EnsureSuccessStatusCode();
+
+                    string responseBody = response.Content.ReadAsStringAsync().Result;
+                    if (responseBody == null)
+                    {
+                        throw new Exception("Empty repository index");
+                    }
+
+                    Newtonsoft.Json.Linq.JArray jObj =
+                        JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JArray>(responseBody);
+
+                    writer.Write($"has {jObj.Count} templates:\n");
+
+                    foreach (var item in jObj)
+                    {
+                        string id = item["filePath"]?.ToString() ?? "";
+
+                        //TODO: is filePath a secure string ?
+                        writer.Write($"{id}\n");
+                    }
+                    writer.Flush();
+
+                }
+                return 0;
+            }
+            catch (Exception exception)
+            {
+                this.errorWriter.WriteLine($"failed with fatal error \"{exception.Message}\"");
+                return 1;
+            }
+        }
+
     }
+
 }
 

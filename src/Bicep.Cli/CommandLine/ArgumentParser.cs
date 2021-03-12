@@ -21,6 +21,7 @@ namespace Bicep.Cli.CommandLine
             {
                 CliConstants.CommandBuild => new BuildArguments(args[1..]),
                 CliConstants.CommandDecompile => new DecompileArguments(args[1..]),
+                CliConstants.ArgumentNew => new NewArguments(args[1..]),
                 CliConstants.ArgumentHelp => new HelpArguments(),
                 CliConstants.ArgumentHelpShort => new HelpArguments(),
                 CliConstants.ArgumentVersion => new VersionArguments(),
@@ -77,6 +78,18 @@ Usage:
 
     Arguments:
       <file>        The input file.
+
+  {exeName} new [options]
+    Creates a .bicep file based of a selected template. 
+    If a template is not provided, lists all available templates.
+
+    Options:  
+      --repository <URL>    Uses custom repository. The default is https://github.com/Azure/bicep/tree/main/docs/examples/index.json 
+      --template <id>       The 'filePath' property of a template in a repository.
+      --outdir <dir>        Saves the output at the specified directory.
+      --outfile <file>      Saves the output as the specified file path.
+      --stdout              Prints the output to stdout.
+
 
   {exeName} [options]
     Options:

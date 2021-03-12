@@ -24,6 +24,7 @@ namespace Bicep.Cli.UnitTests
             actual.Should().Contain("options");
             actual.Should().Contain("--stdout");
             actual.Should().Contain("bicep decompile");
+            actual.Should().Contain("bicep new");
         }
 
         [TestMethod]
@@ -80,6 +81,7 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new [] { "decompile" }, "The input file path was not specified")]
         [DataRow(new [] { "decompile", "file1", "file2" }, "The input file path cannot be specified multiple times")]
         [DataRow(new [] { "decompile", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
+        //TODO
         public void Invalid_args_trigger_validation_exceptions(string[] parameters, string expectedException)
         {
             Action parseFunc = () => ArgumentParser.TryParse(parameters);

@@ -77,7 +77,9 @@ namespace Bicep.Cli.IntegrationTests
                 "information",
                 "version",
                 "bicep",
-                "usage");
+                "usage",
+                "new",
+                "repository");
         }
 
         [TestMethod]
