@@ -100,6 +100,6 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs a resource identifier(symbolic name)
         /// </summary>
-        ResourceIdentifier = 1 << 16
+        ResourceIdentifier = 1 << 17
     }
 }

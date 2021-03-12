@@ -7,10 +7,9 @@
     agentPoolProfiles: [
       {
         name: 'agentpool'
-        count: '${4:2}'
+        count: ${4:2}
         vmSize: '${5:Standard_A1}'
         osType: 'Linux'
-        storageProfile: '${6|ManagedDisks,StorageAccount|}'
       }
     ]
     linuxProfile: {

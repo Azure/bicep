@@ -106,6 +106,7 @@ namespace Bicep.LanguageServer.Completions
             var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, offset);
 
             var kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
+                       ConvertFlag(IsResourceIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ResourceIdentifier) |
                        ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
                        ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
@@ -157,7 +158,6 @@ namespace Bicep.LanguageServer.Completions
         {
             // local function
             bool CheckTypeIsExpected(SyntaxBase name, SyntaxBase type) => name.Span.Length > 0 && offset > name.GetEndPosition() && offset <= type.Span.Position;
-            bool CheckTypeWithMissingName(SyntaxBase name, SyntaxBase type) => name.Span.Length == 0 && offset <= type.Span.Position;
 
             if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => CheckTypeIsExpected(parameter.Name, parameter.Type)) ||
                 SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
@@ -195,7 +195,9 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.ResourceType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => CheckTypeWithMissingName(resource.Name, resource.Type)))
+            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => resource.Name.Span.Length == 0) ||
+                SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (resource, _, token) => offset == resource.Name.GetEndPosition() &&
+                                                                                                                                     token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a resource declaration
                 // the declaration syntax is "resource <identifier> '<type>' ..."
@@ -497,6 +499,20 @@ namespace Bicep.LanguageServer.Completions
                     // check the type
                     return matchingNodes[^2] is ResourceDeclarationSyntax;
         }
+
+            return false;
+        }
+
+        private static bool IsResourceIdentifierContext(List<SyntaxBase> matchingNodes, int offset)
+        {
+            if (matchingNodes[^1] is ResourceDeclarationSyntax resource)
+            {
+                return resource.Name.Span.Length == 0  || offset == resource.Name.Span.Position + resource.Name.Span.Length&&
+                    resource.Type.Span.ContainsInclusive(offset) &&
+                    resource.Assignment.Span.ContainsInclusive(offset) &&
+                    resource.Value is SkippedTriviaSyntax &&
+                    offset == resource.Value.Span.Position;
+            }
 
             return false;
         }
