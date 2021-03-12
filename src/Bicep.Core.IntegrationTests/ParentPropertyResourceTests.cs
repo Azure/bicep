@@ -8,6 +8,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using Bicep.Core.UnitTests.Diagnostics;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -103,7 +104,7 @@ output res2childid string = res2child.id
 
             using (new AssertionScope())
             {
-                diags.Where(x => x.Code != "BCP081").Should().BeEmpty();
+                diags.ExcludingMissingTypes().Should().BeEmpty();
 
                 template.Should().HaveValueAtPath("$.resources[0].name", "res1");
                 template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
@@ -145,7 +146,7 @@ output res1childid string = child1.id
 
             using (new AssertionScope())
             {
-                diags.Where(x => x.Code != "BCP081").Should().BeEmpty();
+                diags.ExcludingMissingTypes().Should().BeEmpty();
 
                 // child1
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'res1', 'child1')]");
@@ -182,7 +183,7 @@ output res1childid string = child1.id
 
             using (new AssertionScope())
             {
-                diags.Where(x => x.Code != "BCP081").Should().BeEmpty();
+                diags.ExcludingMissingTypes().Should().BeEmpty();
 
                 template.Should().NotHaveValueAtPath("$.resources[0]");
 
@@ -211,7 +212,7 @@ resource child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP165", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
                 });
             }
@@ -239,7 +240,7 @@ resource res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP164", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
                 });
             }
@@ -262,7 +263,7 @@ resource res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP167", DiagnosticLevel.Error, "Resource type \"Microsoft.Rp2/resource2/child2\" is not a valid child resource of parent \"Microsoft.Rp1/resource1\"."),
                 });
             }
@@ -285,7 +286,7 @@ resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP047", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the resource type."),
                   ("BCP166", DiagnosticLevel.Error, "The resource type cannot be validated due to an error in parent resource \"res1\"."),
                 });
@@ -314,7 +315,7 @@ resource res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
                   ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
                 });
@@ -333,7 +334,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP169", DiagnosticLevel.Error, "Expected 0 \"/\" characters, to match the type string."),
                 });
             }
@@ -347,9 +348,73 @@ resource res1 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP169", DiagnosticLevel.Error, "Expected 1 \"/\" characters, to match the type string."),
                 });
+            }
+        }
+
+
+
+        [TestMethod] // Should turn into positive test when support is added.
+        public void Parent_property_cannot_reference_loops()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+var items = [
+  'a'
+  'b'
+]
+resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
+  name: 'parent${item}'
+  properties: {
+  }
+}]
+
+resource child 'My.RP/parentType/childType@2020-01-01' = [for (item, i) in items: {
+  parent: parent[i]
+  name: 'child'
+  properties: {
+  }
+}]
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Parent_property_can_have_loops()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+var items = [
+  'a'
+  'b'
+]
+resource parent 'My.RP/parentType@2020-01-01' = {
+  name: 'parent'
+  properties: {
+  }
+}
+
+resource child 'My.RP/parentType/childType@2020-01-01' = [for item in items: {
+  parent: parent
+  name: 'child${item}'
+  properties: {
+  }
+}]
+
+output loopy string = child[0].name
+");
+
+            using (new AssertionScope())
+            {
+                diags.ExcludingMissingTypes().Should().BeEmpty();
+                template.Should().NotBeNull();
             }
         }
     }
