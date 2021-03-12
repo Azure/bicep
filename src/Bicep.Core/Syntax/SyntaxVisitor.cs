@@ -261,7 +261,7 @@ namespace Bicep.Core.Syntax
         public virtual void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
             this.Visit(syntax.BaseExpression);
-            this.Visit(syntax.Colon);
+            this.Visit(syntax.DoubleColon);
             this.Visit(syntax.ResourceName);
         }
 

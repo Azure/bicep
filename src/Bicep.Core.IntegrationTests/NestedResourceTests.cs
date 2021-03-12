@@ -64,7 +64,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
               .OrderBy(n => n.name)
               .Should().BeEquivalentTo(expected);
         }
-        
+
         [TestMethod]
         public void NestedResources_resource_can_contain_property_called_resource()
         {
@@ -131,16 +131,16 @@ resource parent 'My.RP/parentType@2020-01-01' = {
   resource sibling 'childType@2020-01-02' = {
     name: 'sibling'
     properties: {
-      style: parent:child.properties.style
+      style: parent::child.properties.style
       size: parent.properties.size
-      temperatureC: child:grandchild.properties.temperature
-      temperatureF: parent:child:grandchild.properties.temperature
+      temperatureC: child::grandchild.properties.temperature
+      temperatureF: parent::child::grandchild.properties.temperature
     }
   }
 }
 
-output fromChild string = parent:child.properties.style
-output fromGrandchild string = parent:child:grandchild.properties.style
+output fromChild string = parent::child.properties.style
+output fromGrandchild string = parent::child::grandchild.properties.style
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -198,9 +198,9 @@ resource parent 'My.RP/parentType@2020-01-01' = {
   }
 }
 
-output fromVariable string = notResource:child.properties.style
-output fromChildInvalid string = parent:child2.properties.style
-output fromGrandchildInvalid string = parent:child:cousin.properties.temperature
+output fromVariable string = notResource::child.properties.style
+output fromChildInvalid string = parent::child2.properties.style
+output fromGrandchildInvalid string = parent::child::cousin.properties.temperature
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -524,7 +524,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
   }]
 }
 
-output loopy string = parent:child[0].name
+output loopy string = parent::child[0].name
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -555,7 +555,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
   }
 }
 
-output hmmmm string = parent:child.properties
+output hmmmm string = parent::child.properties
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -571,9 +571,9 @@ output hmmmm string = parent:child.properties
         public void NestedResources_provides_correct_error_for_resource_access_with_broken_body()
         {
             var program = @"
-resource broken 'Microsoft.Network/virtualNetworks@2020-06-01' = 
+resource broken 'Microsoft.Network/virtualNetworks@2020-06-01' =
 
-output foo string = broken:fake
+output foo string = broken::fake
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
