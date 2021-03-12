@@ -944,6 +944,10 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP166",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used in assigning value to a module parameter.");
+            public ErrorDiagnostic TypeNotValidInStringInterpolation(TypeSymbol type) => new(
+                TextSpan,
+                "BCP167",
+                $"Type \"{type.Name}\" cannot be used inside String interpolation.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

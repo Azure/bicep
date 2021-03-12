@@ -3,7 +3,7 @@
 
 namespace Bicep.Core.TypeSystem
 {
-    class KeyVaultSecretReferenceType : ObjectType
+    class KeyVaultSecretReferenceType : TypeSymbol
     {
         public KeyVaultSecretReferenceType() : base("keyVaultSecretReference")
         {

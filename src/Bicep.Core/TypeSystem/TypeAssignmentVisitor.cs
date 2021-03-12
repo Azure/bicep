@@ -159,7 +159,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var symbol = this.binder.GetSymbolInfo(syntax);
-                if(symbol is not LocalVariableSymbol localVariableSymbol)
+                if (symbol is not LocalVariableSymbol localVariableSymbol)
                 {
                     throw new InvalidOperationException($"{syntax.GetType().Name} is bound to unexpected type '{symbol?.GetType().Name}'.");
                 }
@@ -191,7 +191,7 @@ namespace Bicep.Core.TypeSystem
             {
                 var errors = new List<ErrorDiagnostic>();
 
-                if(syntax.ItemVariable is null)
+                if (syntax.ItemVariable is null)
                 {
                     // we don't have an item variable due to parse errors
                     // no need to add additional errors
@@ -436,7 +436,7 @@ namespace Bicep.Core.TypeSystem
             => AssignType(syntax, () => LanguageConstants.Bool);
 
         public override void VisitStringSyntax(StringSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 if (syntax.TryGetLiteralValue() is string literalValue)
                 {
@@ -451,6 +451,11 @@ namespace Bicep.Core.TypeSystem
                 {
                     var expressionType = typeManager.GetTypeInfo(interpolatedExpression);
                     CollectErrors(errors, expressionType);
+                    if (expressionType.TypeKind != TypeKind.Error && !TypeValidator.AreTypesAssignable(expressionType, LanguageConstants.Any))
+                    {
+                        //checking if we're able to assign expression type to 'any' type
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(interpolatedExpression).TypeNotValidInStringInterpolation(expressionType));                        
+                    }
                     expressionTypes.Add(expressionType);
                 }
 
@@ -523,21 +528,26 @@ namespace Bicep.Core.TypeSystem
                     CollectErrors(errors, keyType);
                     types.Add(keyType);
                 }
-                var vistingModuleParams = visitingModule && syntax.Key is IdentifierSyntax identifierSyntax && string.Equals(identifierSyntax.IdentifierName, "params", StringComparison.OrdinalIgnoreCase);
+
+                var vistingModuleParams = visitingModule
+                    && !allowedFunctionFlags.HasFlag(FunctionFlags.ModuleParamsAssignmentOnly)
+                    && syntax.Key is IdentifierSyntax identifierSyntax
+                    && string.Equals(identifierSyntax.IdentifierName, "params", StringComparison.OrdinalIgnoreCase);
                 if (vistingModuleParams)
                 {
                     allowedFunctionFlags |= FunctionFlags.ModuleParamsAssignmentOnly;
                 }
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
+                if (vistingModuleParams)
+                {
+                    allowedFunctionFlags &= ~FunctionFlags.ModuleParamsAssignmentOnly;
+                }
+
                 CollectErrors(errors, valueType);
 
                 if (PropagateErrorType(errors, types.Concat(valueType)))
                 {
                     valueType = ErrorType.Create(errors);
-                }
-                if (vistingModuleParams)
-                {
-                    allowedFunctionFlags &= ~FunctionFlags.ModuleParamsAssignmentOnly;
                 }
                 return valueType;
             });
@@ -903,7 +913,7 @@ namespace Bicep.Core.TypeSystem
 
                 baseType = UnwrapType(baseType);
 
-                if (!(baseType is ObjectType objectType))
+                if (baseType is not ObjectType objectType)
                 {
                     // can only access methods on objects
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name).ObjectRequiredForMethodAccess(baseType));

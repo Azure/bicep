@@ -152,13 +152,63 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 module secret 'secret.bicep' = {
   name: 'secret'
   params: {
-    secret: 'aSecret${kv.getSecret('mySecret','secretversionguid')}'
+    testParam: '${kv.getSecret('mySecret','secretversionguid')}'
   }
 }
 "),
                 ("secret.bicep", @"
-@secure
-param secret string
+@secure()
+param testParam string
+"));
+
+            diags.Should().NotBeEmpty();
+            template!.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReferenceUsageInObjectParam()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module secret 'secret.bicep' = {
+  name: 'secret'
+  params: {
+    testParam: kv.getSecret('mySecret','secretversionguid')
+  }
+}
+"),
+                ("secret.bicep", @"
+param testParam object
+"));
+
+            diags.Should().NotBeEmpty();
+            template!.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReferenceUsageInArrayParam()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module secret 'secret.bicep' = {
+  name: 'secret'
+  params: {
+    testParam: [
+      kv.getSecret('mySecret','secretversionguid')
+    ]
+  }
+}
+"),
+                ("secret.bicep", @"
+param testParam array
 "));
 
             diags.Should().NotBeEmpty();

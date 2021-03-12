@@ -44,12 +44,19 @@ namespace Bicep.Core.TypeSystem
                 return false;
             }
 
+            if (sourceType is KeyVaultSecretReferenceType)
+            {
+                // key vault reference type can be assigned only to string type parameters with secure decorator
+                // other usages of this type is forbidden
+                return targetType is PrimitiveType && targetType.Name == LanguageConstants.StringTypeName && targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowKeyVaultSecretReferenceAssignment);
+            }
+
             if (sourceType is AnyType)
             {
                 // "any" type is assignable to all types
                 return true;
             }
-
+            
             switch (targetType)
             {
                 case AnyType _:
@@ -84,14 +91,6 @@ namespace Bicep.Core.TypeSystem
                 case PrimitiveType _ when sourceType is StringLiteralType:
                     // string literals can be assigned to strings
                     return targetType.Name == LanguageConstants.String.Name;
-
-                case PrimitiveType _ when targetType.Name == LanguageConstants.StringTypeName && sourceType is KeyVaultSecretReferenceType:
-                    // key vault reference type can be assigned only to string type parameters with secure decorator
-                    return targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowKeyVaultSecretReferenceAssignment);
-
-                case KeyVaultSecretReferenceType _:
-                    //key vault secret reference type is source type only.
-                    return false;
 
                 case PrimitiveType _ when sourceType is PrimitiveType:
                     // both types are primitive
