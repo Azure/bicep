@@ -343,6 +343,8 @@ namespace Bicep.Core.TypeSystem
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
         {
+            var decoratorSyntaxesByMatchingDecorator = new Dictionary<Decorator, List<DecoratorSyntax>>();
+
             foreach (var decoratorSyntax in decoratorSyntaxes)
             {
                 var decoratorType = this.typeManager.GetTypeInfo(decoratorSyntax.Expression);
@@ -372,10 +374,31 @@ namespace Bicep.Core.TypeSystem
 
                     // There should exist exact one matching decorator if there's no argument mismatches,
                     // since each argument must be a compile-time constant which cannot be of Any type.
-                    this.binder.FileSymbol.ImportedNamespaces.Values
+                    var decorator = this.binder.FileSymbol.ImportedNamespaces.Values
                         .SelectMany(ns => ns.Type.DecoratorResolver.GetMatches(functionSymbol, argumentTypes))
-                        .SingleOrDefault()?
-                        .Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
+                        .SingleOrDefault();
+
+                    if (decorator is not null)
+                    {
+                        if (decoratorSyntaxesByMatchingDecorator.TryGetValue(decorator, out var duplicateDecoratorSyntaxes))
+                        {
+                            duplicateDecoratorSyntaxes.Add(decoratorSyntax);
+                        }
+                        else
+                        {
+                            decoratorSyntaxesByMatchingDecorator[decorator] = new List<DecoratorSyntax> { decoratorSyntax };
+                        }
+
+                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
+                    }
+                }
+            }
+
+            foreach (var (decorator, duplicateDecoratorSyntaxes) in decoratorSyntaxesByMatchingDecorator.Where(x => x.Value.Count > 1))
+            {
+                foreach (var decoratorSyntax in duplicateDecoratorSyntaxes)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DuplicateDecorator(decorator.Overload.Name));
                 }
             }
         }

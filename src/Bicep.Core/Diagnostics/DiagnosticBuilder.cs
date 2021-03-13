@@ -939,10 +939,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP165",
                 $"Cannot deploy a resource with ancestor under a different scope. Resource \"{ancestorIdentifier}\" has the \"{LanguageConstants.ResourceScopePropertyName}\" property set.");
 
-            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+            public ErrorDiagnostic DuplicateDecorator(string decoratorName) => new(
                 TextSpan,
                 "BCP166",
-                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
+                $"Duplicate \"{decoratorName}\" decorator.");
 
             public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
                 TextSpan,
@@ -960,6 +960,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP169",
                 // TODO: add a docs link?
                 $"Expected {expectedSlashCount} \"/\" characters, to match the type string.");
+
+            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+                TextSpan,
+                "BCP170",
+                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

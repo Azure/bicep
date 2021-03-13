@@ -317,6 +317,8 @@ namespace Bicep.LanguageServer.Completions
             {
                 yield return CreateObjectBodyCompletion(context.ReplacementRange);
 
+                yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
+
                 // loops are always allowed in a resource/module
                 foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object))
                 {
@@ -674,6 +676,16 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(objectLabel)
                 .Preselect()
                 .WithSortText(GetSortText(objectLabel, CompletionPriority.High));
+        }
+
+        private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)
+        {
+            const string conditionLabel = "if";
+            return CompletionItemBuilder.Create(CompletionItemKind.Snippet)
+                .WithLabel(conditionLabel)
+                .WithSnippetEdit(replacementRange, "if (${1:condition}) {\n\t$0\n}", InsertTextMode.AdjustIndentation)
+                .WithDetail(conditionLabel)
+                .WithSortText(GetSortText(conditionLabel, CompletionPriority.High));
         }
 
         private static IEnumerable<CompletionItem> CreateLoopCompletions(Range replacementRange, TypeSymbol arrayItemType)

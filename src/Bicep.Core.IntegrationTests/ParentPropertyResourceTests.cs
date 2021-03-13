@@ -288,7 +288,7 @@ resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP047", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the resource type."),
-                  ("BCP166", DiagnosticLevel.Error, "The resource type cannot be validated due to an error in parent resource \"res1\"."),
+                  ("BCP170", DiagnosticLevel.Error, "The resource type cannot be validated due to an error in parent resource \"res1\"."),
                 });
             }
         }

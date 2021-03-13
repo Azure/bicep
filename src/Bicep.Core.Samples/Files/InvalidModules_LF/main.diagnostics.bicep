@@ -230,6 +230,7 @@ module moduleWithValidScope './empty.bicep' = {
 module moduleWithInvalidScope './empty.bicep' = {
   name: 'moduleWithInvalidScope'
   scope: moduleWithValidScope
+//@[9:29) [BCP134 (Error)] Scope "module" is not valid for this module. Permitted scopes: "resourceGroup". |moduleWithValidScope|
 }
 
 module moduleWithMissingRequiredScope './subscription_empty.bicep' = {

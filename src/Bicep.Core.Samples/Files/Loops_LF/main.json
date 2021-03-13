@@ -91,7 +91,7 @@
     {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name))]",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name))]",
       "name": "one-resource-collection-item-lock",
       "properties": {
         "level": "ReadOnly"
@@ -125,7 +125,7 @@
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[copyIndex()]))]",
+      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[range(0, 1)[copyIndex()]]))]",
       "name": "[format('lock-the-lock-{0}', range(0, 1)[copyIndex()])]",
       "properties": {
         "level": "[if(equals(range(0, 1)[copyIndex()], 0), 'CanNotDelete', 'ReadOnly')]"
@@ -701,7 +701,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15563763134771957148"
+      "templateHash": "13666670482088592227"
     }
   }
 }

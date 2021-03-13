@@ -259,8 +259,6 @@ param negativeModifiers int {
 param decoratedBool bool = (true && false) != true
 
 @secure()
-@secure()
-@secure()
 param decoratedObject object = {
   enabled: true
   name: 'this is my object'
@@ -288,8 +286,6 @@ param decoratedObject object = {
     description: 'An array.'
 })
 @sys.maxLength(20)
-@maxLength(10)
-@maxLength(5)
 @sys.description('I will be overrode.')
 param decoratedArray array = [
     utcNow()

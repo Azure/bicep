@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -28,6 +27,8 @@ namespace Bicep.Core.Emit
             public SyntaxBase? ResourceGroupProperty { get; set; }
 
             public ResourceSymbol? ResourceScopeSymbol { get; set; }
+
+            public SyntaxBase? IndexExpression { get; set; }
         }
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
@@ -46,13 +47,13 @@ namespace Bicep.Core.Emit
                 return null;
             }
 
-            var scopeSymbol = scopeProperty.Value switch
+            var (scopeSymbol, indexExpression) = scopeProperty.Value switch
             {
                 // scope indexing can only happen with references to module or resource collections
-                ArrayAccessSyntax { BaseExpression: VariableAccessSyntax baseVariableAccess } => semanticModel.GetSymbolInfo(baseVariableAccess),
+                ArrayAccessSyntax { BaseExpression: VariableAccessSyntax baseVariableAccess } arrayAccess => (semanticModel.GetSymbolInfo(baseVariableAccess), arrayAccess.IndexExpression),
 
                 // all other scope expressions
-                _ => semanticModel.GetSymbolInfo(scopeProperty.Value)
+                _ => (semanticModel.GetSymbolInfo(scopeProperty.Value), null)
             };
                 
             var scopeType = semanticModel.GetTypeInfo(scopeProperty.Value);
@@ -66,7 +67,8 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    return new ScopeData { RequestedScope = ResourceScope.Tenant };
+                    return new ScopeData { RequestedScope = ResourceScope.Tenant, IndexExpression = indexExpression };
+
                 case ManagementGroupScopeType type:
                     if (!supportedScopes.HasFlag(ResourceScope.ManagementGroup))
                     {
@@ -74,10 +76,12 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    return type.Arguments.Length switch {
-                        0 => new ScopeData { RequestedScope = ResourceScope.ManagementGroup },
-                        _ => new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = type.Arguments[0].Expression },
+                    return type.Arguments.Length switch
+                    {
+                        0 => new ScopeData { RequestedScope = ResourceScope.ManagementGroup, IndexExpression = indexExpression },
+                        _ => new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = type.Arguments[0].Expression, IndexExpression = indexExpression },
                     };
+
                 case SubscriptionScopeType type:
                     if (!supportedScopes.HasFlag(ResourceScope.Subscription))
                     {
@@ -85,10 +89,12 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    return type.Arguments.Length switch {
-                        0 => new ScopeData { RequestedScope = ResourceScope.Subscription },
-                        _ => new ScopeData { RequestedScope = ResourceScope.Subscription, SubscriptionIdProperty = type.Arguments[0].Expression },
+                    return type.Arguments.Length switch
+                    {
+                        0 => new ScopeData { RequestedScope = ResourceScope.Subscription, IndexExpression = indexExpression },
+                        _ => new ScopeData { RequestedScope = ResourceScope.Subscription, SubscriptionIdProperty = type.Arguments[0].Expression, IndexExpression = indexExpression },
                     };
+
                 case ResourceGroupScopeType type:
                     if (!supportedScopes.HasFlag(ResourceScope.ResourceGroup))
                     {
@@ -96,14 +102,29 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    return type.Arguments.Length switch {
-                        0 => new ScopeData { RequestedScope = ResourceScope.ResourceGroup },
-                        1 => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, ResourceGroupProperty = type.Arguments[0].Expression },
-                        _ => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = type.Arguments[0].Expression, ResourceGroupProperty = type.Arguments[1].Expression },
+                    return type.Arguments.Length switch
+                    {
+                        0 => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, IndexExpression = indexExpression },
+                        1 => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, ResourceGroupProperty = type.Arguments[0].Expression, IndexExpression = indexExpression },
+                        _ => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = type.Arguments[0].Expression, ResourceGroupProperty = type.Arguments[1].Expression, IndexExpression = indexExpression },
                     };
-                case {} when scopeSymbol is ResourceSymbol targetResourceSymbol:
-                    if (targetResourceSymbol.Type is ResourceType resourceType && 
-                        StringComparer.OrdinalIgnoreCase.Equals(resourceType.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeResourceGroup))
+
+                case { } when scopeSymbol is ResourceSymbol targetResourceSymbol:
+                    if(targetResourceSymbol.IsCollection && indexExpression is null)
+                    {
+                        // the target is a resource collection, but the user didn't apply an array indexer to it
+                        // the type check will produce a good error
+                        return null;
+                    }
+
+                    var resourceType = targetResourceSymbol.Type switch
+                    {
+                        ResourceType singleResourceType => singleResourceType,
+                        ArrayType { Item: ResourceType itemResourceType } => itemResourceType,
+                        _ => throw new NotImplementedException($"Target resource symbol has an unexpected type '{targetResourceSymbol.GetType().Name}'.")
+                    };
+
+                    if (StringComparer.OrdinalIgnoreCase.Equals(resourceType.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeResourceGroup))
                     {
                         // special-case 'Microsoft.Resources/resourceGroups' in order to allow it to create a resourceGroup-scope resource
                         var rgScopeProperty = targetResourceSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
@@ -120,7 +141,7 @@ namespace Bicep.Core.Emit
                                 return null;
                             }
 
-                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = rgNameProperty.Value };
+                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = rgNameProperty.Value, IndexExpression = indexExpression };
                         }
                     }
 
@@ -130,7 +151,20 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    return new ScopeData { RequestedScope = ResourceScope.Resource, ResourceScopeSymbol = targetResourceSymbol };
+                    return new ScopeData { RequestedScope = ResourceScope.Resource, ResourceScopeSymbol = targetResourceSymbol, IndexExpression = indexExpression };
+
+                case { } when scopeSymbol is ModuleSymbol targetModuleSymbol:
+                    
+                    if (targetModuleSymbol.IsCollection == (indexExpression is not null))
+                    {
+                        // using a single module as a scope of another module is not allowed
+                        // we log this error only when we have single module without an index expression or
+                        // a module collection with an index expression
+                        // otherwise, the errors produced by the type check are sufficient
+                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Module, supportedScopes);
+                    }
+                    
+                    return null;
             }
 
             // type validation should have already caught this

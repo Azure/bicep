@@ -238,8 +238,6 @@ param negativeModifiers int {
 param decoratedBool bool
 
 @secure()
-@secure()
-@secure()
 param decoratedObject object = {
   location: 'westus'
 }
@@ -249,7 +247,5 @@ param decoratedObject object = {
     description: 'An array.'
 })
 @maxLength(20)
-@maxLength(10)
-@maxLength(5)
 @sys.description('I will be overrode.')
 param decoratedArray array

@@ -1045,18 +1045,6 @@ param decoratedBool bool = (true && false) != true
 //@[7:8) LeftParen |(|
 //@[8:9) RightParen |)|
 //@[9:11) NewLine |\r\n|
-@secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:11) NewLine |\r\n|
-@secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:11) NewLine |\r\n|
 param decoratedObject object = {
 //@[0:5) Identifier |param|
 //@[6:21) Identifier |decoratedObject|
@@ -1170,20 +1158,6 @@ param decoratedObject object = {
 //@[15:17) Integer |20|
 //@[17:18) RightParen |)|
 //@[18:20) NewLine |\r\n|
-@maxLength(10)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:13) Integer |10|
-//@[13:14) RightParen |)|
-//@[14:16) NewLine |\r\n|
-@maxLength(5)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |5|
-//@[12:13) RightParen |)|
-//@[13:15) NewLine |\r\n|
 @sys.description('I will be overrode.')
 //@[0:1) At |@|
 //@[1:4) Identifier |sys|

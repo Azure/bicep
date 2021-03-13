@@ -343,3 +343,35 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
     }]
   }
 }]
+
+/*
+  Scope values created via array access on a resource collection
+*/
+resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
+  name: 'zone${zone}'
+  location: 'global'
+}]
+
+resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+  name: 'lock${lock}'
+  properties: {
+    level: 'CanNotDelete'
+  }
+  scope: dnsZones[lock]
+}]
+
+resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+  name: 'another${i}'
+  properties: {
+    level: 'ReadOnly'
+  }
+  scope: dnsZones[i]
+}]
+
+resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+  name: 'single-lock'
+  properties: {
+    level: 'ReadOnly'
+  }
+  scope: dnsZones[0]
+}
