@@ -301,10 +301,8 @@ param decoratedBool bool = (true && false) != true
 //@[6:19) Parameter decoratedBool. Type: bool. Declaration start char: 0, length: 229
 
 @secure()
-@secure()
-@secure()
 param decoratedObject object = {
-//@[6:21) Parameter decoratedObject. Type: object. Declaration start char: 0, length: 298
+//@[6:21) Parameter decoratedObject. Type: object. Declaration start char: 0, length: 276
   enabled: true
   name: 'this is my object'
   priority: 3
@@ -331,11 +329,9 @@ param decoratedObject object = {
     description: 'An array.'
 })
 @sys.maxLength(20)
-@maxLength(10)
-@maxLength(5)
 @sys.description('I will be overrode.')
 param decoratedArray array = [
-//@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 205
+//@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 174
     utcNow()
     newGuid()
 ]

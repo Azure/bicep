@@ -938,6 +938,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP165",
                 $"Cannot deploy a resource with ancestor under a different scope. Resource \"{ancestorIdentifier}\" has the \"{LanguageConstants.ResourceScopePropertyName}\" property set.");
+
+            public ErrorDiagnostic DuplicateDecorator(string decoratorName) => new(
+                TextSpan,
+                "BCP166",
+                $"Duplicate \"{decoratorName}\" decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -408,5 +408,12 @@ param nonConstantInDecorator string
 })
 param unaryMinusOnFunction int
 
+@minLength(1)
+@minLength(2)
+@secure()
+@maxLength(3)
+@maxLength(4)
+param duplicateDecorators string
+
 // unterminated multi-line comment
 /*    
