@@ -94,8 +94,9 @@ parenthesizedExpression -> "(" expression ")"
 
 ifCondition -> "if" parenthesizedExpression object
 
-forExpression -> "[" "for" (IDENTIFIER(item) | forVariableBlock) "in" expression ":" expression(body) "]"
+forExpression -> "[" "for" (IDENTIFIER(item) | forVariableBlock) "in" expression ":" forBody "]"
 forVariableBlock -> "(" IDENTIFIER(item) "," IDENTIFIER(index) ")"
+forBody -> expression(body) | ifCondition
 
 interpString ->  stringLeftPiece ( expression stringMiddlePiece )* expression stringRightPiece | stringComplete
 stringLeftPiece -> "'" STRINGCHAR* "${"

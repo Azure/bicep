@@ -1484,6 +1484,74 @@
     ]
   },
   {
+    "label": "expectedLoopFilterOpenParen",
+    "kind": "interface",
+    "detail": "expectedLoopFilterOpenParen",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterOpenParen",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterOpenParen"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterOpenParen2",
+    "kind": "interface",
+    "detail": "expectedLoopFilterOpenParen2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterOpenParen2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterOpenParen2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterPredicateAndBody",
+    "kind": "interface",
+    "detail": "expectedLoopFilterPredicateAndBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterPredicateAndBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterPredicateAndBody"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterPredicateAndBody2",
+    "kind": "interface",
+    "detail": "expectedLoopFilterPredicateAndBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterPredicateAndBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterPredicateAndBody2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "expectedLoopIndexName",
     "kind": "interface",
     "detail": "expectedLoopIndexName",

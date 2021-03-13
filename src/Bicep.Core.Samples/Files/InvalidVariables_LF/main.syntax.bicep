@@ -1013,6 +1013,31 @@ var noVariableLoopsYet = [for thing in stuff: 4]
 //@[47:48)   RightSquare |]|
 //@[48:50) NewLine |\n\n|
 
+// loops with conditions won't even parse
+//@[41:42) NewLine |\n|
+var noFilteredLoopsInVariables = [for thing in stuff: if]
+//@[0:57) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:30)  IdentifierSyntax
+//@[4:30)   Identifier |noFilteredLoopsInVariables|
+//@[31:32)  Assignment |=|
+//@[33:57)  ForSyntax
+//@[33:34)   LeftSquare |[|
+//@[34:37)   Identifier |for|
+//@[38:43)   LocalVariableSyntax
+//@[38:43)    IdentifierSyntax
+//@[38:43)     Identifier |thing|
+//@[44:46)   Identifier |in|
+//@[47:52)   VariableAccessSyntax
+//@[47:52)    IdentifierSyntax
+//@[47:52)     Identifier |stuff|
+//@[52:53)   Colon |:|
+//@[54:56)   VariableAccessSyntax
+//@[54:56)    IdentifierSyntax
+//@[54:56)     Identifier |if|
+//@[56:57)   RightSquare |]|
+//@[57:59) NewLine |\n\n|
+
 // nested loops are also not allowed
 //@[36:37) NewLine |\n|
 var noNestedVariableLoopsEither = [for thing in stuff: {

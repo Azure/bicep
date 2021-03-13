@@ -1173,7 +1173,7 @@ resource expectedColon 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x i
 
 resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y:]
 //@[85:86) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-//@[87:88) [BCP018 (Error)] Expected the "{" character at this location. |]|
+//@[87:88) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |]|
 
 // loop index parsing cases
 resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
@@ -1204,14 +1204,31 @@ resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in
 
 resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
 //@[84:85) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
-//@[86:87) [BCP018 (Error)] Expected the "{" character at this location. |]|
+//@[86:87) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |]|
+
+// loop filter parsing cases
+resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
+//@[96:97) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[101:102) [BCP018 (Error)] Expected the "(" character at this location. |]|
+resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
+//@[95:96) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[100:101) [BCP018 (Error)] Expected the "(" character at this location. |]|
+
+resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
+//@[103:104) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[109:110) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+//@[110:111) [BCP018 (Error)] Expected the "{" character at this location. |]|
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+//@[102:103) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[108:109) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+//@[109:110) [BCP018 (Error)] Expected the "{" character at this location. |]|
 
 // loop semantic analysis cases
 var emptyArray = []
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-//@[97:98) [BCP018 (Error)] Expected the "{" character at this location. |4|
+//@[97:98) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |4|
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
-//@[103:104) [BCP018 (Error)] Expected the "{" character at this location. |4|
+//@[103:104) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |4|
 
 // duplicate variable in the same scope
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
@@ -1462,13 +1479,13 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 // resource loop body that isn't an object
 @batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
-//@[95:101) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
+//@[95:101) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'test'|
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
-//@[96:107) [BCP018 (Error)] Expected the "{" character at this location. |environment|
+//@[96:107) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |environment|
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
-//@[100:106) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
+//@[100:106) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'test'|
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
-//@[100:111) [BCP018 (Error)] Expected the "{" character at this location. |environment|
+//@[100:111) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |environment|
 
 // #completionTest(54,55) -> objectPlusFor
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 

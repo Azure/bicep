@@ -6273,6 +6273,130 @@ resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)
 //@[86:87)   RightSquare |]|
 //@[87:91) NewLine |\r\n\r\n|
 
+// loop filter parsing cases
+//@[28:30) NewLine |\r\n|
+resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
+//@[0:102) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:36)  IdentifierSyntax
+//@[9:36)   Identifier |expectedLoopFilterOpenParen|
+//@[37:83)  StringSyntax
+//@[37:83)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[84:85)  Assignment |=|
+//@[86:102)  ForSyntax
+//@[86:87)   LeftSquare |[|
+//@[87:90)   Identifier |for|
+//@[91:92)   LocalVariableSyntax
+//@[91:92)    IdentifierSyntax
+//@[91:92)     Identifier |x|
+//@[93:95)   Identifier |in|
+//@[96:97)   VariableAccessSyntax
+//@[96:97)    IdentifierSyntax
+//@[96:97)     Identifier |y|
+//@[97:98)   Colon |:|
+//@[99:101)   IfConditionSyntax
+//@[99:101)    Identifier |if|
+//@[101:101)    SkippedTriviaSyntax
+//@[101:101)    SkippedTriviaSyntax
+//@[101:102)   RightSquare |]|
+//@[102:104) NewLine |\r\n|
+resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
+//@[0:101) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:37)  IdentifierSyntax
+//@[9:37)   Identifier |expectedLoopFilterOpenParen2|
+//@[38:77)  StringSyntax
+//@[38:77)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[78:79)  Assignment |=|
+//@[80:101)  ForSyntax
+//@[80:81)   LeftSquare |[|
+//@[81:84)   Identifier |for|
+//@[85:91)   ForVariableBlockSyntax
+//@[85:86)    LeftParen |(|
+//@[86:87)    LocalVariableSyntax
+//@[86:87)     IdentifierSyntax
+//@[86:87)      Identifier |x|
+//@[87:88)    Comma |,|
+//@[89:90)    LocalVariableSyntax
+//@[89:90)     IdentifierSyntax
+//@[89:90)      Identifier |y|
+//@[90:91)    RightParen |)|
+//@[92:94)   Identifier |in|
+//@[95:96)   VariableAccessSyntax
+//@[95:96)    IdentifierSyntax
+//@[95:96)     Identifier |z|
+//@[96:97)   Colon |:|
+//@[98:100)   IfConditionSyntax
+//@[98:100)    Identifier |if|
+//@[100:100)    SkippedTriviaSyntax
+//@[100:100)    SkippedTriviaSyntax
+//@[100:101)   RightSquare |]|
+//@[101:105) NewLine |\r\n\r\n|
+
+resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
+//@[0:111) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:43)  IdentifierSyntax
+//@[9:43)   Identifier |expectedLoopFilterPredicateAndBody|
+//@[44:90)  StringSyntax
+//@[44:90)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[91:92)  Assignment |=|
+//@[93:111)  ForSyntax
+//@[93:94)   LeftSquare |[|
+//@[94:97)   Identifier |for|
+//@[98:99)   LocalVariableSyntax
+//@[98:99)    IdentifierSyntax
+//@[98:99)     Identifier |x|
+//@[100:102)   Identifier |in|
+//@[103:104)   VariableAccessSyntax
+//@[103:104)    IdentifierSyntax
+//@[103:104)     Identifier |y|
+//@[104:105)   Colon |:|
+//@[106:110)   IfConditionSyntax
+//@[106:108)    Identifier |if|
+//@[108:110)    ParenthesizedExpressionSyntax
+//@[108:109)     LeftParen |(|
+//@[109:109)     SkippedTriviaSyntax
+//@[109:110)     RightParen |)|
+//@[110:110)    SkippedTriviaSyntax
+//@[110:111)   RightSquare |]|
+//@[111:113) NewLine |\r\n|
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+//@[0:110) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:44)  IdentifierSyntax
+//@[9:44)   Identifier |expectedLoopFilterPredicateAndBody2|
+//@[45:84)  StringSyntax
+//@[45:84)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[85:86)  Assignment |=|
+//@[87:110)  ForSyntax
+//@[87:88)   LeftSquare |[|
+//@[88:91)   Identifier |for|
+//@[92:98)   ForVariableBlockSyntax
+//@[92:93)    LeftParen |(|
+//@[93:94)    LocalVariableSyntax
+//@[93:94)     IdentifierSyntax
+//@[93:94)      Identifier |x|
+//@[94:95)    Comma |,|
+//@[96:97)    LocalVariableSyntax
+//@[96:97)     IdentifierSyntax
+//@[96:97)      Identifier |y|
+//@[97:98)    RightParen |)|
+//@[99:101)   Identifier |in|
+//@[102:103)   VariableAccessSyntax
+//@[102:103)    IdentifierSyntax
+//@[102:103)     Identifier |z|
+//@[103:104)   Colon |:|
+//@[105:109)   IfConditionSyntax
+//@[105:107)    Identifier |if|
+//@[107:109)    ParenthesizedExpressionSyntax
+//@[107:108)     LeftParen |(|
+//@[108:108)     SkippedTriviaSyntax
+//@[108:109)     RightParen |)|
+//@[109:109)    SkippedTriviaSyntax
+//@[109:110)   RightSquare |]|
+//@[110:114) NewLine |\r\n\r\n|
+
 // loop semantic analysis cases
 //@[31:33) NewLine |\r\n|
 var emptyArray = []

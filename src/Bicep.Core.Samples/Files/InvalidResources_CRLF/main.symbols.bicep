@@ -1138,6 +1138,23 @@ resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)
 //@[78:79) Local y. Type: int. Declaration start char: 78, length: 1
 //@[9:26) Resource expectedLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 87
 
+// loop filter parsing cases
+resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
+//@[91:92) Local x. Type: any. Declaration start char: 91, length: 1
+//@[9:36) Resource expectedLoopFilterOpenParen. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 102
+resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
+//@[86:87) Local x. Type: any. Declaration start char: 86, length: 1
+//@[89:90) Local y. Type: int. Declaration start char: 89, length: 1
+//@[9:37) Resource expectedLoopFilterOpenParen2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 101
+
+resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
+//@[98:99) Local x. Type: any. Declaration start char: 98, length: 1
+//@[9:43) Resource expectedLoopFilterPredicateAndBody. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 111
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+//@[93:94) Local x. Type: any. Declaration start char: 93, length: 1
+//@[96:97) Local y. Type: int. Declaration start char: 96, length: 1
+//@[9:44) Resource expectedLoopFilterPredicateAndBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
+
 // loop semantic analysis cases
 var emptyArray = []
 //@[4:14) Variable emptyArray. Type: array. Declaration start char: 0, length: 19

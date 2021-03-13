@@ -450,6 +450,23 @@ module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
 //@[51:52) Local y. Type: int. Declaration start char: 51, length: 1
 //@[7:24) Module expectedLoopBody2. Type: module[]. Declaration start char: 0, length: 60
 
+// loop filter parsing cases
+module expectedLoopFilterOpenParen 'modulea.bicep' = [for x in y: if]
+//@[58:59) Local x. Type: any. Declaration start char: 58, length: 1
+//@[7:34) Module expectedLoopFilterOpenParen. Type: module[]. Declaration start char: 0, length: 69
+module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
+//@[60:61) Local x. Type: any. Declaration start char: 60, length: 1
+//@[62:63) Local y. Type: int. Declaration start char: 62, length: 1
+//@[7:35) Module expectedLoopFilterOpenParen2. Type: module[]. Declaration start char: 0, length: 74
+
+module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
+//@[65:66) Local x. Type: any. Declaration start char: 65, length: 1
+//@[7:41) Module expectedLoopFilterPredicateAndBody. Type: module[]. Declaration start char: 0, length: 78
+module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
+//@[67:68) Local x. Type: any. Declaration start char: 67, length: 1
+//@[69:70) Local y. Type: int. Declaration start char: 69, length: 1
+//@[7:42) Module expectedLoopFilterPredicateAndBody2. Type: module[]. Declaration start char: 0, length: 83
+
 // wrong loop body type
 var emptyArray = []
 //@[4:14) Variable emptyArray. Type: array. Declaration start char: 0, length: 19

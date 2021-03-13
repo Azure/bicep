@@ -2312,6 +2312,130 @@ module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
 //@[59:60)   RightSquare |]|
 //@[60:62) NewLine |\n\n|
 
+// loop filter parsing cases
+//@[28:29) NewLine |\n|
+module expectedLoopFilterOpenParen 'modulea.bicep' = [for x in y: if]
+//@[0:69) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:34)  IdentifierSyntax
+//@[7:34)   Identifier |expectedLoopFilterOpenParen|
+//@[35:50)  StringSyntax
+//@[35:50)   StringComplete |'modulea.bicep'|
+//@[51:52)  Assignment |=|
+//@[53:69)  ForSyntax
+//@[53:54)   LeftSquare |[|
+//@[54:57)   Identifier |for|
+//@[58:59)   LocalVariableSyntax
+//@[58:59)    IdentifierSyntax
+//@[58:59)     Identifier |x|
+//@[60:62)   Identifier |in|
+//@[63:64)   VariableAccessSyntax
+//@[63:64)    IdentifierSyntax
+//@[63:64)     Identifier |y|
+//@[64:65)   Colon |:|
+//@[66:68)   IfConditionSyntax
+//@[66:68)    Identifier |if|
+//@[68:68)    SkippedTriviaSyntax
+//@[68:68)    SkippedTriviaSyntax
+//@[68:69)   RightSquare |]|
+//@[69:70) NewLine |\n|
+module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
+//@[0:74) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:35)  IdentifierSyntax
+//@[7:35)   Identifier |expectedLoopFilterOpenParen2|
+//@[36:51)  StringSyntax
+//@[36:51)   StringComplete |'modulea.bicep'|
+//@[52:53)  Assignment |=|
+//@[54:74)  ForSyntax
+//@[54:55)   LeftSquare |[|
+//@[55:58)   Identifier |for|
+//@[59:64)   ForVariableBlockSyntax
+//@[59:60)    LeftParen |(|
+//@[60:61)    LocalVariableSyntax
+//@[60:61)     IdentifierSyntax
+//@[60:61)      Identifier |x|
+//@[61:62)    Comma |,|
+//@[62:63)    LocalVariableSyntax
+//@[62:63)     IdentifierSyntax
+//@[62:63)      Identifier |y|
+//@[63:64)    RightParen |)|
+//@[65:67)   Identifier |in|
+//@[68:69)   VariableAccessSyntax
+//@[68:69)    IdentifierSyntax
+//@[68:69)     Identifier |z|
+//@[69:70)   Colon |:|
+//@[71:73)   IfConditionSyntax
+//@[71:73)    Identifier |if|
+//@[73:73)    SkippedTriviaSyntax
+//@[73:73)    SkippedTriviaSyntax
+//@[73:74)   RightSquare |]|
+//@[74:76) NewLine |\n\n|
+
+module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
+//@[0:78) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:41)  IdentifierSyntax
+//@[7:41)   Identifier |expectedLoopFilterPredicateAndBody|
+//@[42:57)  StringSyntax
+//@[42:57)   StringComplete |'modulea.bicep'|
+//@[58:59)  Assignment |=|
+//@[60:78)  ForSyntax
+//@[60:61)   LeftSquare |[|
+//@[61:64)   Identifier |for|
+//@[65:66)   LocalVariableSyntax
+//@[65:66)    IdentifierSyntax
+//@[65:66)     Identifier |x|
+//@[67:69)   Identifier |in|
+//@[70:71)   VariableAccessSyntax
+//@[70:71)    IdentifierSyntax
+//@[70:71)     Identifier |y|
+//@[71:72)   Colon |:|
+//@[73:77)   IfConditionSyntax
+//@[73:75)    Identifier |if|
+//@[75:77)    ParenthesizedExpressionSyntax
+//@[75:76)     LeftParen |(|
+//@[76:76)     SkippedTriviaSyntax
+//@[76:77)     RightParen |)|
+//@[77:77)    SkippedTriviaSyntax
+//@[77:78)   RightSquare |]|
+//@[78:79) NewLine |\n|
+module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
+//@[0:83) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:42)  IdentifierSyntax
+//@[7:42)   Identifier |expectedLoopFilterPredicateAndBody2|
+//@[43:58)  StringSyntax
+//@[43:58)   StringComplete |'modulea.bicep'|
+//@[59:60)  Assignment |=|
+//@[61:83)  ForSyntax
+//@[61:62)   LeftSquare |[|
+//@[62:65)   Identifier |for|
+//@[66:71)   ForVariableBlockSyntax
+//@[66:67)    LeftParen |(|
+//@[67:68)    LocalVariableSyntax
+//@[67:68)     IdentifierSyntax
+//@[67:68)      Identifier |x|
+//@[68:69)    Comma |,|
+//@[69:70)    LocalVariableSyntax
+//@[69:70)     IdentifierSyntax
+//@[69:70)      Identifier |y|
+//@[70:71)    RightParen |)|
+//@[72:74)   Identifier |in|
+//@[75:76)   VariableAccessSyntax
+//@[75:76)    IdentifierSyntax
+//@[75:76)     Identifier |z|
+//@[76:77)   Colon |:|
+//@[78:82)   IfConditionSyntax
+//@[78:80)    Identifier |if|
+//@[80:82)    ParenthesizedExpressionSyntax
+//@[80:81)     LeftParen |(|
+//@[81:81)     SkippedTriviaSyntax
+//@[81:82)     RightParen |)|
+//@[82:82)    SkippedTriviaSyntax
+//@[82:83)   RightSquare |]|
+//@[83:85) NewLine |\n\n|
+
 // wrong loop body type
 //@[23:24) NewLine |\n|
 var emptyArray = []

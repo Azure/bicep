@@ -214,6 +214,11 @@ var noVariableLoopsYet = [for thing in stuff: 4]
 //@[30:35) Local thing. Type: any. Declaration start char: 30, length: 5
 //@[4:22) Variable noVariableLoopsYet. Type: error. Declaration start char: 0, length: 48
 
+// loops with conditions won't even parse
+var noFilteredLoopsInVariables = [for thing in stuff: if]
+//@[38:43) Local thing. Type: any. Declaration start char: 38, length: 5
+//@[4:30) Variable noFilteredLoopsInVariables. Type: error. Declaration start char: 0, length: 57
+
 // nested loops are also not allowed
 var noNestedVariableLoopsEither = [for thing in stuff: {
 //@[39:44) Local thing. Type: any. Declaration start char: 39, length: 5

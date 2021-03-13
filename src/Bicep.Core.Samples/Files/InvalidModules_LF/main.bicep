@@ -335,6 +335,13 @@ module expectedColon2 'modulea.bicep' = [for (x,y) in z]
 
 module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
 
+// loop filter parsing cases
+module expectedLoopFilterOpenParen 'modulea.bicep' = [for x in y: if]
+module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
+
+module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
+module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
+
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
