@@ -36,6 +36,20 @@
     }
   },
   {
+    "label": "if",
+    "kind": "snippet",
+    "detail": "if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_if",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "if (${1:condition}) {\n\t$0\n}"
+    }
+  },
+  {
     "label": "{}",
     "kind": "value",
     "detail": "{}",
