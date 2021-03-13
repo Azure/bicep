@@ -1586,25 +1586,7 @@ param decoratedBool bool = (true && false) != true
 //@[50:54) NewLine |\r\n\r\n|
 
 @secure()
-//@[0:298) ParameterDeclarationSyntax
-//@[0:9)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:9)   FunctionCallSyntax
-//@[1:7)    IdentifierSyntax
-//@[1:7)     Identifier |secure|
-//@[7:8)    LeftParen |(|
-//@[8:9)    RightParen |)|
-//@[9:11)  NewLine |\r\n|
-@secure()
-//@[0:9)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:9)   FunctionCallSyntax
-//@[1:7)    IdentifierSyntax
-//@[1:7)     Identifier |secure|
-//@[7:8)    LeftParen |(|
-//@[8:9)    RightParen |)|
-//@[9:11)  NewLine |\r\n|
-@secure()
+//@[0:276) ParameterDeclarationSyntax
 //@[0:9)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:9)   FunctionCallSyntax
@@ -1743,7 +1725,7 @@ param decoratedObject object = {
 //@[1:5) NewLine |\r\n\r\n|
 
 @sys.metadata({
-//@[0:205) ParameterDeclarationSyntax
+//@[0:174) ParameterDeclarationSyntax
 //@[0:49)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:49)   InstanceFunctionCallSyntax
@@ -1786,30 +1768,6 @@ param decoratedObject object = {
 //@[15:17)      Integer |20|
 //@[17:18)    RightParen |)|
 //@[18:20)  NewLine |\r\n|
-@maxLength(10)
-//@[0:14)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:14)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |maxLength|
-//@[10:11)    LeftParen |(|
-//@[11:13)    FunctionArgumentSyntax
-//@[11:13)     IntegerLiteralSyntax
-//@[11:13)      Integer |10|
-//@[13:14)    RightParen |)|
-//@[14:16)  NewLine |\r\n|
-@maxLength(5)
-//@[0:13)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:13)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |maxLength|
-//@[10:11)    LeftParen |(|
-//@[11:12)    FunctionArgumentSyntax
-//@[11:12)     IntegerLiteralSyntax
-//@[11:12)      Integer |5|
-//@[12:13)    RightParen |)|
-//@[13:15)  NewLine |\r\n|
 @sys.description('I will be overrode.')
 //@[0:39)  DecoratorSyntax
 //@[0:1)   At |@|

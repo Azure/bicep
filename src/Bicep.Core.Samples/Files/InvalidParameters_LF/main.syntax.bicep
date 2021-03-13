@@ -2660,6 +2660,72 @@ param unaryMinusOnFunction int
 //@[27:30)   Identifier |int|
 //@[30:32) NewLine |\n\n|
 
+@minLength(1)
+//@[0:98) ParameterDeclarationSyntax
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |1|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+@minLength(2)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |2|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+@secure()
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:10)  NewLine |\n|
+@maxLength(3)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |3|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+@maxLength(4)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |4|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+param duplicateDecorators string
+//@[0:5)  Identifier |param|
+//@[6:25)  IdentifierSyntax
+//@[6:25)   Identifier |duplicateDecorators|
+//@[26:32)  TypeSyntax
+//@[26:32)   Identifier |string|
+//@[32:34) NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    

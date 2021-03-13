@@ -330,6 +330,20 @@
     }
   },
   {
+    "label": "duplicateDecorators",
+    "kind": "field",
+    "detail": "duplicateDecorators",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_duplicateDecorators",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "duplicateDecorators"
+    }
+  },
+  {
     "label": "duplicatedModifierProperty",
     "kind": "field",
     "detail": "duplicatedModifierProperty",

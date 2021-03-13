@@ -1498,25 +1498,7 @@ param decoratedBool bool
 //@[24:26) NewLine |\n\n|
 
 @secure()
-//@[0:85) ParameterDeclarationSyntax
-//@[0:9)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:9)   FunctionCallSyntax
-//@[1:7)    IdentifierSyntax
-//@[1:7)     Identifier |secure|
-//@[7:8)    LeftParen |(|
-//@[8:9)    RightParen |)|
-//@[9:10)  NewLine |\n|
-@secure()
-//@[0:9)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:9)   FunctionCallSyntax
-//@[1:7)    IdentifierSyntax
-//@[1:7)     Identifier |secure|
-//@[7:8)    LeftParen |(|
-//@[8:9)    RightParen |)|
-//@[9:10)  NewLine |\n|
-@secure()
+//@[0:65) ParameterDeclarationSyntax
 //@[0:9)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:9)   FunctionCallSyntax
@@ -1550,7 +1532,7 @@ param decoratedObject object = {
 
 
 @metadata({
-//@[0:154) ParameterDeclarationSyntax
+//@[0:125) ParameterDeclarationSyntax
 //@[0:43)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:43)   FunctionCallSyntax
@@ -1585,30 +1567,6 @@ param decoratedObject object = {
 //@[11:13)      Integer |20|
 //@[13:14)    RightParen |)|
 //@[14:15)  NewLine |\n|
-@maxLength(10)
-//@[0:14)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:14)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |maxLength|
-//@[10:11)    LeftParen |(|
-//@[11:13)    FunctionArgumentSyntax
-//@[11:13)     IntegerLiteralSyntax
-//@[11:13)      Integer |10|
-//@[13:14)    RightParen |)|
-//@[14:15)  NewLine |\n|
-@maxLength(5)
-//@[0:13)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:13)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |maxLength|
-//@[10:11)    LeftParen |(|
-//@[11:12)    FunctionArgumentSyntax
-//@[11:12)     IntegerLiteralSyntax
-//@[11:12)      Integer |5|
-//@[12:13)    RightParen |)|
-//@[13:14)  NewLine |\n|
 @sys.description('I will be overrode.')
 //@[0:39)  DecoratorSyntax
 //@[0:1)   At |@|
