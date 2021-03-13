@@ -354,41 +354,8 @@ resource res1 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             }
         }
 
-
-
-        [TestMethod] // Should turn into positive test when support is added.
-        public void Parent_property_cannot_reference_loops()
-        {
-            var (template, diags, _) = CompilationHelper.Compile(@"
-var items = [
-  'a'
-  'b'
-]
-resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
-  name: 'parent${item}'
-  properties: {
-  }
-}]
-
-resource child 'My.RP/parentType/childType@2020-01-01' = [for (item, i) in items: {
-  parent: parent[i]
-  name: 'child'
-  properties: {
-  }
-}]
-");
-
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
-                });
-            }
-        }
-
         [TestMethod]
-        public void Parent_property_can_have_loops()
+        public void Parent_property_loop_on_children()
         {
             var (template, diags, _) = CompilationHelper.Compile(@"
 var items = [
@@ -397,24 +364,187 @@ var items = [
 ]
 resource parent 'My.RP/parentType@2020-01-01' = {
   name: 'parent'
-  properties: {
-  }
+  properties: {}
 }
 
-resource child 'My.RP/parentType/childType@2020-01-01' = [for item in items: {
+resource child 'My.RP/parentType/childType@2020-01-01' = [for (item, i) in items: {
   parent: parent
-  name: 'child${item}'
-  properties: {
-  }
+  name: 'child${i}'
+  properties: {}
 }]
 
-output loopy string = child[0].name
+output child0Props object = child[0].properties
+output child0Name string = child[0].name
 ");
 
             using (new AssertionScope())
             {
                 diags.ExcludingMissingTypes().Should().BeEmpty();
-                template.Should().NotBeNull();
+
+                template.Should().NotHaveValueAtPath("$.resources[0].copy");
+                template.Should().HaveValueAtPath("$.resources[0].name", "parent");
+                template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
+
+                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject { 
+                    ["name"] = "child",
+                    ["count"] = "[length(variables('items'))]",
+                });
+                template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', 'parent', format('child{0}', copyIndex()))]");
+                template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray {
+                    "[resourceId('My.RP/parentType', 'parent')]",
+                });
+
+                template.Should().HaveValueAtPath("$.outputs['child0Props'].value", "[reference(resourceId('My.RP/parentType/childType', 'parent', format('child{0}', 0)))]");
+                template.Should().HaveValueAtPath("$.outputs['child0Name'].value", "[format('child{0}', 0)]");
+            }
+        }
+
+        [TestMethod]
+        public void Parent_property_loop_on_parent_and_child()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+var items = [
+  'a'
+  'b'
+]
+resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
+  name: 'parent${item}'
+  properties: {}
+}]
+
+resource child 'My.RP/parentType/childType@2020-01-01' = [for (item, i) in items: {
+  parent: parent[i]
+  name: 'child${i}'
+  properties: {}
+}]
+
+output parent0Props object = parent[0].properties
+output child0Props object = child[0].properties
+output parent0Name string = parent[0].name
+output child0Name string = child[0].name
+");
+
+            using (new AssertionScope())
+            {
+                diags.ExcludingMissingTypes().Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject { 
+                    ["name"] = "parent",
+                    ["count"] = "[length(variables('items'))]"
+                });
+                template.Should().HaveValueAtPath("$.resources[0].name", "[format('parent{0}', variables('items')[copyIndex()])]");
+                template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
+
+                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject { 
+                    ["name"] = "child",
+                    ["count"] = "[length(variables('items'))]",
+                });
+                template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', format('parent{0}', variables('items')[copyIndex()]), format('child{0}', copyIndex()))]");
+                template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray {
+                    "[resourceId('My.RP/parentType', format('parent{0}', variables('items')[copyIndex()]))]",
+                });
+
+                template.Should().HaveValueAtPath("$.outputs['parent0Props'].value", "[reference(resourceId('My.RP/parentType', format('parent{0}', variables('items')[0])))]");
+                template.Should().HaveValueAtPath("$.outputs['child0Props'].value", "[reference(resourceId('My.RP/parentType/childType', format('parent{0}', variables('items')[0]), format('child{0}', 0)))]");
+                template.Should().HaveValueAtPath("$.outputs['parent0Name'].value", "[format('parent{0}', variables('items')[0])]");
+                template.Should().HaveValueAtPath("$.outputs['child0Name'].value", "[format('child{0}', 0)]");
+            }
+        }
+
+        [TestMethod]
+        public void Parent_property_loop_on_parent_individual_child()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+var items = [
+  'a'
+  'b'
+]
+resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
+  name: 'parent${item}'
+  properties: {}
+}]
+
+resource child 'My.RP/parentType/childType@2020-01-01' = {
+  parent: parent[0]
+  name: 'child'
+  properties: {}
+}
+
+output childProps object = child.properties
+output childName string = child.name
+");
+
+            using (new AssertionScope())
+            {
+                diags.ExcludingMissingTypes().Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject { 
+                    ["name"] = "parent",
+                    ["count"] = "[length(variables('items'))]"
+                });
+                template.Should().HaveValueAtPath("$.resources[0].name", "[format('parent{0}', variables('items')[copyIndex()])]");
+                template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
+
+                template.Should().NotHaveValueAtPath("$.resources[1].copy");
+                template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', format('parent{0}', variables('items')[0]), 'child')]");
+                template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray {
+                    "[resourceId('My.RP/parentType', format('parent{0}', variables('items')[0]))]",
+                });
+
+                template.Should().HaveValueAtPath("$.outputs['childProps'].value", "[reference(resourceId('My.RP/parentType/childType', format('parent{0}', variables('items')[0]), 'child'))]");
+                template.Should().HaveValueAtPath("$.outputs['childName'].value", "child");
+            }
+        }
+
+        [TestMethod]
+        public void Parent_property_loop_on_parent_and_child_with_offset()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+var items = [
+  'a'
+  'b'
+]
+resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
+  name: 'parent${item}'
+  properties: {}
+}]
+
+resource child 'My.RP/parentType/childType@2020-01-01' = [for (item, i) in items: {
+  parent: parent[(i + 1) % length(items)]
+  name: 'child${item}'
+  properties: {}
+}]
+
+output parent0Props object = parent[0].properties
+output child0Props object = child[0].properties
+output parent0Name string = parent[0].name
+output child0Name string = child[0].name
+");
+
+            using (new AssertionScope())
+            {
+                diags.ExcludingMissingTypes().Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject { 
+                    ["name"] = "parent",
+                    ["count"] = "[length(variables('items'))]"
+                });
+                template.Should().HaveValueAtPath("$.resources[0].name", "[format('parent{0}', variables('items')[copyIndex()])]");
+                template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
+
+                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject { 
+                    ["name"] = "child",
+                    ["count"] = "[length(variables('items'))]",
+                });
+                template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', format('parent{0}', variables('items')[mod(add(copyIndex(), 1), length(variables('items')))]), format('child{0}', variables('items')[copyIndex()]))]");
+                template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray {
+                    "[resourceId('My.RP/parentType', format('parent{0}', variables('items')[mod(add(copyIndex(), 1), length(variables('items')))]))]",
+                });
+
+                template.Should().HaveValueAtPath("$.outputs['parent0Props'].value", "[reference(resourceId('My.RP/parentType', format('parent{0}', variables('items')[0])))]");
+                template.Should().HaveValueAtPath("$.outputs['child0Props'].value", "[reference(resourceId('My.RP/parentType/childType', format('parent{0}', variables('items')[mod(add(copyIndex(), 1), length(variables('items')))]), format('child{0}', variables('items')[0])))]");
+                template.Should().HaveValueAtPath("$.outputs['parent0Name'].value", "[format('parent{0}', variables('items')[0])]");
+                template.Should().HaveValueAtPath("$.outputs['child0Name'].value", "[format('child{0}', variables('items')[0])]");
             }
         }
     }

@@ -416,10 +416,10 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "child");
-            model.ResourceAncestors.GetAncestors(child).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
 
             var grandchild = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "grandchild");
-            model.ResourceAncestors.GetAncestors(grandchild).Should().Equal(new []{ parent, child, }); // order matters
+            model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new []{ parent, child, }); // order matters
         }
 
         [TestMethod]
@@ -465,16 +465,16 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "child");
-            model.ResourceAncestors.GetAncestors(child).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
 
             var childGrandChild = (ResourceSymbol)model.GetSymbolInfo(child.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(childGrandChild).Should().Equal(new []{ parent, child, });
+            model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new []{ parent, child, });
 
             var sibling = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "sibling");
-            model.ResourceAncestors.GetAncestors(child).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
 
             var siblingGrandChild = (ResourceSymbol)model.GetSymbolInfo(sibling.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(siblingGrandChild).Should().Equal(new []{ parent, sibling, });
+            model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new []{ parent, sibling, });
         }
 
         [TestMethod] // Should turn into positive test when support is added.

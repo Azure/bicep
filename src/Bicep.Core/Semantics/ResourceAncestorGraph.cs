@@ -10,16 +10,39 @@ namespace Bicep.Core.Semantics
 {
     public sealed class ResourceAncestorGraph
     {
-        private readonly ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>> data;
+        public enum ResourceAncestorType
+        {
+            Nested,
 
-        public ResourceAncestorGraph(ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>> data)
+            ParentProperty,
+        }
+
+        public class ResourceAncestor
+        {
+            public ResourceAncestor(ResourceAncestorType ancestorType, ResourceSymbol resource, SyntaxBase? indexExpression)
+            {
+                AncestorType = ancestorType;
+                Resource = resource;
+                IndexExpression = indexExpression;
+            }
+
+            public ResourceAncestorType AncestorType { get; }
+
+            public ResourceSymbol Resource { get; }
+
+            public SyntaxBase? IndexExpression { get; }
+        }
+
+        private readonly ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceAncestor>> data;
+
+        public ResourceAncestorGraph(ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceAncestor>> data)
         {
             this.data = data;
         }
 
         // Gets the ordered list of ancestors of this resource in order from 'oldest' to 'youngest'
         // this is the same order we need to compute the name of a resource using `/` separated segments in a string.
-        public ImmutableArray<ResourceSymbol> GetAncestors(ResourceSymbol resource)
+        public ImmutableArray<ResourceAncestor> GetAncestors(ResourceSymbol resource)
         {
             if (data.TryGetValue(resource, out var results))
             {
@@ -27,17 +50,17 @@ namespace Bicep.Core.Semantics
             }
             else
             {
-                return ImmutableArray<ResourceSymbol>.Empty;
+                return ImmutableArray<ResourceAncestor>.Empty;
             }
         }
 
-        private static IEnumerable<ResourceSymbol> GetAncestorsYoungestToOldest(ImmutableDictionary<ResourceSymbol, ResourceSymbol> hierarchy, ResourceSymbol resource)
+        private static IEnumerable<ResourceAncestor> GetAncestorsYoungestToOldest(ImmutableDictionary<ResourceSymbol, ResourceAncestor> hierarchy, ResourceSymbol resource)
         {
-            while (hierarchy.TryGetValue(resource, out var parentResource))
+            while (hierarchy.TryGetValue(resource, out var ancestor))
             {
-                yield return parentResource;
+                yield return ancestor;
 
-                resource = parentResource;
+                resource = ancestor.Resource;
             }
         }
 

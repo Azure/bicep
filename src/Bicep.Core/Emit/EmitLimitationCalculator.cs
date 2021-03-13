@@ -99,7 +99,7 @@ namespace Bicep.Core.Emit
                 }
                 else
                 {
-                    scopeSymbol = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault();
+                    scopeSymbol = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
                 if (resource.Type is not ResourceType resourceType || resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)

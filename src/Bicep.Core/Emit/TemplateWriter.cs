@@ -345,14 +345,16 @@ namespace Bicep.Core.Emit
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resourceSymbol);
             foreach (var ancestor in ancestors)
             {
-                if (ancestor.DeclaringResource.Value is IfConditionSyntax ifCondition)
+                if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
+                    ancestor.Resource.DeclaringResource.Value is IfConditionSyntax ifCondition)
                 {
                     conditions.Add(ifCondition.ConditionExpression);
                 }
 
-                if (ancestor.DeclaringResource.Value is ForSyntax @for)
+                if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
+                    ancestor.Resource.DeclaringResource.Value is ForSyntax @for)
                 {
-                    loops.Add((ancestor.Name, @for, null));
+                    loops.Add((ancestor.Resource.Name, @for, null));
                 }
             }
 
