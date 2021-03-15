@@ -1232,6 +1232,23 @@
     }
   },
   {
+    "label": "existngResProperty",
+    "kind": "interface",
+    "detail": "existngResProperty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_existngResProperty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "existngResProperty"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "expectedArrayExpression",
     "kind": "interface",
     "detail": "expectedArrayExpression",

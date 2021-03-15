@@ -1140,3 +1140,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     }]
   }
 }
+
+resource existngResProperty 'Mock.Rp/mockExistingResource@2020-01-01' = {
+  name: 'existngResProperty'
+  location: 'westeurope'
+  properties: {}
+}

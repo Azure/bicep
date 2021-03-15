@@ -1462,3 +1462,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
+resource existngResProperty 'Mock.Rp/mockExistingResource@2020-01-01' = {
+//@[9:27) Resource existngResProperty. Type: Mock.Rp/mockExistingResource@2020-01-01. Declaration start char: 0, length: 150
+  name: 'existngResProperty'
+  location: 'westeurope'
+  properties: {}
+}

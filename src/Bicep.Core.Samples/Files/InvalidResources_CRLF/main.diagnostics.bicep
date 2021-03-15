@@ -1501,3 +1501,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
+resource existngResProperty 'Mock.Rp/mockExistingResource@2020-01-01' = {
+//@[28:69) [BCP081 (Warning)] Resource type "Mock.Rp/mockExistingResource@2020-01-01" does not have types available. |'Mock.Rp/mockExistingResource@2020-01-01'|
+  name: 'existngResProperty'
+  location: 'westeurope'
+  properties: {}
+}

@@ -8507,6 +8507,44 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+resource existngResProperty 'Mock.Rp/mockExistingResource@2020-01-01' = {
+//@[0:150) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |existngResProperty|
+//@[28:69)  StringSyntax
+//@[28:69)   StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[70:71)  Assignment |=|
+//@[72:150)  ObjectSyntax
+//@[72:73)   LeftBrace |{|
+//@[73:75)   NewLine |\r\n|
+  name: 'existngResProperty'
+//@[2:28)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:28)    StringSyntax
+//@[8:28)     StringComplete |'existngResProperty'|
+//@[28:30)   NewLine |\r\n|
+  location: 'westeurope'
+//@[2:24)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:24)    StringSyntax
+//@[12:24)     StringComplete |'westeurope'|
+//@[24:26)   NewLine |\r\n|
+  properties: {}
+//@[2:16)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:16)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:16)     RightBrace |}|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||
