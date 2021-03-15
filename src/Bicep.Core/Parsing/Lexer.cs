@@ -205,7 +205,7 @@ namespace Bicep.Core.Parsing
                         {
                             return null;
                         }
-                        
+
                         char charOrHighSurrogate = CodepointToString(codePoint, out char lowSurrogate);
                         buffer.Append(charOrHighSurrogate);
                         if (lowSurrogate != SlidingTextWindow.InvalidCharacter)
@@ -281,7 +281,7 @@ namespace Bicep.Core.Parsing
             {
                 yield return ScanWhitespace();
             }
-            
+
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
             {
                 yield return ScanSingleLineComment();
@@ -322,7 +322,7 @@ namespace Bicep.Core.Parsing
         private void LexToken()
         {
             textWindow.Reset();
-            
+
             // important to force enum evaluation here via .ToImmutableArray()!
             var leadingTrivia = ScanLeadingTrivia().ToImmutableArray();
 
@@ -330,14 +330,14 @@ namespace Bicep.Core.Parsing
             var tokenType = ScanToken();
             var tokenText = textWindow.GetText();
             var tokenSpan = textWindow.GetSpan();
-            
+
             if (tokenType == TokenType.Unrecognized)
             {
                 if (tokenText == "\"")
                 {
                     AddDiagnostic(b => b.DoubleQuoteToken(tokenText));
-                } 
-                else 
+                }
+                else
                 {
                     AddDiagnostic(b => b.UnrecognizedToken(tokenText));
                 }
@@ -549,7 +549,7 @@ namespace Bicep.Core.Parsing
                 if (nextChar == 'u')
                 {
                     // unicode escape
-                    
+
                     if (textWindow.IsAtEnd())
                     {
                         // string was prematurely terminated
@@ -747,6 +747,15 @@ namespace Bicep.Core.Parsing
                     }
                     return TokenType.Question;
                 case ':':
+                    if (!textWindow.IsAtEnd())
+                    {
+                        switch (textWindow.Peek())
+                        {
+                            case ':':
+                                textWindow.Advance();
+                                return TokenType.DoubleColon;
+                        }
+                    }
                     return TokenType.Colon;
                 case ';':
                     return TokenType.Semicolon;

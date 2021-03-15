@@ -598,6 +598,26 @@ param tooManyArguments2 string
 //@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 param nonConstantInDecorator string
 
+@minValue(-length('s'))
+//@[11:22) [BCP032 (Error)] The value must be a compile-time constant. |length('s')|
+@metadata({
+  bool: !true
+//@[8:13) [BCP032 (Error)] The value must be a compile-time constant. |!true|
+//@[8:13) [BCP032 (Error)] The value must be a compile-time constant. |!true|
+})
+param unaryMinusOnFunction int
+
+@minLength(1)
+//@[0:13) [BCP166 (Error)] Duplicate "minLength" decorator. |@minLength(1)|
+@minLength(2)
+//@[0:13) [BCP166 (Error)] Duplicate "minLength" decorator. |@minLength(2)|
+@secure()
+@maxLength(3)
+//@[0:13) [BCP166 (Error)] Duplicate "maxLength" decorator. |@maxLength(3)|
+@maxLength(4)
+//@[0:13) [BCP166 (Error)] Duplicate "maxLength" decorator. |@maxLength(4)|
+param duplicateDecorators string
+
 // unterminated multi-line comment
 /*    
 //@[0:7) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    \n|

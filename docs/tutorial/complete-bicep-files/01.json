@@ -6,7 +6,7 @@
       "type": "string",
       "defaultValue": "eastus"
     },
-    "name": {
+    "storageAccountName": {
       "type": "string",
       "defaultValue": "uniquestorage001",
       "maxLength": 24,
@@ -21,7 +21,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
-      "name": "[parameters('name')]",
+      "name": "[parameters('storageAccountName')]",
       "location": "[parameters('location')]",
       "kind": "Storage",
       "sku": {
@@ -32,7 +32,7 @@
   "outputs": {
     "storageId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
     }
   },
   "metadata": {

@@ -251,6 +251,19 @@ param decoratedString string
 param decoratedInt int = 123
 //@[6:18) Parameter decoratedInt. Type: int. Declaration start char: 0, length: 43
 
+// negative integer literals are allowed as decorator values
+@minValue(-10)
+@maxValue(-3)
+param negativeValues int
+//@[6:20) Parameter negativeValues. Type: int. Declaration start char: 0, length: 53
+
+// negative integer literals in modifiers
+param negativeModifiers int {
+//@[6:23) Parameter negativeModifiers. Type: int. Declaration start char: 0, length: 64
+  minValue: -100
+  maxValue: -33
+}
+
 @sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'
@@ -265,10 +278,8 @@ param decoratedBool bool
 //@[6:19) Parameter decoratedBool. Type: bool. Declaration start char: 0, length: 193
 
 @secure()
-@secure()
-@secure()
 param decoratedObject object = {
-//@[6:21) Parameter decoratedObject. Type: object. Declaration start char: 0, length: 85
+//@[6:21) Parameter decoratedObject. Type: object. Declaration start char: 0, length: 65
   location: 'westus'
 }
 
@@ -277,9 +288,7 @@ param decoratedObject object = {
     description: 'An array.'
 })
 @maxLength(20)
-@maxLength(10)
-@maxLength(5)
 @sys.description('I will be overrode.')
 param decoratedArray array
-//@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 154
+//@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 125
 

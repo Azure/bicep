@@ -940,13 +940,18 @@ namespace Bicep.Core.Diagnostics
                 "BCP165",
                 $"Cannot deploy a resource with ancestor under a different scope. Resource \"{ancestorIdentifier}\" has the \"{LanguageConstants.ResourceScopePropertyName}\" property set.");
 
-            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+            public ErrorDiagnostic DuplicateDecorator(string decoratorName) => new(
                 TextSpan,
                 "BCP166",
+                $"Duplicate \"{decoratorName}\" decorator.");
+
+            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+                TextSpan,
+                "BCP167",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used in assigning value to a module parameter.");
             public ErrorDiagnostic TypeNotValidInStringInterpolation(TypeSymbol type) => new(
                 TextSpan,
-                "BCP167",
+                "BCP168",
                 $"Type \"{type.Name}\" cannot be used inside String interpolation.");
         }
 

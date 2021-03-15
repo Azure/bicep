@@ -64,7 +64,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
               .OrderBy(n => n.name)
               .Should().BeEquivalentTo(expected);
         }
-        
+
         [TestMethod]
         public void NestedResources_resource_can_contain_property_called_resource()
         {
@@ -131,16 +131,16 @@ resource parent 'My.RP/parentType@2020-01-01' = {
   resource sibling 'childType@2020-01-02' = {
     name: 'sibling'
     properties: {
-      style: parent:child.properties.style
+      style: parent::child.properties.style
       size: parent.properties.size
-      temperatureC: child:grandchild.properties.temperature
-      temperatureF: parent:child:grandchild.properties.temperature
+      temperatureC: child::grandchild.properties.temperature
+      temperatureF: parent::child::grandchild.properties.temperature
     }
   }
 }
 
-output fromChild string = parent:child.properties.style
-output fromGrandchild string = parent:child:grandchild.properties.style
+output fromChild string = parent::child.properties.style
+output fromGrandchild string = parent::child::grandchild.properties.style
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -198,9 +198,9 @@ resource parent 'My.RP/parentType@2020-01-01' = {
   }
 }
 
-output fromVariable string = notResource:child.properties.style
-output fromChildInvalid string = parent:child2.properties.style
-output fromGrandchildInvalid string = parent:child:cousin.properties.temperature
+output fromVariable string = notResource::child.properties.style
+output fromChildInvalid string = parent::child2.properties.style
+output fromGrandchildInvalid string = parent::child::cousin.properties.temperature
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -524,7 +524,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
   }]
 }
 
-output loopy string = parent:child[0].name
+output loopy string = parent::child[0].name
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -555,7 +555,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
   }
 }
 
-output hmmmm string = parent:child.properties
+output hmmmm string = parent::child.properties
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -571,9 +571,9 @@ output hmmmm string = parent:child.properties
         public void NestedResources_provides_correct_error_for_resource_access_with_broken_body()
         {
             var program = @"
-resource broken 'Microsoft.Network/virtualNetworks@2020-06-01' = 
+resource broken 'Microsoft.Network/virtualNetworks@2020-06-01' =
 
-output foo string = broken:fake
+output foo string = broken::fake
 ";
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
@@ -616,10 +616,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 
 
 
-output subnet1prefix string = vnet:subnet1.properties.addressPrefix
-output subnet1name string = vnet:subnet1.name
-output subnet1type string = vnet:subnet1.type
-output subnet1id string = vnet:subnet1.id
+output subnet1prefix string = vnet::subnet1.properties.addressPrefix
+output subnet1name string = vnet::subnet1.name
+output subnet1type string = vnet::subnet1.type
+output subnet1id string = vnet::subnet1.id
 ");
 
             using (new AssertionScope())
@@ -655,7 +655,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 }
 
 resource res2 'Microsoft.Rp2/resource2@2020-06-01' = {
-  scope: res1:child
+  scope: res1::child
   name: 'res2'
 
   resource child 'child2' = {
@@ -663,10 +663,10 @@ resource res2 'Microsoft.Rp2/resource2@2020-06-01' = {
   }
 }
 
-output res2childprop string = res2:child.properties.someProp
-output res2childname string = res2:child.name
-output res2childtype string = res2:child.type
-output res2childid string = res2:child.id
+output res2childprop string = res2::child.properties.someProp
+output res2childname string = res2::child.name
+output res2childtype string = res2::child.type
+output res2childid string = res2::child.id
 ");
 
             using (new AssertionScope())
@@ -708,17 +708,17 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
   }
 }
 
-output res1childprop string = res1:child.properties.someProp
-output res1childname string = res1:child.name
-output res1childtype string = res1:child.type
-output res1childid string = res1:child.id
+output res1childprop string = res1::child.properties.someProp
+output res1childname string = res1::child.name
+output res1childtype string = res1::child.type
+output res1childid string = res1::child.id
 ");
 
             using (new AssertionScope())
             {
                 diags.Where(x => x.Code != "BCP081").Should().BeEmpty();
 
-                // res1:child1
+                // res1::child1
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'res1', 'child1')]");
                 template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray());
 
@@ -744,10 +744,10 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
   }
 }
 
-output res1childprop string = res1:child.properties.someProp
-output res1childname string = res1:child.name
-output res1childtype string = res1:child.type
-output res1childid string = res1:child.id
+output res1childprop string = res1::child.properties.someProp
+output res1childname string = res1::child.name
+output res1childtype string = res1::child.type
+output res1childid string = res1::child.id
 ");
 
             using (new AssertionScope())

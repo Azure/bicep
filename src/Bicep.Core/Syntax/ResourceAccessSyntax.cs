@@ -7,18 +7,18 @@ namespace Bicep.Core.Syntax
 {
     public class ResourceAccessSyntax : ExpressionSyntax, ISymbolReference
     {
-        public ResourceAccessSyntax(SyntaxBase baseExpression, Token colon, IdentifierSyntax resourceName)
+        public ResourceAccessSyntax(SyntaxBase baseExpression, Token doubleColon, IdentifierSyntax resourceName)
         {
-            AssertTokenType(colon, nameof(colon), TokenType.Colon);
+            AssertTokenType(doubleColon, nameof(doubleColon), TokenType.DoubleColon);
 
             this.BaseExpression = baseExpression;
-            this.Colon = colon;
+            this.DoubleColon = doubleColon;
             this.ResourceName = resourceName;
         }
 
         public SyntaxBase BaseExpression { get; }
 
-        public Token Colon { get; }
+        public Token DoubleColon { get; }
 
         public IdentifierSyntax ResourceName { get; }
 

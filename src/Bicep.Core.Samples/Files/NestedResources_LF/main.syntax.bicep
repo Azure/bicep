@@ -1,12 +1,12 @@
 resource basicParent 'My.Rp/parentType@2020-12-01' = {
-//@[0:658) ResourceDeclarationSyntax
+//@[0:659) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:20)  IdentifierSyntax
 //@[9:20)   Identifier |basicParent|
 //@[21:50)  StringSyntax
 //@[21:50)   StringComplete |'My.Rp/parentType@2020-12-01'|
 //@[51:52)  Assignment |=|
-//@[53:658)  ObjectSyntax
+//@[53:659)  ObjectSyntax
 //@[53:54)   LeftBrace |{|
 //@[54:55)   NewLine |\n|
   name: 'basicParent'
@@ -165,14 +165,14 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[3:5)   NewLine |\n\n|
 
   resource basicSibling 'childType' = {
-//@[2:189)   ResourceDeclarationSyntax
+//@[2:190)   ResourceDeclarationSyntax
 //@[2:10)    Identifier |resource|
 //@[11:23)    IdentifierSyntax
 //@[11:23)     Identifier |basicSibling|
 //@[24:35)    StringSyntax
 //@[24:35)     StringComplete |'childType'|
 //@[36:37)    Assignment |=|
-//@[38:189)    ObjectSyntax
+//@[38:190)    ObjectSyntax
 //@[38:39)     LeftBrace |{|
 //@[39:40)     NewLine |\n|
     name: 'basicSibling'
@@ -184,11 +184,11 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[10:24)       StringComplete |'basicSibling'|
 //@[24:25)     NewLine |\n|
     properties: {
-//@[4:120)     ObjectPropertySyntax
+//@[4:121)     ObjectPropertySyntax
 //@[4:14)      IdentifierSyntax
 //@[4:14)       Identifier |properties|
 //@[14:15)      Colon |:|
-//@[16:120)      ObjectSyntax
+//@[16:121)      ObjectSyntax
 //@[16:17)       LeftBrace |{|
 //@[17:18)       NewLine |\n|
       size: basicParent.properties.size
@@ -208,27 +208,27 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[35:39)         IdentifierSyntax
 //@[35:39)          Identifier |size|
 //@[39:40)       NewLine |\n|
-      style: basicChild:basicGrandchild.properties.style
-//@[6:56)       ObjectPropertySyntax
+      style: basicChild::basicGrandchild.properties.style
+//@[6:57)       ObjectPropertySyntax
 //@[6:11)        IdentifierSyntax
 //@[6:11)         Identifier |style|
 //@[11:12)        Colon |:|
-//@[13:56)        PropertyAccessSyntax
-//@[13:50)         PropertyAccessSyntax
-//@[13:39)          ResourceAccessSyntax
+//@[13:57)        PropertyAccessSyntax
+//@[13:51)         PropertyAccessSyntax
+//@[13:40)          ResourceAccessSyntax
 //@[13:23)           VariableAccessSyntax
 //@[13:23)            IdentifierSyntax
 //@[13:23)             Identifier |basicChild|
-//@[23:24)           Colon |:|
-//@[24:39)           IdentifierSyntax
-//@[24:39)            Identifier |basicGrandchild|
-//@[39:40)          Dot |.|
-//@[40:50)          IdentifierSyntax
-//@[40:50)           Identifier |properties|
-//@[50:51)         Dot |.|
-//@[51:56)         IdentifierSyntax
-//@[51:56)          Identifier |style|
-//@[56:57)       NewLine |\n|
+//@[23:25)           DoubleColon |::|
+//@[25:40)           IdentifierSyntax
+//@[25:40)            Identifier |basicGrandchild|
+//@[40:41)          Dot |.|
+//@[41:51)          IdentifierSyntax
+//@[41:51)           Identifier |properties|
+//@[51:52)         Dot |.|
+//@[52:57)         IdentifierSyntax
+//@[52:57)          Identifier |style|
+//@[57:58)       NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
 //@[5:6)     NewLine |\n|
@@ -237,60 +237,63 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-output referenceBasicChild string = basicParent:basicChild.properties.size
-//@[0:74) OutputDeclarationSyntax
+//@[1:2) NewLine |\n|
+// #completionTest(50) -> childResources
+//@[40:41) NewLine |\n|
+output referenceBasicChild string = basicParent::basicChild.properties.size
+//@[0:75) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:26)  IdentifierSyntax
 //@[7:26)   Identifier |referenceBasicChild|
 //@[27:33)  TypeSyntax
 //@[27:33)   Identifier |string|
 //@[34:35)  Assignment |=|
-//@[36:74)  PropertyAccessSyntax
-//@[36:69)   PropertyAccessSyntax
-//@[36:58)    ResourceAccessSyntax
+//@[36:75)  PropertyAccessSyntax
+//@[36:70)   PropertyAccessSyntax
+//@[36:59)    ResourceAccessSyntax
 //@[36:47)     VariableAccessSyntax
 //@[36:47)      IdentifierSyntax
 //@[36:47)       Identifier |basicParent|
-//@[47:48)     Colon |:|
-//@[48:58)     IdentifierSyntax
-//@[48:58)      Identifier |basicChild|
-//@[58:59)    Dot |.|
-//@[59:69)    IdentifierSyntax
-//@[59:69)     Identifier |properties|
-//@[69:70)   Dot |.|
-//@[70:74)   IdentifierSyntax
-//@[70:74)    Identifier |size|
-//@[74:75) NewLine |\n|
-output referenceBasicGrandchild string = basicParent:basicChild:basicGrandchild.properties.style
-//@[0:96) OutputDeclarationSyntax
+//@[47:49)     DoubleColon |::|
+//@[49:59)     IdentifierSyntax
+//@[49:59)      Identifier |basicChild|
+//@[59:60)    Dot |.|
+//@[60:70)    IdentifierSyntax
+//@[60:70)     Identifier |properties|
+//@[70:71)   Dot |.|
+//@[71:75)   IdentifierSyntax
+//@[71:75)    Identifier |size|
+//@[75:76) NewLine |\n|
+// #completionTest(67) -> grandChildResources
+//@[45:46) NewLine |\n|
+output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchild.properties.style
+//@[0:98) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:31)  IdentifierSyntax
 //@[7:31)   Identifier |referenceBasicGrandchild|
 //@[32:38)  TypeSyntax
 //@[32:38)   Identifier |string|
 //@[39:40)  Assignment |=|
-//@[41:96)  PropertyAccessSyntax
-//@[41:90)   PropertyAccessSyntax
-//@[41:79)    ResourceAccessSyntax
-//@[41:63)     ResourceAccessSyntax
+//@[41:98)  PropertyAccessSyntax
+//@[41:92)   PropertyAccessSyntax
+//@[41:81)    ResourceAccessSyntax
+//@[41:64)     ResourceAccessSyntax
 //@[41:52)      VariableAccessSyntax
 //@[41:52)       IdentifierSyntax
 //@[41:52)        Identifier |basicParent|
-//@[52:53)      Colon |:|
-//@[53:63)      IdentifierSyntax
-//@[53:63)       Identifier |basicChild|
-//@[63:64)     Colon |:|
-//@[64:79)     IdentifierSyntax
-//@[64:79)      Identifier |basicGrandchild|
-//@[79:80)    Dot |.|
-//@[80:90)    IdentifierSyntax
-//@[80:90)     Identifier |properties|
-//@[90:91)   Dot |.|
-//@[91:96)   IdentifierSyntax
-//@[91:96)    Identifier |style|
-//@[96:98) NewLine |\n\n|
+//@[52:54)      DoubleColon |::|
+//@[54:64)      IdentifierSyntax
+//@[54:64)       Identifier |basicChild|
+//@[64:66)     DoubleColon |::|
+//@[66:81)     IdentifierSyntax
+//@[66:81)      Identifier |basicGrandchild|
+//@[81:82)    Dot |.|
+//@[82:92)    IdentifierSyntax
+//@[82:92)     Identifier |properties|
+//@[92:93)   Dot |.|
+//@[93:98)   IdentifierSyntax
+//@[93:98)    Identifier |style|
+//@[98:100) NewLine |\n\n|
 
 resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
 //@[0:386) ResourceDeclarationSyntax
@@ -650,28 +653,28 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-output loopChildOutput string = loopParent:loopChild[0].name
-//@[0:60) OutputDeclarationSyntax
+output loopChildOutput string = loopParent::loopChild[0].name
+//@[0:61) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:22)  IdentifierSyntax
 //@[7:22)   Identifier |loopChildOutput|
 //@[23:29)  TypeSyntax
 //@[23:29)   Identifier |string|
 //@[30:31)  Assignment |=|
-//@[32:60)  PropertyAccessSyntax
-//@[32:55)   ArrayAccessSyntax
-//@[32:52)    ResourceAccessSyntax
+//@[32:61)  PropertyAccessSyntax
+//@[32:56)   ArrayAccessSyntax
+//@[32:53)    ResourceAccessSyntax
 //@[32:42)     VariableAccessSyntax
 //@[32:42)      IdentifierSyntax
 //@[32:42)       Identifier |loopParent|
-//@[42:43)     Colon |:|
-//@[43:52)     IdentifierSyntax
-//@[43:52)      Identifier |loopChild|
-//@[52:53)    LeftSquare |[|
-//@[53:54)    IntegerLiteralSyntax
-//@[53:54)     Integer |0|
-//@[54:55)    RightSquare |]|
-//@[55:56)   Dot |.|
-//@[56:60)   IdentifierSyntax
-//@[56:60)    Identifier |name|
-//@[60:60) EndOfFile ||
+//@[42:44)     DoubleColon |::|
+//@[44:53)     IdentifierSyntax
+//@[44:53)      Identifier |loopChild|
+//@[53:54)    LeftSquare |[|
+//@[54:55)    IntegerLiteralSyntax
+//@[54:55)     Integer |0|
+//@[55:56)    RightSquare |]|
+//@[56:57)   Dot |.|
+//@[57:61)   IdentifierSyntax
+//@[57:61)    Identifier |name|
+//@[61:61) EndOfFile ||
