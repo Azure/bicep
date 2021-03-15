@@ -56,6 +56,17 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("displayName", LanguageConstants.String),
             });
         }
+
+        private static ObjectType GetSingleProvidersReturnValue()
+        {
+            // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
+            return new NamedObjectType("provider", TypeSymbolValidationFlags.Default, new []
+            {
+                new TypeProperty("resourceType", LanguageConstants.String),
+                new TypeProperty("locations", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
+                new TypeProperty("apiVersions", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
+            }, null);
+        }
         
         private static NamedObjectType GetEnvironmentReturnType()
         {
@@ -279,12 +290,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithVariableParameter("resourceName",LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
                 .Build();
 
-            // TODO: Not sure about return type
+            var singleProvider = GetSingleProvidersReturnValue();
             yield return new FunctionOverloadBuilder("providers")
-                .WithReturnType(LanguageConstants.Array)
+                .WithReturnType(new TypedArrayType(singleProvider, TypeSymbolValidationFlags.Default))
                 .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
                 .WithRequiredParameter("providerNamespace",LanguageConstants.String, "the namespace of the provider")
-                .WithOptionalParameter("resourceType",LanguageConstants.String, "The type of resource within the specified namespace")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("providers")
+                .WithReturnType(singleProvider)
+                .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
+                .WithRequiredParameter("providerNamespace",LanguageConstants.String, "the namespace of the provider")
+                .WithRequiredParameter("resourceType",LanguageConstants.String, "The type of resource within the specified namespace")
                 .Build();
 
             // TODO: return type is string[]
