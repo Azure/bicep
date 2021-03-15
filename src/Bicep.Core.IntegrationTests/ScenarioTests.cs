@@ -971,5 +971,33 @@ var foo = 42
                 });
             }
         }
+
+        [TestMethod]
+        public void Test_Issue1630()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+var singleResource = providers('Microsoft.Insights', 'components')
+var allResources = providers('Microsoft.Insights')
+
+// singleResource is an object!
+var firstApiVersion = singleResource.apiVersions[0]
+
+// allResources is an array of objects!
+var firstResourceFirstApiVersion = allResources[0].apiVersions[0]
+
+output singleResource object = singleResource
+output allResources array = allResources
+");
+
+            using (new AssertionScope())
+            {
+                diags.Should().BeEmpty();
+
+                template.Should().HaveValueAtPath("$.variables['singleResource']", "[providers('Microsoft.Insights', 'components')]");
+                template.Should().HaveValueAtPath("$.variables['firstApiVersion']", "[variables('singleResource').apiVersions[0]]");
+                template.Should().HaveValueAtPath("$.variables['allResources']", "[providers('Microsoft.Insights')]");
+                template.Should().HaveValueAtPath("$.variables['firstResourceFirstApiVersion']", "[variables('allResources')[0].apiVersions[0]]");
+            }
+        }
     }
 }
