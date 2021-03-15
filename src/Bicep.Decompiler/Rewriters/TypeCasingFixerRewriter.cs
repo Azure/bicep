@@ -22,7 +22,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             this.semanticModel = semanticModel;
         }
 
-        protected override ObjectSyntax ReplaceObjectSyntax(ObjectSyntax syntax)
+        protected override SyntaxBase ReplaceObjectSyntax(ObjectSyntax syntax)
         {
             var declaredType = semanticModel.GetDeclaredType(syntax);
             if (declaredType is not ObjectType objectType)
@@ -73,7 +73,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 syntax.CloseBrace);
         }
 
-        protected override PropertyAccessSyntax ReplacePropertyAccessSyntax(PropertyAccessSyntax syntax)
+        protected override SyntaxBase ReplacePropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             var baseType = semanticModel.GetDeclaredType(syntax.BaseExpression);
             if (baseType is not ObjectType objectType)
@@ -100,7 +100,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 propertySyntax);
         }
 
-        protected override StringSyntax ReplaceStringSyntax(StringSyntax syntax)
+        protected override SyntaxBase ReplaceStringSyntax(StringSyntax syntax)
         {
             var declaredType = semanticModel.GetDeclaredType(syntax);
 

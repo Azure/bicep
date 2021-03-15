@@ -81,6 +81,7 @@ namespace Bicep.Decompiler
 
             RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
             RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new DependsOnRemovalRewriter(semanticModel));
+            RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new ForExpressionSimplifierRewriter(semanticModel));
             for (var i = 0; i < 5; i++)
             {
                 // This is a little weird. If there are casing issues nested inside casing issues (e.g. in an object), then the inner casing issue will have no type information

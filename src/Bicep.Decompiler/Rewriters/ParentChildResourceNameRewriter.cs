@@ -20,7 +20,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             this.semanticModel = semanticModel;
         }
 
-        protected override ResourceDeclarationSyntax ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        protected override SyntaxBase ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             if (syntax.TryGetBody() is not ObjectSyntax resourceBody ||
                 resourceBody.SafeGetPropertyByName("name") is not ObjectPropertySyntax resourceNameProp ||

@@ -121,7 +121,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 @object.CloseBrace);
         }
 
-        protected override ResourceDeclarationSyntax ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        protected override SyntaxBase ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             var replacementValue = TryGetReplacementValue(syntax.Value);
             if (replacementValue is null)
@@ -139,7 +139,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 replacementValue);
         }
 
-        protected override ModuleDeclarationSyntax ReplaceModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        protected override SyntaxBase ReplaceModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
             var replacementValue = TryGetReplacementValue(syntax.Value);
             if (replacementValue is null)

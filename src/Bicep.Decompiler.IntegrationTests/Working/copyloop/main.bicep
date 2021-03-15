@@ -8,6 +8,12 @@ param vmSize string
 @secure()
 param adminPassword string
 
+var items = [
+  'a'
+  'b'
+  'c'
+]
+
 resource storagePrefix_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in range(0, storageCount): {
   name: toLower(concat(i, storagePrefix, uniqueString(resourceGroup().id)))
   location: resourceGroup().location
@@ -54,4 +60,10 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [for
       ]
     }
   }
+}]
+
+output myVar array = [for (item, i) in items: {
+  name: '>${item}<'
+  value: item
+  index: i
 }]
