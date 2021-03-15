@@ -15,19 +15,19 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public class AzNamespaceSymbol : NamespaceSymbol
     {
-        private static ObjectType GetRestrictedResourceGroupReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+        private static ObjectType GetRestrictedResourceGroupReturnType(IEnumerable<FunctionArgumentSyntax> arguments)
             => new ResourceGroupScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetRestrictedSubscriptionReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+        private static ObjectType GetRestrictedSubscriptionReturnType(IEnumerable<FunctionArgumentSyntax> arguments)
             => new SubscriptionScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetRestrictedManagementGroupReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+        private static ObjectType GetRestrictedManagementGroupReturnType(IEnumerable<FunctionArgumentSyntax> arguments)
             => new ManagementGroupScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetRestrictedTenantReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+        private static ObjectType GetRestrictedTenantReturnType(IEnumerable<FunctionArgumentSyntax> arguments)
             => new TenantScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetResourceGroupReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+        private static ObjectType GetResourceGroupReturnType(IEnumerable<FunctionArgumentSyntax> arguments)
         {
             var properties = new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
             {
@@ -46,7 +46,7 @@ namespace Bicep.Core.Semantics.Namespaces
             });
         }
 
-        private static ObjectType GetSubscriptionReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+        private static ObjectType GetSubscriptionReturnType(IEnumerable<FunctionArgumentSyntax> arguments)
         {
             return new SubscriptionScopeType(arguments, new []
             {
@@ -57,7 +57,7 @@ namespace Bicep.Core.Semantics.Namespaces
             });
         }
 
-        private static ObjectType GetSingleProvidersReturnValue()
+        private static ObjectType GetSingleProvidersReturnType()
         {
             // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
             return new NamedObjectType("provider", TypeSymbolValidationFlags.Default, new []
@@ -141,20 +141,20 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return (
                 new FunctionOverloadBuilder("tenant")
-                    .WithDynamicReturnType(GetRestrictedTenantReturnValue)
+                    .WithDynamicReturnType(GetRestrictedTenantReturnType)
                     .WithDescription("Returns the current tenant scope.")
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
-                    .WithDynamicReturnType(GetRestrictedManagementGroupReturnValue)
+                    .WithDynamicReturnType(GetRestrictedManagementGroupReturnType)
                     .WithDescription("Returns the current management group scope. **This function can only be used in managementGroup deployments.**")
                     .Build(),
                 ResourceScope.ManagementGroup);
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
-                    .WithDynamicReturnType(GetRestrictedManagementGroupReturnValue)
+                    .WithDynamicReturnType(GetRestrictedManagementGroupReturnType)
                     .WithDescription("Returns the scope for a named management group.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
                     .Build(),
@@ -162,13 +162,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return (
                 new FunctionOverloadBuilder("subscription")
-                    .WithDynamicReturnType(GetSubscriptionReturnValue)
+                    .WithDynamicReturnType(GetSubscriptionReturnType)
                     .WithDescription("Returns the subscription scope for the current deployment. **This function can only be used in subscription and resourceGroup deployments.**")
                     .Build(),
                 ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("subscription")
-                    .WithDynamicReturnType(GetRestrictedSubscriptionReturnValue)
+                    .WithDynamicReturnType(GetRestrictedSubscriptionReturnType)
                     .WithDescription("Returns a named subscription scope. **This function can only be used in subscription and resourceGroup deployments.**")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .Build(),
@@ -176,20 +176,20 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
-                    .WithDynamicReturnType(GetResourceGroupReturnValue)
+                    .WithDynamicReturnType(GetResourceGroupReturnType)
                     .WithDescription("Returns the current resource group scope. **This function can only be used in resourceGroup deployments.**")
                     .Build(),
                 ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
-                    .WithDynamicReturnType(GetRestrictedResourceGroupReturnValue)
+                    .WithDynamicReturnType(GetRestrictedResourceGroupReturnType)
                     .WithDescription("Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .Build(),
                 ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
-                    .WithDynamicReturnType(GetRestrictedResourceGroupReturnValue)
+                    .WithDynamicReturnType(GetRestrictedResourceGroupReturnType)
                     .WithDescription("Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
@@ -290,7 +290,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithVariableParameter("resourceName",LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
                 .Build();
 
-            var singleProvider = GetSingleProvidersReturnValue();
+            var singleProvider = GetSingleProvidersReturnType();
             yield return new FunctionOverloadBuilder("providers")
                 .WithReturnType(new TypedArrayType(singleProvider, TypeSymbolValidationFlags.Default))
                 .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
