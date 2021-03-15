@@ -15,7 +15,7 @@ var contributor = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 resource rbac 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(subscription().id, objectId, contributor)
   properties: {
-    roleDefinitionId: contributor
+    roleDefinitionId: subscriptionResourceId('microsoft.authorization/roleAssignments', contributor)
     principalId: objectId
   }
 }
