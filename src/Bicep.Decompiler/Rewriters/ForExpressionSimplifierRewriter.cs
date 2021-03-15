@@ -8,6 +8,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
@@ -31,30 +32,34 @@ namespace Bicep.Core.Decompiler.Rewriters
             this.semanticModel = semanticModel;
         }
 
-        private static bool IsLoopIteratorExpression(SyntaxBase syntax, [NotNullWhen(true)] out VariableAccessSyntax? arrayVariable)
+        private static bool IsLoopIteratorExpression(SemanticModel semanticModel, SyntaxBase syntax, [NotNullWhen(true)] out VariableAccessSyntax? arrayVariable)
         {
             arrayVariable = null;
 
-            if (syntax is not FunctionCallSyntax rangeFunction ||
-                !LanguageConstants.IdentifierComparer.Equals(rangeFunction.Name.IdentifierName, "range") ||
+            // look for a range() function with 2 args
+            if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, "sys", syntax) is not FunctionCallSyntaxBase rangeFunction ||
+                !LanguageConstants.IdentifierComparer.Equals(rangeFunction.Name.IdentifierName, "range") || 
                 rangeFunction.Arguments.Length != 2)
             {
                 return false;
             }
 
+            // first range() arg must be 0
             if (rangeFunction.Arguments[0].Expression is not IntegerLiteralSyntax startRange ||
                 startRange.Value != 0)
             {
                 return false;
             }
 
-            if (rangeFunction.Arguments[1].Expression is not FunctionCallSyntax lengthFunction ||
-                !LanguageConstants.IdentifierComparer.Equals(lengthFunction.Name.IdentifierName, "length") ||
+            // look for a length() function with 1 arg
+            if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, "sys", rangeFunction.Arguments[1].Expression) is not FunctionCallSyntaxBase lengthFunction ||
+                !LanguageConstants.IdentifierComparer.Equals(lengthFunction.Name.IdentifierName, "length") || 
                 lengthFunction.Arguments.Length != 1)
             {
                 return false;
             }
 
+            // first length() arg must be a variable
             if (lengthFunction.Arguments[0].Expression is not VariableAccessSyntax variableAccess)
             {
                 return false;
@@ -68,7 +73,8 @@ namespace Bicep.Core.Decompiler.Rewriters
         {
             syntax = (ForSyntax)base.ReplaceForSyntax(syntax);
 
-            if (!IsLoopIteratorExpression(syntax.Expression, out var arrayVariable))
+            // look for range(0, length(<variable>))
+            if (!IsLoopIteratorExpression(semanticModel, syntax.Expression, out var arrayVariable))
             {
                 return syntax;
             }

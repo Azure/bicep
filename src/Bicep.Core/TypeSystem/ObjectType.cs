@@ -13,13 +13,14 @@ namespace Bicep.Core.TypeSystem
         public ObjectType(string name) : base(name)
         {
             AdditionalPropertiesType = LanguageConstants.Any;
+            MethodResolver = new FunctionResolver(this, null);
         }
 
         public override TypeKind TypeKind => TypeKind.Primitive;
 
         public virtual ImmutableDictionary<string, TypeProperty> Properties => ImmutableDictionary<string, TypeProperty>.Empty;
 
-        public virtual FunctionResolver MethodResolver => FunctionResolver.Empty;
+        public virtual FunctionResolver MethodResolver { get; }
 
         public virtual ITypeReference? AdditionalPropertiesType { get; }
 

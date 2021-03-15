@@ -192,5 +192,36 @@ output test array = [for i in range(0, length(container.items)): {
             // Reference equality check to ensure we're not regenerating syntax unnecessarily
             newProgramSyntax.Should().BeSameAs(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
         }
+
+        [TestMethod]
+        public void Length_based_for_loop_is_rewritten_using_namespaces()
+        {
+            var bicepFile = @"
+var items = [
+  'a'
+  'b'
+  'c'
+]
+output test array = [for i in sys.range(0, sys.length(items)): {
+  name: '${items[i]}'
+  value: items[i]
+}]
+";
+
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+@"var items = [
+  'a'
+  'b'
+  'c'
+]
+output test array = [for item in items: {
+  name: '${item}'
+  value: item
+}]");
+        }
     }
 }
