@@ -223,5 +223,31 @@ output test array = [for item in items: {
   value: item
 }]");
         }
+
+        [TestMethod]
+        public void Length_based_for_loop_is_not_rewritten_with_incorrect_namespace()
+        {
+            var bicepFile = @"
+var items = [
+  'a'
+  'b'
+  'c'
+]
+
+// oops - we've used the wrong namespace!
+output test array = [for i in az.range(0, az.length(items)): {
+  name: '${items[i]}'
+  value: items[i]
+}]
+";
+
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+
+            // Reference equality check to ensure syntax has not been modified
+            newProgramSyntax.Should().BeSameAs(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+        }
     }
 }
