@@ -16,24 +16,24 @@ az deployment group create -f ./main.bicep -g my-rg
 New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-rg
 ```
 
->**Note:** make sure you update the default value of the `name` parameter to be globally unique before deploying.
+>**Note:** make sure you update the default value of the `storageAccountName` parameter to be globally unique before deploying.
 
 ## Deploy with parameters
 
-Our Bicep file exposed two parameters that we can be optionally overridden (`location` and `name`) by passing new values at deployment time.
+Our Bicep file exposed two parameters that we can be optionally overridden (`location` and `storageAccountName`) by passing new values at deployment time.
 
 ### Pass parameters on the command line
 
 **Az CLI**:
 
 ```bash
-az deployment group create -f ./main.bicep -g my-rg --parameters location=westus name=uniquelogstorage001
+az deployment group create -f ./main.bicep -g my-rg --parameters location=westus storageAccountName=uniquelogstorage001
 ```
 
 **Azure PowerShell**:
 
 ```powershell
-New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-rg -location westus -name uniquelogstorage001
+New-AzResourceGroupDeployment -TemplateFile ./main.bicep -ResourceGroupName my-rg -location westus -storageAccountName uniquelogstorage001
 ```
 
 ### Use a local parameters JSON file
