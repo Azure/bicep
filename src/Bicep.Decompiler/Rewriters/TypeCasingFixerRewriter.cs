@@ -13,6 +13,8 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
+    // Looks for object properties where type information is available, and the key matches a known property, but the casing is different.
+    // This occurs commonly when decompiling from JSON where properties are case insensitive, and avoids generating a .bicep file with lots of warnings that need to be fixed.
     public class TypeCasingFixerRewriter : SyntaxRewriteVisitor
     {
         private readonly SemanticModel semanticModel;

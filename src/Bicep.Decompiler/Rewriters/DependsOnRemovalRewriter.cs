@@ -9,6 +9,15 @@ using Bicep.Decompiler.Visitors;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
+    // Looks for resources where a dependency can already be inferred by the structure of the resource declaration.
+    // 
+    // As an example, because the below resource already has a reference to 'otherRes' in the name property, the dependsOn is not adding anything:
+    //   resource myRes 'My.Rp/myResource@2020-01-01' = {
+    //     name: otherRes.name
+    //     dependsOn: [
+    //       otherRes
+    //     ]
+    //   }
     public class DependsOnRemovalRewriter : SyntaxRewriteVisitor
     {
         private readonly SemanticModel semanticModel;

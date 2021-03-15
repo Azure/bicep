@@ -11,6 +11,19 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
+    // Looks for cases where the child and parent share a common syntax structure for naming, and replaces with a direct reference to the parent instead.
+    //
+    // As an example, because 'resB' below has its name formatted as '${parentName}/resB', we can replace this with '${resA.name}/resB':
+    //   resource resA 'My.Rp/resA@2020-01-01' = {
+    //     name: parentName
+    //   }
+    //   
+    //   resource resB 'My.Rp/resA/childB@2020-01-01' = {
+    //     name: '${parentName}/resB'
+    //     dependsOn: [
+    //       resA
+    //     ]
+    //   }
     public class ParentChildResourceNameRewriter : SyntaxRewriteVisitor
     {
         private readonly SemanticModel semanticModel;
