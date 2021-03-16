@@ -257,6 +257,12 @@ param decoratedInt int = 123
 param negativeValues int
 //@[6:20) Parameter negativeValues. Type: int. Declaration start char: 0, length: 53
 
+// negative zeros are valid lengths
+@minLength(-0)
+@maxLength(-0)
+param negativeZeros string
+//@[6:19) Parameter negativeZeros. Type: string. Declaration start char: 0, length: 56
+
 // negative integer literals in modifiers
 param negativeModifiers int {
 //@[6:23) Parameter negativeModifiers. Type: int. Declaration start char: 0, length: 64

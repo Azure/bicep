@@ -1630,6 +1630,7 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 
 // resource loop body that isn't an object
 @batchSize(-1)
+//@[11:13) [BCP154 (Error)] Expected a batch size of at least 1 but the specified value was "-1". |-1|
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 //@[95:101) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'test'|
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]

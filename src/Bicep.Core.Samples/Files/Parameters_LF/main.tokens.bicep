@@ -904,6 +904,30 @@ param negativeValues int
 //@[21:24) Identifier |int|
 //@[24:26) NewLine |\n\n|
 
+// negative zeros are valid lengths
+//@[35:36) NewLine |\n|
+@minLength(-0)
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Minus |-|
+//@[12:13) Integer |0|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+@maxLength(-0)
+//@[0:1) At |@|
+//@[1:10) Identifier |maxLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Minus |-|
+//@[12:13) Integer |0|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+param negativeZeros string
+//@[0:5) Identifier |param|
+//@[6:19) Identifier |negativeZeros|
+//@[20:26) Identifier |string|
+//@[26:28) NewLine |\n\n|
+
 // negative integer literals in modifiers
 //@[41:42) NewLine |\n|
 param negativeModifiers int {

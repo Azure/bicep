@@ -2726,6 +2726,43 @@ param duplicateDecorators string
 //@[26:32)   Identifier |string|
 //@[32:34) NewLine |\n\n|
 
+@minLength(-1)
+//@[0:58) ParameterDeclarationSyntax
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:13)    FunctionArgumentSyntax
+//@[11:13)     UnaryOperationSyntax
+//@[11:12)      Minus |-|
+//@[12:13)      IntegerLiteralSyntax
+//@[12:13)       Integer |1|
+//@[13:14)    RightParen |)|
+//@[14:15)  NewLine |\n|
+@maxLength(-100)
+//@[0:16)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:16)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:15)    FunctionArgumentSyntax
+//@[11:15)     UnaryOperationSyntax
+//@[11:12)      Minus |-|
+//@[12:15)      IntegerLiteralSyntax
+//@[12:15)       Integer |100|
+//@[15:16)    RightParen |)|
+//@[16:17)  NewLine |\n|
+param invalidLength string
+//@[0:5)  Identifier |param|
+//@[6:19)  IdentifierSyntax
+//@[6:19)   Identifier |invalidLength|
+//@[20:26)  TypeSyntax
+//@[20:26)   Identifier |string|
+//@[26:28) NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    
