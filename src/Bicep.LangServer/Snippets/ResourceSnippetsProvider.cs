@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Snippets
         private void Initialize()
         {
             string? currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            string templatesFolder = Path.Combine(currentDirectory!, @"Snippets\Templates");
+            string templatesFolder = Path.Combine(currentDirectory!, "Snippets", "Templates");
 
             foreach (KeyValuePair<string, string> kvp in _snippetNameToDetailMap)
             {
