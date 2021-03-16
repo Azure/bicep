@@ -390,3 +390,31 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
     ]
   }
 }]
+
+resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range(0, 10): if (i % 3 == 0) {
+  name: 'zone${i}'
+  location: resourceGroup().location
+}]
+
+module filteredModules 'passthrough.bicep' = [for i in range(0, 6): if (i % 2 == 0) {
+  name: 'stuff${i}'
+  params: {
+    myInput: 'script-${i}'
+  }
+}]
+
+resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [for (account, i) in accounts: if (account.enabled) {
+  name: 'indexedZone-${account.name}-${i}'
+  location: account.location
+}]
+
+output lastNameServers array = filteredIndexedZones[length(accounts) - 1].properties.nameServers
+
+module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in accounts: if (account.enabled) {
+  name: 'stuff-${i}'
+  params: {
+    myInput: 'script-${account.name}-${i}'
+  }
+}]
+
+output lastModuleOutput string = filteredIndexedModules[length(accounts) - 1].outputs.myOutput

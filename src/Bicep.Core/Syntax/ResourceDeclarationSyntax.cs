@@ -159,7 +159,14 @@ namespace Bicep.Core.Syntax
             {
                 ObjectSyntax @object => @object,
                 IfConditionSyntax ifCondition => ifCondition.Body as ObjectSyntax,
-                ForSyntax @for => @for.Body as ObjectSyntax,
+                ForSyntax @for => @for.Body switch
+                {
+                    ObjectSyntax @object => @object,
+                    IfConditionSyntax ifCondition => ifCondition.Body as ObjectSyntax,
+                    SkippedTriviaSyntax => null,
+
+                    _=> throw new NotImplementedException($"Unexpected type of for-expression value '{this.Value.GetType().Name}'.")
+                },
                 SkippedTriviaSyntax => null,
 
                 // blocked by assert in the constructor
