@@ -569,6 +569,23 @@
     ]
   },
   {
+    "label": "discriminatorKeyMissing_for_if",
+    "kind": "interface",
+    "detail": "discriminatorKeyMissing_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyMissing_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyMissing_for_if"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "discriminatorKeyMissing_if",
     "kind": "interface",
     "detail": "discriminatorKeyMissing_if",
@@ -645,6 +662,20 @@
     }
   },
   {
+    "label": "discriminatorKeySetOneCompletions2_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions2_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeySetOneCompletions2_if",
     "kind": "variable",
     "detail": "discriminatorKeySetOneCompletions2_if",
@@ -687,6 +718,20 @@
     }
   },
   {
+    "label": "discriminatorKeySetOneCompletions3_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions3_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions3_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions3_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeySetOneCompletions3_if",
     "kind": "variable",
     "detail": "discriminatorKeySetOneCompletions3_if",
@@ -715,6 +760,20 @@
     }
   },
   {
+    "label": "discriminatorKeySetOneCompletions_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeySetOneCompletions_if",
     "kind": "variable",
     "detail": "discriminatorKeySetOneCompletions_if",
@@ -740,6 +799,23 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOne_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "discriminatorKeySetOne_for_if",
+    "kind": "interface",
+    "detail": "discriminatorKeySetOne_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOne_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOne_for_if"
     },
     "commitCharacters": [
       ":"
@@ -822,6 +898,20 @@
     }
   },
   {
+    "label": "discriminatorKeySetTwoCompletions2_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions2_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeySetTwoCompletions2_if",
     "kind": "variable",
     "detail": "discriminatorKeySetTwoCompletions2_if",
@@ -878,6 +968,20 @@
     }
   },
   {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer2_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer2_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeySetTwoCompletionsArrayIndexer2_if",
     "kind": "variable",
     "detail": "discriminatorKeySetTwoCompletionsArrayIndexer2_if",
@@ -903,6 +1007,20 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletionsArrayIndexer_for"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer_for_if"
     }
   },
   {
@@ -934,6 +1052,20 @@
     }
   },
   {
+    "label": "discriminatorKeySetTwoCompletions_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeySetTwoCompletions_if",
     "kind": "variable",
     "detail": "discriminatorKeySetTwoCompletions_if",
@@ -959,6 +1091,23 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwo_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "discriminatorKeySetTwo_for_if",
+    "kind": "interface",
+    "detail": "discriminatorKeySetTwo_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwo_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwo_for_if"
     },
     "commitCharacters": [
       ":"
@@ -1041,6 +1190,20 @@
     }
   },
   {
+    "label": "discriminatorKeyValueMissingCompletions2_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions2_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissingCompletions2_if",
     "kind": "variable",
     "detail": "discriminatorKeyValueMissingCompletions2_if",
@@ -1083,6 +1246,20 @@
     }
   },
   {
+    "label": "discriminatorKeyValueMissingCompletions3_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions3_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions3_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions3_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissingCompletions3_if",
     "kind": "variable",
     "detail": "discriminatorKeyValueMissingCompletions3_if",
@@ -1111,6 +1288,20 @@
     }
   },
   {
+    "label": "discriminatorKeyValueMissingCompletions_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions_for_if"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissingCompletions_if",
     "kind": "variable",
     "detail": "discriminatorKeyValueMissingCompletions_if",
@@ -1136,6 +1327,23 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "discriminatorKeyValueMissing_for_if",
+    "kind": "interface",
+    "detail": "discriminatorKeyValueMissing_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissing_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissing_for_if"
     },
     "commitCharacters": [
       ":"
@@ -1436,6 +1644,74 @@
     "textEdit": {
       "range": {},
       "newText": "expectedLoopBody2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterOpenParen",
+    "kind": "interface",
+    "detail": "expectedLoopFilterOpenParen",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterOpenParen",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterOpenParen"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterOpenParen2",
+    "kind": "interface",
+    "detail": "expectedLoopFilterOpenParen2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterOpenParen2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterOpenParen2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterPredicateAndBody",
+    "kind": "interface",
+    "detail": "expectedLoopFilterPredicateAndBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterPredicateAndBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterPredicateAndBody"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterPredicateAndBody2",
+    "kind": "interface",
+    "detail": "expectedLoopFilterPredicateAndBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterPredicateAndBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterPredicateAndBody2"
     },
     "commitCharacters": [
       ":"
@@ -2316,6 +2592,20 @@
     }
   },
   {
+    "label": "nestedDiscriminatorArrayIndexCompletions_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorArrayIndexCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorArrayIndexCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorArrayIndexCompletions_for_if"
+    }
+  },
+  {
     "label": "nestedDiscriminatorArrayIndexCompletions_if",
     "kind": "variable",
     "detail": "nestedDiscriminatorArrayIndexCompletions_if",
@@ -2372,6 +2662,20 @@
     }
   },
   {
+    "label": "nestedDiscriminatorCompletions2_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions2_for_if"
+    }
+  },
+  {
     "label": "nestedDiscriminatorCompletions2_if",
     "kind": "variable",
     "detail": "nestedDiscriminatorCompletions2_if",
@@ -2411,6 +2715,20 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions3_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions3_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions3_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions3_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions3_for_if"
     }
   },
   {
@@ -2456,6 +2774,20 @@
     }
   },
   {
+    "label": "nestedDiscriminatorCompletions4_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions4_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions4_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions4_for_if"
+    }
+  },
+  {
     "label": "nestedDiscriminatorCompletions4_if",
     "kind": "variable",
     "detail": "nestedDiscriminatorCompletions4_if",
@@ -2481,6 +2813,20 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions_for_if"
     }
   },
   {
@@ -2557,6 +2903,20 @@
     }
   },
   {
+    "label": "nestedDiscriminatorMissingKeyCompletions2_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions2_for_if"
+    }
+  },
+  {
     "label": "nestedDiscriminatorMissingKeyCompletions2_if",
     "kind": "variable",
     "detail": "nestedDiscriminatorMissingKeyCompletions2_if",
@@ -2582,6 +2942,20 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyCompletions_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions_for_if"
     }
   },
   {
@@ -2627,6 +3001,20 @@
     }
   },
   {
+    "label": "nestedDiscriminatorMissingKeyIndexCompletions_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyIndexCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyIndexCompletions_for_if"
+    }
+  },
+  {
     "label": "nestedDiscriminatorMissingKeyIndexCompletions_if",
     "kind": "variable",
     "detail": "nestedDiscriminatorMissingKeyIndexCompletions_if",
@@ -2652,6 +3040,23 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKey_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nestedDiscriminatorMissingKey_for_if",
+    "kind": "interface",
+    "detail": "nestedDiscriminatorMissingKey_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKey_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKey_for_if"
     },
     "commitCharacters": [
       ":"
@@ -2686,6 +3091,23 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminator_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nestedDiscriminator_for_if",
+    "kind": "interface",
+    "detail": "nestedDiscriminator_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminator_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminator_for_if"
     },
     "commitCharacters": [
       ":"
@@ -3309,6 +3731,20 @@
     "textEdit": {
       "range": {},
       "newText": "resourceListIsNotSingleResource"
+    }
+  },
+  {
+    "label": "resourceListIsNotSingleResource_if",
+    "kind": "variable",
+    "detail": "resourceListIsNotSingleResource_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceListIsNotSingleResource_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceListIsNotSingleResource_if"
     }
   },
   {
@@ -4465,6 +4901,40 @@
     "textEdit": {
       "range": {},
       "newText": "wrongArrayType2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "wrongFilterExpressionType",
+    "kind": "interface",
+    "detail": "wrongFilterExpressionType",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongFilterExpressionType",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongFilterExpressionType"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "wrongFilterExpressionType2",
+    "kind": "interface",
+    "detail": "wrongFilterExpressionType2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongFilterExpressionType2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongFilterExpressionType2"
     },
     "commitCharacters": [
       ":"

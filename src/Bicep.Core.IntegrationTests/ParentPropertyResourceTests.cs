@@ -308,7 +308,7 @@ resource res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP167", DiagnosticLevel.Error, "Resource type \"Microsoft.Rp2/resource2/child2\" is not a valid child resource of parent \"Microsoft.Rp1/resource1\"."),
+                  ("BCP171", DiagnosticLevel.Error, "Resource type \"Microsoft.Rp2/resource2/child2\" is not a valid child resource of parent \"Microsoft.Rp1/resource1\"."),
                 });
             }
         }
@@ -360,8 +360,8 @@ resource res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
-                  ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                  ("BCP172", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                  ("BCP172", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
                 });
             }
         }

@@ -832,8 +832,8 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
-                  ("BCP168", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                  ("BCP172", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                  ("BCP172", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
                 });
             }
         }

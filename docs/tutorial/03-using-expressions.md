@@ -18,7 +18,7 @@ var location = resourceGroup().location
 output makeCapital string = toUpper('all lowercase')
 ```
 
-In our `main.bicep` file, instead of forcing users to guess a unique storage account name, let's get rid of our `name` parameter and use the `uniqueString()` and `resourceGroup()` functions to calculate a unique name. We'll also use the `resourceGroup().location` property instead of hardcoding a default location.
+In our `main.bicep` file, instead of forcing users to guess a unique storage account name, let's get rid of our `storageAccountName` parameter and use the `uniqueString()` and `resourceGroup()` functions to calculate a unique name. We'll also use the `resourceGroup().location` property instead of hardcoding a default location.
 
 ```bicep
 param location string = resourceGroup().location

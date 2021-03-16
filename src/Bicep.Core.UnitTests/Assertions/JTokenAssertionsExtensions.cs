@@ -69,12 +69,12 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(valueAtPath is not null)
-                .FailWith("Expected value at path {0} to be {1} but it was null", jtokenPath, expected.ToString());
+                .FailWith("Expected value at path {0} to be {1}{reason} but it was null. Original JSON: {2}", jtokenPath, expected.ToString(), instance.Subject?.ToString());
 
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(JToken.DeepEquals(valueAtPath, expected))
-                .FailWith("Expected value at path {0} to be {1} but it was {2}", jtokenPath, expected.ToString(), valueAtPath?.ToString());
+                .FailWith("Expected value at path {0} to be {1}{reason} but it was {2}", jtokenPath, expected.ToString(), valueAtPath?.ToString());
 
             return new AndConstraint<JTokenAssertions>(instance);
         }
@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(valueAtPath is null)
-                .FailWith("Expected value at path {0} to be null, but it was {1}", jtokenPath, valueAtPath);
+                .FailWith("Expected value at path {0} to be null{reason}, but it was {1}", jtokenPath, valueAtPath);
 
             return new AndConstraint<JTokenAssertions>(instance);
         }
@@ -96,7 +96,7 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(instance.Subject is null)
-                .FailWith("Expected value to be null, but it was {0}", instance.Subject?.ToString());
+                .FailWith("Expected value to be null{reason}, but it was {0}", instance.Subject?.ToString());
 
             return new AndConstraint<JTokenAssertions>(instance);
         }

@@ -10,11 +10,12 @@ namespace Bicep.Core.Semantics
 {
     public class FunctionSymbol : Symbol
     {
-        public FunctionSymbol(string name, IEnumerable<FunctionOverload> overloads)
+        public FunctionSymbol(ObjectType owner, string name, IEnumerable<FunctionOverload> overloads)
             : base(name)
         {
             Overloads = overloads.ToImmutableArray();
             FunctionFlags = Overloads.First().Flags;
+            DeclaringType = owner;
 
             if (Overloads.Skip(1).Any(fo => fo.Flags != FunctionFlags))
             {
@@ -30,5 +31,7 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<FunctionOverload> Overloads { get; }
 
         public FunctionFlags FunctionFlags { get; }
+
+        public ObjectType DeclaringType { get; }
     }
 }

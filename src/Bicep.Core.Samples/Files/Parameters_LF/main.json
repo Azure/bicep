@@ -239,6 +239,11 @@
       "maxValue": -3,
       "minValue": -10
     },
+    "negativeZeros": {
+      "type": "string",
+      "maxLength": 0,
+      "minLength": 0
+    },
     "negativeModifiers": {
       "type": "int",
       "minValue": -100,
@@ -276,7 +281,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1144572426517152891"
+      "templateHash": "1569062954108981413"
     }
   }
 }

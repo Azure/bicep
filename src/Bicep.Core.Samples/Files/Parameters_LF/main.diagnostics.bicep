@@ -231,6 +231,11 @@ param decoratedInt int = 123
 @maxValue(-3)
 param negativeValues int
 
+// negative zeros are valid lengths
+@minLength(-0)
+@maxLength(-0)
+param negativeZeros string
+
 // negative integer literals in modifiers
 param negativeModifiers int {
 //@[28:64) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  minValue: -100\n  maxValue: -33\n}|

@@ -32,7 +32,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
 resource resA 'My.Rp/resA@2020-01-01' = {
@@ -68,7 +68,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
 resource resA 'My.Rp/resA@2020-01-01' = {
@@ -113,7 +113,7 @@ resource resC 'My.Rp/resA/childB/childC@2020-01-01' = {
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"param parentName string = 'resA'
 var parentSuffix = 'suffix'
 var test = 'hello'
@@ -158,7 +158,7 @@ resource resB 'My.Rp/resB/childB@2020-01-01' = {
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
 resource resA 'My.Rp/resA@2020-01-01' = {

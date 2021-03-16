@@ -699,7 +699,7 @@ namespace Bicep.Core.Diagnostics
                 $"Unsupported scope for extension resource deployment. Expected a resource reference.");
 
             public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain) {
-                var variableDependencyChainClause = variableDependencyChain != null ? 
+                var variableDependencyChainClause = variableDependencyChain != null ?
                  $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
 
                 return new ErrorDiagnostic(
@@ -886,7 +886,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP155",
                 $"The decorator \"{decoratorName}\" can only be attached to resource or module collections.");
-       
+
             public ErrorDiagnostic InvalidResourceTypeSegment(string typeSegment) => new(
                 TextSpan,
                 "BCP156",
@@ -944,16 +944,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP166",
                 $"Duplicate \"{decoratorName}\" decorator.");
 
-            public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
+            public ErrorDiagnostic ExpectBodyStartOrIf() => new(
                 TextSpan,
                 "BCP167",
-                $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
+                "Expected the \"{\" character or the \"if\" keyword at this location.");
 
-            public ErrorDiagnostic NestedChildResourceNameContainsQualifiers() => new(
+            public ErrorDiagnostic LengthMustNotBeNegative() => new(
                 TextSpan,
                 "BCP168",
-                // TODO: add a docs link?
-                $"Nested child resource names should not contain any \"/\" characters.");
+                $"Length must not be a negative value.");
 
             public ErrorDiagnostic TopLevelChildResourceNameMissingQualifiers(int expectedSlashCount) => new(
                 TextSpan,
@@ -965,6 +964,17 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP170",
                 $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
+
+            public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
+                TextSpan,
+                "BCP171",
+                $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
+
+            public ErrorDiagnostic NestedChildResourceNameContainsQualifiers() => new(
+                TextSpan,
+                "BCP172",
+                // TODO: add a docs link?
+                $"Nested child resource names should not contain any \"/\" characters.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

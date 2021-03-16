@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
@@ -45,17 +45,17 @@ namespace Bicep.Core.Semantics
                 return;
             }
 
+            if (!this.CanAttachTo(targetType))
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).CannotAttachDecoratorToTarget(this.Overload.Name, attachableType, targetType));
+            }
+
+            // Custom validator provided.
             if (this.validator != null)
             {
                 this.validator.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, diagnosticWriter);
 
                 return;
-            }
-
-            // No custom validator provided. Just validate the target type. 
-            if (!this.CanAttachTo(targetType))
-            {
-                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).CannotAttachDecoratorToTarget(this.Overload.Name, attachableType, targetType));
             }
         }
 
