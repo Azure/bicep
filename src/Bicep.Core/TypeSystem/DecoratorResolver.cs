@@ -15,10 +15,10 @@ namespace Bicep.Core.TypeSystem
 
         private readonly ImmutableHashSet<FunctionSymbol> functionSymbols;
 
-        public DecoratorResolver(IEnumerable<Decorator> decorators)
+        public DecoratorResolver(ObjectType owner, IEnumerable<Decorator> decorators)
         {
             this.decoratorsByOverloads = decorators.ToImmutableDictionary(decorator => decorator.Overload, decorator => decorator);
-            this.functionResolver = FunctionResolver.Create(decoratorsByOverloads.Keys);
+            this.functionResolver = new FunctionResolver(owner, decoratorsByOverloads.Keys);
             this.functionSymbols = functionResolver.GetKnownFunctions().Values.ToImmutableHashSet();
         }
 

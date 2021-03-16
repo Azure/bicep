@@ -13,7 +13,7 @@ namespace Bicep.Core.TypeSystem
         {
             this.ValidationFlags = validationFlags;
             this.Properties = properties.ToImmutableDictionary(property => property.Name, LanguageConstants.IdentifierComparer);
-            this.MethodResolver = FunctionResolver.Create(functions);
+            this.MethodResolver = new FunctionResolver(this, functions);
             this.AdditionalPropertiesType = additionalPropertiesType;
             this.AdditionalPropertiesFlags = additionalPropertiesFlags;
         }
