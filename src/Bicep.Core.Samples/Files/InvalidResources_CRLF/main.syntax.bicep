@@ -3098,6 +3098,48 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 //@[2:6) NewLine |\r\n\r\n|
 
 /*
+Discriminator key missing (filtered loop)
+*/
+//@[2:4) NewLine |\r\n|
+resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+//@[0:183) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:39)  IdentifierSyntax
+//@[9:39)   Identifier |discriminatorKeyMissing_for_if|
+//@[40:90)  StringSyntax
+//@[40:90)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[91:92)  Assignment |=|
+//@[93:183)  ForSyntax
+//@[93:94)   LeftSquare |[|
+//@[94:97)   Identifier |for|
+//@[98:103)   LocalVariableSyntax
+//@[98:103)    IdentifierSyntax
+//@[98:103)     Identifier |thing|
+//@[104:106)   Identifier |in|
+//@[107:109)   ArraySyntax
+//@[107:108)    LeftSquare |[|
+//@[108:109)    RightSquare |]|
+//@[109:110)   Colon |:|
+//@[111:182)   IfConditionSyntax
+//@[111:113)    Identifier |if|
+//@[113:119)    ParenthesizedExpressionSyntax
+//@[113:114)     LeftParen |(|
+//@[114:118)     BooleanLiteralSyntax
+//@[114:118)      TrueKeyword |true|
+//@[118:119)     RightParen |)|
+//@[120:182)    ObjectSyntax
+//@[120:121)     LeftBrace |{|
+//@[121:123)     NewLine |\r\n|
+  // #completionTest(0,1,2) -> discriminatorProperty
+//@[52:54)     NewLine |\r\n|
+  
+//@[2:4)     NewLine |\r\n|
+}]
+//@[0:1)     RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+/*
 Discriminator key value missing with property access
 */
 //@[2:4) NewLine |\r\n|
@@ -3177,8 +3219,7 @@ var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
 /*
 Discriminator key value missing with property access (conditional)
 */
-//@[2:6) NewLine |\r\n\r\n|
-
+//@[2:4) NewLine |\r\n|
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
 //@[0:191) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
@@ -3380,6 +3421,135 @@ var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_
 //@[87:87)   SkippedTriviaSyntax
 //@[87:88)   RightSquare |]|
 //@[88:92) NewLine |\r\n\r\n|
+
+/*
+Discriminator key value missing with property access (filtered loops)
+*/
+//@[2:4) NewLine |\r\n|
+resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+//@[0:217) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:44)  IdentifierSyntax
+//@[9:44)   Identifier |discriminatorKeyValueMissing_for_if|
+//@[45:95)  StringSyntax
+//@[45:95)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[96:97)  Assignment |=|
+//@[98:217)  ForSyntax
+//@[98:99)   LeftSquare |[|
+//@[99:102)   Identifier |for|
+//@[103:108)   LocalVariableSyntax
+//@[103:108)    IdentifierSyntax
+//@[103:108)     Identifier |thing|
+//@[109:111)   Identifier |in|
+//@[112:114)   ArraySyntax
+//@[112:113)    LeftSquare |[|
+//@[113:114)    RightSquare |]|
+//@[114:115)   Colon |:|
+//@[116:216)   IfConditionSyntax
+//@[116:118)    Identifier |if|
+//@[118:124)    ParenthesizedExpressionSyntax
+//@[118:119)     LeftParen |(|
+//@[119:123)     BooleanLiteralSyntax
+//@[119:123)      TrueKeyword |true|
+//@[123:124)     RightParen |)|
+//@[125:216)    ObjectSyntax
+//@[125:126)     LeftBrace |{|
+//@[126:128)     NewLine |\r\n|
+  // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
+//@[73:75)     NewLine |\r\n|
+  kind:   
+//@[2:10)     ObjectPropertySyntax
+//@[2:6)      IdentifierSyntax
+//@[2:6)       Identifier |kind|
+//@[6:7)      Colon |:|
+//@[10:10)      SkippedTriviaSyntax
+//@[10:12)     NewLine |\r\n|
+}]
+//@[0:1)     RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// cannot . access properties of a resource loop
+//@[48:50) NewLine |\r\n|
+var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
+//@[0:81) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:38)  IdentifierSyntax
+//@[4:38)   Identifier |resourceListIsNotSingleResource_if|
+//@[39:40)  Assignment |=|
+//@[41:81)  PropertyAccessSyntax
+//@[41:76)   VariableAccessSyntax
+//@[41:76)    IdentifierSyntax
+//@[41:76)     Identifier |discriminatorKeyValueMissing_for_if|
+//@[76:77)   Dot |.|
+//@[77:81)   IdentifierSyntax
+//@[77:81)    Identifier |kind|
+//@[81:85) NewLine |\r\n\r\n|
+
+// #completionTest(93) -> missingDiscriminatorPropertyAccess
+//@[60:62) NewLine |\r\n|
+var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
+//@[0:93) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:50)  IdentifierSyntax
+//@[4:50)   Identifier |discriminatorKeyValueMissingCompletions_for_if|
+//@[51:52)  Assignment |=|
+//@[53:93)  PropertyAccessSyntax
+//@[53:91)   ArrayAccessSyntax
+//@[53:88)    VariableAccessSyntax
+//@[53:88)     IdentifierSyntax
+//@[53:88)      Identifier |discriminatorKeyValueMissing_for_if|
+//@[88:89)    LeftSquare |[|
+//@[89:90)    IntegerLiteralSyntax
+//@[89:90)     Integer |0|
+//@[90:91)    RightSquare |]|
+//@[91:92)   Dot |.|
+//@[92:93)   IdentifierSyntax
+//@[92:93)    Identifier |p|
+//@[93:95) NewLine |\r\n|
+// #completionTest(93) -> missingDiscriminatorPropertyAccess
+//@[60:62) NewLine |\r\n|
+var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
+//@[0:93) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:51)  IdentifierSyntax
+//@[4:51)   Identifier |discriminatorKeyValueMissingCompletions2_for_if|
+//@[52:53)  Assignment |=|
+//@[54:93)  PropertyAccessSyntax
+//@[54:92)   ArrayAccessSyntax
+//@[54:89)    VariableAccessSyntax
+//@[54:89)     IdentifierSyntax
+//@[54:89)      Identifier |discriminatorKeyValueMissing_for_if|
+//@[89:90)    LeftSquare |[|
+//@[90:91)    IntegerLiteralSyntax
+//@[90:91)     Integer |0|
+//@[91:92)    RightSquare |]|
+//@[92:93)   Dot |.|
+//@[93:93)   IdentifierSyntax
+//@[93:93)    SkippedTriviaSyntax
+//@[93:97) NewLine |\r\n\r\n|
+
+// #completionTest(93) -> missingDiscriminatorPropertyIndexPlusSymbols_for_if
+//@[77:79) NewLine |\r\n|
+var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissing_for_if[0][]
+//@[0:94) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:51)  IdentifierSyntax
+//@[4:51)   Identifier |discriminatorKeyValueMissingCompletions3_for_if|
+//@[52:53)  Assignment |=|
+//@[54:94)  ArrayAccessSyntax
+//@[54:92)   ArrayAccessSyntax
+//@[54:89)    VariableAccessSyntax
+//@[54:89)     IdentifierSyntax
+//@[54:89)      Identifier |discriminatorKeyValueMissing_for_if|
+//@[89:90)    LeftSquare |[|
+//@[90:91)    IntegerLiteralSyntax
+//@[90:91)     Integer |0|
+//@[91:92)    RightSquare |]|
+//@[92:93)   LeftSquare |[|
+//@[93:93)   SkippedTriviaSyntax
+//@[93:94)   RightSquare |]|
+//@[94:98) NewLine |\r\n\r\n|
 
 /*
 Discriminator value set 1
@@ -3744,6 +3914,153 @@ var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].prope
 //@[87:91) NewLine |\r\n\r\n|
 
 /*
+Discriminator value set 1 (filtered loop)
+*/
+//@[2:4) NewLine |\r\n|
+resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
+//@[0:300) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:38)  IdentifierSyntax
+//@[9:38)   Identifier |discriminatorKeySetOne_for_if|
+//@[39:89)  StringSyntax
+//@[39:89)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[90:91)  Assignment |=|
+//@[92:300)  ForSyntax
+//@[92:93)   LeftSquare |[|
+//@[94:97)   Identifier |for|
+//@[98:103)   LocalVariableSyntax
+//@[98:103)    IdentifierSyntax
+//@[98:103)     Identifier |thing|
+//@[104:106)   Identifier |in|
+//@[107:109)   ArraySyntax
+//@[107:108)    LeftSquare |[|
+//@[108:109)    RightSquare |]|
+//@[109:110)   Colon |:|
+//@[111:299)   IfConditionSyntax
+//@[111:113)    Identifier |if|
+//@[113:119)    ParenthesizedExpressionSyntax
+//@[113:114)     LeftParen |(|
+//@[114:118)     BooleanLiteralSyntax
+//@[114:118)      TrueKeyword |true|
+//@[118:119)     RightParen |)|
+//@[120:299)    ObjectSyntax
+//@[120:121)     LeftBrace |{|
+//@[121:123)     NewLine |\r\n|
+  kind: 'AzureCLI'
+//@[2:18)     ObjectPropertySyntax
+//@[2:6)      IdentifierSyntax
+//@[2:6)       Identifier |kind|
+//@[6:7)      Colon |:|
+//@[8:18)      StringSyntax
+//@[8:18)       StringComplete |'AzureCLI'|
+//@[18:20)     NewLine |\r\n|
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+//@[55:59)     NewLine |\r\n\r\n|
+
+  properties: {
+//@[2:94)     ObjectPropertySyntax
+//@[2:12)      IdentifierSyntax
+//@[2:12)       Identifier |properties|
+//@[12:13)      Colon |:|
+//@[14:94)      ObjectSyntax
+//@[14:15)       LeftBrace |{|
+//@[15:17)       NewLine |\r\n|
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+//@[66:68)       NewLine |\r\n|
+    
+//@[4:6)       NewLine |\r\n|
+  }
+//@[2:3)       RightBrace |}|
+//@[3:5)     NewLine |\r\n|
+}]
+//@[0:1)     RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+// #completionTest(92) -> cliPropertyAccess
+//@[43:45) NewLine |\r\n|
+var discriminatorKeySetOneCompletions_for_if = discriminatorKeySetOne_for_if[0].properties.a
+//@[0:92) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:44)  IdentifierSyntax
+//@[4:44)   Identifier |discriminatorKeySetOneCompletions_for_if|
+//@[45:46)  Assignment |=|
+//@[47:92)  PropertyAccessSyntax
+//@[47:90)   PropertyAccessSyntax
+//@[47:79)    ArrayAccessSyntax
+//@[47:76)     VariableAccessSyntax
+//@[47:76)      IdentifierSyntax
+//@[47:76)       Identifier |discriminatorKeySetOne_for_if|
+//@[76:77)     LeftSquare |[|
+//@[77:78)     IntegerLiteralSyntax
+//@[77:78)      Integer |0|
+//@[78:79)     RightSquare |]|
+//@[79:80)    Dot |.|
+//@[80:90)    IdentifierSyntax
+//@[80:90)     Identifier |properties|
+//@[90:91)   Dot |.|
+//@[91:92)   IdentifierSyntax
+//@[91:92)    Identifier |a|
+//@[92:94) NewLine |\r\n|
+// #completionTest(100) -> cliPropertyAccess
+//@[44:46) NewLine |\r\n|
+var discriminatorKeySetOneCompletions2_for_if = discriminatorKeySetOne_for_if[any(true)].properties.
+//@[0:100) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:45)  IdentifierSyntax
+//@[4:45)   Identifier |discriminatorKeySetOneCompletions2_for_if|
+//@[46:47)  Assignment |=|
+//@[48:100)  PropertyAccessSyntax
+//@[48:99)   PropertyAccessSyntax
+//@[48:88)    ArrayAccessSyntax
+//@[48:77)     VariableAccessSyntax
+//@[48:77)      IdentifierSyntax
+//@[48:77)       Identifier |discriminatorKeySetOne_for_if|
+//@[77:78)     LeftSquare |[|
+//@[78:87)     FunctionCallSyntax
+//@[78:81)      IdentifierSyntax
+//@[78:81)       Identifier |any|
+//@[81:82)      LeftParen |(|
+//@[82:86)      FunctionArgumentSyntax
+//@[82:86)       BooleanLiteralSyntax
+//@[82:86)        TrueKeyword |true|
+//@[86:87)      RightParen |)|
+//@[87:88)     RightSquare |]|
+//@[88:89)    Dot |.|
+//@[89:99)    IdentifierSyntax
+//@[89:99)     Identifier |properties|
+//@[99:100)   Dot |.|
+//@[100:100)   IdentifierSyntax
+//@[100:100)    SkippedTriviaSyntax
+//@[100:104) NewLine |\r\n\r\n|
+
+// #completionTest(92) -> cliPropertyAccessIndexesPlusSymbols_for_if
+//@[68:70) NewLine |\r\n|
+var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1].properties[]
+//@[0:93) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:45)  IdentifierSyntax
+//@[4:45)   Identifier |discriminatorKeySetOneCompletions3_for_if|
+//@[46:47)  Assignment |=|
+//@[48:93)  ArrayAccessSyntax
+//@[48:91)   PropertyAccessSyntax
+//@[48:80)    ArrayAccessSyntax
+//@[48:77)     VariableAccessSyntax
+//@[48:77)      IdentifierSyntax
+//@[48:77)       Identifier |discriminatorKeySetOne_for_if|
+//@[77:78)     LeftSquare |[|
+//@[78:79)     IntegerLiteralSyntax
+//@[78:79)      Integer |1|
+//@[79:80)     RightSquare |]|
+//@[80:81)    Dot |.|
+//@[81:91)    IdentifierSyntax
+//@[81:91)     Identifier |properties|
+//@[91:92)   LeftSquare |[|
+//@[92:92)   SkippedTriviaSyntax
+//@[92:93)   RightSquare |]|
+//@[93:99) NewLine |\r\n\r\n\r\n|
+
+
+/*
 Discriminator value set 2
 */
 //@[2:4) NewLine |\r\n|
@@ -3997,7 +4314,8 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_i
 //@[95:96)   Dot |.|
 //@[96:96)   IdentifierSyntax
 //@[96:96)    SkippedTriviaSyntax
-//@[96:100) NewLine |\r\n\r\n|
+//@[96:102) NewLine |\r\n\r\n\r\n|
+
 
 /*
 Discriminator value set 2 (loops)
@@ -4157,7 +4475,175 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_
 //@[100:101)   Dot |.|
 //@[101:101)   IdentifierSyntax
 //@[101:101)    SkippedTriviaSyntax
-//@[101:109) NewLine |\r\n\r\n\r\n\r\n|
+//@[101:107) NewLine |\r\n\r\n\r\n|
+
+
+/*
+Discriminator value set 2 (filtered loops)
+*/
+//@[2:4) NewLine |\r\n|
+resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+//@[0:305) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:38)  IdentifierSyntax
+//@[9:38)   Identifier |discriminatorKeySetTwo_for_if|
+//@[39:89)  StringSyntax
+//@[39:89)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[90:91)  Assignment |=|
+//@[92:305)  ForSyntax
+//@[92:93)   LeftSquare |[|
+//@[93:96)   Identifier |for|
+//@[97:102)   LocalVariableSyntax
+//@[97:102)    IdentifierSyntax
+//@[97:102)     Identifier |thing|
+//@[103:105)   Identifier |in|
+//@[106:108)   ArraySyntax
+//@[106:107)    LeftSquare |[|
+//@[107:108)    RightSquare |]|
+//@[108:109)   Colon |:|
+//@[110:304)   IfConditionSyntax
+//@[110:112)    Identifier |if|
+//@[112:118)    ParenthesizedExpressionSyntax
+//@[112:113)     LeftParen |(|
+//@[113:117)     BooleanLiteralSyntax
+//@[113:117)      TrueKeyword |true|
+//@[117:118)     RightParen |)|
+//@[119:304)    ObjectSyntax
+//@[119:120)     LeftBrace |{|
+//@[120:122)     NewLine |\r\n|
+  kind: 'AzurePowerShell'
+//@[2:25)     ObjectPropertySyntax
+//@[2:6)      IdentifierSyntax
+//@[2:6)       Identifier |kind|
+//@[6:7)      Colon |:|
+//@[8:25)      StringSyntax
+//@[8:25)       StringComplete |'AzurePowerShell'|
+//@[25:27)     NewLine |\r\n|
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+//@[55:59)     NewLine |\r\n\r\n|
+
+  properties: {
+//@[2:93)     ObjectPropertySyntax
+//@[2:12)      IdentifierSyntax
+//@[2:12)       Identifier |properties|
+//@[12:13)      Colon |:|
+//@[14:93)      ObjectSyntax
+//@[14:15)       LeftBrace |{|
+//@[15:17)       NewLine |\r\n|
+    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+//@[65:67)       NewLine |\r\n|
+    
+//@[4:6)       NewLine |\r\n|
+  }
+//@[2:3)       RightBrace |}|
+//@[3:5)     NewLine |\r\n|
+}]
+//@[0:1)     RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+// #completionTest(92) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletions_for_if = discriminatorKeySetTwo_for_if[0].properties.a
+//@[0:92) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:44)  IdentifierSyntax
+//@[4:44)   Identifier |discriminatorKeySetTwoCompletions_for_if|
+//@[45:46)  Assignment |=|
+//@[47:92)  PropertyAccessSyntax
+//@[47:90)   PropertyAccessSyntax
+//@[47:79)    ArrayAccessSyntax
+//@[47:76)     VariableAccessSyntax
+//@[47:76)      IdentifierSyntax
+//@[47:76)       Identifier |discriminatorKeySetTwo_for_if|
+//@[76:77)     LeftSquare |[|
+//@[77:78)     IntegerLiteralSyntax
+//@[77:78)      Integer |0|
+//@[78:79)     RightSquare |]|
+//@[79:80)    Dot |.|
+//@[80:90)    IdentifierSyntax
+//@[80:90)     Identifier |properties|
+//@[90:91)   Dot |.|
+//@[91:92)   IdentifierSyntax
+//@[91:92)    Identifier |a|
+//@[92:94) NewLine |\r\n|
+// #completionTest(92) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletions2_for_if = discriminatorKeySetTwo_for_if[0].properties.
+//@[0:92) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:45)  IdentifierSyntax
+//@[4:45)   Identifier |discriminatorKeySetTwoCompletions2_for_if|
+//@[46:47)  Assignment |=|
+//@[48:92)  PropertyAccessSyntax
+//@[48:91)   PropertyAccessSyntax
+//@[48:80)    ArrayAccessSyntax
+//@[48:77)     VariableAccessSyntax
+//@[48:77)      IdentifierSyntax
+//@[48:77)       Identifier |discriminatorKeySetTwo_for_if|
+//@[77:78)     LeftSquare |[|
+//@[78:79)     IntegerLiteralSyntax
+//@[78:79)      Integer |0|
+//@[79:80)     RightSquare |]|
+//@[80:81)    Dot |.|
+//@[81:91)    IdentifierSyntax
+//@[81:91)     Identifier |properties|
+//@[91:92)   Dot |.|
+//@[92:92)   IdentifierSyntax
+//@[92:92)    SkippedTriviaSyntax
+//@[92:96) NewLine |\r\n\r\n|
+
+// #completionTest(107) -> powershellPropertyAccess
+//@[51:53) NewLine |\r\n|
+var discriminatorKeySetTwoCompletionsArrayIndexer_for_if = discriminatorKeySetTwo_for_if[0]['properties'].a
+//@[0:107) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:56)  IdentifierSyntax
+//@[4:56)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
+//@[57:58)  Assignment |=|
+//@[59:107)  PropertyAccessSyntax
+//@[59:105)   ArrayAccessSyntax
+//@[59:91)    ArrayAccessSyntax
+//@[59:88)     VariableAccessSyntax
+//@[59:88)      IdentifierSyntax
+//@[59:88)       Identifier |discriminatorKeySetTwo_for_if|
+//@[88:89)     LeftSquare |[|
+//@[89:90)     IntegerLiteralSyntax
+//@[89:90)      Integer |0|
+//@[90:91)     RightSquare |]|
+//@[91:92)    LeftSquare |[|
+//@[92:104)    StringSyntax
+//@[92:104)     StringComplete |'properties'|
+//@[104:105)    RightSquare |]|
+//@[105:106)   Dot |.|
+//@[106:107)   IdentifierSyntax
+//@[106:107)    Identifier |a|
+//@[107:109) NewLine |\r\n|
+// #completionTest(107) -> powershellPropertyAccess
+//@[51:53) NewLine |\r\n|
+var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetTwo_for_if[0]['properties'].
+//@[0:107) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:57)  IdentifierSyntax
+//@[4:57)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
+//@[58:59)  Assignment |=|
+//@[60:107)  PropertyAccessSyntax
+//@[60:106)   ArrayAccessSyntax
+//@[60:92)    ArrayAccessSyntax
+//@[60:89)     VariableAccessSyntax
+//@[60:89)      IdentifierSyntax
+//@[60:89)       Identifier |discriminatorKeySetTwo_for_if|
+//@[89:90)     LeftSquare |[|
+//@[90:91)     IntegerLiteralSyntax
+//@[90:91)      Integer |0|
+//@[91:92)     RightSquare |]|
+//@[92:93)    LeftSquare |[|
+//@[93:105)    StringSyntax
+//@[93:105)     StringComplete |'properties'|
+//@[105:106)    RightSquare |]|
+//@[106:107)   Dot |.|
+//@[107:107)   IdentifierSyntax
+//@[107:107)    SkippedTriviaSyntax
+//@[107:115) NewLine |\r\n\r\n\r\n\r\n|
 
 
 
@@ -4818,6 +5304,153 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 //@[107:113) NewLine |\r\n\r\n\r\n|
 
 
+/* 
+Nested discriminator missing key (filtered loop)
+*/
+//@[2:4) NewLine |\r\n|
+resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
+//@[0:225) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:45)  IdentifierSyntax
+//@[9:45)   Identifier |nestedDiscriminatorMissingKey_for_if|
+//@[46:104)  StringSyntax
+//@[46:104)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[105:106)  Assignment |=|
+//@[107:225)  ForSyntax
+//@[107:108)   LeftSquare |[|
+//@[108:111)   Identifier |for|
+//@[112:117)   LocalVariableSyntax
+//@[112:117)    IdentifierSyntax
+//@[112:117)     Identifier |thing|
+//@[118:120)   Identifier |in|
+//@[121:123)   ArraySyntax
+//@[121:122)    LeftSquare |[|
+//@[122:123)    RightSquare |]|
+//@[123:124)   Colon |:|
+//@[125:224)   IfConditionSyntax
+//@[125:127)    Identifier |if|
+//@[127:133)    ParenthesizedExpressionSyntax
+//@[127:128)     LeftParen |(|
+//@[128:132)     BooleanLiteralSyntax
+//@[128:132)      TrueKeyword |true|
+//@[132:133)     RightParen |)|
+//@[134:224)    ObjectSyntax
+//@[134:135)     LeftBrace |{|
+//@[135:137)     NewLine |\r\n|
+  name: 'test'
+//@[2:14)     ObjectPropertySyntax
+//@[2:6)      IdentifierSyntax
+//@[2:6)       Identifier |name|
+//@[6:7)      Colon |:|
+//@[8:14)      StringSyntax
+//@[8:14)       StringComplete |'test'|
+//@[14:16)     NewLine |\r\n|
+  location: 'l'
+//@[2:15)     ObjectPropertySyntax
+//@[2:10)      IdentifierSyntax
+//@[2:10)       Identifier |location|
+//@[10:11)      Colon |:|
+//@[12:15)      StringSyntax
+//@[12:15)       StringComplete |'l'|
+//@[15:17)     NewLine |\r\n|
+  properties: {
+//@[2:51)     ObjectPropertySyntax
+//@[2:12)      IdentifierSyntax
+//@[2:12)       Identifier |properties|
+//@[12:13)      Colon |:|
+//@[14:51)      ObjectSyntax
+//@[14:15)       LeftBrace |{|
+//@[15:17)       NewLine |\r\n|
+    //createMode: 'Default'
+//@[27:31)       NewLine |\r\n\r\n|
+
+  }
+//@[2:3)       RightBrace |}|
+//@[3:5)     NewLine |\r\n|
+}]
+//@[0:1)     RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+// #completionTest(107) -> createMode
+//@[37:39) NewLine |\r\n|
+var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties.cr
+//@[0:107) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:51)  IdentifierSyntax
+//@[4:51)   Identifier |nestedDiscriminatorMissingKeyCompletions_for_if|
+//@[52:53)  Assignment |=|
+//@[54:107)  PropertyAccessSyntax
+//@[54:104)   PropertyAccessSyntax
+//@[54:93)    ArrayAccessSyntax
+//@[54:90)     VariableAccessSyntax
+//@[54:90)      IdentifierSyntax
+//@[54:90)       Identifier |nestedDiscriminatorMissingKey_for_if|
+//@[90:91)     LeftSquare |[|
+//@[91:92)     IntegerLiteralSyntax
+//@[91:92)      Integer |0|
+//@[92:93)     RightSquare |]|
+//@[93:94)    Dot |.|
+//@[94:104)    IdentifierSyntax
+//@[94:104)     Identifier |properties|
+//@[104:105)   Dot |.|
+//@[105:107)   IdentifierSyntax
+//@[105:107)    Identifier |cr|
+//@[107:109) NewLine |\r\n|
+// #completionTest(109) -> createMode
+//@[37:39) NewLine |\r\n|
+var nestedDiscriminatorMissingKeyCompletions2_for_if = nestedDiscriminatorMissingKey_for_if[0]['properties'].
+//@[0:109) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:52)  IdentifierSyntax
+//@[4:52)   Identifier |nestedDiscriminatorMissingKeyCompletions2_for_if|
+//@[53:54)  Assignment |=|
+//@[55:109)  PropertyAccessSyntax
+//@[55:108)   ArrayAccessSyntax
+//@[55:94)    ArrayAccessSyntax
+//@[55:91)     VariableAccessSyntax
+//@[55:91)      IdentifierSyntax
+//@[55:91)       Identifier |nestedDiscriminatorMissingKey_for_if|
+//@[91:92)     LeftSquare |[|
+//@[92:93)     IntegerLiteralSyntax
+//@[92:93)      Integer |0|
+//@[93:94)     RightSquare |]|
+//@[94:95)    LeftSquare |[|
+//@[95:107)    StringSyntax
+//@[95:107)     StringComplete |'properties'|
+//@[107:108)    RightSquare |]|
+//@[108:109)   Dot |.|
+//@[109:109)   IdentifierSyntax
+//@[109:109)    SkippedTriviaSyntax
+//@[109:113) NewLine |\r\n\r\n|
+
+// #completionTest(111) -> createModeIndexPlusSymbols_for_if
+//@[60:62) NewLine |\r\n|
+var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties['']
+//@[0:113) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:56)  IdentifierSyntax
+//@[4:56)   Identifier |nestedDiscriminatorMissingKeyIndexCompletions_for_if|
+//@[57:58)  Assignment |=|
+//@[59:113)  ArrayAccessSyntax
+//@[59:109)   PropertyAccessSyntax
+//@[59:98)    ArrayAccessSyntax
+//@[59:95)     VariableAccessSyntax
+//@[59:95)      IdentifierSyntax
+//@[59:95)       Identifier |nestedDiscriminatorMissingKey_for_if|
+//@[95:96)     LeftSquare |[|
+//@[96:97)     IntegerLiteralSyntax
+//@[96:97)      Integer |0|
+//@[97:98)     RightSquare |]|
+//@[98:99)    Dot |.|
+//@[99:109)    IdentifierSyntax
+//@[99:109)     Identifier |properties|
+//@[109:110)   LeftSquare |[|
+//@[110:112)   StringSyntax
+//@[110:112)    StringComplete |''|
+//@[112:113)   RightSquare |]|
+//@[113:119) NewLine |\r\n\r\n\r\n|
+
+
 /*
 Nested discriminator
 */
@@ -5341,7 +5974,214 @@ var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].pr
 //@[89:90)    IdentifierSyntax
 //@[89:90)     Identifier |a|
 //@[90:91)   RightSquare |]|
-//@[91:95) NewLine |\r\n\r\n|
+//@[91:97) NewLine |\r\n\r\n\r\n|
+
+
+/*
+Nested discriminator (filtered loop)
+*/
+//@[2:4) NewLine |\r\n|
+resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
+//@[0:213) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |nestedDiscriminator_for_if|
+//@[36:94)  StringSyntax
+//@[36:94)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[95:96)  Assignment |=|
+//@[97:213)  ForSyntax
+//@[97:98)   LeftSquare |[|
+//@[98:101)   Identifier |for|
+//@[102:107)   LocalVariableSyntax
+//@[102:107)    IdentifierSyntax
+//@[102:107)     Identifier |thing|
+//@[108:110)   Identifier |in|
+//@[111:113)   ArraySyntax
+//@[111:112)    LeftSquare |[|
+//@[112:113)    RightSquare |]|
+//@[113:114)   Colon |:|
+//@[115:212)   IfConditionSyntax
+//@[115:117)    Identifier |if|
+//@[117:123)    ParenthesizedExpressionSyntax
+//@[117:118)     LeftParen |(|
+//@[118:122)     BooleanLiteralSyntax
+//@[118:122)      TrueKeyword |true|
+//@[122:123)     RightParen |)|
+//@[124:212)    ObjectSyntax
+//@[124:125)     LeftBrace |{|
+//@[125:127)     NewLine |\r\n|
+  name: 'test'
+//@[2:14)     ObjectPropertySyntax
+//@[2:6)      IdentifierSyntax
+//@[2:6)       Identifier |name|
+//@[6:7)      Colon |:|
+//@[8:14)      StringSyntax
+//@[8:14)       StringComplete |'test'|
+//@[14:16)     NewLine |\r\n|
+  location: 'l'
+//@[2:15)     ObjectPropertySyntax
+//@[2:10)      IdentifierSyntax
+//@[2:10)       Identifier |location|
+//@[10:11)      Colon |:|
+//@[12:15)      StringSyntax
+//@[12:15)       StringComplete |'l'|
+//@[15:17)     NewLine |\r\n|
+  properties: {
+//@[2:49)     ObjectPropertySyntax
+//@[2:12)      IdentifierSyntax
+//@[2:12)       Identifier |properties|
+//@[12:13)      Colon |:|
+//@[14:49)      ObjectSyntax
+//@[14:15)       LeftBrace |{|
+//@[15:17)       NewLine |\r\n|
+    createMode: 'Default'
+//@[4:25)       ObjectPropertySyntax
+//@[4:14)        IdentifierSyntax
+//@[4:14)         Identifier |createMode|
+//@[14:15)        Colon |:|
+//@[16:25)        StringSyntax
+//@[16:25)         StringComplete |'Default'|
+//@[25:29)       NewLine |\r\n\r\n|
+
+  }
+//@[2:3)       RightBrace |}|
+//@[3:5)     NewLine |\r\n|
+}]
+//@[0:1)     RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+// #completionTest(86) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].properties.a
+//@[0:86) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:41)  IdentifierSyntax
+//@[4:41)   Identifier |nestedDiscriminatorCompletions_for_if|
+//@[42:43)  Assignment |=|
+//@[44:86)  PropertyAccessSyntax
+//@[44:84)   PropertyAccessSyntax
+//@[44:73)    ArrayAccessSyntax
+//@[44:70)     VariableAccessSyntax
+//@[44:70)      IdentifierSyntax
+//@[44:70)       Identifier |nestedDiscriminator_for_if|
+//@[70:71)     LeftSquare |[|
+//@[71:72)     IntegerLiteralSyntax
+//@[71:72)      Integer |0|
+//@[72:73)     RightSquare |]|
+//@[73:74)    Dot |.|
+//@[74:84)    IdentifierSyntax
+//@[74:84)     Identifier |properties|
+//@[84:85)   Dot |.|
+//@[85:86)   IdentifierSyntax
+//@[85:86)    Identifier |a|
+//@[86:88) NewLine |\r\n|
+// #completionTest(90) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions2_for_if = nestedDiscriminator_for_if[0]['properties'].a
+//@[0:90) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:42)  IdentifierSyntax
+//@[4:42)   Identifier |nestedDiscriminatorCompletions2_for_if|
+//@[43:44)  Assignment |=|
+//@[45:90)  PropertyAccessSyntax
+//@[45:88)   ArrayAccessSyntax
+//@[45:74)    ArrayAccessSyntax
+//@[45:71)     VariableAccessSyntax
+//@[45:71)      IdentifierSyntax
+//@[45:71)       Identifier |nestedDiscriminator_for_if|
+//@[71:72)     LeftSquare |[|
+//@[72:73)     IntegerLiteralSyntax
+//@[72:73)      Integer |0|
+//@[73:74)     RightSquare |]|
+//@[74:75)    LeftSquare |[|
+//@[75:87)    StringSyntax
+//@[75:87)     StringComplete |'properties'|
+//@[87:88)    RightSquare |]|
+//@[88:89)   Dot |.|
+//@[89:90)   IdentifierSyntax
+//@[89:90)    Identifier |a|
+//@[90:92) NewLine |\r\n|
+// #completionTest(86) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].properties.
+//@[0:86) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:42)  IdentifierSyntax
+//@[4:42)   Identifier |nestedDiscriminatorCompletions3_for_if|
+//@[43:44)  Assignment |=|
+//@[45:86)  PropertyAccessSyntax
+//@[45:85)   PropertyAccessSyntax
+//@[45:74)    ArrayAccessSyntax
+//@[45:71)     VariableAccessSyntax
+//@[45:71)      IdentifierSyntax
+//@[45:71)       Identifier |nestedDiscriminator_for_if|
+//@[71:72)     LeftSquare |[|
+//@[72:73)     IntegerLiteralSyntax
+//@[72:73)      Integer |0|
+//@[73:74)     RightSquare |]|
+//@[74:75)    Dot |.|
+//@[75:85)    IdentifierSyntax
+//@[75:85)     Identifier |properties|
+//@[85:86)   Dot |.|
+//@[86:86)   IdentifierSyntax
+//@[86:86)    SkippedTriviaSyntax
+//@[86:88) NewLine |\r\n|
+// #completionTest(89) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['properties'].
+//@[0:89) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:42)  IdentifierSyntax
+//@[4:42)   Identifier |nestedDiscriminatorCompletions4_for_if|
+//@[43:44)  Assignment |=|
+//@[45:89)  PropertyAccessSyntax
+//@[45:88)   ArrayAccessSyntax
+//@[45:74)    ArrayAccessSyntax
+//@[45:71)     VariableAccessSyntax
+//@[45:71)      IdentifierSyntax
+//@[45:71)       Identifier |nestedDiscriminator_for_if|
+//@[71:72)     LeftSquare |[|
+//@[72:73)     IntegerLiteralSyntax
+//@[72:73)      Integer |0|
+//@[73:74)     RightSquare |]|
+//@[74:75)    LeftSquare |[|
+//@[75:87)    StringSyntax
+//@[75:87)     StringComplete |'properties'|
+//@[87:88)    RightSquare |]|
+//@[88:89)   Dot |.|
+//@[89:89)   IdentifierSyntax
+//@[89:89)    SkippedTriviaSyntax
+//@[89:93) NewLine |\r\n\r\n|
+
+// #completionTest(96) -> defaultCreateModeIndexes_for_if
+//@[57:59) NewLine |\r\n|
+var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
+//@[0:97) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:51)  IdentifierSyntax
+//@[4:51)   Identifier |nestedDiscriminatorArrayIndexCompletions_for_if|
+//@[52:53)  Assignment |=|
+//@[54:97)  ArrayAccessSyntax
+//@[54:94)   PropertyAccessSyntax
+//@[54:83)    ArrayAccessSyntax
+//@[54:80)     VariableAccessSyntax
+//@[54:80)      IdentifierSyntax
+//@[54:80)       Identifier |nestedDiscriminator_for_if|
+//@[80:81)     LeftSquare |[|
+//@[81:82)     IntegerLiteralSyntax
+//@[81:82)      Integer |0|
+//@[82:83)     RightSquare |]|
+//@[83:84)    Dot |.|
+//@[84:94)    IdentifierSyntax
+//@[84:94)     Identifier |properties|
+//@[94:95)   LeftSquare |[|
+//@[95:96)   VariableAccessSyntax
+//@[95:96)    IdentifierSyntax
+//@[95:96)     Identifier |a|
+//@[96:97)   RightSquare |]|
+//@[97:105) NewLine |\r\n\r\n\r\n\r\n|
+
+
 
 // sample resource to validate completions on the next declarations
 //@[67:69) NewLine |\r\n|
@@ -6273,8 +7113,132 @@ resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)
 //@[86:87)   RightSquare |]|
 //@[87:91) NewLine |\r\n\r\n|
 
-// loop semantic analysis cases
-//@[31:33) NewLine |\r\n|
+// loop filter parsing cases
+//@[28:30) NewLine |\r\n|
+resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
+//@[0:102) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:36)  IdentifierSyntax
+//@[9:36)   Identifier |expectedLoopFilterOpenParen|
+//@[37:83)  StringSyntax
+//@[37:83)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[84:85)  Assignment |=|
+//@[86:102)  ForSyntax
+//@[86:87)   LeftSquare |[|
+//@[87:90)   Identifier |for|
+//@[91:92)   LocalVariableSyntax
+//@[91:92)    IdentifierSyntax
+//@[91:92)     Identifier |x|
+//@[93:95)   Identifier |in|
+//@[96:97)   VariableAccessSyntax
+//@[96:97)    IdentifierSyntax
+//@[96:97)     Identifier |y|
+//@[97:98)   Colon |:|
+//@[99:101)   IfConditionSyntax
+//@[99:101)    Identifier |if|
+//@[101:101)    SkippedTriviaSyntax
+//@[101:101)    SkippedTriviaSyntax
+//@[101:102)   RightSquare |]|
+//@[102:104) NewLine |\r\n|
+resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
+//@[0:101) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:37)  IdentifierSyntax
+//@[9:37)   Identifier |expectedLoopFilterOpenParen2|
+//@[38:77)  StringSyntax
+//@[38:77)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[78:79)  Assignment |=|
+//@[80:101)  ForSyntax
+//@[80:81)   LeftSquare |[|
+//@[81:84)   Identifier |for|
+//@[85:91)   ForVariableBlockSyntax
+//@[85:86)    LeftParen |(|
+//@[86:87)    LocalVariableSyntax
+//@[86:87)     IdentifierSyntax
+//@[86:87)      Identifier |x|
+//@[87:88)    Comma |,|
+//@[89:90)    LocalVariableSyntax
+//@[89:90)     IdentifierSyntax
+//@[89:90)      Identifier |y|
+//@[90:91)    RightParen |)|
+//@[92:94)   Identifier |in|
+//@[95:96)   VariableAccessSyntax
+//@[95:96)    IdentifierSyntax
+//@[95:96)     Identifier |z|
+//@[96:97)   Colon |:|
+//@[98:100)   IfConditionSyntax
+//@[98:100)    Identifier |if|
+//@[100:100)    SkippedTriviaSyntax
+//@[100:100)    SkippedTriviaSyntax
+//@[100:101)   RightSquare |]|
+//@[101:105) NewLine |\r\n\r\n|
+
+resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
+//@[0:111) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:43)  IdentifierSyntax
+//@[9:43)   Identifier |expectedLoopFilterPredicateAndBody|
+//@[44:90)  StringSyntax
+//@[44:90)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[91:92)  Assignment |=|
+//@[93:111)  ForSyntax
+//@[93:94)   LeftSquare |[|
+//@[94:97)   Identifier |for|
+//@[98:99)   LocalVariableSyntax
+//@[98:99)    IdentifierSyntax
+//@[98:99)     Identifier |x|
+//@[100:102)   Identifier |in|
+//@[103:104)   VariableAccessSyntax
+//@[103:104)    IdentifierSyntax
+//@[103:104)     Identifier |y|
+//@[104:105)   Colon |:|
+//@[106:110)   IfConditionSyntax
+//@[106:108)    Identifier |if|
+//@[108:110)    ParenthesizedExpressionSyntax
+//@[108:109)     LeftParen |(|
+//@[109:109)     SkippedTriviaSyntax
+//@[109:110)     RightParen |)|
+//@[110:110)    SkippedTriviaSyntax
+//@[110:111)   RightSquare |]|
+//@[111:113) NewLine |\r\n|
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+//@[0:110) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:44)  IdentifierSyntax
+//@[9:44)   Identifier |expectedLoopFilterPredicateAndBody2|
+//@[45:84)  StringSyntax
+//@[45:84)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[85:86)  Assignment |=|
+//@[87:110)  ForSyntax
+//@[87:88)   LeftSquare |[|
+//@[88:91)   Identifier |for|
+//@[92:98)   ForVariableBlockSyntax
+//@[92:93)    LeftParen |(|
+//@[93:94)    LocalVariableSyntax
+//@[93:94)     IdentifierSyntax
+//@[93:94)      Identifier |x|
+//@[94:95)    Comma |,|
+//@[96:97)    LocalVariableSyntax
+//@[96:97)     IdentifierSyntax
+//@[96:97)      Identifier |y|
+//@[97:98)    RightParen |)|
+//@[99:101)   Identifier |in|
+//@[102:103)   VariableAccessSyntax
+//@[102:103)    IdentifierSyntax
+//@[102:103)     Identifier |z|
+//@[103:104)   Colon |:|
+//@[105:109)   IfConditionSyntax
+//@[105:107)    Identifier |if|
+//@[107:109)    ParenthesizedExpressionSyntax
+//@[107:108)     LeftParen |(|
+//@[108:108)     SkippedTriviaSyntax
+//@[108:109)     RightParen |)|
+//@[109:109)    SkippedTriviaSyntax
+//@[109:110)   RightSquare |]|
+//@[110:114) NewLine |\r\n\r\n|
+
+// wrong body type
+//@[18:20) NewLine |\r\n|
 var emptyArray = []
 //@[0:19) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
@@ -6525,6 +7489,88 @@ resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (
 //@[107:109)    NewLine |\r\n|
 }]
 //@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// wrong filter expression type
+//@[31:33) NewLine |\r\n|
+resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
+//@[0:123) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:34)  IdentifierSyntax
+//@[9:34)   Identifier |wrongFilterExpressionType|
+//@[35:81)  StringSyntax
+//@[35:81)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[82:83)  Assignment |=|
+//@[84:123)  ForSyntax
+//@[84:85)   LeftSquare |[|
+//@[85:88)   Identifier |for|
+//@[89:96)   LocalVariableSyntax
+//@[89:96)    IdentifierSyntax
+//@[89:96)     Identifier |account|
+//@[97:99)   Identifier |in|
+//@[100:110)   VariableAccessSyntax
+//@[100:110)    IdentifierSyntax
+//@[100:110)     Identifier |emptyArray|
+//@[110:111)   Colon |:|
+//@[112:122)   IfConditionSyntax
+//@[112:114)    Identifier |if|
+//@[114:117)    ParenthesizedExpressionSyntax
+//@[114:115)     LeftParen |(|
+//@[115:116)     IntegerLiteralSyntax
+//@[115:116)      Integer |4|
+//@[116:117)     RightParen |)|
+//@[118:122)    ObjectSyntax
+//@[118:119)     LeftBrace |{|
+//@[119:121)     NewLine |\r\n|
+}]
+//@[0:1)     RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\r\n|
+resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
+//@[0:137) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |wrongFilterExpressionType2|
+//@[36:82)  StringSyntax
+//@[36:82)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[83:84)  Assignment |=|
+//@[85:137)  ForSyntax
+//@[85:86)   LeftSquare |[|
+//@[86:89)   Identifier |for|
+//@[90:101)   ForVariableBlockSyntax
+//@[90:91)    LeftParen |(|
+//@[91:98)    LocalVariableSyntax
+//@[91:98)     IdentifierSyntax
+//@[91:98)      Identifier |account|
+//@[98:99)    Comma |,|
+//@[99:100)    LocalVariableSyntax
+//@[99:100)     IdentifierSyntax
+//@[99:100)      Identifier |i|
+//@[100:101)    RightParen |)|
+//@[102:104)   Identifier |in|
+//@[105:115)   VariableAccessSyntax
+//@[105:115)    IdentifierSyntax
+//@[105:115)     Identifier |emptyArray|
+//@[115:116)   Colon |:|
+//@[117:136)   IfConditionSyntax
+//@[117:119)    Identifier |if|
+//@[119:132)    ParenthesizedExpressionSyntax
+//@[119:120)     LeftParen |(|
+//@[120:131)     FunctionCallSyntax
+//@[120:126)      IdentifierSyntax
+//@[120:126)       Identifier |concat|
+//@[126:127)      LeftParen |(|
+//@[127:130)      FunctionArgumentSyntax
+//@[127:130)       StringSyntax
+//@[127:130)        StringComplete |'s'|
+//@[130:131)      RightParen |)|
+//@[131:132)     RightParen |)|
+//@[132:136)    ObjectSyntax
+//@[132:133)     LeftBrace |{|
+//@[133:135)     NewLine |\r\n|
+}]
+//@[0:1)     RightBrace |}|
 //@[1:2)   RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
@@ -8342,7 +9388,83 @@ resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[111:112)    LeftParen |(|
 //@[112:113)    RightParen |)|
 //@[113:114)   RightSquare |]|
-//@[114:118) NewLine |\r\n\r\n|
+//@[114:116) NewLine |\r\n|
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
+//@[0:116) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |nonObjectResourceLoopBody3|
+//@[36:75)  StringSyntax
+//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[76:77)  Assignment |=|
+//@[78:116)  ForSyntax
+//@[78:79)   LeftSquare |[|
+//@[79:82)   Identifier |for|
+//@[83:92)   ForVariableBlockSyntax
+//@[83:84)    LeftParen |(|
+//@[84:89)    LocalVariableSyntax
+//@[84:89)     IdentifierSyntax
+//@[84:89)      Identifier |thing|
+//@[89:90)    Comma |,|
+//@[90:91)    LocalVariableSyntax
+//@[90:91)     IdentifierSyntax
+//@[90:91)      Identifier |i|
+//@[91:92)    RightParen |)|
+//@[93:95)   Identifier |in|
+//@[96:98)   ArraySyntax
+//@[96:97)    LeftSquare |[|
+//@[97:98)    RightSquare |]|
+//@[98:99)   Colon |:|
+//@[100:115)   IfConditionSyntax
+//@[100:102)    Identifier |if|
+//@[102:108)    ParenthesizedExpressionSyntax
+//@[102:103)     LeftParen |(|
+//@[103:107)     BooleanLiteralSyntax
+//@[103:107)      TrueKeyword |true|
+//@[107:108)     RightParen |)|
+//@[109:115)    SkippedTriviaSyntax
+//@[109:115)     StringComplete |'test'|
+//@[115:116)   RightSquare |]|
+//@[116:118) NewLine |\r\n|
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
+//@[0:123) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |nonObjectResourceLoopBody4|
+//@[36:75)  StringSyntax
+//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[76:77)  Assignment |=|
+//@[78:123)  ForSyntax
+//@[78:79)   LeftSquare |[|
+//@[79:82)   Identifier |for|
+//@[83:92)   ForVariableBlockSyntax
+//@[83:84)    LeftParen |(|
+//@[84:89)    LocalVariableSyntax
+//@[84:89)     IdentifierSyntax
+//@[84:89)      Identifier |thing|
+//@[89:90)    Comma |,|
+//@[90:91)    LocalVariableSyntax
+//@[90:91)     IdentifierSyntax
+//@[90:91)      Identifier |i|
+//@[91:92)    RightParen |)|
+//@[93:95)   Identifier |in|
+//@[96:98)   ArraySyntax
+//@[96:97)    LeftSquare |[|
+//@[97:98)    RightSquare |]|
+//@[98:99)   Colon |:|
+//@[100:122)   IfConditionSyntax
+//@[100:102)    Identifier |if|
+//@[102:108)    ParenthesizedExpressionSyntax
+//@[102:103)     LeftParen |(|
+//@[103:107)     BooleanLiteralSyntax
+//@[103:107)      TrueKeyword |true|
+//@[107:108)     RightParen |)|
+//@[109:122)    SkippedTriviaSyntax
+//@[109:120)     Identifier |environment|
+//@[120:121)     LeftParen |(|
+//@[121:122)     RightParen |)|
+//@[122:123)   RightSquare |]|
+//@[123:127) NewLine |\r\n\r\n|
 
 // #completionTest(54,55) -> objectPlusFor
 //@[42:44) NewLine |\r\n|

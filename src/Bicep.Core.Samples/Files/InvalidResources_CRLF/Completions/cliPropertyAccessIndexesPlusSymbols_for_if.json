@@ -1,398 +1,146 @@
 [
   {
-    "label": "'apiProperties'",
+    "label": "'arguments'",
     "kind": "property",
-    "detail": "apiProperties",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `ApiProperties`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'apiProperties'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'apiProperties'"
-    }
-  },
-  {
-    "label": "'backupPolicy'",
-    "kind": "property",
-    "detail": "backupPolicy",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `BackupPolicy`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'backupPolicy'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'backupPolicy'"
-    }
-  },
-  {
-    "label": "'capabilities'",
-    "kind": "property",
-    "detail": "capabilities",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `Capability[]`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'capabilities'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'capabilities'"
-    }
-  },
-  {
-    "label": "'connectorOffer'",
-    "kind": "property",
-    "detail": "connectorOffer",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `'Small'`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'connectorOffer'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'connectorOffer'"
-    }
-  },
-  {
-    "label": "'consistencyPolicy'",
-    "kind": "property",
-    "detail": "consistencyPolicy",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `ConsistencyPolicy`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'consistencyPolicy'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'consistencyPolicy'"
-    }
-  },
-  {
-    "label": "'cors'",
-    "kind": "property",
-    "detail": "cors",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `CorsPolicy[]`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'cors'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'cors'"
-    }
-  },
-  {
-    "label": "'createMode'",
-    "kind": "property",
-    "detail": "createMode (Required)",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `'Default'`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'createMode'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'createMode'"
-    }
-  },
-  {
-    "label": "'databaseAccountOfferType'",
-    "kind": "property",
-    "detail": "databaseAccountOfferType (Required)",
+    "detail": "arguments",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'databaseAccountOfferType'",
+    "sortText": "1_'arguments'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'databaseAccountOfferType'"
+      "newText": "'arguments'"
     }
   },
   {
-    "label": "'disableKeyBasedMetadataWriteAccess'",
+    "label": "'azCliVersion'",
     "kind": "property",
-    "detail": "disableKeyBasedMetadataWriteAccess",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `bool`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'disableKeyBasedMetadataWriteAccess'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'disableKeyBasedMetadataWriteAccess'"
-    }
-  },
-  {
-    "label": "'documentEndpoint'",
-    "kind": "property",
-    "detail": "documentEndpoint",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'documentEndpoint'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'documentEndpoint'"
-    }
-  },
-  {
-    "label": "'enableAnalyticalStorage'",
-    "kind": "property",
-    "detail": "enableAnalyticalStorage",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `bool`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'enableAnalyticalStorage'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'enableAnalyticalStorage'"
-    }
-  },
-  {
-    "label": "'enableAutomaticFailover'",
-    "kind": "property",
-    "detail": "enableAutomaticFailover",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `bool`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'enableAutomaticFailover'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'enableAutomaticFailover'"
-    }
-  },
-  {
-    "label": "'enableCassandraConnector'",
-    "kind": "property",
-    "detail": "enableCassandraConnector",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `bool`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'enableCassandraConnector'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'enableCassandraConnector'"
-    }
-  },
-  {
-    "label": "'enableFreeTier'",
-    "kind": "property",
-    "detail": "enableFreeTier",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `bool`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'enableFreeTier'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'enableFreeTier'"
-    }
-  },
-  {
-    "label": "'enableMultipleWriteLocations'",
-    "kind": "property",
-    "detail": "enableMultipleWriteLocations",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `bool`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'enableMultipleWriteLocations'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'enableMultipleWriteLocations'"
-    }
-  },
-  {
-    "label": "'failoverPolicies'",
-    "kind": "property",
-    "detail": "failoverPolicies",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `FailoverPolicy[]`  \nRead-only property  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'failoverPolicies'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'failoverPolicies'"
-    }
-  },
-  {
-    "label": "'instanceId'",
-    "kind": "property",
-    "detail": "instanceId",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'instanceId'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'instanceId'"
-    }
-  },
-  {
-    "label": "'ipRules'",
-    "kind": "property",
-    "detail": "ipRules",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `IpAddressOrRange[]`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'ipRules'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'ipRules'"
-    }
-  },
-  {
-    "label": "'isVirtualNetworkFilterEnabled'",
-    "kind": "property",
-    "detail": "isVirtualNetworkFilterEnabled",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `bool`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'isVirtualNetworkFilterEnabled'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'isVirtualNetworkFilterEnabled'"
-    }
-  },
-  {
-    "label": "'keyVaultKeyUri'",
-    "kind": "property",
-    "detail": "keyVaultKeyUri",
+    "detail": "azCliVersion (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'keyVaultKeyUri'",
+    "sortText": "1_'azCliVersion'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'keyVaultKeyUri'"
+      "newText": "'azCliVersion'"
     }
   },
   {
-    "label": "'locations'",
+    "label": "'cleanupPreference'",
     "kind": "property",
-    "detail": "locations (Required)",
+    "detail": "cleanupPreference",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \n"
+      "value": "Type: `'Always' | 'OnExpiration' | 'OnSuccess'`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'locations'",
+    "sortText": "1_'cleanupPreference'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'locations'"
+      "newText": "'cleanupPreference'"
     }
   },
   {
-    "label": "'privateEndpointConnections'",
+    "label": "'containerSettings'",
     "kind": "property",
-    "detail": "privateEndpointConnections",
+    "detail": "containerSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `PrivateEndpointConnection[]`  \nRead-only property  \n"
+      "value": "Type: `ContainerConfiguration`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'privateEndpointConnections'",
+    "sortText": "1_'containerSettings'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'privateEndpointConnections'"
+      "newText": "'containerSettings'"
+    }
+  },
+  {
+    "label": "'environmentVariables'",
+    "kind": "property",
+    "detail": "environmentVariables",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `EnvironmentVariable[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'environmentVariables'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'environmentVariables'"
+    }
+  },
+  {
+    "label": "'forceUpdateTag'",
+    "kind": "property",
+    "detail": "forceUpdateTag",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'forceUpdateTag'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'forceUpdateTag'"
+    }
+  },
+  {
+    "label": "'outputs'",
+    "kind": "property",
+    "detail": "outputs",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Dictionary<string,Object>`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'outputs'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'outputs'"
+    }
+  },
+  {
+    "label": "'primaryScriptUri'",
+    "kind": "property",
+    "detail": "primaryScriptUri",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'primaryScriptUri'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'primaryScriptUri'"
     }
   },
   {
@@ -401,7 +149,7 @@
     "detail": "provisioningState",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
+      "value": "Type: `'Canceled' | 'Creating' | 'Failed' | 'ProvisioningResources' | 'Running' | 'Succeeded'`  \nRead-only property  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -414,93 +162,111 @@
     }
   },
   {
-    "label": "'publicNetworkAccess'",
+    "label": "'retentionInterval'",
     "kind": "property",
-    "detail": "publicNetworkAccess",
+    "detail": "retentionInterval (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Disabled' | 'Enabled'`  \n"
+      "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'publicNetworkAccess'",
+    "sortText": "1_'retentionInterval'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'publicNetworkAccess'"
+      "newText": "'retentionInterval'"
     }
   },
   {
-    "label": "'readLocations'",
+    "label": "'scriptContent'",
     "kind": "property",
-    "detail": "readLocations",
+    "detail": "scriptContent",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nRead-only property  \n"
+      "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'readLocations'",
+    "sortText": "1_'scriptContent'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'readLocations'"
+      "newText": "'scriptContent'"
     }
   },
   {
-    "label": "'restoreParameters'",
+    "label": "'status'",
     "kind": "property",
-    "detail": "restoreParameters",
+    "detail": "status",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `RestoreParameters`  \nRead-only property  \n"
+      "value": "Type: `ScriptStatus`  \nRead-only property  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'restoreParameters'",
+    "sortText": "1_'status'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'restoreParameters'"
+      "newText": "'status'"
     }
   },
   {
-    "label": "'virtualNetworkRules'",
+    "label": "'storageAccountSettings'",
     "kind": "property",
-    "detail": "virtualNetworkRules",
+    "detail": "storageAccountSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `VirtualNetworkRule[]`  \n"
+      "value": "Type: `StorageAccountConfiguration`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'virtualNetworkRules'",
+    "sortText": "1_'storageAccountSettings'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'virtualNetworkRules'"
+      "newText": "'storageAccountSettings'"
     }
   },
   {
-    "label": "'writeLocations'",
+    "label": "'supportingScriptUris'",
     "kind": "property",
-    "detail": "writeLocations",
+    "detail": "supportingScriptUris",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nRead-only property  \n"
+      "value": "Type: `string[]`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_'writeLocations'",
+    "sortText": "1_'supportingScriptUris'",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "'writeLocations'"
+      "newText": "'supportingScriptUris'"
+    }
+  },
+  {
+    "label": "'timeout'",
+    "kind": "property",
+    "detail": "timeout",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'timeout'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'timeout'"
     }
   },
   {
@@ -1219,20 +985,6 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions3_for"
-    }
-  },
-  {
-    "label": "discriminatorKeySetOneCompletions3_for_if",
-    "kind": "variable",
-    "detail": "discriminatorKeySetOneCompletions3_for_if",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_discriminatorKeySetOneCompletions3_for_if",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "discriminatorKeySetOneCompletions3_for_if"
     }
   },
   {
@@ -3083,6 +2835,20 @@
     "commitCharacters": [
       ":"
     ]
+  },
+  {
+    "label": "nestedDiscriminatorArrayIndexCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorArrayIndexCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorArrayIndexCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorArrayIndexCompletions"
+    }
   },
   {
     "label": "nestedDiscriminatorArrayIndexCompletions_for",

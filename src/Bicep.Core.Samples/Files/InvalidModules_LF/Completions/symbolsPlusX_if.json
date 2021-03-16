@@ -2475,17 +2475,17 @@
     }
   },
   {
-    "label": "wrongModuleParameterInFilteredLoop",
+    "label": "wrongModuleParameterInLoop",
     "kind": "module",
-    "detail": "wrongModuleParameterInFilteredLoop",
+    "detail": "wrongModuleParameterInLoop",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_wrongModuleParameterInFilteredLoop",
+    "sortText": "2_wrongModuleParameterInLoop",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "wrongModuleParameterInFilteredLoop"
+      "newText": "wrongModuleParameterInLoop"
     }
   },
   {

@@ -619,9 +619,9 @@ param unaryMinusOnFunction int
 param duplicateDecorators string
 
 @minLength(-1)
-//@[11:13) [BCP167 (Error)] Length must not be a negative value. |-1|
+//@[11:13) [BCP168 (Error)] Length must not be a negative value. |-1|
 @maxLength(-100)
-//@[11:15) [BCP167 (Error)] Length must not be a negative value. |-100|
+//@[11:15) [BCP168 (Error)] Length must not be a negative value. |-100|
 param invalidLength string
 
 // unterminated multi-line comment

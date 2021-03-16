@@ -699,7 +699,7 @@ namespace Bicep.Core.Diagnostics
                 $"Unsupported scope for extension resource deployment. Expected a resource reference.");
 
             public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain) {
-                var variableDependencyChainClause = variableDependencyChain != null ? 
+                var variableDependencyChainClause = variableDependencyChain != null ?
                  $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
 
                 return new ErrorDiagnostic(
@@ -886,7 +886,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP155",
                 $"The decorator \"{decoratorName}\" can only be attached to resource or module collections.");
-       
+
             public ErrorDiagnostic InvalidResourceTypeSegment(string typeSegment) => new(
                 TextSpan,
                 "BCP156",
@@ -944,9 +944,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP166",
                 $"Duplicate \"{decoratorName}\" decorator.");
 
-            public ErrorDiagnostic LengthMustNotBeNegative() => new(
+            public ErrorDiagnostic ExpectBodyStartOrIf() => new(
                 TextSpan,
                 "BCP167",
+                "Expected the \"{\" character or the \"if\" keyword at this location.");
+
+            public ErrorDiagnostic LengthMustNotBeNegative() => new(
+                TextSpan,
+                "BCP168",
                 $"Length must not be a negative value.");
         }
 
