@@ -5,12 +5,15 @@ As your Bicep practice matures, you will want to check-in your Bicep code into s
 1. Build your Bicep file into an ARM Template
 1. Deploy the generated ARM template
 
-In order to do this, we need to make sure the Bicep CLI is installed on the build agent. For now, Bicep is not preinstalled on any build agents or tasks provided by Microsoft, but installing it manually as part of the pipeline is straightforward.
+With the current Azure CLI 2.20 now installed in GitHub and also on Azure DevOps, Bicep CLI can be automatically triggerd by using `az bicep build` command and an explicit task to download Bicep CLI is no more needed.
 
-The following example is designed to be run in GitHub actions workflow and uses Azure CLI, but could be easily adapted to run in a Azure DevOps Pipeline. It assumes the following prerequisite:
+The following two examples illustrates this. It assumes the following prerequisite:
 
 * The Bicep file you want to transpile and deploy is called `main.bicep` and exists in the root of the repo
+* The parameters file you want to use is called `parameters.json` and exists in the root of the repo
 * You are deploying the transpiled ARM Template to a resource group. Deploying to another scope like a subscription requires a different CLI command.
+
+## GitHub Workflow
 
 ```yaml
 
@@ -32,18 +35,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Install the latest release of the bicep CLI binaries
-      - name: Install bicep CLI Binaries
-        run: |
-          curl -Lo bicep.bin https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-          chmod +x ./bicep.bin
-          sudo mv ./bicep.bin /usr/local/bin/bicep
-          bicep --help
-           
       # Transpile bicep file into ARM template
       - name: Build ARM Template from bicep file
         run: |
-          bicep build ./main.bicep
+          az bicep build --files ./main.bicep
       
       # Stop here if you only want to do "CI" which just generates the 
       # build artifact (ARM Template JSON)
@@ -73,5 +68,88 @@ jobs:
             az account show
             az deployment group create -f ./main.json -g ${{ env.AZURE_RESOURCE_GROUP }}
 ```
+## Azure DevOps Pipeline
 
-Instead of installing the Bicep CLI manually, you may instead want to use the [community-maintained github action](https://github.com/marketplace/actions/bicep-build) from [@justinyoo](https://github.com/justinyoo) that can run `bicep build` on your behalf.
+```yaml
+trigger:
+- main
+name: 'bicep build and deploy'
+
+variables:
+  vmImageName: 'ubuntu-latest'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/'
+  geoLocation: 'West Europe'
+
+  azureServiceConnection: 'My-Azure-DevOps-ServicePrincipalName'
+  subscriptionId: 'My-Subscription-Id'
+  AZURE_RESOURCE_GROUP: 'myResourceGroupName'
+  
+stages:
+- stage: Build
+  displayName: Build
+      
+  jobs:
+  - job: Build
+    displayName: Validate and Publish
+    pool:
+     vmImage: $(vmImageName)
+      
+    steps:
+      - task: AzureCLI@2
+        displayName: Build ARM Template from bicep file
+        inputs:
+          azureSubscription: '$(azureServiceConnection)'
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            az --version
+            az bicep build --files ./main.bicep
+
+      - task: AzureResourceManagerTemplateDeployment@3
+        displayName: 'Validate APIM Templates'
+        inputs:
+          azureResourceManagerConnection: '$(azureServiceConnection)'
+          subscriptionId: '$(subscriptionId)'
+          resourceGroupName: '$(AZURE_RESOURCE_GROUP)'
+          location: '$(geoLocation)'
+          csmFile: main.json
+          csmParametersFile: parameters.json
+          deploymentMode: Validation
+          
+      - task: CopyFiles@2
+        displayName: 'Copy Templates'
+        inputs:
+          SourceFolder: bicep
+          TargetFolder: '$(build.artifactstagingdirectory)'
+          
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact: drop'
+        inputs:
+          PathtoPublish: '$(build.artifactstagingdirectory)'
+          ArtifactName: 'drop'
+
+- stage: Development
+  displayName: Deploy to Development
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+    - deployment: Deploy
+      displayName: 'Deploying APIM Template'
+      environment: 'Development'
+      pool:
+        vmImage: $(vmImageName)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: AzureResourceManagerTemplateDeployment@3
+                displayName: 'Deploy/Update APIM (Dev)'
+                inputs:
+                  azureResourceManagerConnection: '$(azureServiceConnection)'
+                  subscriptionId: '$(subscriptionId)'
+                  resourceGroupName: '$(AZURE_RESOURCE_GROUP)'
+                  location: '$(geoLocation)'
+                  csmFile: '$(Pipeline.Workspace)/drop/main.json'
+                  csmParametersFile: '$(Pipeline.Workspace)/drop/parameters.json'
+                  deploymentMode: 'Incremental'        
+```
