@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -34,7 +34,9 @@ namespace Bicep.LangServer.UnitTests
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
-            var provider = new BicepCompletionProvider(new FileResolver());
+            ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
+
+            var provider = new BicepCompletionProvider(new FileResolver(), resourceSnippetsProvider);
 
             var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, 0));
 
@@ -43,9 +45,10 @@ namespace Bicep.LangServer.UnitTests
                 .OrderBy(c => c.Label)
                 .ToList();
 
+            IEnumerable<ResourceSnippet> resourceSnippets = resourceSnippetsProvider.GetResourceSnippets();
             snippetCompletions.Should().OnlyContain(c => c.Kind == CompletionItemKind.Snippet && c.InsertTextFormat == InsertTextFormat.Snippet);
             snippetCompletions.Should().OnlyContain(c => c.InsertTextFormat == InsertTextFormat.Snippet);
-            snippetCompletions.Should().OnlyContain(c => LanguageConstants.DeclarationKeywords.Contains(c.Label));
+            snippetCompletions.Should().OnlyContain(c => LanguageConstants.DeclarationKeywords.Contains(c.Label) || resourceSnippets.Any(rs => rs.Name == c.Label));
             snippetCompletions.Should().OnlyContain(c => c.Documentation!.HasMarkupContent && c.Documentation.MarkupContent!.Kind == MarkupKind.Markdown);
 
             var snippetsByDetail = snippetCompletions.Where(c => c.Detail != null).ToImmutableDictionaryExcludingNull(c => c.Detail, StringComparer.Ordinal);
@@ -63,11 +66,21 @@ namespace Bicep.LangServer.UnitTests
                 ["Child Resource with defaults"] = new[] {"prop1: 'val1'", "myResource", "myProvider", "myType", "myChildType", "2020-01-01", "'parent/child'"},
                 ["Resource without defaults"] = new[] {"properties: {\nprop1: 'val1'\n}", "myResource", "myProvider", "myType", "2020-01-01", "'parent'"},
                 ["Child Resource without defaults"] = new[] {"properties: {\nprop1: 'val1'\n}", "myResource", "myProvider", "myType", "myChildType", "2020-01-01", "'parent/child'"},
-                ["Output declaration"] = new[] {"'stringVal'", "myOutput", "string"}
+                ["Output declaration"] = new[] {"'stringVal'", "myOutput", "string"},
+                ["Kubernetes Service Cluster"] = new[] { "aksCluster", "1.5", "prefix", "2", "Standard_All", "userName", "keyData", "appId", "test" },
+                ["Application Security Group"] = new[] { "myApplicationSecurityGroup" },
+                ["Automation Account"] = new[] { "myAutomationAccount", "Basic" },
+                ["Availability Set"] = new[] { "availabilitySet", "availabilitySet" },
+                ["Container Group"] = new[] { "myContainerGroup",  "container", "image", "80", "1", "4", "Linux", "TCP", "80" },
+                ["Container Registry"] = new[] { "myContainerRegistry", "Basic", "true" },
+                ["Cosmos DB Database Account"] = new[] { "myCosmosDBAccount", "MongoDB", "session", "1", "5", "location", "0", "filter", "false", "EnableTable" },
+                ["Data Lake Store Account"] = new[] { "myDataLakeStore", "Consumption", "Enabled" },
+                ["DNS Zone"] = new[] { "dnsZone" },
+                ["Public IP Address"] = new[] { "192.168.1.10", "192.168.1.10",  "dnsName" },
+                ["Public IP Prefix"] = new[] { "publicIpPrefix", "28" }
             };
 
             snippetsByDetail.Keys.Should().BeEquivalentTo(replacementsByDetail.Keys);
-
 
             foreach (var (detail, completion) in snippetsByDetail)
             {
@@ -100,7 +113,7 @@ namespace Bicep.LangServer.UnitTests
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
 
             var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, 0));
 
@@ -180,7 +193,7 @@ output o int = 42
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single().Value.Span.Position;
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
             var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
             
@@ -219,7 +232,7 @@ output o int = 42
 
             var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
 
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
             var completions = provider.GetFilteredCompletions(
                 compilation,
                 BicepCompletionContext.Create(compilation, offset)).ToList();
@@ -250,7 +263,7 @@ output o int = 42
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var context = BicepCompletionContext.Create(compilation, offset);
 
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
@@ -281,7 +294,7 @@ output length int =
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Value.Span.Position;
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
             var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
@@ -323,7 +336,7 @@ output length int =
         {
             var grouping = SyntaxTreeGroupingFactory.CreateFromText("output test ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -340,7 +353,7 @@ output length int =
         {
             var grouping = SyntaxTreeGroupingFactory.CreateFromText("param foo ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -384,7 +397,7 @@ output length int =
         {
         var grouping = SyntaxTreeGroupingFactory.CreateFromText(codeFragment);
         var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-        var provider = new BicepCompletionProvider(new FileResolver());
+        var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
 
         var offset = codeFragment.IndexOf('|');
 
