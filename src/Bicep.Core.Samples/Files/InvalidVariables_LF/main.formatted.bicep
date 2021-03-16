@@ -163,6 +163,9 @@ var a☕ = true
 // loops are not allowed in variables
 var noVariableLoopsYet = [for thing in stuff: 4]
 
+// loops with conditions won't even parse
+var noFilteredLoopsInVariables = [for thing in stuff: if]
+
 // nested loops are also not allowed
 var noNestedVariableLoopsEither = [for thing in stuff: {
   hello: [for thing in []: 4]

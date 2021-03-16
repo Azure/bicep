@@ -394,6 +394,28 @@
       ]
     },
     {
+      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
+      "copy": {
+        "name": "filteredZones",
+        "count": "[length(range(0, 10))]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "[format('zone{0}', range(0, 10)[copyIndex()])]",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
+      "copy": {
+        "name": "filteredIndexedZones",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "[format('indexedZone-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]",
+      "location": "[parameters('accounts')[copyIndex()].location]"
+    },
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "test",
@@ -626,6 +648,82 @@
           }
         }
       }
+    },
+    {
+      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
+      "copy": {
+        "name": "filteredModules",
+        "count": "[length(range(0, 6))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('script-{0}', range(0, 6)[copyIndex()])]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
+      "copy": {
+        "name": "filteredIndexedModules",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('stuff-{0}', copyIndex())]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('script-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      }
     }
   ],
   "outputs": {
@@ -695,13 +793,21 @@
     "existingIndexedResourceAccessTier": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}', parameters('name'), parameters('accounts')[mod(parameters('index'), 3)].name)), '2019-06-01').accessTier]"
+    },
+    "lastNameServers": {
+      "type": "array",
+      "value": "[reference(resourceId('Microsoft.Network/dnsZones', format('indexedZone-{0}-{1}', parameters('accounts')[sub(length(parameters('accounts')), 1)].name, sub(length(parameters('accounts')), 1)))).nameServers]"
+    },
+    "lastModuleOutput": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('stuff-{0}', sub(length(parameters('accounts')), 1))), '2019-10-01').outputs.myOutput.value]"
     }
   },
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13666670482088592227"
+      "templateHash": "11837434558928818130"
     }
   }
 }

@@ -943,6 +943,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP166",
                 $"Duplicate \"{decoratorName}\" decorator.");
+
+            public ErrorDiagnostic ExpectBodyStartOrIf() => new(
+                TextSpan,
+                "BCP167",
+                "Expected the \"{\" character or the \"if\" keyword at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
