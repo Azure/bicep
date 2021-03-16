@@ -693,6 +693,20 @@
     }
   },
   {
+    "label": "invalidLength",
+    "kind": "field",
+    "detail": "invalidLength",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidLength",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidLength"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",

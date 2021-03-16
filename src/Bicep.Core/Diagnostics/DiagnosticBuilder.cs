@@ -943,6 +943,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP166",
                 $"Duplicate \"{decoratorName}\" decorator.");
+
+            public ErrorDiagnostic LengthMustNotBeNegative() => new(
+                TextSpan,
+                "BCP167",
+                $"Length must not be a negative value.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

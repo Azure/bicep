@@ -1749,6 +1749,28 @@ param duplicateDecorators string
 //@[26:32) Identifier |string|
 //@[32:34) NewLine |\n\n|
 
+@minLength(-1)
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Minus |-|
+//@[12:13) Integer |1|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+@maxLength(-100)
+//@[0:1) At |@|
+//@[1:10) Identifier |maxLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Minus |-|
+//@[12:15) Integer |100|
+//@[15:16) RightParen |)|
+//@[16:17) NewLine |\n|
+param invalidLength string
+//@[0:5) Identifier |param|
+//@[6:19) Identifier |invalidLength|
+//@[20:26) Identifier |string|
+//@[26:28) NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    
