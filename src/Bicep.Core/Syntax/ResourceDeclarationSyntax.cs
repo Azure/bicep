@@ -81,7 +81,7 @@ namespace Bicep.Core.Syntax
             ResourceTypeReference? typeReference;
             var ancestors = binder.GetAllAncestors<ResourceDeclarationSyntax>(this);
             if (ancestors.Length == 0)
-            {                
+            {
                 // This is a top level resource - the type is a fully-qualified type.
                 typeReference = ResourceTypeReference.TryParse(stringContent);
                 if (typeReference == null)
@@ -90,6 +90,7 @@ namespace Bicep.Core.Syntax
                 }
 
                 if (binder.GetSymbolInfo(this) is ResourceSymbol resourceSymbol &&
+                    binder.TryGetCycle(resourceSymbol) is null &&
                     resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax &&
                     binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentResourceSymbol)
                 {

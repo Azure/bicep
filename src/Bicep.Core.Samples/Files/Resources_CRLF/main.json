@@ -474,6 +474,78 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[0]))]"
       ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "myVnet",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/20"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'myVnet', 'subnet1')]",
+      "properties": {
+        "addressPrefix": "10.0.0.0/24"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'myVnet', 'subnet2')]",
+      "properties": {
+        "addressPrefix": "10.0.1.0/24"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Rp1/resource1",
+      "apiVersion": "2020-06-01",
+      "name": "res1"
+    },
+    {
+      "type": "Microsoft.Rp1/resource1/child1",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'res1', 'child1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Rp1/resource1', 'res1')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Rp2/resource2",
+      "apiVersion": "2020-06-01",
+      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'res1', 'child1')]",
+      "name": "res2",
+      "dependsOn": [
+        "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Rp2/resource2/child2",
+      "apiVersion": "2020-06-01",
+      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'res1', 'child1')]",
+      "name": "[format('{0}/{1}', 'res2', 'child2')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Rp1/resource1/child1",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'res1', 'child1')]",
+      "dependsOn": []
     }
   ],
   "outputs": {
@@ -484,13 +556,77 @@
     "siteType": {
       "type": "string",
       "value": "Microsoft.Web/sites"
+    },
+    "p1_subnet1prefix": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1')).addressPrefix]"
+    },
+    "p1_subnet1name": {
+      "type": "string",
+      "value": "subnet1"
+    },
+    "p1_subnet1type": {
+      "type": "string",
+      "value": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    "p1_subnet1id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1')]"
+    },
+    "p2_res2childprop": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')).someProp]"
+    },
+    "p2_res2childname": {
+      "type": "string",
+      "value": "child2"
+    },
+    "p2_res2childtype": {
+      "type": "string",
+      "value": "Microsoft.Rp2/resource2/child2"
+    },
+    "p2_res2childid": {
+      "type": "string",
+      "value": "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]"
+    },
+    "p3_res1childprop": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')).someProp]"
+    },
+    "p3_res1childname": {
+      "type": "string",
+      "value": "child1"
+    },
+    "p3_res1childtype": {
+      "type": "string",
+      "value": "Microsoft.Rp1/resource1/child1"
+    },
+    "p3_res1childid": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
+    },
+    "p4_res1childprop": {
+      "type": "string",
+      "value": "[reference(tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), '2020-06-01').someProp]"
+    },
+    "p4_res1childname": {
+      "type": "string",
+      "value": "child1"
+    },
+    "p4_res1childtype": {
+      "type": "string",
+      "value": "Microsoft.Rp1/resource1/child1"
+    },
+    "p4_res1childid": {
+      "type": "string",
+      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
     }
   },
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2569684127741714265"
+      "templateHash": "5842466383755616753"
     }
   }
 }

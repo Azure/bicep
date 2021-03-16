@@ -135,7 +135,6 @@ namespace Bicep.Core.Emit
                     // e.g. '{parent.name}/child' or 'parent/child'
                     if (resourceNameString.SegmentValues.Any(v => v.IndexOf('/') > -1))
                     {
-                        // TODO fix this
                         diagnosticWriter.Write(resourceName, x => x.NestedChildResourceNameContainsQualifiers());
                     }
                 }
@@ -151,9 +150,8 @@ namespace Bicep.Core.Emit
                         var expectedSlashCount = resourceType.TypeReference.Types.Length - 1;
                         if (slashCount != expectedSlashCount)
                         {
-                            // TODO fix this
                             diagnosticWriter.Write(resourceName, x => x.TopLevelChildResourceNameMissingQualifiers(expectedSlashCount));
-                        }                        
+                        }
                     }
                 }
             }

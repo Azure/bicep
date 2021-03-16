@@ -247,6 +247,50 @@ resource res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
         }
 
         [TestMethod]
+        public void Parent_property_self_cycles_are_blocked()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: vmExt
+  location: 'eastus'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                  ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Parent_property_2_cycles_are_blocked()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  parent: vmExt
+  location: 'eastus'
+}
+
+resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: vm
+  location: 'eastus'
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                  ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vmExt\" -> \"vm\")."),
+                  ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vm\" -> \"vmExt\")."),
+                });
+            }
+        }
+
+        [TestMethod]
         public void Parent_property_blocks_invalid_child_resources()
         {
             var (template, diags, _) = CompilationHelper.Compile(@"

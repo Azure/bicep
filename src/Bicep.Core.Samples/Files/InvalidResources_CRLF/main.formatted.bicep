@@ -1094,3 +1094,86 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     }]
   }
 }
+
+// parent property with 'existing' resource at different scope
+resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+  scope: tenant()
+  name: 'res1'
+}
+
+resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+  parent: p1_res1
+  name: 'child1'
+}
+
+// parent property with scope on child resource
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1'
+}
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+  name: 'res2'
+}
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+  scope: p2_res1
+  parent: p2_res2
+  name: 'child2'
+}
+
+// parent property self-cycle
+resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: p3_vmExt
+  location: 'eastus'
+}
+
+// parent property 2-cycle
+resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  parent: p4_vmExt
+  location: 'eastus'
+}
+
+resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: p4_vm
+  location: 'eastus'
+}
+
+// parent property with invalid child
+resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1'
+}
+
+resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+  parent: p5_res1
+  name: 'res2'
+}
+
+// parent property with invalid parent
+resource p6_res1 '${true}' = {
+  name: 'res1'
+}
+
+resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  parent: p6_res1
+  name: 'res2'
+}
+
+// parent property with incorrectly-formatted name
+resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1'
+}
+
+resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  parent: p7_res1
+  name: 'res1/res2'
+}
+
+resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  parent: p7_res1
+  name: '${p7_res1.name}/res2'
+}
+
+// top-level resource with too many '/' characters
+resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1/res2'
+}

@@ -8507,6 +8507,501 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+// parent property with 'existing' resource at different scope
+//@[62:64) NewLine |\r\n|
+resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[0:104) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p1_res1|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:62)  Identifier |existing|
+//@[63:64)  Assignment |=|
+//@[65:104)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  scope: tenant()
+//@[2:17)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:17)    FunctionCallSyntax
+//@[9:15)     IdentifierSyntax
+//@[9:15)      Identifier |tenant|
+//@[15:16)     LeftParen |(|
+//@[16:17)     RightParen |)|
+//@[17:19)   NewLine |\r\n|
+  name: 'res1'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res1'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:106) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |p1_child1|
+//@[19:62)  StringSyntax
+//@[19:62)   StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:64)  Assignment |=|
+//@[65:106)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  parent: p1_res1
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p1_res1|
+//@[17:19)   NewLine |\r\n|
+  name: 'child1'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:16)    StringSyntax
+//@[8:16)     StringComplete |'child1'|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// parent property with scope on child resource
+//@[47:49) NewLine |\r\n|
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[0:76) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p2_res1|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:55)  Assignment |=|
+//@[56:76)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  name: 'res1'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res1'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[0:76) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p2_res2|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp2/resource2@2020-06-01'|
+//@[54:55)  Assignment |=|
+//@[56:76)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  name: 'res2'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res2'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[0:127) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:21)  IdentifierSyntax
+//@[9:21)   Identifier |p2_res2child|
+//@[22:65)  StringSyntax
+//@[22:65)   StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[66:67)  Assignment |=|
+//@[68:127)  ObjectSyntax
+//@[68:69)   LeftBrace |{|
+//@[69:71)   NewLine |\r\n|
+  scope: p2_res1
+//@[2:16)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:16)    VariableAccessSyntax
+//@[9:16)     IdentifierSyntax
+//@[9:16)      Identifier |p2_res1|
+//@[16:18)   NewLine |\r\n|
+  parent: p2_res2
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p2_res2|
+//@[17:19)   NewLine |\r\n|
+  name: 'child2'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:16)    StringSyntax
+//@[8:16)     StringComplete |'child2'|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// parent property self-cycle
+//@[29:31) NewLine |\r\n|
+resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[0:124) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:17)  IdentifierSyntax
+//@[9:17)   Identifier |p3_vmExt|
+//@[18:75)  StringSyntax
+//@[18:75)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[76:77)  Assignment |=|
+//@[78:124)  ObjectSyntax
+//@[78:79)   LeftBrace |{|
+//@[79:81)   NewLine |\r\n|
+  parent: p3_vmExt
+//@[2:18)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:18)    VariableAccessSyntax
+//@[10:18)     IdentifierSyntax
+//@[10:18)      Identifier |p3_vmExt|
+//@[18:20)   NewLine |\r\n|
+  location: 'eastus'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'eastus'|
+//@[20:22)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// parent property 2-cycle
+//@[26:28) NewLine |\r\n|
+resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+//@[0:110) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |p4_vm|
+//@[15:61)  StringSyntax
+//@[15:61)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[62:63)  Assignment |=|
+//@[64:110)  ObjectSyntax
+//@[64:65)   LeftBrace |{|
+//@[65:67)   NewLine |\r\n|
+  parent: p4_vmExt
+//@[2:18)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:18)    VariableAccessSyntax
+//@[10:18)     IdentifierSyntax
+//@[10:18)      Identifier |p4_vmExt|
+//@[18:20)   NewLine |\r\n|
+  location: 'eastus'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'eastus'|
+//@[20:22)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[0:121) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:17)  IdentifierSyntax
+//@[9:17)   Identifier |p4_vmExt|
+//@[18:75)  StringSyntax
+//@[18:75)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[76:77)  Assignment |=|
+//@[78:121)  ObjectSyntax
+//@[78:79)   LeftBrace |{|
+//@[79:81)   NewLine |\r\n|
+  parent: p4_vm
+//@[2:15)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:15)    VariableAccessSyntax
+//@[10:15)     IdentifierSyntax
+//@[10:15)      Identifier |p4_vm|
+//@[15:17)   NewLine |\r\n|
+  location: 'eastus'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'eastus'|
+//@[20:22)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// parent property with invalid child
+//@[37:39) NewLine |\r\n|
+resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[0:76) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p5_res1|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:55)  Assignment |=|
+//@[56:76)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  name: 'res1'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res1'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[0:102) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p5_res2|
+//@[17:60)  StringSyntax
+//@[17:60)   StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[61:62)  Assignment |=|
+//@[63:102)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
+  parent: p5_res1
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p5_res1|
+//@[17:19)   NewLine |\r\n|
+  name: 'res2'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res2'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// parent property with invalid parent
+//@[38:40) NewLine |\r\n|
+resource p6_res1 '${true}' = {
+//@[0:49) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p6_res1|
+//@[17:26)  StringSyntax
+//@[17:20)   StringLeftPiece |'${|
+//@[20:24)   BooleanLiteralSyntax
+//@[20:24)    TrueKeyword |true|
+//@[24:26)   StringRightPiece |}'|
+//@[27:28)  Assignment |=|
+//@[29:49)  ObjectSyntax
+//@[29:30)   LeftBrace |{|
+//@[30:32)   NewLine |\r\n|
+  name: 'res1'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res1'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[0:102) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p6_res2|
+//@[17:60)  StringSyntax
+//@[17:60)   StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[61:62)  Assignment |=|
+//@[63:102)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
+  parent: p6_res1
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p6_res1|
+//@[17:19)   NewLine |\r\n|
+  name: 'res2'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res2'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// parent property with incorrectly-formatted name
+//@[50:52) NewLine |\r\n|
+resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[0:76) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p7_res1|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:55)  Assignment |=|
+//@[56:76)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  name: 'res1'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res1'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[0:107) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p7_res2|
+//@[17:60)  StringSyntax
+//@[17:60)   StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[61:62)  Assignment |=|
+//@[63:107)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
+  parent: p7_res1
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p7_res1|
+//@[17:19)   NewLine |\r\n|
+  name: 'res1/res2'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'res1/res2'|
+//@[19:21)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[0:118) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p7_res3|
+//@[17:60)  StringSyntax
+//@[17:60)   StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[61:62)  Assignment |=|
+//@[63:118)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
+  parent: p7_res1
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p7_res1|
+//@[17:19)   NewLine |\r\n|
+  name: '${p7_res1.name}/res2'
+//@[2:30)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:30)    StringSyntax
+//@[8:11)     StringLeftPiece |'${|
+//@[11:23)     PropertyAccessSyntax
+//@[11:18)      VariableAccessSyntax
+//@[11:18)       IdentifierSyntax
+//@[11:18)        Identifier |p7_res1|
+//@[18:19)      Dot |.|
+//@[19:23)      IdentifierSyntax
+//@[19:23)       Identifier |name|
+//@[23:30)     StringRightPiece |}/res2'|
+//@[30:32)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// top-level resource with too many '/' characters
+//@[50:52) NewLine |\r\n|
+resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[0:81) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p8_res1|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:55)  Assignment |=|
+//@[56:81)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  name: 'res1/res2'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'res1/res2'|
+//@[19:21)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

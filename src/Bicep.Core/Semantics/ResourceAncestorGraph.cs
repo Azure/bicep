@@ -56,8 +56,10 @@ namespace Bicep.Core.Semantics
 
         private static IEnumerable<ResourceAncestor> GetAncestorsYoungestToOldest(ImmutableDictionary<ResourceSymbol, ResourceAncestor> hierarchy, ResourceSymbol resource)
         {
-            while (hierarchy.TryGetValue(resource, out var ancestor))
+            var visited = new HashSet<ResourceSymbol>();
+            while (hierarchy.TryGetValue(resource, out var ancestor) && !visited.Contains(ancestor.Resource))
             {
+                visited.Add(ancestor.Resource);
                 yield return ancestor;
 
                 resource = ancestor.Resource;
@@ -69,9 +71,10 @@ namespace Bicep.Core.Semantics
             var visitor = new ResourceAncestorVisitor(binder);
             visitor.Visit(syntaxTree.ProgramSyntax);
 
-            var ancestry = visitor.Ancestry.Keys.ToImmutableDictionary(
-                child => child,
-                child => GetAncestorsYoungestToOldest(visitor.Ancestry, child).Reverse().ToImmutableArray());
+            var ancestry = visitor.Ancestry.Keys
+                .ToImmutableDictionary(
+                    child => child,
+                    child => GetAncestorsYoungestToOldest(visitor.Ancestry, child).Reverse().ToImmutableArray());
             
             return new ResourceAncestorGraph(ancestry);
         }

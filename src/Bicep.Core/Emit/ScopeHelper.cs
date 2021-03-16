@@ -426,6 +426,11 @@ namespace Bicep.Core.Emit
                         continue;
                     }
 
+                    if (semanticModel.Binder.TryGetCycle(resourceSymbol) is not null)
+                    {
+                        continue;
+                    }
+
                     // we really just want the scope allocated to the oldest ancestor.
                     // since we are looping in order of depth, we can just read back the value from a previous iteration.
                     scopeInfo[resourceSymbol] = scopeInfo[firstAncestor.Resource];

@@ -1501,3 +1501,109 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
+// parent property with 'existing' resource at different scope
+resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  scope: tenant()
+  name: 'res1'
+}
+
+resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[65:106) [BCP165 (Error)] Cannot deploy a resource with ancestor under a different scope. Resource "p1_res1" has the "scope" property set. |{\r\n  parent: p1_res1\r\n  name: 'child1'\r\n}|
+  parent: p1_res1
+  name: 'child1'
+}
+
+// parent property with scope on child resource
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1'
+//@[8:14) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. |'res1'|
+}
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2@2020-06-01" does not have types available. |'Microsoft.Rp2/resource2@2020-06-01'|
+  name: 'res2'
+}
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+  scope: p2_res1
+//@[9:16) [BCP164 (Error)] The "scope" property is unsupported for a resource with a parent resource. This resource has "p2_res2" declared as its parent. |p2_res1|
+  parent: p2_res2
+  name: 'child2'
+}
+
+// parent property self-cycle
+resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: p3_vmExt
+//@[10:18) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |p3_vmExt|
+  location: 'eastus'
+}
+
+// parent property 2-cycle
+resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  parent: p4_vmExt
+//@[10:18) [BCP080 (Error)] The expression is involved in a cycle ("p4_vmExt" -> "p4_vm"). |p4_vmExt|
+  location: 'eastus'
+}
+
+resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: p4_vm
+//@[10:15) [BCP080 (Error)] The expression is involved in a cycle ("p4_vm" -> "p4_vmExt"). |p4_vm|
+  location: 'eastus'
+}
+
+// parent property with invalid child
+resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1'
+//@[8:14) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. |'res1'|
+}
+
+resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+  parent: p5_res1
+//@[10:17) [BCP167 (Error)] Resource type "Microsoft.Rp2/resource2/child2" is not a valid child resource of parent "Microsoft.Rp1/resource1". |p5_res1|
+  name: 'res2'
+}
+
+// parent property with invalid parent
+resource p6_res1 '${true}' = {
+//@[17:26) [BCP047 (Error)] String interpolation is unsupported for specifying the resource type. |'${true}'|
+  name: 'res1'
+}
+
+resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  parent: p6_res1
+//@[10:17) [BCP170 (Error)] The resource type cannot be validated due to an error in parent resource "p6_res1". |p6_res1|
+  name: 'res2'
+}
+
+// parent property with incorrectly-formatted name
+resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1'
+//@[8:14) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. |'res1'|
+}
+
+resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[17:60) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+  parent: p7_res1
+  name: 'res1/res2'
+//@[8:19) [BCP168 (Error)] Nested child resource names should not contain any "/" characters. |'res1/res2'|
+}
+
+resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[17:60) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+  parent: p7_res1
+  name: '${p7_res1.name}/res2'
+//@[8:30) [BCP168 (Error)] Nested child resource names should not contain any "/" characters. |'${p7_res1.name}/res2'|
+}
+
+// top-level resource with too many '/' characters
+resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1/res2'
+//@[8:19) [BCP169 (Error)] Expected 0 "/" characters, to match the type string. |'res1/res2'|
+}
