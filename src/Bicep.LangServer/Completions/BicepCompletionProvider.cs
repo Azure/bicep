@@ -320,7 +320,7 @@ namespace Bicep.LanguageServer.Completions
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
                 // loops are always allowed in a resource/module
-                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object))
+                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object, filtersAllowed: true))
                 {
                     yield return completion;
                 }
@@ -643,7 +643,7 @@ namespace Bicep.LanguageServer.Completions
                         ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(semanticModel, context.Property))
                     {
                         // property loop is allowed here
-                        foreach (var completion in CreateLoopCompletions(replacementRange, arrayType.Item.Type))
+                        foreach (var completion in CreateLoopCompletions(replacementRange, arrayType.Item.Type, filtersAllowed: false))
                         {
                             yield return completion;
                         }
@@ -688,10 +688,11 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(conditionLabel, CompletionPriority.High));
         }
 
-        private static IEnumerable<CompletionItem> CreateLoopCompletions(Range replacementRange, TypeSymbol arrayItemType)
+        private static IEnumerable<CompletionItem> CreateLoopCompletions(Range replacementRange, TypeSymbol arrayItemType, bool filtersAllowed)
         {
             const string loopLabel = "for";
             const string indexedLabel = "for-indexed";
+            const string filteredLabel = "for-filtered";
 
             var assignableToObject = TypeValidator.AreTypesAssignable(arrayItemType, LanguageConstants.Object);
             var assignableToArray = TypeValidator.AreTypesAssignable(arrayItemType, LanguageConstants.Array);
@@ -705,6 +706,11 @@ namespace Bicep.LanguageServer.Completions
 
             yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
             yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
+
+            if(filtersAllowed && assignableToObject && !assignableToArray)
+            {
+                yield return CreateContextualSnippetCompletion(filteredLabel, filteredLabel, "[for (${2:item}, ${3:index}) in ${1:list}: if (${4:condition}) {\n\t$0\n}]", replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
+            }
         }
 
         private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
