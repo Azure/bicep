@@ -2,9 +2,11 @@
 // wrong declaration
 bad
 
-// incomplete #completionTest(9) -> empty
+// #completionTest(9) -> resourceIdentifiers
 resource 
 //@[9:9) Resource <missing>. Type: error. Declaration start char: 0, length: 9
+
+// incomplete #completionTest(9) -> empty
 resource foo
 //@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 12
 resource fo/o

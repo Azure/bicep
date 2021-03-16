@@ -3,11 +3,12 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Bicep.LanguageServer.Snippets
 {
-    public class SnippetBuilder
+    public static class SnippetBuilder
     {
         private static readonly Dictionary<string, string> _snippetNameToDetailMap = new Dictionary<string, string>()
         {
@@ -28,18 +29,38 @@ namespace Bicep.LanguageServer.Snippets
 
         public static void CreateResourceSnippets()
         {
-            string? currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            string templatesFolder = Path.Combine(currentDirectory!, "Snippets\\Templates");
-
-            foreach (KeyValuePair<string, string> kvp in _snippetNameToDetailMap)
+            if (!resourceSnippets.Any())
             {
-                string template = Path.Combine(templatesFolder, kvp.Key + ".bicep");
-                ResourceSnippet resourceSnippet = new ResourceSnippet(kvp.Key, kvp.Value, File.ReadAllText(template));
+                string? currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                string templatesFolder = Path.Combine(currentDirectory!, "Snippets\\Templates");
 
-                resourceSnippets.Add(resourceSnippet);
+                foreach (KeyValuePair<string, string> kvp in _snippetNameToDetailMap)
+                {
+                    string template = Path.Combine(templatesFolder, kvp.Key + ".bicep");
+                    ResourceSnippet resourceSnippet = new ResourceSnippet(kvp.Key, kvp.Value, File.ReadAllText(template));
+
+                    resourceSnippets.Add(resourceSnippet);
+                }
             }
         }
 
-        public static List<ResourceSnippet> GetResourceSnippets() => resourceSnippets;
+        public static List<ResourceSnippet> GetResourceSnippets()
+        {
+            if (!resourceSnippets.Any())
+            {
+                string? currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                string templatesFolder = Path.Combine(currentDirectory!, "Snippets\\Templates");
+
+                foreach (KeyValuePair<string, string> kvp in _snippetNameToDetailMap)
+                {
+                    string template = Path.Combine(templatesFolder, kvp.Key + ".bicep");
+                    ResourceSnippet resourceSnippet = new ResourceSnippet(kvp.Key, kvp.Value, File.ReadAllText(template));
+
+                    resourceSnippets.Add(resourceSnippet);
+                }
+            }
+
+            return resourceSnippets;
+        }
     }
 }

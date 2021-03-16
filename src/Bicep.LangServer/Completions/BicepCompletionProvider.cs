@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Azure.Deployments.Core.Comparers;
@@ -15,7 +14,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
@@ -41,7 +39,7 @@ namespace Bicep.LanguageServer.Completions
         {
             this.FileResolver = fileResolver;
 
-            SnippetBuilder.CreateResourceSnippets();
+            //SnippetBuilder.CreateResourceSnippets();
         }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
@@ -334,24 +332,31 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceIdentifier))
             {
-                List<ResourceSnippet> resourceSnippets = SnippetBuilder.GetResourceSnippets();
-
                 if (context.EnclosingDeclaration is ResourceDeclarationSyntax)
                 {
                     Range replacementRange = context.ReplacementRange;
-                    //Range updatedReplacementRange = new Range()
-                    //{
-                    //    Start = new Position()
-                    //    {
-                    //        Line = replacementRange.Start.Line,
-                    //        Character = 0
-                    //    },
-                    //    End = replacementRange.End
-                    //};
 
-                    foreach (ResourceSnippet resourceSnippet in resourceSnippets)
+                    TextEdit textEdit = new TextEdit()
                     {
-                        yield return CreateContextualSnippetCompletion(resourceSnippet.Name, resourceSnippet.Detail, resourceSnippet.Text.TrimStart(("resource ").ToCharArray()), replacementRange);
+                        Range = new Range()
+                        {
+                            Start = new Position()
+                            {
+                                Line = replacementRange.Start.Line,
+                                Character = 0
+                            },
+                            End = replacementRange.End
+                        },
+                        NewText = string.Empty
+                    };
+
+                    foreach (ResourceSnippet resourceSnippet in SnippetBuilder.GetResourceSnippets())
+                    {
+                        yield return CreateContextualSnippetCompletion(resourceSnippet.Name,
+                                                                       resourceSnippet.Detail,
+                                                                       resourceSnippet.Text,
+                                                                       replacementRange,
+                                                                       additionalTextEdits: new TextEdit[] { textEdit });
                     }
                 }
             }
@@ -723,8 +728,8 @@ namespace Bicep.LanguageServer.Completions
                 _ => ("[for ${2:item} in ${1:list}: $0]", "[for (${2:item}, ${3:index}) in ${1:list}: $0]")
             };
 
-            yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
-            yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
+            yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, null, CompletionPriority.High, InsertTextMode.AdjustIndentation);
+            yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, null, CompletionPriority.High, InsertTextMode.AdjustIndentation);
         }
 
         private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
@@ -843,10 +848,11 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, InsertTextMode insertTextMode = InsertTextMode.AsIs) =>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, TextEditContainer? additionalTextEdits = null, CompletionPriority priority = CompletionPriority.Medium, InsertTextMode insertTextMode = InsertTextMode.AsIs) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet)
                 .WithLabel(label)
                 .WithSnippetEdit(replacementRange, snippet, insertTextMode)
+                .WithAdditionalEdits(additionalTextEdits)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority));

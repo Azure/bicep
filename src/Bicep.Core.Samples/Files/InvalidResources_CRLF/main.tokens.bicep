@@ -6,11 +6,14 @@ bad
 //@[0:3) Identifier |bad|
 //@[3:7) NewLine |\r\n\r\n|
 
-// incomplete #completionTest(9) -> empty
-//@[41:43) NewLine |\r\n|
+// #completionTest(9) -> resourceIdentifiers
+//@[44:46) NewLine |\r\n|
 resource 
 //@[0:8) Identifier |resource|
-//@[9:11) NewLine |\r\n|
+//@[9:13) NewLine |\r\n\r\n|
+
+// incomplete #completionTest(9) -> empty
+//@[41:43) NewLine |\r\n|
 resource foo
 //@[0:8) Identifier |resource|
 //@[9:12) Identifier |foo|

@@ -10,9 +10,13 @@ namespace Bicep.LanguageServer.Completions
     {
         public static CompletionItem Create(CompletionItemKind kind) => new CompletionItem {Kind = kind};
 
-        public static CompletionItem WithAdditionalEdits(this CompletionItem item, TextEditContainer editContainer)
+        public static CompletionItem WithAdditionalEdits(this CompletionItem item, TextEditContainer? editContainer)
         {
-            item.AdditionalTextEdits = editContainer;
+            if (editContainer is not null)
+            {
+                item.AdditionalTextEdits = editContainer;
+            }
+
             return item;
         }
 
@@ -78,7 +82,6 @@ namespace Bicep.LanguageServer.Completions
 
             return item;
         }
-
 
         public static CompletionItem WithSnippetEdit(this CompletionItem item, Range range, string snippet, InsertTextMode insertTextMode = InsertTextMode.AsIs)
         {

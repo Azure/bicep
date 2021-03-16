@@ -3,10 +3,12 @@
 bad
 //@[0:3) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |bad|
 
-// incomplete #completionTest(9) -> empty
+// #completionTest(9) -> resourceIdentifiers
 resource 
 //@[9:9) [BCP017 (Error)] Expected a resource identifier at this location. ||
 //@[9:9) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||
+
+// incomplete #completionTest(9) -> empty
 resource foo
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[12:12) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||

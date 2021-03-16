@@ -2,8 +2,10 @@
 // wrong declaration
 bad
 
-// incomplete #completionTest(9) -> empty
+// #completionTest(9) -> resourceIdentifiers
 resource 
+
+// incomplete #completionTest(9) -> empty
 resource foo
 resource fo/o
 resource foo 'ddd'
