@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -49,7 +50,7 @@ namespace Bicep.Core.Syntax
         public TypeSymbol GetDeclaredType(ResourceScope containingScope, SemanticModel moduleSemanticModel)
         {
             var paramTypeProperties = new List<TypeProperty>();
-            foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)
+            foreach (var param in moduleSemanticModel.Root.ParameterDeclarations.DistinctBy(p => p.Name))
             {
                 var typePropertyFlags = TypePropertyFlags.WriteOnly;
                 if (SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null)
@@ -62,7 +63,7 @@ namespace Bicep.Core.Syntax
             }
 
             var outputTypeProperties = new List<TypeProperty>();
-            foreach (var output in moduleSemanticModel.Root.OutputDeclarations)
+            foreach (var output in moduleSemanticModel.Root.OutputDeclarations.DistinctBy(o => o.Name))
             {
                 outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
             }
