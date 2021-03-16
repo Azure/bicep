@@ -7,7 +7,7 @@ As your Bicep practice matures, you will want to check-in your Bicep code into s
 
 With the current Azure CLI 2.20 now installed in GitHub and also on Azure DevOps, Bicep CLI can be automatically triggerd by using `az bicep build` command and an explicit task to download Bicep CLI is no more needed.
 
-The following two examples illustrates this. It assumes the following prerequisite:
+The two examples below illustrates this. It assumes the following prerequisite:
 
 * The Bicep file you want to transpile and deploy is called `main.bicep` and exists in the root of the repo
 * The parameters file you want to use is called `parameters.json` and exists in the root of the repo
