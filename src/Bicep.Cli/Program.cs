@@ -233,10 +233,8 @@ namespace Bicep.Cli
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
             
             const string defaultRepoUri = "https://github.com/Azure/bicep/raw/main/docs/examples/index.json";
-            //const string defaultFileName = "main.bicep";
 
-            // TODO: null URIs to arguments
-            string repoUri = arguments.IsCustomRepository ? arguments.Repository ??"" : defaultRepoUri; //fix it
+            string repoUri = arguments.IsCustomRepository ? arguments.Repository ??"" : defaultRepoUri;
 
             if (!Uri.IsWellFormedUriString(repoUri, UriKind.RelativeOrAbsolute))
             {
@@ -335,7 +333,6 @@ namespace Bicep.Cli
                             string id = item["filePath"]?.ToString() ?? "";
                             string description = item["description"]?.ToString() ?? "";
 
-                            //TODO: is filePath a secure string ?
                             writer.Write($"{id,-50} {description,-30}{Environment.NewLine}");
                         }
                         writer.Write($"{new String('-', 80)}{Environment.NewLine}");
