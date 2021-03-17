@@ -364,7 +364,15 @@ namespace Bicep.Core.TypeSystem
                     {
                         // the declared property is read-only
                         // value cannot be assigned to a read-only property
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
+                        var parent = typeManager.GetParent(expression);
+                        if (parent is ResourceDeclarationSyntax resourceSyntax && resourceSyntax.IsExistingResource())
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotUsePropertyInExistingResource(declaredProperty.Name));
+                        }
+                        else
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
+                        }
                         narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
                         continue;
                     }

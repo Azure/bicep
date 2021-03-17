@@ -1796,3 +1796,11 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1/res2'
 //@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" characters. The number of name segments must match the number of segments in the resource type. |'res1/res2'|
 }
+
+resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+  name: 'existngResProperty'
+  location: 'westeurope'
+//@[2:10) [BCP173 (Error)] The property "location" cannot be used in an existing resource declaration. |location|
+  properties: {}
+//@[2:12) [BCP173 (Error)] The property "properties" cannot be used in an existing resource declaration. |properties|
+}

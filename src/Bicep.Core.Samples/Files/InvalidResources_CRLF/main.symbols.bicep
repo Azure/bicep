@@ -1755,3 +1755,10 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[9:16) Resource p8_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 81
   name: 'res1/res2'
 }
+
+resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+//@[9:27) Resource existngResProperty. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 164
+  name: 'existngResProperty'
+  location: 'westeurope'
+  properties: {}
+}
