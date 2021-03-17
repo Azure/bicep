@@ -872,6 +872,16 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 //#completionTest(56) -> vmProperties
 var sigh = nestedPropertyAccessOnConditional.properties.
 
+/*
+  boolean property value completions
+*/
+resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  properties: {
+    // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
+    autoUpgradeMinorVersion: t
+  }
+}
+
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
   name: 'selfScope'
   scope: selfScope

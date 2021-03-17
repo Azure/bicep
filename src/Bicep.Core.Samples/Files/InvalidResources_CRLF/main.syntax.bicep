@@ -6269,6 +6269,47 @@ var sigh = nestedPropertyAccessOnConditional.properties.
 //@[56:56)    SkippedTriviaSyntax
 //@[56:60) NewLine |\r\n\r\n|
 
+/*
+  boolean property value completions
+*/ 
+//@[3:5) NewLine |\r\n|
+resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[0:222) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:36)  IdentifierSyntax
+//@[9:36)   Identifier |booleanPropertyPartialValue|
+//@[37:94)  StringSyntax
+//@[37:94)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[95:96)  Assignment |=|
+//@[97:222)  ObjectSyntax
+//@[97:98)   LeftBrace |{|
+//@[98:100)   NewLine |\r\n|
+  properties: {
+//@[2:119)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:119)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
+//@[65:67)     NewLine |\r\n|
+    autoUpgradeMinorVersion: t
+//@[4:30)     ObjectPropertySyntax
+//@[4:27)      IdentifierSyntax
+//@[4:27)       Identifier |autoUpgradeMinorVersion|
+//@[27:28)      Colon |:|
+//@[29:30)      VariableAccessSyntax
+//@[29:30)       IdentifierSyntax
+//@[29:30)        Identifier |t|
+//@[30:32)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
 //@[0:98) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|

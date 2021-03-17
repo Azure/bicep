@@ -1,23 +1,5 @@
 [
   {
-    "label": "'kind'",
-    "kind": "property",
-    "detail": "kind (Required)",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `'AzureCLI' | 'AzurePowerShell'`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'kind'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'kind'"
-    }
-  },
-  {
     "label": "any",
     "kind": "function",
     "detail": "any()",
@@ -302,23 +284,6 @@
     "command": {
       "command": "editor.action.triggerParameterHints"
     }
-  },
-  {
-    "label": "booleanPropertyPartialValue",
-    "kind": "interface",
-    "detail": "booleanPropertyPartialValue",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_booleanPropertyPartialValue",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "booleanPropertyPartialValue"
-    },
-    "commitCharacters": [
-      ":"
-    ]
   },
   {
     "label": "coalesce",
@@ -1253,6 +1218,20 @@
     }
   },
   {
+    "label": "discriminatorKeyValueMissingCompletions3",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions3"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissingCompletions3_for",
     "kind": "variable",
     "detail": "discriminatorKeyValueMissingCompletions3_for",
@@ -1852,6 +1831,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "false",
+    "kind": "keyword",
+    "detail": "false",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_false",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "false"
     }
   },
   {
@@ -4730,6 +4723,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "true",
+    "kind": "keyword",
+    "detail": "true",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_true",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "true"
     }
   },
   {

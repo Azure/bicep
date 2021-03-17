@@ -1132,6 +1132,17 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 var sigh = nestedPropertyAccessOnConditional.properties.
 //@[4:8) Variable sigh. Type: error. Declaration start char: 0, length: 56
 
+/*
+  boolean property value completions
+*/ 
+resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:36) Resource booleanPropertyPartialValue. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 222
+  properties: {
+    // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
+    autoUpgradeMinorVersion: t
+  }
+}
+
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
 //@[9:18) Resource selfScope. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 98
   name: 'selfScope'
