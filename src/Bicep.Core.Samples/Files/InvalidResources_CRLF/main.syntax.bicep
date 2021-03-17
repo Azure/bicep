@@ -10147,43 +10147,64 @@ resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 // top-level resource with too many '/' characters
 //@[50:52) NewLine |\r\n|
 resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:230) ResourceDeclarationSyntax
+//@[0:81) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:16)  IdentifierSyntax
 //@[9:16)   Identifier |p8_res1|
 //@[17:53)  StringSyntax
 //@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
 //@[54:55)  Assignment |=|
-//@[56:230)  SkippedTriviaSyntax
+//@[56:81)  ObjectSyntax
 //@[56:57)   LeftBrace |{|
 //@[57:59)   NewLine |\r\n|
   name: 'res1/res2'
-//@[2:6)   Identifier |name|
-//@[6:7)   Colon |:|
-//@[8:19)   StringComplete |'res1/res2'|
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'res1/res2'|
 //@[19:21)   NewLine |\r\n|
-resource existngResProperty 'Mock.Rp/mockExistingResource@2020-01-01' = {
-//@[0:8)   Identifier |resource|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+//@[0:164) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
 //@[9:27)   Identifier |existngResProperty|
-//@[28:69)   StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
-//@[70:71)   Assignment |=|
-//@[72:73)   LeftBrace |{|
-//@[73:75)   NewLine |\r\n|
+//@[28:74)  StringSyntax
+//@[28:74)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[75:83)  Identifier |existing|
+//@[84:85)  Assignment |=|
+//@[86:164)  ObjectSyntax
+//@[86:87)   LeftBrace |{|
+//@[87:89)   NewLine |\r\n|
   name: 'existngResProperty'
-//@[2:6)   Identifier |name|
-//@[6:7)   Colon |:|
-//@[8:28)   StringComplete |'existngResProperty'|
+//@[2:28)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:28)    StringSyntax
+//@[8:28)     StringComplete |'existngResProperty'|
 //@[28:30)   NewLine |\r\n|
   location: 'westeurope'
-//@[2:10)   Identifier |location|
-//@[10:11)   Colon |:|
-//@[12:24)   StringComplete |'westeurope'|
+//@[2:24)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:24)    StringSyntax
+//@[12:24)     StringComplete |'westeurope'|
 //@[24:26)   NewLine |\r\n|
   properties: {}
-//@[2:12)   Identifier |properties|
-//@[12:13)   Colon |:|
-//@[14:15)   LeftBrace |{|
-//@[15:16)   RightBrace |}|
+//@[2:16)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:16)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:16)     RightBrace |}|
 //@[16:18)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
