@@ -135,7 +135,7 @@ namespace Bicep.Core.Emit
                     // e.g. '{parent.name}/child' or 'parent/child'
                     if (resourceNameString.SegmentValues.Any(v => v.IndexOf('/') > -1))
                     {
-                        diagnosticWriter.Write(resourceName, x => x.NestedChildResourceNameContainsQualifiers());
+                        diagnosticWriter.Write(resourceName, x => x.ChildResourceNameContainsQualifiers());
                     }
                 }
                 else

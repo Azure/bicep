@@ -957,24 +957,22 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic TopLevelChildResourceNameMissingQualifiers(int expectedSlashCount) => new(
                 TextSpan,
                 "BCP169",
-                // TODO: add a docs link?
-                $"Expected {expectedSlashCount} \"/\" characters, to match the type string.");
+                $"Expected resource name to contain {expectedSlashCount} \"/\" characters. The number of name segments must match the number of segments in the resource type.");
 
-            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+            public ErrorDiagnostic ChildResourceNameContainsQualifiers() => new(
                 TextSpan,
                 "BCP170",
-                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
+                $"Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.");
 
             public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
                 TextSpan,
                 "BCP171",
                 $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
 
-            public ErrorDiagnostic NestedChildResourceNameContainsQualifiers() => new(
+            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
                 TextSpan,
                 "BCP172",
-                // TODO: add a docs link?
-                $"Nested child resource names should not contain any \"/\" characters.");
+                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

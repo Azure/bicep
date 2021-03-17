@@ -1754,7 +1754,7 @@ resource p6_res1 '${true}' = {
 
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
   parent: p6_res1
-//@[10:17) [BCP170 (Error)] The resource type cannot be validated due to an error in parent resource "p6_res1". |p6_res1|
+//@[10:17) [BCP172 (Error)] The resource type cannot be validated due to an error in parent resource "p6_res1". |p6_res1|
   name: 'res2'
 }
 
@@ -1769,19 +1769,19 @@ resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 //@[17:60) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child2@2020-06-01'|
   parent: p7_res1
   name: 'res1/res2'
-//@[8:19) [BCP172 (Error)] Nested child resource names should not contain any "/" characters. |'res1/res2'|
+//@[8:19) [BCP170 (Error)] Expected resource name to not contain any "/" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name. |'res1/res2'|
 }
 
 resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 //@[17:60) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child2@2020-06-01'|
   parent: p7_res1
   name: '${p7_res1.name}/res2'
-//@[8:30) [BCP172 (Error)] Nested child resource names should not contain any "/" characters. |'${p7_res1.name}/res2'|
+//@[8:30) [BCP170 (Error)] Expected resource name to not contain any "/" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name. |'${p7_res1.name}/res2'|
 }
 
 // top-level resource with too many '/' characters
 resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1/res2'
-//@[8:19) [BCP169 (Error)] Expected 0 "/" characters, to match the type string. |'res1/res2'|
+//@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" characters. The number of name segments must match the number of segments in the resource type. |'res1/res2'|
 }

@@ -332,7 +332,7 @@ resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP047", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the resource type."),
-                  ("BCP170", DiagnosticLevel.Error, "The resource type cannot be validated due to an error in parent resource \"res1\"."),
+                  ("BCP172", DiagnosticLevel.Error, "The resource type cannot be validated due to an error in parent resource \"res1\"."),
                 });
             }
         }
@@ -360,8 +360,8 @@ resource res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP172", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
-                  ("BCP172", DiagnosticLevel.Error, "Nested child resource names should not contain any \"/\" characters."),
+                  ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
+                  ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
                 });
             }
         }
@@ -379,7 +379,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP169", DiagnosticLevel.Error, "Expected 0 \"/\" characters, to match the type string."),
+                  ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 0 \"/\" characters. The number of name segments must match the number of segments in the resource type."),
                 });
             }
 
@@ -393,7 +393,7 @@ resource res1 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP169", DiagnosticLevel.Error, "Expected 1 \"/\" characters, to match the type string."),
+                  ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" characters. The number of name segments must match the number of segments in the resource type."),
                 });
             }
         }
