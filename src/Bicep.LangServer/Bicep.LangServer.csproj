@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <Content Include="Snippets\Templates\*.bicep">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

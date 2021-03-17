@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
 
         private IFileResolver FileResolver;
-        private IResourceSnippetsProvider ResourceSnippetsProvider;
+        private readonly IResourceSnippetsProvider ResourceSnippetsProvider;
 
         public BicepCompletionProvider(IFileResolver fileResolver, IResourceSnippetsProvider resourceSnippetsProvider)
         {
