@@ -1,7 +1,9 @@
-﻿resource cosmosDbAccount1 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
-  name: '${1:cosmosDbAccount1}'
+﻿resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
+  name: '${1:cosmosDbAccount}'
   location: resourceGroup().location
-  tags: {}
+  tags: {
+    displayName: '${1:cosmosDbAccount}'
+  }
   kind: '${2|GlobalDocumentDB,MongoDB,Parse|}'
   properties: {
     consistencyPolicy: {

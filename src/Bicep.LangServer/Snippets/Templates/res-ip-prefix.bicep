@@ -1,7 +1,9 @@
-﻿resource publicIPPrefix1 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {
-  name: '${1:publicIPPrefix1}'
+﻿resource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {
+  name: '${1:publicIPPrefix}'
   location: resourceGroup().location
-  tags: {}
+  tags: {
+    displayName: '${1:publicIPPrefix}'
+  }
   sku: {
     name: 'Standard'
   }

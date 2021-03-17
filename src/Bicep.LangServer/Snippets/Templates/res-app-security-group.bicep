@@ -1,6 +1,7 @@
-﻿resource applicationSecurityGroup1 'Microsoft.Network/applicationSecurityGroups@2019-11-01' = {
-  name: '${1:applicationSecurityGroup1}'
+﻿resource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2019-11-01' = {
+  name: '${1:applicationSecurityGroup}'
   location: resourceGroup().location
-  tags: {}
-  properties: {}
+  tags: {
+    displayName: '${1:applicationSecurityGroup}'
+  }
 }
