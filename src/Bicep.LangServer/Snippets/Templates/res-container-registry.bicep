@@ -1,4 +1,5 @@
-﻿resource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {
+﻿// Container Registry
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {
   name: '${1:containerRegistry}'
   location: resourceGroup().location
   tags: {

@@ -1,4 +1,5 @@
-﻿resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
+﻿// Data Lake Store Account
+resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
   name: '${1:dataLakeStore}'
   location: resourceGroup().location
   tags: {

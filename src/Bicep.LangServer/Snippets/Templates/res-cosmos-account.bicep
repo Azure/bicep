@@ -1,4 +1,5 @@
-﻿resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
+﻿// Cosmos DB Database Account
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
   name: '${1:cosmosDbAccount}'
   location: resourceGroup().location
   tags: {

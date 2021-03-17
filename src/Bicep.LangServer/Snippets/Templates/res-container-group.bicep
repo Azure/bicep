@@ -1,4 +1,5 @@
-﻿resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2018-10-01' = {
+﻿// Container Group
+resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2018-10-01' = {
   name: '${1:containerGroup}'
   location: resourceGroup().location
   tags: {
