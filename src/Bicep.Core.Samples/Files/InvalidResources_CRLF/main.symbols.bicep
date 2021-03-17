@@ -1646,3 +1646,101 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
+// parent property with 'existing' resource at different scope
+resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[9:16) Resource p1_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 104
+  scope: tenant()
+  name: 'res1'
+}
+
+resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[9:18) Resource p1_child1. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 106
+  parent: p1_res1
+  name: 'child1'
+}
+
+// parent property with scope on child resource
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res1'
+}
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[9:16) Resource p2_res2. Type: Microsoft.Rp2/resource2@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res2'
+}
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[9:21) Resource p2_res2child. Type: Microsoft.Rp2/resource2/child2@2020-06-01. Declaration start char: 0, length: 127
+  scope: p2_res1
+  parent: p2_res2
+  name: 'child2'
+}
+
+// parent property self-cycle
+resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:17) Resource p3_vmExt. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 124
+  parent: p3_vmExt
+  location: 'eastus'
+}
+
+// parent property 2-cycle
+resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+//@[9:14) Resource p4_vm. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 110
+  parent: p4_vmExt
+  location: 'eastus'
+}
+
+resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:17) Resource p4_vmExt. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 121
+  parent: p4_vm
+  location: 'eastus'
+}
+
+// parent property with invalid child
+resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p5_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res1'
+}
+
+resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[9:16) Resource p5_res2. Type: error. Declaration start char: 0, length: 102
+  parent: p5_res1
+  name: 'res2'
+}
+
+// parent property with invalid parent
+resource p6_res1 '${true}' = {
+//@[9:16) Resource p6_res1. Type: error. Declaration start char: 0, length: 49
+  name: 'res1'
+}
+
+resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[9:16) Resource p6_res2. Type: error. Declaration start char: 0, length: 102
+  parent: p6_res1
+  name: 'res2'
+}
+
+// parent property with incorrectly-formatted name
+resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p7_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res1'
+}
+
+resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[9:16) Resource p7_res2. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 107
+  parent: p7_res1
+  name: 'res1/res2'
+}
+
+resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[9:16) Resource p7_res3. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 118
+  parent: p7_res1
+  name: '${p7_res1.name}/res2'
+}
+
+// top-level resource with too many '/' characters
+resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p8_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 81
+  name: 'res1/res2'
+}

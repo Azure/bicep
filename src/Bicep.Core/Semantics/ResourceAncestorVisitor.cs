@@ -1,27 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Syntax;
+using static Bicep.Core.Semantics.ResourceAncestorGraph;
 
 namespace Bicep.Core.Semantics
 {
     public sealed class ResourceAncestorVisitor : SyntaxVisitor
     {
         private readonly IBinder binder;
-        private readonly Stack<ResourceSymbol> ancestorResources;
-        private readonly ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>>.Builder ancestry;
+        private readonly ImmutableDictionary<ResourceSymbol, ResourceAncestor>.Builder ancestry;
 
         public ResourceAncestorVisitor(IBinder binder)
         {
             this.binder = binder;
-            this.ancestorResources = new Stack<ResourceSymbol>();
-            this.ancestry = ImmutableDictionary.CreateBuilder<ResourceSymbol, ImmutableArray<ResourceSymbol>>();
+            this.ancestry = ImmutableDictionary.CreateBuilder<ResourceSymbol, ResourceAncestor>();
         }
 
-        public ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>> Ancestry 
+        public ImmutableDictionary<ResourceSymbol, ResourceAncestor> Ancestry 
             => this.ancestry.ToImmutableDictionary();
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
@@ -33,21 +30,33 @@ namespace Bicep.Core.Semantics
                 base.VisitResourceDeclarationSyntax(syntax);
                 return;
             }
-
-            // We don't need to do anything here to validate types and their relationships, that was handled during type assignment.
-            this.ancestry.Add(symbol, ImmutableArray.CreateRange(this.ancestorResources.Reverse()));
-
-            try
+            
+            if (this.binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is {} nestedParentSyntax)
             {
-                // This will recursively process the resource body - capture the 'current' declaration's declared resource
-                // type so we can validate nesting.
-                this.ancestorResources.Push(symbol);
-                base.VisitResourceDeclarationSyntax(syntax);
+                // nested resource parent syntax
+                if (this.binder.GetSymbolInfo(nestedParentSyntax) is ResourceSymbol parentSymbol)
+                {
+                    this.ancestry.Add(symbol, new ResourceAncestor(ResourceAncestorType.Nested, parentSymbol, null));
+                }
             }
-            finally
+            else if (symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax)
             {
-                this.ancestorResources.Pop();
+                SyntaxBase? indexExpression = null;
+                if (referenceParentSyntax is ArrayAccessSyntax arrayAccess)
+                {
+                    referenceParentSyntax = arrayAccess.BaseExpression;
+                    indexExpression = arrayAccess.IndexExpression;
+                }
+
+                // parent property reference syntax
+                if (this.binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentSymbol)
+                {
+                    this.ancestry.Add(symbol, new ResourceAncestor(ResourceAncestorType.ParentProperty, parentSymbol, indexExpression));
+                }
             }
+
+            base.VisitResourceDeclarationSyntax(syntax);
+            return;
         }
     }
 }

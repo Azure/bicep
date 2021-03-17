@@ -88,6 +88,26 @@ namespace Bicep.Core.Syntax
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceType());
                 }
+
+                if (binder.GetSymbolInfo(this) is ResourceSymbol resourceSymbol &&
+                    binder.TryGetCycle(resourceSymbol) is null &&
+                    resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax &&
+                    binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentResourceSymbol)
+                {
+                    var parentType = parentResourceSymbol.DeclaringResource.GetDeclaredType(binder, resourceTypeProvider);
+                    if (parentType is not ResourceType parentResourceType)
+                    {
+                        // TODO should we raise an error, or just rely on the error on the parent?
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(referenceParentSyntax).ParentResourceTypeHasErrors(parentResourceSymbol.DeclaringResource.Name.IdentifierName));
+                    }
+
+                    if (!parentResourceType.TypeReference.IsParentOf(typeReference))
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(referenceParentSyntax).ResourceTypeIsNotValidParent(
+                            typeReference.FullyQualifiedType,
+                            parentResourceType.TypeReference.FullyQualifiedType));
+                    }
+                }
             }
             else
             {

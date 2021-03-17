@@ -3306,6 +3306,278 @@
     }
   },
   {
+    "label": "p1_child1",
+    "kind": "interface",
+    "detail": "p1_child1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p1_child1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p1_child1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p1_res1",
+    "kind": "interface",
+    "detail": "p1_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p1_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p1_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p2_res1",
+    "kind": "interface",
+    "detail": "p2_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p2_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p2_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p2_res2",
+    "kind": "interface",
+    "detail": "p2_res2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p2_res2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p2_res2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p2_res2child",
+    "kind": "interface",
+    "detail": "p2_res2child",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p2_res2child",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p2_res2child"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p3_vmExt",
+    "kind": "interface",
+    "detail": "p3_vmExt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p3_vmExt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p3_vmExt"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p4_vm",
+    "kind": "interface",
+    "detail": "p4_vm",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p4_vm",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p4_vm"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p4_vmExt",
+    "kind": "interface",
+    "detail": "p4_vmExt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p4_vmExt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p4_vmExt"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p5_res1",
+    "kind": "interface",
+    "detail": "p5_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p5_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p5_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p5_res2",
+    "kind": "interface",
+    "detail": "p5_res2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p5_res2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p5_res2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p6_res1",
+    "kind": "interface",
+    "detail": "p6_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p6_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p6_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p6_res2",
+    "kind": "interface",
+    "detail": "p6_res2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p6_res2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p6_res2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p7_res1",
+    "kind": "interface",
+    "detail": "p7_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p7_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p7_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p7_res2",
+    "kind": "interface",
+    "detail": "p7_res2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p7_res2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p7_res2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p7_res3",
+    "kind": "interface",
+    "detail": "p7_res3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p7_res3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p7_res3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p8_res1",
+    "kind": "interface",
+    "detail": "p8_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p8_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "p8_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "padLeft",
     "kind": "function",
     "detail": "padLeft()",
