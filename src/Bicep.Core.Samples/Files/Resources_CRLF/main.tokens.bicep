@@ -1885,6 +1885,450 @@ resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
 //@[20:22) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:7) NewLine |\r\n\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+
+resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p1_vnet|
+//@[17:63) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[64:65) Assignment |=|
+//@[66:67) LeftBrace |{|
+//@[67:69) NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:25) Identifier |resourceGroup|
+//@[25:26) LeftParen |(|
+//@[26:27) RightParen |)|
+//@[27:28) Dot |.|
+//@[28:36) Identifier |location|
+//@[36:38) NewLine |\r\n|
+  name: 'myVnet'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'myVnet'|
+//@[16:18) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    addressSpace: {
+//@[4:16) Identifier |addressSpace|
+//@[16:17) Colon |:|
+//@[18:19) LeftBrace |{|
+//@[19:21) NewLine |\r\n|
+      addressPrefixes: [
+//@[6:21) Identifier |addressPrefixes|
+//@[21:22) Colon |:|
+//@[23:24) LeftSquare |[|
+//@[24:26) NewLine |\r\n|
+        '10.0.0.0/20'
+//@[8:21) StringComplete |'10.0.0.0/20'|
+//@[21:23) NewLine |\r\n|
+      ]
+//@[6:7) RightSquare |]|
+//@[7:9) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:19) Identifier |p1_subnet1|
+//@[20:74) StringComplete |'Microsoft.Network/virtualNetworks/subnets@2020-06-01'|
+//@[75:76) Assignment |=|
+//@[77:78) LeftBrace |{|
+//@[78:80) NewLine |\r\n|
+  parent: p1_vnet
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p1_vnet|
+//@[17:19) NewLine |\r\n|
+  name: 'subnet1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringComplete |'subnet1'|
+//@[17:19) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    addressPrefix: '10.0.0.0/24'
+//@[4:17) Identifier |addressPrefix|
+//@[17:18) Colon |:|
+//@[19:32) StringComplete |'10.0.0.0/24'|
+//@[32:34) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:19) Identifier |p1_subnet2|
+//@[20:74) StringComplete |'Microsoft.Network/virtualNetworks/subnets@2020-06-01'|
+//@[75:76) Assignment |=|
+//@[77:78) LeftBrace |{|
+//@[78:80) NewLine |\r\n|
+  parent: p1_vnet
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p1_vnet|
+//@[17:19) NewLine |\r\n|
+  name: 'subnet2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringComplete |'subnet2'|
+//@[17:19) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    addressPrefix: '10.0.1.0/24'
+//@[4:17) Identifier |addressPrefix|
+//@[17:18) Colon |:|
+//@[19:32) StringComplete |'10.0.1.0/24'|
+//@[32:34) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p1_subnet1prefix|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:43) Identifier |p1_subnet1|
+//@[43:44) Dot |.|
+//@[44:54) Identifier |properties|
+//@[54:55) Dot |.|
+//@[55:68) Identifier |addressPrefix|
+//@[68:70) NewLine |\r\n|
+output p1_subnet1name string = p1_subnet1.name
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p1_subnet1name|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:41) Identifier |p1_subnet1|
+//@[41:42) Dot |.|
+//@[42:46) Identifier |name|
+//@[46:48) NewLine |\r\n|
+output p1_subnet1type string = p1_subnet1.type
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p1_subnet1type|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:41) Identifier |p1_subnet1|
+//@[41:42) Dot |.|
+//@[42:46) Identifier |type|
+//@[46:48) NewLine |\r\n|
+output p1_subnet1id string = p1_subnet1.id
+//@[0:6) Identifier |output|
+//@[7:19) Identifier |p1_subnet1id|
+//@[20:26) Identifier |string|
+//@[27:28) Assignment |=|
+//@[29:39) Identifier |p1_subnet1|
+//@[39:40) Dot |.|
+//@[40:42) Identifier |id|
+//@[42:46) NewLine |\r\n\r\n|
+
+// parent property with extension resource
+//@[42:44) NewLine |\r\n|
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p2_res1|
+//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:55) Assignment |=|
+//@[56:57) LeftBrace |{|
+//@[57:59) NewLine |\r\n|
+  name: 'res1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'res1'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:21) Identifier |p2_res1child|
+//@[22:65) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[66:67) Assignment |=|
+//@[68:69) LeftBrace |{|
+//@[69:71) NewLine |\r\n|
+  parent: p2_res1
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p2_res1|
+//@[17:19) NewLine |\r\n|
+  name: 'child1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child1'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p2_res2|
+//@[17:53) StringComplete |'Microsoft.Rp2/resource2@2020-06-01'|
+//@[54:55) Assignment |=|
+//@[56:57) LeftBrace |{|
+//@[57:59) NewLine |\r\n|
+  scope: p2_res1child
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:21) Identifier |p2_res1child|
+//@[21:23) NewLine |\r\n|
+  name: 'res2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'res2'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:21) Identifier |p2_res2child|
+//@[22:65) StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[66:67) Assignment |=|
+//@[68:69) LeftBrace |{|
+//@[69:71) NewLine |\r\n|
+  parent: p2_res2
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p2_res2|
+//@[17:19) NewLine |\r\n|
+  name: 'child2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child2'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p2_res2childprop string = p2_res2child.properties.someProp
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p2_res2childprop|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:45) Identifier |p2_res2child|
+//@[45:46) Dot |.|
+//@[46:56) Identifier |properties|
+//@[56:57) Dot |.|
+//@[57:65) Identifier |someProp|
+//@[65:67) NewLine |\r\n|
+output p2_res2childname string = p2_res2child.name
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p2_res2childname|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:45) Identifier |p2_res2child|
+//@[45:46) Dot |.|
+//@[46:50) Identifier |name|
+//@[50:52) NewLine |\r\n|
+output p2_res2childtype string = p2_res2child.type
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p2_res2childtype|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:45) Identifier |p2_res2child|
+//@[45:46) Dot |.|
+//@[46:50) Identifier |type|
+//@[50:52) NewLine |\r\n|
+output p2_res2childid string = p2_res2child.id
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p2_res2childid|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:43) Identifier |p2_res2child|
+//@[43:44) Dot |.|
+//@[44:46) Identifier |id|
+//@[46:50) NewLine |\r\n\r\n|
+
+// parent property with 'existing' resource
+//@[43:45) NewLine |\r\n|
+resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p3_res1|
+//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:62) Identifier |existing|
+//@[63:64) Assignment |=|
+//@[65:66) LeftBrace |{|
+//@[66:68) NewLine |\r\n|
+  name: 'res1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'res1'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |p3_child1|
+//@[19:62) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:64) Assignment |=|
+//@[65:66) LeftBrace |{|
+//@[66:68) NewLine |\r\n|
+  parent: p3_res1
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p3_res1|
+//@[17:19) NewLine |\r\n|
+  name: 'child1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child1'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p3_res1childprop string = p3_child1.properties.someProp
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p3_res1childprop|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p3_child1|
+//@[42:43) Dot |.|
+//@[43:53) Identifier |properties|
+//@[53:54) Dot |.|
+//@[54:62) Identifier |someProp|
+//@[62:64) NewLine |\r\n|
+output p3_res1childname string = p3_child1.name
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p3_res1childname|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p3_child1|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |name|
+//@[47:49) NewLine |\r\n|
+output p3_res1childtype string = p3_child1.type
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p3_res1childtype|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p3_child1|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |type|
+//@[47:49) NewLine |\r\n|
+output p3_res1childid string = p3_child1.id
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p3_res1childid|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:40) Identifier |p3_child1|
+//@[40:41) Dot |.|
+//@[41:43) Identifier |id|
+//@[43:47) NewLine |\r\n\r\n|
+
+// parent & child with 'existing'
+//@[33:35) NewLine |\r\n|
+resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p4_res1|
+//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:62) Identifier |existing|
+//@[63:64) Assignment |=|
+//@[65:66) LeftBrace |{|
+//@[66:68) NewLine |\r\n|
+  scope: tenant()
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:15) Identifier |tenant|
+//@[15:16) LeftParen |(|
+//@[16:17) RightParen |)|
+//@[17:19) NewLine |\r\n|
+  name: 'res1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'res1'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |p4_child1|
+//@[19:62) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:71) Identifier |existing|
+//@[72:73) Assignment |=|
+//@[74:75) LeftBrace |{|
+//@[75:77) NewLine |\r\n|
+  parent: p4_res1
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p4_res1|
+//@[17:19) NewLine |\r\n|
+  name: 'child1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child1'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p4_res1childprop string = p4_child1.properties.someProp
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p4_res1childprop|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p4_child1|
+//@[42:43) Dot |.|
+//@[43:53) Identifier |properties|
+//@[53:54) Dot |.|
+//@[54:62) Identifier |someProp|
+//@[62:64) NewLine |\r\n|
+output p4_res1childname string = p4_child1.name
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p4_res1childname|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p4_child1|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |name|
+//@[47:49) NewLine |\r\n|
+output p4_res1childtype string = p4_child1.type
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p4_res1childtype|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p4_child1|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |type|
+//@[47:49) NewLine |\r\n|
+output p4_res1childid string = p4_child1.id
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p4_res1childid|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:40) Identifier |p4_child1|
+//@[40:41) Dot |.|
+//@[41:43) Identifier |id|
+//@[43:43) EndOfFile ||

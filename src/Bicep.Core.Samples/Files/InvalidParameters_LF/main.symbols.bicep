@@ -512,6 +512,11 @@ param unaryMinusOnFunction int
 param duplicateDecorators string
 //@[6:25) Parameter duplicateDecorators. Type: string. Declaration start char: 0, length: 98
 
+@minLength(-1)
+@maxLength(-100)
+param invalidLength string
+//@[6:19) Parameter invalidLength. Type: string. Declaration start char: 0, length: 58
+
 // unterminated multi-line comment
 /*    
 

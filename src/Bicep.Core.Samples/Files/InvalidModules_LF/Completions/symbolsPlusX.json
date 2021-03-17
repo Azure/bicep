@@ -714,6 +714,62 @@
     }
   },
   {
+    "label": "expectedLoopFilterOpenParen",
+    "kind": "module",
+    "detail": "expectedLoopFilterOpenParen",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterOpenParen",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterOpenParen"
+    }
+  },
+  {
+    "label": "expectedLoopFilterOpenParen2",
+    "kind": "module",
+    "detail": "expectedLoopFilterOpenParen2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterOpenParen2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterOpenParen2"
+    }
+  },
+  {
+    "label": "expectedLoopFilterPredicateAndBody",
+    "kind": "module",
+    "detail": "expectedLoopFilterPredicateAndBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterPredicateAndBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterPredicateAndBody"
+    }
+  },
+  {
+    "label": "expectedLoopFilterPredicateAndBody2",
+    "kind": "module",
+    "detail": "expectedLoopFilterPredicateAndBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterPredicateAndBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterPredicateAndBody2"
+    }
+  },
+  {
     "label": "expectedLoopVar",
     "kind": "module",
     "detail": "expectedLoopVar",
@@ -1770,6 +1826,20 @@
     }
   },
   {
+    "label": "paramNameCompletionsInFilteredLoops",
+    "kind": "module",
+    "detail": "paramNameCompletionsInFilteredLoops",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_paramNameCompletionsInFilteredLoops",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "paramNameCompletionsInFilteredLoops"
+    }
+  },
+  {
     "label": "pickZones",
     "kind": "function",
     "detail": "pickZones()",
@@ -1784,6 +1854,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "propertyAccessCompletionsForFilteredModuleLoop",
+    "kind": "variable",
+    "detail": "propertyAccessCompletionsForFilteredModuleLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_propertyAccessCompletionsForFilteredModuleLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "propertyAccessCompletionsForFilteredModuleLoop"
     }
   },
   {
@@ -2388,6 +2472,20 @@
     "textEdit": {
       "range": {},
       "newText": "wrongLoopBodyType2"
+    }
+  },
+  {
+    "label": "wrongModuleParameterInFilteredLoop",
+    "kind": "module",
+    "detail": "wrongModuleParameterInFilteredLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongModuleParameterInFilteredLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongModuleParameterInFilteredLoop"
     }
   },
   {

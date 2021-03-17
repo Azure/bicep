@@ -945,9 +945,39 @@ namespace Bicep.Core.Diagnostics
                 "BCP166",
                 $"Duplicate \"{decoratorName}\" decorator.");
 
+            public ErrorDiagnostic ExpectBodyStartOrIf() => new(
+                TextSpan,
+                "BCP167",
+                "Expected the \"{\" character or the \"if\" keyword at this location.");
+
+            public ErrorDiagnostic LengthMustNotBeNegative() => new(
+                TextSpan,
+                "BCP168",
+                $"Length must not be a negative value.");
+
+            public ErrorDiagnostic TopLevelChildResourceNameMissingQualifiers(int expectedSlashCount) => new(
+                TextSpan,
+                "BCP169",
+                $"Expected resource name to contain {expectedSlashCount} \"/\" characters. The number of name segments must match the number of segments in the resource type.");
+
+            public ErrorDiagnostic ChildResourceNameContainsQualifiers() => new(
+                TextSpan,
+                "BCP170",
+                $"Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.");
+
+            public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
+                TextSpan,
+                "BCP171",
+                $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
+
+            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+                TextSpan,
+                "BCP172",
+                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
+
             public ErrorDiagnostic CannotUsePropertyInExistingResource(string property) => new(
                TextSpan,
-               "BCP167",
+               "BCP173",
                $"The property \"{property}\" cannot be used in an existing resource declaration.");
 
         }

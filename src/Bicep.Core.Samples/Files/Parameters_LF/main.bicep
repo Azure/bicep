@@ -219,6 +219,11 @@ param decoratedInt int = 123
 @maxValue(-3)
 param negativeValues int
 
+// negative zeros are valid lengths
+@minLength(-0)
+@maxLength(-0)
+param negativeZeros string
+
 // negative integer literals in modifiers
 param negativeModifiers int {
   minValue: -100

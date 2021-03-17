@@ -10,6 +10,8 @@ using Bicep.Core.UnitTests.Utils;
 using Newtonsoft.Json.Linq;
 using FluentAssertions.Execution;
 using System.ComponentModel.DataAnnotations;
+using Bicep.Core.Semantics;
+using System.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -998,6 +1000,44 @@ output allResources array = allResources
                 template.Should().HaveValueAtPath("$.variables['allResources']", "[providers('Microsoft.Insights')]");
                 template.Should().HaveValueAtPath("$.variables['firstResourceFirstApiVersion']", "[variables('allResources')[0].apiVersions[0]]");
             }
+        }
+
+        [TestMethod]
+        public void Test_Issue1627()
+        {
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] = @"
+module modulea 'modulea.bicep' = {
+  name: 'modulea'
+  params: {
+    foo: 'test'
+  }
+}
+
+var bar = modulea.outputs.bar
+",
+                [moduleAUri] = @"
+// duplicate parameter symbols
+param foo string
+param foo int
+
+// duplicate output symbols
+output bar bool = true
+output bar int = 42
+",
+            };
+
+
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
+
+            var diagnosticsByFile = compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
+            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+            });
         }
     }
 }
