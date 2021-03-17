@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.Snippets
         private void Initialize()
         {
             string? currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            string templatesFolder = Path.Combine(currentDirectory ?? throw new ArgumentNullException("Could not find directory information"),
+            string templatesFolder = Path.Combine(currentDirectory ?? throw new ArgumentNullException("Path is null"),
                                                   "Snippets",
                                                   "Templates");
 
