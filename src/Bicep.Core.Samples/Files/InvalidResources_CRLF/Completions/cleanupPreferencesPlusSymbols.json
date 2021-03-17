@@ -328,6 +328,23 @@
     }
   },
   {
+    "label": "booleanPropertyPartialValue",
+    "kind": "interface",
+    "detail": "booleanPropertyPartialValue",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_booleanPropertyPartialValue",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "booleanPropertyPartialValue"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "coalesce",
     "kind": "function",
     "detail": "coalesce()",

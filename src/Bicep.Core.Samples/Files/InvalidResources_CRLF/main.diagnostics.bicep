@@ -1200,6 +1200,17 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 var sigh = nestedPropertyAccessOnConditional.properties.
 //@[56:56) [BCP020 (Error)] Expected a function or property name at this location. ||
 
+/*
+  boolean property value completions
+*/ 
+resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  properties: {
+    // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
+    autoUpgradeMinorVersion: t
+//@[29:30) [BCP057 (Error)] The name "t" does not exist in the current context. |t|
+  }
+}
+
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
 //@[19:50) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. |'My.Rp/mockResource@2020-12-01'|
   name: 'selfScope'
