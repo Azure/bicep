@@ -4,7 +4,7 @@
 
 A deployment in ARM has an associated scope, which dictates the scope that resources within that deployment are created in. There are various ways to deploy resources across multiple scopes today in ARM templates; this spec describes how similar functionality can be achieved in Bicep.
 
-See [here][arm-scopes] for more information on ARM scopes.
+[Read more about ARM scopes][arm-scopes].
 
 ## Declaring and using scopes
 
@@ -94,6 +94,61 @@ resource lockResource 'Microsoft.Authorization/locks@2016-09-01' = {
 }
 ```
 
+### Parent-child syntax
+
+There are two ways to declare child resources in Bicep. One as a resource nested inside of the parent, the other as a top-level resource with a reference to the parent symbolic name.
+
+#### Nested child syntax
+
+The `resource` keyword can be declared inside of the parent in the same way as a top-level resource: 
+
+```bicep
+resource myParent 'My.Rp/parentType@2020-01-01' = {
+  name: 'myParent'
+  location: 'West US'
+
+  resource myChild 'childType' = { // only need to specify child type
+    name: 'myChild'
+  }
+} 
+```
+
+With this syntax, you do not need to specify the full resource type, only the child type. You also do not need to specify the api version, as Bicep will assume it is the same as the parent. If needed, the api version of the child can be optionally overridden to something different than the parent.
+
+When using the nested child syntax, you need to use the `::` operator to access the child symbol. For example, if you need to output a property from the child you write the following:
+
+```bicep
+output childProp string = myParent::myChild.properties.someProp
+```
+
+More info on the nested child resource access operator can be found in the [expressions spec](./expressions.md#nested-resource-accessors).
+
+#### "parent" property syntax
+
+Alternatively, you can declare the child resource as a top-level resource just like the parent. To do this, specify the `parent` property on the child with the value set to the symbolic name of the parent. With this syntax you still need to declare the full resource type, but the `name` of the child resource is only the name of the child.
+
+```bicep
+resource myParent 'My.Rp/parentType@2020-01-01' = {
+  name: 'myParent'
+  location: 'West US'
+}
+
+resource myChild 'My.Rp/parentType/childType@2020-01-01' = {
+  parent: myParent // pass parent reference
+  name: 'myChild' // don't require the full name to be formatted with '/' characters
+}
+
+output childProp string = myChild.properties.someProp
+```
+
+In this case, referencing the child resource works the same as referencing the parent.
+
+**Note:** the `name` property rules are different than ARM Templates, which requires concatenating the parent and child name together.
+
+## Allowed combinations of scopes
+
+This feature is limited to the same scoping constraints that exist within ARM Deployments today.
+
 ## Example Usages
 
 If you have a symbolic reference to a scope, you can use that as a value of the `scope` property. Currently this only works with the `resourceGroup` scope, it does not yet support `subscription` or `managementGroup` scope types.
@@ -113,28 +168,6 @@ resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
 module myMod './path/to/module.bicep' = {
   name: 'myMod'
   scope: myRg
-}
-```
-
-## Allowed combinations of scopes
-
-This feature is limited to the same scoping constraints that exist within ARM Deployments today.
-
-## Possible Extensions
-
-### Parent-child syntax
-
->**Note:** the below syntax will be implemented as part of [#1800](https://github.com/Azure/bicep/pull/1800) 
-
-```bicep
-resource myParent 'My.Rp/parentType@2020-01-01' = {
-  name: 'myParent'
-  location: 'West US'
-}
-
-resource myChild 'My.Rp/parentType/childType@2020-01-01' = {
-  scope: myParent // pass parent reference
-  name: 'myChild' // don't require the full name to be formatted with '/' characters
 }
 ```
 

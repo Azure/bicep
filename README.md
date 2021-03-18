@@ -8,6 +8,8 @@ Bicep is a Domain Specific Language (DSL) for deploying Azure resources declarat
 
 Bicep code is transpiled to standard ARM Template JSON files, which effectively treats the ARM Template as an Intermediate Language (IL).
 
+[![Video overview of Bicep](http://img.youtube.com/vi/l85qv_1N2_A/0.jpg)](http://www.youtube.com/watch?v=l85qv_1N2_A "Azure Bicep March 2021: Learn everything about the next generation of ARM Templates")
+
 ## Goals
 
 1. Build the best possible language for describing, validating, and deploying infrastructure to Azure.
@@ -62,8 +64,6 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 
 ## Known limitations
 
-* No ability to set the ARM Template equivalent of `copy.mode` or `copy.batchSize` ([#1625](https://github.com/Azure/bicep/issues/1625))
-* No ability to combine loops and conditions ([#1667](https://github.com/Azure/bicep/issues/1667))
 * No support for single-line object and arrays (i.e. `['a', 'b', 'c']`) ([#586](https://github.com/Azure/bicep/issues/586)).
 * Bicep is newline sensitive. We are exploring ways we can remove/relax this restriction ([#146](https://github.com/Azure/bicep/issues/146))
 
