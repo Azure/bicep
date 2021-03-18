@@ -68,7 +68,7 @@ param aadPrincipalId string
 
 module stg './storage.bicep' = if(deployStorage) {
   name: 'storageDeploy'
-  scope: resourceGroup('brittle-hollow') // this will target another resource group in the same subscription
+  scope: resourceGroup('another-rg') // this will target another resource group in the same subscription
   params: {
     storageAccountName: '<YOURUNIQUESTORAGENAME>'
   }
