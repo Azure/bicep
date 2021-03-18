@@ -6,7 +6,7 @@ using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.IntegrationTests
+namespace Bicep.Core.UnitTests.Utils
 {
     public class PrintVisitor : SyntaxVisitor
     {

@@ -430,6 +430,24 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
+            static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
+            {
+                UnaryOperationSyntax { Operator: UnaryOperator.Minus } unaryOperatorSyntax
+                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => -1 * integerLiteralSyntax.Value,
+                IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value,
+                _ => null,
+            };
+
+            static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
+            {
+                var lengthSyntax = SingleArgumentSelector(decoratorSyntax);
+
+                if (TryGetIntegerLiteralValue(lengthSyntax) is not null and < 0)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(lengthSyntax).LengthMustNotBeNegative());
+                }
+            }
+
             yield return new DecoratorBuilder("secure")
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
@@ -484,6 +502,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("length", LanguageConstants.Int, "The minimum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
+                .WithValidator(ValidateLength)
                 .WithEvaluator(MergeToTargetObject("minLength", SingleArgumentSelector))
                 .Build();
 
@@ -492,6 +511,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("length", LanguageConstants.Int, "The maximum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
+                .WithValidator(ValidateLength)
                 .WithEvaluator(MergeToTargetObject("maxLength", SingleArgumentSelector))
                 .Build();
 
@@ -526,14 +546,13 @@ namespace Bicep.Core.Semantics.Namespaces
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).BatchSizeNotAllowed(decoratorName));
                     }
 
-                    // do not rely on casting - the type checker does not guarantee IntegerLiteralSyntax
-                    if (SingleArgumentSelector(decoratorSyntax) is IntegerLiteralSyntax batchSizeSyntax)
+                    const long MinimumBatchSize = 1;
+                    SyntaxBase batchSizeSyntax = SingleArgumentSelector(decoratorSyntax);
+                    long? batchSize = TryGetIntegerLiteralValue(batchSizeSyntax);
+
+                    if (batchSize is not null and < MinimumBatchSize)
                     {
-                        const long MinimumBatchSize = 1;
-                        if (batchSizeSyntax.Value < MinimumBatchSize)
-                        {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSizeSyntax.Value, MinimumBatchSize));
-                        }
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSize.Value, MinimumBatchSize));
                     }
                 })
                 .WithEvaluator(MergeToTargetObject("batchSize", SingleArgumentSelector))

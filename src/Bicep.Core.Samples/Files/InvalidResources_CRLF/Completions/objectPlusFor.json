@@ -18,6 +18,24 @@
     }
   },
   {
+    "label": "for-filtered",
+    "kind": "snippet",
+    "detail": "for-filtered",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for (item, index) in list: if (condition) {\n\t\n}]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for-filtered",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for (${2:item}, ${3:index}) in ${1:list}: if (${4:condition}) {\n\t$0\n}]"
+    }
+  },
+  {
     "label": "for-indexed",
     "kind": "snippet",
     "detail": "for-indexed",

@@ -2,19 +2,18 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Semantics;
 
 namespace Bicep.Core.TypeSystem
 {
     public sealed class NamespaceType : ObjectType
     {
-        public NamespaceType(string name, IEnumerable<TypeProperty> properties, FunctionResolver methodResolver, DecoratorResolver decoratorResolver)
+        public NamespaceType(string name, IEnumerable<TypeProperty> properties, IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction> bannedFunctions, IEnumerable<Decorator> decorators)
             : base(name)
         {
             this.Properties = properties.ToImmutableDictionary(property => property.Name, LanguageConstants.IdentifierComparer);
-            this.MethodResolver = methodResolver;
-            this.DecoratorResolver = decoratorResolver;
+            this.MethodResolver = new FunctionResolver(this, functionOverloads, bannedFunctions);
+            this.DecoratorResolver = new DecoratorResolver(this, decorators);
         }
 
         public override TypeKind TypeKind => TypeKind.Namespace;

@@ -618,6 +618,12 @@ param unaryMinusOnFunction int
 //@[0:13) [BCP166 (Error)] Duplicate "maxLength" decorator. |@maxLength(4)|
 param duplicateDecorators string
 
+@minLength(-1)
+//@[11:13) [BCP168 (Error)] Length must not be a negative value. |-1|
+@maxLength(-100)
+//@[11:15) [BCP168 (Error)] Length must not be a negative value. |-100|
+param invalidLength string
+
 // unterminated multi-line comment
 /*    
 //@[0:7) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    \n|

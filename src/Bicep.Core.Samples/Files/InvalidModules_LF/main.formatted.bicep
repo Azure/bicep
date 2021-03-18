@@ -303,6 +303,13 @@ module expectedColon2 'modulea.bicep' = [for (x,y) in z]
 
 module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
 
+// loop filter parsing cases
+module expectedLoopFilterOpenParen 'modulea.bicep' = [for x in y: if]
+module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
+
+module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
+module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
+
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
@@ -334,6 +341,17 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray: {
     notAThing: 'test'
   }
 }]
+module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if (true) {
+  // #completionTest(17) -> symbolsPlusX_if
+  name: 'hello-${x}'
+  params: {
+    arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+  }
+}]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x, i) in emptyArray: {
   name: 'hello-${x}'
   params: {
@@ -346,6 +364,16 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x, i) in emptyArray: 
     notAThing: 'test'
   }
 }]
+
+module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x, i) in emptyArray: if (true) {
+  name: 'hello-${x}'
+  params: {
+    // #completionTest(0,1,2) -> moduleAParams
+  }
+}]
+
+// #completionTest(100) -> moduleAOutputs
+var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilteredLoops[0].outputs.
 
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'

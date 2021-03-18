@@ -13,6 +13,8 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
+    // Looks for object properties where type information is available, and the key matches a known property, but the casing is different.
+    // This occurs commonly when decompiling from JSON where properties are case insensitive, and avoids generating a .bicep file with lots of warnings that need to be fixed.
     public class TypeCasingFixerRewriter : SyntaxRewriteVisitor
     {
         private readonly SemanticModel semanticModel;
@@ -22,7 +24,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             this.semanticModel = semanticModel;
         }
 
-        protected override ObjectSyntax ReplaceObjectSyntax(ObjectSyntax syntax)
+        protected override SyntaxBase ReplaceObjectSyntax(ObjectSyntax syntax)
         {
             var declaredType = semanticModel.GetDeclaredType(syntax);
             if (declaredType is not ObjectType objectType)
@@ -73,7 +75,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 syntax.CloseBrace);
         }
 
-        protected override PropertyAccessSyntax ReplacePropertyAccessSyntax(PropertyAccessSyntax syntax)
+        protected override SyntaxBase ReplacePropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             var baseType = semanticModel.GetDeclaredType(syntax.BaseExpression);
             if (baseType is not ObjectType objectType)
@@ -100,7 +102,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 propertySyntax);
         }
 
-        protected override StringSyntax ReplaceStringSyntax(StringSyntax syntax)
+        protected override SyntaxBase ReplaceStringSyntax(StringSyntax syntax)
         {
             var declaredType = semanticModel.GetDeclaredType(syntax);
 

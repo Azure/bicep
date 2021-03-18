@@ -1,14 +1,12 @@
 # Loops
 
->Loops were implemented in v0.3, though there are still a handful of limitations:
-> * No variable loops [#1814](https://github.com/Azure/bicep/issues/1814)
-> * No filtering (loops + conditions) [#1667](https://github.com/Azure/bicep/issues/1667)
->
-> We plan to address in a subsequent 0.3.* release
+>**Note:** Variable loops are not yet implemented [#1814](https://github.com/Azure/bicep/issues/1814). This will be added in a subsequent 0.3.* release.
 
 Loops may be used to iterate over an array to declare multiple resources or to set an array property inside a resource declaration. Iteration over the array occurs over the elements of the array. The index of the iteration is also available.
 
 A new scope is created inside the loop body. Identifiers declared in the outer scope may be accessed inside the inner scope, but identifiers declared in the inner scope will not be added to the outer scope. [Resources](./resources.md), [variables](./variables.md), and [parameters](./parameters.md) declared at the scope of the file may be referenced within the loop body. Multiple loops may be nested inside each other.
+
+Filtering the loop is also allowed via the `if` keyword in the loop body. (See the examples below for more details.)
 
 ## Examples
 
@@ -155,21 +153,21 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
 
 ### Nested loops and filtering
 
->**Note:** Loops and filtering is not yet implemented. This will be available in a separate 0.3.* release.
-
-The example below demonstrates a nested loop combined with filters at each loop. Filters must be expressions that evaluate to a boolean value.
+The example below demonstrates a nested loop combined with a filtered resource loop. Filters must be expressions that evaluate to a boolean value.
 
 ```bicep
-resource parentResources 'Microsoft.Example/examples@2020-06-06' = [for parent in parents if parent.enabled: {
+resource parentResources 'Microsoft.Example/examples@2020-06-06' = [for parent in parents: if(parent.enabled) {
   name: parent.name
   properties: {
-    children: [for child in parent.children where parent.includeChildren && child.enabled: {
+    children: [for child in parent.children: {
       name: child.name
       setting: child.settingValue
     }]
   }
 }]
 ```
+
+Filters are also supported with module loops.
 
 ### Batch size decorator
 
@@ -204,7 +202,7 @@ var nsgNames = [
 
 resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = [for name in nsgNames: {
   name: name
-  location: resourceGroup().location      
+  location: resourceGroup().location
 }]
 
 output nsgs array = [for (name, i) in nsgNames: {

@@ -26,7 +26,7 @@ resource resA 'My.Rp/resA@2020-01-01' = {
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 
-            // Check that the two references are exactly the same
+            // Reference equality check to ensure we're not regenerating syntax unnecessarily
             newProgramSyntax.Should().BeSameAs(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
         }
 
@@ -69,7 +69,7 @@ output myObj object = {
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
   properties: {
@@ -118,7 +118,7 @@ output myObj object = {
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            var firstPassBicepFile = PrintHelper.PrettyPrint(newProgramSyntax);
+            var firstPassBicepFile = PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax);
             firstPassBicepFile.Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
@@ -137,7 +137,7 @@ output myObj object = {
             rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
   properties: {

@@ -126,21 +126,40 @@
         "description": "the namespace of the provider",
         "type": "string",
         "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(providerNamespace: string): provider[]",
+    "parameterTypeSignatures": [
+      "providerNamespace: string"
+    ]
+  },
+  {
+    "name": "providers",
+    "description": "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.",
+    "fixedParameters": [
+      {
+        "name": "providerNamespace",
+        "description": "the namespace of the provider",
+        "type": "string",
+        "required": true
       },
       {
         "name": "resourceType",
         "description": "The type of resource within the specified namespace",
         "type": "string",
-        "required": false
+        "required": true
       }
     ],
-    "minimumArgumentCount": 1,
+    "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(providerNamespace: string, [resourceType: string]): array",
+    "typeSignature": "(providerNamespace: string, resourceType: string): provider",
     "parameterTypeSignatures": [
       "providerNamespace: string",
-      "[resourceType: string]"
+      "resourceType: string"
     ]
   },
   {

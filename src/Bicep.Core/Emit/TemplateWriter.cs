@@ -37,6 +37,7 @@ namespace Bicep.Core.Emit
 
         private static readonly ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
             LanguageConstants.ResourceScopePropertyName,
+            LanguageConstants.ResourceParentPropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
             LanguageConstants.ResourceNamePropertyName,
         }.ToImmutableHashSet();
@@ -344,14 +345,16 @@ namespace Bicep.Core.Emit
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resourceSymbol);
             foreach (var ancestor in ancestors)
             {
-                if (ancestor.DeclaringResource.Value is IfConditionSyntax ifCondition)
+                if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
+                    ancestor.Resource.DeclaringResource.Value is IfConditionSyntax ifCondition)
                 {
                     conditions.Add(ifCondition.ConditionExpression);
                 }
 
-                if (ancestor.DeclaringResource.Value is ForSyntax @for)
+                if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
+                    ancestor.Resource.DeclaringResource.Value is ForSyntax @for)
                 {
-                    loops.Add((ancestor.Name, @for, null));
+                    loops.Add((ancestor.Resource.Name, @for, null));
                 }
             }
 
@@ -365,8 +368,17 @@ namespace Bicep.Core.Emit
                     break;
 
                 case ForSyntax @for:
-                    body = @for.Body;
                     loops.Add((resourceSymbol.Name, @for, null));
+                    if (@for.Body is IfConditionSyntax loopFilter)
+                    {
+                        body = loopFilter.Body;
+                        conditions.Add(loopFilter.ConditionExpression);
+                    }
+                    else
+                    {
+                        body = @for.Body;
+                    }
+
                     break;
             }
 
@@ -478,7 +490,16 @@ namespace Bicep.Core.Emit
                     break;
 
                 case ForSyntax @for:
-                    body = @for.Body;
+                    if(@for.Body is IfConditionSyntax loopFilter)
+                    {
+                        body = loopFilter.Body;
+                        emitter.EmitProperty("condition", loopFilter.ConditionExpression);
+                    }
+                    else
+                    {
+                        body = @for.Body;
+                    }
+                    
                     var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
                     emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
                     break;
@@ -490,7 +511,6 @@ namespace Bicep.Core.Emit
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
-
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
             ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter);

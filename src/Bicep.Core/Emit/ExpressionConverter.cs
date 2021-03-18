@@ -297,17 +297,27 @@ namespace Bicep.Core.Emit
         public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceSymbol resourceSymbol, ResourceTypeReference typeReference)
         {
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resourceSymbol);
+            var nameSyntax = GetResourceNameSyntax(resourceSymbol);
+            var nameExpression = ConvertExpression(nameSyntax);
+
             if (ancestors.Length > 0)
             {
                 Debug.Assert(ancestors.Length + 1 == typeReference.Types.Length, "ancestors.Length + 1 == typeReference.Types.Length");
 
-                return ancestors.Concat(resourceSymbol.AsEnumerable())
-                    .Select(x => GetResourceNameSyntax(x))
-                    .Select(x => ConvertExpression(x));
-            }
+                SyntaxBase? indexExpression = null;
+                if (resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is ArrayAccessSyntax arraySyntax)
+                {
+                    indexExpression = arraySyntax.IndexExpression;
+                }
 
-            var nameSyntax = GetResourceNameSyntax(resourceSymbol);
-            var nameExpression = ConvertExpression(nameSyntax);
+                var resourceName = ConvertExpression(GetResourceNameSyntax(resourceSymbol));
+
+                var parentNames = ancestors.Select(x => 
+                    CreateConverterForIndexReplacement(GetResourceNameSyntax(x.Resource), x.IndexExpression, x.Resource.NameSyntax)
+                        .ConvertExpression(GetResourceNameSyntax(x.Resource)));
+
+                return parentNames.Concat(resourceName.AsEnumerable());
+            }
 
             if (typeReference.Types.Length == 1)
             {
@@ -337,20 +347,13 @@ namespace Bicep.Core.Emit
             // and the remaining args the actual name segments.
             //
             // args.Length = 1 (format string) + N (ancestor names) + 1 (resource name)
-            var args = new LanguageExpression[ancestors.Length + 2];
 
             // {0}/{1}/{2}....
             var format = string.Join("/", Enumerable.Range(0, ancestors.Length + 1).Select(i => $"{{{i}}}"));
-            args[0] = new JTokenExpression(format);
+            var formatExpression = new JTokenExpression(format);
 
-            for (var i = 0; i < ancestors.Length; i++)
-            {
-                var ancestor = ancestors[i];
-                var segment = GetResourceNameSyntax(ancestor);
-                args[i + 1] = ConvertExpression(segment);
-            }
-
-            args[args.Length - 1] = ConvertExpression(nameValueSyntax);
+            var args = formatExpression.AsEnumerable()
+                .Concat(GetResourceNameSegments(resourceSymbol, EmitHelpers.GetTypeReference(resourceSymbol)));
 
             return CreateFunction("format", args);
         }

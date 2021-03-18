@@ -6,6 +6,7 @@ using System.Linq;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
 using Bicep.Core.Emit;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -19,6 +20,13 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
         private readonly IDictionary<ResourceTypeReference, ResourceType> loadedTypeCache;
         private readonly IDictionary<ResourceTypeReference, ResourceType> loadedExistingTypeCache;
+
+        private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new []
+        {
+            LanguageConstants.ResourceNamePropertyName,
+            LanguageConstants.ResourceScopePropertyName,
+            LanguageConstants.ResourceParentPropertyName,
+        }.ToImmutableHashSet();
 
         public AzResourceTypeProvider()
             : this(new TypeLoader())
@@ -69,12 +77,12 @@ namespace Bicep.Core.TypeSystem.Az
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, isExistingResource);
+                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, isExistingResource);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:
                     var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList()
                         .Select(x => x.Type as ObjectType ?? throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}"));
-                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, isExistingResource));
+                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, resourceType.TypeReference, isExistingResource));
                     bodyType = new DiscriminatedObjectType(
                         bodyDiscriminatedType.Name,
                         bodyDiscriminatedType.ValidationFlags,
@@ -90,7 +98,7 @@ namespace Bicep.Core.TypeSystem.Az
             return new ResourceType(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
         }
 
-        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, bool isExistingResource)
+        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, bool isExistingResource)
         {
             var properties = objectType.Properties;
 
@@ -119,6 +127,16 @@ namespace Bicep.Core.TypeSystem.Az
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
                 }
             }
+
+            // add the 'parent' property for child resource types
+            if (!typeReference.IsRootType)
+            {
+                var parentType = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
+                var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
+
+                properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new TypeProperty(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));
+            }
+
             // Deployments RP
             if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, ResourceTypeDeployments))
             {
@@ -137,9 +155,8 @@ namespace Bicep.Core.TypeSystem.Az
         {
             foreach (var property in properties)
             {
-                // "name" and "scope" can be set for existing resources - everything else should be read-only
-                if (property.Name == LanguageConstants.ResourceNamePropertyName ||
-                    property.Name == LanguageConstants.ResourceScopePropertyName)
+                // "name", "scope" & "parent" can be set for existing resources - everything else should be read-only
+                if (WritableExistingResourceProperties.Contains(property.Name))
                 {
                     yield return property;
                 }
