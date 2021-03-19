@@ -1063,7 +1063,30 @@ resource eventGridSubscription 'Microsoft.EventGrid/topics/providers/eventSubscr
                 // verify the template still compiles
                 template.Should().NotBeNull();
                 diags.Should().HaveDiagnostics(new[] {
-                    ("BCP174", DiagnosticLevel.Warning, "Type validation is not available for resource types declared containing a \"/providers/\" segment. For type validation, please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information."),
+                    ("BCP174", DiagnosticLevel.Warning, "Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information."),
+                });
+            }
+
+            (template, diags, _) = CompilationHelper.Compile(@"
+resource resA 'Rp.A/providers@2020-06-01' = {
+  name: 'resA'
+}
+resource resB 'Rp.A/providers/a/b@2020-06-01' = {
+  name: 'resB/child/grandchild'
+}
+resource resC 'Rp.A/a/b/providers@2020-06-01' = {
+  name: 'resC/child/grandchild'
+}
+");
+
+            using (new AssertionScope())
+            {
+                // we show the regular missing type warning for "providers" at the beginning or end of type segment
+                template.Should().NotBeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/providers@2020-06-01\" does not have types available."),
+                    ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/providers/a/b@2020-06-01\" does not have types available."),
+                    ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/a/b/providers@2020-06-01\" does not have types available."),
                 });
             }
 
