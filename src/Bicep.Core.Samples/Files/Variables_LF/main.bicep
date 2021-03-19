@@ -16,8 +16,9 @@ var curliesInInterp = '{${123}{0}${true}}'
 
 // verify correct bracket escaping
 var bracketInTheMiddle = 'a[b]'
-// #completionTest(25) -> symbolsPlusTypes
+// #completionTest(25) -> empty
 var bracketAtBeginning = '[test'
+// #completionTest(23) -> symbolsPlusTypes
 var enclosingBrackets = '[test]'
 var emptyJsonArray = '[]'
 var interpolatedBrackets = '[${myInt}]'
