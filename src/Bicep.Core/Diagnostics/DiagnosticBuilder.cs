@@ -976,9 +976,15 @@ namespace Bicep.Core.Diagnostics
                 $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
 
             public ErrorDiagnostic CannotUsePropertyInExistingResource(string property) => new(
-               TextSpan,
-               "BCP173",
-               $"The property \"{property}\" cannot be used in an existing resource declaration.");
+                TextSpan,
+                "BCP173",
+                $"The property \"{property}\" cannot be used in an existing resource declaration.");
+
+            public Diagnostic ResourceTypeContainsProvidersSegment() => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP174",
+                $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information.");
 
         }
 
