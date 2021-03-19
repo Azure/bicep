@@ -244,7 +244,7 @@ namespace Bicep.Core.TypeSystem
                     var typeSegments = resourceType.TypeReference.Types;
 
                     if (typeSegments.Length > 2 &&
-                        typeSegments.Select((type, i) => i > 0 && i < (typeSegments.Length - 1) &&  StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                        typeSegments.Where((type, i) => i > 0 && i < (typeSegments.Length - 1) &&  StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
                     {
                         // Special check for (<type>/)+providers(/<type>)+
                         // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
