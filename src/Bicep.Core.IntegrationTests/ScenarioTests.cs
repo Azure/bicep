@@ -966,7 +966,7 @@ var foo = 42
 
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().BeNull();
                 diags.Should().HaveDiagnostics(new[] {
                     ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
                     ("BCP057", DiagnosticLevel.Error, "The name \"w\" does not exist in the current context."),
@@ -1038,6 +1038,57 @@ output bar int = 42
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
             });
+        }
+
+        [TestMethod]
+        public void Test_Issue1941()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+param eventGridTopicName string
+param eventGridSubscriptionName string
+param location string
+
+resource eventGridTopic 'Microsoft.EventGrid/topics@2020-06-01' = {
+  name: eventGridTopicName
+  location: location
+}
+
+resource eventGridSubscription 'Microsoft.EventGrid/topics/providers/eventSubscriptions@2020-06-01' = {
+  name: '${eventGridTopic.name}/Microsoft.EventGrid/${eventGridSubscriptionName}'
+}
+");
+
+            using (new AssertionScope())
+            {
+                // verify the template still compiles
+                template.Should().NotBeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP174", DiagnosticLevel.Warning, "Type validation is not available for resource types declared containing a \"/providers/\" segment. For type validation, please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information."),
+                });
+            }
+
+            (template, diags, _) = CompilationHelper.Compile(@"
+param eventGridTopicName string
+param eventGridSubscriptionName string
+param location string
+
+resource eventGridTopic 'Microsoft.EventGrid/topics@2020-06-01' = {
+  name: eventGridTopicName
+  location: location
+}
+
+resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-01' = {
+  name: eventGridSubscriptionName
+  scope: eventGridTopic
+}
+");
+
+            using (new AssertionScope())
+            {
+                // verify the 'fixed' version compiles without diagnostics
+                template.Should().NotBeNull();
+                diags.Should().BeEmpty();
+            }
         }
     }
 }
