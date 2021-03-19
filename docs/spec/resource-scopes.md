@@ -96,36 +96,7 @@ resource lockResource 'Microsoft.Authorization/locks@2016-09-01' = {
 
 ### Parent-child syntax
 
-There are two ways to declare child resources in Bicep. One as a resource nested inside of the parent, the other as a top-level resource with a reference to the parent symbolic name.
-
-#### Nested child syntax
-
-The `resource` keyword can be declared inside of the parent in the same way as a top-level resource: 
-
-```bicep
-resource myParent 'My.Rp/parentType@2020-01-01' = {
-  name: 'myParent'
-  location: 'West US'
-
-  resource myChild 'childType' = { // only need to specify child type
-    name: 'myChild'
-  }
-} 
-```
-
-With this syntax, you do not need to specify the full resource type, only the child type. You also do not need to specify the api version, as Bicep will assume it is the same as the parent. If needed, the api version of the child can be optionally overridden to something different than the parent.
-
-When using the nested child syntax, you need to use the `::` operator to access the child symbol. For example, if you need to output a property from the child you write the following:
-
-```bicep
-output childProp string = myParent::myChild.properties.someProp
-```
-
-More info on the nested child resource access operator can be found in the [expressions spec](./expressions.md#nested-resource-accessors).
-
-#### "parent" property syntax
-
-Alternatively, you can declare the child resource as a top-level resource just like the parent. To do this, specify the `parent` property on the child with the value set to the symbolic name of the parent. With this syntax you still need to declare the full resource type, but the `name` of the child resource is only the name of the child.
+You can declare the child resource as a top-level resource just like the parent. To do this, specify the `parent` property on the child with the value set to the symbolic name of the parent. With this syntax you still need to declare the full resource type, but the `name` of the child resource is only the name of the child.
 
 ```bicep
 resource myParent 'My.Rp/parentType@2020-01-01' = {
@@ -141,9 +112,11 @@ resource myChild 'My.Rp/parentType/childType@2020-01-01' = {
 output childProp string = myChild.properties.someProp
 ```
 
-In this case, referencing the child resource works the same as referencing the parent.
+Referencing the child resource symbolic name works the same as referencing the parent.
 
-**Note:** the `name` property rules are different than ARM Templates, which requires concatenating the parent and child name together.
+**Note:** the `name` property rules are different than ARM Templates, which requires concatenating the parent and child name together separated by `/`.
+
+Alternatively, you can use the [nested resource syntax](./resources.md#resource-nesting) to declare child resources.
 
 ## Allowed combinations of scopes
 
