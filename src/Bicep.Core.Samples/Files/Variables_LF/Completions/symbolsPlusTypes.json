@@ -245,6 +245,20 @@
     }
   },
   {
+    "label": "bracketAtBeginning",
+    "kind": "variable",
+    "detail": "bracketAtBeginning",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_bracketAtBeginning",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "bracketAtBeginning"
+    }
+  },
+  {
     "label": "bracketInTheMiddle",
     "kind": "variable",
     "detail": "bracketInTheMiddle",
@@ -515,20 +529,6 @@
     "textEdit": {
       "range": {},
       "newText": "emptyJsonArray"
-    }
-  },
-  {
-    "label": "enclosingBrackets",
-    "kind": "variable",
-    "detail": "enclosingBrackets",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_enclosingBrackets",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "enclosingBrackets"
     }
   },
   {

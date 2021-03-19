@@ -11,12 +11,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
+using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Completions;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -82,6 +86,49 @@ namespace Bicep.LangServer.IntegrationTests
             }
 
             ValidateCompletions(dataSet, setName, intermediate);
+        }
+
+        [TestMethod]
+        public async Task String_segments_do_not_return_completions()
+        {
+            var fileWithCursors = @"
+var completeString = |'he|llo'|
+var interpolatedString = |'abc${|true}|de|f${|false}|gh|i'|
+var multilineString = |'''|
+hel|lo
+'''|
+";
+            var bicepFile = fileWithCursors.Replace("|", "");
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), bicepFile);
+
+            var cursors = new List<int>();
+            for (var i = 0; i < fileWithCursors.Length; i++)
+            {
+                if (fileWithCursors[i] == '|')
+                {
+                    cursors.Add(i - cursors.Count);
+                }
+            }
+
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(bicepFile, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+
+            foreach (var cursor in cursors)
+            {
+                using var assertionScope = new AssertionScope();
+                assertionScope.AddReportable(
+                    "completion context",
+                    PrintHelper.PrintWithAnnotations(syntaxTree, new [] { 
+                        new PrintHelper.Annotation(new TextSpan(cursor, 0), "cursor position"),
+                    }, 1, true));
+
+                var completions = await client.RequestCompletion(new CompletionParams
+                {
+                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                });
+
+                completions.Should().BeEmpty();
+            }
         }
 
         private void ValidateCompletions(DataSet dataSet, string setName, List<(Position position, JToken actual)> intermediate)

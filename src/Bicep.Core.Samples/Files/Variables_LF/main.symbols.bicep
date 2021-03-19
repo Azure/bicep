@@ -26,9 +26,10 @@ var curliesInInterp = '{${123}{0}${true}}'
 // verify correct bracket escaping
 var bracketInTheMiddle = 'a[b]'
 //@[4:22) Variable bracketInTheMiddle. Type: 'a[b]'. Declaration start char: 0, length: 31
-// #completionTest(25) -> symbolsPlusTypes
+// #completionTest(25) -> empty
 var bracketAtBeginning = '[test'
 //@[4:22) Variable bracketAtBeginning. Type: '[test'. Declaration start char: 0, length: 32
+// #completionTest(23) -> symbolsPlusTypes
 var enclosingBrackets = '[test]'
 //@[4:21) Variable enclosingBrackets. Type: '[test]'. Declaration start char: 0, length: 32
 var emptyJsonArray = '[]'
@@ -381,3 +382,4 @@ module.exports = function (context) {
     context.done();
 }
 '''
+

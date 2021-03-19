@@ -140,8 +140,8 @@ var bracketInTheMiddle = 'a[b]'
 //@[25:31)  StringSyntax
 //@[25:31)   StringComplete |'a[b]'|
 //@[31:32) NewLine |\n|
-// #completionTest(25) -> symbolsPlusTypes
-//@[42:43) NewLine |\n|
+// #completionTest(25) -> empty
+//@[31:32) NewLine |\n|
 var bracketAtBeginning = '[test'
 //@[0:32) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
@@ -151,6 +151,8 @@ var bracketAtBeginning = '[test'
 //@[25:32)  StringSyntax
 //@[25:32)   StringComplete |'[test'|
 //@[32:33) NewLine |\n|
+// #completionTest(23) -> symbolsPlusTypes
+//@[42:43) NewLine |\n|
 var enclosingBrackets = '[test]'
 //@[0:32) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
@@ -2309,4 +2311,6 @@ module.exports = function (context) {
     context.done();
 }
 '''
-//@[3:3) EndOfFile ||
+//@[3:4) NewLine |\n|
+
+//@[0:0) EndOfFile ||

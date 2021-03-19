@@ -540,7 +540,24 @@ namespace Bicep.LanguageServer.Completions
         /// Determines if we are inside an expression. Will not produce a correct result if context kind is set is already set to something.
         /// </summary>
         /// <param name="matchingNodes">The matching nodes</param>
-        private static bool IsInnerExpressionContext(List<SyntaxBase> matchingNodes) => matchingNodes.OfType<ExpressionSyntax>().Any();
+        private static bool IsInnerExpressionContext(List<SyntaxBase> matchingNodes)
+        {
+            var isInStringSegment = SyntaxMatcher.IsTailMatch<StringSyntax, Token>(matchingNodes, (_, token) => token.Type switch {
+                TokenType.StringComplete => true,
+                TokenType.StringLeftPiece => true,
+                TokenType.StringMiddlePiece => true,
+                TokenType.StringRightPiece => true,
+                TokenType.MultilineString => true,
+                _ => false,
+            });
+
+            if (isInStringSegment)
+            {
+                return false;
+            }
+
+            return matchingNodes.OfType<ExpressionSyntax>().Any();
+        }
 
         private static Range GetReplacementRange(SyntaxTree syntaxTree, SyntaxBase innermostMatchingNode, int offset)
         {
