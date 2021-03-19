@@ -8,7 +8,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 {
     public static class DiagnosticExtensions
     {
-        public static IEnumerable<Diagnostic> ExcludingMissingTypes(this IEnumerable<Diagnostic> diagnostics)
+        public static IEnumerable<IDiagnostic> ExcludingMissingTypes(this IEnumerable<IDiagnostic> diagnostics)
         {
             return diagnostics.Where(x => x.Code != "BCP081");
         }
