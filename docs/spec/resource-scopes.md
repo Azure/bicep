@@ -33,7 +33,7 @@ It is important to set the target scope because it allows Bicep to perform valid
 
 ### Module 'scope' property
 
-When declaring a module, you can supply an optional property named `scope` to set the scope at which to deploy the module. By default, bicep assumes the module will target the same scope as the parent if this property is omitted.
+When declaring a module, you can supply an optional property named `scope` to set the scope at which to deploy the module. By default, bicep assumes the module will target the same scope as the parent if this property is omitted. If the parent bicep file does not specify a `targetScope` it will default to `targetScope='resourceGroup'`.
 
 Assigning a scope to this field indicates that the module must be deployed at that scope. If the field is not provided, the module will be deployed at the target scope for the file (see [Declaring the target scope(s)](#declaring-the-target-scopes)).
 

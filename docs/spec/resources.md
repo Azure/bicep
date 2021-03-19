@@ -43,7 +43,7 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 
 ## Resource nesting
 
-A resource declaration may appear inside another resource declaration when the inner resource is a child type of the containing (parent) resource. A nested resource is considered to have an implicit dependency on its containing resource for creation order.
+A resource declaration may appear inside another resource declaration when the inner resource is a child type of the containing parent resource. A nested resource is considered to have an implicit dependency on its containing resource for creation order.
 
 ```bicep
 resource myParent 'My.Rp/parentType@2020-01-01' = {

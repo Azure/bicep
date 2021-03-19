@@ -6,7 +6,7 @@ The operators below are listed in descending order of precedence (the higher the
 
 | Symbol | Type of Operation | Associativity |
 |:-|:-|:-|
-| `(` `)` `[` `]` `.` `::` | Parentheses, array indexers, property accessors, and nested-resource accessor  | Left to right |
+| `(` `)` `[` `]` `.` `::` | Parentheses, array indexers, property accessors, and nested resource accessor  | Left to right |
 | `!` `-` | Unary | Right to left |
 | `%` `*` `/` | Multiplicative | Left to right |
 | `+` `-` | Additive | Left to right |
