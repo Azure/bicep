@@ -85,7 +85,7 @@ namespace Bicep.Core.Samples
             }
         }
 
-        private static bool IsPermittedMissingTypeDiagnostic(Diagnostic diagnostic)
+        private static bool IsPermittedMissingTypeDiagnostic(IDiagnostic diagnostic)
         {
             if (diagnostic.Code != "BCP081")
             {

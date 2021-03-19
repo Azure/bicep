@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
@@ -445,7 +445,7 @@ namespace Bicep.Decompiler
                         // we might be dealing with an array
                         break;
                     }
-
+                    
                     baseSyntax = TryParseStringExpression(expression);
                     break;
                 }
@@ -1322,7 +1322,7 @@ namespace Bicep.Decompiler
             return new ProgramSyntax(
                 statements.SelectMany(x => new [] { x, SyntaxFactory.NewlineToken}),
                 SyntaxFactory.CreateToken(TokenType.EndOfFile, ""),
-                Enumerable.Empty<Diagnostic>()
+                Enumerable.Empty<IDiagnostic>()
             );
         }
 

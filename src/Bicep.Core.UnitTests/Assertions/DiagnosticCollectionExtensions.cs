@@ -11,15 +11,15 @@ namespace Bicep.Core.UnitTests.Assertions
 {
     public static class DiagnosticCollectionExtensions 
     {
-        public static DiagnosticCollectionAssertions Should(this IEnumerable<Diagnostic> diagnostics)
+        public static DiagnosticCollectionAssertions Should(this IEnumerable<IDiagnostic> diagnostics)
         {
             return new DiagnosticCollectionAssertions(diagnostics); 
         }
     }
 
-    public class DiagnosticCollectionAssertions : SelfReferencingCollectionAssertions<Diagnostic, DiagnosticCollectionAssertions>
+    public class DiagnosticCollectionAssertions : SelfReferencingCollectionAssertions<IDiagnostic, DiagnosticCollectionAssertions>
     {
-        public DiagnosticCollectionAssertions(IEnumerable<Diagnostic> diagnostics)
+        public DiagnosticCollectionAssertions(IEnumerable<IDiagnostic> diagnostics)
             : base(diagnostics)
         {
         }
@@ -47,7 +47,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<DiagnosticCollectionAssertions> HaveDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message)> diagnostics, string because = "", params object[] becauseArgs)
         {
-            var actions = new List<Action<Diagnostic>>();
+            var actions = new List<Action<IDiagnostic>>();
             foreach (var (code, level, message) in diagnostics)
             {
                 actions.Add(x => x.Should().HaveCodeAndSeverity(code, level).And.HaveMessage(message));

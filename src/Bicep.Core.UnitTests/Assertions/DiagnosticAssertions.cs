@@ -9,15 +9,15 @@ namespace Bicep.Core.UnitTests.Assertions
 {
     public static class DiagnosticExtensions 
     {
-        public static DiagnosticAssertions Should(this Diagnostic diagnostic)
+        public static DiagnosticAssertions Should(this IDiagnostic diagnostic)
         {
             return new DiagnosticAssertions(diagnostic); 
         }
     }
 
-    public class DiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, DiagnosticAssertions>
+    public class DiagnosticAssertions : ReferenceTypeAssertions<IDiagnostic, DiagnosticAssertions>
     {
-        public DiagnosticAssertions(Diagnostic diagnostic)
+        public DiagnosticAssertions(IDiagnostic diagnostic)
             : base(diagnostic)
         {
         }

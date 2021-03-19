@@ -6,8 +6,8 @@ using Bicep.Core.Parsing;
 namespace Bicep.Core.Diagnostics
 {
     // roughly equivalent to the 'SyntaxDiagnosticInfo' class in Roslyn
-    [DebuggerDisplay("Level = {" + nameof(Level) +"}, Code = {" + nameof(Code) +"}, Message = {" + nameof(Message) +"}")]
-    public class Diagnostic : IPositionable
+    [DebuggerDisplay("Level = {" + nameof(Level) + "}, Code = {" + nameof(Code) + "}, Message = {" + nameof(Message) + "}")]
+    public class Diagnostic : IDiagnostic
     {
         public Diagnostic(TextSpan span, DiagnosticLevel level, string code, string message, DiagnosticLabel? label = null)
         {

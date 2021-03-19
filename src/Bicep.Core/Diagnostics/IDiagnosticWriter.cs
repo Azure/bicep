@@ -5,6 +5,6 @@ namespace Bicep.Core.Diagnostics
 {
     public interface IDiagnosticWriter
     {
-        void Write(Diagnostic diagnostic);
+        void Write(IDiagnostic diagnostic);
     }
 }

@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using Bicep.Core.CodeAction;
 
 namespace Bicep.Core.Diagnostics
 {
-    public class FixableDiagnostic : Diagnostic, IFixable
+    public class FixableDiagnostic : Diagnostic, IFixable, IFixableDiagnostic
     {
         private readonly CodeFix fix;
         private readonly IEnumerable<CodeFix>? additionalFixes;

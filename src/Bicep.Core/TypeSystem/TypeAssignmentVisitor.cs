@@ -20,11 +20,11 @@ namespace Bicep.Core.TypeSystem
         private class TypeAssignment
         {
             public TypeAssignment(ITypeReference reference)
-                : this(reference, Enumerable.Empty<Diagnostic>())
+                : this(reference, Enumerable.Empty<IDiagnostic>())
             {
             }
 
-            public TypeAssignment(ITypeReference reference, IEnumerable<Diagnostic> diagnostics)
+            public TypeAssignment(ITypeReference reference, IEnumerable<IDiagnostic> diagnostics)
             {
                 Reference = reference;
                 Diagnostics = diagnostics;
@@ -32,7 +32,7 @@ namespace Bicep.Core.TypeSystem
 
             public ITypeReference Reference { get; }
 
-            public IEnumerable<Diagnostic> Diagnostics { get; }
+            public IEnumerable<IDiagnostic> Diagnostics { get; }
         }
 
         private readonly IResourceTypeProvider resourceTypeProvider;
@@ -63,7 +63,7 @@ namespace Bicep.Core.TypeSystem
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
             => GetTypeAssignment(syntax).Reference.Type;
 
-        public IEnumerable<Diagnostic> GetAllDiagnostics()
+        public IEnumerable<IDiagnostic> GetAllDiagnostics()
         {
             // ensure we've visited all of the syntax nodes
             Visit(this.binder.FileSymbol.Syntax);
@@ -1216,7 +1216,7 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> GetRecoveredArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
             this.GetArgumentTypes(argumentSyntaxes).Select(argumentType => argumentType.TypeKind == TypeKind.Error ? LanguageConstants.Any : argumentType);
 
-        private IEnumerable<Diagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)
+        private IEnumerable<IDiagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)
         {
             var valueType = typeManager.GetTypeInfo(syntax.Value);
 
@@ -1231,10 +1231,10 @@ namespace Bicep.Core.TypeSystem
                 return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType, valueType).AsEnumerable();
             }
 
-            return Enumerable.Empty<Diagnostic>();
+            return Enumerable.Empty<IDiagnostic>();
         }
 
-        private IEnumerable<Diagnostic> ValidateDefaultValue(ParameterDefaultValueSyntax defaultValueSyntax, TypeSymbol assignedType)
+        private IEnumerable<IDiagnostic> ValidateDefaultValue(ParameterDefaultValueSyntax defaultValueSyntax, TypeSymbol assignedType)
         {
             // figure out type of the default value
             var defaultValueType = typeManager.GetTypeInfo(defaultValueSyntax.DefaultValue);
@@ -1250,12 +1250,12 @@ namespace Bicep.Core.TypeSystem
                 return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType, defaultValueType).AsEnumerable();
             }
 
-            return Enumerable.Empty<Diagnostic>();
+            return Enumerable.Empty<IDiagnostic>();
         }
 
-        private IEnumerable<Diagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
+        private IEnumerable<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
         {
-            return SyntaxAggregator.Aggregate(syntax, new List<Diagnostic>(), (accumulated, current) =>
+            return SyntaxAggregator.Aggregate(syntax, new List<IDiagnostic>(), (accumulated, current) =>
                 {
                     if (current is VariableAccessSyntax)
                     {
@@ -1281,7 +1281,7 @@ namespace Bicep.Core.TypeSystem
                 accumulated => accumulated);
         }
 
-        private IEnumerable<Diagnostic> ValidateIfCondition(IfConditionSyntax syntax)
+        private IEnumerable<IDiagnostic> ValidateIfCondition(IfConditionSyntax syntax)
         {
             var conditionType = typeManager.GetTypeInfo(syntax.ConditionExpression);
 
@@ -1295,7 +1295,7 @@ namespace Bicep.Core.TypeSystem
                 return DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(LanguageConstants.Bool).AsEnumerable();
             }
 
-            return Enumerable.Empty<Diagnostic>();
+            return Enumerable.Empty<IDiagnostic>();
         }
 
         public static TypeSymbol UnwrapType(TypeSymbol baseType) =>

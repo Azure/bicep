@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics
         public SemanticModel GetSemanticModel(SyntaxTree syntaxTree)
             => this.lazySemanticModelLookup[syntaxTree].Value;
 
-        public IReadOnlyDictionary<SyntaxTree, IEnumerable<Diagnostic>> GetAllDiagnosticsBySyntaxTree()
+        public IReadOnlyDictionary<SyntaxTree, IEnumerable<IDiagnostic>> GetAllDiagnosticsBySyntaxTree()
             => SyntaxTreeGrouping.SyntaxTrees.ToDictionary(
                 syntaxTree => syntaxTree,
                 syntaxTree => GetSemanticModel(syntaxTree).GetAllDiagnostics());

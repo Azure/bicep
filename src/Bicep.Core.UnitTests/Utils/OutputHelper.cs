@@ -62,7 +62,7 @@ namespace Bicep.Core.UnitTests.Utils
             return EscapeWhitespace(spanText);
         }
 
-        public static string GetDiagLoggingString(string sourceText, string outputDirectory, Diagnostic diagnostic)
+        public static string GetDiagLoggingString(string sourceText, string outputDirectory, IDiagnostic diagnostic)
         {
             var spanText = GetSpanText(sourceText, diagnostic);
             var message = diagnostic.Message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}/");

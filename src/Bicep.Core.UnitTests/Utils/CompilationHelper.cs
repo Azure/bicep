@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Utils
     {
         public record CompilationResult(
             JToken? Template,
-            IEnumerable<Diagnostic> Diagnostics,
+            IEnumerable<IDiagnostic> Diagnostics,
             Compilation compilation);
 
         public static CompilationResult Compile(IResourceTypeProvider resourceTypeProvider, params (string fileName, string fileContents)[] files)

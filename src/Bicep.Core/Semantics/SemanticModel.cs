@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -64,13 +65,13 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>
-        public IEnumerable<Diagnostic> GetParseDiagnostics() => this.Root.Syntax.GetParseDiagnostics();
+        public IEnumerable<IDiagnostic> GetParseDiagnostics() => this.Root.Syntax.GetParseDiagnostics();
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyList<Diagnostic> GetSemanticDiagnostics()
+        public IReadOnlyList<IDiagnostic> GetSemanticDiagnostics()
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
@@ -92,10 +93,26 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
+        /// Gets all the analyzer diagnostics unsorted.
+        /// </summary>
+        /// <returns></returns>
+        public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics()
+        {
+            var linter = new LinterAnalyzer();
+
+            var diagnostics = linter.Analyze(this);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            diagnosticWriter.WriteMultiple(diagnostics);
+
+            return diagnosticWriter.GetDiagnostics();
+        }
+
+        /// <summary>
         /// Gets all the diagnostics sorted by span position ascending. This includes lexer, parser, and semantic diagnostics.
         /// </summary>
-        public IEnumerable<Diagnostic> GetAllDiagnostics() => GetParseDiagnostics()
+        public IEnumerable<IDiagnostic> GetAllDiagnostics() => GetParseDiagnostics()
             .Concat(GetSemanticDiagnostics())
+            .Concat(GetAnalyzerDiagnostics())
             .OrderBy(diag => diag.Span.Position);
 
         public bool HasErrors()

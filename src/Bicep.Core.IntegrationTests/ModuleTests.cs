@@ -271,7 +271,7 @@ module modulea 'modulea.bicep' = {
             return stringBuilder.ToString();
         }
 
-        private static IEnumerable<(SyntaxTree file, Diagnostic diagnostic)> GetDiagnosticsByFile(IDictionary<SyntaxTree, List<Diagnostic>> diagnosticsByFile)
+        private static IEnumerable<(SyntaxTree file, IDiagnostic diagnostic)> GetDiagnosticsByFile(IDictionary<SyntaxTree, List<IDiagnostic>> diagnosticsByFile)
         {
             foreach (var kvp in diagnosticsByFile)
             {
@@ -282,7 +282,7 @@ module modulea 'modulea.bicep' = {
             }
         }
 
-        private static (bool success, IDictionary<Uri, IEnumerable<Diagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
+        private static (bool success, IDictionary<Uri, IEnumerable<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
             var diagnosticsByFile = compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
