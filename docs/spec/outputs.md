@@ -29,7 +29,7 @@ output isInputParamEmpty bool = length(myParam) == 0
 ## Array output
 The following declares an array output and computes the value using a [loop](./loops.md).
 ```
-output myLoopyOutput array = [for myItem in myArray {
+output myLoopyOutput array = [for myItem in myArray: {
   myProperty: myItem.myOtherProperty
 }]
 ```
