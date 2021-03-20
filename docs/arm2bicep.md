@@ -21,6 +21,6 @@ Get a reference to an existing resource | `reference(resourceId(...)).*` each ti
 ## Other notes on incorporating new syntax into best practices
 
 * Avoid the `reference()` and `resourceId()` functions unless absolutely necessary. Anytime the resource you are referencing is declared in the same Bicep project, you can pull the equivalent information from the resource identifier in Bicep (i.e. `stg.id` or `stg.properties.primaryEndpoints.blob`). This also creates an [**implicit dependency**](https://github.com/Azure/bicep/blob/main/docs/spec/resources.md#implicit-dependency) between resources, which means you can eliminate your usage of the `dependsOn` property. All of this results in cleaner, more maintainable code.
-  * If the resource is not deployed in the Bicep file, you can still get a symbolic reference to the resource using the [existing keyword](./spec/resources#referencing-existing-resources) 
+  * If the resource is not deployed in the Bicep file, you can still get a symbolic reference to the resource using the [existing keyword](./spec/resources.md#referencing-existing-resources) 
 * Use consistent casing for identifiers. When in doubt, use [camel case](https://en.wikipedia.org/wiki/Camel_case) (e.g. `param myCamelCasedParameter string`)
 * If you are going to add a `description` to a parameter, ensure the parameter is, in fact, descriptive. For example, if you have a `location` parameter, having a description of "the resource's location" is not particularly helpful and results in noisy code. Sometimes a `//` comment is more appropriate.
