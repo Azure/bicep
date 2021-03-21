@@ -59,13 +59,14 @@
     },
     {
       "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
-      "apiVersion": "2017-03-01-preview",
-      "name": "[format('{0}/current', format('{0}/{1}', variables('sqlServerName'), variables('databaseName')))]",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[format('{0}/{1}/{2}', variables('sqlServerName'), variables('databaseName'), 'current')]",
       "properties": {
-        "status": "[parameters('transparentDataEncryption')]"
+        "state": "[parameters('transparentDataEncryption')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', split(format('{0}/{1}', variables('sqlServerName'), variables('databaseName')), '/')[0], split(format('{0}/{1}', variables('sqlServerName'), variables('databaseName')), '/')[1])]"
+        "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), variables('databaseName'))]",
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
       ]
     }
   ],
@@ -73,7 +74,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4831708696527294286"
+      "templateHash": "4784448864382167112"
     }
   }
 }

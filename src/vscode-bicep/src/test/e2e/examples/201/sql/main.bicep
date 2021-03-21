@@ -1,15 +1,13 @@
 param sqlAdministratorLogin string
-param sqlAdministratorLoginPassword string {
-  secure: true
-}
 
-param transparentDataEncryption string {
-  default: 'Enabled'
-  allowed: [
-    'Enabled'
-    'Disabled'
-  ]
-}
+@secure()
+param sqlAdministratorLoginPassword string
+
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param transparentDataEncryption string = 'Enabled'
 
 param location string = resourceGroup().location
 
@@ -31,7 +29,8 @@ resource sqlServer 'Microsoft.Sql/servers@2020-02-02-preview' = {
 }
 
 resource db 'Microsoft.Sql/servers/databases@2020-02-02-preview' = {
-  name: '${sqlServer.name}/${databaseName}' // originally using sqlServerName param, but dependsOn was not automatically added
+  parent: sqlServer
+  name: databaseName
   location: location
   sku: {
     name: databaseServiceObjectiveName
@@ -43,9 +42,10 @@ resource db 'Microsoft.Sql/servers/databases@2020-02-02-preview' = {
 }
 
 // very long type...
-resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2017-03-01-preview' = {
-  name: '${db.name}/current' // had to change databaseName => db.name to get dependsOn working
+resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2020-08-01-preview' = {
+  parent: db
+  name: 'current' // had to change databaseName => db.name to get dependsOn working
   properties: {
-    status: transparentDataEncryption
+    state: transparentDataEncryption
   }
 }
