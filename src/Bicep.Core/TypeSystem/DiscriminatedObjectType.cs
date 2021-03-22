@@ -15,17 +15,17 @@ namespace Bicep.Core.TypeSystem
             var unionKeyTypes = new List<StringLiteralType>();
             foreach (var member in unionMembers)
             {
-                if (!(member.Type is NamedObjectType namedObject))
+                if (member.Type is not ObjectType objectType)
                 {
                     throw new ArgumentException($"Invalid member of type {member.Type.GetType()}");
                 }
 
-                if (!namedObject.Properties.TryGetValue(discriminatorKey, out var discriminatorProp))
+                if (!objectType.Properties.TryGetValue(discriminatorKey, out var discriminatorProp))
                 {
                     throw new ArgumentException("Missing discriminator field on member");
                 }
 
-                if (!(discriminatorProp.TypeReference.Type is StringLiteralType stringLiteral))
+                if (discriminatorProp.TypeReference.Type is not StringLiteralType stringLiteral)
                 {
                     throw new ArgumentException($"Invalid discriminator field type {discriminatorProp.TypeReference.Type.Name} on member");
                 }

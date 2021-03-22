@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 
@@ -10,20 +11,26 @@ namespace Bicep.Core.TypeSystem
     /// </summary>
     public class ObjectType : TypeSymbol
     {
-        public ObjectType(string name) : base(name)
+        public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.None, IEnumerable<FunctionOverload>? functions = null)
+            : base(name)
         {
-            AdditionalPropertiesType = LanguageConstants.Any;
-            MethodResolver = new FunctionResolver(this, null);
+            this.ValidationFlags = validationFlags;
+            this.Properties = properties.ToImmutableDictionary(property => property.Name, LanguageConstants.IdentifierComparer);
+            this.MethodResolver = new FunctionResolver(this, functions);
+            this.AdditionalPropertiesType = additionalPropertiesType;
+            this.AdditionalPropertiesFlags = additionalPropertiesFlags;
         }
 
-        public override TypeKind TypeKind => TypeKind.Primitive;
+        public override TypeKind TypeKind => TypeKind.Object;
 
-        public virtual ImmutableDictionary<string, TypeProperty> Properties => ImmutableDictionary<string, TypeProperty>.Empty;
+        public override TypeSymbolValidationFlags ValidationFlags { get; }
 
-        public virtual FunctionResolver MethodResolver { get; }
+        public ImmutableDictionary<string, TypeProperty> Properties { get; }
 
-        public virtual ITypeReference? AdditionalPropertiesType { get; }
+        public FunctionResolver MethodResolver { get; }
 
-        public virtual TypePropertyFlags AdditionalPropertiesFlags => TypePropertyFlags.None;
+        public ITypeReference? AdditionalPropertiesType { get; }
+
+        public TypePropertyFlags AdditionalPropertiesFlags { get; }
     }
 }

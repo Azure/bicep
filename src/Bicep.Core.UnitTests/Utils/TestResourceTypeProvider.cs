@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.Utils
     {
         public ResourceType GetType(ResourceTypeReference reference, bool isExistingResource)
         {
-            var bodyType = new NamedObjectType(reference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(reference), null);
+            var bodyType = new ObjectType(reference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(reference), null);
             var resourceType = new ResourceType(reference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, bodyType);
 
             return AzResourceTypeProvider.SetBicepResourceProperties(resourceType, isExistingResource);
