@@ -494,5 +494,9 @@
     {
         "filePath": "301/deployifnotexists-policy-with-initiative-and-assignment/main.bicep",
         "description": "301/deployifnotexists-policy-with-initiative-and-assignment"
+    },
+    {
+        "filePath": "301/deployment-script-dev-environment/main.bicep",
+        "description": "301/deployment-script-dev-environment"
     }
 ]
