@@ -151,6 +151,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/virtualNetworks', 'demo-vnet')]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4839260661788926676"
+            }
           }
         }
       },
@@ -323,6 +330,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Compute/proximityPlacementGroups', format('Zone-{0}', parameters('zone')))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12150089343636218628"
+            }
           }
         }
       },
@@ -468,7 +482,14 @@
                 "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
               ]
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7844335543509616102"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -614,7 +635,14 @@
                 "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
               ]
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7844335543509616102"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -628,7 +656,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2757914641437052661"
+      "templateHash": "17338763085943076633"
     }
   }
 }

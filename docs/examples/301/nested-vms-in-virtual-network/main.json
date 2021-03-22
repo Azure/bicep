@@ -423,6 +423,13 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6952636270914318989"
+            }
           }
         }
       },
@@ -520,6 +527,13 @@
             "assignedIp": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6952636270914318989"
             }
           }
         }
@@ -623,6 +637,13 @@
             "assignedIp": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6952636270914318989"
             }
           }
         }
@@ -729,6 +750,13 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6952636270914318989"
+            }
           }
         }
       },
@@ -787,6 +815,13 @@
             "udrId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9661340652054080845"
             }
           }
         }
@@ -849,6 +884,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9661340652054080845"
+            }
           }
         }
       },
@@ -861,7 +903,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7524364292299147799"
+      "templateHash": "827297698860353553"
     }
   }
 }

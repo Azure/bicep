@@ -65,6 +65,13 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).dnsSettings.fqdn]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16561850720946618919"
+            }
           }
         }
       }
@@ -80,7 +87,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2482909878713352257"
+      "templateHash": "4217859646077684078"
     }
   }
 }

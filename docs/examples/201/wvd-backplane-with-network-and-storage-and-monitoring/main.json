@@ -445,14 +445,28 @@
                               },
                               "dependsOn": []
                             }
-                          ]
+                          ],
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7596586815935728892"
+                            }
+                          }
                         }
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
                       ]
                     }
-                  ]
+                  ],
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "16599081877049504203"
+                    }
+                  }
                 }
               },
               "dependsOn": [
@@ -460,7 +474,14 @@
                 "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]"
               ]
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "14028620541780725137"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -540,7 +561,14 @@
                 ]
               }
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11125853222491965992"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -620,7 +648,14 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccountName'))]"
               ]
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6234827527780158019"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -632,7 +667,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6304098012347678765"
+      "templateHash": "7957194895162255060"
     }
   }
 }

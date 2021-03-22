@@ -218,7 +218,14 @@
                 "thumbprint": "[parameters('certificateThumbprint')]"
               }
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11275464343508829008"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -231,7 +238,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5558299671654830009"
+      "templateHash": "9966039181395879989"
     }
   }
 }

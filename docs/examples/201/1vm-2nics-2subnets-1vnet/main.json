@@ -283,7 +283,14 @@
                 }
               }
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "14174350473271302448"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -303,7 +310,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1774895845619809195"
+      "templateHash": "8721692604157295464"
     }
   }
 }

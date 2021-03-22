@@ -310,6 +310,13 @@
               "type": "array",
               "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).addressSpace.addressPrefixes]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "13901036147917229888"
+            }
           }
         }
       },
@@ -439,6 +446,13 @@
             "bgpasn": {
               "type": "int",
               "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))).bgpSettings.asn]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "14366512567346002599"
             }
           }
         }
@@ -603,6 +617,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5030222466979303740"
+            }
           }
         }
       },
@@ -703,6 +724,13 @@
             "id": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipname'))]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "18185474887077886884"
             }
           }
         }
@@ -851,7 +879,14 @@
               "location": "[parameters('location')]",
               "properties": "[if(equals(parameters('fwtype'), 'VNet'), variables('vnetfwproperties').properties, if(equals(parameters('fwtype'), 'vWAN'), variables('hubfwproperties').properties, null()))]"
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "797249695265074914"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -924,6 +959,13 @@
             "id": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/virtualWans', parameters('wanname'))]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "2228582985603010524"
             }
           }
         }
@@ -1008,6 +1050,13 @@
             "vhubaddress": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/virtualHubs', parameters('hubname'))).addressPrefix]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "17814864971989477056"
             }
           }
         }
@@ -1172,6 +1221,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5030222466979303740"
+            }
           }
         }
       },
@@ -1319,7 +1375,14 @@
               "location": "[parameters('location')]",
               "properties": "[if(equals(parameters('fwtype'), 'VNet'), variables('vnetfwproperties').properties, if(equals(parameters('fwtype'), 'vWAN'), variables('hubfwproperties').properties, null()))]"
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "797249695265074914"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1413,6 +1476,13 @@
             "bgpasn": {
               "type": "int",
               "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).bgpSettings.asn]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "2821858393436984731"
             }
           }
         }
@@ -1530,6 +1600,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/vpnSites', parameters('vpnsitename'))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10000741995448321374"
+            }
           }
         }
       },
@@ -1596,7 +1673,14 @@
                 }
               }
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7703400377581823349"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1739,7 +1823,14 @@
                 "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]"
               ]
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5456714574447097149"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1754,7 +1845,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4227095110153456993"
+      "templateHash": "6596891847529063263"
     }
   }
 }

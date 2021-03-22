@@ -75,6 +75,13 @@
               "type": "string",
               "value": "[parameters('scriptName')]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4701861158832429379"
+            }
           }
         }
       },
@@ -129,6 +136,13 @@
               "type": "string",
               "value": "[parameters('scriptName')]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4701861158832429379"
+            }
           }
         }
       }
@@ -138,7 +152,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9381996619000267000"
+      "templateHash": "177368619437621859"
     }
   }
 }

@@ -130,6 +130,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
+            }
           }
         }
       }
@@ -169,6 +176,13 @@
             "myResourceId": {
               "type": "string",
               "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "2690166781482293239"
             }
           }
         }
@@ -210,6 +224,13 @@
             "myResourceId": {
               "type": "string",
               "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "2690166781482293239"
             }
           }
         }
@@ -263,6 +284,13 @@
                 "optionalArray": "[parameters('optionalArray')]"
               }
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9685569921814825587"
+            }
           }
         }
       }
@@ -315,6 +343,13 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -382,6 +417,13 @@
                 "optionalArray": "[parameters('optionalArray')]"
               }
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9685569921814825587"
+            }
           }
         }
       }
@@ -447,6 +489,13 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -518,6 +567,13 @@
                 "optionalArray": "[parameters('optionalArray')]"
               }
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9685569921814825587"
+            }
           }
         }
       },
@@ -587,6 +643,13 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -672,6 +735,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -759,6 +829,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
+            }
           }
         }
       }
@@ -845,6 +922,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -936,6 +1020,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
+            }
           }
         }
       }
@@ -1026,6 +1117,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
+            }
           }
         }
       }
@@ -1112,6 +1210,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -1229,6 +1334,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
+            }
           }
         }
       }
@@ -1345,6 +1457,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -1466,6 +1585,13 @@
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3458818169929627241"
+            }
           }
         }
       }
@@ -1497,7 +1623,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13296954332739114247"
+      "templateHash": "11500878159620986989"
     }
   }
 }

@@ -136,7 +136,14 @@
               },
               "dependsOn": []
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7596586815935728892"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -148,7 +155,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14441479219928183826"
+      "templateHash": "16599081877049504203"
     }
   }
 }

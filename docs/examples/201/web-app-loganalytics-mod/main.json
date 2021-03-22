@@ -68,6 +68,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "18330922333282750741"
+            }
           }
         }
       }
@@ -181,7 +188,14 @@
                 "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
               ]
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "17229321524522446240"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -247,6 +261,13 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11373787318551384555"
+            }
           }
         }
       },
@@ -307,6 +328,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5100881808669261751"
+            }
           }
         }
       }
@@ -316,7 +344,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16239420915790167268"
+      "templateHash": "11946744687785698982"
     }
   }
 }

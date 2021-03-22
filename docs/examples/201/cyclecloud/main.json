@@ -169,6 +169,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/virtualNetworks', 'cc-vnet')]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4664915231092251959"
+            }
           }
         }
       }
@@ -312,7 +319,14 @@
                 "[resourceId('Microsoft.Network/networkInterfaces', 'cycleserver-nic')]"
               ]
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "742161679375210434"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -325,7 +339,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13803228379190223896"
+      "templateHash": "10224545809550689809"
     }
   }
 }

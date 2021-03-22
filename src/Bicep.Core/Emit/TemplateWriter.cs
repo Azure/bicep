@@ -6,7 +6,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
+using Azure.Deployments.Core.Helpers;
+using Azure.Deployments.Core.Json;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -22,6 +23,7 @@ namespace Bicep.Core.Emit
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
     public class TemplateWriter
     {
+        public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         public const string NestedDeploymentResourceApiVersion = "2019-10-01";
 
@@ -77,53 +79,33 @@ namespace Bicep.Core.Emit
 
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
-
-        private readonly JsonTextWriter writer;
         private readonly EmitterContext context;
-
         private readonly string assemblyFileVersion;
 
-        public TemplateWriter(JsonTextWriter writer, SemanticModel semanticModel, string assemblyFileVersion)
+        public TemplateWriter(SemanticModel semanticModel, string assemblyFileVersion)
         {
-            this.writer = writer;
             this.context = new EmitterContext(semanticModel);
             this.assemblyFileVersion = assemblyFileVersion;
         }
 
-        /// <summary>
-        /// This emits the template into memory, calculates the template hash of the template
-        /// It then adds the templateHash field to the template and finally writes it to our desired JsonTextWriter
-        /// </summary>
-        public void Write()
+        public void Write(JsonTextWriter writer)
         {
-            string templateString;
-            using (StringWriter stringWriter = new())
-            using (JsonTextWriter memoryWriter = new(stringWriter))
+            JToken template;
+            using (StringWriter stringWriter = new ())
             {
-                var emitter = new ExpressionEmitter(memoryWriter, this.context);
-                // no templatehash, write to memory
-                this.Write(memoryWriter, emitter, emitMetadata: true);
-                // TODO: avoid reading the whole template into a string. Address this when ComputeTemplateHash 
-                // has a streaming variant.
-                templateString = stringWriter.ToString();
+                this.Write(stringWriter, writer);
+                template = stringWriter.ToString().FromJson<JToken>();
             }
-            var templateHash = TemplateHashExtensions.ComputeTemplateHash(templateString);
-            JObject template = (JObject)JObject.Parse(templateString);
-            ((JObject) template["metadata"]!["_generator"]!).Add(new JProperty("templateHash", templateHash));
-            template.WriteTo(this.writer);
+            var templateHash = TemplateHelpers.ComputeTemplateHash(template);
+            ((JObject) template.SelectToken(GeneratorMetadataPath)!).Add(new JProperty("templateHash", templateHash));
+            template.WriteTo(writer);
         }
 
-        /// <summary>
-        /// Writing modules behaves differently than Write: we reuse the parent memoryWriter and do not generate metadata
-        /// </summary>
-        private void WriteModule()
+        private void Write(StringWriter source, JsonTextWriter destination)
         {
-            this.Write(this.writer, new ExpressionEmitter(this.writer, this.context), emitMetadata: false);
-        }
+            using var memoryWriter = new JsonTextWriter(source);
+            var emitter = new ExpressionEmitter(memoryWriter, this.context);
 
-
-        private void Write(JsonTextWriter memoryWriter, ExpressionEmitter emitter, bool emitMetadata)
-        {
             memoryWriter.WriteStartObject();
 
             emitter.EmitProperty("$schema", GetSchema(context.SemanticModel.TargetScope));
@@ -141,12 +123,8 @@ namespace Bicep.Core.Emit
             this.EmitResources(memoryWriter, emitter);
 
             this.EmitOutputsIfPresent(memoryWriter, emitter);
-
-            // We skip emitting metadata when emitting modules (no metadata for nested deployments i.e. emitting modules)
-            if (emitMetadata)
-            {
-                this.EmitMetadata(memoryWriter, emitter);
-            }
+            
+            this.EmitMetadata(memoryWriter, emitter);
 
             memoryWriter.WriteEndObject();
         }
@@ -554,8 +532,8 @@ namespace Bicep.Core.Emit
                 memoryWriter.WritePropertyName("template");
                 {
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-                    var moduleWriter = new TemplateWriter(memoryWriter, moduleSemanticModel, this.assemblyFileVersion);
-                    moduleWriter.WriteModule();
+                    var moduleWriter = new TemplateWriter(moduleSemanticModel, this.assemblyFileVersion);
+                    moduleWriter.Write(memoryWriter);
                 }
 
                 memoryWriter.WriteEndObject();

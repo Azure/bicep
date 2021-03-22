@@ -272,14 +272,28 @@
                       },
                       "dependsOn": []
                     }
-                  ]
+                  ],
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "7596586815935728892"
+                    }
+                  }
                 }
               },
               "dependsOn": [
                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
               ]
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16599081877049504203"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -292,7 +306,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10575007669665108430"
+      "templateHash": "14028620541780725137"
     }
   }
 }

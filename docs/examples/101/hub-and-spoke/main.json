@@ -89,6 +89,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-rg', parameters('prefix')))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3715870865053330009"
+            }
           }
         }
       },
@@ -167,6 +174,13 @@
             "id": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-rg', parameters('prefix')))]"
+            }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3715870865053330009"
             }
           }
         }
@@ -250,6 +264,13 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-fwl', parameters('prefix')))).ipConfigurations[0].properties.privateIPAddress]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "2106763863985976663"
+            }
           }
         }
       },
@@ -309,7 +330,14 @@
                 }
               }
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5614441752281108595"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -369,7 +397,14 @@
                 }
               }
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5614441752281108595"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -434,6 +469,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/routeTables', format('{0}-rot', parameters('prefix')))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12110720187620775770"
+            }
           }
         }
       },
@@ -447,7 +489,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12524012697508290403"
+      "templateHash": "6844391641659490225"
     }
   }
 }

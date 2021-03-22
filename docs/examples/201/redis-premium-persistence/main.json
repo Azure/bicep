@@ -143,6 +143,13 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Storage/storageAccounts', format('cached{0}', uniqueString(resourceGroup().id)))]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10486786667182115541"
+            }
           }
         }
       }
@@ -152,7 +159,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2794076711603288995"
+      "templateHash": "9786593532236145214"
     }
   }
 }

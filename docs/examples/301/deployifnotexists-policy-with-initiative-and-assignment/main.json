@@ -189,6 +189,13 @@
               "type": "string",
               "value": "[parameters('actionGroupName')]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3405712656690483630"
+            }
           }
         }
       },
@@ -556,6 +563,13 @@
               "type": "string",
               "value": "[subscriptionResourceId('Microsoft.Authorization/policySetDefinitions', 'bicepExampleInitiative')]"
             }
+          },
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16786590810543776581"
+            }
           }
         }
       },
@@ -624,7 +638,14 @@
                 ]
               }
             }
-          ]
+          ],
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7970689130777253340"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -636,7 +657,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4580082864238332171"
+      "templateHash": "14923821533301026599"
     }
   }
 }
