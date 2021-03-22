@@ -2,9 +2,6 @@
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2018-10-01' = {
   name: '${1:containerGroup}'
   location: resourceGroup().location
-  tags: {
-    displayName: '${1:containerGroup}'
-  }
   properties: {
     containers: [
       {

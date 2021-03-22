@@ -2,9 +2,6 @@
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {
   name: '${1:aksCluster}'
   location: resourceGroup().location
-  tags: {
-    displayName: '${1:aksCluster}'
-  }
   properties: {
     kubernetesVersion: '${2|1.15.7,1.15.5,1.14.8|}'
     dnsPrefix: '${3:dnsprefix}'
