@@ -25,7 +25,7 @@ namespace Bicep.Core.Semantics
                 identifierSyntax,
                 getNameSuggestions: () =>
                 {
-                    var knowFunctionNames = namespaceSymbol.Type.MethodResolver.GetKnownFunctions().Keys;
+                    var knowFunctionNames = namespaceSymbol.Type.GetAvailableMethods().Keys;
 
                     return allowedFlags.HasAnyDecoratorFlag()
                         ? knowFunctionNames.Concat(namespaceSymbol.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
                 FunctionFlags.Default,
                 foundSymbol,
                 identifierSyntax,
-                getNameSuggestions: () => objectType.MethodResolver.GetKnownFunctions().Keys,
+                getNameSuggestions: () => objectType.GetAvailableMethods().Keys,
                 getMissingNameError: (builder, suggestedName) => suggestedName switch {
                     null => builder.FunctionDoesNotExistOnObject(objectType, identifierSyntax.IdentifierName),
                     _ => builder.FunctionDoesNotExistOnObjectWithSuggestion(objectType, identifierSyntax.IdentifierName, suggestedName),
@@ -54,7 +54,7 @@ namespace Bicep.Core.Semantics
                 identifierSyntax,
                 getNameSuggestions: () => namespaces.SelectMany(x =>
                 {
-                    var knowFunctionNames = x.Type.MethodResolver.GetKnownFunctions().Keys;
+                    var knowFunctionNames = x.Type.GetAvailableMethods().Keys;
 
                     return allowedFlags.HasAnyDecoratorFlag()
                         ? knowFunctionNames.Concat(x.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)

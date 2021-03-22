@@ -285,7 +285,7 @@ var test1 = listKeys('abcd')
 
 // list spelled wrong 
 var test2 = lsitKeys('abcd', '2020-01-01')
-//@[12:20) [BCP082 (Error)] The name "lsitKeys" does not exist in the current context. Did you mean "listKeys"? |lsitKeys|
+//@[12:20) [BCP057 (Error)] The name "lsitKeys" does not exist in the current context. |lsitKeys|
 
 // just 'lis' instead of 'list'
 var test3 = lis('abcd', '2020-01-01')

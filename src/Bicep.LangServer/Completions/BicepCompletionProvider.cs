@@ -398,7 +398,7 @@ namespace Bicep.LanguageServer.Completions
             var alwaysFullyQualifiedNames = model.Root.ImportedNamespaces
                 .SelectMany(pair => context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName)
                     ? GetAccessibleDecoratorFunctionsWithCache(pair.Value.Type)
-                    : pair.Value.Type.MethodResolver.GetKnownFunctions().Values)
+                    : pair.Value.Type.GetAvailableMethods().Values)
                 .GroupBy(func => func.Name, (name, functionSymbols) => (name, count: functionSymbols.Count()), LanguageConstants.IdentifierComparer)
                 .Where(tuple => tuple.count > 1)
                 .Select(tuple => tuple.name)
@@ -408,7 +408,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 var functionSymbols = context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName)
                     ? GetAccessibleDecoratorFunctionsWithCache(@namespace.Type)
-                    : @namespace.Type.MethodResolver.GetKnownFunctions().Values;
+                    : @namespace.Type.GetAvailableMethods().Values;
 
                 foreach (var function in functionSymbols)
                 {
@@ -570,7 +570,7 @@ namespace Bicep.LanguageServer.Completions
 
         private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) =>
             type is ObjectType objectType
-                ? objectType.MethodResolver.GetKnownFunctions().Values
+                ? objectType.GetAvailableMethods().Values
                 : Enumerable.Empty<FunctionSymbol>();
 
         private static DeclaredTypeAssignment? GetDeclaredTypeAssignment(SemanticModel model, SyntaxBase? syntax) => syntax == null

@@ -30,7 +30,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [DynamicData(nameof(GetNamespaces), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void FunctionsShouldHaveExpectedSignatures(NamespaceSymbol @namespace)
         {
-            var knownOverloads = @namespace.Type.MethodResolver.GetKnownFunctions().Values
+            var knownOverloads = @namespace.Type.GetAvailableMethods().Values
                 .SelectMany(function => function.Overloads)
                 .OrderBy(overload => overload.Name)
                 .Select(Convert);

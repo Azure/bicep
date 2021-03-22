@@ -250,8 +250,8 @@ namespace Bicep.Core.Semantics
                 var functionSymbol = allowedFlags.HasAnyDecoratorFlag()
                     // Decorator functions are only valid when HasDecoratorFlag() is true which means
                     // the instance function call is the top level expression of a DecoratorSyntax node.
-                    ? namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name) ?? namespaceSymbol.Type.DecoratorResolver.TryGetSymbol(syntax.Name)
-                    : namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name);
+                    ? namespaceSymbol.Type.TryGetMethod(syntax.Name) ?? namespaceSymbol.Type.DecoratorResolver.TryGetSymbol(syntax.Name)
+                    : namespaceSymbol.Type.TryGetMethod(syntax.Name);
 
                 var foundSymbol = SymbolValidator.ResolveNamespaceQualifiedFunction(allowedFlags, functionSymbol, syntax.Name, namespaceSymbol);
                 
@@ -357,8 +357,8 @@ namespace Bicep.Core.Semantics
             // attempt to find function in all imported namespaces
             var foundSymbols = this.namespaces
                 .Select(kvp => allowedFlags.HasAnyDecoratorFlag()
-                    ? kvp.Value.Type.MethodResolver.TryGetSymbol(identifierSyntax) ?? kvp.Value.Type.DecoratorResolver.TryGetSymbol(identifierSyntax)
-                    : kvp.Value.Type.MethodResolver.TryGetSymbol(identifierSyntax))
+                    ? kvp.Value.Type.TryGetMethod(identifierSyntax) ?? kvp.Value.Type.DecoratorResolver.TryGetSymbol(identifierSyntax)
+                    : kvp.Value.Type.TryGetMethod(identifierSyntax))
                 .Where(symbol => symbol != null)
                 .ToList();
 

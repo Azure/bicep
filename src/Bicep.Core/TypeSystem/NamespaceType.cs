@@ -9,9 +9,8 @@ namespace Bicep.Core.TypeSystem
     public sealed class NamespaceType : ObjectType
     {
         public NamespaceType(string name, IEnumerable<TypeProperty> properties, IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction> bannedFunctions, IEnumerable<Decorator> decorators)
-            : base(name, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None)
+            : base(name, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, new FunctionResolver(functionOverloads, bannedFunctions))
         {
-            this.MethodResolver = new FunctionResolver(this, functionOverloads, bannedFunctions);
             this.DecoratorResolver = new DecoratorResolver(this, decorators);
         }
 

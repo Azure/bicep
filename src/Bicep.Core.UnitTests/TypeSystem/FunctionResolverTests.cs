@@ -230,7 +230,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             foreach (var ns in namespaces)
             {
                 var nameSyntax = TestSyntaxFactory.CreateIdentifier(functionName);
-                if (ns.Type.MethodResolver.TryGetSymbol(nameSyntax) is FunctionSymbol functionSymbol)
+                if (ns.Type.TryGetMethod(nameSyntax) is FunctionSymbol functionSymbol)
                 {
                     matches.AddRange(FunctionResolver.GetMatches(functionSymbol, argumentTypes, out var countMismatches, out var typeMismatches));
                     argumentCountMismatches.AddRange(countMismatches);
