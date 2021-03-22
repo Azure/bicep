@@ -26,8 +26,8 @@
     {
       "type": "microsoft.insights/actionGroups",
       "apiVersion": "2019-06-01",
-      "name": "[parameters('actionGroupName')]",
       "location": "global",
+      "name": "[parameters('actionGroupName')]",
       "properties": {
         "enabled": "[parameters('actionGroupEnabled')]",
         "groupShortName": "[parameters('actionGroupShortName')]",
@@ -54,8 +54,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "3405712656690483630"
+      "version": "0.3.1.62928",
+      "templateHash": "4471586566873631585"
     }
   }
 }
