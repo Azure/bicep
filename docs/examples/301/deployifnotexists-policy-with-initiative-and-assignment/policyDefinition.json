@@ -173,7 +173,7 @@
                         "location": "global",
                         "properties": {
                           "description": "[parameters('metricAlertDescription')]",
-                          "severity": "[parameters('metricAlertResourceNamespace')]",
+                          "severity": "[parameters('metricAlertSeverity')]",
                           "enabled": "[parameters('metricAlertEnabled')]",
                           "scopes": [
                             "[[parameters('resourceId')]"
@@ -296,8 +296,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "16786590810543776581"
+      "version": "0.3.1.62928",
+      "templateHash": "13891837030954920689"
     }
   }
 }
