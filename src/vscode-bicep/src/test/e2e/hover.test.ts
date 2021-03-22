@@ -46,13 +46,13 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over a variable name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(53, 10)
+      new vscode.Position(50, 10)
     );
 
     expectHovers(hovers, {
-      startLine: 53,
+      startLine: 50,
       startCharacter: 4,
-      endLine: 53,
+      endLine: 50,
       endCharacter: 22,
       contents: ["var linuxConfiguration: object"],
     });
@@ -61,13 +61,13 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over a resource symbolic name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(111, 10)
+      new vscode.Position(108, 10)
     );
 
     expectHovers(hovers, {
-      startLine: 111,
+      startLine: 108,
       startCharacter: 9,
-      endLine: 111,
+      endLine: 108,
       endCharacter: 13,
       contents: ["resource vnet\nMicrosoft.Network/virtualNetworks@2020-06-01"],
     });
@@ -76,13 +76,13 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over an output name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(186, 14)
+      new vscode.Position(183, 14)
     );
 
     expectHovers(hovers, {
-      startLine: 186,
+      startLine: 183,
       startCharacter: 7,
-      endLine: 186,
+      endLine: 183,
       endCharacter: 28,
       contents: ["output administratorUsername: string"],
     });
@@ -91,13 +91,13 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over a function name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(19, 60)
+      new vscode.Position(18, 60)
     );
 
     expectHovers(hovers, {
-      startLine: 19,
+      startLine: 18,
       startCharacter: 55,
-      endLine: 19,
+      endLine: 18,
       endCharacter: 67,
       contents: ["function uniqueString(string): string"],
     });
