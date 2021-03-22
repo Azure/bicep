@@ -136,7 +136,7 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                     location: 'global'
                     properties: {
                       description: metricAlertDescription
-                      severity: metricAlertResourceNamespace
+                      severity: metricAlertSeverity
                       enabled: metricAlertEnabled
                       scopes: [
                         '[parameters(\'resourceId\')]'

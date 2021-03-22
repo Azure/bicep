@@ -37,13 +37,25 @@
           }
         ]
       }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid('bicepExampleAssignment', 'Microsoft.Authorization/policyAssignments', subscription().subscriptionId)]",
+      "properties": {
+        "principalId": "[reference(subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment'), '2020-09-01', 'full').identity.principalId]",
+        "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment')]"
+      ]
     }
   ],
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7970689130777253340"
+      "templateHash": "10551989971160582139"
     }
   }
 }
