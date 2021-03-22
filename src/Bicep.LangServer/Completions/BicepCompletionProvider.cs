@@ -325,7 +325,12 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody) || context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
             {
-                yield return CreateObjectBodyCompletion(context.ReplacementRange);
+                if (context.Kind is BicepCompletionContextKind.ResourceBody)
+                {
+                    yield return GetResourceBodyCompletions(context);
+                }
+
+                yield return CreateObjectBodyCompletion(context.ReplacementRange, context);
 
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
@@ -335,6 +340,26 @@ namespace Bicep.LanguageServer.Completions
                     yield return completion;
                 }
             }
+        }
+
+        private CompletionItem GetResourceBodyCompletions(BicepCompletionContext context)
+        {
+            StringSyntax? stringSyntax = (context.EnclosingDeclaration as ResourceDeclarationSyntax)?.TypeString;
+            const string label = "{}";
+            string snippetText = "{\n\t$0\n}";
+
+            if (stringSyntax is not null)
+            {
+                Token token = stringSyntax.StringTokens[0];
+                snippetText = ResourceSnippetsProvider.GetResourceDeclarationBody(token.Text);
+            }
+
+            return CompletionItemBuilder.Create(CompletionItemKind.Value)
+                .WithLabel(label)
+                .WithSnippetEdit(context.ReplacementRange, snippetText, InsertTextMode.AdjustIndentation)
+                .WithDetail("{}")
+                .Preselect()
+                .WithSortText(GetSortText("{}", CompletionPriority.High));
         }
 
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
@@ -663,7 +688,7 @@ namespace Bicep.LanguageServer.Completions
 
                 case DiscriminatedObjectType _:
                 case ObjectType _:
-                    yield return CreateObjectBodyCompletion(replacementRange);
+                    yield return CreateObjectBodyCompletion(replacementRange, context);
                     break;
 
                 case UnionType union:
@@ -677,7 +702,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreateObjectBodyCompletion(Range replacementRange)
+        private static CompletionItem CreateObjectBodyCompletion(Range replacementRange, BicepCompletionContext context)
         {
             const string objectLabel = "{}";
             return CompletionItemBuilder.Create(CompletionItemKind.Value)

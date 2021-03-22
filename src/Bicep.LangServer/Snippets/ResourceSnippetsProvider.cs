@@ -30,6 +30,8 @@ namespace Bicep.LanguageServer.Snippets
         };
 
         private HashSet<ResourceSnippet> resourceSnippets = new HashSet<ResourceSnippet>();
+        private List<ResourceDeclarationSyntax> resourceDeclarations = new List<ResourceDeclarationSyntax>();
+        private Dictionary<string, string> resourceTypeToBodyMap = new Dictionary<string, string>();
 
         public ResourceSnippetsProvider()
         {
@@ -79,12 +81,44 @@ namespace Bicep.LanguageServer.Snippets
                     {
                         description = syntaxTrivia.Text.Substring("// ".Length);
                     }
+
+                    CacheResourceDeclarations(template, declarations);
                 }
             }
 
             return (description, text);
         }
 
+        private void CacheResourceDeclarations(string template, IEnumerable<SyntaxBase> declarations)
+        {
+            foreach (SyntaxBase syntaxBase in declarations)
+            {
+                if (syntaxBase is ResourceDeclarationSyntax resourceDeclarationSyntax)
+                {
+                    if (resourceDeclarationSyntax.TypeString is StringSyntax stringSyntax)
+                    {
+                        string type = stringSyntax.StringTokens.First().Text;
+
+                        TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
+
+                        string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
+
+                        resourceTypeToBodyMap.Add(type, bodyText);
+                    }
+                }
+            }
+        }
+
         public IEnumerable<ResourceSnippet> GetResourceSnippets() => resourceSnippets;
+
+        public string GetResourceDeclarationBody(string type)
+        {
+            if (resourceTypeToBodyMap.TryGetValue(type, out string? resourceBody))
+            {
+                return resourceBody;
+            }
+
+            return "{}";
+        }
     }
 }
