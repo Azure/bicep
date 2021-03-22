@@ -15,21 +15,28 @@ namespace Bicep.Core.TypeSystem
 {
     public class FunctionResolver
     {
+        private readonly ImmutableArray<FunctionOverload> functionOverloads;
+        private readonly ImmutableArray<BannedFunction> bannedFunctions;
+
+        public FunctionResolver WithOwner(ObjectType owner)
+            => new FunctionResolver(owner, this.functionOverloads, this.bannedFunctions);
+
         public FunctionResolver(ObjectType owner, IEnumerable<FunctionOverload>? functionOverloads = null, IEnumerable<BannedFunction>? bannedFunctions = null)
         {
-            functionOverloads ??= Enumerable.Empty<FunctionOverload>();
-            bannedFunctions ??= Enumerable.Empty<BannedFunction>();
-
+            this.functionOverloads = functionOverloads?.ToImmutableArray() ?? ImmutableArray<FunctionOverload>.Empty;
+            this.bannedFunctions = bannedFunctions?.ToImmutableArray() ?? ImmutableArray<BannedFunction>.Empty;
+            
             // prepopulate cache with all known (non-wildcard) symbols
-            this.FunctionCache = functionOverloads
-                .Where(fo => !(fo is FunctionWildcardOverload))
+            // TODO: make cache building logic lazy
+            this.FunctionCache = this.functionOverloads
+                .Where(fo => fo is not FunctionWildcardOverload)
                 .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(owner, name, overloads), LanguageConstants.IdentifierComparer)
                 .ToDictionary<FunctionSymbol, string, FunctionSymbol?>(s => s.Name, s => s, LanguageConstants.IdentifierComparer);
 
-            this.BannedFunctions = bannedFunctions.ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
+            this.BannedFunctions = this.bannedFunctions.ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
 
             // don't pre-build symbols for wildcard functions, because we don't want to equate two differently-named symbols with each other
-            this.FunctionWildcardOverloads = functionOverloads
+            this.FunctionWildcardOverloads = this.functionOverloads
                 .OfType<FunctionWildcardOverload>()
                 .ToImmutableArray();
             this.DeclaringType = owner;

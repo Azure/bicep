@@ -17,6 +17,16 @@ namespace Bicep.Core.TypeSystem
             this.AdditionalPropertiesType = additionalPropertiesType;
             this.AdditionalPropertiesFlags = additionalPropertiesFlags;
         }
+        
+        public NamedObjectType(string name, TypeSymbolValidationFlags validationFlags, ImmutableDictionary<string, TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, FunctionResolver methodResolver)
+            : base(name)
+        {
+            this.ValidationFlags = validationFlags;
+            this.Properties = properties;
+            this.MethodResolver = methodResolver.WithOwner(this);
+            this.AdditionalPropertiesType = additionalPropertiesType;
+            this.AdditionalPropertiesFlags = additionalPropertiesFlags;
+        }
 
         public override TypeKind TypeKind => TypeKind.NamedObject;
 

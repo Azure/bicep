@@ -1112,7 +1112,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var typeProvider = new TestResourceTypeProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return typeProvider.GetType(typeReference, false);
+            return typeProvider.GetType(typeReference, ResourceTypeGenerationFlags.None);
         }
 
         private static TypeManager CreateTypeManager(SyntaxHierarchy hierarchy) 
