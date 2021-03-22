@@ -11,7 +11,7 @@ namespace Bicep.Core.TypeSystem
         public DiscriminatedObjectType(string name, TypeSymbolValidationFlags validationFlags, string discriminatorKey, IEnumerable<ITypeReference> unionMembers)
             : base(name)
         {
-            var unionMembersByKey = new Dictionary<string, ITypeReference>();
+            var unionMembersByKey = new Dictionary<string, ObjectType>();
             var unionKeyTypes = new List<StringLiteralType>();
             foreach (var member in unionMembers)
             {
@@ -30,7 +30,7 @@ namespace Bicep.Core.TypeSystem
                     throw new ArgumentException($"Invalid discriminator field type {discriminatorProp.TypeReference.Type.Name} on member");
                 }
 
-                unionMembersByKey.Add(stringLiteral.Name, member);
+                unionMembersByKey.Add(stringLiteral.Name, objectType);
                 unionKeyTypes.Add(stringLiteral);
             }
 
@@ -42,7 +42,7 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
 
-        public ImmutableDictionary<string, ITypeReference> UnionMembersByKey { get; }
+        public ImmutableDictionary<string, ObjectType> UnionMembersByKey { get; }
 
         public override TypeSymbolValidationFlags ValidationFlags { get; }
 

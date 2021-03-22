@@ -32,8 +32,8 @@ namespace Bicep.Core.UnitTests.Utils
             public IEnumerable<ResourceTypeReference> GetAvailableTypes()
                 => typeDictionary.Keys;
 
-            public ResourceType GetType(ResourceTypeReference reference, bool isExistingResource)
-                => typeDictionary[reference];
+            public ResourceType GetType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+                => AzResourceTypeProvider.SetBicepResourceProperties(typeDictionary[reference], flags);
 
             public bool HasType(ResourceTypeReference typeReference)
                 => typeDictionary.ContainsKey(typeReference);
@@ -73,5 +73,20 @@ namespace Bicep.Core.UnitTests.Utils
 
             return new AzResourceTypeProvider(typeLoader.Object);
         }
+
+        public static ObjectType CreateObjectType(string name, params (string name, ITypeReference type)[] properties)
+            => new(
+                name,
+                TypeSymbolValidationFlags.Default,
+                properties.Select(val => new TypeProperty(val.name, val.type)),
+                null,
+                TypePropertyFlags.None);
+
+        public static DiscriminatedObjectType CreateDiscriminatedObjectType(string name, string key, params ITypeReference[] members)
+            => new(
+                name,
+                TypeSymbolValidationFlags.Default,
+                key,
+                members);
     }
 }

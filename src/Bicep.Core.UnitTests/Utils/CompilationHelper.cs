@@ -12,6 +12,7 @@ using FluentAssertions;
 using System;
 using Bicep.Core.TypeSystem;
 using Newtonsoft.Json.Linq;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -20,7 +21,10 @@ namespace Bicep.Core.UnitTests.Utils
         public record CompilationResult(
             JToken? Template,
             IEnumerable<Diagnostic> Diagnostics,
-            Compilation compilation);
+            Compilation Compilation)
+        {
+            public SyntaxTree SyntaxTree => Compilation.SyntaxTreeGrouping.EntryPoint;
+        }
 
         public static CompilationResult Compile(IResourceTypeProvider resourceTypeProvider, params (string fileName, string fileContents)[] files)
         {

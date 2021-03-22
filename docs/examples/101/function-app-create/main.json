@@ -258,7 +258,6 @@
         "ftpsState": "AllAllowed",
         "PreWarmedInstanceCount": 0
       },
-      "tags": "[variables('appTags')]",
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
       ]
@@ -280,7 +279,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11553591864062128932"
+      "templateHash": "5839598444193799735"
     }
   }
 }

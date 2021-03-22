@@ -12,19 +12,17 @@ namespace Bicep.Core.TypeSystem
     /// </summary>
     public class ObjectType : TypeSymbol
     {
-        private readonly FunctionResolver methodResolver;
-
         public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.None, IEnumerable<FunctionOverload>? functions = null)
             : this(name, validationFlags, properties, additionalPropertiesType, additionalPropertiesFlags, new FunctionResolver(functions ?? ImmutableArray<FunctionOverload>.Empty))
         {
         }
 
-        protected ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, FunctionResolver methodResolver)
+        public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, FunctionResolver methodResolver)
             : base(name)
         {
             this.ValidationFlags = validationFlags;
             this.Properties = properties.ToImmutableDictionary(property => property.Name, LanguageConstants.IdentifierComparer);
-            this.methodResolver = methodResolver;
+            this.MethodResolver = methodResolver;
             this.AdditionalPropertiesType = additionalPropertiesType;
             this.AdditionalPropertiesFlags = additionalPropertiesFlags;
         }
@@ -39,10 +37,12 @@ namespace Bicep.Core.TypeSystem
 
         public TypePropertyFlags AdditionalPropertiesFlags { get; }
 
+        public FunctionResolver MethodResolver { get; }
+
         public ImmutableDictionary<string, FunctionSymbol> GetAvailableMethods()
-            => methodResolver.GetKnownFunctions(this);
+            => MethodResolver.GetKnownFunctions(this);
 
         public Symbol? TryGetMethod(IdentifierSyntax identifierSyntax)
-            => methodResolver.TryGetSymbol(this, identifierSyntax);
+            => MethodResolver.TryGetSymbol(this, identifierSyntax);
     }
 }
