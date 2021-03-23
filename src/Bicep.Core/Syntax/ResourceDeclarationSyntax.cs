@@ -79,8 +79,9 @@ namespace Bicep.Core.Syntax
 
             // Before we parse the type name we need to determine if it's a top level resource or not.
             ResourceTypeReference? typeReference;
-            var ancestors = binder.GetAllAncestors<ResourceDeclarationSyntax>(this);
-            if (ancestors.Length == 0)
+            var hasParentDeclaration = false;
+            var nestedParents = binder.GetAllAncestors<ResourceDeclarationSyntax>(this);
+            if (nestedParents.Length == 0)
             {
                 // This is a top level resource - the type is a fully-qualified type.
                 typeReference = ResourceTypeReference.TryParse(stringContent);
@@ -94,6 +95,8 @@ namespace Bicep.Core.Syntax
                     resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax &&
                     binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentResourceSymbol)
                 {
+                    hasParentDeclaration = true;
+
                     var parentType = parentResourceSymbol.DeclaringResource.GetDeclaredType(binder, resourceTypeProvider);
                     if (parentType is not ResourceType parentResourceType)
                     {
@@ -117,26 +120,27 @@ namespace Bicep.Core.Syntax
                 // Ex: 'My.Rp/someType@2020-01-01' -> 'someChild' -> 'someGrandchild'
 
                 // The top-most resource must have a qualified type name.
-                var baseTypeStringContent = ancestors[0].TypeString?.TryGetLiteralValue();
+                hasParentDeclaration = true;
+                var baseTypeStringContent = nestedParents[0].TypeString?.TryGetLiteralValue();
                 if (baseTypeStringContent == null)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(ancestors[0].Name.IdentifierName));
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(nestedParents[0].Name.IdentifierName));
                 }
 
                 var baseTypeReference = ResourceTypeReference.TryParse(baseTypeStringContent);
                 if (baseTypeReference == null)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(ancestors[0].Name.IdentifierName));
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(nestedParents[0].Name.IdentifierName));
                 }
 
                 // Collect each other ancestor resource's type.
                 var typeSegments = new List<string>();
-                for (var i = 1; i < ancestors.Length; i++)
+                for (var i = 1; i < nestedParents.Length; i++)
                 {
-                    var typeSegmentStringContent = ancestors[i].TypeString?.TryGetLiteralValue();
+                    var typeSegmentStringContent = nestedParents[i].TypeString?.TryGetLiteralValue();
                     if (typeSegmentStringContent == null)
                     {
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(ancestors[i].Name.IdentifierName));
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(nestedParents[i].Name.IdentifierName));
                     }
 
                     typeSegments.Add(typeSegmentStringContent);
@@ -156,7 +160,7 @@ namespace Bicep.Core.Syntax
                     {
                         if (!ResourceTypeReference.TryParseSingleTypeSegment(typeSegments[j], out _, out _))
                         {
-                            return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(ancestors[j+1].Name.IdentifierName));
+                            return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(nestedParents[j+1].Name.IdentifierName));
                         }
                     }
 
@@ -171,7 +175,17 @@ namespace Bicep.Core.Syntax
                 }
             }
 
-            return resourceTypeProvider.GetType(typeReference, IsExistingResource());
+            var flags = ResourceTypeGenerationFlags.None;
+            if (IsExistingResource())
+            {
+                flags |= ResourceTypeGenerationFlags.ExistingResource;
+            }
+            if (typeReference.IsRootType || hasParentDeclaration)
+            {
+                flags |= ResourceTypeGenerationFlags.PermitLiteralNameProperty;
+            }
+
+            return resourceTypeProvider.GetType(typeReference, flags);
         }
 
         public ObjectSyntax? TryGetBody() =>

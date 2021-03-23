@@ -1,8 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using FluentAssertions.Formatting;
 using FluentAssertions.Primitives;
 
 namespace Bicep.Core.UnitTests.Assertions
@@ -17,12 +23,47 @@ namespace Bicep.Core.UnitTests.Assertions
 
     public class DiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, DiagnosticAssertions>
     {
+        private class DiagnosticFormatter : IValueFormatter
+        {
+            public bool CanHandle(object value)
+            {
+                return value is Diagnostic;
+            }
+
+            public string Format(object value, FormattingContext context, FormatChild formatChild)
+            {
+                var prefix = context.UseLineBreaks ? Environment.NewLine : string.Empty;
+                var diagnostic = (Diagnostic)value;
+
+                return $"{prefix}\"[{diagnostic.Code} ({diagnostic.Level})] {diagnostic.Message}\"";
+            }
+        }
+
+        static DiagnosticAssertions()
+        {
+            Formatter.AddFormatter(new DiagnosticFormatter());
+        }
+
         public DiagnosticAssertions(Diagnostic diagnostic)
             : base(diagnostic)
         {
         }
 
         protected override string Identifier => "Diagnostic";
+
+        public static void DoWithDiagnosticAnnotations(SyntaxTree syntaxTree, IEnumerable<Diagnostic> diagnostics, Action<IEnumerable<Diagnostic>> action)
+        {
+            using (var scope = new AssertionScope())
+            {
+                scope.AddReportable("diagnostics", PrintHelper.PrintWithAnnotations(
+                    syntaxTree,
+                    diagnostics.Select(x => new PrintHelper.Annotation(x.Span, $"[{x.Code} ({x.Level})] {x.Message}")),
+                    1,
+                    true));
+
+                action(diagnostics);
+            }
+        }
 
         public AndConstraint<DiagnosticAssertions> HaveCodeAndSeverity(string code, DiagnosticLevel level, string because = "", params object[] becauseArgs)
         {
@@ -43,7 +84,7 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .Given<string?>(() => Subject.Message)
+                .Given<string>(() => Subject.Message)
                 .ForCondition(x => x == message)
                 .FailWith("Expected message to be {0}{reason} but it was {1}", _ => message, x => x);
 

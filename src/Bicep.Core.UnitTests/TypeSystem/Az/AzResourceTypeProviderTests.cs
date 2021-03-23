@@ -22,8 +22,12 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
-        [TestMethod]
-        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing()
+        [DataTestMethod]
+        [DataRow(ResourceTypeGenerationFlags.None)]
+        [DataRow(ResourceTypeGenerationFlags.ExistingResource)]
+        [DataRow(ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
+        [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
+        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
@@ -35,14 +39,12 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             foreach (var availableType in availableTypes)
             {
                 resourceTypeProvider.HasType(availableType).Should().BeTrue();
-                var resourceType = resourceTypeProvider.GetType(availableType, false);
-                var resourceTypeExisting = resourceTypeProvider.GetType(availableType, true);
+                var resourceType = resourceTypeProvider.GetType(availableType, flags);
 
                 try
                 {
                     var visited = new HashSet<TypeSymbol>();
                     VisitAllReachableTypes(resourceType, visited);
-                    VisitAllReachableTypes(resourceTypeExisting, visited);
                 }
                 catch (Exception exception)
                 {

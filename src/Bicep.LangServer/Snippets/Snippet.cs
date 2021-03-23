@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -85,18 +85,6 @@ namespace Bicep.LanguageServer.Snippets
             if (firstPlaceholderIndex != 0 && firstPlaceholderIndex != 1)
             {
                 throw new ArgumentException($"The first snippet placeholder must have index 0 or 1, but the provided index is {firstPlaceholderIndex}");
-            }
-
-            // loop skips first placeholder
-            for (int i = 1; i < this.Placeholders.Length; i++)
-            {
-                var current = this.Placeholders[i];
-                var expectedIndex = firstPlaceholderIndex + i;
-
-                if (current.Index != expectedIndex)
-                {
-                    throw new ArgumentException($"The placeholder indices must be contiguous increasing integers, but the placeholder with index {expectedIndex} is missing.");
-                }
             }
         }
     }
