@@ -196,7 +196,7 @@ namespace Bicep.Core.Samples
             indexContents.Should().NotContain(x => string.IsNullOrWhiteSpace(x.FilePath));
             indexContents.Should().NotContain(x => string.IsNullOrWhiteSpace(x.Description));
 
-            var indexFiles = indexContents.Select(x => $"docs/examples/{x.FilePath}");
+            var indexFiles = indexContents!.Select(x => $"docs/examples/{x.FilePath}");
             var exampleFiles = exampleData.Select(x => x.BicepStreamName).Where(x => x.EndsWith("/main.bicep", StringComparison.Ordinal));
 
             exampleFiles.Should().BeSubsetOf(indexFiles, $"all \"main.bicep\" example files should be added to \"{indexFile}\"");
