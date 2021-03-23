@@ -11,16 +11,16 @@ namespace Bicep.Core.TypeSystem
         public DiscriminatedObjectType(string name, TypeSymbolValidationFlags validationFlags, string discriminatorKey, IEnumerable<ITypeReference> unionMembers)
             : base(name)
         {
-            var unionMembersByKey = new Dictionary<string, NamedObjectType>();
+            var unionMembersByKey = new Dictionary<string, ObjectType>();
             var unionKeyTypes = new List<StringLiteralType>();
             foreach (var member in unionMembers)
             {
-                if (member.Type is not NamedObjectType namedObject)
+                if (member.Type is not ObjectType objectType)
                 {
                     throw new ArgumentException($"Invalid member of type {member.Type.GetType()}");
                 }
 
-                if (!namedObject.Properties.TryGetValue(discriminatorKey, out var discriminatorProp))
+                if (!objectType.Properties.TryGetValue(discriminatorKey, out var discriminatorProp))
                 {
                     throw new ArgumentException("Missing discriminator field on member");
                 }
@@ -30,7 +30,7 @@ namespace Bicep.Core.TypeSystem
                     throw new ArgumentException($"Invalid discriminator field type {discriminatorProp.TypeReference.Type.Name} on member");
                 }
 
-                unionMembersByKey.Add(stringLiteral.Name, namedObject);
+                unionMembersByKey.Add(stringLiteral.Name, objectType);
                 unionKeyTypes.Add(stringLiteral);
             }
 
@@ -42,7 +42,7 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
 
-        public ImmutableDictionary<string, NamedObjectType> UnionMembersByKey { get; }
+        public ImmutableDictionary<string, ObjectType> UnionMembersByKey { get; }
 
         public override TypeSymbolValidationFlags ValidationFlags { get; }
 

@@ -29,7 +29,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static ObjectType GetResourceGroupReturnType(IEnumerable<FunctionArgumentSyntax> arguments)
         {
-            var properties = new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+            var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("provisioningState", LanguageConstants.String),
             }, null);
@@ -60,7 +60,7 @@ namespace Bicep.Core.Semantics.Namespaces
         private static ObjectType GetSingleProvidersReturnType()
         {
             // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
-            return new NamedObjectType("provider", TypeSymbolValidationFlags.Default, new []
+            return new ObjectType("provider", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("resourceType", LanguageConstants.String),
                 new TypeProperty("locations", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
@@ -68,12 +68,12 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
         
-        private static NamedObjectType GetEnvironmentReturnType()
+        private static ObjectType GetEnvironmentReturnType()
         {
-            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
+            return new ObjectType("environment", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("activeDirectoryDataLake", LanguageConstants.String),
-                new TypeProperty("authentication", new NamedObjectType("authentication", TypeSymbolValidationFlags.Default, new []
+                new TypeProperty("authentication", new ObjectType("authentication", TypeSymbolValidationFlags.Default, new []
                 {
                     new TypeProperty("audiences", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
                     new TypeProperty("identityProvider", LanguageConstants.String),
@@ -89,7 +89,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("portal", LanguageConstants.String),
                 new TypeProperty("resourceManager", LanguageConstants.String),
                 new TypeProperty("sqlManagement", LanguageConstants.String),
-                new TypeProperty("suffixes", new NamedObjectType("suffixes", TypeSymbolValidationFlags.Default, new []
+                new TypeProperty("suffixes", new ObjectType("suffixes", TypeSymbolValidationFlags.Default, new []
                 {
                     new TypeProperty("acrLoginServer", LanguageConstants.String),
                     new TypeProperty("azureDatalakeAnalyticsCatalogAndJob", LanguageConstants.String),
@@ -103,7 +103,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static NamedObjectType GetDeploymentReturnType(ResourceScope targetScope)
+        private static ObjectType GetDeploymentReturnType(ResourceScope targetScope)
         {
             // Note: there are other properties which could be included here, but they allow you to break out of the bicep world.
             // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
@@ -111,9 +111,9 @@ namespace Bicep.Core.Semantics.Namespaces
             IEnumerable<TypeProperty> properties = new []
             {
                 new TypeProperty("name", LanguageConstants.String),
-                new TypeProperty("properties", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
                 {
-                    new TypeProperty("templateLink", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                    new TypeProperty("templateLink", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
                     {
                         new TypeProperty("id", LanguageConstants.String),
                         new TypeProperty("uri", LanguageConstants.String),
@@ -128,7 +128,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 properties = properties.Concat(locationProperty.AsEnumerable());
             }
 
-            return new NamedObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null);
+            return new ObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null);
         }
 
         private static IEnumerable<(FunctionOverload functionOverload, ResourceScope allowedScopes)> GetScopeFunctions()

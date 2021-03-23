@@ -87,7 +87,7 @@ namespace Bicep.Core.TypeSystem.Az
                     var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
                     var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
 
-                    return new NamedObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
+                    return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
                 }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                 {
@@ -116,7 +116,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
         }
 
-        private NamedObjectType ToCombinedType(IEnumerable<KeyValuePair<string, Azure.Bicep.Types.Concrete.ObjectProperty>> baseProperties, string name, Azure.Bicep.Types.Concrete.ITypeReference extendedType, bool isResourceBodyType)
+        private ObjectType ToCombinedType(IEnumerable<KeyValuePair<string, Azure.Bicep.Types.Concrete.ObjectProperty>> baseProperties, string name, Azure.Bicep.Types.Concrete.ITypeReference extendedType, bool isResourceBodyType)
         {
             if (!(extendedType.Type is Azure.Bicep.Types.Concrete.ObjectType objectType))
             {
@@ -131,7 +131,7 @@ namespace Bicep.Core.TypeSystem.Az
                 extendedProperties[property.Key] = property.Value;
             }
 
-            return new NamedObjectType(name, GetValidationFlags(isResourceBodyType), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
+            return new ObjectType(name, GetValidationFlags(isResourceBodyType), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
         }
 
         private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType)
