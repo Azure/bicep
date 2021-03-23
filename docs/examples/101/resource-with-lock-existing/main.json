@@ -15,15 +15,14 @@
       "name": "DontDelete",
       "properties": {
         "level": "CanNotDelete"
-      },
-      "dependsOn": []
+      }
     }
   ],
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15375625835732419629"
+      "templateHash": "15116783846434100709"
     }
   }
 }

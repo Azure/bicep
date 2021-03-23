@@ -105,8 +105,7 @@
                     "enabled": true
                   }
                 ]
-              },
-              "dependsOn": []
+              }
             },
             {
               "type": "microsoft.insights/diagnosticSettings",
@@ -133,8 +132,7 @@
                     "enabled": true
                   }
                 ]
-              },
-              "dependsOn": []
+              }
             }
           ]
         }
@@ -148,7 +146,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14441479219928183826"
+      "templateHash": "4773149420866329064"
     }
   }
 }

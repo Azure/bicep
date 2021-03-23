@@ -310,8 +310,7 @@
       "type": "My.Rp/extensionResource",
       "apiVersion": "2020-12-01",
       "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
-      "name": "extension3",
-      "dependsOn": []
+      "name": "extension3"
     },
     {
       "copy": {
@@ -626,7 +625,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5842466383755616753"
+      "templateHash": "1609947015492563059"
     }
   }
 }

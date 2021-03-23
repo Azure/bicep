@@ -1334,5 +1334,45 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
                 ("BCP057", DiagnosticLevel.Error, "The name \"userAssignedIdentities\" does not exist in the current context."),
             });
         }
+
+        [TestMethod]
+        public void Test_Issue1986()
+        {
+            var result = CompilationHelper.Compile(@"
+var aksServicePrincipalObjectId = 'aksServicePrincipalObjectId'
+var aksDefaultPoolSubnetName = 'asdf'
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-08-01' = {
+  name: 'asdfasdf'
+}
+
+resource userAssignedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: 'asdfsdf'
+  location: 'West US'
+}
+
+resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-08-01' existing = {
+  parent: virtualNetwork
+  name: aksDefaultPoolSubnetName
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(aksDefaultPoolSubnet.id, 'Network Contributor')
+  scope: aksDefaultPoolSubnet
+  properties: {
+    principalId: aksServicePrincipalObjectId
+    roleDefinitionId: '4d97b98b-1d4f-4787-a291-c67834d212e7'
+  }
+  dependsOn: [
+    userAssignedIdentities
+  ]
+}
+");
+
+            result.Should().NotHaveDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
+                "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
+            });
+        }
     }
 }

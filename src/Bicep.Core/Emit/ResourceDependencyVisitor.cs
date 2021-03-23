@@ -131,6 +131,20 @@ namespace Bicep.Core.Emit
                     return;
 
                 case ResourceSymbol resourceSymbol:
+                    if (resourceSymbol.DeclaringResource.IsExistingResource())
+                    {
+                        // we can't depend on an existing resource, but we should depend on any deployable ancestors if they exist
+                        var deployableAncestor = model.ResourceAncestors.GetAncestors(resourceSymbol)
+                            .LastOrDefault(x => !x.Resource.DeclaringResource.IsExistingResource())?.Resource;
+
+                        if (deployableAncestor is not null)
+                        {
+                            resourceDependencies[currentDeclaration].Add(new ResourceDependency(deployableAncestor, GetIndexExpression(syntax, deployableAncestor.IsCollection)));
+                        }
+
+                        return;
+                    }
+
                     resourceDependencies[currentDeclaration].Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
                     return;
 
