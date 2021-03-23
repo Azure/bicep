@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15576855067288529582"
+    }
+  },
   "parameters": {
     "resourceGroupPrefrix": {
       "type": "string",
@@ -174,6 +181,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11205249129579148428"
+            }
+          },
           "parameters": {
             "hostpoolName": {
               "type": "string"
@@ -310,6 +324,13 @@
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                   "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "16708867199182289322"
+                    }
+                  },
                   "parameters": {
                     "logAnalyticsWorkspaceName": {
                       "type": "string"
@@ -372,6 +393,13 @@
                         "template": {
                           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "4865726630166443526"
+                            }
+                          },
                           "parameters": {
                             "logAnalyticsWorkspaceID": {
                               "type": "string"
@@ -445,28 +473,14 @@
                               },
                               "dependsOn": []
                             }
-                          ],
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "dev",
-                              "templateHash": "7596586815935728892"
-                            }
-                          }
+                          ]
                         }
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
                       ]
                     }
-                  ],
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "dev",
-                      "templateHash": "16599081877049504203"
-                    }
-                  }
+                  ]
                 }
               },
               "dependsOn": [
@@ -474,14 +488,7 @@
                 "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]"
               ]
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "14028620541780725137"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
@@ -519,6 +526,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "18310625205876859262"
+            }
+          },
           "parameters": {
             "vnetName": {
               "type": "string"
@@ -561,14 +575,7 @@
                 ]
               }
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "11125853222491965992"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
@@ -605,6 +612,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "13118539058586850235"
+            }
+          },
           "parameters": {
             "storageaccountlocation": {
               "type": "string",
@@ -648,26 +662,12 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccountName'))]"
               ]
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "6234827527780158019"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}FILESERVICES', parameters('resourceGroupPrefrix')))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "7957194895162255060"
-    }
-  }
+  ]
 }

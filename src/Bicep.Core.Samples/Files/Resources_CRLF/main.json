@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15846405971626721380"
+    }
+  },
   "parameters": {
     "applicationName": {
       "type": "string",
@@ -620,13 +627,6 @@
     "p4_res1childid": {
       "type": "string",
       "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5842466383755616753"
     }
   }
 }

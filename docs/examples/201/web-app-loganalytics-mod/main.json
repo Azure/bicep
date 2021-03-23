@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16635523466382666048"
+    }
+  },
   "parameters": {
     "appName": {
       "type": "string",
@@ -26,6 +33,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11726653625731348975"
+            }
+          },
           "parameters": {
             "skuName": {
               "type": "string",
@@ -68,13 +82,6 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "18330922333282750741"
-            }
           }
         }
       }
@@ -102,6 +109,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11879679526796717362"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -188,14 +202,7 @@
                 "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
               ]
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "17229321524522446240"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
@@ -223,6 +230,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "8952477625281734700"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -261,13 +275,6 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]"
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "11373787318551384555"
-            }
           }
         }
       },
@@ -292,6 +299,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "15135260870848174745"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -328,23 +342,9 @@
               "type": "string",
               "value": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "5100881808669261751"
-            }
           }
         }
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11946744687785698982"
-    }
-  }
+  ]
 }

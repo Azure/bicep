@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "18175139976819678017"
+    }
+  },
   "parameters": {
     "targetMG": {
       "type": "string"
@@ -53,12 +60,5 @@
         "[format('Microsoft.Authorization/policyDefinitions/{0}', variables('policyDefinition'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "10568649738310586240"
-    }
-  }
+  ]
 }

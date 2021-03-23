@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15521278052357928363"
+    }
+  },
   "parameters": {
     "skuName": {
       "type": "string",
@@ -62,12 +69,5 @@
         "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "6972901730975186637"
-    }
-  }
+  ]
 }

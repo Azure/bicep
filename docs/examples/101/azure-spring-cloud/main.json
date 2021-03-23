@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15506087078365281737"
+    }
+  },
   "parameters": {
     "serviceName": {
       "type": "string"
@@ -141,6 +148,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "1326521582071869745"
+            }
+          },
           "parameters": {
             "app1Name": {
               "type": "string"
@@ -181,14 +195,7 @@
                 "activeDeploymentName": "default"
               }
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "14716049199041538326"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
@@ -200,12 +207,5 @@
         "[resourceId('Microsoft.AppPlatform/Spring/apps/deployments', split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[0], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[1], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[2])]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "933723371278343023"
-    }
-  }
+  ]
 }

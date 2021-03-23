@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16004598744493228358"
+    }
+  },
   "parameters": {
     "prefix": {
       "type": "string",
@@ -50,6 +57,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5894871185610479438"
+            }
+          },
           "parameters": {
             "scriptName": {
               "type": "string"
@@ -74,13 +88,6 @@
             "myOutput": {
               "type": "string",
               "value": "[parameters('scriptName')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "4701861158832429379"
             }
           }
         }
@@ -111,6 +118,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5894871185610479438"
+            }
+          },
           "parameters": {
             "scriptName": {
               "type": "string"
@@ -136,23 +150,9 @@
               "type": "string",
               "value": "[parameters('scriptName')]"
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "4701861158832429379"
-            }
           }
         }
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "177368619437621859"
-    }
-  }
+  ]
 }

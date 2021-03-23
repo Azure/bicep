@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11205249129579148428"
+    }
+  },
   "parameters": {
     "hostpoolName": {
       "type": "string"
@@ -137,6 +144,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16708867199182289322"
+            }
+          },
           "parameters": {
             "logAnalyticsWorkspaceName": {
               "type": "string"
@@ -199,6 +213,13 @@
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                   "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "4865726630166443526"
+                    }
+                  },
                   "parameters": {
                     "logAnalyticsWorkspaceID": {
                       "type": "string"
@@ -272,28 +293,14 @@
                       },
                       "dependsOn": []
                     }
-                  ],
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "dev",
-                      "templateHash": "7596586815935728892"
-                    }
-                  }
+                  ]
                 }
               },
               "dependsOn": [
                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
               ]
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "16599081877049504203"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
@@ -301,12 +308,5 @@
         "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "14028620541780725137"
-    }
-  }
+  ]
 }

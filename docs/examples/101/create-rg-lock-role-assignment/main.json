@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4485853210348847795"
+    }
+  },
   "parameters": {
     "rgName": {
       "type": "string"
@@ -53,6 +60,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "243144719197438001"
+            }
+          },
           "parameters": {
             "principalId": {
               "type": "string"
@@ -84,26 +98,12 @@
                 "principalId": "[parameters('principalId')]"
               }
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "5867672624469865160"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('rgName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11130442301922116548"
-    }
-  }
+  ]
 }

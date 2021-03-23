@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17671454004803647679"
+    }
+  },
   "parameters": {
     "virtualNetworkName": {
       "type": "string",
@@ -154,12 +161,5 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), variables('azureFirewallSubnetName')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), variables('azureFirewallSubnetName')), '/')[1])]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "13356438059833962882"
-    }
-  }
+  ]
 }

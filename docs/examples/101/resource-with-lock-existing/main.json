@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5067046074151307223"
+    }
+  },
   "parameters": {
     "accountName": {
       "type": "string"
@@ -18,12 +25,5 @@
       },
       "dependsOn": []
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "15375625835732419629"
-    }
-  }
+  ]
 }

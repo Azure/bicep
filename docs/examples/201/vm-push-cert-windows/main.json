@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3186442113468301572"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -179,12 +186,5 @@
         "[resourceId('Microsoft.Network/networkInterfaces', 'certNic')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "18032415092249524688"
-    }
-  }
+  ]
 }

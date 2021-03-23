@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1367586465799895836"
+    }
+  },
   "parameters": {
     "sqlAdministratorLogin": {
       "type": "string"
@@ -69,12 +76,5 @@
         "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "4784448864382167112"
-    }
-  }
+  ]
 }

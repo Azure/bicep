@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16767638129179699760"
+    }
+  },
   "parameters": {
     "_artifactsLocation": {
       "type": "string",
@@ -356,6 +363,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4056214892007614382"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -422,13 +436,6 @@
             "assignedIp": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "6952636270914318989"
             }
           }
         }
@@ -461,6 +468,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4056214892007614382"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -527,13 +541,6 @@
             "assignedIp": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "6952636270914318989"
             }
           }
         }
@@ -571,6 +578,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4056214892007614382"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -637,13 +651,6 @@
             "assignedIp": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "6952636270914318989"
             }
           }
         }
@@ -683,6 +690,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4056214892007614382"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -750,13 +764,6 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "6952636270914318989"
-            }
           }
         }
       },
@@ -782,6 +789,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9608574906046857876"
+            }
+          },
           "parameters": {
             "udrName": {
               "type": "string"
@@ -815,13 +829,6 @@
             "udrId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9661340652054080845"
             }
           }
         }
@@ -850,6 +857,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9608574906046857876"
+            }
+          },
           "parameters": {
             "udrName": {
               "type": "string"
@@ -884,13 +898,6 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9661340652054080845"
-            }
           }
         }
       },
@@ -898,12 +905,5 @@
         "[resourceId('Microsoft.Resources/deployments', 'createNic2')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "827297698860353553"
-    }
-  }
+  ]
 }

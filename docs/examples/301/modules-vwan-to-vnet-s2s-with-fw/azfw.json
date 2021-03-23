@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10150724618130200737"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -108,12 +115,5 @@
       "location": "[parameters('location')]",
       "properties": "[if(equals(parameters('fwtype'), 'VNet'), variables('vnetfwproperties').properties, if(equals(parameters('fwtype'), 'vWAN'), variables('hubfwproperties').properties, null()))]"
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "797249695265074914"
-    }
-  }
+  ]
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17288750734281943284"
+    }
+  },
   "parameters": {
     "deployTimeSuffix": {
       "type": "string",
@@ -80,6 +87,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -130,13 +144,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
-            }
           }
         }
       }
@@ -158,6 +165,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5311387963487731512"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string"
@@ -176,13 +190,6 @@
             "myResourceId": {
               "type": "string",
               "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "2690166781482293239"
             }
           }
         }
@@ -206,6 +213,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5311387963487731512"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string"
@@ -225,13 +239,6 @@
               "type": "string",
               "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "2690166781482293239"
-            }
           }
         }
       }
@@ -248,6 +255,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12219545452385241730"
+            }
+          },
           "parameters": {
             "optionalString": {
               "type": "string",
@@ -283,13 +297,6 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -308,6 +315,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12219545452385241730"
+            }
+          },
           "parameters": {
             "optionalString": {
               "type": "string",
@@ -343,13 +357,6 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -381,6 +388,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12219545452385241730"
+            }
+          },
           "parameters": {
             "optionalString": {
               "type": "string",
@@ -416,13 +430,6 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -454,6 +461,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12219545452385241730"
+            }
+          },
           "parameters": {
             "optionalString": {
               "type": "string",
@@ -489,13 +503,6 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -531,6 +538,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12219545452385241730"
+            }
+          },
           "parameters": {
             "optionalString": {
               "type": "string",
@@ -566,13 +580,6 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -608,6 +615,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12219545452385241730"
+            }
+          },
           "parameters": {
             "optionalString": {
               "type": "string",
@@ -643,13 +657,6 @@
                 "optionalObj": "[parameters('optionalObj')]",
                 "optionalArray": "[parameters('optionalArray')]"
               }
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9685569921814825587"
             }
           }
         }
@@ -686,6 +693,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -735,13 +749,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -779,6 +786,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -828,13 +842,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -873,6 +880,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -922,13 +936,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -970,6 +977,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -1019,13 +1033,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -1067,6 +1074,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -1116,13 +1130,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -1161,6 +1168,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -1210,13 +1224,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -1284,6 +1291,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -1333,13 +1347,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -1408,6 +1415,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -1457,13 +1471,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
             }
           }
         }
@@ -1535,6 +1542,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12608156742562425152"
+            }
+          },
           "parameters": {
             "stringParamA": {
               "type": "string",
@@ -1585,13 +1599,6 @@
                 "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3458818169929627241"
-            }
           }
         }
       }
@@ -1617,13 +1624,6 @@
     "modCalculatedNameOutput": {
       "type": "object",
       "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11500878159620986989"
     }
   }
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13118336520875601459"
+    }
+  },
   "parameters": {
     "virtualMachineSize": {
       "type": "string"
@@ -201,6 +208,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "14122289032023454886"
+            }
+          },
           "parameters": {
             "virtualMachineSize": {
               "type": "string"
@@ -283,14 +297,7 @@
                 }
               }
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "14174350473271302448"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
@@ -304,13 +311,6 @@
     "publicIp": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))).ipAddress]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "8721692604157295464"
     }
   }
 }

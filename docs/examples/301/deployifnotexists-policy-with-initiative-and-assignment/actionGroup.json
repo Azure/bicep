@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7530539798145096673"
+    }
+  },
   "parameters": {
     "actionGroupName": {
       "type": "string"
@@ -49,13 +56,6 @@
     "actionGroupName": {
       "type": "string",
       "value": "[parameters('actionGroupName')]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "3405712656690483630"
     }
   }
 }

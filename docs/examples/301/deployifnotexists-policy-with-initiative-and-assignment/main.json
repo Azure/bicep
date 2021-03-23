@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15281879075717999091"
+    }
+  },
   "parameters": {
     "resourceGroupName": {
       "type": "string",
@@ -140,6 +147,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7530539798145096673"
+            }
+          },
           "parameters": {
             "actionGroupName": {
               "type": "string"
@@ -188,13 +202,6 @@
             "actionGroupName": {
               "type": "string",
               "value": "[parameters('actionGroupName')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3405712656690483630"
             }
           }
         }
@@ -272,6 +279,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4844679843894631040"
+            }
+          },
           "parameters": {
             "actionGroupName": {
               "type": "string"
@@ -563,13 +577,6 @@
               "type": "string",
               "value": "[subscriptionResourceId('Microsoft.Authorization/policySetDefinitions', 'bicepExampleInitiative')]"
             }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "16786590810543776581"
-            }
           }
         }
       },
@@ -601,6 +608,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "1145679438663129161"
+            }
+          },
           "parameters": {
             "bicepExampleInitiativeId": {
               "type": "string"
@@ -650,26 +664,12 @@
                 "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment')]"
               ]
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "7970689130777253340"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', 'policy')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "16787100480694204241"
-    }
-  }
+  ]
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13118539058586850235"
+    }
+  },
   "parameters": {
     "storageaccountlocation": {
       "type": "string",
@@ -44,12 +51,5 @@
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccountName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "6234827527780158019"
-    }
-  }
+  ]
 }

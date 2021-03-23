@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8729127274733411165"
+    }
+  },
   "parameters": {
     "applicationName": {
       "type": "string"
@@ -196,6 +203,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12057311588269066406"
+            }
+          },
           "parameters": {
             "functionAppName": {
               "type": "string"
@@ -218,14 +232,7 @@
                 "thumbprint": "[parameters('certificateThumbprint')]"
               }
             }
-          ],
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "11275464343508829008"
-            }
-          }
+          ]
         }
       },
       "dependsOn": [
@@ -233,12 +240,5 @@
         "[resourceId('Microsoft.Web/certificates', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone')))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "9966039181395879989"
-    }
-  }
+  ]
 }

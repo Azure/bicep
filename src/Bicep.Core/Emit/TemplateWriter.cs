@@ -113,6 +113,8 @@ namespace Bicep.Core.Emit
             emitter.EmitProperty("$schema", GetSchema(context.SemanticModel.TargetScope));
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
+            
+            this.EmitMetadata(jsonWriter, emitter);
 
             this.EmitParametersIfPresent(jsonWriter, emitter);
 
@@ -125,8 +127,6 @@ namespace Bicep.Core.Emit
             this.EmitResources(jsonWriter, emitter);
 
             this.EmitOutputsIfPresent(jsonWriter, emitter);
-            
-            this.EmitMetadata(jsonWriter, emitter);
 
             jsonWriter.WriteEndObject();
 

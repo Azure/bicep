@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "274823002597880761"
+    }
+  },
   "parameters": {
     "circuitName": {
       "type": "string"
@@ -55,12 +62,5 @@
         }
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "8858349614777657761"
-    }
-  }
+  ]
 }

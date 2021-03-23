@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6149944881388671039"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -95,12 +102,5 @@
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNet2Name'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "3644972126050235326"
-    }
-  }
+  ]
 }

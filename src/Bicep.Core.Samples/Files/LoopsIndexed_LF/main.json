@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12244060679389635458"
+    }
+  },
   "parameters": {
     "name": {
       "type": "string"
@@ -410,6 +417,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6482924892230157767"
+            }
+          },
           "parameters": {
             "myInput": {
               "type": "string"
@@ -421,13 +435,6 @@
             "myOutput": {
               "type": "string",
               "value": "[parameters('myInput')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9254499349295781979"
             }
           }
         }
@@ -456,6 +463,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6482924892230157767"
+            }
+          },
           "parameters": {
             "myInput": {
               "type": "string"
@@ -467,13 +481,6 @@
             "myOutput": {
               "type": "string",
               "value": "[parameters('myInput')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9254499349295781979"
             }
           }
         }
@@ -504,6 +511,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6482924892230157767"
+            }
+          },
           "parameters": {
             "myInput": {
               "type": "string"
@@ -515,13 +529,6 @@
             "myOutput": {
               "type": "string",
               "value": "[parameters('myInput')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9254499349295781979"
             }
           }
         }
@@ -548,6 +555,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6482924892230157767"
+            }
+          },
           "parameters": {
             "myInput": {
               "type": "string"
@@ -559,13 +573,6 @@
             "myOutput": {
               "type": "string",
               "value": "[parameters('myInput')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9254499349295781979"
             }
           }
         }
@@ -597,6 +604,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6482924892230157767"
+            }
+          },
           "parameters": {
             "myInput": {
               "type": "string"
@@ -608,13 +622,6 @@
             "myOutput": {
               "type": "string",
               "value": "[parameters('myInput')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9254499349295781979"
             }
           }
         }
@@ -646,6 +653,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6482924892230157767"
+            }
+          },
           "parameters": {
             "myInput": {
               "type": "string"
@@ -657,13 +671,6 @@
             "myOutput": {
               "type": "string",
               "value": "[parameters('myInput')]"
-            }
-          },
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "9254499349295781979"
             }
           }
         }
@@ -737,13 +744,6 @@
     "existingIndexedResourceAccessTier": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}-{2}', parameters('name'), parameters('accounts')[mod(parameters('index'), 3)].name, mod(parameters('index'), 3))), '2019-06-01').accessTier]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "17045416357889400054"
     }
   }
 }
