@@ -1300,5 +1300,39 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
             });
         }
+
+        [TestMethod]
+        public void Test_Issue1985()
+        {
+            var result = CompilationHelper.Compile(@"
+resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets' existing = {
+  parent: virtualNetwork
+  name: aksDefaultPoolSubnetName
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(aksDefaultPoolSubnet.id, 'Network Contributor')
+  scope: aksDefaultPoolSubnet
+  properties: {
+    principalId: aksServicePrincipalObjectId
+    roleDefinitionId: '4d97b98b-1d4f-4787-a291-c67834d212e7'
+  }
+  dependsOn: [
+    virtualNetwork
+    userAssignedIdentities
+  ]
+}
+");
+
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\"."),
+                ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"aksDefaultPoolSubnet\" is not valid."),
+                ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"aksDefaultPoolSubnet\" is not valid."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"aksServicePrincipalObjectId\" does not exist in the current context."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"virtualNetwork\" does not exist in the current context."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"userAssignedIdentities\" does not exist in the current context."),
+            });
+        }
     }
 }
