@@ -203,26 +203,32 @@ namespace Bicep.Cli
                 "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
 
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
-            var jsonPath = PathHelper.ResolvePath(arguments.InputFile);
-
-            try
+            foreach (var inputFile in arguments.InputFiles)
             {
-                var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
-                foreach (var (fileUri, bicepOutput) in filesToSave)
+                var jsonPath = PathHelper.ResolvePath(inputFile);
+                try
                 {
-                    File.WriteAllText(fileUri.LocalPath, bicepOutput);
+                    var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
+                    foreach (var (fileUri, bicepOutput) in filesToSave)
+                    {
+                        File.WriteAllText(fileUri.LocalPath, bicepOutput);
+                    }
+
+                    var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepUri);
+                    var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+
+                    if (!LogDiagnosticsAndCheckSuccess(diagnosticLogger, compilation))
+                    {
+                        return 1;
+                    }
                 }
-
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepUri);
-                var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
-
-                return LogDiagnosticsAndCheckSuccess(diagnosticLogger, compilation) ? 0 : 1;
+                catch (Exception exception)
+                {
+                    this.errorWriter.WriteLine($"{jsonPath}: Decompilation failed with fatal error \"{exception.Message}\"");
+                    return 1;
+                }
             }
-            catch (Exception exception)
-            {
-                this.errorWriter.WriteLine($"{jsonPath}: Decompilation failed with fatal error \"{exception.Message}\"");
-                return 1;
-            }
+            return 0;
         }
     }
 }

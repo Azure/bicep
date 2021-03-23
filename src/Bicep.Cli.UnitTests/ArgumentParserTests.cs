@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.IO;
-using System.Text;
+using System.Collections.Generic;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.CommandLine.Arguments;
 using FluentAssertions;
@@ -187,10 +186,10 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void DecompileOneFile_ShouldReturnOneFile()
         {
-            var arguments = ArgumentParser.TryParse(new[] {"decompile", "file1"}) as DecompileArguments;
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "file1", "file2"}) as DecompileArguments;
 
             arguments!.Should().NotBeNull();
-            arguments!.InputFile.Should().Be("file1");
+            arguments!.InputFiles.Should().BeEquivalentTo(new List<string>() {"file1", "file2"});
         }
     }
 }
