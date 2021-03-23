@@ -77,8 +77,9 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new [] { "build", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
         [DataRow(new [] { "build", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
         [DataRow(new [] { "decompile" }, "The input file path was not specified")]
-        [DataRow(new [] { "decompile", "file1", "file2" }, "The input file path cannot be specified multiple times")]
         [DataRow(new [] { "decompile", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
+        [DataRow(new [] { "decompile", "file1", "--wibble" }, "The input file path cannot be specified multiple times")]
+        [DataRow(new [] { "decompile", "--wibble", "file1" }, "The input file path cannot be specified multiple times")]
         public void Invalid_args_trigger_validation_exceptions(string[] parameters, string expectedException)
         {
             Action parseFunc = () => ArgumentParser.TryParse(parameters);
