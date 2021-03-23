@@ -11,7 +11,7 @@ namespace Bicep.Core.TypeSystem
         public NamespaceType(string name, IEnumerable<TypeProperty> properties, IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction> bannedFunctions, IEnumerable<Decorator> decorators)
             : base(name, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, new FunctionResolver(functionOverloads, bannedFunctions))
         {
-            this.DecoratorResolver = new DecoratorResolver(this, decorators);
+            this.DecoratorResolver = new DecoratorResolver(decorators);
         }
 
         public override TypeKind TypeKind => TypeKind.Namespace;

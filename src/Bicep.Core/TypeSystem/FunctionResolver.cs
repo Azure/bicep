@@ -1,48 +1,54 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.TypeSystem
 {
     public class FunctionResolver
     {
-        public FunctionResolver(IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction>? bannedFunctions = null)
+        private readonly ImmutableArray<FunctionOverload> functionOverloads;
+        private readonly ImmutableArray<BannedFunction> bannedFunctions;
+
+        public FunctionResolver(IEnumerable<FunctionOverload>? functionOverloads = null, IEnumerable<BannedFunction>? bannedFunctions = null)
         {
-            bannedFunctions ??= Enumerable.Empty<BannedFunction>();
-
-            this.BannedFunctions = bannedFunctions
-                .ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
-
-            this.FunctionOverloads = functionOverloads
+            this.functionOverloads = functionOverloads?.ToImmutableArray() ?? ImmutableArray<FunctionOverload>.Empty;
+            this.bannedFunctions = bannedFunctions?.ToImmutableArray() ?? ImmutableArray<BannedFunction>.Empty;
+            
+            // prepopulate cache with all known (non-wildcard) symbols
+            // TODO: make cache building logic lazy
+            this.FunctionCache = this.functionOverloads
                 .Where(fo => fo is not FunctionWildcardOverload)
-                .GroupBy(fo => fo.Name, LanguageConstants.IdentifierComparer)
-                .ToImmutableDictionary(g => g.Key, g => g.ToImmutableArray(), LanguageConstants.IdentifierComparer);
+                .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(name, overloads), LanguageConstants.IdentifierComparer)
+                .ToDictionary<FunctionSymbol, string, FunctionSymbol?>(s => s.Name, s => s, LanguageConstants.IdentifierComparer);
+
+            this.BannedFunctions = this.bannedFunctions.ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
 
             // don't pre-build symbols for wildcard functions, because we don't want to equate two differently-named symbols with each other
-            this.FunctionWildcardOverloads = functionOverloads
+            this.FunctionWildcardOverloads = this.functionOverloads
                 .OfType<FunctionWildcardOverload>()
                 .ToImmutableArray();
         }
 
-        private ImmutableDictionary<string, BannedFunction> BannedFunctions { get; }
+        private IDictionary<string, FunctionSymbol?> FunctionCache { get; }
 
-        private ImmutableDictionary<string, ImmutableArray<FunctionOverload>> FunctionOverloads {get; }
+        private ImmutableDictionary<string, BannedFunction> BannedFunctions { get; }
 
         private ImmutableArray<FunctionWildcardOverload> FunctionWildcardOverloads { get; }
 
-        public Symbol? TryGetSymbol(ObjectType declaringType, IdentifierSyntax identifierSyntax)
-            => TryGetBannedFunction(identifierSyntax) ?? TryGetFunctionSymbol(declaringType, identifierSyntax.IdentifierName);
+        public Symbol? TryGetSymbol(IdentifierSyntax identifierSyntax)
+            => TryGetBannedFunction(identifierSyntax) ?? TryGetFunctionSymbol(identifierSyntax.IdentifierName);
 
-        public ImmutableDictionary<string, FunctionSymbol> GetKnownFunctions(ObjectType owner)
-            => this.FunctionOverloads.ToImmutableDictionary(
-                kvp => kvp.Key,
-                kvp => new FunctionSymbol(owner, kvp.Key, kvp.Value),
-                LanguageConstants.IdentifierComparer);
+        public ImmutableDictionary<string, FunctionSymbol> GetKnownFunctions()
+            => this.FunctionCache.Values.ToImmutableDictionaryExcludingNullValues(symbol => symbol.Name, LanguageConstants.IdentifierComparer);
 
         private Symbol? TryGetBannedFunction(IdentifierSyntax identifierSyntax)
         {
@@ -54,24 +60,23 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private FunctionSymbol? TryGetFunctionSymbol(ObjectType owner, string name)
+        private FunctionSymbol? TryGetFunctionSymbol(string name)
         {
             // symbol comparison relies on object equality; use of this cache ensures that different symbols with the same name are not returned.
             // we also cache negative lookups (null) so that we don't slow down when looking up references to a missing symbol
-            if (FunctionOverloads.TryGetValue(name, out var overloads))
+            if (FunctionCache.TryGetValue(name, out var symbol))
             {
-                return new FunctionSymbol(owner, name, overloads);
+                return symbol;
             }
 
             // wildcard match (e.g. list*)
-            var wildcardOverloads = FunctionWildcardOverloads.Where(fo => fo.WildcardRegex.IsMatch(name));
-            if (wildcardOverloads.Any())
-            {
-                // create a new symbol for each unique name that matches the wildcard
-                return new FunctionSymbol(owner, name, wildcardOverloads);
-            }
+            var wildcardOverloads =  FunctionWildcardOverloads.Where(fo => fo.WildcardRegex.IsMatch(name));
 
-            return null;
+            // create a new symbol for each unique name that matches the wildcard
+            var cachedSymbol = wildcardOverloads.Any() ? new FunctionSymbol(name, wildcardOverloads) : null;
+            FunctionCache[name] = cachedSymbol;
+
+            return cachedSymbol;
         }
 
         public static IEnumerable<FunctionOverload> GetMatches(

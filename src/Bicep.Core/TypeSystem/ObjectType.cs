@@ -38,11 +38,5 @@ namespace Bicep.Core.TypeSystem
         public TypePropertyFlags AdditionalPropertiesFlags { get; }
 
         public FunctionResolver MethodResolver { get; }
-
-        public ImmutableDictionary<string, FunctionSymbol> GetAvailableMethods()
-            => MethodResolver.GetKnownFunctions(this);
-
-        public Symbol? TryGetMethod(IdentifierSyntax identifierSyntax)
-            => MethodResolver.TryGetSymbol(this, identifierSyntax);
     }
 }
