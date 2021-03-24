@@ -7,13 +7,13 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BL1070 : LinterRule
+    internal class BCPL1070 : LinterRule
     {
-        internal BL1070() : base(
-            code: "BL1070",
+        internal BCPL1070() : base(
+            code: "BCPL1070",
             ruleName: "Unecessary dependsOn",
             description: "Best Practice: unnecessary dependsOn encountered",
-            docUri: "https://bicep/linter/rules/BL1070")
+            docUri: "https://bicep/linter/rules/BCPL1070")
         { }
 
     }

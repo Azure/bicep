@@ -11,18 +11,18 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BL1060 : LinterRule
+    internal class BCPL1060 : LinterRule
     {
-        internal BL1060() : base(
-            code: "BL1060",
+        internal BCPL1060() : base(
+            code: "BCPL1060",
             ruleName: "Dynamic variable used concat",
             description: "Dynamic variable should not use concat - string interpolation should be used.",
-            docUri: "https://bicep/linter/rules/BL1060")
+            docUri: "https://bicep/linter/rules/BCPL1060")
         { }
 
 
         private CodeReplacement GetCodeReplacement(TextSpan span)
-            => new CodeReplacement(span, "BL1060 - this is the new code");
+            => new CodeReplacement(span, "BCPL1060 - this is the new code");
 
         override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
         {
@@ -42,8 +42,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private CodeReplacement GetCodeReplacement(FunctionCallSyntax func)
         {
-
-
             var arg1 = func.Arguments[0];
             var arg2 = func.Arguments[1];
             return new CodeReplacement(func.Span, $"${arg1}{arg2}");

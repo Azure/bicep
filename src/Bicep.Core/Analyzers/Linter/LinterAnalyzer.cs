@@ -24,14 +24,14 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IBicepAnalyzerRule> CreateLinterRules()
         {
-            yield return new BL1000();
-            yield return new BL1010();
-            yield return new BL1020();
-            yield return new BL1030();
-            yield return new BL1040();
-            yield return new BL1050();
-            yield return new BL1060();
-            yield return new BL1070();
+            yield return new BCPL1000();
+            yield return new BCPL1010();
+            yield return new BCPL1020();
+            yield return new BCPL1030();
+            yield return new BCPL1040();
+            yield return new BCPL1050();
+            yield return new BCPL1060();
+            yield return new BCPL1070();
         }
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => this.RuleSet;

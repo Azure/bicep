@@ -9,16 +9,16 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BL1000 : LinterRule
+    internal class BCPL1000 : LinterRule
     {
-        internal BL1000() : base(
-            code: "BL1000",
+        internal BCPL1000() : base(
+            code: "BCPL1000",
             ruleName: "Parameters Required",
             description: "A valid template must be parameterized.",
             enableForCLI: true,
             enableForEdit: true,
             level: Diagnostics.DiagnosticLevel.Error,
-            docUri: "https://bicep/linter/rules/BL1000")
+            docUri: "https://bicep/linter/rules/BCPL1000")
         {
         }
 

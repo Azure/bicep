@@ -9,13 +9,13 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BL1050 : LinterRule
+    internal class BCPL1050 : LinterRule
     {
-        internal BL1050() : base(
-            code: "BL1050",
+        internal BCPL1050() : base(
+            code: "BCPL1050",
             ruleName: "Declared variable not used",
             description: "Declared variable encountered that is not used within scope.",
-            docUri: "https://bicep/linter/rules/BL1050")
+            docUri: "https://bicep/linter/rules/BCPL1050")
         { }
 
         override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)

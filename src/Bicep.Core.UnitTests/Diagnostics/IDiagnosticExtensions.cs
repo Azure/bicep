@@ -6,7 +6,7 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
-    public static class DiagnosticExtensions
+    public static class IDiagnosticExtensions
     {
         public static IEnumerable<IDiagnostic> ExcludingMissingTypes(this IEnumerable<IDiagnostic> diagnostics)
         {

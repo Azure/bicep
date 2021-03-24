@@ -9,13 +9,13 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BL1010 : LinterRule
+    internal class BCPL1010 : LinterRule
     {
-        internal BL1010() : base(
-            code: "BL1010",
+        internal BCPL1010() : base(
+            code: "BCPL1010",
             ruleName: "Parameters must be used",
             description: "Declared parameter must be referenced within the document scope.",
-            docUri: "https://bicep/linter/rules/BL1010")
+            docUri: "https://bicep/linter/rules/BCPL1010")
         { }
 
         override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)

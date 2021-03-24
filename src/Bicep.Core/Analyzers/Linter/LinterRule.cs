@@ -41,10 +41,15 @@ namespace Bicep.Core.Analyzers.Linter
         public bool EnabledForEdits { get; private set; }
         public bool EnabledForCLI { get; private set; }
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
-
         public string Description { get; }
         public string DocumentationUri { get; }
 
+        /// <summary>
+        /// GetMessage allows a linter rule display message to be dynamic without
+        /// resorting to side-effect inducing work in the Description property.
+        /// Should be overridden in any rule with a complex message requirement.
+        /// </summary>
+        /// <returns></returns>
         protected virtual string GetMessage() => this.Description;
 
         public virtual IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
