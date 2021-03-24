@@ -29,6 +29,10 @@ steps:
   displayName: Compile
   workingDirectory: $(Build.SourcesDirectory)/src/Bicep.MSBuild.E2eTests
 
+- script: npm run lint
+  displayName: Run lint
+  workingDirectory: $(Build.SourcesDirectory)/src/Bicep.MSBuild.E2eTests
+
 # downloads to $(Pipeline.Workspace)/{artifact}
 - download: current
   displayName: Download MSBuild package

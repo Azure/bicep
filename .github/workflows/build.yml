@@ -189,6 +189,10 @@ jobs:
         run: npm run compile
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
       - name: Download Bicep CLI
         uses: actions/download-artifact@v2
         with:
