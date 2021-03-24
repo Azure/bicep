@@ -12,7 +12,7 @@ namespace Bicep.LanguageServer.Snippets
 {
     public sealed class Snippet
     {
-        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>\w+)}|(?<index>\d+))", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>\w+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(?<textAfterFirstComma>.*))})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         public Snippet(string text)
         {

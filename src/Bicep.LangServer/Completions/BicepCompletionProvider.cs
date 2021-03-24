@@ -92,19 +92,19 @@ namespace Bicep.LanguageServer.Completions
     $0
   }
 }", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource with defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {
-  name: $6
+                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource with defaults", @"resource ${7:Identifier} 'Microsoft.${8:Provider}/${9:ParentType}/${10:ChildType}@${11:Version}' = {
+  name: $12
   properties: {
     $0
   }
 }", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Resource without defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
-  name: $5
+                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Resource without defaults", @"resource ${13:Identifier} 'Microsoft.${14:Provider}/${15:Type}@${16:Version}' = {
+  name: $17
   $0
 }
 ", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource without defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {
-  name: $6
+                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource without defaults", @"resource ${18:Identifier} 'Microsoft.${19:Provider}/${20:ParentType}/${21:ChildType}@${22:Version}' = {
+  name: $23
   $0
 }", context.ReplacementRange);
 

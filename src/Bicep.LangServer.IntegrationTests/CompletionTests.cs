@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -16,6 +17,8 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Completions;
+using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -33,6 +36,8 @@ namespace Bicep.LangServer.IntegrationTests
     public class CompletionTests
     {
         public static readonly AzResourceTypeProvider TypeProvider = new AzResourceTypeProvider();
+        private static readonly Regex PlaceholderCommentPattern = new Regex(@"\/\/ \$[0-9]+ = .*", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex ErrorCodesCommentPattern = new Regex(@"\/\/ Expected error codes for: .*", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -47,16 +52,130 @@ namespace Bicep.LangServer.IntegrationTests
 
             var actual = await GetActualCompletions(client, uri, new Position(0, 0));
             var actualLocation = FileHelper.SaveResultFile(this.TestContext, $"{this.TestContext.TestName}_{expectedSetName}", actual.ToString(Formatting.Indented));
-            
+
             var expectedStr = DataSets.Completions.TryGetValue(GetFullSetName(expectedSetName));
             if (expectedStr == null)
             {
                 throw new AssertFailedException($"The completion set '{expectedSetName}' does not exist.");
             }
-            
+
             var expected = JToken.Parse(expectedStr);
 
             actual.Should().EqualWithJsonDiffOutput(TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
+        }
+
+        [TestMethod]
+        public async Task DeclarationSnippetsAfterReplacementsShouldBeValid()
+        {
+            var fileSystemDict = new Dictionary<Uri, string>();
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                options =>
+                {
+                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
+                },
+                fileResolver: new InMemoryFileResolver(fileSystemDict));
+
+            string? currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+            string snippetPlaceholdersFolder = Path.Combine(currentDirectory!, "Completions", "SnippetPlaceholders");
+
+            IEnumerable<CompletionItem> snippetCompletions = await GetSnippetCompletionsAsync();
+
+            foreach (CompletionItem completionItem in snippetCompletions)
+            {
+                string placeholderFile = Path.Combine(snippetPlaceholdersFolder, completionItem.Label + ".bicep");
+                DocumentUri documentUri = DocumentUri.FromFileSystemPath(placeholderFile);
+                string text = File.ReadAllText(placeholderFile);
+
+                string snippetTextAfterReplacements = GetUpdatedTextAfterPlaceholderReplacements(completionItem, text);
+                fileSystemDict[documentUri.ToUri()] = text.Replace("// Insert snippet here", snippetTextAfterReplacements);
+                List<string> expectedErrorCodes = GetErrorCodes(completionItem.Detail!, text);
+
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, fileSystemDict[documentUri.ToUri()], 1));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(documentUri);
+
+                if (!expectedErrorCodes.Any())
+                {
+                    diagsParams.Diagnostics.Should().BeEmpty();
+                }
+                else
+                {
+                    List<string?> actualErrorCodes = diagsParams.Diagnostics.Select(x => x.Code!.Value.String).ToList();
+
+                    CollectionAssert.AreEqual(expectedErrorCodes, actualErrorCodes);
+                }
+            }
+        }
+
+        public string GetUpdatedTextAfterPlaceholderReplacements(CompletionItem completionItem, string placeholderText)
+        {
+            Snippet snippet = new Snippet(completionItem.TextEdit!.NewText);
+            MatchCollection allMatches = PlaceholderCommentPattern.Matches(placeholderText);
+
+            Dictionary<int, string> replacementsMap = new Dictionary<int, string>();
+
+            foreach (Match match in allMatches)
+            {
+                string value = match.Value;
+                int indexOfEqualsSign = value.IndexOf("=");
+                int indexOfDollarSign = value.IndexOf("$");
+                int placeHolderIndex = int.Parse(value.Substring(indexOfDollarSign + 1, indexOfEqualsSign - indexOfDollarSign - 1).Trim());
+                string placeholderReplacement = value.Substring(indexOfEqualsSign + 1).Trim();
+
+                replacementsMap.Add(placeHolderIndex, placeholderReplacement);
+            } 
+
+            return snippet.Format((s, placeholder) => placeholder.Index >= 0 && placeholder.Index <= replacementsMap.Count
+                ? (replacementsMap.ContainsKey(placeholder.Index) ? replacementsMap[placeholder.Index] : string.Empty)
+                : string.Empty);
+        }
+
+        private List<string> GetErrorCodes(string completionDetail, string placeholderText)
+        {
+            MatchCollection allMatches = ErrorCodesCommentPattern.Matches(placeholderText);
+            List<string> errorCodes = new List<string>();
+
+            if (!allMatches.Any())
+            {
+                return errorCodes;
+            }
+
+            foreach (Match match in allMatches)
+            {
+                string value = match.Value;
+                value = value.Replace("// Expected error codes for:", string.Empty);
+
+                int indexOfEqualsSign = value.IndexOf("=");
+                string completionDetailFromTestInputFile = value.Substring(0, indexOfEqualsSign - 1).Trim();
+
+                if (completionDetailFromTestInputFile == completionDetail)
+                {
+                    string errors = value.Substring(indexOfEqualsSign + 1).Trim();
+
+                    return errors.Split(",").ToList();
+                }
+            }
+
+            return errorCodes;
+        }
+
+        private async Task<IEnumerable<CompletionItem>> GetSnippetCompletionsAsync()
+        {
+            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, uri);
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(uri),
+                Position = new Position(0, 0)
+            });
+
+            return completions
+                .Where(c => c.InsertTextFormat == InsertTextFormat.Snippet)
+                .OrderBy(c => c.Label)
+                .ToList();
         }
 
         [DataTestMethod]
@@ -67,9 +186,9 @@ namespace Bicep.LangServer.IntegrationTests
             string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext);
 
             var entryPoint = Path.Combine(basePath, "main.bicep");
-            
+
             var uri = DocumentUri.FromFileSystemPath(entryPoint);
-            
+
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: TypeProvider, fileResolver: new FileResolver());
 
             var intermediate = new List<(Position position, JToken actual)>();
@@ -137,7 +256,7 @@ namespace Bicep.LangServer.IntegrationTests
             row[1].Should().BeOfType<string>();
             row[2].Should().BeAssignableTo<IList<Position>>();
 
-            return $"{info.Name}_{((DataSet) row[0]).Name}_{row[1]}";
+            return $"{info.Name}_{((DataSet)row[0]).Name}_{row[1]}";
         }
 
         private static string FormatPosition(Position position) => $"({position.Line}, {position.Character})";
@@ -174,7 +293,7 @@ namespace Bicep.LangServer.IntegrationTests
                 if (completion.TextEdit != null)
                 {
                     completion.TextEdit.NewText = NormalizeLineEndings(completion.TextEdit.NewText);
-                    
+
                     // ranges in these text edits will vary by completion trigger position
                     // if we try to assert on these, we will have an explosion of assert files
                     // let's ignore it for now until we come up with a better solution
@@ -198,7 +317,7 @@ namespace Bicep.LangServer.IntegrationTests
             foreach (var completion in completions)
             {
                 const string omnisharpHandlerIdPropertyName = "$$__handler_id__$$";
-                
+
                 // LSP protocol dictates that the Data property is of "any" type, so we need to check
                 if (completion.Data is JObject @object && @object.Property(omnisharpHandlerIdPropertyName) != null)
                 {
@@ -242,7 +361,7 @@ namespace Bicep.LangServer.IntegrationTests
                 .Where(tuple => tuple.triggers.Any())
                 .SelectMany(tuple => tuple.triggers.Select(trigger => (tuple.dataset, trigger.Position, trigger.SetName)))
                 .GroupBy(tuple => (tuple.dataset, tuple.SetName), tuple => tuple.Position)
-                .Select(group => new object[] {group.Key.dataset, group.Key.SetName, group.ToList()});
+                .Select(group => new object[] { group.Key.dataset, group.Key.SetName, group.ToList() });
 
         private enum ExpectedCompletionsScope
         {
