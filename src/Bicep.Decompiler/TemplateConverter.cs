@@ -1068,7 +1068,7 @@ namespace Bicep.Decompiler
                 return null;
             }
 
-            var scopeExpression = ExpressionHelpers.ParseExpression(scopeProperty.Value.Value<string>());
+            var scopeExpression = ExpressionHelpers.ParseExpression(scopeProperty.Value.ToString());
             if (TryLookupResource(scopeExpression) is string resourceName)
             {
                 return SyntaxFactory.CreateIdentifier(resourceName);

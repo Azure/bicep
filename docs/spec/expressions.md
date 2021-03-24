@@ -6,7 +6,7 @@ The operators below are listed in descending order of precedence (the higher the
 
 | Symbol | Type of Operation | Associativity |
 |:-|:-|:-|
-| `(` `)` `[` `]` `.` `:` | Parentheses, array indexers, property accessors, and nested-resource accessor  | Left to right |
+| `(` `)` `[` `]` `.` `::` | Parentheses, array indexers, property accessors, and nested resource accessor  | Left to right |
 | `!` `-` | Unary | Right to left |
 | `%` `*` `/` | Multiplicative | Left to right |
 | `+` `-` | Additive | Left to right |
@@ -107,7 +107,7 @@ Given the above declaration, the expression `x.y.z` would evaluate to the litera
 Property accessors can be used with any object. This includes parameters and variables of object types and object literals. Using a property accessor on an expression of non-object type is an error.
 
 ## Nested resource accessors
-Nested resource accessors are used to access resources that are declared inside another resource. The symbolic name declared by a nested resource can normally only be referenced within the body of the containing resource. To reference a nested resource outside the containing resource, it must be qualified with the containing resource name and the `:` operator. Other resources declared within the same containing resource may used the name without qualification.
+Nested resource accessors are used to access resources that are declared inside another resource. The symbolic name declared by a nested resource can normally only be referenced within the body of the containing resource. To reference a nested resource outside the containing resource, it must be qualified with the containing resource name and the `::` operator. Other resources declared within the same containing resource may used the name without qualification.
 
 ```
 resource myParent 'My.Rp/parentType@2020-01-01' = {
@@ -132,12 +132,10 @@ resource myParent 'My.Rp/parentType@2020-01-01' = {
 }
 
 // accessing 'myChild' here requires the resource access operator
-output displayName string = myParent:myChild.properties.displayName
+output displayName string = myParent::myChild.properties.displayName
 ```
 
-Since the declaration of `myChild` is contained within `myParent` the access to `myChild`'s properties must be qualified with `myParent:`.
-
-The `:` must be parenthesized when it appears inside a ternary expression such as: `useChildValue ? (myParent:myChild.properties.displayName) : 'defaultValue'`.
+Since the declaration of `myChild` is contained within `myParent` the access to `myChild`'s properties must be qualified with `myParent::`.
 
 ## Array indexers
 Array indexers serve two purposes. Most commonly, they are used to access items in an array. However, they can also be used to access properties of objects via expressions or string literals.

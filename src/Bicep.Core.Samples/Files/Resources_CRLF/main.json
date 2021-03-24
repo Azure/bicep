@@ -311,7 +311,9 @@
       "apiVersion": "2020-12-01",
       "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "extension3",
-      "dependsOn": []
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
+      ]
     },
     {
       "copy": {
@@ -544,8 +546,7 @@
     {
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', 'res1', 'child1')]",
-      "dependsOn": []
+      "name": "[format('{0}/{1}', 'res1', 'child1')]"
     }
   ],
   "outputs": {
@@ -626,7 +627,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5842466383755616753"
+      "templateHash": "12525984821208665115"
     }
   }
 }

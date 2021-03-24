@@ -34,10 +34,12 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
 
         private IFileResolver FileResolver;
+        private readonly IResourceSnippetsProvider ResourceSnippetsProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver)
+        public BicepCompletionProvider(IFileResolver fileResolver, IResourceSnippetsProvider resourceSnippetsProvider)
         {
             this.FileResolver = fileResolver;
+            this.ResourceSnippetsProvider = resourceSnippetsProvider;
         }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
@@ -116,6 +118,14 @@ namespace Bicep.LanguageServer.Completions
 }", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
+
+                foreach (ResourceSnippet resourceSnippet in ResourceSnippetsProvider.GetResourceSnippets())
+                {
+                    yield return CreateContextualSnippetCompletion(resourceSnippet.Name,
+                                                                   resourceSnippet.Detail,
+                                                                   resourceSnippet.Text,
+                                                                   context.ReplacementRange);
+                }
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.NestedResourceDeclarationStart))

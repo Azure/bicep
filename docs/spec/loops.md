@@ -1,11 +1,6 @@
 # Loops
 
->Loops were implemented in v0.3, though there are still a handful of limitations:
-> * No variable loops
-> * No filtering (loops + conditions)
-> * No support for index syntax
->
-> We plan to address in a subsequent 0.3.* release
+>**Note:** Variable loops are not yet implemented [#1814](https://github.com/Azure/bicep/issues/1814). This will be added in a subsequent 0.3.* release.
 
 Loops may be used to iterate over an array to declare multiple resources or to set an array property inside a resource declaration. Iteration over the array occurs over the elements of the array. The index of the iteration is also available.
 
@@ -16,7 +11,9 @@ Filtering the loop is also allowed via the `if` keyword in the loop body. (See t
 ## Examples
 
 ### Declare multiple identical resources
+
 In the below example, we are looping over `storageAccounts` array. For each loop iteration, `storageName` is set to the current array item and is referenced by name in the loop body.
+
 ```bicep
 // array of storage account names
 param storageAccounts array
@@ -48,9 +45,36 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
 
 ### Use the loop index
 
->**Note:** Not yet implemented. We plan to implement in a future 0.3.* release.
+To write a simple index-based loop you can use the `range()` function so that your iterator conceptually represents the index of the current iteration. This is most similar to ARM Template JSON loops with the `copyIndex()` function. For example, we can modify the above example to be index-based:
 
-In the example below, we are iterating over the `storageConfiguration` array variable. Within the loop body, `config` stores the current element from the array and `i` stores the 0-based index of the current array element. Both are referenced from within the loop body.
+```bicep
+
+resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in range(0,3): {
+  name: 'storageName${i}'
+  location: resourceGroup().location
+  properties: {
+    supportsHttpsTrafficOnly: true
+    accessTier: 'Hot'
+    encryption: {
+      keySource: 'Microsoft.Storage'
+      services: {
+        blob: {
+          enabled: true
+        }
+        file: {
+          enabled: true
+        }
+      }
+    }
+  }
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}]
+```
+
+We can also retrieve the index even when iterating through an array of objects. In the example below, we are iterating over the `storageConfiguration` array variable. Within the loop body, `config` stores the current element from the array and `i` stores the 0-based index of the current array element. Both are referenced from within the loop body.
 
 ```bicep
 param storageAccountNamePrefix string
@@ -67,7 +91,7 @@ var storageConfigurations = [
 ]
 
 resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (config, i) in storageConfigurations: {
-  name: storageAccountNamePrefix + config.suffix + i
+  name: 'storageAccountNamePrefix${config.suffix}${i}'
   location: resourceGroup().location
   properties: {
     supportsHttpsTrafficOnly: true
@@ -93,6 +117,7 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
 ```
 
 ### Generate an array property using a loop
+
 In the example below, we are constructing a `subnets` property of a virtual network resource from the `subnets` array. On each loop iteration, the `subnet` variable is set to the current element of the array.
 
 ```bicep
@@ -126,7 +151,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
 }
 ```
 
-### Nested loops and filtering.
+### Nested loops and filtering
+
 The example below demonstrates a nested loop combined with a filtered resource loop. Filters must be expressions that evaluate to a boolean value.
 
 ```bicep
@@ -144,11 +170,13 @@ resource parentResources 'Microsoft.Example/examples@2020-06-06' = [for parent i
 Filters are also supported with module loops.
 
 ### Batch size decorator
+
 By default for-expressions used in values of module or resource declarations will be deployed concurrently in a non-deterministic order at runtime. This behavior can be changed with the `@batchSize` decorator. The decorator is allowed on resource or module declarations whose values are a for-expression. The decorator accepts one integer literal parameter with value equal or greater than 1.
 
 When the decorator is specified the resources or modules part of the same declaration will be deployed sequentially in batches of the specified size. Each batch will be deployed concurrently. For purely sequential deployment, set the batch size to 1.
 
 The following example deploys 10 resource groups 2 at a time:
+
 ```bicep
 targetScope = 'subscription'
 
@@ -159,9 +187,10 @@ resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-06-01' = [for i
 }]
 ```
 
-See [Serial or Parallel](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/copy-resources#serial-or-parallel) for more information.
+See [Serial or Parallel](https://docs.microsoft.com/azure/azure-resource-manager/templates/copy-resources#serial-or-parallel) for more information.
 
-### Output loops.
+### Output loops
+
 Directly referencing a resource module or module collection is not currently supported in output loops. In order to loop outputs we need to apply an array indexer to the expression.
 
 ```bicep
@@ -176,7 +205,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = [for name in
   location: resourceGroup().location
 }]
 
-output nsgs array = [for i in range(0, length(nsgNames)): {
+output nsgs array = [for (name, i) in nsgNames: {
   name: nsg[i].name
   resourceId: nsg[i].id
 }]

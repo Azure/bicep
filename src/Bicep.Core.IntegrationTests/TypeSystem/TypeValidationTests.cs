@@ -56,7 +56,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
                     new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly),
                     new TypeProperty("requiredProp", LanguageConstants.String, TypePropertyFlags.Required),
-                    new TypeProperty("additionalProps", new NamedObjectType(
+                    new TypeProperty("additionalProps", new ObjectType(
                         "additionalProps",
                         validationFlags,
                         new [] {
@@ -65,7 +65,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
                         },
                         LanguageConstants.Int
                     )),
-                    new TypeProperty("nestedObj", new NamedObjectType(
+                    new TypeProperty("nestedObj", new ObjectType(
                         "nestedObj",
                         validationFlags, 
                         new [] {
@@ -172,11 +172,11 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
             var customTypes = new [] {
                 ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", validationFlags, "discKey", new [] {
-                            new NamedObjectType("choiceA", validationFlags, new [] {
+                            new ObjectType("choiceA", validationFlags, new [] {
                                 new TypeProperty("discKey", new StringLiteralType("choiceA"), TypePropertyFlags.Required),
                                 new TypeProperty("valueA", LanguageConstants.String, TypePropertyFlags.Required),
                             }, null),
-                            new NamedObjectType("choiceB", validationFlags, new [] {
+                            new ObjectType("choiceB", validationFlags, new [] {
                                 new TypeProperty("discKey", new StringLiteralType("choiceB"), TypePropertyFlags.Required),
                                 new TypeProperty("valueB", LanguageConstants.String, TypePropertyFlags.Required),
                             }, null),

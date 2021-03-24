@@ -65,8 +65,7 @@
       "properties": {
         "size": "[reference(resourceId('My.Rp/parentType', 'existingParent'), '2020-12-01').size]",
         "style": "[reference(resourceId('My.Rp/parentType/childType', 'existingParent', 'existingChild'), '2020-12-01').style]"
-      },
-      "dependsOn": []
+      }
     },
     {
       "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
@@ -141,7 +140,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16343843471735200304"
+      "templateHash": "18050263531463829081"
     }
   }
 }

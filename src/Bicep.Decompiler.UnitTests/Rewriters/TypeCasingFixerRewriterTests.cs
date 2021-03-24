@@ -109,7 +109,7 @@ output myObj object = {
 ";
 
             var typeDefinition = ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("lowercaseobj", new NamedObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new [] {
+                new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new [] {
                   new TypeProperty("lowercasestr", LanguageConstants.String)
                 }, null)));
             var typeProvider = ResourceTypeProviderHelper.CreateMockTypeProvider(typeDefinition.AsEnumerable());

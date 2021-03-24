@@ -241,7 +241,20 @@ namespace Bicep.Core.TypeSystem
 
                 if (singleResourceDeclaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
+                    var typeSegments = resourceType.TypeReference.Types;
+
+                    if (typeSegments.Length > 2 &&
+                        typeSegments.Where((type, i) => i > 0 && i < (typeSegments.Length - 1) &&  StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                    {
+                        // Special check for (<type>/)+providers(/<type>)+
+                        // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
+                        // We should instead point them towards documentation on the 'scope' property.
+                        diagnostics.Write(syntax.Type, x => x.ResourceTypeContainsProvidersSegment());
+                    }
+                    else
+                    {
+                        diagnostics.Write(syntax.Type, x => x.ResourceTypesUnavailable(resourceType.TypeReference));
+                    }
                 }
 
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
@@ -521,7 +534,7 @@ namespace Bicep.Core.TypeSystem
                 var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
 
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
+                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)

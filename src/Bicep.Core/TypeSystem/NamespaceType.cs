@@ -9,22 +9,12 @@ namespace Bicep.Core.TypeSystem
     public sealed class NamespaceType : ObjectType
     {
         public NamespaceType(string name, IEnumerable<TypeProperty> properties, IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction> bannedFunctions, IEnumerable<Decorator> decorators)
-            : base(name)
+            : base(name, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, new FunctionResolver(functionOverloads, bannedFunctions))
         {
-            this.Properties = properties.ToImmutableDictionary(property => property.Name, LanguageConstants.IdentifierComparer);
-            this.MethodResolver = new FunctionResolver(this, functionOverloads, bannedFunctions);
-            this.DecoratorResolver = new DecoratorResolver(this, decorators);
+            this.DecoratorResolver = new DecoratorResolver(decorators);
         }
 
         public override TypeKind TypeKind => TypeKind.Namespace;
-
-        public override TypeSymbolValidationFlags ValidationFlags => TypeSymbolValidationFlags.PreventAssignment;
-
-        public override ImmutableDictionary<string, TypeProperty> Properties { get; }
-
-        public override ITypeReference? AdditionalPropertiesType => null;
-
-        public override FunctionResolver MethodResolver { get; }
 
         public DecoratorResolver DecoratorResolver { get; }
     }

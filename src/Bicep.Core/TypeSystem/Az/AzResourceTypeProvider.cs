@@ -12,14 +12,45 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
+        private class ResourceTypeCache
+        {
+            private class KeyComparer : IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)>
+            {
+                public static IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)> Instance { get; }
+                    = new KeyComparer();
+
+                public bool Equals((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x, (ResourceTypeGenerationFlags flags, ResourceTypeReference type) y)
+                    => x.flags == y.flags && 
+                        ResourceTypeReferenceComparer.Instance.Equals(x.type, y.type);
+
+                public int GetHashCode((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x)
+                    => x.flags.GetHashCode() ^
+                        ResourceTypeReferenceComparer.Instance.GetHashCode(x.type);
+            }
+
+            private readonly IDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType> cache 
+                = new Dictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType>(KeyComparer.Instance);
+
+            public ResourceType GetOrAdd(ResourceTypeGenerationFlags flags, ResourceTypeReference typeReference, Func<ResourceType> buildFunc)
+            {
+                var cacheKey = (flags, typeReference);
+                if (!cache.TryGetValue(cacheKey, out var value))
+                {
+                    value = buildFunc();
+                    cache[cacheKey] = value;
+                }
+
+                return value;
+            }
+        }
+
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
 
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
-        private readonly IDictionary<ResourceTypeReference, ResourceType> loadedTypeCache;
-        private readonly IDictionary<ResourceTypeReference, ResourceType> loadedExistingTypeCache;
+        private readonly ResourceTypeCache loadedTypeCache;
 
         private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new []
         {
@@ -48,41 +79,73 @@ namespace Bicep.Core.TypeSystem.Az
             this.typeLoader = typeLoader;
             this.resourceTypeFactory = new AzResourceTypeFactory();
             this.availableResourceTypes = GetAvailableResourceTypes(typeLoader);
-            this.loadedTypeCache = new Dictionary<ResourceTypeReference, ResourceType>(ResourceTypeReferenceComparer.Instance);
-            this.loadedExistingTypeCache = new Dictionary<ResourceTypeReference, ResourceType>(ResourceTypeReferenceComparer.Instance);
+            this.loadedTypeCache = new ResourceTypeCache();
         }
 
-        private ResourceType GenerateResourceType(ResourceTypeReference typeReference, bool isExistingResource)
+        private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
+        {
+            var properties = LanguageConstants.CreateResourceProperties(typeReference).Where(p => propertyFilter(p.Name));
+
+            return new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, properties, null);
+        }
+
+        private ResourceType GenerateResourceType(ResourceTypeReference typeReference)
         {
             if (availableResourceTypes.TryGetValue(typeReference, out var typeLocation))
             {
                 var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
-                var resourceType = resourceTypeFactory.GetResourceType(serializedResourceType);
-
-                return SetBicepResourceProperties(resourceType, isExistingResource);
+                return resourceTypeFactory.GetResourceType(serializedResourceType);
             }
-            else
-            {
-                var resourceBodyType = new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null);
-                var resourceType = new ResourceType(typeReference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, resourceBodyType);
 
-                return SetBicepResourceProperties(resourceType, isExistingResource);
-            }
+            return new ResourceType(
+                typeReference,
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
+                CreateGenericResourceBody(typeReference, p => true));
         }
 
-        public static ResourceType SetBicepResourceProperties(ResourceType resourceType, bool isExistingResource)
+        public static ResourceType SetBicepResourceProperties(ResourceType resourceType, ResourceTypeGenerationFlags flags)
         {
             var bodyType = resourceType.Body.Type;
 
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, isExistingResource);
+                    if (bodyObjectType.Properties.TryGetValue(LanguageConstants.ResourceNamePropertyName, out var nameProperty) && 
+                        nameProperty.TypeReference.Type is not PrimitiveType { Name: LanguageConstants.TypeNameString } &&
+                        !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
+                    {
+                        // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
+                        // Best we can do is return a regular 'string' field for it as we have no good way to reliably evaluate complex expressions (e.g. to check whether it terminates with '/<constantType>').
+                        // Keep it simple for now - we eventually plan to phase out the 'top-level child' syntax.
+                        bodyObjectType = new ObjectType(
+                            bodyObjectType.Name,
+                            bodyObjectType.ValidationFlags,
+                            bodyObjectType.Properties.SetItem(LanguageConstants.ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
+                            bodyObjectType.AdditionalPropertiesType,
+                            bodyObjectType.AdditionalPropertiesFlags,
+                            bodyObjectType.MethodResolver);
+
+                        bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
+                        break;
+                    }
+
+                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:
-                    var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList()
-                        .Select(x => x.Type as ObjectType ?? throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}"));
-                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, resourceType.TypeReference, isExistingResource));
+                    if (LanguageConstants.IdentifierComparer.Equals(bodyDiscriminatedType.DiscriminatorKey, LanguageConstants.ResourceNamePropertyName) && 
+                        !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
+                    {
+                        // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
+                        // If needed, we should be able to flatten the discriminated object and provide slightly better type validation here.
+                        // Keep it simple for now - we eventually plan to phase out the 'top-level child' syntax.
+                        var bodyObjectType = CreateGenericResourceBody(resourceType.TypeReference, p => bodyDiscriminatedType.UnionMembersByKey.Values.Any(x => x.Properties.ContainsKey(p)));
+
+                        bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
+                        break;
+                    }
+
+                    var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values
+                        .Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, resourceType.TypeReference, flags));
                     bodyType = new DiscriminatedObjectType(
                         bodyDiscriminatedType.Name,
                         bodyDiscriminatedType.ValidationFlags,
@@ -98,9 +161,10 @@ namespace Bicep.Core.TypeSystem.Az
             return new ResourceType(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
         }
 
-        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, bool isExistingResource)
+        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
             var properties = objectType.Properties;
+            var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
 
             var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
             if (validParentScopes == ResourceScope.Resource)
@@ -138,12 +202,13 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // Deployments RP
-            if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, ResourceTypeDeployments))
+            if (StringComparer.OrdinalIgnoreCase.Equals(typeReference.FullyQualifiedType, ResourceTypeDeployments))
             {
                 properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
-            return new NamedObjectType(
+
+            return new ObjectType(
                 objectType.Name,
                 objectType.ValidationFlags,
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
@@ -170,18 +235,15 @@ namespace Bicep.Core.TypeSystem.Az
         private static TypePropertyFlags ConvertToReadOnly(TypePropertyFlags typePropertyFlags)
             => (typePropertyFlags | TypePropertyFlags.ReadOnly) & ~TypePropertyFlags.Required;
 
-        public ResourceType GetType(ResourceTypeReference typeReference, bool isExistingResource)
+        public ResourceType GetType(ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
-            var typeCache = isExistingResource ? loadedExistingTypeCache : loadedTypeCache;
-
-            // It's important to cache this result because LoadResourceType is an expensive operation
-            if (!typeCache.TryGetValue(typeReference, out var resourceType))
+            // It's important to cache this result because GenerateResourceType is an expensive operation
+            return loadedTypeCache.GetOrAdd(flags, typeReference, () =>
             {
-                resourceType = GenerateResourceType(typeReference, isExistingResource);
-                typeCache[typeReference] = resourceType;
-            }
+                var resourceType = GenerateResourceType(typeReference);
 
-            return resourceType;
+                return SetBicepResourceProperties(resourceType, flags);
+            });
         }
 
         public bool HasType(ResourceTypeReference typeReference)

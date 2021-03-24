@@ -94,13 +94,8 @@ namespace Bicep.Core.Samples
 
             var permittedMissingTypeDiagnostics = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Resource type \"Microsoft.AppConfiguration/configurationStores/keyValues@2020-07-01-preview\" does not have types available.",
-                "Resource type \"Microsoft.AppConfiguration/configurationStores@2020-07-01-preview\" does not have types available.",
-                "Resource type \"microsoft.network/networkSecurityGroups@2020-08-01\" does not have types available.",
-                "Resource type \"Microsoft.Sql/servers/databases/transparentDataEncryption@2017-03-01-preview\" does not have types available.",
-                "Resource type \"Microsoft.Sql/servers@2020-02-02-preview\" does not have types available.",
-                "Resource type \"Microsoft.Web/sites/config@2020-06-01\" does not have types available.",
-                "Resource type \"Microsoft.Web/sites/siteextensions@2020-06-01\" does not have types available.",
+                // To exclude a particular type for BCP081 (if there are missing types), add an entry of format:
+                // "Resource type \"<type>\" does not have types available.",
             };
 
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);
@@ -126,16 +121,19 @@ namespace Bicep.Core.Samples
             var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
 
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            {
+                DiagnosticAssertions.DoWithDiagnosticAnnotations(
+                    syntaxTree,
+                    diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x)),
+                    diagnostics => {
+                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", syntaxTree.FileUri.LocalPath);
+                    });
+            }
+
             // group assertion failures using AssertionScope, rather than reporting the first failure
             using (new AssertionScope())
             {
-                foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
-                {
-                    var nonPermittedDiagnostics = diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x));
-
-                    nonPermittedDiagnostics.Should().BeEmpty($"\"{syntaxTree.FileUri.LocalPath}\" should not have warnings or errors");
-                }
-
                 var exampleExists = File.Exists(jsonFileName);
                 exampleExists.Should().BeTrue($"Generated example \"{jsonFileName}\" should be checked in");
 
@@ -198,7 +196,7 @@ namespace Bicep.Core.Samples
             indexContents.Should().NotContain(x => string.IsNullOrWhiteSpace(x.FilePath));
             indexContents.Should().NotContain(x => string.IsNullOrWhiteSpace(x.Description));
 
-            var indexFiles = indexContents.Select(x => $"docs/examples/{x.FilePath}");
+            var indexFiles = indexContents!.Select(x => $"docs/examples/{x.FilePath}");
             var exampleFiles = exampleData.Select(x => x.BicepStreamName).Where(x => x.EndsWith("/main.bicep", StringComparison.Ordinal));
 
             exampleFiles.Should().BeSubsetOf(indexFiles, $"all \"main.bicep\" example files should be added to \"{indexFile}\"");

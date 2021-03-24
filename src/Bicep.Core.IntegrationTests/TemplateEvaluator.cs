@@ -113,9 +113,12 @@ namespace Bicep.Core.IntegrationTests
             {
                 var resource = template.Resources[i];
 
-                resource.Properties.Value = ExpressionsEngine.EvaluateLanguageExpressionsRecursive(
-                    root: resource.Properties.Value,
-                    evaluationContext: evaluationContext);
+                if (resource.Properties is not null)
+                {
+                    resource.Properties.Value = ExpressionsEngine.EvaluateLanguageExpressionsRecursive(
+                        root: resource.Properties.Value,
+                        evaluationContext: evaluationContext);
+                }
             }
 
             if (template.Outputs is not null && template.Outputs.Count > 0)
