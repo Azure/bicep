@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <!-- disable warnings about assemblies in non-lib paths -->
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <AssemblyName>Azure.Bicep.MSBuild</AssemblyName>
+    <RootNamespace>Azure.Bicep.MSBuild</RootNamespace>
+    <EnableNuget>true</EnableNuget>
+    <PackageTags>CLI;compiler</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="build\Azure.Bicep.MSBuild.*" PackagePath="build\" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="buildMultiTargeting\Azure.Bicep.MSBuild.*" PackagePath="buildMultiTargeting\" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="16.9.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" PrivateAssets="All" />
+  </ItemGroup>
+</Project>

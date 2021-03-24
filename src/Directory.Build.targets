@@ -19,4 +19,30 @@
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)/BannedSymbols.txt" />
   </ItemGroup>
+
+  <!-- Nuget Publishing related properties that are common to all packages -->
+  <PropertyGroup Condition="'$(EnableNuget)' == 'true'" >
+    <!-- <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);</GenerateNuspecDependsOn> -->
+    <PackageOutputPath>$(MSBuildThisFileDirectory)\..\out</PackageOutputPath>
+    <Authors>Microsoft</Authors>
+    <Owners><!-- Don't set this field --></Owners>
+    <PackageProjectUrl>https://github.com/Azure/bicep-types-az</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseUrl><!-- Don't set this field (deprecated) --></PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageTags>Azure;Bicep;$(PackageTags)</PackageTags>
+    <PackageIconUrl><!-- Don't set this field (deprecated) --></PackageIconUrl>
+    <PackageIcon>bicep-logo-256.png</PackageIcon>
+
+    <!-- generate symbols for upload to the nuget feed -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(EnableNuget)' == 'true'" >
+    <None Include="$(MSBuildThisFileDirectory)\icons\bicep-logo-256.png" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
 </Project>

@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Azure.Bicep.CommandLine.$rid$</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>bicep-logo-256.png</icon>
+    <projectUrl>https://github.com/Azure/bicep</projectUrl>
+    <description>Bicep Command Line Interface tool</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Azure Bicep CLI compiler</tags>
+  </metadata>
+  <files>
+    <file src="..\icons\bicep-logo-256.png" target="bicep-logo-256.png" />
+    <file src="build\Azure.Bicep.CommandLine.Common.props" target="build\" />
+    <!-- nuget convention requires .props file name to match package ID -->
+    <file src="build\Azure.Bicep.CommandLine.RID.props" target="build\Azure.Bicep.CommandLine.$rid$.props" />
+    <!-- nuget convention requires .props file name to match package ID -->
+    <file src="buildMultiTargeting\Azure.Bicep.CommandLine.RID.props" target="buildMultiTargeting\Azure.Bicep.CommandLine.$rid$.props" />
+
+    <file src="tools\bicep*" target="tools\" />
+    <!-- <file src="tools\*.pdb" target="tools\" /> -->
+  </files>
+</package>
