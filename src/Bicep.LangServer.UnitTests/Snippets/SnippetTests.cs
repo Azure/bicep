@@ -122,14 +122,9 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void SnippetPlaceholderTextWithMultipleChoicesShouldReturnFirstOneByDefault()
         {
-           string text = @"resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
-  properties: {
-    encryptionState: '${1|Enabled,Disabled|}'
-    version: '${2|1.2.4,4.6.3}'
-  }
-}";
+           string text = @"var testIdentifier = '${1|Enabled,Disabled|}'";
 
-            string expectedTextAfterPlaceholderReplacements = "resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\r\n  properties: {\r\n    encryptionState: 'Enabled'\n    version: '1.2.4'\r\n  }\r\n}";
+            string expectedTextAfterPlaceholderReplacements = "var testIdentifier = 'Enabled'";
 
             var snippet = new Snippet(text);
             snippet.Text.Should().Be(text);
@@ -139,13 +134,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
                 {
                     x.Index.Should().Be(1);
                     x.Name.Should().Be("Enabled");
-                    x.Span.ToString().Should().Be("[113:135]");
-                },
-                x =>
-                {
-                    x.Index.Should().Be(2);
-                    x.Name.Should().Be("1.2.4");
-                    x.Span.ToString().Should().Be("[151:167]");
+                    x.Span.ToString().Should().Be("[22:44]");
                 });
 
             Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
