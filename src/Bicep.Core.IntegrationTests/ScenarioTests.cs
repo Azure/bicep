@@ -794,17 +794,13 @@ module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
 "), ("global-resources.bicep", string.Empty));
 
             result.Template.Should().NotHaveValue();
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context."),
-                ("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context."),
-                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
-                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
-                ("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context."),
-                ("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\"."),
-                ("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\"."),
-                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find a part of the path '/path/to/kevault-secrets.bicep'."),
-                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find a part of the path '/path/to/kevault-secrets.bicep'."),
-            });
+            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
+            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"rg_global\" does not exist in the current context.");
+            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"stamps\" does not exist in the current context.");
+            result.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbEndpoint\".");
+            result.Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, "The type \"outputs\" does not contain property \"cosmosDbKey\".");
         }
 
         [TestMethod]

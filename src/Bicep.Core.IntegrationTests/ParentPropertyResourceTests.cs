@@ -150,7 +150,7 @@ output res1childid string = child1.id
 
                 // child1
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'res1', 'child1')]");
-                template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray());
+                template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
 
                 template.Should().NotHaveValueAtPath("$.resources[1]");
 
