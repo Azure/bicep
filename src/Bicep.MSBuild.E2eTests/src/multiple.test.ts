@@ -1,17 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {Example} from "./example";
+import { Example } from "./example";
 
-test("multiple", ()=>{
-  const example = new Example("multiple");
-  example.clean();
+describe("msbuild", () => {
+  it("multiple", () => {
+    const example = new Example("multiple");
+    example.clean();
 
-  const result = example.build();
+    const result = example.build();
 
-  expect(result.stderr).toBe('');
+    expect(result.stderr).toBe("");
 
-  example.expectTemplate("bin/Debug/templates/empty.json");
-  example.expectTemplate("bin/Debug/templates/passthrough.json");
-  example.expectTemplate("bin/Debug/templates/special/special.arm");
-})
+    example.expectTemplate("bin/Debug/templates/empty.json");
+    example.expectTemplate("bin/Debug/templates/passthrough.json");
+    example.expectTemplate("bin/Debug/templates/special/special.arm");
+  });
+});

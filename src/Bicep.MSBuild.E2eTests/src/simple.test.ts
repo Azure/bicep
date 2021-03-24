@@ -3,13 +3,15 @@
 
 import { Example } from "./example";
 
-test("simple", () => {
-  const example = new Example("simple");
-  example.clean();
+describe("msbuild", () => {
+  it("simple", () => {
+    const example = new Example("simple");
+    example.clean();
 
-  const result = example.build();
+    const result = example.build();
 
-  expect(result.stderr).toBe('');
+    expect(result.stderr).toBe("");
 
-  example.expectTemplate("bin/Debug/net472/empty.json");
+    example.expectTemplate("bin/Debug/net472/empty.json");
+  });
 });
