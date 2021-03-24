@@ -38,7 +38,7 @@ export class Example {
       encoding: "utf-8",
     });
 
-    if(expectSuccess && result.status != 0) {
+    if(expectSuccess && result.status !== 0) {
       this.handleFailure("MSBuild", result);
     }
 
