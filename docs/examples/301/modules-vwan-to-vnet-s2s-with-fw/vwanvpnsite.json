@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10666666379829743627"
+    }
+  },
   "parameters": {
     "vpnsitename": {
       "type": "string"
@@ -72,13 +79,6 @@
     "id": {
       "type": "string",
       "value": "[resourceId('Microsoft.Network/vpnSites', parameters('vpnsitename'))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "10000741995448321374"
     }
   }
 }

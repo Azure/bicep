@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3236288366958585083"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -114,12 +121,5 @@
         "[resourceId('Microsoft.Network/networkInterfaces', 'cycleserver-nic')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "742161679375210434"
-    }
-  }
+  ]
 }

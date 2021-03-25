@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8714225206112133173"
+    }
+  },
   "parameters": {
     "listOfAllowedLocations": {
       "type": "array",
@@ -82,12 +89,5 @@
         "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'custom-allowed-location')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "15571271359053021358"
-    }
-  }
+  ]
 }

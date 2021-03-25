@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5794550789758205473"
+    }
+  },
   "parameters": {
     "ownerPrincipalId": {
       "type": "string"
@@ -56,12 +63,5 @@
         "[format('Microsoft.Authorization/roleAssignments/{0}', guid('owner', parameters('ownerPrincipalId')))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11679287606461854693"
-    }
-  }
+  ]
 }

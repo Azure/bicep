@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12278602599272280181"
+    }
+  },
   "parameters": {
     "domainName": {
       "type": "string"
@@ -180,12 +187,5 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName')), '/')[0], split(format('{0}/{1}', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName')), '/')[1])]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "3226200361043328418"
-    }
-  }
+  ]
 }

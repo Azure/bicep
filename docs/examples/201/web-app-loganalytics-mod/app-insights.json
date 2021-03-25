@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8952477625281734700"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -38,13 +45,6 @@
     "APPINSIGHTS_INSTRUMENTATIONKEY": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11373787318551384555"
     }
   }
 }

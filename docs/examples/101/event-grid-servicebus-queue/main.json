@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2271155131988384790"
+    }
+  },
   "parameters": {
     "serviceBusNamespaceName": {
       "type": "string"
@@ -79,12 +86,5 @@
         "[resourceId('Microsoft.ServiceBus/namespaces/queues', split(format('{0}/{1}', parameters('serviceBusNamespaceName'), parameters('serviceBusQueueName')), '/')[0], split(format('{0}/{1}', parameters('serviceBusNamespaceName'), parameters('serviceBusQueueName')), '/')[1])]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "9457102724300687641"
-    }
-  }
+  ]
 }
