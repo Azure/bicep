@@ -134,28 +134,10 @@
   {
     "label": "param",
     "kind": "snippet",
-    "detail": "Parameter declaration with options",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nparam Identifier Type {\n  \n}\n```"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_param",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "param ${1:Identifier} ${2:Type} {\n  $0\n}"
-    }
-  },
-  {
-    "label": "param",
-    "kind": "snippet",
     "detail": "Secure string parameter",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nparam Identifier string {\n  secure: true\n}\n```"
+      "value": "```bicep\n@secure()\nparam Identifier string\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -164,7 +146,7 @@
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "param ${1:Identifier} string {\n  secure: true\n}"
+      "newText": "@secure()\nparam ${1:Identifier} string"
     }
   },
   {
