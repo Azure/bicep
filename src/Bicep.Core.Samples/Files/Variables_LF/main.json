@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4515800226062018461"
+      "templateHash": "5466344590259907996"
     }
   },
   "parameters": {
@@ -34,7 +34,7 @@
     "doubleInterp": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
     "curliesInInterp": "[format('{{{0}{{0}}{1}}}', 123, true())]",
     "bracketInTheMiddle": "a[b]",
-    "bracketAtBeginning": "[[test",
+    "bracketAtBeginning": "[test",
     "enclosingBrackets": "[[test]",
     "emptyJsonArray": "[[]",
     "interpolatedBrackets": "[format('[{0}]', variables('myInt'))]",
