@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
@@ -107,7 +108,7 @@ namespace Bicep.Core.Emit
                 // has a streaming variant.
                 templateString = stringWriter.ToString();
             }
-            var templateHash = TemplateHashExtensions.ComputeTemplateHash(templateString);
+            var templateHash = TemplateHelpers.ComputeTemplateHash(templateString);
             JObject template = (JObject)JObject.Parse(templateString);
             ((JObject) template["metadata"]!["_generator"]!).Add(new JProperty("templateHash", templateHash));
             template.WriteTo(this.writer);

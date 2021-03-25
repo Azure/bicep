@@ -15,6 +15,7 @@ namespace Bicep.Core.IntegrationTests
     public class ScenarioTests
     {
         [TestMethod]
+        // https://github.com/azure/bicep/issues/746
         public void Test_Issue746()
         {
             var result = CompilationHelper.Compile(@"
@@ -32,6 +33,7 @@ param l
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/801
         public void Test_Issue801()
         {
             var result = CompilationHelper.Compile(
@@ -93,6 +95,7 @@ output vnetstate string = vnet.properties.provisioningState
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/982
         public void Test_Issue982()
         {
             var result = CompilationHelper.Compile(@"
@@ -117,6 +120,7 @@ resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1093
         public void Test_Issue1093()
         {
             var result = CompilationHelper.Compile(
@@ -156,6 +160,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1173
         public void Test_Issue1173()
         {
             var result = CompilationHelper.Compile(
@@ -310,6 +315,7 @@ output id string = routetable.id
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1185
         public void Test_Issue1185()
         {
             var result = CompilationHelper.Compile(
@@ -338,6 +344,7 @@ param mgName string
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1332
         public void Test_Issue1332()
         {
             var result = CompilationHelper.Compile(@"
@@ -354,6 +361,7 @@ var issue = true ? {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/486
         public void Test_Issue486()
         {
             var result = CompilationHelper.Compile(@"
@@ -371,6 +379,7 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1362
         public void Test_Issue1362_1()
         {
             var result = CompilationHelper.Compile(
@@ -390,6 +399,7 @@ targetScope = 'subscription'
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1362
         public void Test_Issue1362_2()
         {
             var result = CompilationHelper.Compile(
@@ -409,6 +419,7 @@ targetScope = 'subscription'
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1402
         public void Test_Issue1402()
         {
             var result = CompilationHelper.Compile(
@@ -429,6 +440,7 @@ targetScope = 'resourceGroup'
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1391
         public void Test_Issue1391()
         {
             var result = CompilationHelper.Compile(@"
@@ -449,6 +461,7 @@ resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1454
         public void Test_Issue1454()
         {
             var result = CompilationHelper.Compile(
@@ -513,6 +526,7 @@ resource redis 'Microsoft.Cache/Redis@2019-07-01' = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1465
         public void Test_Issue1465()
         {
             var result = CompilationHelper.Compile(@"
@@ -526,6 +540,7 @@ output prop1 string = foo.properties.prop1
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/822
         public void Test_Issue822()
         {
             var result = CompilationHelper.Compile(
@@ -558,6 +573,7 @@ param name string
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/822
         public void Test_Issue822_scoped()
         {
             var result = CompilationHelper.Compile(
@@ -587,6 +603,7 @@ param name string
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1388
         public void Test_Issue1388()
         {
             var result = CompilationHelper.Compile(@"
@@ -644,6 +661,7 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
         }
         
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1364
         public void Test_Issue1364()
         {
             var result = CompilationHelper.Compile(@"
@@ -657,6 +675,7 @@ targetScope = 'blablah'
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/569
         public void Test_Issue569_success()
         {
             var result = CompilationHelper.Compile(@"
@@ -673,6 +692,7 @@ output myvar string = myvar
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/569
         public void Test_Issue569_duplicates()
         {
             var result = CompilationHelper.Compile(@"
@@ -688,6 +708,7 @@ output duplicate string = 'hello'
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/569
         public void Test_Issue569_outputs_cannot_be_referenced()
         {
             var result = CompilationHelper.Compile(@"
@@ -702,6 +723,7 @@ output output2 string = output1
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1599
         public void Test_Issue1599()
         {
             var result = CompilationHelper.Compile(@"
@@ -716,6 +738,7 @@ output xx = x
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1661
         public void Test_Issue1661()
         {
             // Issue 1661 only repros if global-resources.bicep exists and kevault-secrets.bicep does not
@@ -804,6 +827,7 @@ module stamp_1_secrets './kevault-secrets.bicep' = [for secret in secrets: {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1592
         public void Test_Issue1592()
         {
             var result = CompilationHelper.Compile(
@@ -821,6 +845,7 @@ output fooName string = foo.name
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1592
         public void Test_Issue1592_special_cases()
         {
             var result = CompilationHelper.Compile(
@@ -844,6 +869,7 @@ output test string = 'hello'
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1432
         public void Test_Issue1432()
         {
             var result = CompilationHelper.Compile(@"
@@ -861,6 +887,7 @@ resource foo 'Microsoft.Compute/virtualMachines@2020-06-01' = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1817
         public void Test_Issue1817()
         {
             var result = CompilationHelper.Compile(@"
@@ -877,6 +904,7 @@ var foo = 42
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1630
         public void Test_Issue1630()
         {
             var result = CompilationHelper.Compile(@"
@@ -901,6 +929,7 @@ output allResources array = allResources
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1627
         public void Test_Issue1627()
         {
             var result = CompilationHelper.Compile(("main.bicep", @"
@@ -929,6 +958,7 @@ output bar int = 42
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1941
         public void Test_Issue1941()
         {
             var result = CompilationHelper.Compile(@"
@@ -993,6 +1023,7 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/657
         public void Test_Issue657_discriminators()
         {
             var customTypes = new [] {
@@ -1090,6 +1121,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/657
         public void Test_Issue657_enum()
         {
             var customTypes = new [] {
@@ -1178,6 +1210,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1985
         public void Test_Issue1985()
         {
             var result = CompilationHelper.Compile(@"
@@ -1212,6 +1245,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1986
         public void Test_Issue1986()
         {
             var result = CompilationHelper.Compile(@"
@@ -1252,6 +1286,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1986
         public void Test_Issue1986_nested()
         {
             var result = CompilationHelper.Compile(@"
@@ -1291,6 +1326,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1986
         public void Test_Issue1986_loops()
         {
             var result = CompilationHelper.Compile(@"
@@ -1335,6 +1371,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1993
         public void Test_Issue1993()
         {
             var result = CompilationHelper.Compile(@"
