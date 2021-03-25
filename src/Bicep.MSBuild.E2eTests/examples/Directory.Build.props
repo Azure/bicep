@@ -1,0 +1,5 @@
+<!--
+  This project prevents the e2e tests from inheriting our repo build settings.
+-->
+<Project>
+</Project>
