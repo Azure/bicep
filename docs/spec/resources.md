@@ -1,6 +1,6 @@
 # Resources
 
-A `resource` declaration defines a resource that will be either created or updated at deployment time along with its intended state. The resource is also assigned to an identifier. You can reference the identifier in [expressions](./expressions.md) that are part of [variables](./variables.md), [outputs](./outputs), or other `resource` declarations.
+A `resource` declaration defines a resource that will be either created or updated at deployment time along with its intended state. The resource is also assigned to an identifier. You can reference the identifier in [expressions](./expressions.md) that are part of [variables](./variables.md), [outputs](./outputs.md), or other `resource` declarations.
 
 Consider the following declaration that creates or updates a [DNS Zone](https://docs.microsoft.com/en-us/azure/dns/dns-zones-records):
 ```

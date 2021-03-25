@@ -2,10 +2,13 @@
   This project pulls down the setup compiler from a nuget and invokes it to build the setup exe.
   It depends on the published self-contained bicep.exe and bicep.pdb to be placed in a bicep subfolder.
   During the CI build, this happens via artifact download action.
+
+  Prerequisites:
+  - Copy bicep.exe and *.pdb from Bicep CLI publish directory to bicep\ directory under this project.
 -->
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <!-- NoTargets SDK no longer sets Language, which is required by NerdBank.GitVersioning -->
     <Language>CSharp</Language>
   </PropertyGroup>

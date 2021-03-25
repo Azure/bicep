@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6087301363625672390"
+      "templateHash": "9856476092742887431"
     }
   },
   "parameters": {
@@ -72,8 +72,7 @@
       "properties": {
         "size": "[reference(resourceId('My.Rp/parentType', 'existingParent'), '2020-12-01').size]",
         "style": "[reference(resourceId('My.Rp/parentType/childType', 'existingParent', 'existingChild'), '2020-12-01').style]"
-      },
-      "dependsOn": []
+      }
     },
     {
       "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",

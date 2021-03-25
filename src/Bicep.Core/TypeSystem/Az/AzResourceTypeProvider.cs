@@ -82,11 +82,11 @@ namespace Bicep.Core.TypeSystem.Az
             this.loadedTypeCache = new ResourceTypeCache();
         }
 
-        private static NamedObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
+        private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
         {
             var properties = LanguageConstants.CreateResourceProperties(typeReference).Where(p => propertyFilter(p.Name));
 
-            return new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, properties, null);
+            return new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, properties, null);
         }
 
         private ResourceType GenerateResourceType(ResourceTypeReference typeReference)
@@ -117,10 +117,10 @@ namespace Bicep.Core.TypeSystem.Az
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
                         // Best we can do is return a regular 'string' field for it as we have no good way to reliably evaluate complex expressions (e.g. to check whether it terminates with '/<constantType>').
                         // Keep it simple for now - we eventually plan to phase out the 'top-level child' syntax.
-                        bodyObjectType = new NamedObjectType(
+                        bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(LanguageConstants.ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)),
+                            bodyObjectType.Properties.SetItem(LanguageConstants.ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
                             bodyObjectType.MethodResolver);
@@ -144,9 +144,8 @@ namespace Bicep.Core.TypeSystem.Az
                         break;
                     }
 
-                    var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList()
-                        .Select(x => x.Type as ObjectType ?? throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}"));
-                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, resourceType.TypeReference, flags));
+                    var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values
+                        .Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, resourceType.TypeReference, flags));
                     bodyType = new DiscriminatedObjectType(
                         bodyDiscriminatedType.Name,
                         bodyDiscriminatedType.ValidationFlags,
@@ -209,7 +208,7 @@ namespace Bicep.Core.TypeSystem.Az
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
 
-            return new NamedObjectType(
+            return new ObjectType(
                 objectType.Name,
                 objectType.ValidationFlags,
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,

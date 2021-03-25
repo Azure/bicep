@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14039560448232062258"
+      "templateHash": "4841832506146428279"
     }
   },
   "parameters": {
@@ -15,7 +15,7 @@
     },
     "accountName": {
       "type": "string",
-      "defaultValue": "[toLower('cosmos-$(appName)')]"
+      "defaultValue": "[toLower(format('cosmos-{0}', parameters('appName')))]"
     },
     "location": {
       "type": "string",
@@ -23,7 +23,7 @@
     },
     "databaseName": {
       "type": "string",
-      "defaultValue": "[toLower('db-$(appName)')]"
+      "defaultValue": "[toLower(format('db-{0}', parameters('appName')))]"
     }
   },
   "functions": [],

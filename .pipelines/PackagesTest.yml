@@ -1,0 +1,63 @@
+parameters:
+  - name: official
+    type: boolean
+  - name: rid
+    type: string
+  - name: artifactSuffix
+    type: string
+
+steps:
+# need dotnet because the e2e tests invoke dotnet build internally
+- task: UseDotNet@2
+  displayName: Setup .NET Core
+  continueOnError: true
+  inputs:
+    packageType: 'sdk'
+    useGlobalJson: true
+    performMultiLevelLookup: true
+
+- task: NodeTool@0 
+  displayName: Setup Node.js
+  inputs:
+    versionSpec: 10.x
+
+- script: npm ci
+  displayName: npm ci
+  workingDirectory: $(Build.SourcesDirectory)/src/Bicep.MSBuild.E2eTests
+
+- script: npm run compile
+  displayName: Compile
+  workingDirectory: $(Build.SourcesDirectory)/src/Bicep.MSBuild.E2eTests
+
+- script: npm run lint
+  displayName: Run lint
+  workingDirectory: $(Build.SourcesDirectory)/src/Bicep.MSBuild.E2eTests
+
+# downloads to $(Pipeline.Workspace)/{artifact}
+- download: current
+  displayName: Download MSBuild package
+  artifact: drop_build_bicep_windows
+
+- task: CopyFiles@2
+  displayName: Copy MSBuild package
+  inputs:
+    sourceFolder: '$(Pipeline.Workspace)/drop_build_bicep_windows/'
+    contents: '*.nupkg'
+    targetFolder: '$(Build.SourcesDirectory)/src/Bicep.MSBuild.E2eTests/examples/local-packages'
+
+- download: current
+  displayName: Download CLI package
+  artifact: drop_build_packages_${{ parameters.artifactSuffix }}
+
+- task: CopyFiles@2
+  displayName: Copy CLI package output
+  inputs:
+    sourceFolder: '$(Pipeline.Workspace)/drop_build_packages_${{ parameters.artifactSuffix }}'
+    contents: '*.nupkg'
+    targetFolder: '$(Build.SourcesDirectory)/src/Bicep.MSBuild.E2eTests/examples/local-packages'
+
+- script: npm run test
+  displayName: Run E2E tests
+  env:
+    RuntimeSuffix: ${{ parameters.rid }}
+  workingDirectory: $(Build.SourcesDirectory)/src/Bicep.MSBuild.E2eTests

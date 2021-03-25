@@ -55,5 +55,12 @@ namespace Bicep.Core.UnitTests.Assertions
             => DoWithDiagnosticAnnotations(diags => {
                 diags.Should().BeEmpty(because, becauseArgs);
             });
+
+        public AndConstraint<CompilationResultAssertions> NotGenerateATemplate(string because = "", params object[] becauseArgs)
+        {
+            Subject.Template.Should().NotHaveValue(because, becauseArgs);
+
+            return new AndConstraint<CompilationResultAssertions>(this);
+        }
     }
 }

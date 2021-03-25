@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16708867199182289322"
+      "templateHash": "9997609816176615400"
     }
   },
   "parameters": {
@@ -74,7 +74,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4865726630166443526"
+              "templateHash": "6082030172290952535"
             }
           },
           "parameters": {
@@ -119,8 +119,7 @@
                     "enabled": true
                   }
                 ]
-              },
-              "dependsOn": []
+              }
             },
             {
               "type": "microsoft.insights/diagnosticSettings",
@@ -147,8 +146,7 @@
                     "enabled": true
                   }
                 ]
-              },
-              "dependsOn": []
+              }
             }
           ]
         }

@@ -168,7 +168,7 @@ output resourceARef string = resourceA.properties.myProp
             using (new AssertionScope())
             {
                 template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", expectedScopeExpression);
-                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn", new JArray());
+                template.Should().NotHaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn");
 
                 template.Should().HaveValueAtPath("$.outputs['resourceARef'].value", expectedReferenceExpression);
             }

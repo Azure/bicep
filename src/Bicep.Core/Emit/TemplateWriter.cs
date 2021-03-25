@@ -547,10 +547,25 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
         }
+        private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
+        {
+            switch (dependency.Resource)
+            {
+                case ResourceSymbol resource:
+                    // We only want to add a 'dependsOn' for resources being deployed in this file.
+                    return !resource.DeclaringResource.IsExistingResource();
+                case ModuleSymbol module:
+                    return true;
+                default:
+                    throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
+            }
+        }
 
         private void EmitDependsOn(JsonTextWriter jsonWriter, DeclaredSymbol declaredSymbol, ExpressionEmitter emitter, SyntaxBase newContext)
         {
-            var dependencies = context.ResourceDependencies[declaredSymbol];
+            var dependencies = context.ResourceDependencies[declaredSymbol]
+                .Where(dep => ShouldGenerateDependsOn(dep));
+
             if (!dependencies.Any())
             {
                 return;
@@ -573,11 +588,7 @@ namespace Bicep.Core.Emit
                             break;
                         }
 
-                        if (!resourceDependency.DeclaringResource.IsExistingResource())
-                        {
-                            emitter.EmitResourceIdReference(resourceDependency, dependency.IndexExpression, newContext);
-                        }
-
+                        emitter.EmitResourceIdReference(resourceDependency, dependency.IndexExpression, newContext);
                         break;
                     case ModuleSymbol moduleDependency:
                         if (moduleDependency.IsCollection && dependency.IndexExpression == null)
