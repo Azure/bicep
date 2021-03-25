@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7339630272781107180"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -35,13 +42,6 @@
     "scriptOutput": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', parameters('dsName'))).outputs.test]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5388873385114824013"
     }
   }
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13587896276975312694"
+    }
+  },
   "parameters": {
     "deployTimeParam": {
       "type": "string",
@@ -95,13 +102,6 @@
     "resourceCProperties": {
       "type": "object",
       "value": "[reference(resourceId('My.Rp/myResourceType', 'resC'))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "13661580234949202298"
     }
   }
 }

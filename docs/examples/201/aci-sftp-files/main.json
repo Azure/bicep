@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3541524659464899052"
+    }
+  },
   "parameters": {
     "storageAccountType": {
       "type": "string",
@@ -163,13 +170,6 @@
     "containerIpv4Address": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', variables('sftpContainerGroupName'))).ipAddress.ip]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "14175436468841110201"
     }
   }
 }

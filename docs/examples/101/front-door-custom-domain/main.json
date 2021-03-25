@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16658574891850681585"
+    }
+  },
   "parameters": {
     "frontDoorName": {
       "type": "string"
@@ -120,12 +127,5 @@
         ]
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "8963112686540957905"
-    }
-  }
+  ]
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5249168034003613050"
+    }
+  },
   "parameters": {
     "hostpoolName": {
       "type": "string",
@@ -90,12 +97,5 @@
         "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "7745412919019849875"
-    }
-  }
+  ]
 }

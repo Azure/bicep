@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1145679438663129161"
+    }
+  },
   "parameters": {
     "bicepExampleInitiativeId": {
       "type": "string"
@@ -50,12 +57,5 @@
         "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "10551989971160582139"
-    }
-  }
+  ]
 }
