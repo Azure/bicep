@@ -1333,5 +1333,57 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('vnets')[copyIndex()])]", // dependsOn should include the virtualNetwork parent resource
             });
         }
+
+        [TestMethod]
+        public void Test_Issue1993()
+        {
+            var result = CompilationHelper.Compile(@"
+//""flat"" string
+var jsonStringFlat  = '[""one"",""two"",""three"" ]'
+
+//Good Array
+var jsonStringGood  = '''
+[
+  ""one"",
+  ""two"",
+  ""three""
+]'''
+
+//Bad Array
+var jsonStringBad  = '''
+[
+  ""one"",
+  ""two"",
+  ""three""
+]
+'''
+var jsonArrayFlat = json(jsonStringFlat)
+var jsonArrayGood = json(jsonStringGood)
+var jsonArrayBad = json(jsonStringBad)
+
+output flatArray array = [for (name, i) in jsonArrayFlat: {
+  element: name
+}]
+
+output goodArray array = [for (name, i) in jsonArrayGood: {
+  element: name
+}]
+
+output badArray array = [for (name, i) in jsonArrayBad : {
+  element: name
+}]
+");
+
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            var expectedOutput = new JArray {
+                new JObject { ["element"] = "one" },
+                new JObject { ["element"] = "two" },
+                new JObject { ["element"] = "three" },
+            };
+            evaluated.Should().HaveValueAtPath("$.outputs['flatArray'].value", expectedOutput);
+            evaluated.Should().HaveValueAtPath("$.outputs['goodArray'].value", expectedOutput);
+            evaluated.Should().HaveValueAtPath("$.outputs['badArray'].value", expectedOutput);
+        }
     }
 }
