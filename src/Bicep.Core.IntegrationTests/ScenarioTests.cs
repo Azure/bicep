@@ -1422,5 +1422,107 @@ output badArray array = [for (name, i) in jsonArrayBad : {
             evaluated.Should().HaveValueAtPath("$.outputs['goodArray'].value", expectedOutput);
             evaluated.Should().HaveValueAtPath("$.outputs['badArray'].value", expectedOutput);
         }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/2009
+        public void Test_Issue2009()
+        {
+            var result = CompilationHelper.Compile(@"
+param providerNamespace string = 'Microsoft.Web'
+
+output providerOutput object = {
+  thing: providers(providerNamespace)
+
+  otherThing: providers(providerNamespace, 'sites')
+}
+");
+
+            result.Should().NotHaveDiagnostics();
+
+            var providersMetadata = new[] {
+                new {
+                    @namespace = "Microsoft.Web",
+                    resourceTypes = new[] {
+                        new {
+                            resourceType = "sites",
+                            locations = new[] { "West US", "East US", },
+                            apiVersions = new[] { "2019-01-01", "2020-01-01", },
+                        }
+                    }
+                }
+            };
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with {
+                Metadata = new() {
+                    ["providers"] = JToken.FromObject(providersMetadata),
+                }
+            });
+
+            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject {
+                ["namespace"] = "Microsoft.Web",
+                ["resourceTypes"] = new JArray {
+                    new JObject {
+                        ["resourceType"] = "sites",
+                        ["locations"] = new JArray { "West US", "East US" },
+                        ["apiVersions"] = new JArray { "2019-01-01", "2020-01-01" },
+                    }
+                }
+            });
+
+            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.otherThing", new JObject {
+                ["resourceType"] = "sites",
+                ["locations"] = new JArray { "West US", "East US" },
+                ["apiVersions"] = new JArray { "2019-01-01", "2020-01-01" },
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/2009
+        public void Test_Issue2009_expanded()
+        {
+            var result = CompilationHelper.Compile(@"
+output providersNamespace string = providers('Test.Rp').namespace
+output providersResources array = providers('Test.Rp').resourceTypes
+
+output providersResourceType string = providers('Test.Rp', 'fakeResource').resourceType
+output providersApiVersionFirst string = providers('Test.Rp', 'fakeResource').apiVersions[0]
+output providersLocationFirst string = providers('Test.Rp', 'fakeResource').locations[0]
+");
+
+            result.Should().NotHaveDiagnostics();
+
+            var providersMetadata = new[] {
+                new {
+                    @namespace = "Test.Rp",
+                    resourceTypes = new[] {
+                        new {
+                            resourceType = "fakeResource",
+                            locations = new[] { "Earth", "Mars" },
+                            apiVersions = new[] { "3024-01-01", "4100-01-01", },
+                        }
+                    }
+                }
+            };
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with {
+                Metadata = new() {
+                    ["providers"] = JToken.FromObject(providersMetadata),
+                }
+            });
+
+            evaluated.Should().HaveValueAtPath("$.outputs['providersNamespace'].value", "Test.Rp");
+            evaluated.Should().HaveValueAtPath("$.outputs['providersResources'].value", new JArray {
+                new JObject {
+                    ["resourceType"] = "fakeResource",
+                    ["locations"] = new JArray { "Earth", "Mars" },
+                    ["apiVersions"] = new JArray { "3024-01-01", "4100-01-01" },
+                }
+            });
+
+
+            evaluated.Should().HaveValueAtPath("$.outputs['providersResourceType'].value", "fakeResource");
+            evaluated.Should().HaveValueAtPath("$.outputs['providersApiVersionFirst'].value", "3024-01-01");
+            evaluated.Should().HaveValueAtPath("$.outputs['providersLocationFirst'].value", "Earth");
+        }
     }
 }
