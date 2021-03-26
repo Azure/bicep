@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => "Result";
 
-        private AndConstraint<CompilationResultAssertions> DoWithDiagnosticAnnotations(Action<IEnumerable<Diagnostic>> action)
+        private AndConstraint<CompilationResultAssertions> DoWithDiagnosticAnnotations(Action<IEnumerable<IDiagnostic>> action)
         {
             DiagnosticAssertions.DoWithDiagnosticAnnotations(Subject.SyntaxTree, Subject.Diagnostics, action);
 
