@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17017839260550009234"
+    }
+  },
   "parameters": {
     "configStoreName": {
       "type": "string",
@@ -69,13 +76,6 @@
     "keys": {
       "type": "object",
       "value": "[reference(resourceId('Microsoft.AppConfiguration/configurationStores/keyValues', split(format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[0]), '/')[0], split(format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[0]), '/')[1]), '2020-07-01-preview', 'full')]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "13239335818693703810"
     }
   }
 }

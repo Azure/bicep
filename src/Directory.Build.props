@@ -7,6 +7,8 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <!-- disable nuget packing on all projects by default -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,52 @@
+parameters:
+  - name: official
+    type: boolean
+  - name: rid
+    type: string
+  - name: artifactSuffix
+    type: string
+
+steps:
+- task: UseDotNet@2
+  displayName: Setup .NET Core
+  continueOnError: true
+  inputs:
+    packageType: 'sdk'
+    useGlobalJson: true
+    performMultiLevelLookup: true
+
+# downloads to $(Pipeline.Workspace)/{artifact}
+- download: current
+  displayName: Download Bicep CLI
+  artifact: drop_build_bicep_${{ parameters.artifactSuffix }}
+
+- task: CopyFiles@2
+  displayName: Copy Bicep CLI for packaging
+  inputs:
+    sourceFolder: '$(Pipeline.Workspace)/drop_build_bicep_${{ parameters.artifactSuffix }}/bicep-Release-${{ parameters.rid }}'
+    contents: '*'
+    targetFolder: '$(Build.SourcesDirectory)/src/Bicep.Cli.Nuget/tools'
+
+- task: DotNetCoreCLI@2
+  displayName: Build Package
+  inputs:
+    command: build
+    projects: $(Build.SourcesDirectory)/src/Bicep.Cli.Nuget/nuget.proj
+    arguments: '--configuration $(BuildConfiguration) /p:PublicRelease=${{ parameters.official }} /p:RuntimeSuffix=${{ parameters.rid }}'
+
+- task: CopyFiles@2
+  displayName: Copy Package to output
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)/src/Bicep.Cli.Nuget/'
+    contents: '*.nupkg'
+    targetFolder: '$(Build.SourcesDirectory)/out/'
+
+# test signing fails on .nupkg files
+- ${{ if eq(parameters.official, 'true') }}:
+  - task: onebranch.pipeline.signing@1
+    displayName: Sign Nuget Packages
+    inputs:
+      command: 'sign'
+      signing_profile: 'external_distribution'
+      files_to_sign: '**/*.nupkg'
+      search_root: '$(Build.SourcesDirectory)\out\'

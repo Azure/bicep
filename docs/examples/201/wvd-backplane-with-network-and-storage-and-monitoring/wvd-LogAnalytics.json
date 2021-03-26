@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9997609816176615400"
+    }
+  },
   "parameters": {
     "logAnalyticsWorkspaceName": {
       "type": "string"
@@ -63,6 +70,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6082030172290952535"
+            }
+          },
           "parameters": {
             "logAnalyticsWorkspaceID": {
               "type": "string"
@@ -141,12 +155,5 @@
         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "4773149420866329064"
-    }
-  }
+  ]
 }

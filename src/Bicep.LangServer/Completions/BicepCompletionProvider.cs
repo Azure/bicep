@@ -74,12 +74,9 @@ namespace Bicep.LanguageServer.Completions
     $4
   ]
 }", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with options", @"param ${1:Identifier} ${2:Type} {
-  $0
-}", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Secure string parameter", @"param ${1:Identifier} string {
-  secure: true
-}", context.ReplacementRange);
+
+                yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Secure string parameter", @"@secure()
+param ${1:Identifier} string", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.VariableKeyword, "Variable keyword", context.ReplacementRange);
                 yield return CreateContextualSnippetCompletion(LanguageConstants.VariableKeyword, "Variable declaration", "var ${1:Identifier} = $0", context.ReplacementRange);

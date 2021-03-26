@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11291635155851929893"
+    }
+  },
   "parameters": {
     "projectName": {
       "type": "string",
@@ -48,12 +55,5 @@
         "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "18261993149758640086"
-    }
-  }
+  ]
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16635523466382666048"
+    }
+  },
   "parameters": {
     "appName": {
       "type": "string",
@@ -26,6 +33,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11726653625731348975"
+            }
+          },
           "parameters": {
             "skuName": {
               "type": "string",
@@ -95,6 +109,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11879679526796717362"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -209,6 +230,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "8952477625281734700"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -271,6 +299,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "15135260870848174745"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -311,12 +346,5 @@
         }
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "16239420915790167268"
-    }
-  }
+  ]
 }

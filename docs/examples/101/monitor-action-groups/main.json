@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9265442292351763538"
+    }
+  },
   "parameters": {
     "actionGroupName": {
       "type": "string"
@@ -76,13 +83,6 @@
     "actionGroupId": {
       "type": "string",
       "value": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroupName'))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "15345907591722695337"
     }
   }
 }

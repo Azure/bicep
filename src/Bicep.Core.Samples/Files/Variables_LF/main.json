@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5466344590259907996"
+    }
+  },
   "parameters": {
     "parameters": {
       "type": "bool",
@@ -27,7 +34,7 @@
     "doubleInterp": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
     "curliesInInterp": "[format('{{{0}{{0}}{1}}}', 123, true())]",
     "bracketInTheMiddle": "a[b]",
-    "bracketAtBeginning": "[[test",
+    "bracketAtBeginning": "[test",
     "enclosingBrackets": "[[test]",
     "emptyJsonArray": "[[]",
     "interpolatedBrackets": "[format('[{0}]', variables('myInt'))]",
@@ -179,12 +186,5 @@
     "multilineFormatted": "[format('Hello,\nmy\nname is\n{0}\n', 'Anthony')]",
     "multilineJavaScript": "// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n"
   },
-  "resources": [],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "7741877235224531779"
-    }
-  }
+  "resources": []
 }
