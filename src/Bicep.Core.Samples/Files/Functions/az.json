@@ -131,7 +131,7 @@
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(providerNamespace: string): provider[]",
+    "typeSignature": "(providerNamespace: string): Provider",
     "parameterTypeSignatures": [
       "providerNamespace: string"
     ]
@@ -156,7 +156,7 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(providerNamespace: string, resourceType: string): provider",
+    "typeSignature": "(providerNamespace: string, resourceType: string): ProviderResource",
     "parameterTypeSignatures": [
       "providerNamespace: string",
       "resourceType: string"

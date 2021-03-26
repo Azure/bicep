@@ -57,15 +57,25 @@ namespace Bicep.Core.Semantics.Namespaces
             });
         }
 
-        private static ObjectType GetSingleProvidersReturnType()
+        private static ObjectType GetProvidersSingleResourceReturnType()
         {
             // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
-            return new ObjectType("provider", TypeSymbolValidationFlags.Default, new []
+            return new ObjectType("ProviderResource", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("resourceType", LanguageConstants.String),
                 new TypeProperty("locations", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
                 new TypeProperty("apiVersions", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
             }, null);
+        }
+
+        private static ObjectType GetProvidersSingleProviderReturnType()
+        {
+            // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
+            return new ObjectType("Provider", TypeSymbolValidationFlags.Default, new []
+            {
+                new TypeProperty("namespace", LanguageConstants.String),
+                new TypeProperty("resourceTypes", new TypedArrayType(GetProvidersSingleResourceReturnType(), TypeSymbolValidationFlags.Default)),
+                }, null);
         }
         
         private static ObjectType GetEnvironmentReturnType()
@@ -290,15 +300,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithVariableParameter("resourceName",LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
                 .Build();
 
-            var singleProvider = GetSingleProvidersReturnType();
             yield return new FunctionOverloadBuilder("providers")
-                .WithReturnType(new TypedArrayType(singleProvider, TypeSymbolValidationFlags.Default))
+                .WithReturnType(GetProvidersSingleProviderReturnType())
                 .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
                 .WithRequiredParameter("providerNamespace",LanguageConstants.String, "the namespace of the provider")
                 .Build();
 
             yield return new FunctionOverloadBuilder("providers")
-                .WithReturnType(singleProvider)
+                .WithReturnType(GetProvidersSingleResourceReturnType())
                 .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
                 .WithRequiredParameter("providerNamespace",LanguageConstants.String, "the namespace of the provider")
                 .WithRequiredParameter("resourceType",LanguageConstants.String, "The type of resource within the specified namespace")
