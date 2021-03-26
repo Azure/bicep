@@ -915,17 +915,17 @@ var allResources = providers('Microsoft.Insights')
 var firstApiVersion = singleResource.apiVersions[0]
 
 // allResources is an array of objects!
-var firstResourceFirstApiVersion = allResources[0].apiVersions[0]
+var firstResourceFirstApiVersion = allResources.resourceTypes[0].apiVersions[0]
 
 output singleResource object = singleResource
-output allResources array = allResources
+output allResources array = allResources.resourceTypes
 ");
 
             result.Should().NotHaveDiagnostics();
             result.Template.Should().HaveValueAtPath("$.variables['singleResource']", "[providers('Microsoft.Insights', 'components')]");
             result.Template.Should().HaveValueAtPath("$.variables['firstApiVersion']", "[variables('singleResource').apiVersions[0]]");
             result.Template.Should().HaveValueAtPath("$.variables['allResources']", "[providers('Microsoft.Insights')]");
-            result.Template.Should().HaveValueAtPath("$.variables['firstResourceFirstApiVersion']", "[variables('allResources')[0].apiVersions[0]]");
+            result.Template.Should().HaveValueAtPath("$.variables['firstResourceFirstApiVersion']", "[variables('allResources').resourceTypes[0].apiVersions[0]]");
         }
 
         [TestMethod]
