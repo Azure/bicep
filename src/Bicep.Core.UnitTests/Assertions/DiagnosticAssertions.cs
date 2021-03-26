@@ -15,13 +15,13 @@ namespace Bicep.Core.UnitTests.Assertions
 {
     public static class DiagnosticExtensions 
     {
-        public static DiagnosticAssertions Should(this IDiagnostic diagnostic)
+        public static DiagnosticAssertions Should(this Diagnostic diagnostic)
         {
             return new DiagnosticAssertions(diagnostic); 
         }
     }
 
-    public class DiagnosticAssertions : ReferenceTypeAssertions<IDiagnostic, DiagnosticAssertions>
+    public class DiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, DiagnosticAssertions>
     {
         private class DiagnosticFormatter : IValueFormatter
         {
@@ -44,6 +44,7 @@ namespace Bicep.Core.UnitTests.Assertions
             Formatter.AddFormatter(new DiagnosticFormatter());
         }
 
+        public DiagnosticAssertions(Diagnostic diagnostic)
             : base(diagnostic)
         {
         }
