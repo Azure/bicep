@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6989941473549654446"
+    }
+  },
   "parameters": {
     "yourName": {
       "type": "string"
@@ -15,13 +22,6 @@
     "helloWorld": {
       "type": "string",
       "value": "[format('{0} {1}', variables('hello'), parameters('yourName'))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "0.3.126.58533",
-      "templateHash": "13910000982347844811"
     }
   }
 }
