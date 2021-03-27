@@ -368,8 +368,14 @@ output length int =
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.TextEdit!.NewText.Should().StartWith("object");
-                    c.TextEdit.NewText.Should().Contain("secure: true");
+                    c.TextEdit!.NewText.Should().Be("object");
                     c.Detail.Should().Be("Secure object");
+                    c.AdditionalTextEdits?.Count().Should().Be(1);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()" + Environment.NewLine);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(0);
                 },
                 c =>
                 {
@@ -377,8 +383,65 @@ output length int =
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.TextEdit!.NewText.Should().StartWith("string");
-                    c.TextEdit.NewText.Should().Contain("secure: true");
+                    c.TextEdit!.NewText.Should().Be("string");
                     c.Detail.Should().Be("Secure string");
+                    c.AdditionalTextEdits?.Count().Should().Be(1);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()" + Environment.NewLine);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(0);
+                });
+        }
+
+        [TestMethod]
+        public void VerifyParameterTypeCompletionWithPrecedingComment()
+        {
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText("/*test*/param foo ");
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
+
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
+
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset));
+            var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
+
+            AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
+
+            completions.Where(c => c.Kind == CompletionItemKind.Snippet).Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("secureObject");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.TextEdit!.NewText.Should().StartWith("object");
+                    c.TextEdit!.NewText.Should().Be("object");
+                    c.TextEdit!.Range.Start.Line.Should().Be(0);
+                    c.TextEdit!.Range.Start.Character.Should().Be(18);
+                    c.Detail.Should().Be("Secure object");
+                    c.AdditionalTextEdits?.Count().Should().Be(1);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()" + Environment.NewLine);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(8);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(8);
+                },
+                c =>
+                {
+                    c.Label.Should().Be("secureString");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.TextEdit!.NewText.Should().StartWith("string");
+                    c.TextEdit!.NewText.Should().Be("string");
+                    c.TextEdit!.Range.Start.Line.Should().Be(0);
+                    c.TextEdit!.Range.Start.Character.Should().Be(18);
+                    c.Detail.Should().Be("Secure string");
+                    c.AdditionalTextEdits?.Count().Should().Be(1);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()" + Environment.NewLine);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(8);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(8);
                 });
         }
 
