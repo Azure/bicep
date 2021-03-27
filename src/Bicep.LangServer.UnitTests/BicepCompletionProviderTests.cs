@@ -414,7 +414,6 @@ output length int =
                     c.Label.Should().Be("secureObject");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.TextEdit!.NewText.Should().StartWith("object");
                     c.TextEdit!.NewText.Should().Be("object");
                     c.TextEdit!.Range.Start.Line.Should().Be(0);
                     c.TextEdit!.Range.Start.Character.Should().Be(18);
@@ -431,7 +430,6 @@ output length int =
                     c.Label.Should().Be("secureString");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.TextEdit!.NewText.Should().StartWith("string");
                     c.TextEdit!.NewText.Should().Be("string");
                     c.TextEdit!.Range.Start.Line.Should().Be(0);
                     c.TextEdit!.Range.Start.Character.Should().Be(18);
