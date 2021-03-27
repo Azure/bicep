@@ -75,7 +75,7 @@
     "additionalTextEdits": [
       {
         "range": {},
-        "newText": "@secure()\r\n"
+        "newText": "@secure()\n"
       }
     ]
   },
@@ -99,7 +99,7 @@
     "additionalTextEdits": [
       {
         "range": {},
-        "newText": "@secure()\r\n"
+        "newText": "@secure()\n"
       }
     ]
   },

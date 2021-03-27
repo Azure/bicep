@@ -371,7 +371,7 @@ output length int =
                     c.TextEdit!.NewText.Should().Be("object");
                     c.Detail.Should().Be("Secure object");
                     c.AdditionalTextEdits?.Count().Should().Be(1);
-                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()" + Environment.NewLine);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(0);
                     c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
@@ -386,7 +386,7 @@ output length int =
                     c.TextEdit!.NewText.Should().Be("string");
                     c.Detail.Should().Be("Secure string");
                     c.AdditionalTextEdits?.Count().Should().Be(1);
-                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()" + Environment.NewLine);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(0);
                     c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
@@ -419,7 +419,7 @@ output length int =
                     c.TextEdit!.Range.Start.Character.Should().Be(18);
                     c.Detail.Should().Be("Secure object");
                     c.AdditionalTextEdits?.Count().Should().Be(1);
-                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()" + Environment.NewLine);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(8);
                     c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
@@ -435,7 +435,7 @@ output length int =
                     c.TextEdit!.Range.Start.Character.Should().Be(18);
                     c.Detail.Should().Be("Secure string");
                     c.AdditionalTextEdits?.Count().Should().Be(1);
-                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()" + Environment.NewLine);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(8);
                     c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);

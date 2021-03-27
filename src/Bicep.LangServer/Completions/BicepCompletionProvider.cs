@@ -320,7 +320,7 @@ param ${1:Identifier} string", context.ReplacementRange);
                         Start = enclosingDeclarationRange.Start,
                         End = enclosingDeclarationRange.Start
                     },
-                    NewText = "@secure()" + Environment.NewLine
+                    NewText = "@secure()\n"
                 };
 
                 yield return CreateContextualSnippetCompletion("secureObject",
