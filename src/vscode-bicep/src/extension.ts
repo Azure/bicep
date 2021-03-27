@@ -17,7 +17,6 @@ export async function activate(
     outputChannel,
     async () => {
       const logger = createLogger(context, outputChannel);
-      logger.info("Logger created");
 
       try {
         await launchLanguageServiceWithProgressReport(context, outputChannel);
