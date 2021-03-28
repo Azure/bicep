@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Completions
 
             return GetDeclarationCompletions(context)
                 .Concat(GetSymbolCompletions(model, context))
-                .Concat(GetDeclarationTypeCompletions(context))
+                .Concat(GetDeclarationTypeCompletions(compilation, context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
                 .Concat(GetMemberAccessCompletions(compilation, context))
                 .Concat(GetResourceAccessCompletions(compilation, context))
@@ -179,7 +179,7 @@ param ${1:Identifier} string", context.ReplacementRange);
             return GetAccessibleSymbolCompletions(model, context);
         }
 
-        private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(Compilation compilation, BicepCompletionContext context)
         {
             // local function
             IEnumerable<CompletionItem> GetPrimitiveTypeCompletions() =>
@@ -187,7 +187,7 @@ param ${1:Identifier} string", context.ReplacementRange);
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
-                return GetPrimitiveTypeCompletions().Concat(GetParameterTypeSnippets(context.ReplacementRange));
+                return GetPrimitiveTypeCompletions().Concat(GetParameterTypeSnippets(compilation, context));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
@@ -307,15 +307,34 @@ param ${1:Identifier} string", context.ReplacementRange);
             return fileItems.Concat(dirItems);
         }
 
-        private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Range replacementRange)
+        private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation compitation, BicepCompletionContext context)
         {
-            yield return CreateContextualSnippetCompletion("secureObject", "Secure object", @"object {
-  secure: true
-}", replacementRange);
+            if (context.EnclosingDeclaration is ParameterDeclarationSyntax parameterDeclarationSyntax)
+            {
+                SyntaxTree syntaxTree = compitation.SyntaxTreeGrouping.EntryPoint;
+                Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(syntaxTree.LineStarts);
+                TextEdit textEdit = new TextEdit()
+                {
+                    Range = new Range()
+                    {
+                        Start = enclosingDeclarationRange.Start,
+                        End = enclosingDeclarationRange.Start
+                    },
+                    NewText = "@secure()\n"
+                };
 
-            yield return CreateContextualSnippetCompletion("secureString", "Secure string", @"string {
-  secure: true
-}", replacementRange);
+                yield return CreateContextualSnippetCompletion("secureObject",
+                                                               "Secure object",
+                                                               "object",
+                                                               context.ReplacementRange,
+                                                               new TextEdit[] { textEdit });
+
+                yield return CreateContextualSnippetCompletion("secureString",
+                                                               "Secure string",
+                                                               "string",
+                                                               context.ReplacementRange,
+                                                               new TextEdit[] { textEdit });
+            }
         }
 
         private IEnumerable<CompletionItem> GetResourceOrModuleBodyCompletions(BicepCompletionContext context)
@@ -840,6 +859,18 @@ param ${1:Identifier} string", context.ReplacementRange);
             CompletionItemBuilder.Create(CompletionItemKind.Snippet)
                 .WithLabel(label)
                 .WithSnippetEdit(replacementRange, snippet, insertTextMode)
+                .WithDetail(detail)
+                .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
+                .WithSortText(GetSortText(label, priority));
+
+        /// <summary>
+        /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
+        /// </summary>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, TextEditContainer additionalTextEdits, CompletionPriority priority = CompletionPriority.Medium, InsertTextMode insertTextMode = InsertTextMode.AsIs) =>
+            CompletionItemBuilder.Create(CompletionItemKind.Snippet)
+                .WithLabel(label)
+                .WithSnippetEdit(replacementRange, snippet, insertTextMode)
+                .WithAdditionalEdits(additionalTextEdits)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority));

@@ -61,7 +61,7 @@
     "detail": "Secure object",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nobject {\n  secure: true\n}\n```"
+      "value": "```bicep\nobject\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -70,8 +70,14 @@
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "object {\n  secure: true\n}"
-    }
+      "newText": "object"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": "@secure()\n"
+      }
+    ]
   },
   {
     "label": "secureString",
@@ -79,7 +85,7 @@
     "detail": "Secure string",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nstring {\n  secure: true\n}\n```"
+      "value": "```bicep\nstring\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -88,8 +94,14 @@
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "string {\n  secure: true\n}"
-    }
+      "newText": "string"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": "@secure()\n"
+      }
+    ]
   },
   {
     "label": "string",
