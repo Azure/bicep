@@ -22,6 +22,7 @@ export async function activate(
         await launchLanguageServiceWithProgressReport(context, outputChannel);
       } catch (e) {
         logger.error(e);
+        throw e;
       }
     }
   );
