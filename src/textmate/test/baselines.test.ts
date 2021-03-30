@@ -25,10 +25,9 @@ async function createOnigLib(): Promise<IOnigLib> {
 const registry = new Registry({
   onigLib: createOnigLib(),
   loadGrammar: async scopeName => {
-    const jsonContents = await readFile(grammarPath, { encoding: 'utf-8' });
-    const grammar = JSON.parse(jsonContents);
+    const grammar = await readFile(grammarPath, { encoding: 'utf-8' });
 
-    return parseRawGrammar(plist.build(grammar));    
+    return parseRawGrammar(grammar);    
   }
 });
 
@@ -162,7 +161,7 @@ for (const filePath of baselineFiles) {
       }
 
       const result = spawnSync(bicepExePath, ['build', '--stdout', filePath], { encoding: 'utf-8' });
-      expect(result.stderr).toBe('');
+      expect(result.stderr || '').toBe('');
       expect(result.status).toBe(0);
     });
 

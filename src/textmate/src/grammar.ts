@@ -3,8 +3,9 @@
 
 import * as tm from "@azure-tools/tmlanguage-generator";
 import path from "path";
+import plist from "plist";
 
-export const grammarPath = path.resolve(__dirname, '../bicep.tmlanguage.json');
+export const grammarPath = path.resolve(__dirname, '../bicep.tmlanguage');
 
 type IncludeRule = tm.IncludeRule<BicepScope>;
 type BeginEndRule = tm.BeginEndRule<BicepScope>;
@@ -405,5 +406,7 @@ const grammar: Grammar = {
 };
 
 export async function generateGrammar() {
-  return await tm.emitJSON(grammar);
+  const json = await tm.emitJSON(grammar);
+  
+  return plist.build(JSON.parse(json));
 }
