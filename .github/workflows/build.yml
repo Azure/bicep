@@ -361,7 +361,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: bicep-release-linux-x64
-          path: ./bicep
+          path: ./bicep-release-linux-x64
 
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
@@ -375,5 +375,5 @@ jobs:
       - name: Run Tests
         run: npm test
         env:
-          BICEP_CLI_EXECUTABLE: ./bicep
+          BICEP_CLI_EXECUTABLE: ${{ github.workspace }}/bicep-release-linux-x64/bicep
         working-directory: ./src/textmate
