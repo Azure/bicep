@@ -132,9 +132,9 @@ var objWithInterp = {
 
 // invalid fully qualified function access
 var mySum = az.add(1,2)
-//@[15:18) [BCP107 (Error)] The function "add" does not exist in namespace "az". |add|
+//@[15:18) [BCP109 (Error)] The type "az" does not contain function "add". |add|
 var myConcat = sys.concat('a', az.concat('b', 'c'))
-//@[34:40) [BCP107 (Error)] The function "concat" does not exist in namespace "az". |concat|
+//@[34:40) [BCP109 (Error)] The type "az" does not contain function "concat". |concat|
 
 // invalid string using double quotes
 var doubleString = "bad string"

@@ -5,7 +5,7 @@
     "detail": "apiProperties",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ApiProperties`  \n"
+      "value": "Type: `ApiProperties`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -26,7 +26,7 @@
     "detail": "backupPolicy",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `BackupPolicy`  \n"
+      "value": "Type: `BackupPolicy`  \nThe object representing the policy for taking backups on an account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -47,7 +47,7 @@
     "detail": "capabilities",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Capability[]`  \n"
+      "value": "Type: `Capability[]`  \nList of Cosmos DB capabilities for the account  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -68,7 +68,7 @@
     "detail": "connectorOffer",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Small'`  \n"
+      "value": "Type: `'Small'`  \nThe cassandra connector offer type for the Cosmos DB database C* account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -89,7 +89,7 @@
     "detail": "consistencyPolicy",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ConsistencyPolicy`  \n"
+      "value": "Type: `ConsistencyPolicy`  \nThe consistency policy for the Cosmos DB database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -110,7 +110,7 @@
     "detail": "cors",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `CorsPolicy[]`  \n"
+      "value": "Type: `CorsPolicy[]`  \nThe CORS policy for the Cosmos DB database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -131,7 +131,7 @@
     "detail": "createMode (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Default'`  \n"
+      "value": "Type: `'Default'`  \nProperties for non-restore Azure Cosmos DB database account requests.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -152,7 +152,7 @@
     "detail": "databaseAccountOfferType (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe offer type for the database  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -173,7 +173,7 @@
     "detail": "disableKeyBasedMetadataWriteAccess",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nDisable write operations on metadata resources (databases, containers, throughput) via account keys  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -194,7 +194,7 @@
     "detail": "documentEndpoint",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
+      "value": "Type: `string`  \nRead-only property  \nThe connection endpoint for the Cosmos DB database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -215,7 +215,7 @@
     "detail": "enableAnalyticalStorage",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nFlag to indicate whether to enable storage analytics.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -236,7 +236,7 @@
     "detail": "enableAutomaticFailover",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nEnables automatic failover of the write region in the rare event that the region is unavailable due to an outage. Automatic failover will result in a new write region for the account and is chosen based on the failover priorities configured for the account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -257,7 +257,7 @@
     "detail": "enableCassandraConnector",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nEnables the cassandra connector on the Cosmos DB C* account  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -278,7 +278,7 @@
     "detail": "enableFreeTier",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nFlag to indicate whether Free Tier is enabled.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -299,7 +299,7 @@
     "detail": "enableMultipleWriteLocations",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nEnables the account to write in multiple locations  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -320,7 +320,7 @@
     "detail": "failoverPolicies",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `FailoverPolicy[]`  \nRead-only property  \n"
+      "value": "Type: `FailoverPolicy[]`  \nRead-only property  \nAn array that contains the regions ordered by their failover priorities.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -341,7 +341,7 @@
     "detail": "instanceId",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
+      "value": "Type: `string`  \nRead-only property  \nA unique identifier assigned to the database account  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -362,7 +362,7 @@
     "detail": "ipRules",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `IpAddressOrRange[]`  \n"
+      "value": "Type: `IpAddressOrRange[]`  \nArray of IpAddressOrRange objects.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -383,7 +383,7 @@
     "detail": "isVirtualNetworkFilterEnabled",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nFlag to indicate whether to enable/disable Virtual Network ACL rules.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -404,7 +404,7 @@
     "detail": "keyVaultKeyUri",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe URI of the key vault  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -425,7 +425,7 @@
     "detail": "locations (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \n"
+      "value": "Type: `Location[]`  \nAn array that contains the georeplication locations enabled for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -446,7 +446,7 @@
     "detail": "privateEndpointConnections",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `PrivateEndpointConnection[]`  \nRead-only property  \n"
+      "value": "Type: `PrivateEndpointConnection[]`  \nRead-only property  \nList of Private Endpoint Connections configured for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -467,7 +467,7 @@
     "detail": "provisioningState",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
+      "value": "Type: `string`  \nRead-only property  \nThe status of the Cosmos DB account at the time the operation was called. The status can be one of following. 'Creating' – the Cosmos DB account is being created. When an account is in Creating state, only properties that are specified as input for the Create Cosmos DB account operation are returned. 'Succeeded' – the Cosmos DB account is active for use. 'Updating' – the Cosmos DB account is being updated. 'Deleting' – the Cosmos DB account is being deleted. 'Failed' – the Cosmos DB account failed creation. 'DeletionFailed' – the Cosmos DB account deletion failed.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -488,7 +488,7 @@
     "detail": "publicNetworkAccess",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Disabled' | 'Enabled'`  \n"
+      "value": "Type: `'Disabled' | 'Enabled'`  \nWhether requests from Public Network are allowed.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -509,7 +509,7 @@
     "detail": "readLocations",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nRead-only property  \n"
+      "value": "Type: `Location[]`  \nRead-only property  \nAn array that contains of the read locations enabled for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -530,7 +530,7 @@
     "detail": "restoreParameters",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `RestoreParameters`  \nRead-only property  \n"
+      "value": "Type: `RestoreParameters`  \nRead-only property  \nParameters to indicate the information about the restore.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -551,7 +551,7 @@
     "detail": "virtualNetworkRules",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `VirtualNetworkRule[]`  \n"
+      "value": "Type: `VirtualNetworkRule[]`  \nList of Virtual Network ACL rules configured for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -572,7 +572,7 @@
     "detail": "writeLocations",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nRead-only property  \n"
+      "value": "Type: `Location[]`  \nRead-only property  \nAn array that contains the write location for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,

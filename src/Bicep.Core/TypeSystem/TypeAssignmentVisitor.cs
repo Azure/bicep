@@ -522,13 +522,26 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
+                // Discriminated objects should have been resolved by the declared type manager.
+                var declaredType = typeManager.GetDeclaredType(syntax);
+
                 // type results are cached
                 var namedProperties = syntax.Properties
                     .GroupByExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer)
-                    .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => typeManager.GetTypeInfo(p)))));
+                    .Select(group => 
+                    {
+                        var resolvedType = UnionType.Create(group.Select(p => typeManager.GetTypeInfo(p)));
+
+                        if (declaredType is ObjectType objectType && objectType.Properties.TryGetValue(group.Key, out var property))
+                        {
+                            return new TypeProperty(property.Name, resolvedType, property.Flags, property.Description);
+                        }
+
+                        return new TypeProperty(group.Key, resolvedType);
+                    });
 
                 var additionalProperties = syntax.Properties
-                    .Where(p => p.TryGetKeyText() == null)
+                    .Where(p => p.TryGetKeyText() is null)
                     .Select(p => typeManager.GetTypeInfo(p));
 
                 var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
@@ -915,7 +928,7 @@ namespace Bicep.Core.TypeSystem
 
                 baseType = UnwrapType(baseType);
 
-                if (!(baseType is ObjectType objectType))
+                if (baseType is not ObjectType objectType)
                 {
                     // can only access methods on objects
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name).ObjectRequiredForMethodAccess(baseType));
@@ -926,11 +939,26 @@ namespace Bicep.Core.TypeSystem
                     CollectErrors(errors, argumentType);
                 }
 
-                if (this.binder.GetSymbolInfo(syntax) is not Symbol foundSymbol)
+                Symbol? resolvedSymbol;
+                Symbol? foundSymbol;
+                if (this.binder.GetParent(syntax) is DecoratorSyntax decorator && baseType is NamespaceType namespaceType)
                 {
-                    // namespace methods will have already been bound. Everything else will not have been.
-                    var resolvedSymbol = objectType.MethodResolver.TryGetSymbol(syntax.Name);
+                    var functionFlags = binder.GetParent(decorator) switch
+                    {
+                        ResourceDeclarationSyntax _ => FunctionFlags.ResourceDecorator,
+                        ModuleDeclarationSyntax _ => FunctionFlags.ModuleDecorator,
+                        ParameterDeclarationSyntax _ => FunctionFlags.ParameterDecorator,
+                        VariableDeclarationSyntax _ => FunctionFlags.VariableDecorator,
+                        OutputDeclarationSyntax _ => FunctionFlags.OutputDecorator,
+                        _ => FunctionFlags.Default,
+                    };
 
+                    resolvedSymbol = namespaceType.DecoratorResolver.TryGetSymbol(syntax.Name);
+                    foundSymbol = SymbolValidator.ResolveNamespaceQualifiedFunction(functionFlags, resolvedSymbol, syntax.Name, namespaceType);
+                }
+                else
+                {
+                    resolvedSymbol = objectType.MethodResolver.TryGetSymbol(syntax.Name);
                     foundSymbol = SymbolValidator.ResolveObjectQualifiedFunction(resolvedSymbol, syntax.Name, objectType);
                 }
 

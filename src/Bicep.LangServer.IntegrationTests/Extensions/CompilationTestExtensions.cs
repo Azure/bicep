@@ -22,8 +22,8 @@ namespace Bicep.LangServer.IntegrationTests.Extensions
             }, accumulated => accumulated);
 
             return syntaxNodes
-                .Where(syntax => model.GetSymbolInfo(syntax) != null)
-                .ToDictionary(syntax => syntax, syntax => model.GetSymbolInfo(syntax)!);
+                .Where(syntax => model.Binder.GetSymbolInfo(syntax) is not null)
+                .ToDictionary(syntax => syntax, syntax => model.Binder.GetSymbolInfo(syntax)!);
         }
     }
 }

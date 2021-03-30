@@ -5,7 +5,7 @@
     "detail": "name (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe name of the environment variable.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -26,7 +26,7 @@
     "detail": "secureValue",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe value of the secure environment variable.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -47,7 +47,7 @@
     "detail": "value",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe value of the environment variable.  \n"
     },
     "deprecated": false,
     "preselect": false,

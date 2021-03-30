@@ -18,22 +18,22 @@ namespace Bicep.Core.Semantics
         private delegate IEnumerable<string> GetNameSuggestions();
         private delegate ErrorDiagnostic GetMissingNameError(DiagnosticBuilder.DiagnosticBuilderInternal builder, string? suggestedName);
 
-        public static Symbol ResolveNamespaceQualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceSymbol namespaceSymbol)
+        public static Symbol ResolveNamespaceQualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceType namespaceType)
             => ResolveSymbolInternal(
                 allowedFlags,
                 foundSymbol,
                 identifierSyntax,
                 getNameSuggestions: () =>
                 {
-                    var knowFunctionNames = namespaceSymbol.Type.MethodResolver.GetKnownFunctions().Keys;
+                    var knowFunctionNames = namespaceType.MethodResolver.GetKnownFunctions().Keys;
 
                     return allowedFlags.HasAnyDecoratorFlag()
-                        ? knowFunctionNames.Concat(namespaceSymbol.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
+                        ? knowFunctionNames.Concat(namespaceType.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
                         : knowFunctionNames;
                 },
                 getMissingNameError: (builder, suggestedName) => suggestedName switch {
-                    null => builder.FunctionDoesNotExistInNamespace(namespaceSymbol, identifierSyntax.IdentifierName),
-                    _ => builder.FunctionDoesNotExistInNamespaceWithSuggestion(namespaceSymbol, identifierSyntax.IdentifierName, suggestedName),
+                    null => builder.FunctionDoesNotExistInNamespace(namespaceType, identifierSyntax.IdentifierName),
+                    _ => builder.FunctionDoesNotExistInNamespaceWithSuggestion(namespaceType, identifierSyntax.IdentifierName, suggestedName),
                 });
 
         public static Symbol ResolveObjectQualifiedFunction(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)

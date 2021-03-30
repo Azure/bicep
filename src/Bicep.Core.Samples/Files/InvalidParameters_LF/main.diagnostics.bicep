@@ -543,7 +543,7 @@ param incompleteDecorators string
 @concat(1, 2)
 //@[1:7) [BCP152 (Error)] Function "concat" cannot be used as a decorator. |concat|
 @sys.concat('a', 'b')
-//@[5:11) [BCP152 (Error)] Function "concat" cannot be used as a decorator. |concat|
+//@[5:11) [BCP108 (Error)] The function "concat" does not exist in namespace "sys". Did you mean "concat"? |concat|
 @secure()
 // wrong target type
 @minValue(20)

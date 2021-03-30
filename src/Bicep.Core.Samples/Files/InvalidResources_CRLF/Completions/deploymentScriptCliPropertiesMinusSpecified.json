@@ -5,7 +5,7 @@
     "detail": "arguments",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nCommand line arguments to pass to the script. Arguments are separated by spaces. ex: -Name blue* -Location 'West US 2'   \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -26,7 +26,7 @@
     "detail": "containerSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ContainerConfiguration`  \n"
+      "value": "Type: `ContainerConfiguration`  \nSettings to customize ACI container instance.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -47,7 +47,7 @@
     "detail": "forceUpdateTag",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nGets or sets how the deployment script should be forced to execute even if the script resource has not changed. Can be current time stamp or a GUID.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -68,7 +68,7 @@
     "detail": "primaryScriptUri",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nUri for the script. This is the entry point for the external script.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -89,7 +89,7 @@
     "detail": "scriptContent",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nScript body.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -110,7 +110,7 @@
     "detail": "timeout",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nMaximum allowed script execution time specified in ISO 8601 format. Default value is P1D  \n"
     },
     "deprecated": false,
     "preselect": false,

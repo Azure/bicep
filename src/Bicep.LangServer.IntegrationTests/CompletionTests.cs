@@ -114,20 +114,16 @@ hel|lo
 
             foreach (var cursor in cursors)
             {
-                using var assertionScope = new AssertionScope();
-                assertionScope.AddReportable(
-                    "completion context",
-                    PrintHelper.PrintWithAnnotations(syntaxTree, new [] { 
-                        new PrintHelper.Annotation(new TextSpan(cursor, 0), "cursor position"),
-                    }, 1, true));
-
-                var completions = await client.RequestCompletion(new CompletionParams
+                using (new AssertionScope().WithVisualCursor(syntaxTree, new TextSpan(cursor, 0)))
                 {
-                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
-                });
+                    var completions = await client.RequestCompletion(new CompletionParams
+                    {
+                        TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                        Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                    });
 
-                completions.Should().BeEmpty();
+                    completions.Should().BeEmpty();
+                }
             }
         }
 

@@ -1,23 +1,5 @@
 [
   {
-    "label": "'two'",
-    "kind": "property",
-    "detail": "two",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `int`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_'two'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'two'"
-    }
-  },
-  {
     "label": "a",
     "kind": "variable",
     "detail": "a",

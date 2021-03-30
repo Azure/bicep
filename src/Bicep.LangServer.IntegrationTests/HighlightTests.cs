@@ -118,10 +118,12 @@ namespace Bicep.LangServer.IntegrationTests
         {
             switch (syntax)
             {
-                case ISymbolReference _:
+                case ISymbolReference:
+                case PropertyAccessSyntax:
                     return DocumentHighlightKind.Read;
 
-                case INamedDeclarationSyntax _:
+                case INamedDeclarationSyntax:
+                case ObjectPropertySyntax:
                     return DocumentHighlightKind.Write;
 
                 default:

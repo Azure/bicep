@@ -335,7 +335,7 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[36:37) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 var invalidInstanceFunctionCall = az.az()
-//@[37:39) [BCP107 (Error)] The function "az" does not exist in namespace "az". |az|
+//@[37:39) [BCP109 (Error)] The type "az" does not contain function "az". |az|
 var invalidPropertyAccessOnAzNamespace = az.az
 //@[44:46) [BCP052 (Error)] The type "az" does not contain property "az". |az|
 var invalidPropertyAccessOnSysNamespace = sys.az
@@ -388,6 +388,7 @@ var sysFunctionsInParens = (sys.a)
 // missing method name
 var missingMethodName = az.()
 //@[27:27) [BCP020 (Error)] Expected a function or property name at this location. ||
+//@[27:27) [BCP109 (Error)] The type "az" does not contain function "<missing>". ||
 
 // missing indexer
 var missingIndexerOnLiteralArray = [][][]
@@ -460,7 +461,6 @@ var partialObject = {
 @concat()
 //@[1:7) [BCP152 (Error)] Function "concat" cannot be used as a decorator. |concat|
 @sys.secure()
-//@[0:13) [BCP147 (Error)] Expected a parameter declaration after the decorator. |@sys.secure()|
 xxxxx
 //@[0:5) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |xxxxx|
 
