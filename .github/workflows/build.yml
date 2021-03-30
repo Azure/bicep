@@ -345,3 +345,35 @@ jobs:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
+
+  build-textmate:
+    name: 'Build Textmate'
+    runs-on: 'ubuntu-latest'
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+      
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-release-linux-x64
+          path: ./bicep
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 10.x
+      
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/textmate
+
+      - name: Run Tests
+        run: npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ./bicep
+        working-directory: ./src/textmate

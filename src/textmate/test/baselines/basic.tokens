@@ -1,0 +1,227 @@
+  // test
+//~~~~~~~                                                                                                               comment.line.double-slash.bicep
+  /* test 2 */
+//~~                                                                                                                    comment.block.bicep
+//  ~~~~~~~~~~                                                                                                          comment.block.bicep
+  targetScope = 'resourceGroup'
+//~~~~~~~~~~~                                                                                                           keyword.control.declaration.bicep
+//              ~~~~~~~~~~~~~~~                                                                                         string.quoted.single.bicep
+  
+  resource avcsdd 'Microsoft.Cache/redis@2020-06-01' = { // line comment
+//~~~~~~~~                                                                                                              keyword.control.declaration.bicep
+//         ~~~~~~                                                                                                       variable.name.bicep
+//                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                                    string.quoted.single.bicep
+    name: 'def' /* block
+//  ~~~~                                                                                                                variable.other.property.bicep
+//        ~~~~~                                                                                                         string.quoted.single.bicep
+//                 ~~~~~                                                                                                variable.other.readwrite.bicep
+    comment */
+//  ~~~~~~~                                                                                                             variable.other.property.bicep
+    location: 'somewhere'
+//  ~~~~~~~~                                                                                                            variable.other.property.bicep
+//            ~~~~~~~~~~~                                                                                               string.quoted.single.bicep
+    properties: {
+//  ~~~~~~~~~~                                                                                                          variable.other.property.bicep
+      sku: {
+//    ~~~                                                                                                               variable.other.property.bicep
+        capacity: 123
+//      ~~~~~~~~                                                                                                        variable.other.property.bicep
+//                ~~~                                                                                                   constant.numeric.bicep
+        family: 'C'
+//      ~~~~~~                                                                                                          variable.other.property.bicep
+//              ~~~                                                                                                     string.quoted.single.bicep
+        name: 'Basic'
+//      ~~~~                                                                                                            variable.other.property.bicep
+//            ~~~~~~~                                                                                                   string.quoted.single.bicep
+      }
+    }
+  }
+  
+  var secretsObject = {
+//~~~                                                                                                                   keyword.control.declaration.bicep
+//    ~~~~~~~~~~~~~                                                                                                     variable.name.bicep
+    secrets: [
+//  ~~~~~~~                                                                                                             variable.other.property.bicep
+      'abc'
+//    ~                                                                                                                 string.quoted.single.bicep
+//     ~~~~                                                                                                             string.quoted.single.bicep
+      'def'
+//    ~                                                                                                                 string.quoted.single.bicep
+//     ~~~~                                                                                                             string.quoted.single.bicep
+    ]
+  }
+  
+  var parent = 'abc'
+//~~~                                                                                                                   keyword.control.declaration.bicep
+//    ~~~~~~                                                                                                            variable.name.bicep
+//             ~~~~~                                                                                                    string.quoted.single.bicep
+  
+  resource secrets0 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = {
+//~~~~~~~~                                                                                                              keyword.control.declaration.bicep
+//         ~~~~~~~~                                                                                                     variable.name.bicep
+//                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                      string.quoted.single.bicep
+    name: '${parent}/child'
+//  ~~~~                                                                                                                variable.other.property.bicep
+//        ~                                                                                                             string.quoted.single.bicep
+//         ~~                                                                                                           string.quoted.single.bicep, punctuation.definition.template-expression.begin.bicep
+//           ~~~~~~                                                                                                     string.quoted.single.bicep, variable.other.readwrite.bicep
+//                 ~                                                                                                    string.quoted.single.bicep, punctuation.definition.template-expression.end.bicep
+//                  ~~~~~~~                                                                                             string.quoted.single.bicep
+    properties: {
+//  ~~~~~~~~~~                                                                                                          variable.other.property.bicep
+      attributes:  {
+//    ~~~~~~~~~~                                                                                                        variable.other.property.bicep
+        enabled: true
+//      ~~~~~~~                                                                                                         variable.other.property.bicep
+//               ~~~~                                                                                                   variable.other.readwrite.bicep
+      }
+    }
+  }
+  resource secrets1 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = if (secrets0.id == '') {
+//~~~~~~~~                                                                                                              keyword.control.declaration.bicep
+//         ~~~~~~~~                                                                                                     variable.name.bicep
+//                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                      string.quoted.single.bicep
+//                                                                   ~~                                                 keyword.control.declaration.bicep
+//                                                                       ~~~~~~~~                                       variable.other.readwrite.bicep
+//                                                                                ~~                                    variable.other.readwrite.bicep
+//                                                                                      ~~                              string.quoted.single.bicep
+    name: '${parent}/child1'
+//  ~~~~                                                                                                                variable.other.property.bicep
+//        ~                                                                                                             string.quoted.single.bicep
+//         ~~                                                                                                           string.quoted.single.bicep, punctuation.definition.template-expression.begin.bicep
+//           ~~~~~~                                                                                                     string.quoted.single.bicep, variable.other.readwrite.bicep
+//                 ~                                                                                                    string.quoted.single.bicep, punctuation.definition.template-expression.end.bicep
+//                  ~~~~~~~~                                                                                            string.quoted.single.bicep
+    properties: {
+//  ~~~~~~~~~~                                                                                                          variable.other.property.bicep
+      /* inline comment */
+    }
+  }
+  
+  resource secrets2 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret in secretsObject.secrets: {
+//~~~~~~~~                                                                                                              variable.other.property.bicep
+//         ~~~~~~~~                                                                                                     variable.other.property.bicep
+//                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                      string.quoted.single.bicep
+//                                                                    ~~~                                               variable.other.property.bicep
+//                                                                        ~~~~~~                                        variable.other.property.bicep
+//                                                                               ~~                                     variable.other.property.bicep
+//                                                                                  ~~~~~~~~~~~~~                       variable.other.property.bicep
+//                                                                                                ~~~~~~~               variable.other.property.bicep
+    name: 'asdfsd/forloop'
+//  ~~~~                                                                                                                variable.other.property.bicep
+//        ~~~~~~~~~~~~~~~~                                                                                              string.quoted.single.bicep
+    properties: {}
+//  ~~~~~~~~~~                                                                                                          variable.other.property.bicep
+  }]
+  
+  resource secrets3 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret in secretsObject.secrets: {
+//~~~~~~~~                                                                                                              variable.other.property.bicep
+//         ~~~~~~~~                                                                                                     variable.other.property.bicep
+//                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                      string.quoted.single.bicep
+//                                                                    ~~~                                               variable.other.property.bicep
+//                                                                        ~~~~~~                                        variable.other.property.bicep
+//                                                                               ~~                                     variable.other.property.bicep
+//                                                                                  ~~~~~~~~~~~~~                       variable.other.property.bicep
+//                                                                                                ~~~~~~~               variable.other.property.bicep
+    name: 'jk${true}asdf${23}.\${SDF${secretsObject['secrets'][1]}'
+//  ~~~~                                                                                                                variable.other.property.bicep
+//        ~~~                                                                                                           string.quoted.single.bicep
+//           ~~                                                                                                         string.quoted.single.bicep, punctuation.definition.template-expression.begin.bicep
+//             ~~~~                                                                                                     string.quoted.single.bicep, variable.other.readwrite.bicep
+//                 ~                                                                                                    string.quoted.single.bicep, punctuation.definition.template-expression.end.bicep
+//                  ~~~~                                                                                                string.quoted.single.bicep
+//                      ~~                                                                                              string.quoted.single.bicep, punctuation.definition.template-expression.begin.bicep
+//                        ~~                                                                                            string.quoted.single.bicep, constant.numeric.bicep
+//                          ~                                                                                           string.quoted.single.bicep, punctuation.definition.template-expression.end.bicep
+//                           ~                                                                                          string.quoted.single.bicep
+//                            ~~~                                                                                       string.quoted.single.bicep, constant.character.escape.bicep
+//                               ~~~                                                                                    string.quoted.single.bicep
+//                                  ~~                                                                                  string.quoted.single.bicep, punctuation.definition.template-expression.begin.bicep
+//                                    ~~~~~~~~~~~~~                                                                     string.quoted.single.bicep, variable.other.readwrite.bicep
+//                                                 ~~~~~~~~~~~~~~                                                       string.quoted.single.bicep
+//                                                               ~                                                      string.quoted.single.bicep, punctuation.definition.template-expression.end.bicep
+//                                                                ~                                                     string.quoted.single.bicep
+    properties: {
+//  ~~~~~~~~~~                                                                                                          variable.other.property.bicep
+    }
+  }]
+  
+  resource secrets4 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret in secretsObject.secrets: if (true) {
+//~~~~~~~~                                                                                                              variable.other.property.bicep
+//         ~~~~~~~~                                                                                                     variable.other.property.bicep
+//                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                      string.quoted.single.bicep
+//                                                                    ~~~                                               variable.other.property.bicep
+//                                                                        ~~~~~~                                        variable.other.property.bicep
+//                                                                               ~~                                     variable.other.property.bicep
+//                                                                                  ~~~~~~~~~~~~~                       variable.other.property.bicep
+//                                                                                                ~~~~~~~               variable.other.property.bicep
+//                                                                                                         ~~           keyword.control.declaration.bicep
+//                                                                                                             ~~~~     variable.other.readwrite.bicep
+    'name': 'test'
+//  ~                                                                                                                   string.quoted.single.bicep
+//   ~~~~~                                                                                                              string.quoted.single.bicep
+//          ~~~~~~                                                                                                      string.quoted.single.bicep
+    properties:{
+//  ~~~~~~~~~~                                                                                                          variable.other.property.bicep
+      
+    }
+  }]
+  
+  var multi = ''''''
+//~~~                                                                                                                   variable.other.property.bicep
+//    ~~~~~                                                                                                             variable.other.property.bicep
+//                ~~                                                                                                    string.quoted.single.bicep
+  var multi2 = '''
+//~~~                                                                                                                   variable.other.property.bicep
+//    ~~~~~~                                                                                                            variable.other.property.bicep
+//              ~~                                                                                                      string.quoted.single.bicep
+        hello!
+//      ~~~~~                                                                                                           variable.other.property.bicep
+  '''
+// ~                                                                                                                    string.quoted.single.bicep
+//  ~                                                                                                                   string.quoted.single.bicep
+  
+  var func = resourceGroup().location
+//~~~                                                                                                                   variable.other.property.bicep
+//    ~~~~                                                                                                              variable.other.property.bicep
+//           ~~~~~~~~~~~~~                                                                                              variable.other.property.bicep
+//                           ~~~~~~~~                                                                                   variable.other.property.bicep
+  var func2 = reference('Microsoft.KeyVault/vaults/secrets', func)
+//~~~                                                                                                                   variable.other.property.bicep
+//    ~~~~~                                                                                                             variable.other.property.bicep
+//            ~~~~~~~~~                                                                                                 variable.other.property.bicep
+//                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                             string.quoted.single.bicep
+//                                                           ~~~~                                                       variable.other.property.bicep
+  var func3 = union({
+//~~~                                                                                                                   variable.other.property.bicep
+//    ~~~~~                                                                                                             variable.other.property.bicep
+//            ~~~~~                                                                                                     variable.other.property.bicep
+    'abc': resourceGroup().id
+//  ~                                                                                                                   string.quoted.single.bicep
+//   ~~~~                                                                                                               string.quoted.single.bicep
+//         ~~~~~~~~~~~~~                                                                                                entity.name.function.bicep
+//                         ~~                                                                                           variable.other.readwrite.bicep
+  }, {
+    'def': 'test'
+//  ~                                                                                                                   string.quoted.single.bicep
+//   ~~~~                                                                                                               string.quoted.single.bicep
+//         ~~~~~~                                                                                                       string.quoted.single.bicep
+  })
+  
+  @allowed([
+// ~~~~~~~                                                                                                              variable.other.property.bicep
+    'hello!'
+//  ~                                                                                                                   string.quoted.single.bicep
+//   ~~~~~~~                                                                                                            string.quoted.single.bicep
+    'hi!'
+//  ~                                                                                                                   string.quoted.single.bicep
+//   ~~~~                                                                                                               string.quoted.single.bicep
+  ])
+  @secure()
+// ~~~~~~                                                                                                               variable.other.property.bicep
+  param secureParam string = 'hello!'
+//~~~~~                                                                                                                 variable.other.property.bicep
+//      ~~~~~~~~~~~                                                                                                     variable.other.property.bicep
+//                  ~~~~~~                                                                                              variable.other.property.bicep
+//                           ~~~~~~~~                                                                                   string.quoted.single.bicep
+  
