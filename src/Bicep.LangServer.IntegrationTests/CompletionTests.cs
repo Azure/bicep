@@ -38,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
     public class CompletionTests
     {
         public static readonly AzResourceTypeProvider TypeProvider = new AzResourceTypeProvider();
- 
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -64,8 +64,50 @@ namespace Bicep.LangServer.IntegrationTests
             actual.Should().EqualWithJsonDiffOutput(TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
         }
 
-        [TestMethod]
-        public async Task ValidateSnippetCompletionAfterPlaceholderReplacements()
+        [DataTestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
+        {
+            string pathPrefix = "Completions/SnippetTemplates/";
+            string bicepManifestResourceStreamName = pathPrefix + completionData.Prefix + "/main.bicep";
+            string jsonManifestResourceStreamName = pathPrefix + completionData.Prefix + "/diagnostics.json";
+
+            // Save all the files in the containing directory to disk
+            SaveFilesToDisk(bicepManifestResourceStreamName, jsonManifestResourceStreamName, out string bicepFile, out string diagnosticsFile);
+
+            // Verify snippet placeholder and expected diagnostics files exist
+            VerifyPlaceholderAndDiagnosticsInformationFilesExist(completionData.Prefix, bicepFile, diagnosticsFile);
+
+            // Start language server, copy snippet text, replace placeholders and return diagnostics information
+            Container<Diagnostic> diagnostics = await StartServerAndGetDiagnosticsAsync(bicepManifestResourceStreamName, completionData.SnippetText);
+
+            Stream? jsonStream = typeof(CompletionTests).Assembly.GetManifestResourceStream(jsonManifestResourceStreamName);
+            StreamReader streamReader = new StreamReader(jsonStream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
+            string expected = await streamReader.ReadToEndAsync();
+
+            var actual = JToken.FromObject(diagnostics);
+
+            var actualLocation = FileHelper.SaveResultFile(this.TestContext, $"{completionData.Prefix}_Actual.json", actual.ToString(Formatting.Indented));
+            var expectedLocation = Path.Combine("src", "Bicep.LangServer.Integrationtests", "Completions", "SnippetTemplates", completionData.Prefix, "main.json");
+
+            actual.Should().EqualWithJsonDiffOutput(TestContext, JToken.Parse(expected), expectedLocation, actualLocation, "because ");
+        }
+
+        private void SaveFilesToDisk(string bicepManifestResourceStreamName,
+                                     string jsonManifestResourceStreamName,
+                                     out string bicepFile,
+                                     out string diagnosticsFile)
+        {
+            var parentStream = GetParentStreamName(bicepManifestResourceStreamName);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(CompletionTests).Assembly, parentStream);
+
+            bicepFile = Path.Combine(outputDirectory, Path.GetFileName(bicepManifestResourceStreamName));
+            diagnosticsFile = Path.Combine(outputDirectory, Path.GetFileName(jsonManifestResourceStreamName));
+        }
+
+        private static string GetParentStreamName(string streamName) => Path.GetDirectoryName(streamName)!.Replace('\\', '/');
+
+        private async Task<Container<Diagnostic>> StartServerAndGetDiagnosticsAsync(string bicepFileName, string snippetText)
         {
             Dictionary<Uri, string> fileSystemDict = new Dictionary<Uri, string>();
             MultipleMessageListener<PublishDiagnosticsParams> diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
@@ -77,67 +119,52 @@ namespace Bicep.LangServer.IntegrationTests
                 },
                 fileResolver: new InMemoryFileResolver(fileSystemDict));
 
-            string? currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            string snippetTemplatesFolder = Path.Combine(currentDirectory!, "Completions", "SnippetTemplates");
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
+            Stream? bicepStream = typeof(CompletionTests).Assembly.GetManifestResourceStream(bicepFileName);
+            StreamReader streamReader = new StreamReader(bicepStream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
 
-            IEnumerable<CompletionItem> snippetCompletions = await GetDeclationSnippetCompletionsAsync();
+            string bicepFileWithPlaceholderReplacements = await streamReader.ReadToEndAsync();
 
-            foreach (CompletionItem completionItem in snippetCompletions)
+            string snippetTextAfterReplacements = SnippetCompletionTestHelper.GetSnippetTextAfterPlaceholderReplacements(snippetText, bicepFileWithPlaceholderReplacements);
+            fileSystemDict[documentUri.ToUri()] = bicepFileWithPlaceholderReplacements.Replace("// Insert snippet here", snippetTextAfterReplacements);
+
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, fileSystemDict[documentUri.ToUri()], 1));
+
+            var diagsParams = await diagnosticsListener.WaitNext();
+            diagsParams.Uri.Should().Be(documentUri);
+
+            return diagsParams.Diagnostics;
+        }
+
+        private void VerifyPlaceholderAndDiagnosticsInformationFilesExist(string prefix, string bicepFileName, string jsonFileName)
+        {
+            // Group assertion failures using AssertionScope, rather than reporting the first failure
+            using (new AssertionScope())
             {
-                string placeholderFile = Path.Combine(snippetTemplatesFolder, completionItem.Label + ".bicep");
-                DocumentUri documentUri = DocumentUri.FromFileSystemPath(placeholderFile);
-                string bicepFileWithPlaceholderReplacementsAndErrorCodes = File.ReadAllText(placeholderFile);
+                bool snippetPlaceholderFileExists = File.Exists(bicepFileName);
+                snippetPlaceholderFileExists.Should().BeTrue($"Snippet placeholder file for snippet with label- \"{prefix}\" should be checked in");
 
-                string snippetTextAfterReplacements = SnippetCompletionTestHelper.GetSnippetTextAfterPlaceholderReplacements(completionItem, bicepFileWithPlaceholderReplacementsAndErrorCodes);
-                fileSystemDict[documentUri.ToUri()] = bicepFileWithPlaceholderReplacementsAndErrorCodes.Replace("// Insert snippet here", snippetTextAfterReplacements);
-
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, fileSystemDict[documentUri.ToUri()], 1));
-
-                var diagsParams = await diagnosticsListener.WaitNext();
-                diagsParams.Uri.Should().Be(documentUri);
-
-                List<string> expectedErrorCodes = SnippetCompletionTestHelper.GetErrorCodes(completionItem.Detail!, bicepFileWithPlaceholderReplacementsAndErrorCodes);
-
-                Container<Diagnostic> diagnostics = diagsParams.Diagnostics;
-
-                // We need to make sure that actual errors/warnings match error codes documented in test bicep file
-                if (!expectedErrorCodes.Any())
-                {
-                    if (diagnostics.Any())
-                    {
-                        throw new AssertFailedException(string.Format("We expected 0 errors after snippet placeholer replacements for " +
-                            "completion item with detail- {0}, but found {1}.\r\n Error codes: {2}",
-                            completionItem.Detail,
-                            diagnostics.Count(),
-                            string.Join(", ", diagnostics.Select(x => x.Code!.Value.String))));
-                    }
-
-                    diagsParams.Diagnostics.Should().BeEmpty();
-                }
-                else
-                {
-                    List<string?> actualErrorCodes = diagnostics.Select(x => x.Code!.Value.String).ToList();
-
-                    CollectionAssert.AreEqual(expectedErrorCodes, actualErrorCodes);
-                }
+                bool diagnosticsFileExists = File.Exists(jsonFileName);
+                diagnosticsFileExists.Should().BeTrue($"Diagnostics information file- diagnostics.json for snippet with label- \"{prefix}\" should be checked in");
             }
         }
 
-        private async Task<IEnumerable<CompletionItem>> GetDeclationSnippetCompletionsAsync()
+        private static IEnumerable<object[]> GetSnippetCompletionData()
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, uri);
+            Assembly languageServerAssembly = Assembly.Load("Bicep.LangServer");
+            IEnumerable<string> manifestResourceNames = languageServerAssembly.GetManifestResourceNames()
+                .Where(p => p.EndsWith(".bicep", StringComparison.Ordinal));
 
-            var completions = await client.RequestCompletion(new CompletionParams
+            foreach (var manifestResourceName in manifestResourceNames)
             {
-                TextDocument = new TextDocumentIdentifier(uri),
-                Position = new Position(0, 0)
-            });
+                Stream? stream = languageServerAssembly.GetManifestResourceStream(manifestResourceName);
+                StreamReader streamReader = new StreamReader(stream!);
 
-            return completions
-                .Where(c => c.InsertTextFormat == InsertTextFormat.Snippet)
-                .OrderBy(c => c.Label)
-                .ToList();
+                string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
+                CompletionData completionData = new CompletionData(prefix, streamReader.ReadToEnd());
+
+                yield return new object[] { completionData };
+            }
         }
 
         [DataTestMethod]
@@ -194,7 +221,7 @@ hel|lo
                 using var assertionScope = new AssertionScope();
                 assertionScope.AddReportable(
                     "completion context",
-                    PrintHelper.PrintWithAnnotations(syntaxTree, new [] { 
+                    PrintHelper.PrintWithAnnotations(syntaxTree, new[] {
                         new PrintHelper.Annotation(new TextSpan(cursor, 0), "cursor position"),
                     }, 1, true));
 
@@ -372,6 +399,21 @@ hel|lo
         {
             Global,
             DataSet
+        }
+
+        public class CompletionData
+        {
+            public CompletionData(string prefix, string snippetText)
+            {
+                Prefix = prefix;
+                SnippetText = snippetText;
+            }
+
+            public string Prefix { get; }
+
+            public string SnippetText { get; }
+
+            public static string GetDisplayName(MethodInfo methodInfo, object[] data) => ((CompletionData)data[0]).Prefix!;
         }
     }
 }
