@@ -161,7 +161,9 @@ for (const filePath of baselineFiles) {
       }
 
       const result = spawnSync(bicepExePath, ['build', '--stdout', filePath], { encoding: 'utf-8' });
-      expect(result.stderr || '').toBe('');
+
+      // NOTE - if stderr or status are null, this indicates we were unable to invoke the exe (missing file, or hasn't had 'chmod +x' run)
+      expect(result.stderr).toBe('');
       expect(result.status).toBe(0);
     });
 

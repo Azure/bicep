@@ -363,6 +363,9 @@ jobs:
           name: bicep-release-linux-x64
           path: ./bicep-release-linux-x64
 
+      - name: Mark Bicep CLI as executable
+        run: chmod +x ${{ github.workspace }}/bicep-release-linux-x64/bicep
+
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
         with:
