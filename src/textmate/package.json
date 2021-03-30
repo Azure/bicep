@@ -15,6 +15,9 @@
     "vscode-oniguruma": "^1.5.1",
     "vscode-textmate": "^5.4.0"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "compile": "ts-node src/cmd/compile.ts",
     "test": "jest"

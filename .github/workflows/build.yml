@@ -366,7 +366,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: 10.x
+          node-version: 14.x
       
       - name: npm ci
         run: npm ci
