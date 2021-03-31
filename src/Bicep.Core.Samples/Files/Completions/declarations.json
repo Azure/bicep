@@ -155,7 +155,7 @@
     "detail": "Kubernetes Service Cluster",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {\n  name: 'aksCluster'\n  location: resourceGroup().location\n  properties: {\n    kubernetesVersion: '${2|1.15.7,1.15.5,1.14.8|}'\n    dnsPrefix: 'dnsprefix'\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: 2\n        vmSize: 'Standard_A1'\n        osType: 'Linux'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: 'adminUserName'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: 'keyData'\n          }\n        ]\n      }\n    }\n    servicePrincipalProfile: {\n      clientId: 'servicePrincipalAppId'\n      secret: 'servicePrincipalAppPassword'\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {\n  name: 'aksCluster'\n  location: resourceGroup().location\n  properties: {\n    kubernetesVersion: '1.15.7'\n    dnsPrefix: 'dnsprefix'\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: 2\n        vmSize: 'Standard_A1'\n        osType: 'Linux'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: 'adminUserName'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: 'keyData'\n          }\n        ]\n      }\n    }\n    servicePrincipalProfile: {\n      clientId: 'servicePrincipalAppId'\n      secret: 'servicePrincipalAppPassword'\n    }\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -164,7 +164,7 @@
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "resource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {\n  name: '${1:aksCluster}'\n  location: resourceGroup().location\n  properties: {\n    kubernetesVersion: '${2|1.15.7,1.15.5,1.14.8|}'\n    dnsPrefix: '${3:dnsprefix}'\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: ${4:2}\n        vmSize: '${5:Standard_A1}'\n        osType: 'Linux'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: '${7:adminUserName}'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: '${8:keyData}'\n          }\n        ]\n      }\n    }\n    servicePrincipalProfile: {\n      clientId: '${9:servicePrincipalAppId}'\n      secret: '${10:servicePrincipalAppPassword}'\n    }\n  }\n}"
+      "newText": "resource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {\n  name: '${1:aksCluster}'\n  location: resourceGroup().location\n  properties: {\n    kubernetesVersion: '${2|1.15.7,1.15.5,1.14.8|}'\n    dnsPrefix: '${3:dnsprefix}'\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: ${4:2}\n        vmSize: '${5:Standard_A1}'\n        osType: 'Linux'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: '${6:adminUserName}'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: '${7:keyData}'\n          }\n        ]\n      }\n    }\n    servicePrincipalProfile: {\n      clientId: '${8:servicePrincipalAppId}'\n      secret: '${9:servicePrincipalAppPassword}'\n    }\n  }\n}"
     }
   },
   {
@@ -191,7 +191,7 @@
     "detail": "Automation Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: 'automationAccount'\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: '${2|Free,Basic|}'\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: 'automationAccount'\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: 'Free'\n    }\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -227,7 +227,7 @@
     "detail": "Container Group",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource containerGroup 'Microsoft.ContainerInstance/containerGroups@2018-10-01' = {\n  name: 'containerGroup'\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: 'containerName'\n        properties: {\n          image: 'containerImage'\n          ports: [\n            {\n              port: '80'\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: '1'\n              memoryInGB: '4'\n            }\n          }\n        }\n      }\n    ]\n    osType: '${7|Linux,Windows|}'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: '${8|TCP,UDP|}'\n          port: '80'\n        }\n      ]\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource containerGroup 'Microsoft.ContainerInstance/containerGroups@2018-10-01' = {\n  name: 'containerGroup'\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: 'containerName'\n        properties: {\n          image: 'containerImage'\n          ports: [\n            {\n              port: '80'\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: '1'\n              memoryInGB: '4'\n            }\n          }\n        }\n      }\n    ]\n    osType: 'Linux'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: 'TCP'\n          port: '80'\n        }\n      ]\n    }\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -245,7 +245,7 @@
     "detail": "Container Registry",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: 'containerRegistry'\n  location: resourceGroup().location\n  sku: {\n    name: '${2|Classic,Basic,Standard,Premium|}'\n  }\n  properties: {\n    adminUserEnabled: '${3|true,false|}'\n  }\n}\n```"
+      "value": "```bicep\nresource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: 'containerRegistry'\n  location: resourceGroup().location\n  sku: {\n    name: 'Classic'\n  }\n  properties: {\n    adminUserEnabled: 'true'\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -263,7 +263,7 @@
     "detail": "Cosmos DB Database Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {\n  name: 'cosmosDbAccount'\n  location: resourceGroup().location\n  kind: '${2|GlobalDocumentDB,MongoDB,Parse|}'\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: '${3|Eventual,Session,BoundedStaleness,Strong,ConsistentPrefix|}'\n      maxStalenessPrefix: '1'\n      maxIntervalInSeconds: '5'\n    }\n    locations: [\n      {\n        locationName: 'location1'\n        failoverPriority: '0'\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    ipRangeFilter: 'ipRangeFilter'\n    enableAutomaticFailover: '${9|true,false|}'\n    capabilities: [\n      {\n        name: '${10|EnableTable,EnableGremlin|}'\n      }\n    ]\n  }\n}\n```"
+      "value": "```bicep\nresource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {\n  name: 'cosmosDbAccount'\n  location: resourceGroup().location\n  kind: 'GlobalDocumentDB'\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: 'Eventual'\n      maxStalenessPrefix: '1'\n      maxIntervalInSeconds: '5'\n    }\n    locations: [\n      {\n        locationName: 'location1'\n        failoverPriority: '0'\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    ipRangeFilter: 'ipRangeFilter'\n    enableAutomaticFailover: 'true'\n    capabilities: [\n      {\n        name: 'EnableTable'\n      }\n    ]\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -281,7 +281,7 @@
     "detail": "Data Lake Store Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: 'dataLakeStore'\n  location: resourceGroup().location\n  properties: {\n    newTier: '${2|Consumption,Commitment_1TB,Commitment_10TB,Commitment_100TB,Commitment_500TB,Commitment_1PB,Commitment_5PB|}'\n    encryptionState: '${3|Enabled,Disabled|}'\n  }\n}\n```"
+      "value": "```bicep\nresource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: 'dataLakeStore'\n  location: resourceGroup().location\n  properties: {\n    newTier: 'Consumption'\n    encryptionState: 'Enabled'\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,

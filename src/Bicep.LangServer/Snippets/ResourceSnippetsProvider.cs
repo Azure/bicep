@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
@@ -14,21 +15,6 @@ namespace Bicep.LanguageServer.Snippets
 {
     public class ResourceSnippetsProvider : IResourceSnippetsProvider
     {
-        private static readonly HashSet<string> _snippetPrefixes = new HashSet<string>()
-        {
-            "res-aks-cluster",
-            "res-app-security-group",
-            "res-automation-account",
-            "res-availability-set",
-            "res-container-group",
-            "res-container-registry",
-            "res-cosmos-account",
-            "res-data-lake",
-            "res-dns-zone",
-            "res-ip",
-            "res-ip-prefix"
-        };
-
         private HashSet<ResourceSnippet> resourceSnippets = new HashSet<ResourceSnippet>();
 
         public ResourceSnippetsProvider()
@@ -38,16 +24,17 @@ namespace Bicep.LanguageServer.Snippets
 
         private void Initialize()
         {
-            string? currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            string templatesFolder = Path.Combine(currentDirectory ?? throw new ArgumentNullException("Path is null"),
-                                                  "Snippets",
-                                                  "Templates");
+            string pathPrefix = "Snippets/Templates/";
+            Assembly assembly = typeof(ResourceSnippetsProvider).Assembly;
+            IEnumerable<string> manifestResourceNames = assembly.GetManifestResourceNames().Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal));
 
-            foreach (string prefix in _snippetPrefixes)
+            foreach (var manifestResourceName in manifestResourceNames)
             {
-                string template = Path.Combine(templatesFolder, prefix + ".bicep");
+                Stream? stream = assembly.GetManifestResourceStream(manifestResourceName);
+                StreamReader streamReader = new StreamReader(stream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
 
-                (string description, string snippetText) = GetDescriptionAndText(File.ReadAllText(template));
+                (string description, string snippetText) = GetDescriptionAndText(streamReader.ReadToEnd());
+                string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
                 ResourceSnippet resourceSnippet = new ResourceSnippet(prefix, description, snippetText);
 
                 resourceSnippets.Add(resourceSnippet);
