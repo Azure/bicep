@@ -265,8 +265,6 @@ namespace Bicep.Core.Emit
             writer.WriteEndObject();
         }
 
-
-
         public void EmitObjectProperties(ObjectSyntax objectSyntax, ISet<string>? propertiesToOmit = null)
         {
             var propertyLookup = objectSyntax.Properties.ToLookup(property => property.Value is ForSyntax);
