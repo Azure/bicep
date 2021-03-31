@@ -1554,7 +1554,7 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
   properties: {
     networkAcls: {
       virtualNetworkRules: concat([for lol in []: {
-//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
         id: '${account.name}-${account.location}'
       }])
     }

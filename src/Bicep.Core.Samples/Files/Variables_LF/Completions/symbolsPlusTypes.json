@@ -146,6 +146,118 @@
     }
   },
   {
+    "label": "arrayOfArraysViaLoop",
+    "kind": "variable",
+    "detail": "arrayOfArraysViaLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfArraysViaLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfArraysViaLoop"
+    }
+  },
+  {
+    "label": "arrayOfBooleans",
+    "kind": "variable",
+    "detail": "arrayOfBooleans",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfBooleans",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfBooleans"
+    }
+  },
+  {
+    "label": "arrayOfHardCodedBools",
+    "kind": "variable",
+    "detail": "arrayOfHardCodedBools",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfHardCodedBools",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfHardCodedBools"
+    }
+  },
+  {
+    "label": "arrayOfHardCodedNumbers",
+    "kind": "variable",
+    "detail": "arrayOfHardCodedNumbers",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfHardCodedNumbers",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfHardCodedNumbers"
+    }
+  },
+  {
+    "label": "arrayOfHardCodedStrings",
+    "kind": "variable",
+    "detail": "arrayOfHardCodedStrings",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfHardCodedStrings",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfHardCodedStrings"
+    }
+  },
+  {
+    "label": "arrayOfNonRuntimeFunctionCalls",
+    "kind": "variable",
+    "detail": "arrayOfNonRuntimeFunctionCalls",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfNonRuntimeFunctionCalls",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfNonRuntimeFunctionCalls"
+    }
+  },
+  {
+    "label": "arrayOfObjectsViaLoop",
+    "kind": "variable",
+    "detail": "arrayOfObjectsViaLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfObjectsViaLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfObjectsViaLoop"
+    }
+  },
+  {
+    "label": "arrayOfStringsViaLoop",
+    "kind": "variable",
+    "detail": "arrayOfStringsViaLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfStringsViaLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfStringsViaLoop"
+    }
+  },
+  {
     "label": "az",
     "kind": "folder",
     "detail": "az",
@@ -625,6 +737,42 @@
     }
   },
   {
+    "label": "for",
+    "kind": "snippet",
+    "detail": "for",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for item in list: ]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for ${2:item} in ${1:list}: $0]"
+    }
+  },
+  {
+    "label": "for-indexed",
+    "kind": "snippet",
+    "detail": "for-indexed",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for (item, index) in list: ]\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for-indexed",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for (${2:item}, ${3:index}) in ${1:list}: $0]"
+    }
+  },
+  {
     "label": "format",
     "kind": "function",
     "detail": "format()",
@@ -740,6 +888,20 @@
     "textEdit": {
       "range": {},
       "newText": "if"
+    }
+  },
+  {
+    "label": "incrementingNumbers",
+    "kind": "variable",
+    "detail": "incrementingNumbers",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_incrementingNumbers",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "incrementingNumbers"
     }
   },
   {
@@ -1058,6 +1220,20 @@
     "textEdit": {
       "range": {},
       "newText": "loginEndpoint"
+    }
+  },
+  {
+    "label": "loopInput",
+    "kind": "variable",
+    "detail": "loopInput",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopInput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopInput"
     }
   },
   {

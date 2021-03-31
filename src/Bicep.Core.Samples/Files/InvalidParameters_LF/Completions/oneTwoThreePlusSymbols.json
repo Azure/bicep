@@ -90,6 +90,20 @@
     }
   },
   {
+    "label": "arrayCompletions",
+    "kind": "field",
+    "detail": "arrayCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayCompletions"
+    }
+  },
+  {
     "label": "az",
     "kind": "folder",
     "detail": "az",
@@ -197,6 +211,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "boolCompletions",
+    "kind": "field",
+    "detail": "boolCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_boolCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "boolCompletions"
     }
   },
   {
@@ -1075,6 +1103,20 @@
     "textEdit": {
       "range": {},
       "newText": "nonConstantInDecorator"
+    }
+  },
+  {
+    "label": "objectCompletions",
+    "kind": "field",
+    "detail": "objectCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_objectCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "objectCompletions"
     }
   },
   {

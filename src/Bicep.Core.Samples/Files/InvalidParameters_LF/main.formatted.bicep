@@ -52,6 +52,15 @@ param wrongAssignmentToken string: 'hello'
 
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 
+// #completionTest(28,29) -> boolPlusSymbols
+param boolCompletions bool = 
+
+// #completionTest(30,31) -> arrayPlusSymbols
+param arrayCompletions array = 
+
+// #completionTest(32,33) -> objectPlusSymbols
+param objectCompletions object = 
+
 // badly escaped string
 param wrongType fluffyBunny = 'what' s up doc?'
 
