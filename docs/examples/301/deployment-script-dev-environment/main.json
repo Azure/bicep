@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17777160234851437826"
+    }
+  },
   "parameters": {
     "storageName": {
       "type": "string",
@@ -55,6 +62,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7781070043977821900"
+            }
+          },
           "parameters": {
             "name": {
               "type": "string"
@@ -186,6 +200,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5549572267611532959"
+            }
+          },
           "parameters": {
             "name": {
               "type": "string"
@@ -307,12 +328,5 @@
         "[resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName')))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "6046778294530984417"
-    }
-  }
+  ]
 }
