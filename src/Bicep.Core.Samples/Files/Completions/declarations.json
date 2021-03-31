@@ -353,7 +353,7 @@
     "detail": "Resource keyword",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_resource",
+    "sortText": "1_resource",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
@@ -371,7 +371,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_resource",
+    "sortText": "1_resource",
     "insertTextFormat": "snippet",
     "insertTextMode": "asIs",
     "textEdit": {
@@ -389,7 +389,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_resource",
+    "sortText": "1_resource",
     "insertTextFormat": "snippet",
     "insertTextMode": "asIs",
     "textEdit": {
@@ -407,7 +407,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_resource",
+    "sortText": "1_resource",
     "insertTextFormat": "snippet",
     "insertTextMode": "asIs",
     "textEdit": {
@@ -425,7 +425,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_resource",
+    "sortText": "1_resource",
     "insertTextFormat": "snippet",
     "insertTextMode": "asIs",
     "textEdit": {
