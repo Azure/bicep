@@ -52,21 +52,22 @@ namespace Bicep.LangServer.IntegrationTests
                     return accumulated;
                 },
                 accumulated => accumulated);
-
             
             foreach (FunctionCallSyntaxBase functionCall in functionCalls)
             {
+                var expectDecorator = compilation.GetEntrypointSemanticModel().Binder.GetParent(functionCall) is DecoratorSyntax;
+
                 symbolTable.TryGetValue(functionCall, out var symbol);
                 
                 // if the cursor is present immediate after the function argument opening paren,
                 // the signature help can only show the signature of the enclosing function
                 var startOffset = functionCall.OpenParen.GetEndPosition();
-                await ValidateOffset(client, uri, tree, startOffset, symbol as FunctionSymbol);
+                await ValidateOffset(client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
                 
                 // if the cursor is present immediately before the function argument closing paren,
                 // the signature help can only show the signature of the enclosing function
                 var endOffset = functionCall.CloseParen.Span.Position;
-                await ValidateOffset(client, uri, tree, endOffset, symbol as FunctionSymbol);
+                await ValidateOffset(client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
             }
         }
 
@@ -114,7 +115,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol)
+        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol, bool expectDecorator)
         {
             var position = PositionHelper.GetPosition(tree.LineStarts, offset);
             var initial = await RequestSignatureHelp(client, position, uri);
@@ -122,7 +123,7 @@ namespace Bicep.LangServer.IntegrationTests
             if(symbol != null)
             {
                 // real function should have valid signature help
-                AssertValidSignatureHelp(initial, symbol);
+                AssertValidSignatureHelp(initial, symbol, expectDecorator);
 
                 if (initial!.Signatures.Count() >= 2)
                 {
@@ -138,7 +139,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                     // we passed the same signature help as content with a different active index
                     // should get the same index back
-                    AssertValidSignatureHelp(shouldRemember, symbol);
+                    AssertValidSignatureHelp(shouldRemember, symbol, expectDecorator);
                     shouldRemember!.ActiveSignature.Should().Be(1);
                 }
             }
@@ -149,7 +150,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static void AssertValidSignatureHelp(SignatureHelp? signatureHelp, Symbol symbol)
+        private static void AssertValidSignatureHelp(SignatureHelp? signatureHelp, Symbol symbol, bool expectDecorator)
         {
             signatureHelp.Should().NotBeNull();
 
@@ -158,7 +159,16 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 signature.Label.Should().StartWith(symbol.Name.StartsWith("list") ? "list*(" : $"{symbol.Name}(");
 
-                signature.Label.Should().EndWith(")");
+                if (expectDecorator)
+                {
+                    // decorators should have no return type
+                    signature.Label.Should().EndWith(")");
+                }
+                else
+                {
+                    // normal function calls should include a return type
+                    signature.Label.Should().Contain("): ");
+                }
 
                 signature.Parameters.Should().NotBeNull();
 
