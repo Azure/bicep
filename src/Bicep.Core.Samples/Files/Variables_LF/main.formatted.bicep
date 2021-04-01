@@ -240,6 +240,29 @@ var myIntExpression = 5 * 5
 var myBigIntExpression = 2199023255552 * 2
 var myBigIntExpression2 = 2199023255552 * 2199023255552
 
+// variable loops
+var incrementingNumbers = [for i in range(0, 10): i]
+var loopInput = [
+  'one'
+  'two'
+]
+var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
+var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
+  index: i
+  name: name
+  value: 'prefix-${i}-${name}-suffix'
+}]
+var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
+  i
+  name
+  'prefix-${i}-${name}-suffix'
+]]
+var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
+var arrayOfHardCodedNumbers = [for i in range(0, 10): 3]
+var arrayOfHardCodedBools = [for i in range(0, 10): false]
+var arrayOfHardCodedStrings = [for i in range(0, 3): 'hi']
+var arrayOfNonRuntimeFunctionCalls = [for i in range(0, 3): concat('hi', i)]
+
 var multilineString = '''
 HELLO!
 '''

@@ -75,6 +75,18 @@ param wrongAssignmentToken string: 'hello'
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 //@[6:267) Parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong. Type: string. Declaration start char: 0, length: 287
 
+// #completionTest(28,29) -> boolPlusSymbols
+param boolCompletions bool = 
+//@[6:21) Parameter boolCompletions. Type: bool. Declaration start char: 0, length: 29
+
+// #completionTest(30,31) -> arrayPlusSymbols
+param arrayCompletions array = 
+//@[6:22) Parameter arrayCompletions. Type: array. Declaration start char: 0, length: 31
+
+// #completionTest(32,33) -> objectPlusSymbols
+param objectCompletions object = 
+//@[6:23) Parameter objectCompletions. Type: object. Declaration start char: 0, length: 33
+
 // badly escaped string
 param wrongType fluffyBunny = 'what's up doc?'
 //@[6:15) Parameter wrongType. Type: error. Declaration start char: 0, length: 36

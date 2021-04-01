@@ -1,0 +1,1029 @@
+[
+  {
+    "label": "any",
+    "kind": "function",
+    "detail": "any()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_any",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "any($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "array",
+    "kind": "function",
+    "detail": "array()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_array",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "array($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "attemptToReferenceAnOutput",
+    "kind": "variable",
+    "detail": "attemptToReferenceAnOutput",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_attemptToReferenceAnOutput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "attemptToReferenceAnOutput"
+    }
+  },
+  {
+    "label": "az",
+    "kind": "folder",
+    "detail": "az",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_az",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "az"
+    }
+  },
+  {
+    "label": "base64",
+    "kind": "function",
+    "detail": "base64()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "base64ToJson",
+    "kind": "function",
+    "detail": "base64ToJson()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToJson",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToJson($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "base64ToString",
+    "kind": "function",
+    "detail": "base64ToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToString($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "bool",
+    "kind": "function",
+    "detail": "bool()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_bool",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "bool($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "coalesce",
+    "kind": "function",
+    "detail": "coalesce()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_coalesce",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "coalesce($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "concat",
+    "kind": "function",
+    "detail": "concat()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_concat",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "concat($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "contains",
+    "kind": "function",
+    "detail": "contains()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_contains",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "contains($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dataUri",
+    "kind": "function",
+    "detail": "dataUri()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUri($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dataUriToString",
+    "kind": "function",
+    "detail": "dataUriToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUriToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUriToString($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dateTimeAdd",
+    "kind": "function",
+    "detail": "dateTimeAdd()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeAdd",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeAdd($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "deployment",
+    "kind": "function",
+    "detail": "deployment()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_deployment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "deployment()$0"
+    }
+  },
+  {
+    "label": "empty",
+    "kind": "function",
+    "detail": "empty()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_empty",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "empty($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "endsWith",
+    "kind": "function",
+    "detail": "endsWith()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_endsWith",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "endsWith($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "environment",
+    "kind": "function",
+    "detail": "environment()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_environment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "environment()$0"
+    }
+  },
+  {
+    "label": "extensionResourceId",
+    "kind": "function",
+    "detail": "extensionResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_extensionResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "extensionResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "false",
+    "kind": "keyword",
+    "detail": "false",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_false",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "false"
+    }
+  },
+  {
+    "label": "first",
+    "kind": "function",
+    "detail": "first()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_first",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "first($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "format",
+    "kind": "function",
+    "detail": "format()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_format",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "format($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "guid",
+    "kind": "function",
+    "detail": "guid()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_guid",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "guid($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "indexOf",
+    "kind": "function",
+    "detail": "indexOf()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_indexOf",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "indexOf($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "int",
+    "kind": "function",
+    "detail": "int()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_int",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "int($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "intersection",
+    "kind": "function",
+    "detail": "intersection()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_intersection",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "intersection($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "json",
+    "kind": "function",
+    "detail": "json()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_json",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "json($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "last",
+    "kind": "function",
+    "detail": "last()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_last",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "last($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "lastIndexOf",
+    "kind": "function",
+    "detail": "lastIndexOf()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_lastIndexOf",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "lastIndexOf($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "length",
+    "kind": "function",
+    "detail": "length()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_length",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "length($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "managementGroup",
+    "kind": "function",
+    "detail": "managementGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "max",
+    "kind": "function",
+    "detail": "max()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_max",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "max($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "min",
+    "kind": "function",
+    "detail": "min()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_min",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "min($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "padLeft",
+    "kind": "function",
+    "detail": "padLeft()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_padLeft",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "padLeft($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "pickZones",
+    "kind": "function",
+    "detail": "pickZones()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_pickZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "pickZones($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "providers",
+    "kind": "function",
+    "detail": "providers()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_providers",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "providers($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "range",
+    "kind": "function",
+    "detail": "range()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_range",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "range($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "reference",
+    "kind": "function",
+    "detail": "reference()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_reference",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "reference($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "replace",
+    "kind": "function",
+    "detail": "replace()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_replace",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "replace($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "resourceGroup",
+    "kind": "function",
+    "detail": "resourceGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_resourceGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "resourceId",
+    "kind": "function",
+    "detail": "resourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_resourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "skip",
+    "kind": "function",
+    "detail": "skip()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_skip",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "skip($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "split",
+    "kind": "function",
+    "detail": "split()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_split",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "split($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "startsWith",
+    "kind": "function",
+    "detail": "startsWith()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_startsWith",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "startsWith($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "string",
+    "kind": "function",
+    "detail": "string()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_string",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "string($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "subscription",
+    "kind": "function",
+    "detail": "subscription()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_subscription",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "subscription($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "subscriptionResourceId",
+    "kind": "function",
+    "detail": "subscriptionResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_subscriptionResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "subscriptionResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "substring",
+    "kind": "function",
+    "detail": "substring()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_substring",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "substring($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "sys",
+    "kind": "folder",
+    "detail": "sys",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sys",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "sys"
+    }
+  },
+  {
+    "label": "take",
+    "kind": "function",
+    "detail": "take()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_take",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "take($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "tenant",
+    "kind": "function",
+    "detail": "tenant()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenant",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "tenant()$0"
+    }
+  },
+  {
+    "label": "tenantResourceId",
+    "kind": "function",
+    "detail": "tenantResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenantResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "tenantResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "testSymbol",
+    "kind": "variable",
+    "detail": "testSymbol",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_testSymbol",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "testSymbol"
+    }
+  },
+  {
+    "label": "toLower",
+    "kind": "function",
+    "detail": "toLower()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLower",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "toLower($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toUpper",
+    "kind": "function",
+    "detail": "toUpper()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toUpper",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "toUpper($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "trim",
+    "kind": "function",
+    "detail": "trim()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_trim",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "trim($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "true",
+    "kind": "keyword",
+    "detail": "true",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_true",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "true"
+    }
+  },
+  {
+    "label": "union",
+    "kind": "function",
+    "detail": "union()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_union",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "union($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "uniqueString",
+    "kind": "function",
+    "detail": "uniqueString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uniqueString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uniqueString($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "uri",
+    "kind": "function",
+    "detail": "uri()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uri($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "uriComponent",
+    "kind": "function",
+    "detail": "uriComponent()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponent($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "uriComponentToString",
+    "kind": "function",
+    "detail": "uriComponentToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponentToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponentToString($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  }
+]

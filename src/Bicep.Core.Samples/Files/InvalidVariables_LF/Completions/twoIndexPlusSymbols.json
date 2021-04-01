@@ -413,6 +413,20 @@
     }
   },
   {
+    "label": "evenMoreIndirection",
+    "kind": "variable",
+    "detail": "evenMoreIndirection",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_evenMoreIndirection",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "evenMoreIndirection"
+    }
+  },
+  {
     "label": "extensionResourceId",
     "kind": "function",
     "detail": "extensionResourceId()",
@@ -509,6 +523,34 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "indirection",
+    "kind": "variable",
+    "detail": "indirection",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_indirection",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "indirection"
+    }
+  },
+  {
+    "label": "inlinedVariable",
+    "kind": "variable",
+    "detail": "inlinedVariable",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_inlinedVariable",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "inlinedVariable"
     }
   },
   {
@@ -647,6 +689,20 @@
     }
   },
   {
+    "label": "keys",
+    "kind": "variable",
+    "detail": "keys",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_keys",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "keys"
+    }
+  },
+  {
     "label": "last",
     "kind": "function",
     "detail": "last()",
@@ -692,6 +748,23 @@
     "textEdit": {
       "range": {},
       "newText": "length($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "listKeys",
+    "kind": "function",
+    "detail": "listKeys()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_listKeys",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "listKeys($0)"
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
@@ -763,6 +836,20 @@
     }
   },
   {
+    "label": "missingArrayVariable",
+    "kind": "variable",
+    "detail": "missingArrayVariable",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingArrayVariable",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingArrayVariable"
+    }
+  },
+  {
     "label": "missingValue",
     "kind": "variable",
     "detail": "missingValue",
@@ -805,6 +892,20 @@
     }
   },
   {
+    "label": "moreIndirection",
+    "kind": "variable",
+    "detail": "moreIndirection",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moreIndirection",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "moreIndirection"
+    }
+  },
+  {
     "label": "myConcat",
     "kind": "variable",
     "detail": "myConcat",
@@ -830,6 +931,20 @@
     "textEdit": {
       "range": {},
       "newText": "myFloat"
+    }
+  },
+  {
+    "label": "myRef",
+    "kind": "variable",
+    "detail": "myRef",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myRef",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myRef"
     }
   },
   {
@@ -875,17 +990,31 @@
     }
   },
   {
-    "label": "noVariableLoopsYet",
+    "label": "nonTopLevelLoop",
     "kind": "variable",
-    "detail": "noVariableLoopsYet",
+    "detail": "nonTopLevelLoop",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_noVariableLoopsYet",
+    "sortText": "2_nonTopLevelLoop",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "noVariableLoopsYet"
+      "newText": "nonTopLevelLoop"
+    }
+  },
+  {
+    "label": "notRuntime",
+    "kind": "variable",
+    "detail": "notRuntime",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_notRuntime",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "notRuntime"
     }
   },
   {
@@ -1131,6 +1260,76 @@
     "textEdit": {
       "range": {},
       "newText": "rgName"
+    }
+  },
+  {
+    "label": "runtimeLoop",
+    "kind": "variable",
+    "detail": "runtimeLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeLoop"
+    }
+  },
+  {
+    "label": "runtimeLoop2",
+    "kind": "variable",
+    "detail": "runtimeLoop2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeLoop2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeLoop2"
+    }
+  },
+  {
+    "label": "runtimeLoop3",
+    "kind": "variable",
+    "detail": "runtimeLoop3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeLoop3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeLoop3"
+    }
+  },
+  {
+    "label": "runtimeLoop4",
+    "kind": "variable",
+    "detail": "runtimeLoop4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeLoop4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeLoop4"
+    }
+  },
+  {
+    "label": "runtimeLoop5",
+    "kind": "variable",
+    "detail": "runtimeLoop5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeLoop5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeLoop5"
     }
   },
   {
@@ -1547,5 +1746,36 @@
       "range": {},
       "newText": "y"
     }
+  },
+  {
+    "label": "zoneInput",
+    "kind": "variable",
+    "detail": "zoneInput",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_zoneInput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "zoneInput"
+    }
+  },
+  {
+    "label": "zones",
+    "kind": "interface",
+    "detail": "zones",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_zones",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "zones"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   }
 ]
