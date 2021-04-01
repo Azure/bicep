@@ -17,6 +17,18 @@ output missingValueAndType =
 output missingValue string = 
 //@[7:19) Output missingValue. Type: string. Declaration start char: 0, length: 29
 
+// #completionTest(31,32) -> arrayPlusSymbols
+output arrayCompletions array = 
+//@[7:23) Output arrayCompletions. Type: array. Declaration start char: 0, length: 32
+
+// #completionTest(33,34) -> objectPlusSymbols
+output objectCompletions object = 
+//@[7:24) Output objectCompletions. Type: object. Declaration start char: 0, length: 34
+
+// #completionTest(29,30) -> boolPlusSymbols
+output boolCompletions bool = 
+//@[7:22) Output boolCompletions. Type: bool. Declaration start char: 0, length: 30
+
 output foo
 //@[7:10) Output foo. Type: any. Declaration start char: 0, length: 10
 

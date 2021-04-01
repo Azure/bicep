@@ -1,8 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -13,12 +15,37 @@ namespace Bicep.Core.Emit
     public class InlineDependencyVisitor : SyntaxVisitor
     {
         private readonly SemanticModel model;
-        private IDictionary<VariableSymbol, bool> shouldInlineCache;
+        private readonly IDictionary<VariableSymbol, bool> shouldInlineCache;
+
         private VariableSymbol? currentDeclaration;
 
+        // the following variables are only used when processing a single variable
+        private readonly VariableDeclarationSyntax? targetVariable;
+        private ImmutableStack<string>? currentStack;
+        private ImmutableStack<string>? capturedSequence;
+
+        private InlineDependencyVisitor(SemanticModel model, VariableDeclarationSyntax? targetVariable)
+        {
+            this.model = model;
+            this.shouldInlineCache = new Dictionary<VariableSymbol, bool>();
+            this.targetVariable = targetVariable;
+            this.currentDeclaration = null;
+
+            if (targetVariable is not null)
+            {
+                // the functionality 
+                this.currentStack = ImmutableStack.Create<string>();
+                this.capturedSequence = null;
+            }
+        }
+
+        /// <summary>
+        /// Gets a set of variables that must be inlined due to runtime limitations.
+        /// </summary>
+        /// <param name="model">The semantic model</param>
         public static ImmutableHashSet<VariableSymbol> GetVariablesToInline(SemanticModel model)
         {
-            var visitor = new InlineDependencyVisitor(model);
+            var visitor = new InlineDependencyVisitor(model, null);
             visitor.Visit(model.Root.Syntax);
 
             return visitor.shouldInlineCache
@@ -27,18 +54,43 @@ namespace Bicep.Core.Emit
                 .ToImmutableHashSet();
         }
 
-        private InlineDependencyVisitor(SemanticModel model)
+        /// <summary>
+        /// Checks if the specified variable needs to be inlined due to runtime limitations. In cases where the inlining is caused by accessing a variable that must be inlined,
+        /// the variable access chain is returned. Otherwise, an empty chain is returned.
+        /// </summary>
+        /// <param name="model">The semantic model</param>
+        /// <param name="variable">The variable to check</param>
+        /// <param name="variableAccessChain">The variable access chain that leads to inlining or empty if not available.</param>
+        public static bool ShouldInlineVariable(SemanticModel model, VariableDeclarationSyntax variable, out ImmutableArray<string> variableAccessChain)
         {
-            this.model = model;
-            this.shouldInlineCache = new Dictionary<VariableSymbol, bool>();
-            this.currentDeclaration = null;
+            variableAccessChain = ImmutableArray<string>.Empty;
+            if(model.GetSymbolInfo(variable) is not VariableSymbol variableSymbol)
+            {
+                // we have errors - assume this is not meant to be inlined
+                return false;
+            }
+
+            var visitor = new InlineDependencyVisitor(model, variable);
+            visitor.Visit(variable);
+
+            if(!visitor.shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline) || !shouldInline)
+            {
+                return false;
+            }
+
+            Debug.Assert(shouldInline);
+
+            variableAccessChain = visitor.capturedSequence?.Reverse().ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            return true;
         }
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            if (!(this.model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol))
+            if (this.model.GetSymbolInfo(syntax) is not VariableSymbol variableSymbol)
             {
-                throw new InvalidOperationException("Unbound declaration");
+                // we have errors that prevent further validation
+                // skip this part of the tree
+                return;
             }
 
             // save previous declaration as we may call this recursively
@@ -86,16 +138,33 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case VariableSymbol variableSymbol:
+                    var previousStack = this.currentStack;
                     if (!shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline))
                     {
+                        this.currentStack = this.currentStack?.Push(syntax.Name.IdentifierName);
+
                         // recursively visit dependent variables
                         this.Visit(variableSymbol.DeclaringSyntax);
 
                         shouldInline = shouldInlineCache[variableSymbol];
+
+                        if(shouldInline && this.targetVariable is not null && this.capturedSequence is null)
+                        {
+                            // this point is where the decision is made to inline the variable
+                            // the variable access stack will be the deepest here
+                            // (once captured, we will not reset because the visitor will be short-circuiting and
+                            //  unrolling the recursion which would produce shorter and inaccurate paths)
+
+                            // capture the sequence of variable accesses
+                            this.capturedSequence = this.currentStack;
+                        }
                     }
 
                     // if we depend on a variable that requires inlining, then we also require inlining
-                    shouldInlineCache[currentDeclaration] |= shouldInline;
+                    bool newValue = shouldInlineCache[currentDeclaration] || shouldInline;
+                    SetCache(newValue);
+
+                    this.currentStack = previousStack;
                     return;
             }
         }
@@ -111,9 +180,15 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (!(syntax.BaseExpression is VariableAccessSyntax variableAccessSyntax))
+            var variableAccessSyntax = syntax.BaseExpression switch
             {
-                // we only care about variable access
+                VariableAccessSyntax variableAccess => variableAccess,
+                ArrayAccessSyntax { BaseExpression: VariableAccessSyntax variableAccess } => variableAccess,
+                _ => null
+            };
+
+            if (variableAccessSyntax is null)
+            {
                 return;
             }
 
@@ -123,9 +198,8 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            bool shouldSkipInlining(ObjectType objectType, string propertyName)
+            static bool ShouldSkipInlining(ObjectType objectType, string propertyName)
             {
-                var property = syntax.PropertyName.IdentifierName;
                 if (!objectType.Properties.TryGetValue(propertyName, out var propertyType))
                 {
                     // unknown property - we should assume it's not inlinable
@@ -141,28 +215,21 @@ namespace Bicep.Core.Emit
                 // Note - there's a limitation here that we're using the 'declared' type and not the 'assigned' type.
                 // This means that we may encounter a DiscriminatedObjectType. For now we should accept this limitation,
                 // and move to using the assigned type once https://github.com/Azure/bicep/issues/1177 is fixed.
-                case ResourceSymbol resourceSymbol:
-                {
-                    if (!(resourceSymbol.Type is ResourceType resourceType && resourceType.Body.Type is ObjectType bodyObjectType))
-                    {
-                        // Resource or body could be an ErrorType here. We only want to attempt property access on an object body.
-                        return;
-                    }
-
-                    shouldInlineCache[currentDeclaration] = !shouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName);
+                case ResourceSymbol { Type: ResourceType { Body: { Type: ObjectType bodyObjectType } } }:
+                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
                     return;
-                }
-                case ModuleSymbol moduleSymbol:
-                {
-                    if (!(moduleSymbol.Type is ModuleType moduleType && moduleType.Body.Type is ObjectType bodyObjectType))
-                    {
-                        // Resource or body could be an ErrorType here. We only want to attempt property access on an object body.
-                        return;
-                    }
 
-                    shouldInlineCache[currentDeclaration] = !shouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName);
+                case ResourceSymbol { Type: ArrayType { Item: { Type: ResourceType { Body: { Type: ObjectType bodyObjectType } } } } }:
+                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
                     return;
-                }
+
+                case ModuleSymbol { Type: ModuleType { Body: { Type: ObjectType bodyObjectType } } }:
+                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
+                    return;
+
+                case ModuleSymbol { Type: ArrayType { Item: { Type: ModuleType { Body: { Type: ObjectType bodyObjectType } } } } }:
+                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
+                    return;
             }
         }
 
@@ -182,8 +249,16 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case FunctionSymbol functionSymbol:
-                    shouldInlineCache[currentDeclaration] |= functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining);
+                    SetCache(shouldInlineCache[currentDeclaration] || functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining));
                     return;
+            }
+        }
+
+        private void SetCache(bool shouldInline)
+        {
+            if (this.currentDeclaration is not null)
+            {
+                this.shouldInlineCache[this.currentDeclaration] = shouldInline;
             }
         }
     }

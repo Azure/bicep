@@ -220,7 +220,7 @@ namespace Bicep.Core.IntegrationTests
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
                 [fileUri] = template,
-            });;
+            });
 
             var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
 

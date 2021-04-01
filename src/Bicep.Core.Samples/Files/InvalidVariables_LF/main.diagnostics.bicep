@@ -240,42 +240,81 @@ var a☕ = true
 //@[5:6) [BCP001 (Error)] The following token is not recognized: "☕". |☕|
 //@[13:13) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
-// loops are not allowed in variables
-var noVariableLoopsYet = [for thing in stuff: 4]
-//@[26:29) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
-//@[39:44) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+var missingArrayVariable = [for thing in stuff: 4]
+//@[41:46) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+
+// loops are only allowed at the top level
+var nonTopLevelLoop = {
+  notOkHere: [for thing in stuff: 4]
+//@[14:17) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
+//@[27:32) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
+}
 
 // loops with conditions won't even parse
 var noFilteredLoopsInVariables = [for thing in stuff: if]
-//@[34:37) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 //@[47:52) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
 //@[54:56) [BCP100 (Error)] The "if" function is not supported. Use the ternary conditional operator instead. |if|
 
 // nested loops are also not allowed
 var noNestedVariableLoopsEither = [for thing in stuff: {
-//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
 //@[48:53) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
   hello: [for thing in []: 4]
-//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
 }]
 
 // loops in inner properties of a variable are also not supported
 var innerPropertyLoop = {
   a: [for i in range(0,10): i]
-//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
 }
 var innerPropertyLoop2 = {
   b: {
     a: [for i in range(0,10): i]
-//@[8:11) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[8:11) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
   }
 }
 
+// loops using expressions with a runtime dependency are also not allowed
+var keys = listKeys('fake','fake')
+var indirection = keys
+
+var runtimeLoop = [for (item, index) in []: indirection]
+//@[19:22) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. Variable dependency chain: "indirection" -> "keys". |for|
+var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
+//@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. Variable dependency chain: "indirection" -> "keys". |for|
+
+var zoneInput = []
+resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
+  name: zone
+  location: az.resourceGroup().location
+}]
+var inlinedVariable = zones[0].properties.zoneType
+
+var runtimeLoop3 = [for (zone, i) in zoneInput: {
+//@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. Variable dependency chain: "inlinedVariable". |for|
+  a: inlinedVariable
+}]
+
+var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
+//@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. |for|
+  a: 0
+}]
+
+var notRuntime = concat('a','b')
+var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
+var moreIndirection = reference('s','s', 'Full')
+
+var myRef = [
+  evenMoreIndirection
+]
+var runtimeLoop5 = [for (item, index) in myRef: 's']
+//@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. Variable dependency chain: "myRef" -> "evenMoreIndirection" -> "moreIndirection". |for|
+
 // cannot use loops in expressions
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
-//@[28:31) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[28:31) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
 //@[41:46) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
-//@[53:56) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[53:56) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
 //@[66:71) [BCP057 (Error)] The name "stuff" does not exist in the current context. |stuff|
 
 @batchSize(1)

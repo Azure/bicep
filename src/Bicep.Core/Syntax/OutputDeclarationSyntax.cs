@@ -3,8 +3,10 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
@@ -41,5 +43,20 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, Value);
 
         public TypeSyntax? OutputType => this.Type as TypeSyntax;
+
+        public TypeSymbol GetDeclaredType()
+        {
+            // assume "any" type if the output type has parse errors (either missing or skipped)
+            var declaredType = this.OutputType == null
+                ? LanguageConstants.Any
+                : LanguageConstants.TryGetDeclarationType(this.OutputType.TypeName);
+
+            if (declaredType == null)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidOutputType());
+            }
+
+            return declaredType;
+        }
     }
 }
