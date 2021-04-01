@@ -1,8 +1,6 @@
 targetScope = 'resourceGroup'
 
 // PARAMETERS
-
-
 param actionGroupName string
 param actionGroupEnabled bool
 param actionGroupShortName string
