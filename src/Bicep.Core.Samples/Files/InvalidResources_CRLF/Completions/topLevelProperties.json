@@ -11,7 +11,7 @@
     "preselect": false,
     "sortText": "2_dependsOn",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "dependsOn"
@@ -32,7 +32,7 @@
     "preselect": false,
     "sortText": "2_extendedLocation",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "extendedLocation"
@@ -53,7 +53,7 @@
     "preselect": false,
     "sortText": "2_identity",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "identity"
@@ -74,7 +74,7 @@
     "preselect": false,
     "sortText": "2_kind",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "kind"
@@ -95,7 +95,7 @@
     "preselect": false,
     "sortText": "2_location",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "location"
@@ -116,7 +116,7 @@
     "preselect": false,
     "sortText": "2_name",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "name"
@@ -137,7 +137,7 @@
     "preselect": false,
     "sortText": "2_properties",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "properties"
@@ -154,7 +154,7 @@
     "preselect": false,
     "sortText": "2_resource",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "resource"
@@ -208,7 +208,7 @@
     "preselect": false,
     "sortText": "2_sku",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "sku"
@@ -229,7 +229,7 @@
     "preselect": false,
     "sortText": "2_tags",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "tags"

@@ -11,7 +11,7 @@
     "preselect": false,
     "sortText": "2_allowed",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "allowed"
@@ -32,7 +32,7 @@
     "preselect": false,
     "sortText": "2_default",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "default"
@@ -53,7 +53,7 @@
     "preselect": false,
     "sortText": "2_maxValue",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "maxValue"
@@ -74,7 +74,7 @@
     "preselect": false,
     "sortText": "2_metadata",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "metadata"
@@ -95,7 +95,7 @@
     "preselect": false,
     "sortText": "2_minValue",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "minValue"
