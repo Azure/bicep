@@ -147,25 +147,29 @@ for (const filePath of baselineFiles) {
       result = await writeBaseline(filePath);
     });
 
-    it('can be compiled', async () => {
-      const bicepExePathVariable = 'BICEP_CLI_EXECUTABLE';
-      const bicepExePath = env[bicepExePathVariable];
-      if (!bicepExePath) {
-        fail(`Unable to find '${bicepExePathVariable}' env variable`);
-        return;
-      }
+    if (!basename(filePath).startsWith('bad_')) {
+      // skip the invalid files - we don't expect them to compile
 
-      if (!existsSync(bicepExePath)) {
-        fail(`Unable to find '${bicepExePath}' specified in '${bicepExePathVariable}' env variable`);
-        return;
-      }
-
-      const result = spawnSync(bicepExePath, ['build', '--stdout', filePath], { encoding: 'utf-8' });
-
-      // NOTE - if stderr or status are null, this indicates we were unable to invoke the exe (missing file, or hasn't had 'chmod +x' run)
-      expect(result.stderr).toBe('');
-      expect(result.status).toBe(0);
-    });
+      it('can be compiled', async () => {
+        const bicepExePathVariable = 'BICEP_CLI_EXECUTABLE';
+        const bicepExePath = env[bicepExePathVariable];
+        if (!bicepExePath) {
+          fail(`Unable to find '${bicepExePathVariable}' env variable`);
+          return;
+        }
+  
+        if (!existsSync(bicepExePath)) {
+          fail(`Unable to find '${bicepExePath}' specified in '${bicepExePathVariable}' env variable`);
+          return;
+        }
+  
+        const result = spawnSync(bicepExePath, ['build', '--stdout', filePath], { encoding: 'utf-8' });
+  
+        // NOTE - if stderr or status are null, this indicates we were unable to invoke the exe (missing file, or hasn't had 'chmod +x' run)
+        expect(result.stderr).toBe('');
+        expect(result.status).toBe(0);
+      });
+    }
 
     it('baseline matches expected', () => {
       expect(result.diffBefore).toEqual(result.diffAfter);
