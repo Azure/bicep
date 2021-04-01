@@ -420,7 +420,7 @@
     "preselect": false,
     "sortText": "2_evenMoreIndirection",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "evenMoreIndirection"
@@ -533,7 +533,7 @@
     "preselect": false,
     "sortText": "2_indirection",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "indirection"
@@ -547,7 +547,7 @@
     "preselect": false,
     "sortText": "2_inlinedVariable",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "inlinedVariable"
@@ -696,7 +696,7 @@
     "preselect": false,
     "sortText": "2_keys",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "keys"
@@ -761,7 +761,7 @@
     "preselect": false,
     "sortText": "3_listKeys",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "listKeys($0)"
@@ -843,7 +843,7 @@
     "preselect": false,
     "sortText": "2_missingArrayVariable",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "missingArrayVariable"
@@ -899,7 +899,7 @@
     "preselect": false,
     "sortText": "2_moreIndirection",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "moreIndirection"
@@ -941,7 +941,7 @@
     "preselect": false,
     "sortText": "2_myRef",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "myRef"
@@ -1011,7 +1011,7 @@
     "preselect": false,
     "sortText": "2_notRuntime",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "notRuntime"
@@ -1270,7 +1270,7 @@
     "preselect": false,
     "sortText": "2_runtimeLoop",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeLoop"
@@ -1284,7 +1284,7 @@
     "preselect": false,
     "sortText": "2_runtimeLoop2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeLoop2"
@@ -1298,7 +1298,7 @@
     "preselect": false,
     "sortText": "2_runtimeLoop3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeLoop3"
@@ -1312,7 +1312,7 @@
     "preselect": false,
     "sortText": "2_runtimeLoop4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeLoop4"
@@ -1326,7 +1326,7 @@
     "preselect": false,
     "sortText": "2_runtimeLoop5",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeLoop5"
@@ -1755,7 +1755,7 @@
     "preselect": false,
     "sortText": "2_zoneInput",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "zoneInput"
@@ -1769,7 +1769,7 @@
     "preselect": false,
     "sortText": "2_zones",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "zones"

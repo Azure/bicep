@@ -153,7 +153,7 @@
     "preselect": false,
     "sortText": "2_arrayOfArraysViaLoop",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayOfArraysViaLoop"
@@ -167,7 +167,7 @@
     "preselect": false,
     "sortText": "2_arrayOfBooleans",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayOfBooleans"
@@ -181,7 +181,7 @@
     "preselect": false,
     "sortText": "2_arrayOfHardCodedBools",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayOfHardCodedBools"
@@ -195,7 +195,7 @@
     "preselect": false,
     "sortText": "2_arrayOfHardCodedNumbers",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayOfHardCodedNumbers"
@@ -209,7 +209,7 @@
     "preselect": false,
     "sortText": "2_arrayOfHardCodedStrings",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayOfHardCodedStrings"
@@ -223,7 +223,7 @@
     "preselect": false,
     "sortText": "2_arrayOfNonRuntimeFunctionCalls",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayOfNonRuntimeFunctionCalls"
@@ -237,7 +237,7 @@
     "preselect": false,
     "sortText": "2_arrayOfObjectsViaLoop",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayOfObjectsViaLoop"
@@ -251,7 +251,7 @@
     "preselect": false,
     "sortText": "2_arrayOfStringsViaLoop",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayOfStringsViaLoop"
@@ -898,7 +898,7 @@
     "preselect": false,
     "sortText": "2_incrementingNumbers",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "incrementingNumbers"
@@ -1230,7 +1230,7 @@
     "preselect": false,
     "sortText": "2_loopInput",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "loopInput"

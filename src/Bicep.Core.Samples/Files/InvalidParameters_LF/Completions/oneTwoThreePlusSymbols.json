@@ -97,7 +97,7 @@
     "preselect": false,
     "sortText": "2_arrayCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayCompletions"
@@ -221,7 +221,7 @@
     "preselect": false,
     "sortText": "2_boolCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "boolCompletions"
@@ -1113,7 +1113,7 @@
     "preselect": false,
     "sortText": "2_objectCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "objectCompletions"
