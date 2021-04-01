@@ -405,7 +405,7 @@ const grammar: Grammar = {
   patterns: [statement],
 };
 
-export async function generateGrammar() {
+export async function generateGrammar(): Promise<string> {
   const json = await tm.emitJSON(grammar);
   
   return plist.build(JSON.parse(json));

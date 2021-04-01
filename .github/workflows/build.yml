@@ -329,10 +329,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: 10.x
+          node-version: 14.x
       
       - name: npm ci
         run: npm ci
+        working-directory: ./src/playground
+
+      - name: Run lint
+        run: npm run lint
         working-directory: ./src/playground
 
       - name: Build
@@ -373,6 +377,10 @@ jobs:
       
       - name: npm ci
         run: npm ci
+        working-directory: ./src/textmate
+
+      - name: Run lint
+        run: npm run lint
         working-directory: ./src/textmate
 
       - name: Run Tests

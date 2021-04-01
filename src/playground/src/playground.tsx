@@ -1,5 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, ButtonGroup, Col, Container, Dropdown, FormControl, Nav, Navbar, NavLink, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
+import { Button, ButtonGroup, Col, Container, Dropdown, FormControl, Nav, Navbar, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
 
 import './playground.css';
 import examples from '../../../docs/examples/index.json';
