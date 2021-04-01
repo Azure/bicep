@@ -11,7 +11,7 @@
     "preselect": false,
     "sortText": "2_description",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "description"

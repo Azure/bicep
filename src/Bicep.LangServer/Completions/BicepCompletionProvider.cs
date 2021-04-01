@@ -135,13 +135,13 @@ param ${1:Identifier} string", context.ReplacementRange);
   properties: {
     $0
   }
-}", context.ReplacementRange, insertTextMode: InsertTextMode.AdjustIndentation);
+}", context.ReplacementRange);
 
                 yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Nested resource without defaults", @"resource ${1:Identifier} '${2:Type}' = {
   name: $3
   $0
 }
-", context.ReplacementRange, insertTextMode: InsertTextMode.AdjustIndentation);
+", context.ReplacementRange);
             }
         }
 
@@ -659,7 +659,7 @@ param ${1:Identifier} string", context.ReplacementRange);
                     const string arrayLabel = "[]";
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Value)
                         .WithLabel(arrayLabel)
-                        .WithSnippetEdit(replacementRange, "[\n\t$0\n]", InsertTextMode.AdjustIndentation)
+                        .WithSnippetEdit(replacementRange, "[\n\t$0\n]")
                         .WithDetail(arrayLabel)
                         .Preselect()
                         .WithSortText(GetSortText(arrayLabel, CompletionPriority.High));
@@ -698,7 +698,7 @@ param ${1:Identifier} string", context.ReplacementRange);
             const string objectLabel = "{}";
             return CompletionItemBuilder.Create(CompletionItemKind.Value)
                 .WithLabel(objectLabel)
-                .WithSnippetEdit(replacementRange, "{\n\t$0\n}", InsertTextMode.AdjustIndentation)
+                .WithSnippetEdit(replacementRange, "{\n\t$0\n}")
                 .WithDetail(objectLabel)
                 .Preselect()
                 .WithSortText(GetSortText(objectLabel, CompletionPriority.High));
@@ -709,7 +709,7 @@ param ${1:Identifier} string", context.ReplacementRange);
             const string conditionLabel = "if";
             return CompletionItemBuilder.Create(CompletionItemKind.Snippet)
                 .WithLabel(conditionLabel)
-                .WithSnippetEdit(replacementRange, "if (${1:condition}) {\n\t$0\n}", InsertTextMode.AdjustIndentation)
+                .WithSnippetEdit(replacementRange, "if (${1:condition}) {\n\t$0\n}")
                 .WithDetail(conditionLabel)
                 .WithSortText(GetSortText(conditionLabel, CompletionPriority.High));
         }
@@ -730,12 +730,12 @@ param ${1:Identifier} string", context.ReplacementRange);
                 _ => ("[for ${2:item} in ${1:list}: $0]", "[for (${2:item}, ${3:index}) in ${1:list}: $0]")
             };
 
-            yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
-            yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
+            yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, CompletionPriority.High);
+            yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, CompletionPriority.High);
 
             if(filtersAllowed && assignableToObject && !assignableToArray)
             {
-                yield return CreateContextualSnippetCompletion(filteredLabel, filteredLabel, "[for (${2:item}, ${3:index}) in ${1:list}: if (${4:condition}) {\n\t$0\n}]", replacementRange, CompletionPriority.High, InsertTextMode.AdjustIndentation);
+                yield return CreateContextualSnippetCompletion(filteredLabel, filteredLabel, "[for (${2:item}, ${3:index}) in ${1:list}: if (${4:condition}) {\n\t$0\n}]", replacementRange, CompletionPriority.High);
             }
         }
 
@@ -855,10 +855,10 @@ param ${1:Identifier} string", context.ReplacementRange);
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, InsertTextMode insertTextMode = InsertTextMode.AsIs) =>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet)
                 .WithLabel(label)
-                .WithSnippetEdit(replacementRange, snippet, insertTextMode)
+                .WithSnippetEdit(replacementRange, snippet)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority));
@@ -866,10 +866,10 @@ param ${1:Identifier} string", context.ReplacementRange);
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, TextEditContainer additionalTextEdits, CompletionPriority priority = CompletionPriority.Medium, InsertTextMode insertTextMode = InsertTextMode.AsIs) =>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, TextEditContainer additionalTextEdits, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet)
                 .WithLabel(label)
-                .WithSnippetEdit(replacementRange, snippet, insertTextMode)
+                .WithSnippetEdit(replacementRange, snippet)
                 .WithAdditionalEdits(additionalTextEdits)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
