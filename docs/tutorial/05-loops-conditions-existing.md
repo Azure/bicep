@@ -70,7 +70,7 @@ resource foo 'my.provider/type@2021-03-01' = [for <ITERATOR_NAME> in <ARRAY> = {
 
 `ITERATOR_NAME` is a new symbol that is only available inside the body of the resource declaration. It can be any name you would like and represents the current item in the array.
 
-Let's remove our condition and replace it with a loop based on an input of container names:
+Let's remove our condition and replace it with a loop based on an input of container names. There's also a variant which gives us access to the current item's index in the array:
 
 ```bicep
 param containerNames array = [
@@ -82,6 +82,11 @@ param containerNames array = [
 resource blob 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06-01' = [for name in containerNames: {
   name: '${stg.name}/default/${name}'
   // dependsOn will be added when the template is compiled
+}]
+
+// with index
+resource blob2 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06-01' = [for (name, index) in containerNames: {
+  name: '${stg.name}/default/${name}-${index}'
 }]
 ```
 
