@@ -74,7 +74,7 @@ const expression: IncludeRule = {
 const escapeChar: MatchRule = {
   key: "escape-character",
   scope: "constant.character.escape.bicep",
-  match: `\\\\(u[0-9A-Fa-f]{6}|n|r|t|\\\\|'|\\\${)`,
+  match: `\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|'|\\\${)`,
 };
 
 const stringVerbatim: BeginEndRule = {

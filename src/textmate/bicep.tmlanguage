@@ -97,7 +97,7 @@
         <key>name</key>
         <string>constant.character.escape.bicep</string>
         <key>match</key>
-        <string>\\(u[0-9A-Fa-f]{6}|n|r|t|\\|'|\${)</string>
+        <string>\\(u{[0-9A-Fa-f]+}|n|r|t|\\|'|\${)</string>
       </dict>
       <key>expression</key>
       <dict>
