@@ -1,9 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -162,9 +163,9 @@ namespace Bicep.Core.Syntax
             var endToken = CreateStringInterpolationToken(false, true, "");
 
             return new StringSyntax(
-                new [] { startToken, endToken },
+                new[] { startToken, endToken },
                 syntax.AsEnumerable(),
-                new [] { "", "" });
+                new[] { "", "" });
         }
 
         public static Token CreateStringInterpolationToken(bool isStart, bool isEnd, string value)
@@ -194,6 +195,13 @@ namespace Bicep.Core.Syntax
                 arguments,
                 RightParenToken);
         }
+
+        public static FunctionCallSyntax CreateFunctionCall(string functionName, params FunctionArgumentSyntax[] argumentSyntaxes)
+            => new FunctionCallSyntax(
+                CreateIdentifier(functionName),
+                LeftParenToken,
+                argumentSyntaxes,
+                RightParenToken);
 
         public static DecoratorSyntax CreateDecorator(string functionName, params SyntaxBase[] argumentExpressions)
         {
@@ -245,5 +253,82 @@ namespace Bicep.Core.Syntax
             TokenType.NullKeyword => "null",
             _ => ""
         };
+
+        public static SyntaxBase FlattenStringOperations(SyntaxBase original)
+        {
+            if (original is not FunctionCallSyntax functionCallSyntax)
+            {
+                return original;
+            }
+
+            // flatten nested 'concat' functions
+            if (functionCallSyntax.NameEquals("concat"))
+            {
+                var concatArguments = new List<FunctionArgumentSyntax>();
+                foreach (var arg in functionCallSyntax.Arguments)
+                {
+                    // recurse
+                    var flattenedExpression = FlattenStringOperations(arg.Expression);
+
+                    if (flattenedExpression is FunctionCallSyntax childFunction && childFunction.NameEquals("concat"))
+                    {
+                        // concat directly inside a concat - break it out
+                        concatArguments.AddRange(childFunction.Arguments);
+                        continue;
+                    }
+
+                    concatArguments.Add(new FunctionArgumentSyntax(flattenedExpression, arg.Comma));
+                }
+
+                // overwrite the original expression
+                functionCallSyntax = CreateFunctionCall("concat", CombineConcatArguments(concatArguments).ToArray());
+            }
+
+            // just return the inner portion if there's only one concat entry
+            if (functionCallSyntax.NameEquals("concat") && !functionCallSyntax.Arguments.Skip(1).Any())
+            {
+                return functionCallSyntax.Arguments.Select(arg => arg.Expression).First();
+            }
+
+            return functionCallSyntax;
+        }
+
+        private static IEnumerable<FunctionArgumentSyntax> CombineConcatArguments(IEnumerable<FunctionArgumentSyntax> arguments)
+        {
+            var stringList = new List<string>();
+            foreach (var argument in arguments)
+            {
+                // accumulate string literals if possible
+                if (argument.Expression is StringSyntax stringSyntax)
+                {
+                    if (!stringSyntax.Expressions.Any())
+                    {
+                        foreach (var text in stringSyntax.SegmentValues)
+                        {
+                            stringList.Add(text);
+                        }
+
+                        // don't return the string yet - there may be another string to join
+                        continue;
+                    }
+                }
+
+                // check to see if a previous string needs to be yielded back
+                if (stringList.Any())
+                {
+                    yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
+                    stringList.Clear();
+                }
+
+                // if the arg is not a string it will yield back here
+                yield return argument;
+            }
+
+            // yield final string if there is one
+            if (stringList.Any())
+            {
+                yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
+            }
+        }
     }
 }

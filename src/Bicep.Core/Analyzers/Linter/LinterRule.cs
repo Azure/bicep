@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers.Linter
 {
-    internal class LinterRule : IBicepAnalyzerRule
+    internal abstract class LinterRule : IBicepAnalyzerRule
     {
         public LinterRule(string code, string ruleName, string description, string docUri,
                           bool enableForEdit = true,
@@ -52,19 +52,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// <returns></returns>
         protected virtual string GetMessage() => this.Description;
 
-        public virtual IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
-        {
-            //TODO: make this truly abstract so that an exception is thrown if Analyze
-            // is invoked on base class
-            // throw new INvalideOperationException("must override base class Analyze")
-            var span = new TextSpan(0, 1);
-            yield return new AnalyzerDiagnostic(
-                                this.AnalyzerName,
-                                span,
-                                this.DiagnosticLevel,
-                                this.Code,
-                                this.GetMessage());
-        }
+        public abstract IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model);
 
         public void ConfigureRule(bool enabledOnChange, bool enabledForDocument, DiagnosticLevel level)
         {

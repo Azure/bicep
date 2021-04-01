@@ -20,7 +20,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
         {
-            return base.Analyze(model);
+            // TODO: Implement this
+            yield break;
+
         }
     }
 }

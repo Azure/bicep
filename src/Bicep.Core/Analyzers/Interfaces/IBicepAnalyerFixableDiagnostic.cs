@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers.Interfaces
 {
-    public interface IBicepAnalyerFixableDiagnostic : IBicepAnalyzerDiagnostic, IFixable, IFixableDiagnostic
+    public interface IBicepAnalyerFixableDiagnostic : IBicepAnalyzerDiagnostic, IFixable
     {
     }
 }

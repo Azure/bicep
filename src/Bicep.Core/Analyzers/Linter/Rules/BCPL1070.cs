@@ -3,6 +3,7 @@
 
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -16,5 +17,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://bicep/linter/rules/BCPL1070")
         { }
 
+        public override IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        {
+            // TODO: Implement this
+            yield break;
+        }
     }
 }

@@ -17,5 +17,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://bicep/linter/rules/BCPL1040")
         { }
 
+        public override IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        {
+            // TODO: Implement this
+            yield break;
+
+        }
     }
 }

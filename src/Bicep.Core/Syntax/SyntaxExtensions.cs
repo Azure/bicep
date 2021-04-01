@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
@@ -20,6 +21,9 @@ namespace Bicep.Core.Syntax
 
         public static bool HasParseErrors(this SyntaxBase syntax)
             => syntax.GetParseDiagnostics().Any(d => d.Level == DiagnosticLevel.Error);
+
+        public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
+            => StringComparer.OrdinalIgnoreCase.Equals(funcSyntax.Name, compareTo);
     }
 }
 

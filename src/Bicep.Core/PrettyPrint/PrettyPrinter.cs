@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Diagnostics;
@@ -34,6 +34,18 @@ namespace Bicep.Core.PrettyPrint
                 sb.Append(newline);
             }
 
+            return sb.ToString();
+        }
+
+        public static string PrintSyntax(SyntaxBase syntax, PrettyPrintOptions options)
+        {
+            string indent = options.IndentKindOption == IndentKindOption.Space ?  new string(' ', options.IndentSize) : "\t";
+
+            var sb = new StringBuilder();
+            var documentBuildVisitor = new DocumentBuildVisitor();
+
+            var document = documentBuildVisitor.BuildDocument(syntax);
+            document.Layout(sb, indent, Environment.NewLine);
             return sb.ToString();
         }
 

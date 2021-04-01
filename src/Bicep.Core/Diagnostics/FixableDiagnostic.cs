@@ -5,7 +5,7 @@ using Bicep.Core.CodeAction;
 
 namespace Bicep.Core.Diagnostics
 {
-    public class FixableDiagnostic : Diagnostic, IFixable, IFixableDiagnostic
+    public class FixableDiagnostic : Diagnostic, IFixable
     {
         private readonly CodeFix fix;
         private readonly IEnumerable<CodeFix>? additionalFixes;
