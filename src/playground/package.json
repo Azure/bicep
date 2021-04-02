@@ -46,6 +46,6 @@
     "react": "^17.0.2",
     "react-bootstrap": "^1.5.2",
     "react-dom": "^16.14.0",
-    "react-monaco-editor": "^0.40.0"
+    "react-monaco-editor": "^0.43.0"
   }
 }
