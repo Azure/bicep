@@ -110,6 +110,12 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs a parameter default value.
         /// </summary>
-        ParameterDefaultValue = 1 << 19
+        ParameterDefaultValue = 1 << 19,
+
+        /// <summary>
+        /// The current location is not a valid scope where we can offer completions.
+        /// </summary>
+        /// <remarks>This is used to prevent fallback to Expression kind</remarks>
+        NotValid = 1 << 20
     }
 }

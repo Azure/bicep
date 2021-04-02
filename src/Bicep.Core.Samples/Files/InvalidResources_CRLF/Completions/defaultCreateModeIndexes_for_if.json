@@ -3689,6 +3689,40 @@
     ]
   },
   {
+    "label": "noCompletionsBeforeColon",
+    "kind": "interface",
+    "detail": "noCompletionsBeforeColon",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noCompletionsBeforeColon",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "noCompletionsBeforeColon"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "noCompletionsWithoutColon",
+    "kind": "interface",
+    "detail": "noCompletionsWithoutColon",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noCompletionsWithoutColon",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "noCompletionsWithoutColon"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "nonObjectResourceLoopBody",
     "kind": "interface",
     "detail": "nonObjectResourceLoopBody",

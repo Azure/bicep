@@ -128,6 +128,17 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   }
 }
 
+// there should be no completions without the colon
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  
+}
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  :
+}
+
 // unsupported resource ref
 var resrefvar = bar.name
 

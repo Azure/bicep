@@ -231,6 +231,19 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   }
 }
 
+// there should be no completions without the colon
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  
+//@[8:8) [BCP018 (Error)] Expected the ":" character at this location. ||
+}
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  :
+//@[9:9) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+}
+
 // unsupported resource ref
 var resrefvar = bar.name
 
@@ -1804,3 +1817,4 @@ resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' exist
   properties: {}
 //@[2:12) [BCP173 (Error)] The property "properties" cannot be used in an existing resource declaration. |properties|
 }
+
