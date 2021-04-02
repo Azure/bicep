@@ -113,7 +113,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsMemberAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
                        ConvertFlag(IsResourceAccessContext(matchingNodes, resourceAccessInfo, offset), BicepCompletionContextKind.ResourceAccess) |
                        ConvertFlag(IsArrayIndexContext(matchingNodes, arrayAccessInfo), BicepCompletionContextKind.ArrayIndex | BicepCompletionContextKind.Expression) |
-                       ConvertFlag(IsPropertyValueContext(matchingNodes, propertyInfo), BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression) |
+                       GetPropertyValueFlags(matchingNodes, propertyInfo, offset) |
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
                        ConvertFlag(IsModuleBodyContext(matchingNodes, offset), BicepCompletionContextKind.ModuleBody) |
@@ -394,23 +394,43 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        private static bool IsPropertyValueContext(List<SyntaxBase> matchingNodes, (ObjectPropertySyntax? node, int index) propertyInfo) =>
-            propertyInfo.node != null &&
-                (
-                // the cursor position may be in the trivia following the colon that follows the property name
-                // if that's the case, the offset should match the end of the property span exactly
-                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, _ => true) ||
+        private static BicepCompletionContextKind GetPropertyValueFlags(List<SyntaxBase> matchingNodes, (ObjectPropertySyntax? node, int index) propertyInfo, int offset)
+        {
+            if (propertyInfo.node is not null)
+            {
+                if (
+                    // the cursor position may be in the trivia following the colon that follows the property name
+                    // if that's the case, the offset should match the end of the property span exactly
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => property.Colon is not SkippedTriviaSyntax && offset >= property.Colon.GetEndPosition()) ||
+                    // the cursor position is after the colon that follows the property name
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset>= token.GetEndPosition()) ||
+                    // the cursor is inside a string value of the property
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax)) ||
+                    // the cursor could is a partial or full identifier
+                    // which will present as either a keyword or identifier token
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (property, variableAccess, identifier, token) => ReferenceEquals(property.Value, variableAccess)))
+                {
+                    return BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression;
+                };
 
-                // the cursor position is after the colon that follows the property name
-                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon) ||
+                // | indicates cursor position
+                if (
+                    // {
+                    //   key |
+                    // }
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => true) ||
+                    // {
+                    //   key |:
+                    // }
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon))
+                {
+                    // we don't want to offer completions in this case and also want to prevent fallback to expression
+                    return BicepCompletionContextKind.NotValid;
+                }
+            }
 
-                // the cursor is inside a string value of the property
-                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax)) ||
-
-                // the cursor could is a partial or full identifier
-                // which will present as either a keyword or identifier token
-                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (property, variableAccess, identifier, token) => ReferenceEquals(property.Value, variableAccess))
-                );
+            return BicepCompletionContextKind.None;
+        }
 
         private static bool IsArrayItemContext(List<SyntaxBase> matchingNodes, (ArraySyntax? node, int index) arrayInfo)
         {
