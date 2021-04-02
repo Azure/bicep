@@ -18,4 +18,12 @@
     <EmbeddedResource Include="./Snippets/Templates/*.bicep" LogicalName="$([System.String]::new('Snippets/Templates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Snippets\Templates\res-automation-module.bicep" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Snippets\Templates\res-automation-module.bicep" />
+  </ItemGroup>
+
 </Project>

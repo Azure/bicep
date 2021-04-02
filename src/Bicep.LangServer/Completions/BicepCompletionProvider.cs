@@ -57,7 +57,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetModulePathCompletions(model, context))
-                .Concat(GetResourceOrModuleBodyCompletions(context))
+                .Concat(GetResourceBodyCompletions(context))
+                .Concat(GetModuleBodyCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context));
         }
 
@@ -337,9 +338,49 @@ param ${1:Identifier} string", context.ReplacementRange);
             }
         }
 
-        private IEnumerable<CompletionItem> GetResourceOrModuleBodyCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetResourceBodyCompletions(BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody) || context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody))
+            {
+                StringSyntax? stringSyntax = (context.EnclosingDeclaration as ResourceDeclarationSyntax)?.TypeString;
+                string label = "{}";
+                string detail = "{}";
+                string snippetText = "{\n\t$0\n}";
+
+                if (stringSyntax is not null)
+                {
+                    string type = stringSyntax.StringTokens[0].Text;
+
+                    ResourceSnippet? resourceSnippet = ResourceSnippetsProvider.GetResourceSnippet(type);
+
+                    if (resourceSnippet is not null)
+                    {
+                        label = resourceSnippet.Name;
+                        detail = resourceSnippet.Detail;
+                        snippetText = resourceSnippet.Text;
+                    }
+                }
+
+                yield return CompletionItemBuilder.Create(CompletionItemKind.Value)
+                    .WithLabel(label)
+                    .WithSnippetEdit(context.ReplacementRange, snippetText, InsertTextMode.AdjustIndentation)
+                    .WithDetail(detail)
+                    .Preselect()
+                    .WithSortText(GetSortText("{}", CompletionPriority.High));
+
+                yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
+
+                // loops are always allowed in a resource/module
+                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object, filtersAllowed: true))
+                {
+                    yield return completion;
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetModuleBodyCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
             {
                 yield return CreateObjectBodyCompletion(context.ReplacementRange);
 

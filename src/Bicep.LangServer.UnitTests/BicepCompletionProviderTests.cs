@@ -69,6 +69,7 @@ namespace Bicep.LangServer.UnitTests
                 ["Kubernetes Service Cluster"] = new[] { "aksCluster", "1.5", "prefix", "2", "Standard_All", "userName", "keyData", "appId", "test" },
                 ["Application Security Group"] = new[] { "myApplicationSecurityGroup" },
                 ["Automation Account"] = new[] { "myAutomationAccount", "Basic" },
+                ["Automation Module"] = new[] { "automationAccount" },
                 ["Availability Set"] = new[] { "availabilitySet", "availabilitySet" },
                 ["Container Group"] = new[] { "myContainerGroup",  "container", "image", "80", "1", "4", "Linux", "TCP", "80" },
                 ["Container Registry"] = new[] { "myContainerRegistry", "Basic", "true" },

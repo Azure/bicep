@@ -14,7 +14,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         {
             ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(string.Empty);
+            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(string.Empty, string.Empty);
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));
@@ -25,7 +25,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         {
             ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(null);
+            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(null, string.Empty);
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));
@@ -36,7 +36,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         {
             ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText("   ");
+            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText("   ", string.Empty);
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));
@@ -56,7 +56,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }";
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template);
+            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template, @"C:\foo.bicep");
 
             string expectedText = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -83,7 +83,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }";
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template);
+            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template, @"C:\foo.bicep");
 
             string expectedText = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -104,7 +104,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             string template = @"// DNS Zone";
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template);
+            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template, string.Empty);
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));

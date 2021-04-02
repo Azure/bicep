@@ -8,5 +8,7 @@ namespace Bicep.LanguageServer.Snippets
     public interface IResourceSnippetsProvider
     {
         IEnumerable<ResourceSnippet> GetResourceSnippets();
+
+        ResourceSnippet? GetResourceSnippet(string type);
     }
 }
