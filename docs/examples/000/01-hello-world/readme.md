@@ -10,7 +10,7 @@ The command to deploy this bicep file is:
 
 ### PowerShell
 ``` PowerShell
-New-AzResourceGroupDeployment  -ResourceGroupName myRG -TemplateFile .\main.bicep
+New-AzResourceGroupDeployment -ResourceGroupName myRG -TemplateFile .\main.bicep
 ```
 
 ### Azure CLI
@@ -23,8 +23,26 @@ az deployment group create --resource-group myRG --template-file ./main.bicep
 The output of the deployment should be:
 
 ### PowerShell
+``` Powershell
+PS C:\bicep\docs\examples\000\01-hello-world>$deployment = New-AzResourceGroupDeployment -ResourceGroupName myRG -TemplateFile .\main.bicep -TemplateParameterObject @{ yourName="Chris" }
+PS C:\bicep\docs\examples\000\01-hello-world>$deployment.Outputs.helloWorld.value
+Hello World! - Hi Chris
+```
+
+### Azure CLI
+``` Bash
+/c/bicep/docs/examples/000/01-hello-world (main)
+az deployment group create --resource-group myRG --template-file ./main.bicep  --parameters yourName=Chris --query properties.outputs.helloWorld.value
+"Hello World! - Hi Chris"
+
+```
+
+## Full Execution Samples
+Full execution samples are included for the Hello World only.
+
+### PowerShell
 ``` PowerShell
-PS C:\bicep\docs\examples\000\1. hello-world> New-AzResourceGroupDeployment -ResourceGroupName myRG -TemplateFile .\main.bicep
+PS C:\bicep\docs\examples\000\01-hello-world> New-AzResourceGroupDeployment -ResourceGroupName myRG -TemplateFile .\main.bicep
 
 cmdlet New-AzResourceGroupDeployment at command pipeline position 1
 Supply values for the following parameters:
@@ -52,7 +70,7 @@ DeploymentDebugLogLevel :
 
 ### Azure CLI
 ``` Bash
-/c/bicep/docs/examples/000/1. hello-world (main)
+/c/bicep/docs/examples/000/01-hello-world (main)
 $ az deployment group create --resource-group myRG --template-file ./main.bicep
 Please provide string value for 'yourName' (? for help): Chris
 {
