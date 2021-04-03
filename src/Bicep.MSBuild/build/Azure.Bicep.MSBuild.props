@@ -1,10 +1,6 @@
-<Project TreatAsLocalProperty="TaskRuntimeDirectory;TaskAssembly">
+<Project TreatAsLocalProperty="TaskAssembly">
   <PropertyGroup>
-    <TaskRuntimeDirectory Condition=" $(MSBuildRuntimeType) != 'Core' ">net472</TaskRuntimeDirectory>
-    <TaskRuntimeDirectory Condition=" $(MSBuildRuntimeType) == 'Core' ">netstandard2.0</TaskRuntimeDirectory>
-
-    <TaskAssembly>$(MSBuildThisFileDirectory)..\tasks\$(TaskRuntimeDirectory)\Azure.Bicep.MSBuild.dll</TaskAssembly>
-
+    <TaskAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\Azure.Bicep.MSBuild.dll</TaskAssembly>
     <BicepDefaultOutputFileExtension Condition=" $(BicepDefaultOutputFileExtension) == '' ">.json</BicepDefaultOutputFileExtension>
   </PropertyGroup>
 
