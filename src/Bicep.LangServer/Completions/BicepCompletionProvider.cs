@@ -82,19 +82,11 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
-                    string label = resourceSnippet.Prefix;
-                    CompletionPriority completionPriority = CompletionPriority.Medium;
-
-                    if (label.StartsWith("resource"))
-                    {
-                        completionPriority = CompletionPriority.High;
-                    }
-
-                    yield return CreateContextualSnippetCompletion(label,
+                    yield return CreateContextualSnippetCompletion(resourceSnippet.Prefix,
                                                                    resourceSnippet.Detail,
                                                                    resourceSnippet.Text,
                                                                    context.ReplacementRange,
-                                                                   completionPriority);
+                                                                   resourceSnippet.CompletionPriority);
                 }
             }
 

@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.LanguageServer.Completions;
 
 namespace Bicep.LanguageServer.Snippets
 {
@@ -35,7 +36,14 @@ namespace Bicep.LanguageServer.Snippets
 
                 (string description, string snippetText) = GetDescriptionAndText(streamReader.ReadToEnd());
                 string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
-                Snippet snippet = new Snippet(snippetText, prefix, description);
+                CompletionPriority completionPriority = CompletionPriority.Medium;
+
+                if (prefix.StartsWith("resource"))
+                {
+                    completionPriority = CompletionPriority.High;
+                }
+
+                Snippet snippet = new Snippet(snippetText, completionPriority, prefix, description);
 
                 topLevelNamedDeclarationSnippets.Add(snippet);
             }
