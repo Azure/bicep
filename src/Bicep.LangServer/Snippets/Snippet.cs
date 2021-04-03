@@ -19,11 +19,13 @@ namespace Bicep.LanguageServer.Snippets
         // See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax for more information
         private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>\w+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(?<value>.*))\|})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
-        public Snippet(string text)
+        public Snippet(string text, string prefix = "", string detail = "")
         {
             var matches = PlaceholderPattern.Matches(text);
 
             this.Text = text;
+            this.Prefix = prefix;
+            this.Detail = detail;
             this.Placeholders = matches
                 .Select(CreatePlaceholder)
                 .OrderBy(p=>p.Index)
@@ -31,6 +33,10 @@ namespace Bicep.LanguageServer.Snippets
 
             this.Validate();
         }
+
+        public string Prefix { get; }
+
+        public string Detail { get; }
 
         public string Text { get; }
 

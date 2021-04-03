@@ -7,14 +7,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.LangServer.UnitTests.Snippets
 {
     [TestClass]
-    public class ResourceSnippetsProviderTests
+    public class SnippetsProviderTests
     {
         [TestMethod]
         public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()
         {
-            ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(string.Empty);
+            (string description, string text) = snippetsProvider.GetDescriptionAndText(string.Empty);
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));
@@ -23,9 +23,9 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void GetDescriptionAndText_WithNullInput_ReturnsEmptyDescriptionAndText()
         {
-            ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(null);
+            (string description, string text) = snippetsProvider.GetDescriptionAndText(null);
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));
@@ -34,9 +34,9 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void GetDescriptionAndText_WithOnlyWhitespaceInput_ReturnsEmptyDescriptionAndText()
         {
-            ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText("   ");
+            (string description, string text) = snippetsProvider.GetDescriptionAndText("   ");
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));
@@ -45,7 +45,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void GetDescriptionAndText_WithValidInput_ReturnsDescriptionAndText()
         {
-            ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
 
             string template = @"// DNS Zone
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
@@ -56,7 +56,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }";
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template);
+            (string description, string text) = snippetsProvider.GetDescriptionAndText(template);
 
             string expectedText = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -73,7 +73,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void GetDescriptionAndText_WithMissingCommentInInput_ReturnsEmptyDescriptionAndValidText()
         {
-            ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
 
             string template = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -83,7 +83,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }";
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template);
+            (string description, string text) = snippetsProvider.GetDescriptionAndText(template);
 
             string expectedText = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -100,11 +100,11 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void GetDescriptionAndText_WithCommentAndMissingDeclarations_ReturnsEmptyDescriptionAndText()
         {
-            ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
 
             string template = @"// DNS Zone";
 
-            (string description, string text) = resourceSnippetsProvider.GetDescriptionAndText(template);
+            (string description, string text) = snippetsProvider.GetDescriptionAndText(template);
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));
