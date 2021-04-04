@@ -39,6 +39,9 @@ Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or u
 
 If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](./docs/decompiling.md).
 
+There's some deployment scenarios within [Docs](./docs) 
+and the [Examples](./docs/examples) are also helpful! 
+
 ## How does Bicep work?
 
 First, author your Bicep code using the Bicep language service as part of the [Bicep VS Code extension](./docs/installing.md#bicep-vs-code-extension)
