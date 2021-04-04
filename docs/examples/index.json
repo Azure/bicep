@@ -1,7 +1,7 @@
 [
     {
-        "filePath": "000/1. hello-world/main.bicep",
-        "description": "00/1. hello-world"
+        "filePath": "000/01-hello-world/main.bicep",
+        "description": "000/01-hello-world"
     },
     {
         "filePath": "101/1vm-2nics-2subnets-1vnet/main.bicep",
