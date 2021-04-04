@@ -131,10 +131,11 @@ If you have a symbolic reference to a scope, you can use that as a value of the 
 targetScope = 'subscription'
 
 // deploy a resource group to the subscription scope
-resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
+resource myRg 'Microsoft.Resources/resourceGroups@2020-10-01' = {
   name: 'myRg'
   location: 'West US'
-  scope: subscription()
+  properties: {
+  }
 }
 
 // deploy a module to that newly-created resource group
