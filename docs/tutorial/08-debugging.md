@@ -1,16 +1,16 @@
 # DEBUGGING
-Inevitably in your process things aren't going to work.
-This is a means and methods for getting "unstuck" when things go wrong.
+Unless you lead a fully charmed life, one day with bicep the relationship is gonna get rocky and because your code isn't going to work.
+This document is intended a means and methods for getting "unstuck" when things go wrong.
 
-This document is intended to deal with some of the rough edges for a person new to Azure Resource
-Manager Templates (ARM), Bicep, as they make progression beyond the "HelloWorld" tutorials. 
+This document hopes to deal with some of the rough edges for a person new to Azure Resource Manager Templates (ARM) &amp; Bicep
+as the reader makes progression beyond the "HelloWorld" tutorials into comprehension and toward mastery. 
 
 ## Getting Help
 * StackOverflow, Google, etc.  
 * Azure on Reddit http://reddit.com/azure 
 * Twitter twitter.com/biceplang
 
-## Limit the Size of the Crater
+## Limit the size of the Crater you Leave
 Bicep is powerful but potentially destructive force so there is a certain amount of both reverance 
 and anxiety for a n00b getting started.  Pay attention to the [targetScope=](resource-scopes.md) 
 directive since that limits the size of the crater you can leave in your companies cloud. 
@@ -81,14 +81,17 @@ If you would like to report any issues or inaccurate conversions, please see htt
 /home/brianh/sportsworld-bicep/azureconsole_resource.json: Decompilation failed with fatal error "[1:1]: Unable to find a template property named $schema."
 ```
 
-Next you should follow the steps in (decompiling.md)[decompiling.md] for the basics once you've got an ARM template.
+Next you should follow the steps in [decompiling.md](decompiling.md) for the basics once you've successfully gotten an ARM template.
 But sometimes the steps in decompile don't work completely, such as the example below:
 
 ```
+# NOTE: Example might work, might not. 
 az group export --name "yourResourceGroup" > az-group-export.json
+# ^^^ Hahhahahaha, if only it was that easy! 
 ```
 
-But it's not really that easy.  You might also encounter an issue like this:
+So after you spin the wheel of fate with yourResourceGroup export, you might encounter a wild: 
+
 ```
 WARNING: Export template operation completed with errors. Some resources were not exported. Please see details for more information.
 ERROR: Could not get resources of the type 'Microsoft.ContainerRegistry/registries/connectedRegistries'. Resources of this type will not be exported.
@@ -99,23 +102,36 @@ ERROR: Could not get resources of the type 'Microsoft.Sql/servers/databases/work
 ERROR: Could not get resources of the type 'Microsoft.Web/sites/functions'. Resources of this type will not be exported.
 ERROR: Could not get resources of the type 'Microsoft.Web/sites/extensions'. Resources of this type will not be exported.
 ```
+Alas, no, sorry it wasn't your lucky day!   The point is, not all Azure Templates can be exported.  
+This isn't a bicep issue, unless your application for bicep depends on Azure Resource Manager. 
 
-There is still some ambiguity &amp; uncertainty about what these errors mean among the Stack Overflow discussion or if there are work-arounds.   
-Non-authorative answers speculate that these are unimplemented services, or could result in a massive deluge of data or too-easy divulging
-of keys, etc.  I for one appreciate any hesitancy with implementing a "dump all key vaults" command. 
+There is still some ambiguity &amp; uncertainty about what these errors mean among the Stack Overflow discussion or if there are work-arounds.
+They aren't really ERROR's, it's more like a WARNING. You can probably enumerate all that data yourself, but several of those have pages of
+ambiguously named parameters.  Good luck!
 
-In these cases it's a one-way write, so you'd need to look up the ARM definition for a keyvault. 
+Non-authorative answers on StackOverflow speculate that these are unimplemented services, if so - hurry up and wait, may the Azure gods provide. 
+Several of those would result in a massive deluge of data, i.e. "too big" or "too-easy" exfiltration of keys, etc.  
+I for one appreciate any hesitancy with implementing a "dump all key vaults" command.  What else can be said on the topic? 
+
+If you have encounter one of those cases mentioned above you'll need to ARM definition for the resource. 
+
 
 ## InvalidTemplate (Error in ARM transpilation)
 ```
 InvalidTemplate - Deployment template validation failed: 'The resource 'Microsoft.Resources/deployments/storageDeploy' at line '1' and column 'NNN' is defined multiple times in a template. Please see https://aka.ms/arm-template/#resources for usage details.'.
 ```
 
+We can generate the bicep file using a command, but oh-no it's multiline! 
+
 ```
 $ az bicep build --files manybuggy.bicep
-# ^^ this doesn't work, because we can't correlate it with the line NNN above
+# ^^ BUT oh-no! we can't correlate this output with the line NNN from the InvalidTemplate error above ^^
 ```
-But you can use the 
+
+But intrepid reader, you can use the az cli --debug flag mentioned earlier to inspect the ARM template payload, 
+cut and paste into an editor, then jump to that NNN column for clues! 
+
+// in case it wasn't obvious: NNN is whatever number in your file //
 
 ## Deployment Failed
 Deployment failed. Correlation ID: XXXXX-XXXX-XXXXX. {
@@ -125,9 +141,11 @@ Deployment failed. Correlation ID: XXXXX-XXXX-XXXXX. {
   }
 }
 
+Highly situational, probably a bug in your bicep that snuck past intellisene plugin.  Check your code. Good luck!
+
 ## InvalidTemplateDeployment 
 The template deployment 'main' is not valid according to the validation procedure. 
 The tracking id is 'XXXXX-XXXXX-XXXXXX'. See inner errors for details.
 
-
+Highly situational, probably a bug in your bicep that snuck past intellisene plugin.  Check your code. Good luck!
 
