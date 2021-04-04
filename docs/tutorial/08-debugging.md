@@ -1,6 +1,6 @@
 # DEBUGGING
-Unless you lead a fully charmed life, one day with bicep the relationship is gonna get rocky and because your code isn't going to work.
-This document is intended a means and methods for getting "unstuck" when things go wrong.
+One day with bicep the relationship is gonna get rocky because your code isn't going to work.
+This document is intended to provide means and methods for getting "unstuck" when things go wrong.
 
 This document hopes to deal with some of the rough edges for a person new to Azure Resource Manager Templates (ARM) &amp; Bicep
 as the reader makes progression beyond the "HelloWorld" tutorials into comprehension and toward mastery. 
@@ -69,7 +69,7 @@ creating or "Automation | Export Template" once the resource is provisioned.
 
 Please take note that in Azure console there is also a Resource Json. 
 "Resource Json" is not the same as an ARM template, so DO NOT make the step below
-and get confused!  (included bad example for SEO)
+and get confused!  (NOTE: *only included bad example for SEO*)
 
 ```
 # NOTE: This *DOES NOT* work! Azure Console Resource Json is != to ARM template
