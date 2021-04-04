@@ -63,10 +63,16 @@ $ az deployment group create --mode Complete
 
 ## Decompile Step-by-Step
 
-If there is a part of your template which isn't working, then it can be created in the Azure console
-or CLI and then exported as JSON.   Using these semi-nonintuitive steps:
+If you're new to Bicep &amp; ARM - it's handy to know you can generate valid arm templates for decompilation
+by deploying a resource in Azure Console and then selecting the "Download a Template for Automation" after 
+creating or "Automation | Export Template" once the resource is provisioned. 
+
+Please take note that in Azure console there is also a Resource Json. 
+"Resource Json" is not the same as an ARM template, so DO NOT make the step below
+and get confused!  (included bad example for SEO)
 
 ```
+# NOTE: This *DOES NOT* work! Azure Console Resource Json is != to ARM template
 $ az bicep decompile --files azureconsole_resource.json
 
 WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.
@@ -75,9 +81,30 @@ If you would like to report any issues or inaccurate conversions, please see htt
 /home/brianh/sportsworld-bicep/azureconsole_resource.json: Decompilation failed with fatal error "[1:1]: Unable to find a template property named $schema."
 ```
 
-^^^ At this time the solution to these types of issues is "fiddle with it and it might work", very much an area of ongoing development.
-https://github.com/Azure/bicep/issues/1578
+Next you should follow the steps in (decompiling.md)[decompiling.md] for the basics once you've got an ARM template.
+But sometimes the steps in decompile don't work completely, such as the example below:
 
+```
+az group export --name "yourResourceGroup" > az-group-export.json
+```
+
+But it's not really that easy.  You might also encounter an issue like this:
+```
+WARNING: Export template operation completed with errors. Some resources were not exported. Please see details for more information.
+ERROR: Could not get resources of the type 'Microsoft.ContainerRegistry/registries/connectedRegistries'. Resources of this type will not be exported.
+ERROR: Could not get resources of the type 'Microsoft.Insights/components/Annotations'. Resources of this type will not be exported.
+ERROR: Could not get resources of the type 'Microsoft.KeyVault/vaults/keys'. Resources of this type will not be exported.
+ERROR: Could not get resources of the type 'Microsoft.Sql/servers/databases/advisors'. Resources of this type will not be exported.
+ERROR: Could not get resources of the type 'Microsoft.Sql/servers/databases/workloadGroups'. Resources of this type will not be exported.
+ERROR: Could not get resources of the type 'Microsoft.Web/sites/functions'. Resources of this type will not be exported.
+ERROR: Could not get resources of the type 'Microsoft.Web/sites/extensions'. Resources of this type will not be exported.
+```
+
+There is still some ambiguity &amp; uncertainty about what these errors mean among the Stack Overflow discussion or if there are work-arounds.   
+Non-authorative answers speculate that these are unimplemented services, or could result in a massive deluge of data or too-easy divulging
+of keys, etc.  I for one appreciate any hesitancy with implementing a "dump all key vaults" command. 
+
+In these cases it's a one-way write, so you'd need to look up the ARM definition for a keyvault. 
 
 ## InvalidTemplate (Error in ARM transpilation)
 ```
