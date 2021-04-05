@@ -4,3 +4,4 @@ Makefile
 azuredeploy.*
 main.parameters.json
 metadata.json
+images/
