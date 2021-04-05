@@ -1,3 +1,15 @@
+// 
+// v0.3 Bicep Known issue & work-around related to "secretsObject"
+// not possible to use this file (as is) on the `az cli` passing in secretsObject
+// https://github.com/Azure/bicep/issues/2135
+
+// Also: 
+// * KeyVaults secrets CANNOT BE EXPORTED into AMR/Bicep format. 
+// * documentation: 
+//   https://docs.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults/secrets?tabs=json
+// * 201/key-vault-secret=create in pre-decompiled AMR format
+//   https://github.com/Azure/azure-quickstart-templates/tree/master/201-key-vault-secret-create
+
 @description('Specifies the name of the key vault.')
 param keyVaultName string
 
@@ -39,7 +51,13 @@ param skuName string = 'standard'
 @secure()
 @description('Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object.')
 param secretsObject object = {
-  secrets: []
+  secrets: [
+  // either edit this section with your secrets, or add them as parameters you can define. 
+  //  {
+  //    secretName: 'yourSecret'
+  //    secretValue: 'yourValue'
+  //  }
+  ]
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2019-09-01' = {
