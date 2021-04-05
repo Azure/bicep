@@ -2,6 +2,7 @@
 // v0.3 Bicep Known issue & work-around related to "secretsObject"
 // not possible to use this file (as is) on the `az cli` passing in secretsObject
 // https://github.com/Azure/bicep/issues/2135
+// https://github.com/Azure/bicep/issues/1754
 
 // Also: 
 // * KeyVaults secrets CANNOT BE EXPORTED into AMR/Bicep format. 
