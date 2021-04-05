@@ -1,0 +1,6 @@
+tmp/
+Makefile
+.devcontainer/
+azuredeploy.*
+main.parameters.json
+metadata.json
