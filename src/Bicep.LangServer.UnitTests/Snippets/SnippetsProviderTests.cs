@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -108,6 +111,35 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             Assert.IsTrue(description.Equals(string.Empty));
             Assert.IsTrue(text.Equals(string.Empty));
+        }
+
+        [TestMethod]
+        public void CompletionPriorityOfResourceSnippets_ShouldBeHigh()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetTopLevelNamedDeclarationSnippets()
+                .Where(x => x.Prefix.StartsWith("resource"));
+
+            foreach (Snippet snippet in snippets)
+            {
+                Assert.AreEqual(CompletionPriority.High, snippet.CompletionPriority);
+            }
+        }
+
+
+        [TestMethod]
+        public void CompletionPriorityOfNonResourceSnippets_ShouldBeMedium()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetTopLevelNamedDeclarationSnippets()
+                .Where(x => !x.Prefix.StartsWith("resource"));
+
+            foreach (Snippet snippet in snippets)
+            {
+                Assert.AreEqual(CompletionPriority.Medium, snippet.CompletionPriority);
+            }
         }
     }
 }
