@@ -72,6 +72,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (valueSyntax is StringSyntax strSyntax
                     && strSyntax.Expressions.Length == 1
+                    && strSyntax.SegmentValues.All(s => string.IsNullOrEmpty(s))
                     && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax)
                 {
                     AddCodeFix(valueSyntax.Span, variableAccessSyntax.Name.IdentifierName);
