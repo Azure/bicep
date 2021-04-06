@@ -24,7 +24,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://bicep/linter/rules/BCPL1060")
         { }
 
-
         private CodeReplacement GetCodeReplacement(TextSpan span)
             => new CodeReplacement(span, "BCPL1060 - this is the new code");
 

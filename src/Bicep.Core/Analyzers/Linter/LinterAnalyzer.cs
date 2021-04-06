@@ -32,6 +32,8 @@ namespace Bicep.Core.Analyzers.Linter
             yield return new BCPL1050();
             yield return new BCPL1060();
             yield return new BCPL1070();
+            yield return new BCPL1080();
+            // TODO: use reflection to load these rules
         }
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => this.RuleSet;
