@@ -12,7 +12,12 @@ namespace Bicep.LanguageServer.Snippets
 {
     public sealed class Snippet
     {
-        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>\w+)}|(?<index>\d+))", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        // Below regex is used to detect following snippet syntax:
+        // ${(?<index>\d+):(?<name>\w+)} detects placeholders i.e. tab stops with values e.g ${1:foo}
+        // $(?<index>\d+) detects tab stops e.g. $1
+        // $(?<index>\d+)\|((?<name>[^,]+)(?<value>.*))\|} detects placeholders with choices e.g. ${1|one,two,three|}
+        // See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax for more information
+        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>\w+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(?<value>.*))\|})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         public Snippet(string text)
         {

@@ -30,6 +30,10 @@ updates:
     directory: "/src/Bicep.MSBuild.E2eTests"
     schedule:
       interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/src/textmate"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:

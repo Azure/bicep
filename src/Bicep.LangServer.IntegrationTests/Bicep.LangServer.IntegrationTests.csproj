@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.3" />
@@ -22,6 +22,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core.Samples\Bicep.Core.Samples.csproj" />
     <ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<!-- Path prefix: Completions/SnippetTemplates -->
+	<EmbeddedResource Include="./Completions/SnippetTemplates/**/*.json" LogicalName="$([System.String]::new('Completions/SnippetTemplates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+	<EmbeddedResource Include="./Completions/SnippetTemplates/**/*.bicep" LogicalName="$([System.String]::new('Completions/SnippetTemplates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
 </Project>
