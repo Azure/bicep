@@ -10,10 +10,10 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.168" />
-    <PackageReference Include="Azure.Deployments.Core" Version="1.0.168" />
-    <PackageReference Include="Azure.Bicep.Types" Version="0.1.95" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.95" />
+    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.173" />
+    <PackageReference Include="Azure.Deployments.Core" Version="1.0.173" />
+    <PackageReference Include="Azure.Bicep.Types" Version="0.1.107" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.107" />
   </ItemGroup>
 
 </Project>
