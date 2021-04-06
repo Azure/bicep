@@ -91,26 +91,16 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task String_segments_do_not_return_completions()
         {
-            var fileWithCursors = @"
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 var completeString = |'he|llo'|
 var interpolatedString = |'abc${|true}|de|f${|false}|gh|i'|
 var multilineString = |'''|
 hel|lo
 '''|
-";
-            var bicepFile = fileWithCursors.Replace("|", "");
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), bicepFile);
+");
 
-            var cursors = new List<int>();
-            for (var i = 0; i < fileWithCursors.Length; i++)
-            {
-                if (fileWithCursors[i] == '|')
-                {
-                    cursors.Add(i - cursors.Count);
-                }
-            }
-
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(bicepFile, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), file);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
 
             foreach (var cursor in cursors)
             {

@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Azure.Bicep.Types.Az;
+using Azure.Bicep.Types.Concrete;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -26,6 +29,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -172,6 +176,99 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
+
+        [DataTestMethod]
+        public async Task PropertyHovers_are_displayed_on_properties()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
+  n|ame: 'testRes'
+  prop|erties: {
+    readwri|te: 'abc'
+    write|only: 'def'
+    requ|ired: 'ghi'
+  }
+}
+
+output string test = testRes.prop|erties.rea|donly
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, syntaxTree, cursors);
+
+            hovers.Select(h => h?.Contents.MarkupContent?.Value).Should().BeEquivalentTo(
+                "```bicep\nname: 'testRes'\n```\nname property\n",
+                "```bicep\nproperties: object\n```\nproperties property\n",
+                "```bicep\nreadwrite: 'abc'\n```\nreadwrite property\n",
+                "```bicep\nwriteonly: 'def'\n```\nwriteonly property\n",
+                "```bicep\nrequired: 'ghi'\n```\nrequired property\n",
+                "```bicep\nproperties: Properties\n```\n",
+                "```bicep\nreadonly: string\n```\nreadonly property\n");
+        }
+
+
+        [DataTestMethod]
+        public async Task PropertyHovers_are_displayed_on_properties_with_loops()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = [for i in range(0, 10): {
+  n|ame: 'testRes${i}'
+  prop|erties: {
+    readwri|te: 'abc'
+    write|only: 'def'
+    requ|ired: 'ghi'
+  }
+}]
+
+output string test = testRes[3].prop|erties.rea|donly
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, syntaxTree, cursors);
+
+            hovers.Select(h => h?.Contents.MarkupContent?.Value).Should().BeEquivalentTo(
+                "```bicep\nname: string\n```\nname property\n",
+                "```bicep\nproperties: object\n```\nproperties property\n",
+                "```bicep\nreadwrite: 'abc'\n```\nreadwrite property\n",
+                "```bicep\nwriteonly: 'def'\n```\nwriteonly property\n",
+                "```bicep\nrequired: 'ghi'\n```\nrequired property\n",
+                "```bicep\nproperties: Properties\n```\n",
+                "```bicep\nreadonly: string\n```\nreadonly property\n");
+        }
+
+
+        [DataTestMethod]
+        public async Task PropertyHovers_are_displayed_on_properties_with_conditions()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = if (true) {
+  n|ame: 'testRes'
+  prop|erties: {
+    readwri|te: 'abc'
+    write|only: 'def'
+    requ|ired: 'ghi'
+  }
+}
+
+output string test = testRes.prop|erties.rea|donly
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, syntaxTree, cursors);
+
+            hovers.Select(h => h?.Contents.MarkupContent?.Value).Should().BeEquivalentTo(
+                "```bicep\nname: 'testRes'\n```\nname property\n",
+                "```bicep\nproperties: object\n```\nproperties property\n",
+                "```bicep\nreadwrite: 'abc'\n```\nreadwrite property\n",
+                "```bicep\nwriteonly: 'def'\n```\nwriteonly property\n",
+                "```bicep\nrequired: 'ghi'\n```\nrequired property\n",
+                "```bicep\nproperties: Properties\n```\n",
+                "```bicep\nreadonly: string\n```\nreadonly property\n");
+        }
+
         private static void ValidateHover(Hover? hover, Symbol symbol)
         {
             hover.Should().NotBeNull();
@@ -231,6 +328,23 @@ namespace Bicep.LangServer.IntegrationTests
         private static IEnumerable<object[]> GetData()
         {
             return DataSets.NonStressDataSets.ToDynamicTestData();
+        }
+
+        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
+        {
+            var hovers = new List<Hover?>();
+            foreach (var cursor in cursors)
+            {
+                var hover = await client.RequestHover(new HoverParams
+                {
+                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                    Position = PositionHelper.GetPosition(syntaxTree.LineStarts, cursor),
+                });
+
+                hovers.Add(hover);
+            }
+
+            return hovers;
         }
     }
 }
