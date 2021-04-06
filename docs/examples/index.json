@@ -464,6 +464,10 @@
         "description": "201/shared-image-gallery-with-image-defintition-and-role-assignment"
     },
     {
+        "filePath": "201/policy-azmonitor-agent-and-dcr-association/main.bicep",
+        "description": "201/policy-azmonitor-agent-and-dcr-association"
+    },
+    {
         "filePath": "301/expressroute-circuit-vnet-connection/main.bicep",
         "description": "301/expressroute-circuit-vnet-connection"
     },
