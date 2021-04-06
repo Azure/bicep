@@ -5,10 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Azure.Bicep.Types.Az;
-using Azure.Bicep.Types.Concrete;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -17,14 +15,12 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -85,7 +81,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var hover = await client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, nodeForHover.Span.Position)
+                    Position = TextCoordinateConverter.GetPosition(lineStarts, nodeForHover.Span.Position)
                 });
 
                 // fancy method to give us some annotated source code to look at if any assertions fail :)
@@ -165,7 +161,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var hover = await client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, node.Span.Position)
+                    Position = TextCoordinateConverter.GetPosition(lineStarts, node.Span.Position)
                 });
 
                 // fancy method to give us some annotated source code to look at if any assertions fail :)
@@ -197,14 +193,14 @@ output string test = testRes.prop|erties.rea|donly
             var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
-            hovers.Select(h => h?.Contents.MarkupContent?.Value).Should().BeEquivalentTo(
-                "```bicep\nname: 'testRes'\n```\nname property\n",
-                "```bicep\nproperties: object\n```\nproperties property\n",
-                "```bicep\nreadwrite: 'abc'\n```\nreadwrite property\n",
-                "```bicep\nwriteonly: 'def'\n```\nwriteonly property\n",
-                "```bicep\nrequired: 'ghi'\n```\nrequired property\n",
-                "```bicep\nproperties: Properties\n```\n",
-                "```bicep\nreadonly: string\n```\nreadonly property\n");
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: 'testRes'\n```\nname property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: object\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: 'abc'\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: 'def'\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: 'ghi'\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
 
 
@@ -228,14 +224,14 @@ output string test = testRes[3].prop|erties.rea|donly
             var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
-            hovers.Select(h => h?.Contents.MarkupContent?.Value).Should().BeEquivalentTo(
-                "```bicep\nname: string\n```\nname property\n",
-                "```bicep\nproperties: object\n```\nproperties property\n",
-                "```bicep\nreadwrite: 'abc'\n```\nreadwrite property\n",
-                "```bicep\nwriteonly: 'def'\n```\nwriteonly property\n",
-                "```bicep\nrequired: 'ghi'\n```\nrequired property\n",
-                "```bicep\nproperties: Properties\n```\n",
-                "```bicep\nreadonly: string\n```\nreadonly property\n");
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: object\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: 'abc'\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: 'def'\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: 'ghi'\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
 
 
@@ -259,14 +255,14 @@ output string test = testRes.prop|erties.rea|donly
             var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
-            hovers.Select(h => h?.Contents.MarkupContent?.Value).Should().BeEquivalentTo(
-                "```bicep\nname: 'testRes'\n```\nname property\n",
-                "```bicep\nproperties: object\n```\nproperties property\n",
-                "```bicep\nreadwrite: 'abc'\n```\nreadwrite property\n",
-                "```bicep\nwriteonly: 'def'\n```\nwriteonly property\n",
-                "```bicep\nrequired: 'ghi'\n```\nrequired property\n",
-                "```bicep\nproperties: Properties\n```\n",
-                "```bicep\nreadonly: string\n```\nreadonly property\n");
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: 'testRes'\n```\nname property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: object\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: 'abc'\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: 'def'\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: 'ghi'\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
 
         private static void ValidateHover(Hover? hover, Symbol symbol)
@@ -338,7 +334,7 @@ output string test = testRes.prop|erties.rea|donly
                 var hover = await client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                    Position = PositionHelper.GetPosition(syntaxTree.LineStarts, cursor),
+                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
                 });
 
                 hovers.Add(hover);

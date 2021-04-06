@@ -67,10 +67,10 @@ namespace Bicep.Core.UnitTests.Utils
                 "Properties",
                 new Dictionary<string, ObjectProperty>
                 {
-                    ["readwrite"] = new(stringType, ObjectPropertyFlags.None, "readwrite property"),
-                    ["readonly"] = new(stringType, ObjectPropertyFlags.ReadOnly, "readonly property"),
-                    ["writeonly"] = new(stringType, ObjectPropertyFlags.WriteOnly, "writeonly property"),
-                    ["required"] = new(stringType, ObjectPropertyFlags.Required, "required property"),
+                    ["readwrite"] = new(stringType, ObjectPropertyFlags.None, "This is a property which supports reading AND writing!"),
+                    ["readonly"] = new(stringType, ObjectPropertyFlags.ReadOnly, "This is a property which only supports reading."),
+                    ["writeonly"] = new(stringType, ObjectPropertyFlags.WriteOnly, "This is a property which only supports writing."),
+                    ["required"] = new(stringType, ObjectPropertyFlags.Required, "This is a property which is required."),
                 },
                 null));
 
