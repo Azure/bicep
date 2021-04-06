@@ -360,6 +360,11 @@
         "description": "201/portal-dashboard-with-appinsights"
     },
     {
+
+        "filePath": "201/private-aks-cluster/main.bicep",
+        "description": "201/private-aks-cluster"
+    },
+    {
         "filePath": "201/policy-with-initiative-definition-and-assignment/main.bicep",
         "description": "201/policy-with-initiative-definition-and-assignment"
     },

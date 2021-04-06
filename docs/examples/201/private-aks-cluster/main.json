@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.219.50753",
-      "templateHash": "7112118099465894077"
+      "templateHash": "13206149464632535362"
     }
   },
   "parameters": {
@@ -221,7 +221,7 @@
     },
     "nodePoolMaxCount": {
       "type": "int",
-      "defaultValue": 3,
+      "defaultValue": 5,
       "metadata": {
         "description": "Specifies the maximum number of nodes for auto-scaling for the node pool."
       }
@@ -500,11 +500,9 @@
     "aksSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('aksSubnetName'))]",
     "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
     "vmNicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]",
-    "blobStorageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName'))]",
     "blobPublicDNSZoneForwarder": "[format('.blob.{0}', environment().suffixes.storage)]",
     "blobPrivateDnsZoneName": "[format('privatelink{0}', variables('blobPublicDNSZoneForwarder'))]",
     "blobStorageAccountPrivateEndpointGroupName": "blob",
-    "blobPrivateDnsZoneGroupName": "[format('{0}/{1}PrivateDnsZoneGroup', parameters('blobStorageAccountPrivateEndpointName'), variables('blobStorageAccountPrivateEndpointGroupName'))]",
     "omsAgentForLinuxName": "LogAnalytics",
     "omsDependencyAgentForLinuxName": "DependencyAgent",
     "linuxConfiguration": {
@@ -767,7 +765,7 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference(variables('blobStorageAccountId')).primaryEndpoints.blob]"
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName'))).primaryEndpoints.blob]"
           }
         }
       },
@@ -778,7 +776,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2019-12-01",
+      "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', parameters('vmName'), variables('omsAgentForLinuxName'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -800,7 +798,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2019-12-01",
+      "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', parameters('vmName'), variables('omsDependencyAgentForLinuxName'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -815,7 +813,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-08-01",
       "name": "[variables('vmSubnetNsgName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -975,8 +973,7 @@
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2020-06-01",
       "name": "[variables('blobPrivateDnsZoneName')]",
-      "location": "global",
-      "properties": {}
+      "location": "global"
     },
     {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
@@ -1004,7 +1001,7 @@
           {
             "name": "[parameters('blobStorageAccountPrivateEndpointName')]",
             "properties": {
-              "privateLinkServiceId": "[variables('blobStorageAccountId')]",
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName'))]",
               "groupIds": [
                 "[variables('blobStorageAccountPrivateEndpointGroupName')]"
               ]
@@ -1028,7 +1025,7 @@
     {
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-08-01",
-      "name": "[variables('blobPrivateDnsZoneGroupName')]",
+      "name": "[format('{0}/{1}PrivateDnsZoneGroup', parameters('blobStorageAccountPrivateEndpointName'), variables('blobStorageAccountPrivateEndpointGroupName'))]",
       "properties": {
         "privateDnsZoneConfigs": [
           {
