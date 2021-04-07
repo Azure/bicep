@@ -25,9 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-	<!-- Path prefix: Completions/SnippetTemplates -->
-	<EmbeddedResource Include="./Completions/SnippetTemplates/**/*.json" LogicalName="$([System.String]::new('Completions/SnippetTemplates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
-	<EmbeddedResource Include="./Completions/SnippetTemplates/**/*.bicep" LogicalName="$([System.String]::new('Completions/SnippetTemplates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <!-- Path prefix: Completions/SnippetTemplates -->
+    <EmbeddedResource Include="./Completions/SnippetTemplates/**/*.json" LogicalName="$([System.String]::new('Completions/SnippetTemplates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./Completions/SnippetTemplates/**/*.bicep" LogicalName="$([System.String]::new('Completions/SnippetTemplates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
 </Project>
