@@ -30,7 +30,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(kvp.Key, kvp.Value));
         }
 
-        public sealed class BCPL1080Visitor : SyntaxVisitor
+        private sealed class BCPL1080Visitor : SyntaxVisitor
         {
             private readonly Dictionary<TextSpan, CodeFix> spanFixes;
 
