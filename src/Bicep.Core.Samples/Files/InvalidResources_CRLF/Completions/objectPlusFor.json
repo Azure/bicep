@@ -68,17 +68,21 @@
     }
   },
   {
-    "label": "{}",
-    "kind": "value",
-    "detail": "{}",
+    "label": "res-dns-zone",
+    "kind": "snippet",
+    "detail": "DNS Zone",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n  name: 'dnsZone'\n  location: 'global'\n}\n```"
+    },
     "deprecated": false,
     "preselect": true,
-    "sortText": "1_{}",
+    "sortText": "2_res-dns-zone",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n\t$0\n}"
+      "newText": "{\n  name: '${1:dnsZone}'\n  location: 'global'\n}"
     }
   }
 ]

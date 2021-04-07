@@ -204,6 +204,24 @@
     }
   },
   {
+    "label": "res-automation-module",
+    "kind": "snippet",
+    "detail": "Automation Module",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource automationAccount_automationVariable 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {\n  name: '${automationAccount.name}/automationVariable'\n  properties: {\n    contentLink: {\n      uri: 'https://content-url.nupkg'\n    }\n  }\n}\n\nresource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: 'automationAccount'\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-automation-module",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource automationAccount_automationVariable 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {\n  name: '${automationAccount.name}/${2:automationVariable}'\n  properties: {\n    contentLink: {\n      uri: '${3:https://content-url.nupkg}'\n    }\n  }\n}\n\nresource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: '${1:automationAccount}'\n}"
+    }
+  },
+  {
     "label": "res-availability-set",
     "kind": "snippet",
     "detail": "Availability Set",

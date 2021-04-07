@@ -58,7 +58,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetModulePathCompletions(model, context))
-                .Concat(GetResourceOrModuleBodyCompletions(context))
+                .Concat(GetModuleBodyCompletions(context))
+                .Concat(GetResourceBodyCompletions(context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
                 .Concat(GetOutputValueCompletions(model, context))
@@ -326,7 +327,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetVariableValueCompletions(BicepCompletionContext context)
         {
-            if(!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -347,9 +348,51 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(declaredType, context.ReplacementRange, model, context, loopsAllowed: true);
         }
 
-        private IEnumerable<CompletionItem> GetResourceOrModuleBodyCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetResourceBodyCompletions(BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody) || context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody))
+            {
+                StringSyntax? stringSyntax = (context.EnclosingDeclaration as ResourceDeclarationSyntax)?.TypeString;
+
+                if (stringSyntax is not null)
+                {
+                    string type = stringSyntax.StringTokens[0].Text;
+
+                    Snippet? snippet = SnippetsProvider.GetResourceCompletionSnippet(type);
+
+                    if (snippet is null)
+                    {
+                       yield return CompletionItemBuilder.Create(CompletionItemKind.Value)
+                            .WithLabel("{}")
+                            .WithSnippetEdit(context.ReplacementRange, "{\n\t$0\n}")
+                            .WithDetail("{}")
+                            .Preselect()
+                            .WithSortText(GetSortText("{}", CompletionPriority.High));
+                    }
+                    else
+                    {
+                        yield return CreateContextualSnippetCompletion(snippet.Prefix,
+                            snippet.Detail,
+                            snippet.Text,
+                            context.ReplacementRange,
+                            snippet.CompletionPriority,
+                            preselect: true);
+                    }
+                }
+
+                yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
+
+                // loops are always allowed in a resource/module
+                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object, filtersAllowed: true))
+                {
+                    yield return completion;
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetModuleBodyCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
             {
                 yield return CreateObjectBodyCompletion(context.ReplacementRange);
 
@@ -742,7 +785,7 @@ namespace Bicep.LanguageServer.Completions
             yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, CompletionPriority.High);
             yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, CompletionPriority.High);
 
-            if(filtersAllowed && assignableToObject && !assignableToArray)
+            if (filtersAllowed && assignableToObject && !assignableToArray)
             {
                 yield return CreateContextualSnippetCompletion(filteredLabel, filteredLabel, "[for (${2:item}, ${3:index}) in ${1:list}: if (${4:condition}) {\n\t$0\n}]", replacementRange, CompletionPriority.High);
             }
@@ -864,13 +907,14 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet)
                 .WithLabel(label)
                 .WithSnippetEdit(replacementRange, snippet)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
-                .WithSortText(GetSortText(label, priority));
+                .WithSortText(GetSortText(label, priority))
+                .Preselect(preselect);
 
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
