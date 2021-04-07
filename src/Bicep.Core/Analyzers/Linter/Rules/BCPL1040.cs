@@ -4,7 +4,9 @@
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -17,11 +19,36 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://bicep/linter/rules/BCPL1040")
         { }
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
         {
-            // TODO: Implement this
-            yield break;
+            var spanDiagnostics = new List<TextSpan>();
 
+            var visitor = new BCPL1040Visitor(spanDiagnostics);
+            visitor.Visit(model.SyntaxTree.ProgramSyntax);
+
+            return spanDiagnostics.Select(span => CreateDiagnosticForSpan(span));
+        }
+
+        private sealed class BCPL1040Visitor : SyntaxVisitor
+        {
+            private readonly List<TextSpan> diagnostics;
+
+            public BCPL1040Visitor(List<TextSpan> diagnostics)
+            {
+                this.diagnostics = diagnostics;
+            }
+
+            public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+            {
+                if (syntax.NameEquals("location"))
+                {
+                    if (syntax.Value is StringSyntax stringSyntax && stringSyntax.IsStringLiteral())
+                    {
+                        this.diagnostics.Add(stringSyntax.Span);
+                    }
+                }
+                base.VisitObjectPropertySyntax(syntax);
+            }
         }
     }
 }
