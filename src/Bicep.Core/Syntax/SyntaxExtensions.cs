@@ -23,7 +23,7 @@ namespace Bicep.Core.Syntax
             => syntax.GetParseDiagnostics().Any(d => d.Level == DiagnosticLevel.Error);
 
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
-            => StringComparer.OrdinalIgnoreCase.Equals(funcSyntax.Name, compareTo);
+            => StringComparer.OrdinalIgnoreCase.Equals(funcSyntax.Name.IdentifierName, compareTo);
     }
 }
 
