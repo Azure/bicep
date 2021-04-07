@@ -106,75 +106,59 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var expressions = new List<SyntaxBase>();
             var segments = new List<string>();
 
-            var index = 0;
-            var openToken = false;
-            var lastToken = false;
+            SyntaxBase? prevArg = default;
+            var argList = argExpressions.Select((arg, i) => new { arg = arg, argindex = i });
 
-            foreach(var syntax in argExpressions) {
-                // increment the index first
-                lastToken = ++index == argExpressions.Length;
+            void addStringSyntax(StringSyntax stringSyntax)
+            {
+                expressions.AddRange(stringSyntax.Expressions);
+                segments.AddRange(stringSyntax.SegmentValues);
+            }
 
+            foreach (var argSet in argList)
+            {
                 // if a string literal append
-                if (syntax is StringSyntax stringSyntax && !stringSyntax.Expressions.Any())
+                if (argSet.arg is StringSyntax stringSyntax)
                 {
-                    var stringText = string.Join("", stringSyntax.SegmentValues);
-                    appendStringLiteral(getTokenType(), stringText);
+                    addStringSyntax(stringSyntax);
+                    prevArg = stringSyntax;
                 }
-                // otherwise:  function, variable, other embedded
+                else if (argSet.arg is FunctionCallSyntax funcSyntax && funcSyntax.NameEquals("concat"))
+                {
+                    stringSyntax = RewriteConcatCallback(funcSyntax);
+                    addStringSyntax(stringSyntax);
+                    prevArg = stringSyntax;
+                }
+                // otherwise: some other function, variable, other embedded
                 else
                 {
-                    appendInterpolatedSyntax(syntax);
+                    // not preceded by a string segment
+                    if (prevArg is not StringSyntax)
+                    {
+                        segments.Add("");
+                    }
+
+                    expressions.Add(argSet.arg);
+                    prevArg = argSet.arg;
                 }
             }
 
-            return new StringSyntax(tokens, expressions, new string[0]);
-
-            TokenType getTokenType()
+            // close out interpolation if needed
+            if (prevArg is not StringSyntax)
             {
-
-                if(tokens.Any())
-                {
-                    return lastToken ? TokenType.StringRightPiece : TokenType.StringMiddlePiece;
-                }
-                else
-                {
-                    return TokenType.StringLeftPiece;
-                }
+                segments.Add("");
             }
 
-            void appendStringLiteral(TokenType tokenType, string literal)
+            // build tokens from segment list
+            var last = segments.Count() - 1;
+            var index = 0;
+            segments.ForEach(segment =>
             {
-                var newToken = tokenType switch
-                {
-                    TokenType.StringLeftPiece => SyntaxFactory.CreateStringInterpolationToken(true, false, literal),
-                    TokenType.StringRightPiece => SyntaxFactory.CreateStringInterpolationToken(false, true, literal),
-                    TokenType.StringMiddlePiece => SyntaxFactory.CreateStringInterpolationToken(false, false, literal),
-                    _ => throw new NotSupportedException($"Only string interpolation tokens are supported. Found {tokenType.ToString()}")
-                };
-                tokens.Add(newToken);
-                segments.Add(literal);
-                openToken = newToken.Type != TokenType.StringRightPiece;
-            }
+                tokens.Add(SyntaxFactory.CreateStringInterpolationToken(index == 0, index == last, segment));
+                index++;
+            });
 
-            void appendInterpolatedSyntax(SyntaxBase syntaxBase)
-            {
-                // start or middle token must be added before
-                // an expression can be added
-                if (!openToken)
-                {
-                    var tokenType = tokens.Any() ? TokenType.StringMiddlePiece : TokenType.StringLeftPiece;
-                    appendStringLiteral(tokenType, "");
-                }
-                // when appending an expression note that
-                // no token is current open
-                expressions.Add(syntaxBase);
-                openToken = false;
-
-                if(lastToken)
-                {
-                    appendStringLiteral(TokenType.StringRightPiece,"");
-                }
-            }
+            return new StringSyntax(tokens, expressions, segments);
         }
 
         /// <summary>

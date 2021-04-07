@@ -256,41 +256,42 @@ namespace Bicep.Core.Syntax
 
         public static SyntaxBase FlattenStringOperations(SyntaxBase original)
         {
-            if (original is not FunctionCallSyntax functionCallSyntax)
+            if (original is FunctionCallSyntax functionCallSyntax)
             {
-                return original;
-            }
-
-            // flatten nested 'concat' functions
-            if (functionCallSyntax.NameEquals("concat"))
-            {
-                var concatArguments = new List<FunctionArgumentSyntax>();
-                foreach (var arg in functionCallSyntax.Arguments)
+                if (functionCallSyntax.NameEquals("concat"))
                 {
-                    // recurse
-                    var flattenedExpression = FlattenStringOperations(arg.Expression);
-
-                    if (flattenedExpression is FunctionCallSyntax childFunction && childFunction.NameEquals("concat"))
+                    // just return the inner portion if there's only one concat entry
+                    if (functionCallSyntax.Arguments.Length == 1)
                     {
-                        // concat directly inside a concat - break it out
-                        concatArguments.AddRange(childFunction.Arguments);
-                        continue;
+                        return functionCallSyntax.Arguments.Select(arg => arg.Expression).First();
                     }
+                    else
+                    {
+                        var concatArguments = new List<FunctionArgumentSyntax>();
+                        foreach (var arg in functionCallSyntax.Arguments)
+                        {
+                            // recurse
+                            var flattenedExpression = FlattenStringOperations(arg.Expression);
 
-                    concatArguments.Add(new FunctionArgumentSyntax(flattenedExpression, arg.Comma));
+                            if (flattenedExpression is FunctionCallSyntax childFunction && childFunction.NameEquals("concat"))
+                            {
+                                // concat directly inside a concat - break it out
+                                concatArguments.AddRange(childFunction.Arguments);
+                                continue;
+                            }
+
+                            concatArguments.Add(new FunctionArgumentSyntax(flattenedExpression, arg.Comma));
+                        }
+
+                        // overwrite the original expression
+                        functionCallSyntax = CreateFunctionCall("concat", CombineConcatArguments(concatArguments).ToArray());
+                        return functionCallSyntax;
+                    }
                 }
-
-                // overwrite the original expression
-                functionCallSyntax = CreateFunctionCall("concat", CombineConcatArguments(concatArguments).ToArray());
             }
 
-            // just return the inner portion if there's only one concat entry
-            if (functionCallSyntax.NameEquals("concat") && !functionCallSyntax.Arguments.Skip(1).Any())
-            {
-                return functionCallSyntax.Arguments.Select(arg => arg.Expression).First();
-            }
-
-            return functionCallSyntax;
+            // return unchanged
+            return original;
         }
 
         private static IEnumerable<FunctionArgumentSyntax> CombineConcatArguments(IEnumerable<FunctionArgumentSyntax> arguments)
