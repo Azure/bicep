@@ -358,7 +358,7 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string type = stringSyntax.StringTokens[0].Text;
 
-                    Snippet? snippet = SnippetsProvider.GetResourceCompletionSnippet(type);
+                    Snippet? snippet = SnippetsProvider.GetResourceBodyCompletionSnippet(type);
 
                     if (snippet is null)
                     {
