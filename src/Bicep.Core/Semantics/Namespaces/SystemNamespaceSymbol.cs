@@ -473,11 +473,25 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
+                {
+                    if (ReferenceEquals(targetType, LanguageConstants.Array) &&
+                        SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
+                        allowedValues.Items.All(item => item.Value is not ArraySyntax))
+                    {
+                        /* 
+                         * ARM handles array params with allowed values differently. If none of items of
+                         * the allowed values is array, it will check if the parameter value is a subset
+                         * of the allowed values.
+                         */
+                        return;
+                    }
+
                      TypeValidator.NarrowTypeAndCollectDiagnostics(
                             typeManager,
                         SingleArgumentSelector(decoratorSyntax),
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
-                        diagnosticWriter))
+                        diagnosticWriter);
+                })
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();
 

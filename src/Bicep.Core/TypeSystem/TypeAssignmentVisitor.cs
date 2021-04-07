@@ -334,8 +334,8 @@ namespace Bicep.Core.TypeSystem
                 });
 
 
-                var assignedType = allowedDecoratorSyntax?.Arguments.Single().Expression is ArraySyntax allowedArrraySyntax
-                    ? syntax.GetAssignedType(this.typeManager, allowedArrraySyntax)
+                var assignedType = allowedDecoratorSyntax?.Arguments.Single().Expression is ArraySyntax allowedValuesSyntax
+                    ? syntax.GetAssignedType(this.typeManager, allowedValuesSyntax)
                     : syntax.GetAssignedType(this.typeManager, null);
 
                 switch (syntax.Modifier)
@@ -1250,7 +1250,15 @@ namespace Bicep.Core.TypeSystem
                 return defaultValueType.GetDiagnostics();
             }
 
-            if (TypeValidator.AreTypesAssignable(defaultValueType, assignedType) == false)
+            if (assignedType is TypedArrayType)
+            {
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+
+                TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, defaultValueSyntax.DefaultValue, assignedType, diagnosticWriter);
+
+                return diagnosticWriter.GetDiagnostics();
+            }
+            else if (TypeValidator.AreTypesAssignable(defaultValueType, assignedType) == false)
             {
                 return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType, defaultValueType).AsEnumerable();
             }
