@@ -906,6 +906,46 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)
+        {
+            if (binder.GetSymbolInfo(decorator.Expression) is {} symbol)
+            {
+                return symbol;
+            }
+
+            if (decorator.Expression is not InstanceFunctionCallSyntax ifc ||
+                typeManager.GetTypeInfo(ifc.BaseExpression) is not NamespaceType namespaceType)
+            {
+                return null;
+            }
+
+            if (!ifc.Name.IsValid)
+            {
+                // the parser produced an instance function calls with an invalid name
+                // all instance function calls must be bound to a symbol, so let's
+                // bind to a symbol without any errors (there's already a parse error)
+                return null;
+            }
+
+            var functionFlags = binder.GetParent(decorator) switch
+            {
+                ResourceDeclarationSyntax _ => FunctionFlags.ResourceDecorator,
+                ModuleDeclarationSyntax _ => FunctionFlags.ModuleDecorator,
+                ParameterDeclarationSyntax _ => FunctionFlags.ParameterDecorator,
+                VariableDeclarationSyntax _ => FunctionFlags.VariableDecorator,
+                OutputDeclarationSyntax _ => FunctionFlags.OutputDecorator,
+                _ => FunctionFlags.AnyDecorator,
+            };
+
+            var resolvedSymbol = functionFlags.HasAnyDecoratorFlag()
+                // Decorator functions are only valid when HasDecoratorFlag() is true which means
+                // the instance function call is the top level expression of a DecoratorSyntax node.
+                ? namespaceType.MethodResolver.TryGetSymbol(ifc.Name) ?? namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name)
+                : namespaceType.MethodResolver.TryGetSymbol(ifc.Name);
+
+            return SymbolValidator.ResolveNamespaceQualifiedFunction(functionFlags, resolvedSymbol, ifc.Name, namespaceType);
+        }
+
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
             => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
@@ -940,25 +980,9 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 Symbol? foundSymbol;
-                if (this.binder.GetParent(syntax) is DecoratorSyntax decorator && baseType is NamespaceType namespaceType)
+                if (this.binder.GetParent(syntax) is DecoratorSyntax decorator)
                 {
-                    var functionFlags = binder.GetParent(decorator) switch
-                    {
-                        ResourceDeclarationSyntax _ => FunctionFlags.ResourceDecorator,
-                        ModuleDeclarationSyntax _ => FunctionFlags.ModuleDecorator,
-                        ParameterDeclarationSyntax _ => FunctionFlags.ParameterDecorator,
-                        VariableDeclarationSyntax _ => FunctionFlags.VariableDecorator,
-                        OutputDeclarationSyntax _ => FunctionFlags.OutputDecorator,
-                        _ => FunctionFlags.Default,
-                    };
-
-                    var resolvedSymbol = functionFlags.HasAnyDecoratorFlag()
-                        // Decorator functions are only valid when HasDecoratorFlag() is true which means
-                        // the instance function call is the top level expression of a DecoratorSyntax node.
-                        ? namespaceType.MethodResolver.TryGetSymbol(syntax.Name) ?? namespaceType.DecoratorResolver.TryGetSymbol(syntax.Name)
-                        : namespaceType.MethodResolver.TryGetSymbol(syntax.Name);
-
-                    foundSymbol = SymbolValidator.ResolveNamespaceQualifiedFunction(functionFlags, resolvedSymbol, syntax.Name, namespaceType);
+                    foundSymbol = GetSymbolForDecorator(decorator);
                 }
                 else
                 {
@@ -1019,25 +1043,21 @@ namespace Bicep.Core.TypeSystem
             // There must exist at least one decorator for MissingDeclarationSyntax.
             var lastDecoratorSyntax = syntax.Decorators.Last();
 
-            if (this.binder.GetSymbolInfo(lastDecoratorSyntax.Expression) is FunctionSymbol functionSymbol)
+            diagnostics.Write(lastDecoratorSyntax, builder => 
             {
-                var diagnosticBuilder = DiagnosticBuilder.ForPosition(lastDecoratorSyntax);
-                var diagnostic = functionSymbol.FunctionFlags switch
-                {
-                    FunctionFlags.ParameterDecorator => diagnosticBuilder.ExpectedParameterDeclarationAfterDecorator(),
-                    FunctionFlags.VariableDecorator => diagnosticBuilder.ExpectedVariableDeclarationAfterDecorator(),
-                    FunctionFlags.ResourceDecorator => diagnosticBuilder.ExpectedResourceDeclarationAfterDecorator(),
-                    FunctionFlags.ModuleDecorator => diagnosticBuilder.ExpectedModuleDeclarationAfterDecorator(),
-                    FunctionFlags.OutputDecorator => diagnosticBuilder.ExpectedOutputDeclarationAfterDecorator(),
-                    FunctionFlags.ResourceOrModuleDecorator => diagnosticBuilder.ExpectedResourceOrModuleDeclarationAfterDecorator(),
-                    _ => null,
-                };
+                var functionSymbol = this.GetSymbolForDecorator(lastDecoratorSyntax) as FunctionSymbol;
 
-                if (diagnostic is not null)
+                return functionSymbol?.FunctionFlags switch
                 {
-                    diagnostics.Write(diagnostic);
-                }
-            }
+                    FunctionFlags.ParameterDecorator => builder.ExpectedParameterDeclarationAfterDecorator(),
+                    FunctionFlags.VariableDecorator => builder.ExpectedVariableDeclarationAfterDecorator(),
+                    FunctionFlags.ResourceDecorator => builder.ExpectedResourceDeclarationAfterDecorator(),
+                    FunctionFlags.ModuleDecorator => builder.ExpectedModuleDeclarationAfterDecorator(),
+                    FunctionFlags.OutputDecorator => builder.ExpectedOutputDeclarationAfterDecorator(),
+                    FunctionFlags.ResourceOrModuleDecorator => builder.ExpectedResourceOrModuleDeclarationAfterDecorator(),
+                    _ => builder.ExpectedDeclarationAfterDecorator(),
+                };
+            });
 
             return LanguageConstants.Any;
         });

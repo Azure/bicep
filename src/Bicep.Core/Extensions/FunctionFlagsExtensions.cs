@@ -6,15 +6,8 @@ namespace Bicep.Core.Extensions
 {
     public static class FunctionFlagsExtensions
     {
-        private const FunctionFlags DecoratorFlags =
-            FunctionFlags.ParameterDecorator |
-            FunctionFlags.VariableDecorator |
-            FunctionFlags.ResourceDecorator |
-            FunctionFlags.ModuleDecorator |
-            FunctionFlags.OutputDecorator;
+        public static bool HasAnyDecoratorFlag(this FunctionFlags functionFlags) => (functionFlags & FunctionFlags.AnyDecorator) != 0;
 
-        public static bool HasAnyDecoratorFlag(this FunctionFlags functionFlags) => (functionFlags & DecoratorFlags) != 0;
-
-        public static bool HasAllDecoratorFlags(this FunctionFlags functionFlags) => (functionFlags & DecoratorFlags) == DecoratorFlags;
+        public static bool HasAllDecoratorFlags(this FunctionFlags functionFlags) => (functionFlags & FunctionFlags.AnyDecorator) == FunctionFlags.AnyDecorator;
     }
 }

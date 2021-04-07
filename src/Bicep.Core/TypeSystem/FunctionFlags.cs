@@ -51,7 +51,12 @@ namespace Bicep.Core.TypeSystem
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,
 
         /// <summary>
-        /// The function can be used as an output decorator.
+        /// The function can be used as any decorator.
+        /// </summary>
+        AnyDecorator = FunctionFlags.ParameterDecorator | FunctionFlags.VariableDecorator | FunctionFlags.ResourceDecorator | FunctionFlags.ModuleDecorator | FunctionFlags.OutputDecorator,
+
+        /// <summary>
+        /// The  function can be used as an output decorator.
         /// </summary>
         OutputDecorator = 1 << 6,
     }
