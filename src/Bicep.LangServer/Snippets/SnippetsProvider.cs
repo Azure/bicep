@@ -101,7 +101,6 @@ namespace Bicep.LanguageServer.Snippets
                 if (resourceDeclarationSyntax is not null && resourceType is not null)
                 {
                     CacheResourceDeclaration(resourceDeclarationSyntax, resourceType, template);
-
                     CacheResourceDependencies(kvp.Value, template, resourceType);
                 }
             }
@@ -109,11 +108,11 @@ namespace Bicep.LanguageServer.Snippets
 
         private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclarationSyntax, string type, string template)
         {
-            TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
-            string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
-
             if (!resourceTypeToBodyMap.ContainsKey(type))
             {
+                TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
+                string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
+
                 resourceTypeToBodyMap.Add(type, bodyText);
             }
         }
@@ -135,9 +134,7 @@ namespace Bicep.LanguageServer.Snippets
 
         private (ResourceDeclarationSyntax?, string?) GetResourceDeclarationSyntaxWithType(DeclaredSymbol declaredSymbol)
         {
-            SyntaxBase syntaxBase = declaredSymbol.DeclaringSyntax;
-
-            if (syntaxBase is ResourceDeclarationSyntax resourceDeclarationSyntax &&
+            if (declaredSymbol.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax &&
                 resourceDeclarationSyntax.TypeString is StringSyntax stringSyntax)
             {
                 return (resourceDeclarationSyntax, stringSyntax.StringTokens.First().Text);
