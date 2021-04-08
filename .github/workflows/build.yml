@@ -329,10 +329,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: 10.x
+          node-version: 14.x
       
       - name: npm ci
         run: npm ci
+        working-directory: ./src/playground
+
+      - name: Run lint
+        run: npm run lint
         working-directory: ./src/playground
 
       - name: Build
@@ -345,3 +349,42 @@ jobs:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
+
+  build-textmate:
+    name: 'Build Textmate'
+    runs-on: 'ubuntu-latest'
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+      
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-release-linux-x64
+          path: ./bicep-release-linux-x64
+
+      - name: Mark Bicep CLI as executable
+        run: chmod +x ${{ github.workspace }}/bicep-release-linux-x64/bicep
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14.x
+      
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/textmate
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./src/textmate
+
+      - name: Run Tests
+        run: npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ${{ github.workspace }}/bicep-release-linux-x64/bicep
+        working-directory: ./src/textmate

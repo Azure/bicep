@@ -9,6 +9,7 @@
     <RootNamespace>Azure.Bicep.MSBuild</RootNamespace>
     <EnableNuget>true</EnableNuget>
     <PackageTags>CLI;compiler</PackageTags>
+    <Description>Bicep MSBuild task</Description>
   </PropertyGroup>
 
   <ItemGroup>

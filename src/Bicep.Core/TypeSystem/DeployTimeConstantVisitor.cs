@@ -272,19 +272,19 @@ namespace Bicep.Core.TypeSystem
             }
             if (this.currentProperty == null)
             {
-                throw new InvalidOperationException($"{nameof(this.currentProperty)} is null in {this.GetType().Name} for syntax {this.errorSyntax.ToString()}");
+                throw new InvalidOperationException($"{nameof(this.currentProperty)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
             }
             if (this.bodyType == null)
             {
-                throw new InvalidOperationException($"{nameof(this.bodyType)} is null in {this.GetType().Name} for syntax {this.errorSyntax.ToString()}");
+                throw new InvalidOperationException($"{nameof(this.bodyType)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
             }
             if (this.referencedBodyType == null)
             {
-                throw new InvalidOperationException($"{nameof(this.referencedBodyType)} is null in {this.GetType().Name} for syntax {this.errorSyntax.ToString()}");
+                throw new InvalidOperationException($"{nameof(this.referencedBodyType)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
             }
             if (this.accessedSymbol == null)
             {
-                throw new InvalidOperationException($"{nameof(this.accessedSymbol)} is null in {this.GetType().Name} for syntax {this.errorSyntax.ToString()}");
+                throw new InvalidOperationException($"{nameof(this.accessedSymbol)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
             }
             var usableKeys = this.referencedBodyType.Properties.Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant)).Select(kv => kv.Key);
             this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys, this.accessedSymbol, this.variableVisitorStack?.ToArray().Reverse()));

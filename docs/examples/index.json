@@ -1,5 +1,9 @@
 [
     {
+        "filePath": "000/01-hello-world/main.bicep",
+        "description": "000/01-hello-world"
+    },
+    {
         "filePath": "101/1vm-2nics-2subnets-1vnet/main.bicep",
         "description": "101/1vm-2nics-2subnets-1vnet"
     },
@@ -494,5 +498,9 @@
     {
         "filePath": "301/deployifnotexists-policy-with-initiative-and-assignment/main.bicep",
         "description": "301/deployifnotexists-policy-with-initiative-and-assignment"
+    },
+    {
+        "filePath": "301/deployment-script-dev-environment/main.bicep",
+        "description": "301/deployment-script-dev-environment"
     }
 ]

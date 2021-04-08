@@ -87,7 +87,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
-            services.AddSingleton<IResourceSnippetsProvider, ResourceSnippetsProvider>();
+            services.AddSingleton<ISnippetsProvider, SnippetsProvider>();
         }
     }
 }

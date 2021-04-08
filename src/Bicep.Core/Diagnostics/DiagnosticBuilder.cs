@@ -700,14 +700,14 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
             {
-                var variableDependencyChainClause = variableDependencyChain != null ?
-                 $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
+                var variableDependencyChainClause = variableDependencyChain != null
+                    ? $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). "
+                    : string.Empty;
 
                 return new ErrorDiagnostic(
-                TextSpan,
-                "BCP120",
-                $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}."
-                );
+                    TextSpan,
+                    "BCP120",
+                    $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}.");
             }
 
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
@@ -800,7 +800,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ForExpressionsNotSupportedHere() => new(
                 TextSpan,
                 "BCP138",
-                "For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs.");
+                "For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties.");
 
             public Diagnostic InvalidCrossResourceScope() => new(
                 TextSpan,
@@ -986,6 +986,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP174",
                 $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information.");
 
+            public ErrorDiagnostic VariableLoopsRuntimeDependencyNotAllowed(IEnumerable<string> variableDependencyChain)
+            {
+                var variableDependencyChainClause = variableDependencyChain.Any()
+                    ? $" Variable dependency chain: \"{string.Join("\" -> \"", variableDependencyChain)}\"."
+                    : string.Empty;
+
+                return new(
+                    TextSpan,
+                    "BCP175",
+                    $"The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

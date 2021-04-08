@@ -180,7 +180,7 @@ namespace Bicep.Core.Emit
         private void EmitParameter(JsonTextWriter jsonWriter, ParameterSymbol parameterSymbol, ExpressionEmitter emitter)
         {
             // local function
-            bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
+            static bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
 
             if (!(SyntaxHelper.TryGetPrimitiveType(parameterSymbol.DeclaringParameter) is TypeSymbol primitiveType))
             {
@@ -258,21 +258,39 @@ namespace Bicep.Core.Emit
             jsonWriter.WritePropertyName("variables");
             jsonWriter.WriteStartObject();
 
-            foreach (var variableSymbol in this.context.SemanticModel.Root.VariableDeclarations)
+            var variableLookup = this.context.SemanticModel.Root.VariableDeclarations.ToLookup(variableSymbol => variableSymbol.Value is ForSyntax);
+
+            // local function
+            IEnumerable<VariableSymbol> GetNonInlinedVariables(bool valueIsLoop) =>
+                variableLookup[valueIsLoop].Where(symbol => !this.context.VariablesToInline.Contains(symbol));
+
+            if(GetNonInlinedVariables(valueIsLoop: true).Any())
             {
-                if (!this.context.VariablesToInline.Contains(variableSymbol))
+                // we have variables whose values are loops
+                emitter.EmitProperty("copy", () =>
                 {
-                    jsonWriter.WritePropertyName(variableSymbol.Name);
-                    this.EmitVariable(variableSymbol, emitter);
-                }
+                    jsonWriter.WriteStartArray();
+
+                    foreach(var variableSymbol in GetNonInlinedVariables(valueIsLoop: true))
+                    {
+                        // enforced by the lookup predicate above
+                        var @for = (ForSyntax)variableSymbol.Value;
+
+                        emitter.EmitCopyObject(variableSymbol.Name, @for, @for.Body);
+                    }
+
+                    jsonWriter.WriteEndArray();
+                });
+            }
+
+            // emit non-loop variables
+            foreach (var variableSymbol in GetNonInlinedVariables(valueIsLoop: false))
+            {
+                jsonWriter.WritePropertyName(variableSymbol.Name);
+                emitter.EmitExpression(variableSymbol.Value);
             }
 
             jsonWriter.WriteEndObject();
-        }
-
-        private void EmitVariable(VariableSymbol variableSymbol, ExpressionEmitter emitter)
-        {
-            emitter.EmitExpression(variableSymbol.Value);
         }
 
         private void EmitResources(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
@@ -411,7 +429,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitModuleParameters(JsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
+        private static void EmitModuleParameters(JsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
         {
             var paramsValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ModuleParamsPropertyName);
             if (paramsValue is not ObjectSyntax paramsObjectSyntax)
@@ -505,7 +523,7 @@ namespace Bicep.Core.Emit
                     // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
                     emitter.EmitProperty("location", new FunctionExpression(
                         "resourceGroup",
-                        new LanguageExpression[] { },
+                        Array.Empty<LanguageExpression>(),
                         new LanguageExpression[] { new JTokenExpression("location") }));
                 }
                 else
@@ -513,7 +531,7 @@ namespace Bicep.Core.Emit
                     // at all other scopes we can just use deployment().location
                     emitter.EmitProperty("location", new FunctionExpression(
                         "deployment",
-                        new LanguageExpression[] { },
+                        Array.Empty<LanguageExpression>(),
                         new LanguageExpression[] { new JTokenExpression("location") }));
                 }
             }
@@ -554,7 +572,7 @@ namespace Bicep.Core.Emit
                 case ResourceSymbol resource:
                     // We only want to add a 'dependsOn' for resources being deployed in this file.
                     return !resource.DeclaringResource.IsExistingResource();
-                case ModuleSymbol module:
+                case ModuleSymbol:
                     return true;
                 default:
                     throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
@@ -623,13 +641,13 @@ namespace Bicep.Core.Emit
             foreach (var outputSymbol in this.context.SemanticModel.Root.OutputDeclarations)
             {
                 jsonWriter.WritePropertyName(outputSymbol.Name);
-                this.EmitOutput(jsonWriter, outputSymbol, emitter);
+                EmitOutput(jsonWriter, outputSymbol, emitter);
             }
 
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitOutput(JsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
+        private static void EmitOutput(JsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
         {
             jsonWriter.WriteStartObject();
 
@@ -659,7 +677,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private string GetTemplateTypeName(TypeSymbol type, bool secure)
+        private static string GetTemplateTypeName(TypeSymbol type, bool secure)
         {
             if (secure)
             {

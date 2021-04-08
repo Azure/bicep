@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace Bicep.LanguageServer.Snippets
 {
-    public interface IResourceSnippetsProvider
+    public interface ISnippetsProvider
     {
-        IEnumerable<ResourceSnippet> GetResourceSnippets();
+        IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets();
     }
 }

@@ -157,6 +157,19 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   }
 }
 
+// there should be no completions without the colon
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:34) Resource noCompletionsWithoutColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
+  // #completionTest(7,8) -> empty
+  kind  
+}
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:33) Resource noCompletionsBeforeColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
+  // #completionTest(7,8) -> empty
+  kind  :
+}
+
 // unsupported resource ref
 var resrefvar = bar.name
 //@[4:13) Variable resrefvar. Type: string. Declaration start char: 0, length: 24
@@ -1762,3 +1775,4 @@ resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' exist
   location: 'westeurope'
   properties: {}
 }
+

@@ -877,6 +877,56 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+// there should be no completions without the colon
+//@[51:53) NewLine |\r\n|
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:138) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:34)  IdentifierSyntax
+//@[9:34)   Identifier |noCompletionsWithoutColon|
+//@[35:85)  StringSyntax
+//@[35:85)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[86:87)  Assignment |=|
+//@[88:138)  ObjectSyntax
+//@[88:89)   LeftBrace |{|
+//@[89:91)   NewLine |\r\n|
+  // #completionTest(7,8) -> empty
+//@[34:36)   NewLine |\r\n|
+  kind  
+//@[2:8)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[8:8)    SkippedTriviaSyntax
+//@[8:8)    SkippedTriviaSyntax
+//@[8:10)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:138) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:33)  IdentifierSyntax
+//@[9:33)   Identifier |noCompletionsBeforeColon|
+//@[34:84)  StringSyntax
+//@[34:84)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[85:86)  Assignment |=|
+//@[87:138)  ObjectSyntax
+//@[87:88)   LeftBrace |{|
+//@[88:90)   NewLine |\r\n|
+  // #completionTest(7,8) -> empty
+//@[34:36)   NewLine |\r\n|
+  kind  :
+//@[2:9)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[8:9)    Colon |:|
+//@[9:9)    SkippedTriviaSyntax
+//@[9:11)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // unsupported resource ref
 //@[27:29) NewLine |\r\n|
 var resrefvar = bar.name
@@ -10208,4 +10258,6 @@ resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' exist
 //@[16:18)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

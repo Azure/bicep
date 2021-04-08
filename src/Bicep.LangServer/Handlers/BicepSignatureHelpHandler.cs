@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -65,7 +65,13 @@ namespace Bicep.LanguageServer.Handlers
             // this prevents function signature mismatches due to errors
             var normalizedArgumentTypes = NormalizeArgumentTypes(functionCall.Arguments, semanticModel);
 
-            var signatureHelp = CreateSignatureHelp(functionCall.Arguments, normalizedArgumentTypes, functionSymbol, offset);
+            // do not include return type in signatures for decorator functions
+            // because the return type on decorators is currently an internal implementation detail
+            // which will be confusing to users
+            // (can revisit if we add decorator extensibility in the future)
+            var includeReturnType = semanticModel.Binder.GetParent(functionCall) is not DecoratorSyntax;
+
+            var signatureHelp = CreateSignatureHelp(functionCall.Arguments, normalizedArgumentTypes, functionSymbol, offset, includeReturnType);
             TryReuseActiveSignature(request.Context, signatureHelp);
 
             return Task.FromResult<SignatureHelp?>(signatureHelp);
@@ -135,7 +141,7 @@ namespace Bicep.LanguageServer.Handlers
                 .ToList();
         }
 
-        private static SignatureHelp CreateSignatureHelp(ImmutableArray<FunctionArgumentSyntax> arguments, List<TypeSymbol> normalizedArgumentTypes, FunctionSymbol symbol, int offset)
+        private static SignatureHelp CreateSignatureHelp(ImmutableArray<FunctionArgumentSyntax> arguments, List<TypeSymbol> normalizedArgumentTypes, FunctionSymbol symbol, int offset, bool includeReturnType)
         {
             // exclude overloads where the specified arguments have exceeded the maximum
             // allow count mismatches because the user may not have started typing the arguments yet
@@ -153,7 +159,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return new SignatureHelp
             {
-                Signatures = new Container<SignatureInformation>(matchingOverloads.Select(tuple => CreateSignature(tuple.overload, arguments.Length))),
+                Signatures = new Container<SignatureInformation>(matchingOverloads.Select(tuple => CreateSignature(tuple.overload, arguments, includeReturnType))),
                 ActiveSignature = activeSignatureIndex < 0 ? (int?) null : activeSignatureIndex,
                 ActiveParameter = GetActiveParameterIndex(arguments, offset)
             };
@@ -173,7 +179,7 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static SignatureInformation CreateSignature(FunctionOverload overload, int argumentCount)
+        private static SignatureInformation CreateSignature(FunctionOverload overload, ImmutableArray<FunctionArgumentSyntax> arguments, bool includeReturnType)
         {
             const string delimiter = ", ";
 
@@ -195,7 +201,7 @@ namespace Bicep.LanguageServer.Handlers
                 int index = 0;
 
                 // include minimum number of variable parameters in the signature and dynamically generate the additional ones
-                while (index < overload.VariableParameter.MinimumCount || argumentCount > parameters.Count)
+                while (index < overload.VariableParameter.MinimumCount || arguments.Length > parameters.Count)
                 {
                     // we have a parameter that isn't accounted for in the signature
                     AppendParameter(typeSignature, parameters, overload.VariableParameter.GetNamedSignature(index), overload.VariableParameter.Description);
@@ -219,6 +225,12 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             typeSignature.Append(FunctionArgumentEnd);
+
+            if (includeReturnType)
+            {
+                typeSignature.Append(": ");
+                typeSignature.Append(overload.ReturnTypeBuilder(arguments));
+            }
 
             return new SignatureInformation
             {

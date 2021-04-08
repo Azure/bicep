@@ -270,6 +270,48 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 //@[277:287)    StringComplete |'why not?'|
 //@[287:289) NewLine |\n\n|
 
+// #completionTest(28,29) -> boolPlusSymbols
+//@[44:45) NewLine |\n|
+param boolCompletions bool = 
+//@[0:29) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:21)  IdentifierSyntax
+//@[6:21)   Identifier |boolCompletions|
+//@[22:26)  TypeSyntax
+//@[22:26)   Identifier |bool|
+//@[27:29)  ParameterDefaultValueSyntax
+//@[27:28)   Assignment |=|
+//@[29:29)   SkippedTriviaSyntax
+//@[29:31) NewLine |\n\n|
+
+// #completionTest(30,31) -> arrayPlusSymbols
+//@[45:46) NewLine |\n|
+param arrayCompletions array = 
+//@[0:31) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:22)  IdentifierSyntax
+//@[6:22)   Identifier |arrayCompletions|
+//@[23:28)  TypeSyntax
+//@[23:28)   Identifier |array|
+//@[29:31)  ParameterDefaultValueSyntax
+//@[29:30)   Assignment |=|
+//@[31:31)   SkippedTriviaSyntax
+//@[31:33) NewLine |\n\n|
+
+// #completionTest(32,33) -> objectPlusSymbols
+//@[46:47) NewLine |\n|
+param objectCompletions object = 
+//@[0:33) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |objectCompletions|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |object|
+//@[31:33)  ParameterDefaultValueSyntax
+//@[31:32)   Assignment |=|
+//@[33:33)   SkippedTriviaSyntax
+//@[33:35) NewLine |\n\n|
+
 // badly escaped string
 //@[23:24) NewLine |\n|
 param wrongType fluffyBunny = 'what's up doc?'
