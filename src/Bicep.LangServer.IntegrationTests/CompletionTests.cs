@@ -128,6 +128,10 @@ namespace Bicep.LangServer.IntegrationTests
             string snippetTextAfterReplacements = SnippetCompletionTestHelper.GetSnippetTextAfterPlaceholderReplacements(snippetText, bicepFileWithPlaceholderReplacements);
             fileSystemDict[documentUri.ToUri()] = bicepFileWithPlaceholderReplacements.Replace("// Insert snippet here", snippetTextAfterReplacements);
 
+            // This is required to verify module snippet completion
+            DocumentUri testDocumentUri = DocumentUri.FromFileSystemPath("Completions/SnippetTemplates/module/test.bicep");
+            fileSystemDict[testDocumentUri.ToUri()] = string.Empty;
+
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, fileSystemDict[documentUri.ToUri()], 1));
 
             var diagsParams = await diagnosticsListener.WaitNext();
