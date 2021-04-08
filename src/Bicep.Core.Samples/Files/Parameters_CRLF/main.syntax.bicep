@@ -1412,6 +1412,81 @@ param decoratedInt int = 123
 //@[25:28)    Integer |123|
 //@[28:32) NewLine |\r\n\r\n|
 
+// negative integer literals are allowed as decorator values
+//@[60:62) NewLine |\r\n|
+@minValue(-10)
+//@[0:55) ParameterDeclarationSyntax
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:13)    FunctionArgumentSyntax
+//@[10:13)     UnaryOperationSyntax
+//@[10:11)      Minus |-|
+//@[11:13)      IntegerLiteralSyntax
+//@[11:13)       Integer |10|
+//@[13:14)    RightParen |)|
+//@[14:16)  NewLine |\r\n|
+@maxValue(-3)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |maxValue|
+//@[9:10)    LeftParen |(|
+//@[10:12)    FunctionArgumentSyntax
+//@[10:12)     UnaryOperationSyntax
+//@[10:11)      Minus |-|
+//@[11:12)      IntegerLiteralSyntax
+//@[11:12)       Integer |3|
+//@[12:13)    RightParen |)|
+//@[13:15)  NewLine |\r\n|
+param negativeValues int
+//@[0:5)  Identifier |param|
+//@[6:20)  IdentifierSyntax
+//@[6:20)   Identifier |negativeValues|
+//@[21:24)  TypeSyntax
+//@[21:24)   Identifier |int|
+//@[24:28) NewLine |\r\n\r\n|
+
+// negative integer literals in modifiers
+//@[41:43) NewLine |\r\n|
+param negativeModifiers int {
+//@[0:67) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |negativeModifiers|
+//@[24:27)  TypeSyntax
+//@[24:27)   Identifier |int|
+//@[28:67)  ObjectSyntax
+//@[28:29)   LeftBrace |{|
+//@[29:31)   NewLine |\r\n|
+  minValue: -100
+//@[2:16)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |minValue|
+//@[10:11)    Colon |:|
+//@[12:16)    UnaryOperationSyntax
+//@[12:13)     Minus |-|
+//@[13:16)     IntegerLiteralSyntax
+//@[13:16)      Integer |100|
+//@[16:18)   NewLine |\r\n|
+  maxValue: -33
+//@[2:15)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |maxValue|
+//@[10:11)    Colon |:|
+//@[12:15)    UnaryOperationSyntax
+//@[12:13)     Minus |-|
+//@[13:15)     IntegerLiteralSyntax
+//@[13:15)      Integer |33|
+//@[15:17)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 @sys.description('A boolean.')
 //@[0:229) ParameterDeclarationSyntax
 //@[0:30)  DecoratorSyntax
@@ -1511,25 +1586,7 @@ param decoratedBool bool = (true && false) != true
 //@[50:54) NewLine |\r\n\r\n|
 
 @secure()
-//@[0:298) ParameterDeclarationSyntax
-//@[0:9)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:9)   FunctionCallSyntax
-//@[1:7)    IdentifierSyntax
-//@[1:7)     Identifier |secure|
-//@[7:8)    LeftParen |(|
-//@[8:9)    RightParen |)|
-//@[9:11)  NewLine |\r\n|
-@secure()
-//@[0:9)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:9)   FunctionCallSyntax
-//@[1:7)    IdentifierSyntax
-//@[1:7)     Identifier |secure|
-//@[7:8)    LeftParen |(|
-//@[8:9)    RightParen |)|
-//@[9:11)  NewLine |\r\n|
-@secure()
+//@[0:276) ParameterDeclarationSyntax
 //@[0:9)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:9)   FunctionCallSyntax
@@ -1668,7 +1725,7 @@ param decoratedObject object = {
 //@[1:5) NewLine |\r\n\r\n|
 
 @sys.metadata({
-//@[0:205) ParameterDeclarationSyntax
+//@[0:174) ParameterDeclarationSyntax
 //@[0:49)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:49)   InstanceFunctionCallSyntax
@@ -1711,30 +1768,6 @@ param decoratedObject object = {
 //@[15:17)      Integer |20|
 //@[17:18)    RightParen |)|
 //@[18:20)  NewLine |\r\n|
-@maxLength(10)
-//@[0:14)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:14)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |maxLength|
-//@[10:11)    LeftParen |(|
-//@[11:13)    FunctionArgumentSyntax
-//@[11:13)     IntegerLiteralSyntax
-//@[11:13)      Integer |10|
-//@[13:14)    RightParen |)|
-//@[14:16)  NewLine |\r\n|
-@maxLength(5)
-//@[0:13)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:13)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |maxLength|
-//@[10:11)    LeftParen |(|
-//@[11:12)    FunctionArgumentSyntax
-//@[11:12)     IntegerLiteralSyntax
-//@[11:12)      Integer |5|
-//@[12:13)    RightParen |)|
-//@[13:15)  NewLine |\r\n|
 @sys.description('I will be overrode.')
 //@[0:39)  DecoratorSyntax
 //@[0:1)   At |@|

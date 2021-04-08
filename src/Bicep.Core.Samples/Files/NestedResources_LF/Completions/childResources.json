@@ -1,0 +1,36 @@
+[
+  {
+    "label": "basicChild",
+    "kind": "interface",
+    "detail": "basicChild",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_basicChild",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "basicChild"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "basicSibling",
+    "kind": "interface",
+    "detail": "basicSibling",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_basicSibling",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "basicSibling"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

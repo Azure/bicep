@@ -241,7 +241,20 @@ namespace Bicep.Core.TypeSystem
 
                 if (singleResourceDeclaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
+                    var typeSegments = resourceType.TypeReference.Types;
+
+                    if (typeSegments.Length > 2 &&
+                        typeSegments.Where((type, i) => i > 0 && i < (typeSegments.Length - 1) &&  StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                    {
+                        // Special check for (<type>/)+providers(/<type>)+
+                        // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
+                        // We should instead point them towards documentation on the 'scope' property.
+                        diagnostics.Write(syntax.Type, x => x.ResourceTypeContainsProvidersSegment());
+                    }
+                    else
+                    {
+                        diagnostics.Write(syntax.Type, x => x.ResourceTypesUnavailable(resourceType.TypeReference));
+                    }
                 }
 
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
@@ -343,6 +356,8 @@ namespace Bicep.Core.TypeSystem
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
         {
+            var decoratorSyntaxesByMatchingDecorator = new Dictionary<Decorator, List<DecoratorSyntax>>();
+
             foreach (var decoratorSyntax in decoratorSyntaxes)
             {
                 var decoratorType = this.typeManager.GetTypeInfo(decoratorSyntax.Expression);
@@ -372,10 +387,31 @@ namespace Bicep.Core.TypeSystem
 
                     // There should exist exact one matching decorator if there's no argument mismatches,
                     // since each argument must be a compile-time constant which cannot be of Any type.
-                    this.binder.FileSymbol.ImportedNamespaces.Values
+                    var decorator = this.binder.FileSymbol.ImportedNamespaces.Values
                         .SelectMany(ns => ns.Type.DecoratorResolver.GetMatches(functionSymbol, argumentTypes))
-                        .SingleOrDefault()?
-                        .Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
+                        .SingleOrDefault();
+
+                    if (decorator is not null)
+                    {
+                        if (decoratorSyntaxesByMatchingDecorator.TryGetValue(decorator, out var duplicateDecoratorSyntaxes))
+                        {
+                            duplicateDecoratorSyntaxes.Add(decoratorSyntax);
+                        }
+                        else
+                        {
+                            decoratorSyntaxesByMatchingDecorator[decorator] = new List<DecoratorSyntax> { decoratorSyntax };
+                        }
+
+                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
+                    }
+                }
+            }
+
+            foreach (var (decorator, duplicateDecoratorSyntaxes) in decoratorSyntaxesByMatchingDecorator.Where(x => x.Value.Count > 1))
+            {
+                foreach (var decoratorSyntax in duplicateDecoratorSyntaxes)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DuplicateDecorator(decorator.Overload.Name));
                 }
             }
         }
@@ -405,23 +441,15 @@ namespace Bicep.Core.TypeSystem
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                // assume "any" type if the output type has parse errors (either missing or skipped)
-                var primitiveType = syntax.OutputType == null
-                    ? LanguageConstants.Any
-                    : LanguageConstants.TryGetDeclarationType(syntax.OutputType.TypeName);
+                var declaredType = syntax.GetDeclaredType();
+                
+                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
 
-                if (primitiveType == null)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
-                }
-
-                this.ValidateDecorators(syntax.Decorators, primitiveType, diagnostics);
-
-                var currentDiagnostics = GetOutputDeclarationDiagnostics(primitiveType, syntax);
+                var currentDiagnostics = GetOutputDeclarationDiagnostics(declaredType, syntax);
 
                 diagnostics.WriteMultiple(currentDiagnostics);
 
-                return primitiveType;
+                return declaredType;
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
@@ -498,7 +526,7 @@ namespace Bicep.Core.TypeSystem
                 var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
 
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
+                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)

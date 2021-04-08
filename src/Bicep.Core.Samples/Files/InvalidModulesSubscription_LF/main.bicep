@@ -35,3 +35,19 @@ module unsupportedScopeManagementGroup 'modules/managementGroup.bicep' = {
   name: 'unsupportedScopeManagementGroup'
   scope: managementGroup('MG')
 }
+
+module singleRgModule 'modules/passthrough.bicep' = {
+  name: 'single-rg'
+  params: {
+    myInput: 'stuff'
+  }
+  scope: resourceGroup('test')
+}
+
+module singleRgModule2 'modules/passthrough.bicep' = {
+  name: 'single-rg2'
+  params: {
+    myInput: 'stuff'
+  }
+  scope: singleRgModule
+}

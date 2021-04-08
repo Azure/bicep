@@ -314,9 +314,9 @@ namespace Bicep.Core.Parsing
                     var current = reader.Peek();
                     return current.Type switch
                     {
-                        TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(ExpressionFlags.AllowResourceDeclarations | ExpressionFlags.AllowComplexLiterals),
+                        TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(ExpressionFlags.AllowResourceDeclarations | ExpressionFlags.AllowComplexLiterals, insideForExpression: false),
                         TokenType.LeftBrace => this.Object(ExpressionFlags.AllowResourceDeclarations | ExpressionFlags.AllowComplexLiterals),
-                        TokenType.LeftSquare => this.ForExpression(ExpressionFlags.AllowResourceDeclarations | ExpressionFlags.AllowComplexLiterals, requireObjectLiteral: true),
+                        TokenType.LeftSquare => this.ForExpression(ExpressionFlags.AllowResourceDeclarations | ExpressionFlags.AllowComplexLiterals, isResourceOrModuleContext: true),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
                     };
                 },
@@ -343,9 +343,9 @@ namespace Bicep.Core.Parsing
                     var current = reader.Peek();
                     return current.Type switch
                     {
-                        TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(ExpressionFlags.AllowComplexLiterals),
+                        TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(ExpressionFlags.AllowComplexLiterals, insideForExpression: false),
                         TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
-                        TokenType.LeftSquare => this.ForExpression(ExpressionFlags.AllowComplexLiterals, requireObjectLiteral: true),
+                        TokenType.LeftSquare => this.ForExpression(ExpressionFlags.AllowComplexLiterals, isResourceOrModuleContext: true),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
                     };
                 },
@@ -378,7 +378,7 @@ namespace Bicep.Core.Parsing
             if (this.Check(TokenType.Question))
             {
                 var question = this.reader.Read();
-                var trueExpression = this.Expression(WithExpressionFlag(expressionFlags, ExpressionFlags.InsideColonDelimitedContext));
+                var trueExpression = this.Expression(expressionFlags);
                 var colon = this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
                 var falseExpression = this.Expression(expressionFlags);
 
@@ -487,21 +487,11 @@ namespace Bicep.Core.Parsing
                     continue;
                 }
 
-                if (this.Check(TokenType.Colon) && !HasExpressionFlag(expressionFlags, ExpressionFlags.InsideColonDelimitedContext))
+                if (this.Check(TokenType.DoubleColon))
                 {
-                    // colon operator (nested resource lookup)
-                    //
-                    // We want a ternary to bind with higher precedance than a resource-access inside the "true" part
-                    // ex: a ? b : c -> a ? (b) : (c) and NOT a ? (b:c) 
-                    // this implies that a resource-access expression will require parenthesis inside a ternary's "true" part
-                    //
-                    // We can't easily do this the other way because a ternary is right-associative and member/resource access
-                    // are left-associative.
-                    //
-                    // The same is true of a for-expression. A colon is used as the right-delimiter.
-                    var colon = this.reader.Read();
+                    var doubleColon = this.reader.Read();
                     var identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
-                    current = new ResourceAccessSyntax(current, colon, identifier);
+                    current = new ResourceAccessSyntax(current, doubleColon, identifier);
 
                     continue;
                 }
@@ -532,11 +522,11 @@ namespace Bicep.Core.Parsing
                     return this.MultilineString();
 
                 case TokenType.LeftBrace when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
-                    return this.Object(WithoutExpressionFlag(expressionFlags, ExpressionFlags.InsideColonDelimitedContext));
+                    return this.Object(expressionFlags);
 
                 case TokenType.LeftSquare when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
-                    return CheckKeyword(this.reader.PeekAhead(), LanguageConstants.ForKeyword) 
-                        ? this.ForExpression(WithoutExpressionFlag(expressionFlags, ExpressionFlags.InsideColonDelimitedContext), requireObjectLiteral: false) 
+                    return CheckKeyword(this.reader.PeekAhead(), LanguageConstants.ForKeyword)
+                        ? this.ForExpression(expressionFlags, isResourceOrModuleContext: false)
                         : this.Array();
 
                 case TokenType.LeftBrace:
@@ -544,7 +534,7 @@ namespace Bicep.Core.Parsing
                     throw new ExpectedTokenException(nextToken, b => b.ComplexLiteralsNotAllowed());
 
                 case TokenType.LeftParen:
-                    return this.ParenthesizedExpression(WithoutExpressionFlag(expressionFlags, ExpressionFlags.InsideColonDelimitedContext));
+                    return this.ParenthesizedExpression(expressionFlags);
 
                 case TokenType.Identifier:
                     return this.FunctionCallOrVariableAccess(expressionFlags);
@@ -765,7 +755,7 @@ namespace Bicep.Core.Parsing
         {
             var token = reader.Read();
             var stringValue = Lexer.TryGetMultilineStringValue(token);
-            
+
             if (stringValue is null)
             {
                 return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<Diagnostic>());
@@ -917,7 +907,7 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private ForSyntax ForExpression(ExpressionFlags expressionFlags, bool requireObjectLiteral)
+        private ForSyntax ForExpression(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
         {
             var openBracket = this.Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
             var forKeyword = this.ExpectKeyword(LanguageConstants.ForKeyword);
@@ -927,13 +917,12 @@ namespace Bicep.Core.Parsing
                 TokenType.LeftParen => this.ForVariableBlock(),
                 _ => this.SkipEmpty(b => b.ExpectedLoopItemIdentifierOrVariableBlockStart())
             };
-                
-            // new LocalVariableSyntax(this.IdentifierWithRecovery(b => b.ExpectedLoopVariableIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.RightSquare, TokenType.NewLine));
+
             var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), variableSection.HasParseErrors() ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None, TokenType.RightSquare, TokenType.NewLine);
-            var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals | ExpressionFlags.InsideColonDelimitedContext), GetSuppressionFlag(inKeyword), TokenType.Colon, TokenType.RightSquare, TokenType.NewLine);
+            var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(inKeyword), TokenType.Colon, TokenType.RightSquare, TokenType.NewLine);
             var colon = this.WithRecovery(() => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(expression), TokenType.RightSquare, TokenType.NewLine);
             var body = this.WithRecovery(
-                () => requireObjectLiteral ? this.Object(expressionFlags) : this.Expression(WithExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals)),
+                () => this.ForBody(expressionFlags, isResourceOrModuleContext),
                 GetSuppressionFlag(colon),
                 TokenType.RightSquare, TokenType.NewLine);
             var closeBracket = this.WithRecovery(() => this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]")), GetSuppressionFlag(body), TokenType.RightSquare, TokenType.NewLine);
@@ -950,6 +939,26 @@ namespace Bicep.Core.Parsing
             var closeParen = this.WithRecovery(() => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")), GetSuppressionFlag(indexVariable.Name), TokenType.NewLine);
 
             return new(openParen, itemVariable, comma, indexVariable, closeParen);
+        }
+
+        private SyntaxBase ForBody(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
+        {
+            if(!isResourceOrModuleContext)
+            {
+                // we're not parsing a resource or module body, which means we can have any expression at this point
+                return this.Expression(WithExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals));
+            }
+
+            // we're parsing a resource or module body
+            // at this point, we can have either an object literal or a condition
+            var current = this.reader.Peek();
+            return current.Type switch
+            {
+                TokenType.LeftBrace => this.Object(expressionFlags),
+                TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(expressionFlags, insideForExpression: true),
+
+                _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIf())
+            };
         }
 
         private SyntaxBase Array()
@@ -1076,7 +1085,7 @@ namespace Bicep.Core.Parsing
 
                 // Nested resource declarations may be allowed - but we need lookahead to avoid
                 // treating 'resource' as a reserved property name.
-                if (HasExpressionFlag(expressionFlags, ExpressionFlags.AllowResourceDeclarations) && 
+                if (HasExpressionFlag(expressionFlags, ExpressionFlags.AllowResourceDeclarations) &&
                     CheckKeyword(LanguageConstants.ResourceKeyword) &&
 
                     // You are here: |resource <name> ...
@@ -1108,18 +1117,21 @@ namespace Bicep.Core.Parsing
             }, RecoveryFlags.None, TokenType.NewLine);
         }
 
-        private SyntaxBase IfCondition(ExpressionFlags expressionFlags)
+        private SyntaxBase IfCondition(ExpressionFlags expressionFlags, bool insideForExpression)
         {
             var keyword = this.ExpectKeyword(LanguageConstants.IfKeyword);
+
+            // when inside a for-expression, we must include ] as a recovery terminator
+            // otherwise, the ] character may get consumed by recovery
+            // then, the for-expression parsing will produce an "expected ] character" diagnostic, which is confusing
             var conditionExpression = this.WithRecovery(
-                () => this.ParenthesizedExpression(WithoutExpressionFlag(expressionFlags, ExpressionFlags.AllowResourceDeclarations)), 
-                RecoveryFlags.None, 
-                TokenType.LeftBrace, 
-                TokenType.NewLine);
+                () => this.ParenthesizedExpression(WithoutExpressionFlag(expressionFlags, ExpressionFlags.AllowResourceDeclarations)),
+                RecoveryFlags.None,
+                insideForExpression ? new[] { TokenType.RightSquare, TokenType.LeftBrace, TokenType.NewLine } : new[] { TokenType.LeftBrace, TokenType.NewLine });
             var body = this.WithRecovery(
                 () => this.Object(expressionFlags),
                 GetSuppressionFlag(conditionExpression, conditionExpression is ParenthesizedExpressionSyntax { CloseParen: not SkippedTriviaSyntax }),
-                TokenType.NewLine);
+                insideForExpression ? new[] { TokenType.RightSquare, TokenType.NewLine } : new[] { TokenType.NewLine });
             return new IfConditionSyntax(keyword, conditionExpression, body);
         }
 

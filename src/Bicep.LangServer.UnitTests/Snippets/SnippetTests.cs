@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
@@ -117,6 +117,27 @@ namespace Bicep.LangServer.UnitTests.Snippets
                 });
 
             snippet.FormatDocumentation().Should().Be("name: ''");
+        }
+
+        [TestMethod]
+        public void SnippetPlaceholderTextWithMultipleChoicesShouldReturnFirstOneByDefault()
+        {
+           string text = @"var testIdentifier = '${1|Enabled,Disabled|}'";
+
+            string expectedTextAfterPlaceholderReplacements = "var testIdentifier = 'Enabled'";
+
+            var snippet = new Snippet(text);
+            snippet.Text.Should().Be(text);
+
+            snippet.Placeholders.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Index.Should().Be(1);
+                    x.Name.Should().Be("Enabled");
+                    x.Span.ToString().Should().Be("[22:44]");
+                });
+
+            Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
         }
     }
 }

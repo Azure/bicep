@@ -6,7 +6,7 @@ The operators below are listed in descending order of precedence (the higher the
 
 | Symbol | Type of Operation | Associativity |
 |:-|:-|:-|
-| `(` `)` `[` `]` `.` `:` | Parentheses, array indexers, property accessors, and nested-resource accessor  | Left to right |
+| `(` `)` `[` `]` `.` `::` | Parentheses, array indexers, property accessors, and nested resource accessor  | Left to right |
 | `!` `-` | Unary | Right to left |
 | `%` `*` `/` | Multiplicative | Left to right |
 | `+` `-` | Additive | Left to right |
@@ -35,20 +35,20 @@ Binary operators operate on a pair of operands. Bicep supports the following bin
 | `/` | Divide | `int` `int` | `int` | `[div(<value1>,<value2>)]` | Divides two integers |
 | `+` | Add | `int` `int` | `int` | `[add(<value1>,<value2>)]` | Adds two integers |
 | `-` | Subtract | `int` `int` | `int` | `[sub(<value1>,<value2>)]` | Subtracts two integers |
-| `>=` | Greater than or equal | `string` `string` | `bool` | `[greaterOrEquals(<value1>,<value2>)]` | Greater than or equal |
-| `>=` | Greater than or equal | `number` `number` | `bool` | `[greaterOrEquals(<value1>,<value2>)]` | Greater than or equal |
-| `>` | Greater than | `string` `string` | `bool` | `[greater(<value1>,<value2>)]` | Greater than |
-| `>` | Greater than | `number` `number` | `bool` | `[greater(<value1>,<value2>)]` | Greater than |
-| `<=` | Less than or equal | `string` `string` | `bool` | `[lessOrEquals(<value1>,<value2>)]` | Less than or equal |
-| `<=` | Less than or equal | `number` `number` | `bool` | `[lessOrEquals(<value1>,<value2>)]` | Less than or equal |
-| `<` | Less than | `string` `string` | `bool` | `[less(<value1>,<value2>)]` | Less than |
-| `<` | Less than | `number` `number` | `bool` | `[less(<value1>,<value2>)]` | Less than |
-| `==` | Equals | `any` `any` | `bool` | `[equals(<value1>,<value2>)]` | Less than |
-| `!=` | Not Equal | `any` `any` | `bool` | `[not(equals(<value1>,<value2>))]` | Less than |
-| `=~` | Equals (case-insensitive) | `string` `string` | `bool` | `[equals(toLower(<value1>),toLower(<value2>))]` | Less than |
-| `!~` | Equals (case-insensitive) | `string` `string` | `bool` | `[not(equals(toLower(<value1>),toLower(<value2>)))]` | Less than |
-| `&&` | Logical AND | `bool` *n | `bool` | `[and(<value1>, ...)]` | Returns true if all values are true |
-| `\|\|` | Logical OR | `bool` *n | `bool` | `[or(<value1>, ...)]` | Returns true if any value is true |
+| `>=` | Greater than or equal | `string` `string` | `bool` | `[greaterOrEquals(<value1>,<value2>)]` |Returns true if the left value is greater than or equal to the right value |
+| `>=` | Greater than or equal | `number` `number` | `bool` | `[greaterOrEquals(<value1>,<value2>)]` | Returns true if the left value is greater than or equal to the right value |
+| `>` | Greater than | `string` `string` | `bool` | `[greater(<value1>,<value2>)]` | Returns true if the left value is greater than the right value |
+| `>` | Greater than | `number` `number` | `bool` | `[greater(<value1>,<value2>)]` | Returns true if the left value is greater than the right value |
+| `<=` | Less than or equal | `string` `string` | `bool` | `[lessOrEquals(<value1>,<value2>)]` | Returns true if the left value is less than or equal to the right value |
+| `<=` | Less than or equal | `number` `number` | `bool` | `[lessOrEquals(<value1>,<value2>)]` | Returns true if the left value is less than or equal to the right value |
+| `<` | Less than | `string` `string` | `bool` | `[less(<value1>,<value2>)]` | Returns true if the left value is less than the right value |
+| `<` | Less than | `number` `number` | `bool` | `[less(<value1>,<value2>)]` | Returns true if the left value is less than the right value |
+| `==` | Equals | `any` `any` | `bool` | `[equals(<value1>,<value2>)]` | Returns true if the values are equal |
+| `!=` | Not Equal | `any` `any` | `bool` | `[not(equals(<value1>,<value2>))]` | Returns true if the values are not equal |
+| `=~` | Equals (case-insensitive) | `string` `string` | `bool` | `[equals(toLower(<value1>),toLower(<value2>))]` | Returns true if the values are equal, ignoring case |
+| `!~` | Not Equals (case-insensitive) | `string` `string` | `bool` | `[not(equals(toLower(<value1>),toLower(<value2>)))]` | Returns true if the values are not equal, ignoring case |
+| `&&` | Logical AND | `bool` *n | `bool` | `[and(<value1>, ...)]` | Returns true if both values are true |
+| `\|\|` | Logical OR | `bool` *n | `bool` | `[or(<value1>, ...)]` | Returns true if either value is true |
 | `??` | Coalesce | `any` *n | `any` | `[coalesce(<value1>, ...)]` | Returns first non-null value from the parameters. Empty strings, empty arrays, and empty objects are not null. |
 
 ## Ternary operator
@@ -107,7 +107,7 @@ Given the above declaration, the expression `x.y.z` would evaluate to the litera
 Property accessors can be used with any object. This includes parameters and variables of object types and object literals. Using a property accessor on an expression of non-object type is an error.
 
 ## Nested resource accessors
-Nested resource accessors are used to access resources that are declared inside another resource. The symbolic name declared by a nested resource can normally only be referenced within the body of the containing resource. To reference a nested resource outside the containing resource, it must be qualified with the containing resource name and the `:` operator. Other resources declared within the same containing resource may used the name without qualification.
+Nested resource accessors are used to access resources that are declared inside another resource. The symbolic name declared by a nested resource can normally only be referenced within the body of the containing resource. To reference a nested resource outside the containing resource, it must be qualified with the containing resource name and the `::` operator. Other resources declared within the same containing resource may used the name without qualification.
 
 ```
 resource myParent 'My.Rp/parentType@2020-01-01' = {
@@ -132,12 +132,10 @@ resource myParent 'My.Rp/parentType@2020-01-01' = {
 }
 
 // accessing 'myChild' here requires the resource access operator
-output displayName string = myParent:myChild.properties.displayName
+output displayName string = myParent::myChild.properties.displayName
 ```
 
-Since the declaration of `myChild` is contained within `myParent` the access to `myChild`'s properties must be qualified with `myParent:`.
-
-The `:` must be parenthesized when it appears inside a ternary expression such as: `useChildValue ? (myParent:myChild.properties.displayName) : 'defaultValue'`.
+Since the declaration of `myChild` is contained within `myParent` the access to `myChild`'s properties must be qualified with `myParent::`.
 
 ## Array indexers
 Array indexers serve two purposes. Most commonly, they are used to access items in an array. However, they can also be used to access properties of objects via expressions or string literals.

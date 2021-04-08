@@ -16,9 +16,14 @@ export async function activate(
     context,
     outputChannel,
     async () => {
-      createLogger(context, outputChannel);
+      const logger = createLogger(context, outputChannel);
 
-      await launchLanguageServiceWithProgressReport(context, outputChannel);
+      try {
+        await launchLanguageServiceWithProgressReport(context, outputChannel);
+      } catch (e) {
+        logger.error(e);
+        throw e;
+      }
     }
   );
 }

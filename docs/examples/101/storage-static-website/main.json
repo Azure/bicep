@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9475325894813457740"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string"
@@ -100,13 +107,6 @@
     "staticWebsiteHostName": {
       "type": "string",
       "value": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))).primaryEndpoints.web, 'https://', ''), '/', '')]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "4092422444022037119"
     }
   }
 }

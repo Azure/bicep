@@ -35,16 +35,17 @@ this */
 The sections below cover common types of literals you will encounter in Bicep. See [Bicep Data Types](./types.md) for additional information about the type system and validation rules.
 
 ### Strings
-Strings are defined by a sequence of characters between single quote (`'`) characters, and must be declared on a single line.
+Strings are defined by a sequence of characters between single quote (`'`) characters, and must be declared on a single line. All Unicode characters with codepoints between `0` and `10FFFF` are allowed.
 
 The following are the set of reserved characters which must be escaped by a backslash (`\`) character:
 | Escape Sequence | Represented value | Notes |
 |:-|:-|:-|
 | `\\` | `\` ||
 | `\'` | `'` ||
-| `\n` | `line feed (LF)` ||
-| `\r` | `carriage return (CR)` ||
-| `\t` | `tab character` ||
+| `\n` | line feed (LF) ||
+| `\r` | carriage return (CR) ||
+| `\t` | tab character ||
+| `\u{x}` | Unicode code point `x` | `x` represents a hexadecimal codepoint value between `0` and `10FFFF` (both inclusive). Leading zeros are allowed. Codepoints above `FFFF` will be emitted as a surrogate pair.
 | `\$` | `$` | Only needs to be escaped if it is followed by `{` |
 
 All strings in Bicep support interpolation, in order to reference expressions in-place. To inject an expression, surround it by `${` and `}`. Expressions that are referenced cannot span multiple lines.
@@ -60,6 +61,9 @@ var myVar2 = 'what\'s up?'
 // myVar evaluates to "hello steve!"
 var name = 'steve'
 var myVar3 = 'hello ${name}!'
+
+// smiley evaluates to "😁🙂"
+var smiley = '😁\u{1F642}'
 ```
 
 ### Multi-line strings

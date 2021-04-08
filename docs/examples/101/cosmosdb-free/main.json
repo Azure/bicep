@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4841832506146428279"
+    }
+  },
   "parameters": {
     "appName": {
       "type": "string",
@@ -8,7 +15,7 @@
     },
     "accountName": {
       "type": "string",
-      "defaultValue": "[toLower('cosmos-$(appName)')]"
+      "defaultValue": "[toLower(format('cosmos-{0}', parameters('appName')))]"
     },
     "location": {
       "type": "string",
@@ -16,7 +23,7 @@
     },
     "databaseName": {
       "type": "string",
-      "defaultValue": "[toLower('db-$(appName)')]"
+      "defaultValue": "[toLower(format('db-{0}', parameters('appName')))]"
     }
   },
   "functions": [],
@@ -55,12 +62,5 @@
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "7648056324883186630"
-    }
-  }
+  ]
 }

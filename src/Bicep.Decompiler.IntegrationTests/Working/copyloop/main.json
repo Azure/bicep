@@ -27,6 +27,13 @@
             "type": "secureString"
         }
     },
+    "variables": {
+        "items": [
+            "a",
+            "b",
+            "c"
+        ]
+    },
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
@@ -93,5 +100,17 @@
             }
         }
     ],
-    "outputs": {}
+    "outputs": {
+        "myVar": {
+            "type": "array",
+            "copy": {
+                "count": "[length(variables('items'))]",
+                "input": {
+                    "name": "[format('>{0}<', variables('items')[copyIndex()])]",
+                    "value": "[variables('items')[copyIndex()]]",
+                    "index": "[copyIndex()]"
+                }
+            }
+        }
+    }
 }

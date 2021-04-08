@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6513390913573702195"
+    }
+  },
   "parameters": {
     "name": {
       "type": "string",
@@ -97,13 +104,6 @@
     "ftpUser": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Web/sites', variables('websiteName'))).ftpUsername]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11671505077922500538"
     }
   }
 }

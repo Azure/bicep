@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10595295578644188130"
+    }
+  },
   "parameters": {
     "principalId": {
       "type": "string"
@@ -42,12 +49,5 @@
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(variables('roleName')))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "17949049737211027143"
-    }
-  }
+  ]
 }

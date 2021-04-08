@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
         public ForSyntax(
             Token openSquare,
             Token forKeyword,
-            SyntaxBase itemVariableOrVariableBlock,
+            SyntaxBase variableSection,
             SyntaxBase inKeyword,
             SyntaxBase expression,
             SyntaxBase colon,
@@ -20,7 +20,7 @@ namespace Bicep.Core.Syntax
         {
             AssertTokenType(openSquare, nameof(openSquare), TokenType.LeftSquare);
             AssertKeyword(forKeyword, nameof(forKeyword), LanguageConstants.ForKeyword);
-            AssertSyntaxType(itemVariableOrVariableBlock, nameof(itemVariableOrVariableBlock), typeof(LocalVariableSyntax), typeof(ForVariableBlockSyntax), typeof(SkippedTriviaSyntax));
+            AssertSyntaxType(variableSection, nameof(variableSection), typeof(LocalVariableSyntax), typeof(ForVariableBlockSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(inKeyword, nameof(inKeyword), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertKeyword(inKeyword as Token, nameof(inKeyword), LanguageConstants.InKeyword);
             AssertSyntaxType(colon, nameof(colon), typeof(Token), typeof(SkippedTriviaSyntax));
@@ -30,7 +30,7 @@ namespace Bicep.Core.Syntax
             
             this.OpenSquare = openSquare;
             this.ForKeyword = forKeyword;
-            this.VariableSection = itemVariableOrVariableBlock;
+            this.VariableSection = variableSection;
             this.InKeyword = inKeyword;
             this.Expression = expression;
             this.Colon = colon;

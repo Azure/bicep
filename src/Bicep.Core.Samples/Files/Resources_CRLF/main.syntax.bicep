@@ -2663,6 +2663,995 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[2:6) NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+/*
+  Scope values created via array access on a resource collection
+*/
+//@[2:4) NewLine |\r\n|
+resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
+//@[0:135) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:17)  IdentifierSyntax
+//@[9:17)   Identifier |dnsZones|
+//@[18:57)  StringSyntax
+//@[18:57)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[58:59)  Assignment |=|
+//@[60:135)  ForSyntax
+//@[60:61)   LeftSquare |[|
+//@[61:64)   Identifier |for|
+//@[65:69)   LocalVariableSyntax
+//@[65:69)    IdentifierSyntax
+//@[65:69)     Identifier |zone|
+//@[70:72)   Identifier |in|
+//@[73:83)   FunctionCallSyntax
+//@[73:78)    IdentifierSyntax
+//@[73:78)     Identifier |range|
+//@[78:79)    LeftParen |(|
+//@[79:81)    FunctionArgumentSyntax
+//@[79:80)     IntegerLiteralSyntax
+//@[79:80)      Integer |0|
+//@[80:81)     Comma |,|
+//@[81:82)    FunctionArgumentSyntax
+//@[81:82)     IntegerLiteralSyntax
+//@[81:82)      Integer |4|
+//@[82:83)    RightParen |)|
+//@[83:84)   Colon |:|
+//@[85:134)   ObjectSyntax
+//@[85:86)    LeftBrace |{|
+//@[86:88)    NewLine |\r\n|
+  name: 'zone${zone}'
+//@[2:21)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:21)     StringSyntax
+//@[8:15)      StringLeftPiece |'zone${|
+//@[15:19)      VariableAccessSyntax
+//@[15:19)       IdentifierSyntax
+//@[15:19)        Identifier |zone|
+//@[19:21)      StringRightPiece |}'|
+//@[21:23)    NewLine |\r\n|
+  location: 'global'
+//@[2:20)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:20)     StringSyntax
+//@[12:20)      StringComplete |'global'|
+//@[20:22)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+//@[0:194) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:21)  IdentifierSyntax
+//@[9:21)   Identifier |locksOnZones|
+//@[22:64)  StringSyntax
+//@[22:64)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[65:66)  Assignment |=|
+//@[67:194)  ForSyntax
+//@[67:68)   LeftSquare |[|
+//@[68:71)   Identifier |for|
+//@[72:76)   LocalVariableSyntax
+//@[72:76)    IdentifierSyntax
+//@[72:76)     Identifier |lock|
+//@[77:79)   Identifier |in|
+//@[80:90)   FunctionCallSyntax
+//@[80:85)    IdentifierSyntax
+//@[80:85)     Identifier |range|
+//@[85:86)    LeftParen |(|
+//@[86:88)    FunctionArgumentSyntax
+//@[86:87)     IntegerLiteralSyntax
+//@[86:87)      Integer |0|
+//@[87:88)     Comma |,|
+//@[88:89)    FunctionArgumentSyntax
+//@[88:89)     IntegerLiteralSyntax
+//@[88:89)      Integer |2|
+//@[89:90)    RightParen |)|
+//@[90:91)   Colon |:|
+//@[92:193)   ObjectSyntax
+//@[92:93)    LeftBrace |{|
+//@[93:95)    NewLine |\r\n|
+  name: 'lock${lock}'
+//@[2:21)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:21)     StringSyntax
+//@[8:15)      StringLeftPiece |'lock${|
+//@[15:19)      VariableAccessSyntax
+//@[15:19)       IdentifierSyntax
+//@[15:19)        Identifier |lock|
+//@[19:21)      StringRightPiece |}'|
+//@[21:23)    NewLine |\r\n|
+  properties: {
+//@[2:47)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:47)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    level: 'CanNotDelete'
+//@[4:25)      ObjectPropertySyntax
+//@[4:9)       IdentifierSyntax
+//@[4:9)        Identifier |level|
+//@[9:10)       Colon |:|
+//@[11:25)       StringSyntax
+//@[11:25)        StringComplete |'CanNotDelete'|
+//@[25:27)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  scope: dnsZones[lock]
+//@[2:23)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:23)     ArrayAccessSyntax
+//@[9:17)      VariableAccessSyntax
+//@[9:17)       IdentifierSyntax
+//@[9:17)        Identifier |dnsZones|
+//@[17:18)      LeftSquare |[|
+//@[18:22)      VariableAccessSyntax
+//@[18:22)       IdentifierSyntax
+//@[18:22)        Identifier |lock|
+//@[22:23)      RightSquare |]|
+//@[23:25)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+//@[0:196) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |moreLocksOnZones|
+//@[26:68)  StringSyntax
+//@[26:68)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[69:70)  Assignment |=|
+//@[71:196)  ForSyntax
+//@[71:72)   LeftSquare |[|
+//@[72:75)   Identifier |for|
+//@[76:85)   ForVariableBlockSyntax
+//@[76:77)    LeftParen |(|
+//@[77:81)    LocalVariableSyntax
+//@[77:81)     IdentifierSyntax
+//@[77:81)      Identifier |lock|
+//@[81:82)    Comma |,|
+//@[83:84)    LocalVariableSyntax
+//@[83:84)     IdentifierSyntax
+//@[83:84)      Identifier |i|
+//@[84:85)    RightParen |)|
+//@[86:88)   Identifier |in|
+//@[89:99)   FunctionCallSyntax
+//@[89:94)    IdentifierSyntax
+//@[89:94)     Identifier |range|
+//@[94:95)    LeftParen |(|
+//@[95:97)    FunctionArgumentSyntax
+//@[95:96)     IntegerLiteralSyntax
+//@[95:96)      Integer |0|
+//@[96:97)     Comma |,|
+//@[97:98)    FunctionArgumentSyntax
+//@[97:98)     IntegerLiteralSyntax
+//@[97:98)      Integer |3|
+//@[98:99)    RightParen |)|
+//@[99:100)   Colon |:|
+//@[101:195)   ObjectSyntax
+//@[101:102)    LeftBrace |{|
+//@[102:104)    NewLine |\r\n|
+  name: 'another${i}'
+//@[2:21)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:21)     StringSyntax
+//@[8:18)      StringLeftPiece |'another${|
+//@[18:19)      VariableAccessSyntax
+//@[18:19)       IdentifierSyntax
+//@[18:19)        Identifier |i|
+//@[19:21)      StringRightPiece |}'|
+//@[21:23)    NewLine |\r\n|
+  properties: {
+//@[2:43)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:43)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
+    level: 'ReadOnly'
+//@[4:21)      ObjectPropertySyntax
+//@[4:9)       IdentifierSyntax
+//@[4:9)        Identifier |level|
+//@[9:10)       Colon |:|
+//@[11:21)       StringSyntax
+//@[11:21)        StringComplete |'ReadOnly'|
+//@[21:23)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  scope: dnsZones[i]
+//@[2:20)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:20)     ArrayAccessSyntax
+//@[9:17)      VariableAccessSyntax
+//@[9:17)       IdentifierSyntax
+//@[9:17)        Identifier |dnsZones|
+//@[17:18)      LeftSquare |[|
+//@[18:19)      VariableAccessSyntax
+//@[18:19)       IdentifierSyntax
+//@[18:19)        Identifier |i|
+//@[19:20)      RightSquare |]|
+//@[20:22)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[0:170) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |singleLockOnFirstZone|
+//@[31:73)  StringSyntax
+//@[31:73)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[74:75)  Assignment |=|
+//@[76:170)  ObjectSyntax
+//@[76:77)   LeftBrace |{|
+//@[77:79)   NewLine |\r\n|
+  name: 'single-lock'
+//@[2:21)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:21)    StringSyntax
+//@[8:21)     StringComplete |'single-lock'|
+//@[21:23)   NewLine |\r\n|
+  properties: {
+//@[2:43)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:43)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    level: 'ReadOnly'
+//@[4:21)     ObjectPropertySyntax
+//@[4:9)      IdentifierSyntax
+//@[4:9)       Identifier |level|
+//@[9:10)      Colon |:|
+//@[11:21)      StringSyntax
+//@[11:21)       StringComplete |'ReadOnly'|
+//@[21:23)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  scope: dnsZones[0]
+//@[2:20)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:20)    ArrayAccessSyntax
+//@[9:17)     VariableAccessSyntax
+//@[9:17)      IdentifierSyntax
+//@[9:17)       Identifier |dnsZones|
+//@[17:18)     LeftSquare |[|
+//@[18:19)     IntegerLiteralSyntax
+//@[18:19)      Integer |0|
+//@[19:20)     RightSquare |]|
+//@[20:22)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:7) NewLine |\r\n\r\n\r\n|
+
+
+resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[0:234) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p1_vnet|
+//@[17:63)  StringSyntax
+//@[17:63)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[64:65)  Assignment |=|
+//@[66:234)  ObjectSyntax
+//@[66:67)   LeftBrace |{|
+//@[67:69)   NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:36)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:36)    PropertyAccessSyntax
+//@[12:27)     FunctionCallSyntax
+//@[12:25)      IdentifierSyntax
+//@[12:25)       Identifier |resourceGroup|
+//@[25:26)      LeftParen |(|
+//@[26:27)      RightParen |)|
+//@[27:28)     Dot |.|
+//@[28:36)     IdentifierSyntax
+//@[28:36)      Identifier |location|
+//@[36:38)   NewLine |\r\n|
+  name: 'myVnet'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:16)    StringSyntax
+//@[8:16)     StringComplete |'myVnet'|
+//@[16:18)   NewLine |\r\n|
+  properties: {
+//@[2:106)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:106)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    addressSpace: {
+//@[4:84)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |addressSpace|
+//@[16:17)      Colon |:|
+//@[18:84)      ObjectSyntax
+//@[18:19)       LeftBrace |{|
+//@[19:21)       NewLine |\r\n|
+      addressPrefixes: [
+//@[6:56)       ObjectPropertySyntax
+//@[6:21)        IdentifierSyntax
+//@[6:21)         Identifier |addressPrefixes|
+//@[21:22)        Colon |:|
+//@[23:56)        ArraySyntax
+//@[23:24)         LeftSquare |[|
+//@[24:26)         NewLine |\r\n|
+        '10.0.0.0/20'
+//@[8:21)         ArrayItemSyntax
+//@[8:21)          StringSyntax
+//@[8:21)           StringComplete |'10.0.0.0/20'|
+//@[21:23)         NewLine |\r\n|
+      ]
+//@[6:7)         RightSquare |]|
+//@[7:9)       NewLine |\r\n|
+    }
+//@[4:5)       RightBrace |}|
+//@[5:7)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[0:175) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:19)  IdentifierSyntax
+//@[9:19)   Identifier |p1_subnet1|
+//@[20:74)  StringSyntax
+//@[20:74)   StringComplete |'Microsoft.Network/virtualNetworks/subnets@2020-06-01'|
+//@[75:76)  Assignment |=|
+//@[77:175)  ObjectSyntax
+//@[77:78)   LeftBrace |{|
+//@[78:80)   NewLine |\r\n|
+  parent: p1_vnet
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p1_vnet|
+//@[17:19)   NewLine |\r\n|
+  name: 'subnet1'
+//@[2:17)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:17)    StringSyntax
+//@[8:17)     StringComplete |'subnet1'|
+//@[17:19)   NewLine |\r\n|
+  properties: {
+//@[2:54)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:54)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    addressPrefix: '10.0.0.0/24'
+//@[4:32)     ObjectPropertySyntax
+//@[4:17)      IdentifierSyntax
+//@[4:17)       Identifier |addressPrefix|
+//@[17:18)      Colon |:|
+//@[19:32)      StringSyntax
+//@[19:32)       StringComplete |'10.0.0.0/24'|
+//@[32:34)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[0:175) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:19)  IdentifierSyntax
+//@[9:19)   Identifier |p1_subnet2|
+//@[20:74)  StringSyntax
+//@[20:74)   StringComplete |'Microsoft.Network/virtualNetworks/subnets@2020-06-01'|
+//@[75:76)  Assignment |=|
+//@[77:175)  ObjectSyntax
+//@[77:78)   LeftBrace |{|
+//@[78:80)   NewLine |\r\n|
+  parent: p1_vnet
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p1_vnet|
+//@[17:19)   NewLine |\r\n|
+  name: 'subnet2'
+//@[2:17)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:17)    StringSyntax
+//@[8:17)     StringComplete |'subnet2'|
+//@[17:19)   NewLine |\r\n|
+  properties: {
+//@[2:54)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:54)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    addressPrefix: '10.0.1.0/24'
+//@[4:32)     ObjectPropertySyntax
+//@[4:17)      IdentifierSyntax
+//@[4:17)       Identifier |addressPrefix|
+//@[17:18)      Colon |:|
+//@[19:32)      StringSyntax
+//@[19:32)       StringComplete |'10.0.1.0/24'|
+//@[32:34)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
+//@[0:68) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p1_subnet1prefix|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:68)  PropertyAccessSyntax
+//@[33:54)   PropertyAccessSyntax
+//@[33:43)    VariableAccessSyntax
+//@[33:43)     IdentifierSyntax
+//@[33:43)      Identifier |p1_subnet1|
+//@[43:44)    Dot |.|
+//@[44:54)    IdentifierSyntax
+//@[44:54)     Identifier |properties|
+//@[54:55)   Dot |.|
+//@[55:68)   IdentifierSyntax
+//@[55:68)    Identifier |addressPrefix|
+//@[68:70) NewLine |\r\n|
+output p1_subnet1name string = p1_subnet1.name
+//@[0:46) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |p1_subnet1name|
+//@[22:28)  TypeSyntax
+//@[22:28)   Identifier |string|
+//@[29:30)  Assignment |=|
+//@[31:46)  PropertyAccessSyntax
+//@[31:41)   VariableAccessSyntax
+//@[31:41)    IdentifierSyntax
+//@[31:41)     Identifier |p1_subnet1|
+//@[41:42)   Dot |.|
+//@[42:46)   IdentifierSyntax
+//@[42:46)    Identifier |name|
+//@[46:48) NewLine |\r\n|
+output p1_subnet1type string = p1_subnet1.type
+//@[0:46) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |p1_subnet1type|
+//@[22:28)  TypeSyntax
+//@[22:28)   Identifier |string|
+//@[29:30)  Assignment |=|
+//@[31:46)  PropertyAccessSyntax
+//@[31:41)   VariableAccessSyntax
+//@[31:41)    IdentifierSyntax
+//@[31:41)     Identifier |p1_subnet1|
+//@[41:42)   Dot |.|
+//@[42:46)   IdentifierSyntax
+//@[42:46)    Identifier |type|
+//@[46:48) NewLine |\r\n|
+output p1_subnet1id string = p1_subnet1.id
+//@[0:42) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:19)  IdentifierSyntax
+//@[7:19)   Identifier |p1_subnet1id|
+//@[20:26)  TypeSyntax
+//@[20:26)   Identifier |string|
+//@[27:28)  Assignment |=|
+//@[29:42)  PropertyAccessSyntax
+//@[29:39)   VariableAccessSyntax
+//@[29:39)    IdentifierSyntax
+//@[29:39)     Identifier |p1_subnet1|
+//@[39:40)   Dot |.|
+//@[40:42)   IdentifierSyntax
+//@[40:42)    Identifier |id|
+//@[42:46) NewLine |\r\n\r\n|
+
+// parent property with extension resource
+//@[42:44) NewLine |\r\n|
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[0:76) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p2_res1|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:55)  Assignment |=|
+//@[56:76)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  name: 'res1'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res1'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:109) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:21)  IdentifierSyntax
+//@[9:21)   Identifier |p2_res1child|
+//@[22:65)  StringSyntax
+//@[22:65)   StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[66:67)  Assignment |=|
+//@[68:109)  ObjectSyntax
+//@[68:69)   LeftBrace |{|
+//@[69:71)   NewLine |\r\n|
+  parent: p2_res1
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p2_res1|
+//@[17:19)   NewLine |\r\n|
+  name: 'child1'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:16)    StringSyntax
+//@[8:16)     StringComplete |'child1'|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[0:99) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p2_res2|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp2/resource2@2020-06-01'|
+//@[54:55)  Assignment |=|
+//@[56:99)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  scope: p2_res1child
+//@[2:21)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:21)    VariableAccessSyntax
+//@[9:21)     IdentifierSyntax
+//@[9:21)      Identifier |p2_res1child|
+//@[21:23)   NewLine |\r\n|
+  name: 'res2'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res2'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[0:109) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:21)  IdentifierSyntax
+//@[9:21)   Identifier |p2_res2child|
+//@[22:65)  StringSyntax
+//@[22:65)   StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[66:67)  Assignment |=|
+//@[68:109)  ObjectSyntax
+//@[68:69)   LeftBrace |{|
+//@[69:71)   NewLine |\r\n|
+  parent: p2_res2
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p2_res2|
+//@[17:19)   NewLine |\r\n|
+  name: 'child2'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:16)    StringSyntax
+//@[8:16)     StringComplete |'child2'|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p2_res2childprop string = p2_res2child.properties.someProp
+//@[0:65) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p2_res2childprop|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:65)  PropertyAccessSyntax
+//@[33:56)   PropertyAccessSyntax
+//@[33:45)    VariableAccessSyntax
+//@[33:45)     IdentifierSyntax
+//@[33:45)      Identifier |p2_res2child|
+//@[45:46)    Dot |.|
+//@[46:56)    IdentifierSyntax
+//@[46:56)     Identifier |properties|
+//@[56:57)   Dot |.|
+//@[57:65)   IdentifierSyntax
+//@[57:65)    Identifier |someProp|
+//@[65:67) NewLine |\r\n|
+output p2_res2childname string = p2_res2child.name
+//@[0:50) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p2_res2childname|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:50)  PropertyAccessSyntax
+//@[33:45)   VariableAccessSyntax
+//@[33:45)    IdentifierSyntax
+//@[33:45)     Identifier |p2_res2child|
+//@[45:46)   Dot |.|
+//@[46:50)   IdentifierSyntax
+//@[46:50)    Identifier |name|
+//@[50:52) NewLine |\r\n|
+output p2_res2childtype string = p2_res2child.type
+//@[0:50) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p2_res2childtype|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:50)  PropertyAccessSyntax
+//@[33:45)   VariableAccessSyntax
+//@[33:45)    IdentifierSyntax
+//@[33:45)     Identifier |p2_res2child|
+//@[45:46)   Dot |.|
+//@[46:50)   IdentifierSyntax
+//@[46:50)    Identifier |type|
+//@[50:52) NewLine |\r\n|
+output p2_res2childid string = p2_res2child.id
+//@[0:46) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |p2_res2childid|
+//@[22:28)  TypeSyntax
+//@[22:28)   Identifier |string|
+//@[29:30)  Assignment |=|
+//@[31:46)  PropertyAccessSyntax
+//@[31:43)   VariableAccessSyntax
+//@[31:43)    IdentifierSyntax
+//@[31:43)     Identifier |p2_res2child|
+//@[43:44)   Dot |.|
+//@[44:46)   IdentifierSyntax
+//@[44:46)    Identifier |id|
+//@[46:50) NewLine |\r\n\r\n|
+
+// parent property with 'existing' resource
+//@[43:45) NewLine |\r\n|
+resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[0:85) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p3_res1|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:62)  Identifier |existing|
+//@[63:64)  Assignment |=|
+//@[65:85)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  name: 'res1'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res1'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:106) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |p3_child1|
+//@[19:62)  StringSyntax
+//@[19:62)   StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:64)  Assignment |=|
+//@[65:106)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  parent: p3_res1
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p3_res1|
+//@[17:19)   NewLine |\r\n|
+  name: 'child1'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:16)    StringSyntax
+//@[8:16)     StringComplete |'child1'|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p3_res1childprop string = p3_child1.properties.someProp
+//@[0:62) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p3_res1childprop|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:62)  PropertyAccessSyntax
+//@[33:53)   PropertyAccessSyntax
+//@[33:42)    VariableAccessSyntax
+//@[33:42)     IdentifierSyntax
+//@[33:42)      Identifier |p3_child1|
+//@[42:43)    Dot |.|
+//@[43:53)    IdentifierSyntax
+//@[43:53)     Identifier |properties|
+//@[53:54)   Dot |.|
+//@[54:62)   IdentifierSyntax
+//@[54:62)    Identifier |someProp|
+//@[62:64) NewLine |\r\n|
+output p3_res1childname string = p3_child1.name
+//@[0:47) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p3_res1childname|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:47)  PropertyAccessSyntax
+//@[33:42)   VariableAccessSyntax
+//@[33:42)    IdentifierSyntax
+//@[33:42)     Identifier |p3_child1|
+//@[42:43)   Dot |.|
+//@[43:47)   IdentifierSyntax
+//@[43:47)    Identifier |name|
+//@[47:49) NewLine |\r\n|
+output p3_res1childtype string = p3_child1.type
+//@[0:47) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p3_res1childtype|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:47)  PropertyAccessSyntax
+//@[33:42)   VariableAccessSyntax
+//@[33:42)    IdentifierSyntax
+//@[33:42)     Identifier |p3_child1|
+//@[42:43)   Dot |.|
+//@[43:47)   IdentifierSyntax
+//@[43:47)    Identifier |type|
+//@[47:49) NewLine |\r\n|
+output p3_res1childid string = p3_child1.id
+//@[0:43) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |p3_res1childid|
+//@[22:28)  TypeSyntax
+//@[22:28)   Identifier |string|
+//@[29:30)  Assignment |=|
+//@[31:43)  PropertyAccessSyntax
+//@[31:40)   VariableAccessSyntax
+//@[31:40)    IdentifierSyntax
+//@[31:40)     Identifier |p3_child1|
+//@[40:41)   Dot |.|
+//@[41:43)   IdentifierSyntax
+//@[41:43)    Identifier |id|
+//@[43:47) NewLine |\r\n\r\n|
+
+// parent & child with 'existing'
+//@[33:35) NewLine |\r\n|
+resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[0:104) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:16)  IdentifierSyntax
+//@[9:16)   Identifier |p4_res1|
+//@[17:53)  StringSyntax
+//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:62)  Identifier |existing|
+//@[63:64)  Assignment |=|
+//@[65:104)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  scope: tenant()
+//@[2:17)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:17)    FunctionCallSyntax
+//@[9:15)     IdentifierSyntax
+//@[9:15)      Identifier |tenant|
+//@[15:16)     LeftParen |(|
+//@[16:17)     RightParen |)|
+//@[17:19)   NewLine |\r\n|
+  name: 'res1'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'res1'|
+//@[14:16)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
+//@[0:115) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |p4_child1|
+//@[19:62)  StringSyntax
+//@[19:62)   StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:71)  Identifier |existing|
+//@[72:73)  Assignment |=|
+//@[74:115)  ObjectSyntax
+//@[74:75)   LeftBrace |{|
+//@[75:77)   NewLine |\r\n|
+  parent: p4_res1
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    VariableAccessSyntax
+//@[10:17)     IdentifierSyntax
+//@[10:17)      Identifier |p4_res1|
+//@[17:19)   NewLine |\r\n|
+  name: 'child1'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:16)    StringSyntax
+//@[8:16)     StringComplete |'child1'|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p4_res1childprop string = p4_child1.properties.someProp
+//@[0:62) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p4_res1childprop|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:62)  PropertyAccessSyntax
+//@[33:53)   PropertyAccessSyntax
+//@[33:42)    VariableAccessSyntax
+//@[33:42)     IdentifierSyntax
+//@[33:42)      Identifier |p4_child1|
+//@[42:43)    Dot |.|
+//@[43:53)    IdentifierSyntax
+//@[43:53)     Identifier |properties|
+//@[53:54)   Dot |.|
+//@[54:62)   IdentifierSyntax
+//@[54:62)    Identifier |someProp|
+//@[62:64) NewLine |\r\n|
+output p4_res1childname string = p4_child1.name
+//@[0:47) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p4_res1childname|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:47)  PropertyAccessSyntax
+//@[33:42)   VariableAccessSyntax
+//@[33:42)    IdentifierSyntax
+//@[33:42)     Identifier |p4_child1|
+//@[42:43)   Dot |.|
+//@[43:47)   IdentifierSyntax
+//@[43:47)    Identifier |name|
+//@[47:49) NewLine |\r\n|
+output p4_res1childtype string = p4_child1.type
+//@[0:47) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |p4_res1childtype|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:32)  Assignment |=|
+//@[33:47)  PropertyAccessSyntax
+//@[33:42)   VariableAccessSyntax
+//@[33:42)    IdentifierSyntax
+//@[33:42)     Identifier |p4_child1|
+//@[42:43)   Dot |.|
+//@[43:47)   IdentifierSyntax
+//@[43:47)    Identifier |type|
+//@[47:49) NewLine |\r\n|
+output p4_res1childid string = p4_child1.id
+//@[0:43) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |p4_res1childid|
+//@[22:28)  TypeSyntax
+//@[22:28)   Identifier |string|
+//@[29:30)  Assignment |=|
+//@[31:43)  PropertyAccessSyntax
+//@[31:40)   VariableAccessSyntax
+//@[31:40)    IdentifierSyntax
+//@[31:40)     Identifier |p4_child1|
+//@[40:41)   Dot |.|
+//@[41:43)   IdentifierSyntax
+//@[41:43)    Identifier |id|
+//@[43:43) EndOfFile ||

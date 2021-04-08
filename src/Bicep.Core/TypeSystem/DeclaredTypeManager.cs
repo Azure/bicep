@@ -1,11 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -68,6 +67,9 @@ namespace Bicep.Core.TypeSystem
                 case VariableAccessSyntax variableAccess:
                     return GetVariableAccessType(variableAccess);
 
+                case OutputDeclarationSyntax output:
+                    return GetOutputType(output);
+
                 case TargetScopeSyntax targetScope:
                     return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
 
@@ -115,7 +117,9 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new DeclaredTypeAssignment(syntax.GetDeclaredType(), syntax);
+        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
+
+        private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
 
         private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax)
         {
@@ -246,10 +250,15 @@ namespace Bicep.Core.TypeSystem
                 case ArrayType arrayType when TypeValidator.AreTypesAssignable(indexAssignedType, LanguageConstants.Int):
                     // we are accessing an array by an expression of a numeric type
                     // return the item type of the array
-                    
+
                     // for regular array we can't evaluate the array index at this point, but for loops the index is irrelevant
                     // and we need to set declaring syntax, so property access can provide completions correctly for resource and module loops
-                    var declaringSyntax = baseExpressionAssignment.DeclaringSyntax is ForSyntax {Body: ObjectSyntax loopBody} ? loopBody : null;
+                    var declaringSyntax = baseExpressionAssignment.DeclaringSyntax switch
+                    {
+                        ForSyntax { Body: ObjectSyntax loopBody } => loopBody,
+                        ForSyntax { Body: IfConditionSyntax { Body: ObjectSyntax loopBody } } => loopBody,
+                        _ => null
+                    };
                     
                     return new DeclaredTypeAssignment(arrayType.Item.Type, declaringSyntax);
 
@@ -356,6 +365,11 @@ namespace Bicep.Core.TypeSystem
                     // parent is an if-condition under a module
                     // use the object as declaring syntax to make property access and variable access code easier
                     return TryCreateAssignment(ResolveDiscriminatedObjects(moduleType.Body.Type, @object), @object, parentTypeAssignment.Flags);
+
+                case ArrayType arrayType:
+                    // parent is an if-condition used as a resource/module loop filter
+                    // discriminated objects are already resolved by the parent
+                    return TryCreateAssignment(arrayType.Item.Type, @object, parentTypeAssignment.Flags);
             }
 
             return null;
@@ -384,7 +398,8 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            if (syntax.Body is ObjectSyntax @object)
+            // local function
+            DeclaredTypeAssignment? ResolveType(ObjectSyntax @object)
             {
                 // the object may be a discriminated object type - we need to resolve it
                 var itemType = arrayType.Item.Type switch
@@ -401,8 +416,14 @@ namespace Bicep.Core.TypeSystem
                     : TryCreateAssignment(new TypedArrayType(itemType, TypeSymbolValidationFlags.Default), syntax, parentTypeAssignment.Flags);
             }
 
-            // pass the type through
-            return new DeclaredTypeAssignment(parentType, syntax, parentTypeAssignment.Flags);
+            return syntax.Body switch
+            {
+                ObjectSyntax @object => ResolveType(@object),
+                IfConditionSyntax { Body: ObjectSyntax @object } => ResolveType(@object),
+
+                // pass the type through
+                _ => new DeclaredTypeAssignment(parentType, syntax, parentTypeAssignment.Flags)
+            };
         }
 
         private DeclaredTypeAssignment? GetObjectType(ObjectSyntax syntax)

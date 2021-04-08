@@ -26,12 +26,12 @@ namespace Bicep.Core.Samples
         public static bool HasCrLfNewlines(this DataSet dataSet)
             => dataSet.Name.EndsWith("_CRLF",  StringComparison.Ordinal);
             
-        public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext, string parentDirName)
-            => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, parentDirName, dataSet.GetStreamPrefix());
+        public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext)
+            => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, dataSet.GetStreamPrefix());
 
         public static Compilation CopyFilesAndCreateCompilation(this DataSet dataSet, TestContext testContext, out string outputDirectory)
         {
-            outputDirectory = dataSet.SaveFilesToTestDirectory(testContext, dataSet.Name);
+            outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), fileUri);
 

@@ -880,6 +880,78 @@ param decoratedInt int = 123
 //@[25:28) Integer |123|
 //@[28:30) NewLine |\n\n|
 
+// negative integer literals are allowed as decorator values
+//@[60:61) NewLine |\n|
+@minValue(-10)
+//@[0:1) At |@|
+//@[1:9) Identifier |minValue|
+//@[9:10) LeftParen |(|
+//@[10:11) Minus |-|
+//@[11:13) Integer |10|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+@maxValue(-3)
+//@[0:1) At |@|
+//@[1:9) Identifier |maxValue|
+//@[9:10) LeftParen |(|
+//@[10:11) Minus |-|
+//@[11:12) Integer |3|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+param negativeValues int
+//@[0:5) Identifier |param|
+//@[6:20) Identifier |negativeValues|
+//@[21:24) Identifier |int|
+//@[24:26) NewLine |\n\n|
+
+// negative zeros are valid lengths
+//@[35:36) NewLine |\n|
+@minLength(-0)
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Minus |-|
+//@[12:13) Integer |0|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+@maxLength(-0)
+//@[0:1) At |@|
+//@[1:10) Identifier |maxLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Minus |-|
+//@[12:13) Integer |0|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+param negativeZeros string
+//@[0:5) Identifier |param|
+//@[6:19) Identifier |negativeZeros|
+//@[20:26) Identifier |string|
+//@[26:28) NewLine |\n\n|
+
+// negative integer literals in modifiers
+//@[41:42) NewLine |\n|
+param negativeModifiers int {
+//@[0:5) Identifier |param|
+//@[6:23) Identifier |negativeModifiers|
+//@[24:27) Identifier |int|
+//@[28:29) LeftBrace |{|
+//@[29:30) NewLine |\n|
+  minValue: -100
+//@[2:10) Identifier |minValue|
+//@[10:11) Colon |:|
+//@[12:13) Minus |-|
+//@[13:16) Integer |100|
+//@[16:17) NewLine |\n|
+  maxValue: -33
+//@[2:10) Identifier |maxValue|
+//@[10:11) Colon |:|
+//@[12:13) Minus |-|
+//@[13:15) Integer |33|
+//@[15:16) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 @sys.description('A boolean.')
 //@[0:1) At |@|
 //@[1:4) Identifier |sys|
@@ -939,18 +1011,6 @@ param decoratedBool bool
 //@[7:8) LeftParen |(|
 //@[8:9) RightParen |)|
 //@[9:10) NewLine |\n|
-@secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:10) NewLine |\n|
-@secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:10) NewLine |\n|
 param decoratedObject object = {
 //@[0:5) Identifier |param|
 //@[6:21) Identifier |decoratedObject|
@@ -990,20 +1050,6 @@ param decoratedObject object = {
 //@[11:13) Integer |20|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
-@maxLength(10)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:13) Integer |10|
-//@[13:14) RightParen |)|
-//@[14:15) NewLine |\n|
-@maxLength(5)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |5|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
 @sys.description('I will be overrode.')
 //@[0:1) At |@|
 //@[1:4) Identifier |sys|

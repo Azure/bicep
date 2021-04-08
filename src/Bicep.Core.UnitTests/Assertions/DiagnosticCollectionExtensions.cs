@@ -24,9 +24,9 @@ namespace Bicep.Core.UnitTests.Assertions
         {
         }
 
-        public AndConstraint<DiagnosticCollectionAssertions> BeEmpty()
+        public new AndConstraint<DiagnosticCollectionAssertions> BeEmpty(string because = "", params object[] becauseArgs)
         {
-            AssertionExtensions.Should(Subject).BeEmpty("contained diagnostics: {0}", string.Join(Environment.NewLine, Subject.Select(d => d.ToString())));
+            AssertionExtensions.Should(Subject).BeEmpty(because, becauseArgs);
 
             return new AndConstraint<DiagnosticCollectionAssertions>(this);
         }

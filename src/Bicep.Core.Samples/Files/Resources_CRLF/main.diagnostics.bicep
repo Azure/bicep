@@ -360,3 +360,132 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
   }
 }]
 
+/*
+  Scope values created via array access on a resource collection
+*/
+resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
+  name: 'zone${zone}'
+  location: 'global'
+}]
+
+resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+  name: 'lock${lock}'
+  properties: {
+    level: 'CanNotDelete'
+  }
+  scope: dnsZones[lock]
+}]
+
+resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+  name: 'another${i}'
+  properties: {
+    level: 'ReadOnly'
+  }
+  scope: dnsZones[i]
+}]
+
+resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+  name: 'single-lock'
+  properties: {
+    level: 'ReadOnly'
+  }
+  scope: dnsZones[0]
+}
+
+
+resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  location: resourceGroup().location
+  name: 'myVnet'
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/20'
+      ]
+    }
+  }
+}
+
+resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+  parent: p1_vnet
+  name: 'subnet1'
+  properties: {
+    addressPrefix: '10.0.0.0/24'
+  }
+}
+
+resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+  parent: p1_vnet
+  name: 'subnet2'
+  properties: {
+    addressPrefix: '10.0.1.0/24'
+  }
+}
+
+output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
+output p1_subnet1name string = p1_subnet1.name
+output p1_subnet1type string = p1_subnet1.type
+output p1_subnet1id string = p1_subnet1.id
+
+// parent property with extension resource
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1'
+}
+
+resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+  parent: p2_res1
+  name: 'child1'
+}
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2@2020-06-01" does not have types available. |'Microsoft.Rp2/resource2@2020-06-01'|
+  scope: p2_res1child
+  name: 'res2'
+}
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+  parent: p2_res2
+  name: 'child2'
+}
+
+output p2_res2childprop string = p2_res2child.properties.someProp
+output p2_res2childname string = p2_res2child.name
+output p2_res2childtype string = p2_res2child.type
+output p2_res2childid string = p2_res2child.id
+
+// parent property with 'existing' resource
+resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1'
+}
+
+resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+  parent: p3_res1
+  name: 'child1'
+}
+
+output p3_res1childprop string = p3_child1.properties.someProp
+output p3_res1childname string = p3_child1.name
+output p3_res1childtype string = p3_child1.type
+output p3_res1childid string = p3_child1.id
+
+// parent & child with 'existing'
+resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  scope: tenant()
+  name: 'res1'
+}
+
+resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
+//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+  parent: p4_res1
+  name: 'child1'
+}
+
+output p4_res1childprop string = p4_child1.properties.someProp
+output p4_res1childname string = p4_child1.name
+output p4_res1childtype string = p4_child1.type
+output p4_res1childid string = p4_child1.id

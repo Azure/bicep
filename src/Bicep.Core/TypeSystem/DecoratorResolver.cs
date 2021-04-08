@@ -13,13 +13,10 @@ namespace Bicep.Core.TypeSystem
 
         private readonly FunctionResolver functionResolver;
 
-        private readonly ImmutableHashSet<FunctionSymbol> functionSymbols;
-
         public DecoratorResolver(IEnumerable<Decorator> decorators)
         {
             this.decoratorsByOverloads = decorators.ToImmutableDictionary(decorator => decorator.Overload, decorator => decorator);
-            this.functionResolver = FunctionResolver.Create(decoratorsByOverloads.Keys);
-            this.functionSymbols = functionResolver.GetKnownFunctions().Values.ToImmutableHashSet();
+            this.functionResolver = new FunctionResolver(decoratorsByOverloads.Keys);
         }
 
         public Symbol? TryGetSymbol(IdentifierSyntax identifierSyntax) => this.functionResolver.TryGetSymbol(identifierSyntax);
@@ -30,11 +27,6 @@ namespace Bicep.Core.TypeSystem
 
         public IEnumerable<Decorator> GetMatches(FunctionSymbol symbol, IList<TypeSymbol> argumentTypes)
         {
-            if (!functionSymbols.Contains(symbol))
-            {
-                yield break;
-            }
-
             foreach (var overload in FunctionResolver.GetMatches(symbol, argumentTypes, out var _, out var _))
             {
                 var decorator = this.TryGetDecorator(overload);

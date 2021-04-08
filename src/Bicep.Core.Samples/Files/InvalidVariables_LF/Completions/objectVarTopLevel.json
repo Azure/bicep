@@ -11,7 +11,7 @@
     "preselect": false,
     "sortText": "2_fifth",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "fifth"
@@ -32,7 +32,7 @@
     "preselect": false,
     "sortText": "2_first",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "first"
@@ -53,7 +53,7 @@
     "preselect": false,
     "sortText": "2_fourth",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "fourth"
@@ -74,7 +74,7 @@
     "preselect": false,
     "sortText": "2_second",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "second"
@@ -95,7 +95,7 @@
     "preselect": false,
     "sortText": "2_sixth",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "sixth"
@@ -116,7 +116,7 @@
     "preselect": false,
     "sortText": "2_third",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "third"

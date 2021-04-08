@@ -1,16 +1,16 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "functions": [],
-  "variables": {
-    "deploymentLocation": "[deployment().location]"
-  },
-  "resources": [],
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12324203796561231076"
+      "templateHash": "10229529544352997964"
     }
-  }
+  },
+  "functions": [],
+  "variables": {
+    "deploymentLocation": "[deployment().location]"
+  },
+  "resources": []
 }
