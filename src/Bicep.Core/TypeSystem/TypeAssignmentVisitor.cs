@@ -441,23 +441,15 @@ namespace Bicep.Core.TypeSystem
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                // assume "any" type if the output type has parse errors (either missing or skipped)
-                var primitiveType = syntax.OutputType == null
-                    ? LanguageConstants.Any
-                    : LanguageConstants.TryGetDeclarationType(syntax.OutputType.TypeName);
+                var declaredType = syntax.GetDeclaredType();
+                
+                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
 
-                if (primitiveType == null)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
-                }
-
-                this.ValidateDecorators(syntax.Decorators, primitiveType, diagnostics);
-
-                var currentDiagnostics = GetOutputDeclarationDiagnostics(primitiveType, syntax);
+                var currentDiagnostics = GetOutputDeclarationDiagnostics(declaredType, syntax);
 
                 diagnostics.WriteMultiple(currentDiagnostics);
 
-                return primitiveType;
+                return declaredType;
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
@@ -534,7 +526,7 @@ namespace Bicep.Core.TypeSystem
                 var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
 
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
+                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)

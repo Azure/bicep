@@ -66,6 +66,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuild", "MSBuild", "{38A0A11F-72BD-4512-A4A9-AC953936C09F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.MSBuild", "src\Bicep.MSBuild\Bicep.MSBuild.csproj", "{61026689-70A0-403E-B616-DFAEEF259444}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +132,10 @@ Global
 		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61026689-70A0-403E-B616-DFAEEF259444}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61026689-70A0-403E-B616-DFAEEF259444}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61026689-70A0-403E-B616-DFAEEF259444}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61026689-70A0-403E-B616-DFAEEF259444}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -147,6 +155,7 @@ Global
 		{4CD48B4A-6297-49FC-90AC-5DF9213C1527} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}
 		{695560CE-C6C3-4FCD-A488-09F06E608297} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}
 		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}
+		{61026689-70A0-403E-B616-DFAEEF259444} = {38A0A11F-72BD-4512-A4A9-AC953936C09F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}

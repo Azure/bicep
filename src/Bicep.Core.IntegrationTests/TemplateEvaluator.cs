@@ -36,6 +36,7 @@ namespace Bicep.Core.IntegrationTests
             string ResourceGroup,
             string RgLocation,
             Dictionary<string, JToken> Parameters,
+            Dictionary<string, JToken> Metadata,
             OnListDelegate? OnListFunc,
             OnReferenceDelegate? OnReferenceFunc)
         {
@@ -45,6 +46,7 @@ namespace Bicep.Core.IntegrationTests
                 TestSubscriptionId,
                 TestResourceGroupName,
                 TestLocation,
+                new(),
                 new(),
                 null,
                 null
@@ -113,9 +115,12 @@ namespace Bicep.Core.IntegrationTests
             {
                 var resource = template.Resources[i];
 
-                resource.Properties.Value = ExpressionsEngine.EvaluateLanguageExpressionsRecursive(
-                    root: resource.Properties.Value,
-                    evaluationContext: evaluationContext);
+                if (resource.Properties is not null)
+                {
+                    resource.Properties.Value = ExpressionsEngine.EvaluateLanguageExpressionsRecursive(
+                        root: resource.Properties.Value,
+                        evaluationContext: evaluationContext);
+                }
             }
 
             if (template.Outputs is not null && template.Outputs.Count > 0)
@@ -155,7 +160,7 @@ namespace Bicep.Core.IntegrationTests
                 _ => throw new InvalidOperationException(),
             };
 
-            var metadata = new InsensitiveDictionary<JToken>();
+            var metadata = new InsensitiveDictionary<JToken>(config.Metadata);
             if (deploymentScope == TemplateDeploymentScope.Subscription || deploymentScope == TemplateDeploymentScope.ResourceGroup)
             {
                 metadata["subscription"] = new JObject {

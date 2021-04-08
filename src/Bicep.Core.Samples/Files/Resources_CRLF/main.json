@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11131288573167988504"
+    }
+  },
   "parameters": {
     "applicationName": {
       "type": "string",
@@ -311,7 +318,9 @@
       "apiVersion": "2020-12-01",
       "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "extension3",
-      "dependsOn": []
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
+      ]
     },
     {
       "copy": {
@@ -544,8 +553,7 @@
     {
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', 'res1', 'child1')]",
-      "dependsOn": []
+      "name": "[format('{0}/{1}', 'res1', 'child1')]"
     }
   ],
   "outputs": {
@@ -620,13 +628,6 @@
     "p4_res1childid": {
       "type": "string",
       "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5842466383755616753"
     }
   }
 }

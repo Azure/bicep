@@ -28,3 +28,11 @@ resource bicepExampleAssignment 'Microsoft.Authorization/policyAssignments@2020-
     ]
   }
 }
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(bicepExampleAssignment.name, bicepExampleAssignment.type, subscription().subscriptionId)
+  properties: {
+    principalId: bicepExampleAssignment.identity.principalId
+    roleDefinitionId: '/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c' // contributor RBAC role for deployIfNotExists effect
+  }
+}

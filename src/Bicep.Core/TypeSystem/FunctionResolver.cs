@@ -15,24 +15,27 @@ namespace Bicep.Core.TypeSystem
 {
     public class FunctionResolver
     {
-        public FunctionResolver(ObjectType owner, IEnumerable<FunctionOverload>? functionOverloads = null, IEnumerable<BannedFunction>? bannedFunctions = null)
-        {
-            functionOverloads ??= Enumerable.Empty<FunctionOverload>();
-            bannedFunctions ??= Enumerable.Empty<BannedFunction>();
+        private readonly ImmutableArray<FunctionOverload> functionOverloads;
+        private readonly ImmutableArray<BannedFunction> bannedFunctions;
 
+        public FunctionResolver(IEnumerable<FunctionOverload>? functionOverloads = null, IEnumerable<BannedFunction>? bannedFunctions = null)
+        {
+            this.functionOverloads = functionOverloads?.ToImmutableArray() ?? ImmutableArray<FunctionOverload>.Empty;
+            this.bannedFunctions = bannedFunctions?.ToImmutableArray() ?? ImmutableArray<BannedFunction>.Empty;
+            
             // prepopulate cache with all known (non-wildcard) symbols
-            this.FunctionCache = functionOverloads
-                .Where(fo => !(fo is FunctionWildcardOverload))
-                .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(owner, name, overloads), LanguageConstants.IdentifierComparer)
+            // TODO: make cache building logic lazy
+            this.FunctionCache = this.functionOverloads
+                .Where(fo => fo is not FunctionWildcardOverload)
+                .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(name, overloads), LanguageConstants.IdentifierComparer)
                 .ToDictionary<FunctionSymbol, string, FunctionSymbol?>(s => s.Name, s => s, LanguageConstants.IdentifierComparer);
 
-            this.BannedFunctions = bannedFunctions.ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
+            this.BannedFunctions = this.bannedFunctions.ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
 
             // don't pre-build symbols for wildcard functions, because we don't want to equate two differently-named symbols with each other
-            this.FunctionWildcardOverloads = functionOverloads
+            this.FunctionWildcardOverloads = this.functionOverloads
                 .OfType<FunctionWildcardOverload>()
                 .ToImmutableArray();
-            this.DeclaringType = owner;
         }
 
         private IDictionary<string, FunctionSymbol?> FunctionCache { get; }
@@ -40,8 +43,6 @@ namespace Bicep.Core.TypeSystem
         private ImmutableDictionary<string, BannedFunction> BannedFunctions { get; }
 
         private ImmutableArray<FunctionWildcardOverload> FunctionWildcardOverloads { get; }
-
-        public ObjectType DeclaringType { get; }
 
         public Symbol? TryGetSymbol(IdentifierSyntax identifierSyntax)
             => TryGetBannedFunction(identifierSyntax) ?? TryGetFunctionSymbol(identifierSyntax.IdentifierName);
@@ -72,7 +73,7 @@ namespace Bicep.Core.TypeSystem
             var wildcardOverloads =  FunctionWildcardOverloads.Where(fo => fo.WildcardRegex.IsMatch(name));
 
             // create a new symbol for each unique name that matches the wildcard
-            var cachedSymbol = wildcardOverloads.Any() ? new FunctionSymbol(DeclaringType, name, wildcardOverloads) : null;
+            var cachedSymbol = wildcardOverloads.Any() ? new FunctionSymbol(name, wildcardOverloads) : null;
             FunctionCache[name] = cachedSymbol;
 
             return cachedSymbol;

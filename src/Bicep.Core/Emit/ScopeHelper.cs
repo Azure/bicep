@@ -110,10 +110,16 @@ namespace Bicep.Core.Emit
                     };
 
                 case { } when scopeSymbol is ResourceSymbol targetResourceSymbol:
-                    if(targetResourceSymbol.IsCollection && indexExpression is null)
+                    if (targetResourceSymbol.IsCollection && indexExpression is null)
                     {
                         // the target is a resource collection, but the user didn't apply an array indexer to it
                         // the type check will produce a good error
+                        return null;
+                    }
+
+                    if (targetResourceSymbol.Type is ErrorType)
+                    {
+                        // the scope resource has errors
                         return null;
                     }
 

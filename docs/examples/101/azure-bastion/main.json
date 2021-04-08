@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12075354276992685324"
+    }
+  },
   "parameters": {
     "virtualNetworkName": {
       "type": "string",
@@ -85,12 +92,5 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/AzureBastionSubnet', parameters('virtualNetworkName')), '/')[0], split(format('{0}/AzureBastionSubnet', parameters('virtualNetworkName')), '/')[1])]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "4709391282784775045"
-    }
-  }
+  ]
 }

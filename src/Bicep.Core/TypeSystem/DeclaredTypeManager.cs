@@ -67,6 +67,9 @@ namespace Bicep.Core.TypeSystem
                 case VariableAccessSyntax variableAccess:
                     return GetVariableAccessType(variableAccess);
 
+                case OutputDeclarationSyntax output:
+                    return GetOutputType(output);
+
                 case TargetScopeSyntax targetScope:
                     return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
 
@@ -114,7 +117,9 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new DeclaredTypeAssignment(syntax.GetDeclaredType(), syntax);
+        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
+
+        private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
 
         private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax)
         {

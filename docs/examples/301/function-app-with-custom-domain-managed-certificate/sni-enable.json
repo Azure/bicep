@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12057311588269066406"
+    }
+  },
   "parameters": {
     "functionAppName": {
       "type": "string"
@@ -23,12 +30,5 @@
         "thumbprint": "[parameters('certificateThumbprint')]"
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11275464343508829008"
-    }
-  }
+  ]
 }

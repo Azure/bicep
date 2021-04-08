@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7580795918915588757"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -93,13 +100,6 @@
     "bgpasn": {
       "type": "int",
       "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))).bgpSettings.asn]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "14366512567346002599"
     }
   }
 }

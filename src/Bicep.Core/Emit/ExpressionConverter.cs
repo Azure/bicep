@@ -499,9 +499,13 @@ namespace Bicep.Core.Emit
                 ResourceDeclarationSyntax => null,
                 ModuleDeclarationSyntax => null,
 
+                // variable copy index has the name of the variable
+                VariableDeclarationSyntax variable when variable.Name.IsValid => variable.Name.IdentifierName,
+
                 // output loops are only allowed at the top level and don't have names, either
                 OutputDeclarationSyntax => null,
 
+                // the property copy index has the name of the property
                 ObjectPropertySyntax property when property.TryGetKeyText() is { } key && ReferenceEquals(property.Value, @for) => key,
 
                 _ => throw new NotImplementedException("Unexpected for-expression grandparent.")
@@ -616,6 +620,11 @@ namespace Bicep.Core.Emit
         public FunctionExpression ToFunctionExpression(SyntaxBase expression)
         {
             var converted = ConvertExpression(expression);
+            return ToFunctionExpression(converted);
+        }
+
+        public static FunctionExpression ToFunctionExpression(LanguageExpression converted)
+        {
             switch (converted)
             {
                 case FunctionExpression functionExpression:

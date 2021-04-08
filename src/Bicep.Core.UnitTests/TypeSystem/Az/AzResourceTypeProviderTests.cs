@@ -22,8 +22,12 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
-        [TestMethod]
-        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing()
+        [DataTestMethod]
+        [DataRow(ResourceTypeGenerationFlags.None)]
+        [DataRow(ResourceTypeGenerationFlags.ExistingResource)]
+        [DataRow(ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
+        [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
+        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
@@ -35,14 +39,12 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             foreach (var availableType in availableTypes)
             {
                 resourceTypeProvider.HasType(availableType).Should().BeTrue();
-                var resourceType = resourceTypeProvider.GetType(availableType, false);
-                var resourceTypeExisting = resourceTypeProvider.GetType(availableType, true);
+                var resourceType = resourceTypeProvider.GetType(availableType, flags);
 
                 try
                 {
                     var visited = new HashSet<TypeSymbol>();
                     VisitAllReachableTypes(resourceType, visited);
-                    VisitAllReachableTypes(resourceTypeExisting, visited);
                 }
                 catch (Exception exception)
                 {
@@ -224,21 +226,21 @@ resource unexpectedPropertiesProperty 'Mock.Rp/mockType@2020-01-01' = {
                 "Properties",
                 new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectProperty>
                 {
-                    ["readwrite"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.None),
-                    ["readonly"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly),
-                    ["writeonly"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.WriteOnly),
-                    ["required"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required),
+                    ["readwrite"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.None, "readwrite property"),
+                    ["readonly"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly, "readonly property"),
+                    ["writeonly"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.WriteOnly, "writeonly property"),
+                    ["required"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required, "required property"),
                 },
                 null));
             var bodyType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(
                 resourceTypeReference.FormatName(),
                 new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectProperty>
                 {
-                    ["name"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required),
-                    ["type"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(typeType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly),
-                    ["apiVersion"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(apiVersionType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly),
-                    ["id"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly),
-                    ["properties"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(propertiesType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required),
+                    ["name"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required, "name property"),
+                    ["type"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(typeType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly, "type property"),
+                    ["apiVersion"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(apiVersionType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly, "apiVersion property"),
+                    ["id"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly, "id property"),
+                    ["properties"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(propertiesType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required, "properties property"),
                 },
                 null));
 

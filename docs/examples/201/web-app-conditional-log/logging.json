@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7493948053249380306"
+    }
+  },
   "parameters": {
     "appName": {
       "type": "string"
@@ -68,12 +75,5 @@
         "retentionInDays": 120
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "15568006835440384515"
-    }
-  }
+  ]
 }

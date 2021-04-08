@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8768980996790810489"
+    }
+  },
   "functions": [],
   "variables": {
     "emojis": "💪😊😈🍕☕",
@@ -28,13 +35,6 @@
     "interpolateUnicodeStrings": {
       "type": "string",
       "value": "[format('Θμ二{0}头肌{1}α', variables('emojis'), variables('ninjaCat'))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "9519677312772082675"
     }
   }
 }

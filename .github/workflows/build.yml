@@ -29,18 +29,22 @@ jobs:
           rid: 'win-x64'
           configuration: 'release'
           publishLanguageServer: 'false'
+          publishPackages: 'false'
         - os: 'ubuntu-latest'
           rid: 'linux-x64'
           configuration: 'release'
           publishLanguageServer: 'true'
+          publishPackages: 'true'
         - os: 'ubuntu-latest'
           rid: 'linux-musl-x64'
           configuration: 'release'
           publishLanguageServer: 'false'
+          publishPackages: 'false'
         - os: 'macos-latest'
           rid: 'osx-x64'
           configuration: 'release'
           publishLanguageServer: 'false'
+          publishPackages: 'false'
 
     steps:
       - uses: actions/checkout@v2
@@ -53,6 +57,10 @@ jobs:
       
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
+
+      - name: Pack
+        if: ${{ matrix.publishPackages == 'true' }}
+        run: dotnet pack --configuration ${{ matrix.configuration }}
       
       - name: Test
         run: dotnet test --configuration ${{ matrix.configuration }} --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings
@@ -79,19 +87,28 @@ jobs:
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
-
+      
       - name: Upload Language Server
         uses: actions/upload-artifact@v2
         if: ${{ matrix.publishLanguageServer == 'true' }}
         with:
           name: Bicep.LangServer
           path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net5.0/publish/*
+          if-no-files-found: error
       
       - name: Upload Bicep
         uses: actions/upload-artifact@v2
         with:
           name: bicep-${{ matrix.configuration }}-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/*
+          if-no-files-found: error
+
+      - name: Upload Packages
+        uses: actions/upload-artifact@v2
+        if: ${{ matrix.publishPackages == 'true' }}
+        with:
+          name: bicep-nupkg-any
+          path: ./out/*
           if-no-files-found: error
 
       - name: Upload Code Coverage
@@ -126,7 +143,87 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: bicep-setup-win-x64
-          path: ./src/installer-win/bin/release/net46/bicep-setup-win-x64.exe
+          path: ./src/installer-win/bin/release/net472/bicep-setup-win-x64.exe
+          if-no-files-found: error
+
+  build-packages:
+    name: 'Build Packages'
+    runs-on: ${{ matrix.os }}
+    needs: build-bicep
+
+    env:
+      CI: true
+      RuntimeSuffix: ${{ matrix.rid }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
+        include:
+        - os: 'windows-latest'
+          rid: 'win-x64'
+        - os: 'ubuntu-latest'
+          rid: 'linux-x64'
+        - os: 'macos-latest'
+          rid: 'osx-x64'
+    
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.7.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 10.x
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
+      - name: Compile
+        run: npm run compile
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-release-${{ matrix.rid }}
+          path: ./src/Bicep.Cli.Nuget/tools
+
+      - name: Download .Net Packages
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-nupkg-any
+          path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
+
+      - name: Build CLI Package
+        run: dotnet build --configuration release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
+      
+      - name: Upload CLI Package
+        uses: actions/upload-artifact@v2
+        with:
+          name: bicep-nupkg-${{ matrix.rid }}
+          path: ./src/Bicep.Cli.Nuget/*.nupkg
+          if-no-files-found: error
+      
+      - name: Download CLI Package
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-nupkg-${{ matrix.rid }}
+          path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
+
+      - name: Run E2E tests
+        run: npm run test
+        working-directory: ./src/Bicep.MSBuild.E2eTests
 
   build-vsix:
     name: 'Build VSIX'
@@ -232,10 +329,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: 10.x
+          node-version: 14.x
       
       - name: npm ci
         run: npm ci
+        working-directory: ./src/playground
+
+      - name: Run lint
+        run: npm run lint
         working-directory: ./src/playground
 
       - name: Build
@@ -248,3 +349,42 @@ jobs:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
+
+  build-textmate:
+    name: 'Build Textmate'
+    runs-on: 'ubuntu-latest'
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+      
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-release-linux-x64
+          path: ./bicep-release-linux-x64
+
+      - name: Mark Bicep CLI as executable
+        run: chmod +x ${{ github.workspace }}/bicep-release-linux-x64/bicep
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14.x
+      
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/textmate
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./src/textmate
+
+      - name: Run Tests
+        run: npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ${{ github.workspace }}/bicep-release-linux-x64/bicep
+        working-directory: ./src/textmate

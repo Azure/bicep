@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import * as monacoEditor from 'monaco-editor';
 import React, { useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
@@ -18,12 +20,12 @@ function configureEditorForBicep(editor: monacoEditor.editor.IStandaloneCodeEdit
 
   monaco.languages.registerDocumentSemanticTokensProvider('bicep', {
     getLegend: () => getSemanticTokensLegend(),
-    provideDocumentSemanticTokens: (model, lastResultId, token) => getSemanticTokens(model.getValue()),
-    releaseDocumentSemanticTokens: () => { }
+    provideDocumentSemanticTokens: (model) => getSemanticTokens(model.getValue()),
+    releaseDocumentSemanticTokens: () => { return; }
   });
 
-  // @ts-expect-error
-  editor._themeService._theme.getTokenStyleMetadata = (type, modifiers) => {
+  // @ts-expect-error: Using a private method on editor
+  editor._themeService._theme.getTokenStyleMetadata = (type) => {
     // see 'monaco-editor/esm/vs/editor/standalone/common/themes.js' to understand these indices
     switch (type) {
       case 'keyword':

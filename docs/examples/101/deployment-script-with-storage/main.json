@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1669250044762358746"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -74,13 +81,6 @@
     "scriptLogs": {
       "type": "string",
       "value": "[reference(format('{0}/logs/default', resourceId('Microsoft.Resources/deploymentScripts', 'scriptWithStorage')), '2019-10-01-preview', 'Full').properties.log]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "1422278409774739487"
     }
   }
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12459440482450201372"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -91,12 +98,5 @@
         "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5456714574447097149"
-    }
-  }
+  ]
 }
