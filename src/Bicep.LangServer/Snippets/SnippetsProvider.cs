@@ -161,25 +161,28 @@ namespace Bicep.LanguageServer.Snippets
 
         public Snippet? GetResourceBodyCompletionSnippet(string type)
         {
-            Snippet? snippet = topLevelNamedDeclarationSnippets.Where(x => x.Text.Contains(type)).FirstOrDefault();
-
-            if (snippet is null)
+            if (string.IsNullOrWhiteSpace(type))
             {
                 return null;
             }
 
-            StringBuilder sb = new StringBuilder();
+            Snippet? snippet = topLevelNamedDeclarationSnippets.Where(x => x.Text.Contains(type)).FirstOrDefault();
 
-            if (resourceTypeToBodyMap.TryGetValue(type, out string? resourceBody))
+            if (snippet is not null)
             {
-                sb.AppendLine(resourceBody);
+                StringBuilder sb = new StringBuilder();
 
-                if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
+                if (resourceTypeToBodyMap.TryGetValue(type, out string? resourceBody))
                 {
-                    sb.Append(resourceDependencies);
-                }
+                    sb.AppendLine(resourceBody);
 
-                return new Snippet(sb.ToString(), snippet.CompletionPriority, snippet.Prefix, snippet.Detail);
+                    if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
+                    {
+                        sb.Append(resourceDependencies);
+                    }
+
+                    return new Snippet(sb.ToString(), snippet.CompletionPriority, snippet.Prefix, snippet.Detail);
+                }
             }
 
             return null;
