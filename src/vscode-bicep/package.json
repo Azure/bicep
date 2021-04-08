@@ -108,7 +108,7 @@
     "eslint-plugin-jest": "^24.3.4",
     "eslint-plugin-prettier": "^3.3.1",
     "jest": "^26.6.2",
-    "nerdbank-gitversioning": "^3.4.190",
+    "nerdbank-gitversioning": "^3.4.194",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "semver": "^7.3.5",
