@@ -130,17 +130,17 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[34:35) Dot |.|
 //@[35:39) Identifier |size|
 //@[39:40) NewLine |\n|
-      style: basicChild:basicGrandchild.properties.style
+      style: basicChild::basicGrandchild.properties.style
 //@[6:11) Identifier |style|
 //@[11:12) Colon |:|
 //@[13:23) Identifier |basicChild|
-//@[23:24) Colon |:|
-//@[24:39) Identifier |basicGrandchild|
-//@[39:40) Dot |.|
-//@[40:50) Identifier |properties|
-//@[50:51) Dot |.|
-//@[51:56) Identifier |style|
-//@[56:57) NewLine |\n|
+//@[23:25) DoubleColon |::|
+//@[25:40) Identifier |basicGrandchild|
+//@[40:41) Dot |.|
+//@[41:51) Identifier |properties|
+//@[51:52) Dot |.|
+//@[52:57) Identifier |style|
+//@[57:58) NewLine |\n|
     }
 //@[4:5) RightBrace |}|
 //@[5:6) NewLine |\n|
@@ -149,36 +149,39 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[3:4) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-output referenceBasicChild string = basicParent:basicChild.properties.size
+//@[1:2) NewLine |\n|
+// #completionTest(50) -> childResources
+//@[40:41) NewLine |\n|
+output referenceBasicChild string = basicParent::basicChild.properties.size
 //@[0:6) Identifier |output|
 //@[7:26) Identifier |referenceBasicChild|
 //@[27:33) Identifier |string|
 //@[34:35) Assignment |=|
 //@[36:47) Identifier |basicParent|
-//@[47:48) Colon |:|
-//@[48:58) Identifier |basicChild|
-//@[58:59) Dot |.|
-//@[59:69) Identifier |properties|
-//@[69:70) Dot |.|
-//@[70:74) Identifier |size|
-//@[74:75) NewLine |\n|
-output referenceBasicGrandchild string = basicParent:basicChild:basicGrandchild.properties.style
+//@[47:49) DoubleColon |::|
+//@[49:59) Identifier |basicChild|
+//@[59:60) Dot |.|
+//@[60:70) Identifier |properties|
+//@[70:71) Dot |.|
+//@[71:75) Identifier |size|
+//@[75:76) NewLine |\n|
+// #completionTest(67) -> grandChildResources
+//@[45:46) NewLine |\n|
+output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchild.properties.style
 //@[0:6) Identifier |output|
 //@[7:31) Identifier |referenceBasicGrandchild|
 //@[32:38) Identifier |string|
 //@[39:40) Assignment |=|
 //@[41:52) Identifier |basicParent|
-//@[52:53) Colon |:|
-//@[53:63) Identifier |basicChild|
-//@[63:64) Colon |:|
-//@[64:79) Identifier |basicGrandchild|
-//@[79:80) Dot |.|
-//@[80:90) Identifier |properties|
-//@[90:91) Dot |.|
-//@[91:96) Identifier |style|
-//@[96:98) NewLine |\n\n|
+//@[52:54) DoubleColon |::|
+//@[54:64) Identifier |basicChild|
+//@[64:66) DoubleColon |::|
+//@[66:81) Identifier |basicGrandchild|
+//@[81:82) Dot |.|
+//@[82:92) Identifier |properties|
+//@[92:93) Dot |.|
+//@[93:98) Identifier |style|
+//@[98:100) NewLine |\n\n|
 
 resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
 //@[0:8) Identifier |resource|
@@ -411,17 +414,17 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-output loopChildOutput string = loopParent:loopChild[0].name
+output loopChildOutput string = loopParent::loopChild[0].name
 //@[0:6) Identifier |output|
 //@[7:22) Identifier |loopChildOutput|
 //@[23:29) Identifier |string|
 //@[30:31) Assignment |=|
 //@[32:42) Identifier |loopParent|
-//@[42:43) Colon |:|
-//@[43:52) Identifier |loopChild|
-//@[52:53) LeftSquare |[|
-//@[53:54) Integer |0|
-//@[54:55) RightSquare |]|
-//@[55:56) Dot |.|
-//@[56:60) Identifier |name|
-//@[60:60) EndOfFile ||
+//@[42:44) DoubleColon |::|
+//@[44:53) Identifier |loopChild|
+//@[53:54) LeftSquare |[|
+//@[54:55) Integer |0|
+//@[55:56) RightSquare |]|
+//@[56:57) Dot |.|
+//@[57:61) Identifier |name|
+//@[61:61) EndOfFile ||

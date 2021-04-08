@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15631548358647340092"
+    }
+  },
   "parameters": {
     "prefix": {
       "type": "string"
@@ -53,13 +60,6 @@
     "privateIp": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-fwl', parameters('prefix')))).ipConfigurations[0].properties.privateIPAddress]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "2106763863985976663"
     }
   }
 }

@@ -18,6 +18,18 @@ output missingValueAndType =
 output missingValue string = 
 //@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
+// #completionTest(31,32) -> arrayPlusSymbols
+output arrayCompletions array = 
+//@[32:32) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(33,34) -> objectPlusSymbols
+output objectCompletions object = 
+//@[34:34) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(29,30) -> boolPlusSymbols
+output boolCompletions bool = 
+//@[30:30) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
 output foo
 //@[7:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[10:10) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". ||
@@ -191,7 +203,7 @@ output noNestedLoops array = [for thing in things: {
 //@[43:49) [BCP057 (Error)] The name "things" does not exist in the current context. |things|
   something: [
     [for thing in things: true]
-//@[5:8) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[5:8) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
 //@[18:24) [BCP057 (Error)] The name "things" does not exist in the current context. |things|
   ]
 }]
@@ -199,13 +211,13 @@ output noNestedLoops array = [for thing in things: {
 // loops in inner properties inside outputs are not supported
 output noInnerLoopsInOutputs object = {
   a: [for i in range(0,10): i]
-//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
 }
 output noInnerLoopsInOutputs2 object = {
   a: [for i in range(0,10): {
-//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
     b: [for j in range(0,10): i+j]
-//@[8:11) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[8:11) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
   }]
 }
 

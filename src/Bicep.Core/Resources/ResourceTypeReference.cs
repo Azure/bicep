@@ -51,6 +51,8 @@ namespace Bicep.Core.Resources
         public string FormatName()
             => $"{this.FullyQualifiedType}@{this.ApiVersion}";
 
+        public bool IsRootType => Types.Length == 1;
+
         public bool IsParentOf(ResourceTypeReference other)
         {
             return 

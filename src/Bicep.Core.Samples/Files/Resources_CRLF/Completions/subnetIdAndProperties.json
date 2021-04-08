@@ -11,7 +11,7 @@
     "preselect": false,
     "sortText": "2_id",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "id"
@@ -32,7 +32,7 @@
     "preselect": false,
     "sortText": "2_properties",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "properties"

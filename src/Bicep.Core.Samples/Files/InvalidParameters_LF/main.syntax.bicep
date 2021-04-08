@@ -270,6 +270,48 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 //@[277:287)    StringComplete |'why not?'|
 //@[287:289) NewLine |\n\n|
 
+// #completionTest(28,29) -> boolPlusSymbols
+//@[44:45) NewLine |\n|
+param boolCompletions bool = 
+//@[0:29) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:21)  IdentifierSyntax
+//@[6:21)   Identifier |boolCompletions|
+//@[22:26)  TypeSyntax
+//@[22:26)   Identifier |bool|
+//@[27:29)  ParameterDefaultValueSyntax
+//@[27:28)   Assignment |=|
+//@[29:29)   SkippedTriviaSyntax
+//@[29:31) NewLine |\n\n|
+
+// #completionTest(30,31) -> arrayPlusSymbols
+//@[45:46) NewLine |\n|
+param arrayCompletions array = 
+//@[0:31) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:22)  IdentifierSyntax
+//@[6:22)   Identifier |arrayCompletions|
+//@[23:28)  TypeSyntax
+//@[23:28)   Identifier |array|
+//@[29:31)  ParameterDefaultValueSyntax
+//@[29:30)   Assignment |=|
+//@[31:31)   SkippedTriviaSyntax
+//@[31:33) NewLine |\n\n|
+
+// #completionTest(32,33) -> objectPlusSymbols
+//@[46:47) NewLine |\n|
+param objectCompletions object = 
+//@[0:33) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |objectCompletions|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |object|
+//@[31:33)  ParameterDefaultValueSyntax
+//@[31:32)   Assignment |=|
+//@[33:33)   SkippedTriviaSyntax
+//@[33:35) NewLine |\n\n|
+
 // badly escaped string
 //@[23:24) NewLine |\n|
 param wrongType fluffyBunny = 'what's up doc?'
@@ -2605,6 +2647,163 @@ param nonConstantInDecorator string
 //@[29:35)  TypeSyntax
 //@[29:35)   Identifier |string|
 //@[35:37) NewLine |\n\n|
+
+@minValue(-length('s'))
+//@[0:83) ParameterDeclarationSyntax
+//@[0:23)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:23)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:22)    FunctionArgumentSyntax
+//@[10:22)     UnaryOperationSyntax
+//@[10:11)      Minus |-|
+//@[11:22)      FunctionCallSyntax
+//@[11:17)       IdentifierSyntax
+//@[11:17)        Identifier |length|
+//@[17:18)       LeftParen |(|
+//@[18:21)       FunctionArgumentSyntax
+//@[18:21)        StringSyntax
+//@[18:21)         StringComplete |'s'|
+//@[21:22)       RightParen |)|
+//@[22:23)    RightParen |)|
+//@[23:24)  NewLine |\n|
+@metadata({
+//@[0:28)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:28)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:27)    FunctionArgumentSyntax
+//@[10:27)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+  bool: !true
+//@[2:13)      ObjectPropertySyntax
+//@[2:6)       IdentifierSyntax
+//@[2:6)        Identifier |bool|
+//@[6:7)       Colon |:|
+//@[8:13)       UnaryOperationSyntax
+//@[8:9)        Exclamation |!|
+//@[9:13)        BooleanLiteralSyntax
+//@[9:13)         TrueKeyword |true|
+//@[13:14)      NewLine |\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param unaryMinusOnFunction int
+//@[0:5)  Identifier |param|
+//@[6:26)  IdentifierSyntax
+//@[6:26)   Identifier |unaryMinusOnFunction|
+//@[27:30)  TypeSyntax
+//@[27:30)   Identifier |int|
+//@[30:32) NewLine |\n\n|
+
+@minLength(1)
+//@[0:98) ParameterDeclarationSyntax
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |1|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+@minLength(2)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |2|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+@secure()
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:10)  NewLine |\n|
+@maxLength(3)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |3|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+@maxLength(4)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |4|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+param duplicateDecorators string
+//@[0:5)  Identifier |param|
+//@[6:25)  IdentifierSyntax
+//@[6:25)   Identifier |duplicateDecorators|
+//@[26:32)  TypeSyntax
+//@[26:32)   Identifier |string|
+//@[32:34) NewLine |\n\n|
+
+@minLength(-1)
+//@[0:58) ParameterDeclarationSyntax
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:13)    FunctionArgumentSyntax
+//@[11:13)     UnaryOperationSyntax
+//@[11:12)      Minus |-|
+//@[12:13)      IntegerLiteralSyntax
+//@[12:13)       Integer |1|
+//@[13:14)    RightParen |)|
+//@[14:15)  NewLine |\n|
+@maxLength(-100)
+//@[0:16)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:16)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:15)    FunctionArgumentSyntax
+//@[11:15)     UnaryOperationSyntax
+//@[11:12)      Minus |-|
+//@[12:15)      IntegerLiteralSyntax
+//@[12:15)       Integer |100|
+//@[15:16)    RightParen |)|
+//@[16:17)  NewLine |\n|
+param invalidLength string
+//@[0:5)  Identifier |param|
+//@[6:19)  IdentifierSyntax
+//@[6:19)   Identifier |invalidLength|
+//@[20:26)  TypeSyntax
+//@[20:26)   Identifier |string|
+//@[26:28) NewLine |\n\n|
 
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|

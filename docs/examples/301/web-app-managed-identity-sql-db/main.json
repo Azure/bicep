@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14939392848833178815"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -174,12 +181,5 @@
         "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "16780435478716734303"
-    }
-  }
+  ]
 }

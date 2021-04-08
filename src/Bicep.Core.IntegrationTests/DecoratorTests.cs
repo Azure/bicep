@@ -24,7 +24,7 @@ namespace Bicep.Core.IntegrationTests
 ");
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diagnostics.Should().HaveDiagnostics(new[] {
                     ("BCP147", DiagnosticLevel.Error, "Expected a parameter declaration after the decorator."),
                 });
@@ -101,7 +101,7 @@ param inputb string
 ");
             using (new AssertionScope())
             {
-                template!.Should().BeNull();
+                template.Should().NotHaveValue();
                 diagnostics.Should().HaveDiagnostics(new[] {
                     ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),

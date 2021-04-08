@@ -1015,17 +1015,19 @@ namespace Bicep.Decompiler
                     value);
             }
 
-            var templateLink = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri");
-            if (templateLink?.Value<string>() is not string templateLinkString)
+            var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") ??
+                TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "relativePath");
+
+            if (pathProperty?.Value<string>() is not string templatePathString)
             {
-                throw new ConversionFailedException($"Unable to find {resource["name"]}.properties.templateLink.uri for linked template.", resource);
+                throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
             }
 
             return new ModuleDeclarationSyntax(
                 decorators,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
                 SyntaxFactory.CreateIdentifier(identifier),
-                GetModuleFilePath(resource, templateLinkString),
+                GetModuleFilePath(resource, templatePathString),
                 SyntaxFactory.AssignmentToken,
                 value);
         }
@@ -1066,7 +1068,7 @@ namespace Bicep.Decompiler
                 return null;
             }
 
-            var scopeExpression = ExpressionHelpers.ParseExpression(scopeProperty.Value.Value<string>());
+            var scopeExpression = ExpressionHelpers.ParseExpression(scopeProperty.Value.ToString());
             if (TryLookupResource(scopeExpression) is string resourceName)
             {
                 return SyntaxFactory.CreateIdentifier(resourceName);

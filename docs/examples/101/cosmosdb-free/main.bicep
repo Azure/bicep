@@ -1,7 +1,7 @@
 param appName string = uniqueString(resourceGroup().id)
-param accountName string = toLower('cosmos-$(appName)')
+param accountName string = toLower('cosmos-${appName}')
 param location string = resourceGroup().location
-param databaseName string = toLower('db-$(appName)')
+param databaseName string = toLower('db-${appName}')
 
 resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2020-04-01' = {
   name: accountName

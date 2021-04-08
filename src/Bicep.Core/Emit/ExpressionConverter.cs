@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
@@ -187,9 +188,12 @@ namespace Bicep.Core.Emit
                             .GetFullyQualifiedResourceId(resourceSymbol);
                     case "name":
                         // the name is dependent on the name expression which could involve locals in case of a resource collection
+
+                        // Note that we don't want to return the fully-qualified resource name in the case of name property access.
+                        // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                         return this
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
-                            .GetResourceNameExpression(resourceSymbol);
+                            .ConvertExpression(GetResourceNameSyntax(resourceSymbol));
                     case "type":
                         return new JTokenExpression(typeReference.FullyQualifiedType);
                     case "apiVersion":
@@ -290,7 +294,43 @@ namespace Bicep.Core.Emit
                 new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
         }
 
-        public LanguageExpression GetResourceNameExpression(ResourceSymbol resourceSymbol)
+        public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceSymbol resourceSymbol, ResourceTypeReference typeReference)
+        {
+            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resourceSymbol);
+            var nameSyntax = GetResourceNameSyntax(resourceSymbol);
+            var nameExpression = ConvertExpression(nameSyntax);
+
+            if (ancestors.Length > 0)
+            {
+                Debug.Assert(ancestors.Length + 1 == typeReference.Types.Length, "ancestors.Length + 1 == typeReference.Types.Length");
+
+                SyntaxBase? indexExpression = null;
+                if (resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is ArrayAccessSyntax arraySyntax)
+                {
+                    indexExpression = arraySyntax.IndexExpression;
+                }
+
+                var resourceName = ConvertExpression(GetResourceNameSyntax(resourceSymbol));
+
+                var parentNames = ancestors.Select(x => 
+                    CreateConverterForIndexReplacement(GetResourceNameSyntax(x.Resource), x.IndexExpression, x.Resource.NameSyntax)
+                        .ConvertExpression(GetResourceNameSyntax(x.Resource)));
+
+                return parentNames.Concat(resourceName.AsEnumerable());
+            }
+
+            if (typeReference.Types.Length == 1)
+            {
+                return nameExpression.AsEnumerable();
+            }
+
+            return typeReference.Types.Select(
+                (type, i) => AppendProperties(
+                    CreateFunction("split", nameExpression, new JTokenExpression("/")),
+                    new JTokenExpression(i)));
+        }
+
+        public LanguageExpression GetFullyQualifiedResourceName(ResourceSymbol resourceSymbol)
         {
             var nameValueSyntax = GetResourceNameSyntax(resourceSymbol);
 
@@ -307,20 +347,13 @@ namespace Bicep.Core.Emit
             // and the remaining args the actual name segments.
             //
             // args.Length = 1 (format string) + N (ancestor names) + 1 (resource name)
-            var args = new LanguageExpression[ancestors.Length + 2];
 
             // {0}/{1}/{2}....
             var format = string.Join("/", Enumerable.Range(0, ancestors.Length + 1).Select(i => $"{{{i}}}"));
-            args[0] = new JTokenExpression(format);
+            var formatExpression = new JTokenExpression(format);
 
-            for (var i = 0; i < ancestors.Length; i++)
-            {
-                var ancestor = ancestors[i];
-                var segment = GetResourceNameSyntax(ancestor);
-                args[i + 1] = ConvertExpression(segment);
-            }
-
-            args[args.Length - 1] = ConvertExpression(nameValueSyntax);
+            var args = formatExpression.AsEnumerable()
+                .Concat(GetResourceNameSegments(resourceSymbol, EmitHelpers.GetTypeReference(resourceSymbol)));
 
             return CreateFunction("format", args);
         }
@@ -341,22 +374,6 @@ namespace Bicep.Core.Emit
         {
             // this condition should have already been validated by the type checker
             return moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
-        }
-
-        public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceSymbol resourceSymbol, ResourceTypeReference typeReference)
-        {
-            if (typeReference.Types.Length == 1)
-            {
-                return GetResourceNameExpression(resourceSymbol).AsEnumerable();
-            }
-
-            return typeReference.Types.Select(
-                (type, i) => AppendProperties(
-                    CreateFunction(
-                        "split",
-                        GetResourceNameExpression(resourceSymbol),
-                        new JTokenExpression("/")),
-                    new JTokenExpression(i)));
         }
 
         public LanguageExpression GetUnqualifiedResourceId(ResourceSymbol resourceSymbol)
@@ -482,9 +499,13 @@ namespace Bicep.Core.Emit
                 ResourceDeclarationSyntax => null,
                 ModuleDeclarationSyntax => null,
 
+                // variable copy index has the name of the variable
+                VariableDeclarationSyntax variable when variable.Name.IsValid => variable.Name.IdentifierName,
+
                 // output loops are only allowed at the top level and don't have names, either
                 OutputDeclarationSyntax => null,
 
+                // the property copy index has the name of the property
                 ObjectPropertySyntax property when property.TryGetKeyText() is { } key && ReferenceEquals(property.Value, @for) => key,
 
                 _ => throw new NotImplementedException("Unexpected for-expression grandparent.")
@@ -531,6 +552,9 @@ namespace Bicep.Core.Emit
                     return GetReferenceExpression(resourceSymbol, typeReference, true);
 
                 case ModuleSymbol moduleSymbol:
+                    // referencing a module directly should be blocked at an earlier stage - there is nothing great we can codegen here.
+                    Debug.Fail("Found direct module variable access");
+
                     return GetModuleOutputsReferenceExpression(moduleSymbol);
 
                 case LocalVariableSymbol localVariableSymbol:
@@ -596,6 +620,11 @@ namespace Bicep.Core.Emit
         public FunctionExpression ToFunctionExpression(SyntaxBase expression)
         {
             var converted = ConvertExpression(expression);
+            return ToFunctionExpression(converted);
+        }
+
+        public static FunctionExpression ToFunctionExpression(LanguageExpression converted)
+        {
             switch (converted)
             {
                 case FunctionExpression functionExpression:

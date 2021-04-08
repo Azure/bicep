@@ -1,4 +1,7 @@
-![Build](https://github.com/Azure/bicep/workflows/Build/badge.svg) [![codecov](https://codecov.io/gh/Azure/bicep/branch/main/graph/badge.svg)](https://codecov.io/gh/Azure/bicep)
+![Build](https://github.com/Azure/bicep/workflows/Build/badge.svg)
+[![codecov](https://codecov.io/gh/Azure/bicep/branch/main/graph/badge.svg)](https://codecov.io/gh/Azure/bicep)
+[![Good First Issues](https://img.shields.io/github/issues/Azure/Bicep/good%20first%20issue?color=important&label=good%20first%20issue&style=flat)](https://github.com/Azure/Bicep/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[![Needs Feedback](https://img.shields.io/github/issues/Azure/Bicep/needs%20feedback?color=blue&label=needs%20feedback%20&style=flat)](https://github.com/Azure/bicep/issues?q=is%3Aopen+is%3Aissue+label%3A%22needs+feedback%22)
 
 # Project Bicep - an ARM DSL
 
@@ -7,6 +10,8 @@
 Bicep is a Domain Specific Language (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax, improved type safety, and better support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, which means anything that can be done in an ARM Template can be done in Bicep (outside of temporary [known limitations](#known-limitations)). All resource `types`, `apiVersions`, and `properties` that are valid in an ARM template are equally valid in Bicep on day one.
 
 Bicep code is transpiled to standard ARM Template JSON files, which effectively treats the ARM Template as an Intermediate Language (IL).
+
+[![Video overview of Bicep](http://img.youtube.com/vi/l85qv_1N2_A/0.jpg)](http://www.youtube.com/watch?v=l85qv_1N2_A "Azure Bicep March 2021: Learn everything about the next generation of ARM Templates")
 
 ## Goals
 
@@ -62,8 +67,6 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 
 ## Known limitations
 
-* No ability to set the ARM Template equivalent of `copy.mode` or `copy.batchSize` ([#1625](https://github.com/Azure/bicep/issues/1625))
-* No ability to combine loops and conditions ([#1667](https://github.com/Azure/bicep/issues/1667))
 * No support for single-line object and arrays (i.e. `['a', 'b', 'c']`) ([#586](https://github.com/Azure/bicep/issues/586)).
 * Bicep is newline sensitive. We are exploring ways we can remove/relax this restriction ([#146](https://github.com/Azure/bicep/issues/146))
 

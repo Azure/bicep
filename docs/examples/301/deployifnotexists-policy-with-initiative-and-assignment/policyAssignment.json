@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1145679438663129161"
+    }
+  },
+  "parameters": {
+    "bicepExampleInitiativeId": {
+      "type": "string"
+    },
+    "assignmentIdentityLocation": {
+      "type": "string"
+    },
+    "assignmentEnforcementMode": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/policyAssignments",
+      "apiVersion": "2020-09-01",
+      "name": "bicepExampleAssignment",
+      "location": "[parameters('assignmentIdentityLocation')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "displayName": "Bicep Example Assignment",
+        "description": "Bicep Example Assignment",
+        "enforcementMode": "[parameters('assignmentEnforcementMode')]",
+        "metadata": {
+          "source": "Bicep",
+          "version": "0.1.0"
+        },
+        "policyDefinitionId": "[parameters('bicepExampleInitiativeId')]",
+        "nonComplianceMessages": [
+          {
+            "message": "Resource is not compliant with a DeployIfNotExists policy"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid('bicepExampleAssignment', 'Microsoft.Authorization/policyAssignments', subscription().subscriptionId)]",
+      "properties": {
+        "principalId": "[reference(subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment'), '2020-09-01', 'full').identity.principalId]",
+        "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment')]"
+      ]
+    }
+  ]
+}

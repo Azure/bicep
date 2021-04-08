@@ -235,6 +235,17 @@ param decoratedString string
 @minValue(200)
 param decoratedInt int = 123
 
+// negative integer literals are allowed as decorator values
+@minValue(-10)
+@maxValue(-3)
+param negativeValues int
+
+// negative integer literals in modifiers
+param negativeModifiers int {
+  minValue: -100
+  maxValue: -33
+}
+
 @sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'
@@ -247,8 +258,6 @@ param decoratedInt int = 123
 })
 param decoratedBool bool = (true && false) != true
 
-@secure()
-@secure()
 @secure()
 param decoratedObject object = {
   enabled: true
@@ -277,8 +286,6 @@ param decoratedObject object = {
     description: 'An array.'
 })
 @sys.maxLength(20)
-@maxLength(10)
-@maxLength(5)
 @sys.description('I will be overrode.')
 param decoratedArray array = [
     utcNow()

@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class ResourceGroupScopeType : NamedObjectType, IScopeReference
+    public class ResourceGroupScopeType : ObjectType, IScopeReference
     {
         public ResourceGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
             : base("resourceGroup", TypeSymbolValidationFlags.Default, properties, null)

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1088289811185508957"
+    }
+  },
   "parameters": {
     "workspaceName": {
       "type": "string"
@@ -40,13 +47,6 @@
     "workspace": {
       "type": "object",
       "value": "[reference(resourceId('Microsoft.Databricks/workspaces', parameters('workspaceName')), '2018-04-01', 'full')]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11494849268651882212"
     }
   }
 }

@@ -116,7 +116,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
@@ -148,7 +148,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileToStdOutShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
@@ -180,7 +180,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileShouldProduceExpectedErrors(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
@@ -201,7 +201,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileToStdOutShouldProduceExpectedErrors(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>

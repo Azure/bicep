@@ -83,7 +83,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // save all the files in the containing directory to disk so that we can test module resolution
             var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
-            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, example.OutputFolderName, parentStream);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             var typeProvider = new AzResourceTypeProvider();
@@ -220,7 +220,7 @@ namespace Bicep.Core.IntegrationTests
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
                 [fileUri] = template,
-            });;
+            });
 
             var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
 

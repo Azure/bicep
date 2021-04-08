@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -54,6 +54,22 @@ namespace Bicep.LanguageServer.Completions
                    nodes[^2] is T3 three &&
                    nodes[^1] is T4 four &&
                    predicate(one, two, three, four);
+        }
+
+        public static bool IsTailMatch<T1, T2, T3, T4, T5>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, T5, bool> predicate)
+            where T1 : SyntaxBase
+            where T2 : SyntaxBase
+            where T3 : SyntaxBase
+            where T4 : SyntaxBase
+            where T5 : SyntaxBase
+        {
+            return nodes.Count >= 5 &&
+                   nodes[^5] is T1 one &&
+                   nodes[^4] is T2 two &&
+                   nodes[^3] is T3 three &&
+                   nodes[^2] is T4 four &&
+                   nodes[^1] is T5 five &&
+                   predicate(one, two, three, four, five);
         }
 
         /// <summary>

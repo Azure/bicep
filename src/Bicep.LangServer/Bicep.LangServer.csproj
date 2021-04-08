@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -12,6 +12,10 @@
 
   <ItemGroup>
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.18.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="./Snippets/Templates/*.bicep" LogicalName="$([System.String]::new('Snippets/Templates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
 </Project>

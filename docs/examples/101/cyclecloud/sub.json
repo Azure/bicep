@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9629100418178895458"
+    }
+  },
   "functions": [],
   "resources": [
     {
@@ -9,12 +16,5 @@
       "name": "rg-bicep",
       "location": "eastus"
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "3531722014132222615"
-    }
-  }
+  ]
 }

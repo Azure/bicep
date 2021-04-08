@@ -11,11 +11,18 @@ namespace Bicep.Core.Syntax.Visitors
     {
         private readonly Func<SyntaxBase, bool> callback;
 
+        public static void Visit(SyntaxBase syntax, Func<SyntaxBase, bool> callback)
+        {
+            var visitor = new CallbackVisitor(callback);
+
+            visitor.Visit(syntax);
+        }
+
         /// <summary>
         /// Creates a new visitor with the specified callback.
         /// </summary>
         /// <param name="callback">The callback function that will be invoked before visiting a node. Return true to visit the node (the callback will be invoked on each child node). Return false to skip this node and its children.</param>
-        public CallbackVisitor(Func<SyntaxBase, bool> callback)
+        private CallbackVisitor(Func<SyntaxBase, bool> callback)
         {
             this.callback = callback;
         }

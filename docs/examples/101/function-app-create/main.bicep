@@ -239,7 +239,6 @@ resource functionAppConfig 'Microsoft.Web/sites/config@2020-06-01' = {
     ftpsState: 'AllAllowed'
     PreWarmedInstanceCount: 0
   }
-  tags: appTags
 }
 
 // Function App Binding

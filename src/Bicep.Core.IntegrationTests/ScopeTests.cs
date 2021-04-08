@@ -64,13 +64,11 @@ targetScope = '$moduleTargetScope'
 output hello string = 'hello!'
 ".Replace("$moduleTargetScope", moduleTargetScope)));
 
-            template!.Should().NotBeNull();
-
             using (new AssertionScope())
             {
-                template!.SelectToken("$.['$schema']")!.Should().DeepEqual(expectedSchema);
-                template.SelectToken("$.outputs.hello.value")!.Should().DeepEqual(expectedOutput);
-                template.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn[0]")!.Should().DeepEqual(expectedResourceDependsOn);
+                template.Should().HaveValueAtPath("$.['$schema']", expectedSchema);
+                template.Should().HaveValueAtPath("$.outputs.hello.value", expectedOutput);
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn[0]", expectedResourceDependsOn);
             }
         }
 
@@ -110,12 +108,10 @@ param dependency string
 ".Replace("$targetScope", targetScope))
             );
 
-            template!.Should().NotBeNull();
-
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn[0]")!.Should().DeepEqual(expectedResourceDependsOn);
-                template.SelectToken("$.resources[?(@.name == 'myMod')].dependsOn[0]")!.Should().DeepEqual(expectedModuleDependsOn);
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn[0]", expectedResourceDependsOn);
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'myMod')].dependsOn[0]", expectedModuleDependsOn);
             }
         }
 
@@ -137,15 +133,13 @@ resource resourceC 'My.Rp/myResource@2020-01-01' = {
   name: 'resourceC'
 }");
 
-            template!.Should().NotBeNull();
-
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.Should().DeepEqual("[format('My.Rp/myResource/{0}', 'resourceA')]");
-                template.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn[0]")!.Should().DeepEqual("[resourceId('My.Rp/myResource', 'resourceA')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[format('My.Rp/myResource/{0}', 'resourceA')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn[0]", "[resourceId('My.Rp/myResource', 'resourceA')]");
 
-                template.SelectToken("$.resources[?(@.name == 'resourceC')].scope")!.Should().DeepEqual("[extensionResourceId(format('My.Rp/myResource/{0}', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
-                template.SelectToken("$.resources[?(@.name == 'resourceC')].dependsOn[0]")!.Should().DeepEqual("[extensionResourceId(resourceId('My.Rp/myResource', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceC')].scope", "[extensionResourceId(format('My.Rp/myResource/{0}', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceC')].dependsOn[0]", "[extensionResourceId(resourceId('My.Rp/myResource', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
             }
         }
 
@@ -171,14 +165,12 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
 output resourceARef string = resourceA.properties.myProp
 ".Replace("$targetScope", targetScope));
 
-            template!.Should().NotBeNull();
-
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.Should().DeepEqual(expectedScopeExpression);
-                (template.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn") as IEnumerable<JToken>)!.Should().BeEmpty();
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", expectedScopeExpression);
+                template.Should().NotHaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn");
 
-                template.SelectToken("$.outputs['resourceARef'].value")!.Should().DeepEqual(expectedReferenceExpression);
+                template.Should().HaveValueAtPath("$.outputs['resourceARef'].value", expectedReferenceExpression);
             }
         }
 
@@ -189,8 +181,8 @@ output resourceARef string = resourceA.properties.myProp
             var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
                 var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
                 var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant),
-                    ["kind"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.ReadOnly),
+                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
+                    ["kind"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.ReadOnly, "kind property"),
                 }, null));
                 var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup, factory.GetReference(objectType)));
             });
@@ -205,10 +197,9 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 output resourceARef string = resourceA.kind
 "));
 
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.outputs['resourceARef'].value")!.Should().DeepEqual("[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01', 'full').kind]");
+                template.Should().HaveValueAtPath("$.outputs['resourceARef'].value", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01', 'full').kind]");
             }
 
             // use a valid targetScope without setting the scope property
@@ -222,10 +213,9 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 output resourceARef string = resourceA.kind
 "));
 
-            template!.Should().NotBeNull();
             using (new AssertionScope())
             {
-                template!.SelectToken("$.outputs['resourceARef'].value")!.Should().DeepEqual("[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01', 'full').kind]");
+                template.Should().HaveValueAtPath("$.outputs['resourceARef'].value", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01', 'full').kind]");
             }
         }
 
@@ -236,7 +226,7 @@ output resourceARef string = resourceA.kind
             var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
                 var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
                 var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant),
+                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
                 }, null));
                 var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup, factory.GetReference(objectType)));
             });
@@ -274,7 +264,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
             var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
                 var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
                 var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant),
+                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
                 }, null));
                 var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup | ScopeType.Extension, factory.GetReference(objectType)));
             });
@@ -304,7 +294,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
             var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
                 var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
                 var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant),
+                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
                 }, null));
                 var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup | ScopeType.Extension, factory.GetReference(objectType)));
             });
@@ -323,10 +313,9 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
 
             using (new AssertionScope())
             {
-                template!.Should().NotBeNull();
                 diags.Should().BeEmpty();
 
-                template!.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.Should().DeepEqual("[format('My.Rp/myResource/{0}', 'resourceA')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[format('My.Rp/myResource/{0}', 'resourceA')]");
             }
         }
     }

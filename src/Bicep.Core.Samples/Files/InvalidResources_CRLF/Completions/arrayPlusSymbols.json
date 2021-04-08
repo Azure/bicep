@@ -21,7 +21,7 @@
     "preselect": false,
     "sortText": "3_any",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "any($0)"
@@ -38,7 +38,7 @@
     "preselect": false,
     "sortText": "3_array",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "array($0)"
@@ -55,7 +55,7 @@
     "preselect": false,
     "sortText": "2_arrayExpressionErrors",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayExpressionErrors"
@@ -72,7 +72,7 @@
     "preselect": false,
     "sortText": "2_arrayExpressionErrors2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "arrayExpressionErrors2"
@@ -89,7 +89,7 @@
     "preselect": false,
     "sortText": "3_az",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "az"
@@ -103,7 +103,7 @@
     "preselect": false,
     "sortText": "2_badDepends",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "badDepends"
@@ -120,7 +120,7 @@
     "preselect": false,
     "sortText": "2_badDepends2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "badDepends2"
@@ -137,7 +137,7 @@
     "preselect": false,
     "sortText": "2_badDepends3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "badDepends3"
@@ -154,7 +154,7 @@
     "preselect": false,
     "sortText": "2_badDepends4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "badDepends4"
@@ -171,7 +171,7 @@
     "preselect": false,
     "sortText": "2_badDepends5",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "badDepends5"
@@ -188,7 +188,7 @@
     "preselect": false,
     "sortText": "2_badInterp",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "badInterp"
@@ -205,7 +205,7 @@
     "preselect": false,
     "sortText": "2_bar",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "bar"
@@ -222,7 +222,7 @@
     "preselect": false,
     "sortText": "3_base64",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "base64($0)"
@@ -239,7 +239,7 @@
     "preselect": false,
     "sortText": "3_base64ToJson",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "base64ToJson($0)"
@@ -256,7 +256,7 @@
     "preselect": false,
     "sortText": "3_base64ToString",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "base64ToString($0)"
@@ -273,7 +273,7 @@
     "preselect": false,
     "sortText": "2_baz",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "baz"
@@ -290,7 +290,7 @@
     "preselect": false,
     "sortText": "3_bool",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "bool($0)"
@@ -300,6 +300,23 @@
     }
   },
   {
+    "label": "booleanPropertyPartialValue",
+    "kind": "interface",
+    "detail": "booleanPropertyPartialValue",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_booleanPropertyPartialValue",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "booleanPropertyPartialValue"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "coalesce",
     "kind": "function",
     "detail": "coalesce()",
@@ -307,7 +324,7 @@
     "preselect": false,
     "sortText": "3_coalesce",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "coalesce($0)"
@@ -324,7 +341,7 @@
     "preselect": false,
     "sortText": "3_concat",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "concat($0)"
@@ -341,7 +358,7 @@
     "preselect": false,
     "sortText": "3_contains",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "contains($0)"
@@ -358,7 +375,7 @@
     "preselect": false,
     "sortText": "2_cyclicExistingRes",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "cyclicExistingRes"
@@ -375,7 +392,7 @@
     "preselect": false,
     "sortText": "2_cyclicRes",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "cyclicRes"
@@ -392,7 +409,7 @@
     "preselect": false,
     "sortText": "2_dashesInPropertyNames",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "dashesInPropertyNames"
@@ -409,7 +426,7 @@
     "preselect": false,
     "sortText": "3_dataUri",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "dataUri($0)"
@@ -426,7 +443,7 @@
     "preselect": false,
     "sortText": "3_dataUriToString",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "dataUriToString($0)"
@@ -443,7 +460,7 @@
     "preselect": false,
     "sortText": "3_dateTimeAdd",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "dateTimeAdd($0)"
@@ -460,7 +477,7 @@
     "preselect": false,
     "sortText": "3_deployment",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "deployment()$0"
@@ -474,7 +491,7 @@
     "preselect": false,
     "sortText": "2_directRefViaSingleConditionalResourceBody",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "directRefViaSingleConditionalResourceBody"
@@ -491,7 +508,7 @@
     "preselect": false,
     "sortText": "2_directRefViaSingleLoopResourceBody",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "directRefViaSingleLoopResourceBody"
@@ -508,7 +525,7 @@
     "preselect": false,
     "sortText": "2_directRefViaSingleLoopResourceBodyWithExtraDependsOn",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "directRefViaSingleLoopResourceBodyWithExtraDependsOn"
@@ -525,7 +542,7 @@
     "preselect": false,
     "sortText": "2_directRefViaSingleResourceBody",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "directRefViaSingleResourceBody"
@@ -542,7 +559,7 @@
     "preselect": false,
     "sortText": "2_directRefViaVar",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "directRefViaVar"
@@ -556,7 +573,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyMissing",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyMissing"
@@ -573,10 +590,27 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyMissing_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyMissing_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "discriminatorKeyMissing_for_if",
+    "kind": "interface",
+    "detail": "discriminatorKeyMissing_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyMissing_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyMissing_for_if"
     },
     "commitCharacters": [
       ":"
@@ -590,7 +624,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyMissing_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyMissing_if"
@@ -607,7 +641,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOne",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOne"
@@ -624,7 +658,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions"
@@ -638,7 +672,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions2"
@@ -652,10 +686,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions2_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions2_for"
+    }
+  },
+  {
+    "label": "discriminatorKeySetOneCompletions2_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions2_for_if"
     }
   },
   {
@@ -666,7 +714,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions2_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions2_if"
@@ -680,7 +728,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions3"
@@ -694,10 +742,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions3_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions3_for"
+    }
+  },
+  {
+    "label": "discriminatorKeySetOneCompletions3_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions3_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions3_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions3_for_if"
     }
   },
   {
@@ -708,7 +770,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions3_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions3_if"
@@ -722,10 +784,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions_for"
+    }
+  },
+  {
+    "label": "discriminatorKeySetOneCompletions_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions_for_if"
     }
   },
   {
@@ -736,7 +812,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOneCompletions_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOneCompletions_if"
@@ -750,10 +826,27 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOne_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOne_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "discriminatorKeySetOne_for_if",
+    "kind": "interface",
+    "detail": "discriminatorKeySetOne_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOne_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOne_for_if"
     },
     "commitCharacters": [
       ":"
@@ -767,7 +860,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetOne_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetOne_if"
@@ -784,7 +877,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwo",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwo"
@@ -801,7 +894,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletions"
@@ -815,7 +908,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletions2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletions2"
@@ -829,10 +922,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletions2_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletions2_for"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletions2_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions2_for_if"
     }
   },
   {
@@ -843,7 +950,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletions2_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletions2_if"
@@ -857,7 +964,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletionsArrayIndexer"
@@ -871,7 +978,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletionsArrayIndexer2"
@@ -885,10 +992,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer2_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletionsArrayIndexer2_for"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer2_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer2_for_if"
     }
   },
   {
@@ -899,7 +1020,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer2_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletionsArrayIndexer2_if"
@@ -913,10 +1034,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletionsArrayIndexer_for"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer_for_if"
     }
   },
   {
@@ -927,7 +1062,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletionsArrayIndexer_if"
@@ -941,10 +1076,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletions_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletions_for"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletions_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions_for_if"
     }
   },
   {
@@ -955,7 +1104,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwoCompletions_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletions_if"
@@ -969,10 +1118,27 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwo_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwo_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "discriminatorKeySetTwo_for_if",
+    "kind": "interface",
+    "detail": "discriminatorKeySetTwo_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwo_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwo_for_if"
     },
     "commitCharacters": [
       ":"
@@ -986,7 +1152,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeySetTwo_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwo_if"
@@ -1003,7 +1169,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissing",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing"
@@ -1020,7 +1186,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions"
@@ -1034,7 +1200,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions2"
@@ -1048,10 +1214,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions2_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions2_for"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions2_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions2_for_if"
     }
   },
   {
@@ -1062,7 +1242,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions2_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions2_if"
@@ -1076,7 +1256,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions3"
@@ -1090,10 +1270,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions3_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions3_for"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions3_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions3_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions3_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions3_for_if"
     }
   },
   {
@@ -1104,7 +1298,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions3_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions3_if"
@@ -1118,10 +1312,24 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions_for"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions_for_if",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions_for_if"
     }
   },
   {
@@ -1132,7 +1340,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissingCompletions_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions_if"
@@ -1146,10 +1354,27 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissing_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "discriminatorKeyValueMissing_for_if",
+    "kind": "interface",
+    "detail": "discriminatorKeyValueMissing_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissing_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissing_for_if"
     },
     "commitCharacters": [
       ":"
@@ -1163,7 +1388,7 @@
     "preselect": false,
     "sortText": "2_discriminatorKeyValueMissing_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing_if"
@@ -1180,7 +1405,7 @@
     "preselect": false,
     "sortText": "3_empty",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "empty($0)"
@@ -1197,7 +1422,7 @@
     "preselect": false,
     "sortText": "2_emptyArray",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "emptyArray"
@@ -1211,7 +1436,7 @@
     "preselect": false,
     "sortText": "3_endsWith",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "endsWith($0)"
@@ -1228,11 +1453,28 @@
     "preselect": false,
     "sortText": "3_environment",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "environment()$0"
     }
+  },
+  {
+    "label": "existngResProperty",
+    "kind": "interface",
+    "detail": "existngResProperty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_existngResProperty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "existngResProperty"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "expectedArrayExpression",
@@ -1242,7 +1484,7 @@
     "preselect": false,
     "sortText": "2_expectedArrayExpression",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedArrayExpression"
@@ -1259,7 +1501,7 @@
     "preselect": false,
     "sortText": "2_expectedArrayExpression2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedArrayExpression2"
@@ -1276,7 +1518,7 @@
     "preselect": false,
     "sortText": "2_expectedColon",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedColon"
@@ -1293,7 +1535,7 @@
     "preselect": false,
     "sortText": "2_expectedColon2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedColon2"
@@ -1310,7 +1552,7 @@
     "preselect": false,
     "sortText": "2_expectedComma",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedComma"
@@ -1327,7 +1569,7 @@
     "preselect": false,
     "sortText": "2_expectedForKeyword",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedForKeyword"
@@ -1344,7 +1586,7 @@
     "preselect": false,
     "sortText": "2_expectedForKeyword2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedForKeyword2"
@@ -1361,7 +1603,7 @@
     "preselect": false,
     "sortText": "2_expectedInKeyword",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedInKeyword"
@@ -1378,7 +1620,7 @@
     "preselect": false,
     "sortText": "2_expectedInKeyword2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedInKeyword2"
@@ -1395,7 +1637,7 @@
     "preselect": false,
     "sortText": "2_expectedInKeyword3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedInKeyword3"
@@ -1412,7 +1654,7 @@
     "preselect": false,
     "sortText": "2_expectedInKeyword4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedInKeyword4"
@@ -1429,7 +1671,7 @@
     "preselect": false,
     "sortText": "2_expectedLoopBody",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedLoopBody"
@@ -1446,10 +1688,78 @@
     "preselect": false,
     "sortText": "2_expectedLoopBody2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedLoopBody2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterOpenParen",
+    "kind": "interface",
+    "detail": "expectedLoopFilterOpenParen",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterOpenParen",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterOpenParen"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterOpenParen2",
+    "kind": "interface",
+    "detail": "expectedLoopFilterOpenParen2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterOpenParen2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterOpenParen2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterPredicateAndBody",
+    "kind": "interface",
+    "detail": "expectedLoopFilterPredicateAndBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterPredicateAndBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterPredicateAndBody"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expectedLoopFilterPredicateAndBody2",
+    "kind": "interface",
+    "detail": "expectedLoopFilterPredicateAndBody2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expectedLoopFilterPredicateAndBody2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "expectedLoopFilterPredicateAndBody2"
     },
     "commitCharacters": [
       ":"
@@ -1463,7 +1773,7 @@
     "preselect": false,
     "sortText": "2_expectedLoopIndexName",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedLoopIndexName"
@@ -1480,7 +1790,7 @@
     "preselect": false,
     "sortText": "2_expectedLoopItemName",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedLoopItemName"
@@ -1497,7 +1807,7 @@
     "preselect": false,
     "sortText": "2_expectedLoopItemName2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedLoopItemName2"
@@ -1514,7 +1824,7 @@
     "preselect": false,
     "sortText": "2_expectedLoopVar",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expectedLoopVar"
@@ -1531,7 +1841,7 @@
     "preselect": false,
     "sortText": "2_expressionInPropertyLoopVar",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expressionInPropertyLoopVar"
@@ -1545,7 +1855,7 @@
     "preselect": false,
     "sortText": "2_expressionsInPropertyLoopName",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "expressionsInPropertyLoopName"
@@ -1562,7 +1872,7 @@
     "preselect": false,
     "sortText": "3_extensionResourceId",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "extensionResourceId($0)"
@@ -1579,7 +1889,7 @@
     "preselect": false,
     "sortText": "3_first",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "first($0)"
@@ -1596,7 +1906,7 @@
     "preselect": false,
     "sortText": "2_fo",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "fo"
@@ -1613,7 +1923,7 @@
     "preselect": false,
     "sortText": "2_foo",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "foo"
@@ -1666,7 +1976,7 @@
     "preselect": false,
     "sortText": "3_format",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "format($0)"
@@ -1683,7 +1993,7 @@
     "preselect": false,
     "sortText": "3_guid",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "guid($0)"
@@ -1700,7 +2010,7 @@
     "preselect": false,
     "sortText": "2_incorrectPropertiesKey",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "incorrectPropertiesKey"
@@ -1717,7 +2027,7 @@
     "preselect": false,
     "sortText": "3_indexOf",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "indexOf($0)"
@@ -1734,7 +2044,7 @@
     "preselect": false,
     "sortText": "3_int",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "int($0)"
@@ -1751,7 +2061,7 @@
     "preselect": false,
     "sortText": "2_interpVal",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "interpVal"
@@ -1765,7 +2075,7 @@
     "preselect": false,
     "sortText": "3_intersection",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "intersection($0)"
@@ -1782,7 +2092,7 @@
     "preselect": false,
     "sortText": "2_invalidDecorator",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidDecorator"
@@ -1799,7 +2109,7 @@
     "preselect": false,
     "sortText": "2_invalidDuplicateName1",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName1"
@@ -1816,7 +2126,7 @@
     "preselect": false,
     "sortText": "2_invalidDuplicateName2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName2"
@@ -1833,7 +2143,7 @@
     "preselect": false,
     "sortText": "2_invalidDuplicateName3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName3"
@@ -1850,7 +2160,7 @@
     "preselect": false,
     "sortText": "2_invalidExtensionResourceDuplicateName1",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidExtensionResourceDuplicateName1"
@@ -1867,7 +2177,7 @@
     "preselect": false,
     "sortText": "2_invalidExtensionResourceDuplicateName2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidExtensionResourceDuplicateName2"
@@ -1884,7 +2194,7 @@
     "preselect": false,
     "sortText": "2_invalidScope",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidScope"
@@ -1901,7 +2211,7 @@
     "preselect": false,
     "sortText": "2_invalidScope2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidScope2"
@@ -1918,7 +2228,7 @@
     "preselect": false,
     "sortText": "2_invalidScope3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "invalidScope3"
@@ -1935,7 +2245,7 @@
     "preselect": false,
     "sortText": "2_itemAndIndexSameName",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "itemAndIndexSameName"
@@ -1952,7 +2262,7 @@
     "preselect": false,
     "sortText": "3_json",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "json($0)"
@@ -1969,7 +2279,7 @@
     "preselect": false,
     "sortText": "3_last",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "last($0)"
@@ -1986,7 +2296,7 @@
     "preselect": false,
     "sortText": "3_lastIndexOf",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "lastIndexOf($0)"
@@ -2003,7 +2313,7 @@
     "preselect": false,
     "sortText": "3_length",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "length($0)"
@@ -2020,7 +2330,7 @@
     "preselect": false,
     "sortText": "2_letsAccessTheDashes",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "letsAccessTheDashes"
@@ -2034,7 +2344,7 @@
     "preselect": false,
     "sortText": "2_letsAccessTheDashes2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "letsAccessTheDashes2"
@@ -2048,7 +2358,7 @@
     "preselect": false,
     "sortText": "3_listKeys",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "listKeys($0)"
@@ -2065,7 +2375,7 @@
     "preselect": false,
     "sortText": "2_loopForRuntimeCheck",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "loopForRuntimeCheck"
@@ -2082,7 +2392,7 @@
     "preselect": false,
     "sortText": "2_loopForRuntimeCheck2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "loopForRuntimeCheck2"
@@ -2099,7 +2409,7 @@
     "preselect": false,
     "sortText": "2_loopForRuntimeCheck3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "loopForRuntimeCheck3"
@@ -2116,7 +2426,7 @@
     "preselect": false,
     "sortText": "2_loopForRuntimeCheck4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "loopForRuntimeCheck4"
@@ -2133,7 +2443,7 @@
     "preselect": false,
     "sortText": "2_magicString1",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "magicString1"
@@ -2147,7 +2457,7 @@
     "preselect": false,
     "sortText": "2_magicString2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "magicString2"
@@ -2161,7 +2471,7 @@
     "preselect": false,
     "sortText": "3_managementGroup",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "managementGroup($0)"
@@ -2178,7 +2488,7 @@
     "preselect": false,
     "sortText": "3_max",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "max($0)"
@@ -2195,7 +2505,7 @@
     "preselect": false,
     "sortText": "3_min",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "min($0)"
@@ -2212,7 +2522,7 @@
     "preselect": false,
     "sortText": "2_missingFewerRequiredProperties",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "missingFewerRequiredProperties"
@@ -2229,7 +2539,7 @@
     "preselect": false,
     "sortText": "2_missingRequiredProperties",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "missingRequiredProperties"
@@ -2246,7 +2556,7 @@
     "preselect": false,
     "sortText": "2_missingRequiredProperties2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "missingRequiredProperties2"
@@ -2263,7 +2573,7 @@
     "preselect": false,
     "sortText": "2_missingTopLevelProperties",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "missingTopLevelProperties"
@@ -2280,7 +2590,7 @@
     "preselect": false,
     "sortText": "2_missingTopLevelPropertiesExceptName",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "missingTopLevelPropertiesExceptName"
@@ -2297,7 +2607,7 @@
     "preselect": false,
     "sortText": "2_missingType",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "missingType"
@@ -2314,7 +2624,7 @@
     "preselect": false,
     "sortText": "2_mock",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "mock"
@@ -2328,7 +2638,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminator",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminator"
@@ -2345,7 +2655,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorArrayIndexCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorArrayIndexCompletions"
@@ -2359,10 +2669,24 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorArrayIndexCompletions_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorArrayIndexCompletions_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorArrayIndexCompletions_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorArrayIndexCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorArrayIndexCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorArrayIndexCompletions_for_if"
     }
   },
   {
@@ -2373,7 +2697,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorArrayIndexCompletions_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorArrayIndexCompletions_if"
@@ -2387,7 +2711,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions"
@@ -2401,7 +2725,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions2"
@@ -2415,10 +2739,24 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions2_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions2_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions2_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions2_for_if"
     }
   },
   {
@@ -2429,7 +2767,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions2_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions2_if"
@@ -2443,7 +2781,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions3"
@@ -2457,10 +2795,24 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions3_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions3_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions3_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions3_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions3_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions3_for_if"
     }
   },
   {
@@ -2471,7 +2823,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions3_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions3_if"
@@ -2485,7 +2837,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions4"
@@ -2499,10 +2851,24 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions4_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions4_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions4_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions4_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions4_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions4_for_if"
     }
   },
   {
@@ -2513,7 +2879,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions4_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions4_if"
@@ -2527,10 +2893,24 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions_for_if"
     }
   },
   {
@@ -2541,7 +2921,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorCompletions_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorCompletions_if"
@@ -2555,7 +2935,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKey",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKey"
@@ -2572,7 +2952,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyCompletions"
@@ -2586,7 +2966,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyCompletions2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyCompletions2"
@@ -2600,10 +2980,24 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyCompletions2_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyCompletions2_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions2_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions2_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions2_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions2_for_if"
     }
   },
   {
@@ -2614,7 +3008,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyCompletions2_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyCompletions2_if"
@@ -2628,10 +3022,24 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyCompletions_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyCompletions_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions_for_if"
     }
   },
   {
@@ -2642,7 +3050,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyCompletions_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyCompletions_if"
@@ -2656,7 +3064,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyIndexCompletions"
@@ -2670,10 +3078,24 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyIndexCompletions_for"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyIndexCompletions_for_if",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyIndexCompletions_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyIndexCompletions_for_if"
     }
   },
   {
@@ -2684,7 +3106,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyIndexCompletions_if"
@@ -2698,10 +3120,27 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKey_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKey_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nestedDiscriminatorMissingKey_for_if",
+    "kind": "interface",
+    "detail": "nestedDiscriminatorMissingKey_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKey_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKey_for_if"
     },
     "commitCharacters": [
       ":"
@@ -2715,7 +3154,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminatorMissingKey_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKey_if"
@@ -2732,10 +3171,27 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminator_for",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminator_for"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "nestedDiscriminator_for_if",
+    "kind": "interface",
+    "detail": "nestedDiscriminator_for_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminator_for_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminator_for_if"
     },
     "commitCharacters": [
       ":"
@@ -2749,7 +3205,7 @@
     "preselect": false,
     "sortText": "2_nestedDiscriminator_if",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminator_if"
@@ -2766,10 +3222,44 @@
     "preselect": false,
     "sortText": "2_nestedPropertyAccessOnConditional",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nestedPropertyAccessOnConditional"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "noCompletionsBeforeColon",
+    "kind": "interface",
+    "detail": "noCompletionsBeforeColon",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noCompletionsBeforeColon",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "noCompletionsBeforeColon"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "noCompletionsWithoutColon",
+    "kind": "interface",
+    "detail": "noCompletionsWithoutColon",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noCompletionsWithoutColon",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "noCompletionsWithoutColon"
     },
     "commitCharacters": [
       ":"
@@ -2783,7 +3273,7 @@
     "preselect": false,
     "sortText": "2_nonObjectResourceLoopBody",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nonObjectResourceLoopBody"
@@ -2800,7 +3290,7 @@
     "preselect": false,
     "sortText": "2_nonObjectResourceLoopBody2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nonObjectResourceLoopBody2"
@@ -2817,7 +3307,7 @@
     "preselect": false,
     "sortText": "2_nonObjectResourceLoopBody3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nonObjectResourceLoopBody3"
@@ -2834,7 +3324,7 @@
     "preselect": false,
     "sortText": "2_nonObjectResourceLoopBody4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nonObjectResourceLoopBody4"
@@ -2851,7 +3341,7 @@
     "preselect": false,
     "sortText": "2_nonexistentArrays",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "nonexistentArrays"
@@ -2868,7 +3358,7 @@
     "preselect": false,
     "sortText": "2_notAResource",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "notAResource"
@@ -2882,11 +3372,283 @@
     "preselect": false,
     "sortText": "2_notAnArray",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "notAnArray"
     }
+  },
+  {
+    "label": "p1_child1",
+    "kind": "interface",
+    "detail": "p1_child1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p1_child1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p1_child1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p1_res1",
+    "kind": "interface",
+    "detail": "p1_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p1_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p1_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p2_res1",
+    "kind": "interface",
+    "detail": "p2_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p2_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p2_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p2_res2",
+    "kind": "interface",
+    "detail": "p2_res2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p2_res2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p2_res2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p2_res2child",
+    "kind": "interface",
+    "detail": "p2_res2child",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p2_res2child",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p2_res2child"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p3_vmExt",
+    "kind": "interface",
+    "detail": "p3_vmExt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p3_vmExt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p3_vmExt"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p4_vm",
+    "kind": "interface",
+    "detail": "p4_vm",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p4_vm",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p4_vm"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p4_vmExt",
+    "kind": "interface",
+    "detail": "p4_vmExt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p4_vmExt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p4_vmExt"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p5_res1",
+    "kind": "interface",
+    "detail": "p5_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p5_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p5_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p5_res2",
+    "kind": "interface",
+    "detail": "p5_res2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p5_res2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p5_res2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p6_res1",
+    "kind": "interface",
+    "detail": "p6_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p6_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p6_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p6_res2",
+    "kind": "interface",
+    "detail": "p6_res2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p6_res2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p6_res2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p7_res1",
+    "kind": "interface",
+    "detail": "p7_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p7_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p7_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p7_res2",
+    "kind": "interface",
+    "detail": "p7_res2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p7_res2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p7_res2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p7_res3",
+    "kind": "interface",
+    "detail": "p7_res3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p7_res3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p7_res3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "p8_res1",
+    "kind": "interface",
+    "detail": "p8_res1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_p8_res1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "p8_res1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "padLeft",
@@ -2896,7 +3658,7 @@
     "preselect": false,
     "sortText": "3_padLeft",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "padLeft($0)"
@@ -2913,7 +3675,7 @@
     "preselect": false,
     "sortText": "3_pickZones",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "pickZones($0)"
@@ -2930,7 +3692,7 @@
     "preselect": false,
     "sortText": "2_premiumStorages",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "premiumStorages"
@@ -2947,7 +3709,7 @@
     "preselect": false,
     "sortText": "2_propertyLoopsCannotNest",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "propertyLoopsCannotNest"
@@ -2964,7 +3726,7 @@
     "preselect": false,
     "sortText": "2_propertyLoopsCannotNest2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "propertyLoopsCannotNest2"
@@ -2981,7 +3743,7 @@
     "preselect": false,
     "sortText": "3_providers",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "providers($0)"
@@ -2998,7 +3760,7 @@
     "preselect": false,
     "sortText": "3_range",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "range($0)"
@@ -3015,7 +3777,7 @@
     "preselect": false,
     "sortText": "3_reference",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "reference($0)"
@@ -3032,7 +3794,7 @@
     "preselect": false,
     "sortText": "3_replace",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "replace($0)"
@@ -3049,7 +3811,7 @@
     "preselect": false,
     "sortText": "3_resourceGroup",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "resourceGroup($0)"
@@ -3066,7 +3828,7 @@
     "preselect": false,
     "sortText": "3_resourceId",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "resourceId($0)"
@@ -3083,10 +3845,24 @@
     "preselect": false,
     "sortText": "2_resourceListIsNotSingleResource",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "resourceListIsNotSingleResource"
+    }
+  },
+  {
+    "label": "resourceListIsNotSingleResource_if",
+    "kind": "variable",
+    "detail": "resourceListIsNotSingleResource_if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceListIsNotSingleResource_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceListIsNotSingleResource_if"
     }
   },
   {
@@ -3097,7 +3873,7 @@
     "preselect": false,
     "sortText": "2_resrefpar",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "resrefpar"
@@ -3111,7 +3887,7 @@
     "preselect": false,
     "sortText": "2_resrefvar",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "resrefvar"
@@ -3125,7 +3901,7 @@
     "preselect": false,
     "sortText": "2_runtimeCheckVar",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeCheckVar"
@@ -3139,7 +3915,7 @@
     "preselect": false,
     "sortText": "2_runtimeCheckVar2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeCheckVar2"
@@ -3153,7 +3929,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalid",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalid"
@@ -3167,7 +3943,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes1",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes1"
@@ -3184,7 +3960,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes10",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes10"
@@ -3201,7 +3977,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes11",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes11"
@@ -3218,7 +3994,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes12",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes12"
@@ -3235,7 +4011,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes13",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes13"
@@ -3252,7 +4028,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes14",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes14"
@@ -3269,7 +4045,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes15",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes15"
@@ -3286,7 +4062,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes16",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes16"
@@ -3303,7 +4079,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes17",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes17"
@@ -3320,7 +4096,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes18",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes18"
@@ -3337,7 +4113,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes2"
@@ -3354,7 +4130,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes3"
@@ -3371,7 +4147,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes4"
@@ -3388,7 +4164,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes5",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes5"
@@ -3405,7 +4181,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes6",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes6"
@@ -3422,7 +4198,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes7",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes7"
@@ -3439,7 +4215,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes8",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes8"
@@ -3456,7 +4232,7 @@
     "preselect": false,
     "sortText": "2_runtimeInvalidRes9",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes9"
@@ -3473,7 +4249,7 @@
     "preselect": false,
     "sortText": "2_runtimeValid",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValid"
@@ -3487,7 +4263,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes1",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes1"
@@ -3504,7 +4280,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes2"
@@ -3521,7 +4297,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes3"
@@ -3538,7 +4314,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes4"
@@ -3555,7 +4331,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes5",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes5"
@@ -3572,7 +4348,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes6",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes6"
@@ -3589,7 +4365,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes7",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes7"
@@ -3606,7 +4382,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes8",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes8"
@@ -3623,7 +4399,7 @@
     "preselect": false,
     "sortText": "2_runtimeValidRes9",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes9"
@@ -3640,7 +4416,7 @@
     "preselect": false,
     "sortText": "2_runtimefoo1",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimefoo1"
@@ -3654,7 +4430,7 @@
     "preselect": false,
     "sortText": "2_runtimefoo2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimefoo2"
@@ -3668,7 +4444,7 @@
     "preselect": false,
     "sortText": "2_runtimefoo3",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimefoo3"
@@ -3682,7 +4458,7 @@
     "preselect": false,
     "sortText": "2_runtimefoo4",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "runtimefoo4"
@@ -3696,7 +4472,7 @@
     "preselect": false,
     "sortText": "2_selfScope",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "selfScope"
@@ -3713,7 +4489,7 @@
     "preselect": false,
     "sortText": "2_sigh",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "sigh"
@@ -3727,7 +4503,7 @@
     "preselect": false,
     "sortText": "2_singleResourceForRuntimeCheck",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "singleResourceForRuntimeCheck"
@@ -3744,7 +4520,7 @@
     "preselect": false,
     "sortText": "3_skip",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "skip($0)"
@@ -3761,7 +4537,7 @@
     "preselect": false,
     "sortText": "3_split",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "split($0)"
@@ -3778,7 +4554,7 @@
     "preselect": false,
     "sortText": "2_startedTypingTypeWithQuotes",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "startedTypingTypeWithQuotes"
@@ -3795,7 +4571,7 @@
     "preselect": false,
     "sortText": "2_startedTypingTypeWithoutQuotes",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "startedTypingTypeWithoutQuotes"
@@ -3812,7 +4588,7 @@
     "preselect": false,
     "sortText": "3_startsWith",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "startsWith($0)"
@@ -3829,7 +4605,7 @@
     "preselect": false,
     "sortText": "3_string",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "string($0)"
@@ -3846,7 +4622,7 @@
     "preselect": false,
     "sortText": "2_stuffs",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "stuffs"
@@ -3863,7 +4639,7 @@
     "preselect": false,
     "sortText": "3_subscription",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "subscription($0)"
@@ -3880,7 +4656,7 @@
     "preselect": false,
     "sortText": "3_subscriptionResourceId",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "subscriptionResourceId($0)"
@@ -3897,7 +4673,7 @@
     "preselect": false,
     "sortText": "3_substring",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "substring($0)"
@@ -3914,7 +4690,7 @@
     "preselect": false,
     "sortText": "3_sys",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "sys"
@@ -3928,7 +4704,7 @@
     "preselect": false,
     "sortText": "3_take",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "take($0)"
@@ -3945,7 +4721,7 @@
     "preselect": false,
     "sortText": "3_tenant",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "tenant()$0"
@@ -3959,7 +4735,7 @@
     "preselect": false,
     "sortText": "3_tenantResourceId",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "tenantResourceId($0)"
@@ -3976,7 +4752,7 @@
     "preselect": false,
     "sortText": "3_toLower",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "toLower($0)"
@@ -3993,7 +4769,7 @@
     "preselect": false,
     "sortText": "3_toUpper",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "toUpper($0)"
@@ -4010,7 +4786,7 @@
     "preselect": false,
     "sortText": "2_trailingSpace",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "trailingSpace"
@@ -4027,7 +4803,7 @@
     "preselect": false,
     "sortText": "3_trim",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "trim($0)"
@@ -4044,7 +4820,7 @@
     "preselect": false,
     "sortText": "2_unfinishedVnet",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "unfinishedVnet"
@@ -4061,7 +4837,7 @@
     "preselect": false,
     "sortText": "3_union",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "union($0)"
@@ -4078,7 +4854,7 @@
     "preselect": false,
     "sortText": "3_uniqueString",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "uniqueString($0)"
@@ -4095,7 +4871,7 @@
     "preselect": false,
     "sortText": "3_uri",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "uri($0)"
@@ -4112,7 +4888,7 @@
     "preselect": false,
     "sortText": "3_uriComponent",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "uriComponent($0)"
@@ -4129,7 +4905,7 @@
     "preselect": false,
     "sortText": "3_uriComponentToString",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "uriComponentToString($0)"
@@ -4146,7 +4922,7 @@
     "preselect": false,
     "sortText": "2_validModule",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "validModule"
@@ -4160,7 +4936,7 @@
     "preselect": false,
     "sortText": "2_validResourceForInvalidExtensionResourceDuplicateName",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "validResourceForInvalidExtensionResourceDuplicateName"
@@ -4177,7 +4953,7 @@
     "preselect": false,
     "sortText": "2_varForRuntimeCheck4a",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "varForRuntimeCheck4a"
@@ -4191,7 +4967,7 @@
     "preselect": false,
     "sortText": "2_varForRuntimeCheck4b",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "varForRuntimeCheck4b"
@@ -4205,7 +4981,7 @@
     "preselect": false,
     "sortText": "2_vnet",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "vnet"
@@ -4222,7 +4998,7 @@
     "preselect": false,
     "sortText": "2_wrongArrayType",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "wrongArrayType"
@@ -4239,10 +5015,44 @@
     "preselect": false,
     "sortText": "2_wrongArrayType2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "wrongArrayType2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "wrongFilterExpressionType",
+    "kind": "interface",
+    "detail": "wrongFilterExpressionType",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongFilterExpressionType",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongFilterExpressionType"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "wrongFilterExpressionType2",
+    "kind": "interface",
+    "detail": "wrongFilterExpressionType2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongFilterExpressionType2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongFilterExpressionType2"
     },
     "commitCharacters": [
       ":"
@@ -4256,7 +5066,7 @@
     "preselect": false,
     "sortText": "2_wrongLoopBodyType",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "wrongLoopBodyType"
@@ -4273,7 +5083,7 @@
     "preselect": false,
     "sortText": "2_wrongLoopBodyType2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "wrongLoopBodyType2"
@@ -4290,7 +5100,7 @@
     "preselect": false,
     "sortText": "2_wrongPropertyInNestedLoop",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "wrongPropertyInNestedLoop"
@@ -4307,7 +5117,7 @@
     "preselect": false,
     "sortText": "2_wrongPropertyInNestedLoop2",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "wrongPropertyInNestedLoop2"

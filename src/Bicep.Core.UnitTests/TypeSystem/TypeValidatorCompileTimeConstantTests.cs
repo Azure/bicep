@@ -72,6 +72,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateTextRow("!true");
             yield return CreateTextRow("!x");
             yield return CreateTextRow("-x");
+            yield return CreateTextRow("!true");
 
             // ternary
             yield return CreateTextRow("true?true:true");
@@ -103,6 +104,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("false", TestSyntaxFactory.CreateBool(false));
             yield return CreateRow("string", TestSyntaxFactory.CreateString("hello"));
             yield return CreateRow("int", TestSyntaxFactory.CreateInt(42));
+            yield return CreateRow("negative int", TestSyntaxFactory.CreateUnaryMinus(TestSyntaxFactory.CreateInt(42)));
 
             yield return CreateRow("empty object", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]));
 

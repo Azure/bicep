@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17071071458183814945"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -73,13 +80,6 @@
     "originHostHeader": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).originHostHeader]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "15844009537662063652"
     }
   }
 }

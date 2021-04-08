@@ -277,6 +277,113 @@ module unsupportedScopeManagementGroup 'modules/managementGroup.bicep' = {
 //@[30:31)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module singleRgModule 'modules/passthrough.bicep' = {
+//@[0:143) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |singleRgModule|
+//@[22:49)  StringSyntax
+//@[22:49)   StringComplete |'modules/passthrough.bicep'|
+//@[50:51)  Assignment |=|
+//@[52:143)  ObjectSyntax
+//@[52:53)   LeftBrace |{|
+//@[53:54)   NewLine |\n|
+  name: 'single-rg'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'single-rg'|
+//@[19:20)   NewLine |\n|
+  params: {
+//@[2:36)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:36)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:12)     NewLine |\n|
+    myInput: 'stuff'
+//@[4:20)     ObjectPropertySyntax
+//@[4:11)      IdentifierSyntax
+//@[4:11)       Identifier |myInput|
+//@[11:12)      Colon |:|
+//@[13:20)      StringSyntax
+//@[13:20)       StringComplete |'stuff'|
+//@[20:21)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+  scope: resourceGroup('test')
+//@[2:30)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:30)    FunctionCallSyntax
+//@[9:22)     IdentifierSyntax
+//@[9:22)      Identifier |resourceGroup|
+//@[22:23)     LeftParen |(|
+//@[23:29)     FunctionArgumentSyntax
+//@[23:29)      StringSyntax
+//@[23:29)       StringComplete |'test'|
+//@[29:30)     RightParen |)|
+//@[30:31)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module singleRgModule2 'modules/passthrough.bicep' = {
+//@[0:138) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:22)  IdentifierSyntax
+//@[7:22)   Identifier |singleRgModule2|
+//@[23:50)  StringSyntax
+//@[23:50)   StringComplete |'modules/passthrough.bicep'|
+//@[51:52)  Assignment |=|
+//@[53:138)  ObjectSyntax
+//@[53:54)   LeftBrace |{|
+//@[54:55)   NewLine |\n|
+  name: 'single-rg2'
+//@[2:20)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:20)    StringSyntax
+//@[8:20)     StringComplete |'single-rg2'|
+//@[20:21)   NewLine |\n|
+  params: {
+//@[2:36)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:36)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:12)     NewLine |\n|
+    myInput: 'stuff'
+//@[4:20)     ObjectPropertySyntax
+//@[4:11)      IdentifierSyntax
+//@[4:11)       Identifier |myInput|
+//@[11:12)      Colon |:|
+//@[13:20)      StringSyntax
+//@[13:20)       StringComplete |'stuff'|
+//@[20:21)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+  scope: singleRgModule
+//@[2:23)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:23)    VariableAccessSyntax
+//@[9:23)     IdentifierSyntax
+//@[9:23)      Identifier |singleRgModule|
+//@[23:24)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:2) NewLine |\n|
 
 //@[0:0) EndOfFile ||

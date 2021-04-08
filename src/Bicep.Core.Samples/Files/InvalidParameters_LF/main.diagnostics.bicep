@@ -76,6 +76,18 @@ param wrongAssignmentToken string: 'hello'
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 //@[6:267) [BCP024 (Error)] The identifier exceeds the limit of 255. Reduce the length of the identifier. |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
 
+// #completionTest(28,29) -> boolPlusSymbols
+param boolCompletions bool = 
+//@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(30,31) -> arrayPlusSymbols
+param arrayCompletions array = 
+//@[31:31) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(32,33) -> objectPlusSymbols
+param objectCompletions object = 
+//@[33:33) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
 // badly escaped string
 param wrongType fluffyBunny = 'what's up doc?'
 //@[6:15) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. |wrongType|
@@ -595,8 +607,34 @@ param tooManyArguments2 string
 //@[13:26) [BCP032 (Error)] The value must be a compile-time constant. |sys.concat(2)|
 @allowed([for thing in []: 's'])
 //@[9:31) [BCP032 (Error)] The value must be a compile-time constant. |[for thing in []: 's']|
-//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
 param nonConstantInDecorator string
+
+@minValue(-length('s'))
+//@[11:22) [BCP032 (Error)] The value must be a compile-time constant. |length('s')|
+@metadata({
+  bool: !true
+//@[8:13) [BCP032 (Error)] The value must be a compile-time constant. |!true|
+//@[8:13) [BCP032 (Error)] The value must be a compile-time constant. |!true|
+})
+param unaryMinusOnFunction int
+
+@minLength(1)
+//@[0:13) [BCP166 (Error)] Duplicate "minLength" decorator. |@minLength(1)|
+@minLength(2)
+//@[0:13) [BCP166 (Error)] Duplicate "minLength" decorator. |@minLength(2)|
+@secure()
+@maxLength(3)
+//@[0:13) [BCP166 (Error)] Duplicate "maxLength" decorator. |@maxLength(3)|
+@maxLength(4)
+//@[0:13) [BCP166 (Error)] Duplicate "maxLength" decorator. |@maxLength(4)|
+param duplicateDecorators string
+
+@minLength(-1)
+//@[11:13) [BCP168 (Error)] Length must not be a negative value. |-1|
+@maxLength(-100)
+//@[11:15) [BCP168 (Error)] Length must not be a negative value. |-100|
+param invalidLength string
 
 // unterminated multi-line comment
 /*    

@@ -1,10 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Emit
 {
@@ -15,7 +18,7 @@ namespace Bicep.Core.Emit
 
         private readonly IDiagnosticWriter diagnosticWriter;
         private readonly SemanticModel semanticModel;
-        
+
         private SyntaxBase? activeLoopCapableTopLevelDeclaration = null;
 
         private int propertyLoopCount = 0;
@@ -97,6 +100,13 @@ namespace Bicep.Core.Emit
             this.activeLoopCapableTopLevelDeclaration = null;
         }
 
+        public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+            base.VisitVariableDeclarationSyntax(syntax);
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             this.activeLoopCapableTopLevelDeclaration = syntax;
@@ -114,6 +124,16 @@ namespace Bicep.Core.Emit
                 case false:
                     // this loop was used incorrectly
                     this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).ForExpressionsNotSupportedHere());
+                    break;
+
+                case true when this.activeLoopCapableTopLevelDeclaration is VariableDeclarationSyntax variable && InlineDependencyVisitor.ShouldInlineVariable(this.semanticModel, variable, out var variableChain):
+                    // this is a loop variable that has a dependency on functions that are not supported in JSON variables
+                    // we are initially blocking this because not all cases can be generated in the JSON
+                    
+                    // unable to get a detailed variable dependency chain
+                    // log a generic error instead and put it on the "for" keyword
+                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).VariableLoopsRuntimeDependencyNotAllowed(variableChain));
+
                     break;
 
                 case null:
@@ -191,14 +211,14 @@ namespace Bicep.Core.Emit
 
             if(this.IsTopLevelLoop(syntax))
             {
-                // this is a loop in a resource, module, or output value
+                // this is a loop in a resource, module, variable, or output value
                 return true;
             }
 
             // not a top-level loop
-            if(this.activeLoopCapableTopLevelDeclaration is OutputDeclarationSyntax)
+            if(this.activeLoopCapableTopLevelDeclaration is OutputDeclarationSyntax || this.activeLoopCapableTopLevelDeclaration is VariableDeclarationSyntax)
             {
-                // output loops are only supported in the values due to runtime limitations
+                // output and variable loops are only supported in the values due to runtime limitations
                 return false;
             }
 
@@ -233,6 +253,7 @@ namespace Bicep.Core.Emit
                 case ResourceDeclarationSyntax resource when ReferenceEquals(resource.Value, syntax):
                 case ModuleDeclarationSyntax module when ReferenceEquals(module.Value, syntax):
                 case OutputDeclarationSyntax output when ReferenceEquals(output.Value, syntax):
+                case VariableDeclarationSyntax variable when ReferenceEquals(variable.Value, syntax):
                     return true;
 
                 default:

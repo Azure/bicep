@@ -5,9 +5,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public class JTokenAssertions : ReferenceTypeAssertions<JToken, JTokenAssertions>
+    public class JTokenAssertions : ReferenceTypeAssertions<JToken?, JTokenAssertions>
     {
-        public JTokenAssertions(JToken instance)
+        public JTokenAssertions(JToken? instance)
         {
             Subject = instance;
         }
