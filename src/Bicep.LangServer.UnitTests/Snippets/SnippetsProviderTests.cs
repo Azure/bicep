@@ -160,11 +160,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 ");
         }
 
-        [TestMethod]
-        public void GetResourceBodyCompletionSnippet_WithInvalidType_ShouldReturnNull()
+        [DataTestMethod]
+        [DataRow("'invalid_type'")]
+        [DataRow(null)]
+        [DataRow("   ")]
+        [DataRow("")]
+        public void GetResourceBodyCompletionSnippet_WithInvalidType_ShouldReturnNull(string type)
         {
             SnippetsProvider snippetsProvider = new SnippetsProvider();
-            Snippet? snippet = snippetsProvider.GetResourceBodyCompletionSnippet("'invalid_type'");
+            Snippet? snippet = snippetsProvider.GetResourceBodyCompletionSnippet(type);
 
             Assert.IsNull(snippet);
         }
