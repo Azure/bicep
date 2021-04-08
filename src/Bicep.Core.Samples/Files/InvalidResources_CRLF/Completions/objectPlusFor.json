@@ -73,7 +73,7 @@
     "detail": "DNS Zone",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n  name: 'dnsZone'\n  location: 'global'\n}\n```"
+      "value": "```bicep\n{\n  name: 'dnsZone'\n  location: 'global'\n}\n\n```"
     },
     "deprecated": false,
     "preselect": true,
@@ -82,7 +82,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n  name: '${1:dnsZone}'\n  location: 'global'\n}"
+      "newText": "{\n  name: '${1:dnsZone}'\n  location: 'global'\n}\n"
     }
   }
 ]
