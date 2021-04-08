@@ -98,7 +98,7 @@ module wvdFileServices './wvd-fileservices-module.bicep' = {
 module pep './wvd-fileservices-privateendpoint-module.bicep' = {
   name: 'privateEndpoint'
   scope: resourceGroup(rgnetw.name)
-  params:{
+  params: {
     location: vnetLocation
     privateEndpointName: 'pep-sto'
     storageAccountId: wvdFileServices.outputs.storageAccountId
