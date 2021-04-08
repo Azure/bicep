@@ -93,6 +93,12 @@ One of our goals is to make the transition from ARM Templates to Bicep as easy a
 
 Note that while we want to make it easy to transition to Bicep, we will continue to support and enhance the underlying ARM Template JSON language. As mentioned in [What is Bicep?](#what-is-bicep), ARM Template JSON remains the wire format that will be sent to Azure to carry out a deployment.
 
+## Get Help, Report an issue
+We are here to help you be successful with Bicep, please do not hesitate to reach out to us. 
+
+* If you need help or have a generic question such as ‘where can I find an example for…’ or ‘I need help converting my ARM Template to Bicep’ you can [open a discussion]( https://github.com/Azure/bicep/discussions)
+* If you have a bug to report or a new feature request for Bicep please [open an issue]( https://github.com/Azure/bicep/issues)
+
 ## Reference
 
 * [Complete language spec](./docs/spec/bicep.md)
