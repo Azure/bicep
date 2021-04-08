@@ -194,12 +194,12 @@ output string test = testRes.prop|erties.rea|donly
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: 'testRes'\n```\nname property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: object\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: 'abc'\n```\nThis is a property which supports reading AND writing!\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: 'def'\n```\nThis is a property which only supports writing.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: 'ghi'\n```\nThis is a property which is required.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
 
@@ -226,11 +226,11 @@ output string test = testRes[3].prop|erties.rea|donly
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: object\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: 'abc'\n```\nThis is a property which supports reading AND writing!\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: 'def'\n```\nThis is a property which only supports writing.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: 'ghi'\n```\nThis is a property which is required.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
 
@@ -256,12 +256,12 @@ output string test = testRes.prop|erties.rea|donly
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: 'testRes'\n```\nname property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: object\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: 'abc'\n```\nThis is a property which supports reading AND writing!\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: 'def'\n```\nThis is a property which only supports writing.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: 'ghi'\n```\nThis is a property which is required.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
 

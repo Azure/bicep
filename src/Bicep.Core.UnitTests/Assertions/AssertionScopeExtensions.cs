@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 "diagnostics",
                 diagnostics.Select(x => new PrintHelper.Annotation(x.Span, $"[{x.Code} ({x.Level})] {x.Message}")));
 
-        private static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, SyntaxTree syntaxTree, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
+        public static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, SyntaxTree syntaxTree, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
         {
             // TODO: figure out how to set this only on failure, rather than always calculating it
             assertionScope.AddReportable(

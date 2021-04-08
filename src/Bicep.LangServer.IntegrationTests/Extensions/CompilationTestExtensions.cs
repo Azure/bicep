@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
@@ -15,15 +14,15 @@ namespace Bicep.LangServer.IntegrationTests.Extensions
         {
             var model = compilation.GetEntrypointSemanticModel();
 
-            var syntaxNodes = SyntaxAggregator.Aggregate(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, new List<SyntaxBase>(), (accumulated, node) =>
+            return SyntaxAggregator.Aggregate(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, new Dictionary<SyntaxBase, Symbol>(), (accumulated, node) =>
             {
-                accumulated.Add(node);
+                if (model.GetSymbolInfo(node) is Symbol symbol)
+                {   
+                    accumulated[node] = symbol;
+                }
+
                 return accumulated;
             }, accumulated => accumulated);
-
-            return syntaxNodes
-                .Where(syntax => model.Binder.GetSymbolInfo(syntax) is not null)
-                .ToDictionary(syntax => syntax, syntax => model.Binder.GetSymbolInfo(syntax)!);
         }
     }
 }

@@ -7,6 +7,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
@@ -116,6 +117,25 @@ namespace Bicep.Core.Semantics
         /// <param name="syntax">the syntax node</param>
         public Symbol? GetSymbolInfo(SyntaxBase syntax)
         {
+            static PropertySymbol? GetPropertySymbol(TypeSymbol? baseType, string property)
+            {
+                var bodyObjectType = baseType switch
+                {
+                    ResourceType { Body: ObjectType objectType } _ => objectType,
+                    ModuleType { Body: ObjectType objectType } => objectType,
+                    ObjectType objectType => objectType,
+                    _ => null,
+                };
+
+                if (bodyObjectType is not null &&
+                    bodyObjectType.Properties.TryGetValue(property, out var typeProperty))
+                {
+                    return new PropertySymbol(property, typeProperty.Description, typeProperty.TypeReference.Type);
+                }
+
+                return null;
+            }
+
             switch (syntax)
             {
                 case InstanceFunctionCallSyntax ifc:
@@ -133,23 +153,10 @@ namespace Bicep.Core.Semantics
                 }
                 case PropertyAccessSyntax propertyAccess:
                 {
-                    var baseType = GetTypeInfo(propertyAccess.BaseExpression);
+                    var baseType = GetDeclaredType(propertyAccess.BaseExpression);
                     var property = propertyAccess.PropertyName.IdentifierName;
-                    var bodyObjectType = baseType switch
-                    {
-                        ResourceType { Body: ObjectType objectType } _ => objectType,
-                        ModuleType { Body: ObjectType objectType } => objectType,
-                        ObjectType objectType => objectType,
-                        _ => null,
-                    };
 
-                    if (bodyObjectType is not null &&
-                        bodyObjectType.Properties.TryGetValue(property, out var typeProperty))
-                    {
-                        return new PropertySymbol(property, typeProperty.Description, typeProperty.TypeReference.Type);
-                    }
-
-                    return null;
+                    return GetPropertySymbol(baseType, property);
                 }
                 case ObjectPropertySyntax objectProperty:
                 {
@@ -158,27 +165,13 @@ namespace Bicep.Core.Semantics
                         return null;
                     }
                     
-                    var baseType = GetTypeInfo(parentSyntax);
+                    var baseType = GetDeclaredType(parentSyntax);
                     if (objectProperty.TryGetKeyText() is not {} property)
                     {
                         return null;
                     }
 
-                    var bodyObjectType = baseType switch
-                    {
-                        ResourceType { Body: ObjectType objectType } _ => objectType,
-                        ModuleType { Body: ObjectType objectType } => objectType,
-                        ObjectType objectType => objectType,
-                        _ => null,
-                    };
-
-                    if (bodyObjectType is not null &&
-                        bodyObjectType.Properties.TryGetValue(property, out var typeProperty))
-                    {
-                        return new PropertySymbol(property, typeProperty.Description, typeProperty.TypeReference.Type);
-                    }
-
-                    return null;
+                    return GetPropertySymbol(baseType, property);
                 }
             }
 
@@ -190,7 +183,17 @@ namespace Bicep.Core.Semantics
         /// Unusued declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
         /// </summary>
         /// <param name="symbol">The symbol</param>
-        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol) => this.Binder.FindReferences(symbol);
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol)
+            => SyntaxAggregator.Aggregate(this.SyntaxTree.ProgramSyntax, new List<SyntaxBase>(), (accumulated, current) =>
+                {
+                    if (object.ReferenceEquals(symbol, this.GetSymbolInfo(current)))
+                    {
+                        accumulated.Add(current);
+                    }
+
+                    return accumulated;
+                },
+                accumulated => accumulated);
 
         /// <summary>
         /// Gets the file that was compiled.

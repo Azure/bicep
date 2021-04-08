@@ -11,9 +11,11 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -44,6 +46,8 @@ namespace Bicep.LangServer.IntegrationTests
             // (locals are special because their full span is the same as the identifier span,
             // which makes it impossible to highlight locals with invalid identifiers)
             var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
+            // TODO: Implement for PropertySymbol
+            filteredSymbolTable = filteredSymbolTable.Where(pair => pair.Value is not PropertySymbol);
 
             var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
 
@@ -58,8 +62,13 @@ namespace Bicep.LangServer.IntegrationTests
                 // calculate expected highlights
                 var expectedHighlights = symbolToSyntaxLookup[symbol].Select(node => CreateExpectedHighlight(lineStarts, node));
 
-                // ranges should match what we got from our own symbol table
-                highlights.Should().BeEquivalentTo(expectedHighlights);
+                using (new AssertionScope()
+                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "expected", expectedHighlights, _ => "here", x => x.Range)
+                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "actual", highlights, _ => "here", x => x.Range))
+                {
+                    // ranges should match what we got from our own symbol table
+                    highlights.Should().BeEquivalentTo(expectedHighlights);
+                }
             }
         }
 

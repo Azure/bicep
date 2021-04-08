@@ -14,10 +14,12 @@ using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -81,7 +83,7 @@ namespace Bicep.LangServer.IntegrationTests
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
-            var undeclaredSymbolBindings = symbolTable.Where(pair => !(pair.Value is DeclaredSymbol));
+            var undeclaredSymbolBindings = symbolTable.Where(pair => pair.Value is not DeclaredSymbol && pair.Value is not PropertySymbol);
 
             foreach (var (syntax, _) in undeclaredSymbolBindings)
             {
@@ -91,9 +93,12 @@ namespace Bicep.LangServer.IntegrationTests
                     Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
                 });
 
-                // go to definition on a symbol that isn't declared by the user (like error or function symbol)
-                // should produce an empty response
-                response.Should().BeEmpty();
+                using (new AssertionScope().WithVisualCursor(compilation.SyntaxTreeGrouping.EntryPoint, syntax.Span))
+                {
+                    // go to definition on a symbol that isn't declared by the user (like error or function symbol)
+                    // should produce an empty response
+                    response.Should().BeEmpty();
+                }
             }
         }
 

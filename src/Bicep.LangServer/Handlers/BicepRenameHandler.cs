@@ -35,6 +35,12 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<WorkspaceEdit?>(null);
             }
 
+            if (result.Symbol is PropertySymbol)
+            {
+                // TODO: Implement for PropertySymbol
+                return Task.FromResult<WorkspaceEdit?>(null);
+            }
+
             var textEdits = result.Context.Compilation.GetEntrypointSemanticModel()
                 .FindReferences(result.Symbol)
                 .Select(GetIdentifier)
@@ -63,6 +69,12 @@ namespace Bicep.LanguageServer.Handlers
 
                 case INamedDeclarationSyntax declarationSyntax:
                     return declarationSyntax.Name;
+
+                case PropertyAccessSyntax propertyAccessSyntax:
+                    return propertyAccessSyntax.PropertyName;
+
+                case ObjectPropertySyntax objectPropertySyntax:
+                    return objectPropertySyntax.Key as IdentifierSyntax;
 
                 default:
                     return null;
