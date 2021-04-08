@@ -1,11 +1,10 @@
 param batchAccountName string
-param allocationMode string {
-  default: 'BatchService'
-  allowed: [
-    'BatchService'
-    'UserSubscription'
-  ]
-}
+
+@allowed([
+  'BatchService'
+  'UserSubscription'
+])
+param allocationMode string = 'BatchService'
 
 param location string = resourceGroup().location
 

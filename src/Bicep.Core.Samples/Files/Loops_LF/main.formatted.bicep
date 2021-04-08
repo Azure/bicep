@@ -31,6 +31,7 @@ resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-0
 }
 
 // resource collection
+@batchSize(42)
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
   name: '${name}-collection-${account.name}'
   location: account.location
@@ -62,6 +63,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 }]
 
 // cascade extend the extension
+@batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0, 1): {
   name: 'lock-the-lock-${i}'
   properties: {
@@ -202,6 +204,7 @@ var moduleSetup = [
 ]
 
 // module collection plus explicit dependency on single module
+@sys.batchSize(3)
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleName in moduleSetup: {
   name: moduleName
   params: {
@@ -387,3 +390,31 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
     ]
   }
 }]
+
+resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range(0, 10): if (i % 3 == 0) {
+  name: 'zone${i}'
+  location: resourceGroup().location
+}]
+
+module filteredModules 'passthrough.bicep' = [for i in range(0, 6): if (i % 2 == 0) {
+  name: 'stuff${i}'
+  params: {
+    myInput: 'script-${i}'
+  }
+}]
+
+resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [for (account, i) in accounts: if (account.enabled) {
+  name: 'indexedZone-${account.name}-${i}'
+  location: account.location
+}]
+
+output lastNameServers array = filteredIndexedZones[length(accounts) - 1].properties.nameServers
+
+module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in accounts: if (account.enabled) {
+  name: 'stuff-${i}'
+  params: {
+    myInput: 'script-${account.name}-${i}'
+  }
+}]
+
+output lastModuleOutput string = filteredIndexedModules[length(accounts) - 1].outputs.myOutput

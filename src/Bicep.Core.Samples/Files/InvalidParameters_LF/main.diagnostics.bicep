@@ -51,6 +51,7 @@ param malformedType2 44 = f
 // malformed type but type check should still happen
 param malformedModifier 44 {
 //@[24:26) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". |44|
+//@[27:44) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: 's'\n}|
   secure: 's'
 //@[10:13) [BCP036 (Error)] The property "secure" expected a value of type "bool" but the provided value is of type "'s'". |'s'|
 }
@@ -74,6 +75,18 @@ param wrongAssignmentToken string: 'hello'
 
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 //@[6:267) [BCP024 (Error)] The identifier exceeds the limit of 255. Reduce the length of the identifier. |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
+
+// #completionTest(28,29) -> boolPlusSymbols
+param boolCompletions bool = 
+//@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(30,31) -> arrayPlusSymbols
+param arrayCompletions array = 
+//@[31:31) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(32,33) -> objectPlusSymbols
+param objectCompletions object = 
+//@[33:33) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 // badly escaped string
 param wrongType fluffyBunny = 'what's up doc?'
@@ -164,6 +177,7 @@ param wrongType fluffyBunny = 'what\'s up doc?'
 // modifier on an invalid type
 param someArray arra {
 //@[16:20) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |arra|
+//@[21:55) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  minLength: 3\n  maxLength: 24\n}|
   minLength: 3
   maxLength: 24
 }
@@ -175,6 +189,7 @@ param someArrayWithDecorator arra
 
 // duplicate modifier property
 param duplicatedModifierProperty string {
+//@[40:74) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  minLength: 3\n  minLength: 24\n}|
   minLength: 3
 //@[2:11) [BCP025 (Error)] The property "minLength" is declared multiple times in this object. Remove or rename the duplicate properties. |minLength|
   minLength: 24
@@ -183,6 +198,7 @@ param duplicatedModifierProperty string {
 
 // non-existent modifiers
 param secureInt int {
+//@[20:70) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: true\n  minLength: 3\n  maxLength: 123\n}|
   secure: true
 //@[2:8) [BCP038 (Error)] The property "secure" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |secure|
   minLength: 3
@@ -201,6 +217,7 @@ param secureIntWithDecorator int
 
 // wrong modifier value types
 param wrongIntModifier int {
+//@[27:139) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: true\n  allowed: [\n    'test'\n    true\n  ]\n  minValue: {\n  }\n  maxValue: [\n  ]\n  metadata: 'wrong'\n}|
   default: true
 //@[11:15) [BCP036 (Error)] The property "default" expected a value of type "int" but the provided value is of type "bool". |true|
   allowed: [
@@ -236,8 +253,16 @@ param wrongIntModifier int {
 param wrongIntModifierWithDecorator int = true
 //@[42:46) [BCP027 (Error)] The parameter expects a default value of type "int" but provided value is of type "bool". |true|
 
+@metadata(any([]))
+//@[10:17) [BCP032 (Error)] The value must be a compile-time constant. |any([])|
+@allowed(any(2))
+//@[9:15) [BCP032 (Error)] The value must be a compile-time constant. |any(2)|
+param fatalErrorInIssue1713
+//@[27:27) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". ||
+
 // wrong metadata schema
 param wrongMetadataSchema string {
+//@[33:76) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  metadata: {\n    description: true\n  }\n}|
   metadata: {
     description: true
 //@[17:21) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "bool". |true|
@@ -252,6 +277,7 @@ param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
+//@[34:179) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions\n  default: 2 + 3\n  maxLength: a + 2\n  minLength: foo()\n  allowed: [\n    i\n  ]\n}|
   // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
   maxLength: a + 2
@@ -276,6 +302,7 @@ param expressionInModifierWithDecorator string = 2 + 3
 //@[49:54) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "int". |2 + 3|
 
 param nonCompileTimeConstant string {
+//@[36:122) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  maxLength: 2 + 3\n  minLength: length([])\n  allowed: [\n    resourceGroup().id\n  ]\n}|
   maxLength: 2 + 3
 //@[13:18) [BCP032 (Error)] The value must be a compile-time constant. |2 + 3|
   minLength: length([])
@@ -298,6 +325,7 @@ param nonCompileTimeConstantWithDecorator string
 
 
 param emptyAllowedString string {
+//@[32:49) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: []\n}|
   allowed: []
 //@[11:13) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
 }
@@ -307,6 +335,7 @@ param emptyAllowedString string {
 param emptyAllowedStringWithDecorator string
 
 param emptyAllowedInt int {
+//@[26:43) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: []\n}|
   allowed: []
 //@[11:13) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
 }
@@ -327,12 +356,14 @@ param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 
 // 1-cycle in modifier params
 param paramModifierOneCycle string {
+//@[35:71) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: paramModifierOneCycle\n}|
   default: paramModifierOneCycle
 //@[11:32) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierOneCycle|
 }
 
 // 1-cycle in modifier with non-default property
 param paramModifierSelfCycle string {
+//@[36:83) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    paramModifierSelfCycle\n  ]\n}|
   allowed: [
     paramModifierSelfCycle
 //@[4:26) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierSelfCycle|
@@ -347,10 +378,12 @@ param paramModifierSelfCycleWithDecorator string
 
 // 2-cycle in modifier params
 param paramModifierTwoCycle1 string {
+//@[36:73) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: paramModifierTwoCycle2\n}|
   default: paramModifierTwoCycle2
 //@[11:33) [BCP080 (Error)] The expression is involved in a cycle ("paramModifierTwoCycle2" -> "paramModifierTwoCycle1"). |paramModifierTwoCycle2|
 }
 param paramModifierTwoCycle2 string {
+//@[36:73) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: paramModifierTwoCycle1\n}|
   default: paramModifierTwoCycle1
 //@[11:33) [BCP080 (Error)] The expression is involved in a cycle ("paramModifierTwoCycle1" -> "paramModifierTwoCycle2"). |paramModifierTwoCycle1|
 }
@@ -359,6 +392,7 @@ param paramModifierTwoCycle2 string {
 param paramMixedTwoCycle1 string = paramMixedTwoCycle2
 //@[35:54) [BCP080 (Error)] The expression is involved in a cycle ("paramMixedTwoCycle2" -> "paramMixedTwoCycle1"). |paramMixedTwoCycle2|
 param paramMixedTwoCycle2 string {
+//@[33:67) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: paramMixedTwoCycle1\n}|
   default: paramMixedTwoCycle1
 //@[11:30) [BCP080 (Error)] The expression is involved in a cycle ("paramMixedTwoCycle1" -> "paramMixedTwoCycle2"). |paramMixedTwoCycle1|
 }
@@ -374,6 +408,7 @@ output sampleOutput string = 'hello'
 param paramAccessingVar string = concat(sampleVar, 's')
 //@[40:49) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleVar|
 param paramAccessingVar2 string {
+//@[32:69) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: 'foo ${sampleVar} foo'\n}|
   default: 'foo ${sampleVar} foo'
 //@[18:27) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleVar|
 }
@@ -382,6 +417,7 @@ param paramAccessingResource string = sampleResource
 //@[38:52) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
 //@[38:52) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "Microsoft.Foo/foos@2020-02-02". |sampleResource|
 param paramAccessingResource2 string {
+//@[37:89) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: base64(sampleResource.properties.foo)\n}|
   default: base64(sampleResource.properties.foo)
 //@[18:32) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
 }
@@ -389,17 +425,20 @@ param paramAccessingResource2 string {
 param paramAccessingOutput string = sampleOutput
 //@[36:48) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. |sampleOutput|
 param paramAccessingOutput2 string {
+//@[35:62) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: sampleOutput\n}|
   default: sampleOutput
 //@[11:23) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. |sampleOutput|
 }
 
 param stringLiteral string {
+//@[27:57) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'def'\n  ]\n}|
   allowed: [
     'def'
   ]
 }
 
 param stringLiteral2 string {
+//@[28:93) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'abc'\n    'def'\n  ]\n  default: stringLiteral\n}|
   allowed: [
     'abc'
     'def'
@@ -408,6 +447,7 @@ param stringLiteral2 string {
 }
 
 param stringLiteral3 string {
+//@[28:84) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'abc'\n  ]\n  default: stringLiteral2\n}|
   allowed: [
     'abc'
   ]
@@ -420,11 +460,13 @@ param
 //@[6:6) [BCP013 (Error)] Expected a parameter identifier at this location. ||
 
 param stringModifierCompletions string {
+//@[39:101) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(0,1,2) -> stringModifierProperties\n  \n}|
   // #completionTest(0,1,2) -> stringModifierProperties
   
 }
 
 param intModifierCompletions int {
+//@[33:92) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(0,1,2) -> intModifierProperties\n  \n}|
   // #completionTest(0,1,2) -> intModifierProperties
   
 }
@@ -434,6 +476,7 @@ param defaultValueOneLinerCompletions string =
 //@[47:47) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 param defaultValueCompletions string {
+//@[37:396) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'one'\n    'two'\n    'three'\n    // #completionTest(0,1,2,3,4) -> oneTwoThree\n    \n  ]\n  // #completionTest(10,11) -> oneTwoThreePlusSymbols\n  default: \n  \n  // #completionTest(9,10) -> booleanValues\n  secure: \n\n  metadata: {\n    // #completionTest(0,1,2,3) -> description\n    \n  }\n  // #completionTest(0,1,2) -> stringLengthConstraints\n  \n}|
   allowed: [
     'one'
     'two'
@@ -459,6 +502,7 @@ param defaultValueCompletions string {
 
 // invalid comma separator (array)
 param commaOne string {
+//@[22:174) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    metadata: {\n      description: 'Name of Virtual Machine'\n    }\n    secure: true\n    allowed: [\n      'abc',\n      'def'\n    ]\n    default: 'abc'\n}|
     metadata: {
       description: 'Name of Virtual Machine'
     }
@@ -483,6 +527,7 @@ param commaOneWithDecorator string
 
 // invalid comma separator (object)
 param commaTwo string {
+//@[22:174) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    metadata: {\n      description: 'Name of Virtual Machine'\n    },\n    secure: true\n    allowed: [\n      'abc'\n      'def'\n    ]\n    default: 'abc'\n}|
     metadata: {
       description: 'Name of Virtual Machine'
     },
@@ -558,7 +603,40 @@ param tooManyArguments1 int = 20
 //@[5:5) [BCP020 (Error)] Expected a function or property name at this location. ||
 param tooManyArguments2 string
 
+@description(sys.concat(2))
+//@[13:26) [BCP032 (Error)] The value must be a compile-time constant. |sys.concat(2)|
+@allowed([for thing in []: 's'])
+//@[9:31) [BCP032 (Error)] The value must be a compile-time constant. |[for thing in []: 's']|
+//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
+param nonConstantInDecorator string
+
+@minValue(-length('s'))
+//@[11:22) [BCP032 (Error)] The value must be a compile-time constant. |length('s')|
+@metadata({
+  bool: !true
+//@[8:13) [BCP032 (Error)] The value must be a compile-time constant. |!true|
+//@[8:13) [BCP032 (Error)] The value must be a compile-time constant. |!true|
+})
+param unaryMinusOnFunction int
+
+@minLength(1)
+//@[0:13) [BCP166 (Error)] Duplicate "minLength" decorator. |@minLength(1)|
+@minLength(2)
+//@[0:13) [BCP166 (Error)] Duplicate "minLength" decorator. |@minLength(2)|
+@secure()
+@maxLength(3)
+//@[0:13) [BCP166 (Error)] Duplicate "maxLength" decorator. |@maxLength(3)|
+@maxLength(4)
+//@[0:13) [BCP166 (Error)] Duplicate "maxLength" decorator. |@maxLength(4)|
+param duplicateDecorators string
+
+@minLength(-1)
+//@[11:13) [BCP168 (Error)] Length must not be a negative value. |-1|
+@maxLength(-100)
+//@[11:15) [BCP168 (Error)] Length must not be a negative value. |-100|
+param invalidLength string
 
 // unterminated multi-line comment
 /*    
-//@[0:6) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    |
+//@[0:7) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    \n|
+

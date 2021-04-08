@@ -52,6 +52,15 @@ param wrongAssignmentToken string: 'hello'
 
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 
+// #completionTest(28,29) -> boolPlusSymbols
+param boolCompletions bool = 
+
+// #completionTest(30,31) -> arrayPlusSymbols
+param arrayCompletions array = 
+
+// #completionTest(32,33) -> objectPlusSymbols
+param objectCompletions object = 
+
 // badly escaped string
 param wrongType fluffyBunny = 'what' s up doc?'
 
@@ -132,6 +141,10 @@ param wrongIntModifier int {
 @maxValue([])
 @metadata('wrong')
 param wrongIntModifierWithDecorator int = true
+
+@metadata(any([]))
+@allowed(any(2))
+param fatalErrorInIssue1713
 
 // wrong metadata schema
 param wrongMetadataSchema string {
@@ -387,5 +400,27 @@ param tooManyArguments1 int = 20
 @sys.
 param tooManyArguments2 string
 
+@description(sys.concat(2))
+@allowed([for thing in []: 's'])
+param nonConstantInDecorator string
+
+@minValue(-length('s'))
+@metadata({
+  bool: !true
+})
+param unaryMinusOnFunction int
+
+@minLength(1)
+@minLength(2)
+@secure()
+@maxLength(3)
+@maxLength(4)
+param duplicateDecorators string
+
+@minLength(-1)
+@maxLength(-100)
+param invalidLength string
+
 // unterminated multi-line comment
 /*    
+

@@ -1,11 +1,18 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11556986108055907923"
+    }
+  },
   "parameters": {
     "name": {
       "type": "string",
-      "minLength": 2,
-      "maxLength": 60
+      "maxLength": 60,
+      "minLength": 2
     },
     "sku": {
       "type": "string",
@@ -22,9 +29,9 @@
     },
     "replicaCount": {
       "type": "int",
-      "minValue": 1,
+      "defaultValue": 1,
       "maxValue": 12,
-      "defaultValue": 1
+      "minValue": 1
     },
     "partitionCount": {
       "type": "int",
@@ -67,12 +74,5 @@
         "hostingMode": "[parameters('hostingMode')]"
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5694668277630810018"
-    }
-  }
+  ]
 }

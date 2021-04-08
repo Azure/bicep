@@ -7,7 +7,7 @@
     "preselect": false,
     "sortText": "2_array",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "array"
@@ -21,7 +21,7 @@
     "preselect": false,
     "sortText": "2_bool",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "bool"
@@ -35,7 +35,7 @@
     "preselect": false,
     "sortText": "2_int",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "int"
@@ -49,7 +49,7 @@
     "preselect": false,
     "sortText": "2_object",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "object"
@@ -61,17 +61,23 @@
     "detail": "Secure object",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nobject {\n  secure: true\n}\n```"
+      "value": "```bicep\nobject\n```"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_secureObject",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "object {\n  secure: true\n}"
-    }
+      "newText": "object"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": "@secure()\n"
+      }
+    ]
   },
   {
     "label": "secureString",
@@ -79,17 +85,23 @@
     "detail": "Secure string",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nstring {\n  secure: true\n}\n```"
+      "value": "```bicep\nstring\n```"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_secureString",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "string {\n  secure: true\n}"
-    }
+      "newText": "string"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": "@secure()\n"
+      }
+    ]
   },
   {
     "label": "string",
@@ -99,7 +111,7 @@
     "preselect": false,
     "sortText": "2_string",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "string"

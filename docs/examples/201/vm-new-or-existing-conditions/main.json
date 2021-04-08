@@ -1,20 +1,27 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9856081241188893799"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Location to for the resources."
-      },
-      "defaultValue": "[resourceGroup().location]"
+      }
     },
     "vmName": {
       "type": "string",
+      "defaultValue": "linux-vm",
       "metadata": {
         "description": "Name for the Virtual Machine."
-      },
-      "defaultValue": "linux-vm"
+      }
     },
     "adminUsername": {
       "type": "string",
@@ -24,10 +31,10 @@
     },
     "authenticationType": {
       "type": "string",
+      "defaultValue": "sshPublicKey",
       "metadata": {
         "description": "Type of authentication to use on the Virtual Machine."
       },
-      "defaultValue": "sshPublicKey",
       "allowedValues": [
         "password",
         "sshPublicKey"
@@ -41,110 +48,110 @@
     },
     "vmSize": {
       "type": "string",
+      "defaultValue": "Standard_A2_v2",
       "metadata": {
         "description": "Size for the Virtual Machine."
-      },
-      "defaultValue": "Standard_A2_v2"
+      }
     },
     "createNewStorageAccount": {
       "type": "bool",
+      "defaultValue": true,
       "metadata": {
         "description": "Determines whether or not a new storage account should be provisioned."
-      },
-      "defaultValue": true
+      }
     },
     "storageAccountName": {
       "type": "string",
+      "defaultValue": "[format('storage{0}', uniqueString(resourceGroup().id))]",
       "metadata": {
         "description": "Name of the storage account"
-      },
-      "defaultValue": "[format('storage{0}', uniqueString(resourceGroup().id))]"
+      }
     },
     "storageAccountType": {
       "type": "string",
+      "defaultValue": "Standard_LRS",
       "metadata": {
         "description": "Storage account type"
-      },
-      "defaultValue": "Standard_LRS"
+      }
     },
     "storageAccountResourceGroupName": {
       "type": "string",
+      "defaultValue": "[resourceGroup().name]",
       "metadata": {
         "description": "Name of the resource group for the existing storage account"
-      },
-      "defaultValue": "[resourceGroup().name]"
+      }
     },
     "createNewVnet": {
       "type": "bool",
+      "defaultValue": true,
       "metadata": {
         "description": "Determines whether or not a new virtual network should be provisioned."
-      },
-      "defaultValue": true
+      }
     },
     "vnetName": {
       "type": "string",
+      "defaultValue": "VirtualNetwork",
       "metadata": {
         "description": "Name of the virtual network"
-      },
-      "defaultValue": "VirtualNetwork"
+      }
     },
     "addressPrefixes": {
       "type": "array",
-      "metadata": {
-        "description": "Address prefix of the virtual network"
-      },
       "defaultValue": [
         "10.0.0.0/16"
-      ]
+      ],
+      "metadata": {
+        "description": "Address prefix of the virtual network"
+      }
     },
     "subnetName": {
       "type": "string",
+      "defaultValue": "default",
       "metadata": {
         "description": "Name of the subnet"
-      },
-      "defaultValue": "default"
+      }
     },
     "subnetPrefix": {
       "type": "string",
+      "defaultValue": "10.0.0.0/24",
       "metadata": {
         "description": "Subnet prefix of the virtual network"
-      },
-      "defaultValue": "10.0.0.0/24"
+      }
     },
     "vnetResourceGroupName": {
       "type": "string",
+      "defaultValue": "[resourceGroup().name]",
       "metadata": {
         "description": "Name of the resource group for the existing virtual network"
-      },
-      "defaultValue": "[resourceGroup().name]"
+      }
     },
     "createNewPublicIP": {
       "type": "bool",
+      "defaultValue": true,
       "metadata": {
         "description": "Determines whether or not a new public ip should be provisioned."
-      },
-      "defaultValue": true
+      }
     },
     "publicIPName": {
       "type": "string",
+      "defaultValue": "PublicIp",
       "metadata": {
         "description": "Name of the public ip address"
-      },
-      "defaultValue": "PublicIp"
+      }
     },
     "publicIPDns": {
       "type": "string",
+      "defaultValue": "[format('linux-vm-{0}', uniqueString(resourceGroup().id))]",
       "metadata": {
         "description": "DNS of the public ip address for the VM"
-      },
-      "defaultValue": "[format('linux-vm-{0}', uniqueString(resourceGroup().id))]"
+      }
     },
     "publicIPResourceGroupName": {
       "type": "string",
+      "defaultValue": "[resourceGroup().name]",
       "metadata": {
         "description": "Name of the resource group for the public ip address"
-      },
-      "defaultValue": "[resourceGroup().name]"
+      }
     }
   },
   "functions": [],
@@ -302,12 +309,5 @@
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "6390559928971851490"
-    }
-  }
+  ]
 }

@@ -136,37 +136,64 @@ namespace Bicep.Core.TypeSystem
         public override void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
             => AssignType(syntax, () =>
             {
-                var parent = this.binder.GetParent(syntax);
-                switch (parent)
+                // local function
+                ITypeReference GetItemType(ForSyntax @for)
                 {
-                    case ForSyntax @for when ReferenceEquals(syntax, @for.ItemVariable):
-                        // this local variable is a loop item variable
-                        // we should return item type of the array (if feasible)
+                    // get type of the loop array expression
+                    // (this shouldn't cause a stack overflow because it's a peer node of this one)
+                    var arrayExpressionType = this.typeManager.GetTypeInfo(@for.Expression);
 
-                        // get type of the loop array expression
-                        // (this shouldn't cause a stack overflow because it's a peer node of this one)
-                        var arrayExpressionType = this.typeManager.GetTypeInfo(@for.Expression);
+                    if (arrayExpressionType.TypeKind == TypeKind.Any || arrayExpressionType is not ArrayType arrayType)
+                    {
+                        // the array is of "any" type or the loop array expression isn't actually an array
+                        // in the former case, there isn't much we can do
+                        // in the latter case, we will let the ForSyntax type check rules produce the error for it
+                        return LanguageConstants.Any;
+                    }
 
-                        if (arrayExpressionType.TypeKind == TypeKind.Any || arrayExpressionType is not ArrayType arrayType)
-                        {
-                            // the array is of "any" type or the loop array expression isn't actually an array
-                            // in the former case, there isn't much we can do
-                            // in the latter case, we will let the ForSyntax type check rules produce the error for it
-                            return LanguageConstants.Any;
-                        }
-
-                        // the array expression is actually an array
-                        return arrayType.Item;
-
-                    default:
-                        throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}");
+                    // the array expression is actually an array
+                    return arrayType.Item;
                 }
+
+                var symbol = this.binder.GetSymbolInfo(syntax);
+                if(symbol is not LocalVariableSymbol localVariableSymbol)
+                {
+                    throw new InvalidOperationException($"{syntax.GetType().Name} is bound to unexpected type '{symbol?.GetType().Name}'.");
+                }
+
+                var parent = this.binder.GetParent(syntax);
+                var @for = parent switch
+                {
+                    ForSyntax forParent => forParent,
+                    ForVariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
+                    _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
+                };
+
+                return localVariableSymbol.LocalKind switch
+                {
+                    // this local variable is a loop item variable
+                    // we should return item type of the array (if feasible)
+                    LocalKind.ForExpressionItemVariable => GetItemType(@for),
+
+                    // the local variable is an index variable
+                    // index variables are always of type int
+                    LocalKind.ForExpressionIndexVariable => LanguageConstants.Int,
+
+                    _ => throw new InvalidOperationException($"Unexpected local kind '{localVariableSymbol.LocalKind}'.")
+                };
             });
 
         public override void VisitForSyntax(ForSyntax syntax)
             => AssignType(syntax, () =>
             {
                 var errors = new List<ErrorDiagnostic>();
+
+                if(syntax.ItemVariable is null)
+                {
+                    // we don't have an item variable due to parse errors
+                    // no need to add additional errors
+                    return ErrorType.Empty();
+                }
 
                 var loopItemType = typeManager.GetTypeInfo(syntax.ItemVariable);
                 CollectErrors(errors, loopItemType);
@@ -200,26 +227,37 @@ namespace Bicep.Core.TypeSystem
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declaredType = syntax.GetDeclaredType(resourceTypeProvider);
+                var singleResourceDeclaredType = syntax.GetDeclaredType(binder, resourceTypeProvider);
+                var singleOrCollectionDeclaredType = syntax.Value is ForSyntax
+                    ? new TypedArrayType(singleResourceDeclaredType, TypeSymbolValidationFlags.Default)
+                    : singleResourceDeclaredType;
 
-                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+                this.ValidateDecorators(syntax.Decorators, singleOrCollectionDeclaredType, diagnostics);
 
-                if (declaredType is ErrorType)
+                if (singleResourceDeclaredType is ErrorType)
                 {
-                    return declaredType;
+                    return singleResourceDeclaredType;
                 }
 
-                if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
+                if (singleResourceDeclaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
+                    var typeSegments = resourceType.TypeReference.Types;
+
+                    if (typeSegments.Length > 2 &&
+                        typeSegments.Where((type, i) => i > 0 && i < (typeSegments.Length - 1) &&  StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                    {
+                        // Special check for (<type>/)+providers(/<type>)+
+                        // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
+                        // We should instead point them towards documentation on the 'scope' property.
+                        diagnostics.Write(syntax.Type, x => x.ResourceTypeContainsProvidersSegment());
+                    }
+                    else
+                    {
+                        diagnostics.Write(syntax.Type, x => x.ResourceTypesUnavailable(resourceType.TypeReference));
+                    }
                 }
 
-                if (syntax.Value is ForSyntax)
-                {
-                    return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, new TypedArrayType(declaredType, TypeSymbolValidationFlags.Default), diagnostics);
-                }
-
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -235,21 +273,19 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(failureDiagnostic);
                 }
 
-                var declaredType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
+                var singleModuleDeclaredType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
+                var singleOrCollectionDeclaredType = syntax.Value is ForSyntax
+                    ? new TypedArrayType(singleModuleDeclaredType, TypeSymbolValidationFlags.Default)
+                    : singleModuleDeclaredType;
 
-                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+                this.ValidateDecorators(syntax.Decorators, singleOrCollectionDeclaredType, diagnostics);
 
                 if (moduleSemanticModel.HasErrors())
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }
 
-                if (syntax.Value is ForSyntax)
-                {
-                    return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, new TypedArrayType(declaredType, TypeSymbolValidationFlags.Default), diagnostics);
-                }
-                
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -260,9 +296,11 @@ namespace Bicep.Core.TypeSystem
 
                 if (syntax.Modifier != null)
                 {
-                    if (syntax.Decorators.Any() && syntax.Modifier is ObjectSyntax modifierSyntax)
+                    if (syntax.Modifier is ObjectSyntax modifierSyntax)
                     {
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether());
+                        diagnostics.Write(syntax.Decorators.Any()
+                            ? DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether()
+                            : DiagnosticBuilder.ForPosition(modifierSyntax).ParameterModifiersDeprecated());
                     }
 
                     diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
@@ -318,6 +356,8 @@ namespace Bicep.Core.TypeSystem
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
         {
+            var decoratorSyntaxesByMatchingDecorator = new Dictionary<Decorator, List<DecoratorSyntax>>();
+
             foreach (var decoratorSyntax in decoratorSyntaxes)
             {
                 var decoratorType = this.typeManager.GetTypeInfo(decoratorSyntax.Expression);
@@ -347,10 +387,31 @@ namespace Bicep.Core.TypeSystem
 
                     // There should exist exact one matching decorator if there's no argument mismatches,
                     // since each argument must be a compile-time constant which cannot be of Any type.
-                    this.binder.FileSymbol.ImportedNamespaces.Values
+                    var decorator = this.binder.FileSymbol.ImportedNamespaces.Values
                         .SelectMany(ns => ns.Type.DecoratorResolver.GetMatches(functionSymbol, argumentTypes))
-                        .SingleOrDefault()?
-                        .Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
+                        .SingleOrDefault();
+
+                    if (decorator is not null)
+                    {
+                        if (decoratorSyntaxesByMatchingDecorator.TryGetValue(decorator, out var duplicateDecoratorSyntaxes))
+                        {
+                            duplicateDecoratorSyntaxes.Add(decoratorSyntax);
+                        }
+                        else
+                        {
+                            decoratorSyntaxesByMatchingDecorator[decorator] = new List<DecoratorSyntax> { decoratorSyntax };
+                        }
+
+                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
+                    }
+                }
+            }
+
+            foreach (var (decorator, duplicateDecoratorSyntaxes) in decoratorSyntaxesByMatchingDecorator.Where(x => x.Value.Count > 1))
+            {
+                foreach (var decoratorSyntax in duplicateDecoratorSyntaxes)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DuplicateDecorator(decorator.Overload.Name));
                 }
             }
         }
@@ -380,23 +441,15 @@ namespace Bicep.Core.TypeSystem
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                // assume "any" type if the output type has parse errors (either missing or skipped)
-                var primitiveType = syntax.OutputType == null
-                    ? LanguageConstants.Any
-                    : LanguageConstants.TryGetDeclarationType(syntax.OutputType.TypeName);
+                var declaredType = syntax.GetDeclaredType();
+                
+                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
 
-                if (primitiveType == null)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
-                }
-
-                this.ValidateDecorators(syntax.Decorators, primitiveType, diagnostics);
-
-                var currentDiagnostics = GetOutputDeclarationDiagnostics(primitiveType, syntax);
+                var currentDiagnostics = GetOutputDeclarationDiagnostics(declaredType, syntax);
 
                 diagnostics.WriteMultiple(currentDiagnostics);
 
-                return primitiveType;
+                return declaredType;
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
@@ -473,7 +526,7 @@ namespace Bicep.Core.TypeSystem
                 var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
 
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
+                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -772,6 +825,51 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                var errors = new List<ErrorDiagnostic>();
+
+                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
+                CollectErrors(errors, baseType);
+
+                if (PropagateErrorType(errors, baseType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                if (baseType is not ResourceType)
+                {
+                    // can only access children of resources
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(baseType.Name));
+                }
+
+                if (!syntax.ResourceName.IsValid)
+                {
+                    // the resource name is not valid
+                    // there's already a parse error for it, so we don't need to add a type error as well
+                    return ErrorType.Empty();
+                }
+
+                // Should have a symbol from name binding.
+                var symbol = binder.GetSymbolInfo(syntax);
+                if (symbol == null)
+                {
+                    throw new InvalidOperationException("ResourceAccessSyntax was not assigned a symbol during name binding.");
+                }
+
+                if (symbol is ErrorSymbol error)
+                {
+                    return ErrorType.Create(error.GetDiagnostics());
+                }
+                else if (symbol is not ResourceSymbol)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(baseType.Kind.ToString()));
+                }
+
+                // This is a valid nested resource. Return its type.
+                return typeManager.GetTypeInfo(((ResourceSymbol)symbol).DeclaringResource);
+            });
+
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
@@ -888,9 +986,10 @@ namespace Bicep.Core.TypeSystem
                 {
                     FunctionFlags.ParameterDecorator => diagnosticBuilder.ExpectedParameterDeclarationAfterDecorator(),
                     FunctionFlags.VariableDecorator => diagnosticBuilder.ExpectedVariableDeclarationAfterDecorator(),
-                    FunctionFlags.ResoureDecorator => diagnosticBuilder.ExpectedResourceDeclarationAfterDecorator(),
+                    FunctionFlags.ResourceDecorator => diagnosticBuilder.ExpectedResourceDeclarationAfterDecorator(),
                     FunctionFlags.ModuleDecorator => diagnosticBuilder.ExpectedModuleDeclarationAfterDecorator(),
                     FunctionFlags.OutputDecorator => diagnosticBuilder.ExpectedOutputDeclarationAfterDecorator(),
+                    FunctionFlags.ResourceOrModuleDecorator => diagnosticBuilder.ExpectedResourceOrModuleDeclarationAfterDecorator(),
                     _ => null,
                 };
 

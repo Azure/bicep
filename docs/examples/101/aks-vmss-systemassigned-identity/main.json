@@ -1,43 +1,50 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13237259162645957823"
+    }
+  },
   "parameters": {
     "dnsPrefix": {
       "type": "string",
+      "defaultValue": "cl01",
       "metadata": {
         "description": "The DNS prefix to use with hosted Kubernetes API server FQDN."
-      },
-      "defaultValue": "cl01"
+      }
     },
     "clusterName": {
       "type": "string",
+      "defaultValue": "aks101",
       "metadata": {
         "description": "The name of the Managed Cluster resource."
-      },
-      "defaultValue": "aks101"
+      }
     },
     "location": {
       "type": "string",
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Specifies the Azure location where the key vault should be created."
-      },
-      "defaultValue": "[resourceGroup().location]"
+      }
     },
     "agentCount": {
       "type": "int",
-      "minValue": 1,
-      "maxValue": 50,
+      "defaultValue": 1,
       "metadata": {
         "description": "The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production"
       },
-      "defaultValue": 1
+      "maxValue": 50,
+      "minValue": 1
     },
     "agentVMSize": {
       "type": "string",
+      "defaultValue": "Standard_D2_v3",
       "metadata": {
         "description": "The size of the Virtual Machine."
-      },
-      "defaultValue": "Standard_D2_v3"
+      }
     }
   },
   "functions": [],
@@ -125,13 +132,6 @@
     "apiServerAddress": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))).fqdn]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "6792316880994491377"
     }
   }
 }

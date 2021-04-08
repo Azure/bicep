@@ -930,6 +930,54 @@ param decoratedInt int = 123
 //@[25:28) Integer |123|
 //@[28:32) NewLine |\r\n\r\n|
 
+// negative integer literals are allowed as decorator values
+//@[60:62) NewLine |\r\n|
+@minValue(-10)
+//@[0:1) At |@|
+//@[1:9) Identifier |minValue|
+//@[9:10) LeftParen |(|
+//@[10:11) Minus |-|
+//@[11:13) Integer |10|
+//@[13:14) RightParen |)|
+//@[14:16) NewLine |\r\n|
+@maxValue(-3)
+//@[0:1) At |@|
+//@[1:9) Identifier |maxValue|
+//@[9:10) LeftParen |(|
+//@[10:11) Minus |-|
+//@[11:12) Integer |3|
+//@[12:13) RightParen |)|
+//@[13:15) NewLine |\r\n|
+param negativeValues int
+//@[0:5) Identifier |param|
+//@[6:20) Identifier |negativeValues|
+//@[21:24) Identifier |int|
+//@[24:28) NewLine |\r\n\r\n|
+
+// negative integer literals in modifiers
+//@[41:43) NewLine |\r\n|
+param negativeModifiers int {
+//@[0:5) Identifier |param|
+//@[6:23) Identifier |negativeModifiers|
+//@[24:27) Identifier |int|
+//@[28:29) LeftBrace |{|
+//@[29:31) NewLine |\r\n|
+  minValue: -100
+//@[2:10) Identifier |minValue|
+//@[10:11) Colon |:|
+//@[12:13) Minus |-|
+//@[13:16) Integer |100|
+//@[16:18) NewLine |\r\n|
+  maxValue: -33
+//@[2:10) Identifier |maxValue|
+//@[10:11) Colon |:|
+//@[12:13) Minus |-|
+//@[13:15) Integer |33|
+//@[15:17) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 @sys.description('A boolean.')
 //@[0:1) At |@|
 //@[1:4) Identifier |sys|
@@ -991,18 +1039,6 @@ param decoratedBool bool = (true && false) != true
 //@[46:50) TrueKeyword |true|
 //@[50:54) NewLine |\r\n\r\n|
 
-@secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:11) NewLine |\r\n|
-@secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:11) NewLine |\r\n|
 @secure()
 //@[0:1) At |@|
 //@[1:7) Identifier |secure|
@@ -1122,20 +1158,6 @@ param decoratedObject object = {
 //@[15:17) Integer |20|
 //@[17:18) RightParen |)|
 //@[18:20) NewLine |\r\n|
-@maxLength(10)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:13) Integer |10|
-//@[13:14) RightParen |)|
-//@[14:16) NewLine |\r\n|
-@maxLength(5)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |5|
-//@[12:13) RightParen |)|
-//@[13:15) NewLine |\r\n|
 @sys.description('I will be overrode.')
 //@[0:1) At |@|
 //@[1:4) Identifier |sys|

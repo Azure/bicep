@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7530539798145096673"
+    }
+  },
+  "parameters": {
+    "actionGroupName": {
+      "type": "string"
+    },
+    "actionGroupEnabled": {
+      "type": "bool"
+    },
+    "actionGroupShortName": {
+      "type": "string"
+    },
+    "actionGroupEmailName": {
+      "type": "string"
+    },
+    "actionGroupEmail": {
+      "type": "string"
+    },
+    "actionGroupAlertSchema": {
+      "type": "bool"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "microsoft.insights/actionGroups",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('actionGroupName')]",
+      "location": "global",
+      "properties": {
+        "enabled": "[parameters('actionGroupEnabled')]",
+        "groupShortName": "[parameters('actionGroupShortName')]",
+        "emailReceivers": [
+          {
+            "name": "[parameters('actionGroupEmailName')]",
+            "emailAddress": "[parameters('actionGroupEmail')]",
+            "useCommonAlertSchema": "[parameters('actionGroupAlertSchema')]"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "actionGroupId": {
+      "type": "string",
+      "value": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroupName'))]"
+    },
+    "actionGroupName": {
+      "type": "string",
+      "value": "[parameters('actionGroupName')]"
+    }
+  }
+}

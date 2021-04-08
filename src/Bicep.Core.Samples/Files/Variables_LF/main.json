@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4925603000640366216"
+    }
+  },
   "parameters": {
     "parameters": {
       "type": "bool",
@@ -17,6 +24,57 @@
   },
   "functions": [],
   "variables": {
+    "copy": [
+      {
+        "name": "incrementingNumbers",
+        "count": "[length(range(0, 10))]",
+        "input": "[range(0, 10)[copyIndex('incrementingNumbers')]]"
+      },
+      {
+        "name": "arrayOfStringsViaLoop",
+        "count": "[length(variables('loopInput'))]",
+        "input": "[format('prefix-{0}-{1}', copyIndex('arrayOfStringsViaLoop'), variables('loopInput')[copyIndex('arrayOfStringsViaLoop')])]"
+      },
+      {
+        "name": "arrayOfObjectsViaLoop",
+        "count": "[length(variables('loopInput'))]",
+        "input": {
+          "index": "[copyIndex('arrayOfObjectsViaLoop')]",
+          "name": "[variables('loopInput')[copyIndex('arrayOfObjectsViaLoop')]]",
+          "value": "[format('prefix-{0}-{1}-suffix', copyIndex('arrayOfObjectsViaLoop'), variables('loopInput')[copyIndex('arrayOfObjectsViaLoop')])]"
+        }
+      },
+      {
+        "name": "arrayOfArraysViaLoop",
+        "count": "[length(variables('loopInput'))]",
+        "input": "[createArray(copyIndex('arrayOfArraysViaLoop'), variables('loopInput')[copyIndex('arrayOfArraysViaLoop')], format('prefix-{0}-{1}-suffix', copyIndex('arrayOfArraysViaLoop'), variables('loopInput')[copyIndex('arrayOfArraysViaLoop')]))]"
+      },
+      {
+        "name": "arrayOfBooleans",
+        "count": "[length(variables('loopInput'))]",
+        "input": "[equals(mod(copyIndex('arrayOfBooleans'), 2), 0)]"
+      },
+      {
+        "name": "arrayOfHardCodedNumbers",
+        "count": "[length(range(0, 10))]",
+        "input": "[int(3)]"
+      },
+      {
+        "name": "arrayOfHardCodedBools",
+        "count": "[length(range(0, 10))]",
+        "input": "[false()]"
+      },
+      {
+        "name": "arrayOfHardCodedStrings",
+        "count": "[length(range(0, 3))]",
+        "input": "hi"
+      },
+      {
+        "name": "arrayOfNonRuntimeFunctionCalls",
+        "count": "[length(range(0, 3))]",
+        "input": "[concat('hi', range(0, 3)[copyIndex('arrayOfNonRuntimeFunctionCalls')])]"
+      }
+    ],
     "myInt": 42,
     "myStr": "str",
     "curliesWithNoInterp": "}{1}{",
@@ -27,7 +85,7 @@
     "doubleInterp": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
     "curliesInInterp": "[format('{{{0}{{0}}{1}}}', 123, true())]",
     "bracketInTheMiddle": "a[b]",
-    "bracketAtBeginning": "[[test",
+    "bracketAtBeginning": "[test",
     "enclosingBrackets": "[[test]",
     "emptyJsonArray": "[[]",
     "interpolatedBrackets": "[format('[{0}]', variables('myInt'))]",
@@ -170,6 +228,10 @@
     "myIntExpression": "[mul(5, 5)]",
     "myBigIntExpression": "[mul(json('2199023255552'), 2)]",
     "myBigIntExpression2": "[mul(json('2199023255552'), json('2199023255552'))]",
+    "loopInput": [
+      "one",
+      "two"
+    ],
     "multilineString": "HELLO!\n",
     "multilineEmpty": "",
     "multilineEmptyNewline": "",
@@ -179,12 +241,5 @@
     "multilineFormatted": "[format('Hello,\nmy\nname is\n{0}\n', 'Anthony')]",
     "multilineJavaScript": "// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n"
   },
-  "resources": [],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "7741877235224531779"
-    }
-  }
+  "resources": []
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8129777538145012812"
+    }
+  },
   "parameters": {
     "resourceGroupPrefrix": {
       "type": "string",
@@ -174,6 +181,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3767956074323682348"
+            }
+          },
           "parameters": {
             "hostpoolName": {
               "type": "string"
@@ -310,6 +324,13 @@
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                   "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "9997609816176615400"
+                    }
+                  },
                   "parameters": {
                     "logAnalyticsWorkspaceName": {
                       "type": "string"
@@ -372,6 +393,13 @@
                         "template": {
                           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "6082030172290952535"
+                            }
+                          },
                           "parameters": {
                             "logAnalyticsWorkspaceID": {
                               "type": "string"
@@ -414,8 +442,7 @@
                                     "enabled": true
                                   }
                                 ]
-                              },
-                              "dependsOn": []
+                              }
                             },
                             {
                               "type": "microsoft.insights/diagnosticSettings",
@@ -442,8 +469,7 @@
                                     "enabled": true
                                   }
                                 ]
-                              },
-                              "dependsOn": []
+                              }
                             }
                           ]
                         }
@@ -498,6 +524,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "14974550603307173803"
+            }
+          },
           "parameters": {
             "vnetName": {
               "type": "string"
@@ -520,8 +553,8 @@
           "functions": [],
           "resources": [
             {
-              "type": "Microsoft.Network/virtualnetworks",
-              "apiVersion": "2015-05-01-preview",
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2019-12-01",
               "name": "[parameters('vnetName')]",
               "location": "[parameters('vnetLocation')]",
               "properties": {
@@ -545,11 +578,11 @@
           "outputs": {
             "subnetId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/virtualnetworks', parameters('vnetName'))).subnets[0].id]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))).subnets[0].id]"
             },
             "vnetId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/virtualnetworks', parameters('vnetName'))]"
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
             }
           }
         }
@@ -588,6 +621,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10122142263707335383"
+            }
+          },
           "parameters": {
             "storageaccountlocation": {
               "type": "string",
@@ -674,6 +714,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3198803421344774131"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string"
@@ -773,12 +820,5 @@
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdnetwork')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "0.2.476.60462",
-      "templateHash": "10263015878182259405"
-    }
-  }
+  ]
 }

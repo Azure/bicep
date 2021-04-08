@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9608574906046857876"
+    }
+  },
   "parameters": {
     "udrName": {
       "type": "string"
@@ -34,13 +41,6 @@
     "udrId": {
       "type": "string",
       "value": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "9661340652054080845"
     }
   }
 }

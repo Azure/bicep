@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16767638129179699760"
+    }
+  },
   "parameters": {
     "_artifactsLocation": {
       "type": "string",
@@ -68,8 +75,8 @@
     },
     "HostVirtualMachineName": {
       "type": "string",
-      "maxLength": 15,
-      "defaultValue": "HVHOST"
+      "defaultValue": "HVHOST",
+      "maxLength": 15
     },
     "HostVirtualMachineSize": {
       "type": "string",
@@ -356,6 +363,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4056214892007614382"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -454,6 +468,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4056214892007614382"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -557,6 +578,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4056214892007614382"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -662,6 +690,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4056214892007614382"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -754,6 +789,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9608574906046857876"
+            }
+          },
           "parameters": {
             "udrName": {
               "type": "string"
@@ -815,6 +857,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9608574906046857876"
+            }
+          },
           "parameters": {
             "udrName": {
               "type": "string"
@@ -856,12 +905,5 @@
         "[resourceId('Microsoft.Resources/deployments', 'createNic2')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "6333407413510019552"
-    }
-  }
+  ]
 }

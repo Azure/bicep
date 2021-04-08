@@ -11,6 +11,19 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
+    // Looks for cases where the child and parent share a common syntax structure for naming, and replaces with a direct reference to the parent instead.
+    //
+    // As an example, because 'resB' below has its name formatted as '${parentName}/resB', we can replace this with '${resA.name}/resB':
+    //   resource resA 'My.Rp/resA@2020-01-01' = {
+    //     name: parentName
+    //   }
+    //   
+    //   resource resB 'My.Rp/resA/childB@2020-01-01' = {
+    //     name: '${parentName}/resB'
+    //     dependsOn: [
+    //       resA
+    //     ]
+    //   }
     public class ParentChildResourceNameRewriter : SyntaxRewriteVisitor
     {
         private readonly SemanticModel semanticModel;
@@ -20,7 +33,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             this.semanticModel = semanticModel;
         }
 
-        protected override ResourceDeclarationSyntax ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        protected override SyntaxBase ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             if (syntax.TryGetBody() is not ObjectSyntax resourceBody ||
                 resourceBody.SafeGetPropertyByName("name") is not ObjectPropertySyntax resourceNameProp ||
@@ -41,7 +54,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return syntax;
             }
 
-            foreach (var otherResourceSymbol in semanticModel.Root.ResourceDeclarations)
+            foreach (var otherResourceSymbol in semanticModel.Root.GetAllResourceDeclarations())
             {
                 if (otherResourceSymbol.Type is not ResourceType otherResourceType ||
                     otherResourceType.TypeReference.Types.Length != resourceType.TypeReference.Types.Length - 1 ||
@@ -139,7 +152,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             for (var i = 0; i < parent.Expressions.Length; i++)
             {
                 var childSymbol = semanticModel.GetSymbolInfo(child.Expressions[i]);
-                var parentSymbol = semanticModel.GetSymbolInfo(child.Expressions[i]);
+                var parentSymbol = semanticModel.GetSymbolInfo(parent.Expressions[i]);
 
                 if (childSymbol == null || childSymbol != parentSymbol)
                 {

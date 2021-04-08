@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10284262951089974845"
+    }
+  },
   "parameters": {
     "clusterName": {
       "type": "string"
@@ -17,8 +24,8 @@
     },
     "sshPassword": {
       "type": "secureString",
-      "minLength": 6,
-      "maxLength": 72
+      "maxLength": 72,
+      "minLength": 6
     },
     "location": {
       "type": "string",
@@ -138,13 +145,6 @@
     "clusterOutput": {
       "type": "object",
       "value": "[reference(resourceId('Microsoft.HDInsight/clusters', parameters('clusterName')))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "3663460412733172607"
     }
   }
 }

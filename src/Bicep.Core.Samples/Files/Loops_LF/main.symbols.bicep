@@ -37,9 +37,10 @@ resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-0
 }
 
 // resource collection
+@batchSize(42)
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
 //@[79:86) Local account. Type: any. Declaration start char: 79, length: 7
-//@[9:24) Resource storageAccounts. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 274
+//@[9:24) Resource storageAccounts. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 289
   name: '${name}-collection-${account.name}'
   location: account.location
   kind: 'StorageV2'
@@ -73,9 +74,10 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 }]
 
 // cascade extend the extension
+@batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
 //@[72:73) Local i. Type: int. Declaration start char: 72, length: 1
-//@[9:21) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 222
+//@[9:21) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 236
   name: 'lock-the-lock-${i}'
   properties: {
     level: i == 0 ? 'CanNotDelete' : 'ReadOnly'
@@ -237,9 +239,10 @@ var moduleSetup = [
 ]
 
 // module collection plus explicit dependency on single module
+@sys.batchSize(3)
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleName in moduleSetup: {
 //@[71:81) Local moduleName. Type: any. Declaration start char: 71, length: 10
-//@[7:43) Module moduleCollectionWithSingleDependency. Type: module[]. Declaration start char: 0, length: 224
+//@[7:43) Module moduleCollectionWithSingleDependency. Type: module[]. Declaration start char: 0, length: 242
   name: moduleName
   params: {
     myInput: 'in-${moduleName}'
@@ -454,3 +457,44 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
     ]
   }
 }]
+
+resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range(0,10): if(i % 3 == 0) {
+//@[70:71) Local i. Type: int. Declaration start char: 70, length: 1
+//@[9:22) Resource filteredZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 163
+  name: 'zone${i}'
+  location: resourceGroup().location
+}]
+
+module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0) {
+//@[50:51) Local i. Type: int. Declaration start char: 50, length: 1
+//@[7:22) Module filteredModules. Type: module[]. Declaration start char: 0, length: 149
+  name: 'stuff${i}'
+  params: {
+    myInput: 'script-${i}'
+  }
+}]
+
+resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [for (account, i) in accounts: if(account.enabled) {
+//@[78:85) Local account. Type: any. Declaration start char: 78, length: 7
+//@[87:88) Local i. Type: int. Declaration start char: 87, length: 1
+//@[9:29) Resource filteredIndexedZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 199
+  name: 'indexedZone-${account.name}-${i}'
+  location: account.location
+}]
+
+output lastNameServers array = filteredIndexedZones[length(accounts) - 1].properties.nameServers
+//@[7:22) Output lastNameServers. Type: array. Declaration start char: 0, length: 96
+
+module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in accounts: if(account.enabled) {
+//@[58:65) Local account. Type: any. Declaration start char: 58, length: 7
+//@[67:68) Local i. Type: int. Declaration start char: 67, length: 1
+//@[7:29) Module filteredIndexedModules. Type: module[]. Declaration start char: 0, length: 187
+  name: 'stuff-${i}'
+  params: {
+    myInput: 'script-${account.name}-${i}'
+  }
+}]
+
+output lastModuleOutput string = filteredIndexedModules[length(accounts) - 1].outputs.myOutput
+//@[7:23) Output lastModuleOutput. Type: string. Declaration start char: 0, length: 94
+

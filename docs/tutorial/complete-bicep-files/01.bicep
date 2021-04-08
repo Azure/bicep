@@ -1,10 +1,13 @@
 param location string = 'eastus'
-param name string = 'uniquestorage001' // must be globally unique
+
+@minLength(3)
+@maxLength(24)
+param storageAccountName string = 'uniquestorage001' // must be globally unique
 
 var storageSku = 'Standard_LRS' // declare variable and assign value
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: name
+    name: storageAccountName
     location: location
     kind: 'Storage'
     sku: {

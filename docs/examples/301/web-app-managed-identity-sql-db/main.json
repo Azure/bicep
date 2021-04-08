@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14939392848833178815"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -26,8 +33,8 @@
     },
     "skuCapacity": {
       "type": "int",
-      "minValue": 1,
-      "defaultValue": 1
+      "defaultValue": 1,
+      "minValue": 1
     },
     "sqlAdministratorLogin": {
       "type": "string"
@@ -174,12 +181,5 @@
         "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "12165021661873143399"
-    }
-  }
+  ]
 }

@@ -1,9 +1,7 @@
 // from quickstart docs for IOT: https://docs.microsoft.com/en-us/azure/iot-hub/horizontal-arm-route-messages
-param projectName string {
-  default: 'contoso'
-  minLength: 1
-  maxLength: 11
-}
+@minLength(1)
+@maxLength(11)
+param projectName string = 'contoso'
 
 param location string = resourceGroup().location
 param skuName string = 'S1'

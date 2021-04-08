@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -44,13 +44,13 @@ namespace Bicep.LanguageServer.Completions
             return item;
         }
 
-        public static CompletionItem WithInsertText(this CompletionItem item, string insertText, InsertTextMode insertTextMode = InsertTextMode.AsIs)
+        public static CompletionItem WithInsertText(this CompletionItem item, string insertText)
         {
             AssertNoTextEdit(item);
 
             item.InsertText = insertText;
             item.InsertTextFormat = InsertTextFormat.PlainText;
-            item.InsertTextMode = insertTextMode;
+            item.InsertTextMode = InsertTextMode.AdjustIndentation;
 
             return item;
         }
@@ -61,29 +61,28 @@ namespace Bicep.LanguageServer.Completions
             return item;
         }        
         
-        public static CompletionItem WithPlainTextEdit(this CompletionItem item, Range range, string text, InsertTextMode insertTextMode = InsertTextMode.AsIs)
+        public static CompletionItem WithPlainTextEdit(this CompletionItem item, Range range, string text)
         {
             AssertNoInsertText(item);
-            SetTextEditInternal(item, range, InsertTextFormat.PlainText, text, insertTextMode);
+            SetTextEditInternal(item, range, InsertTextFormat.PlainText, text);
             return item;
         }
 
-        public static CompletionItem WithSnippet(this CompletionItem item, string snippet, InsertTextMode insertTextMode = InsertTextMode.AsIs)
+        public static CompletionItem WithSnippet(this CompletionItem item, string snippet)
         {
             AssertNoTextEdit(item);
 
             item.InsertText = snippet;
             item.InsertTextFormat = InsertTextFormat.Snippet;
-            item.InsertTextMode = insertTextMode;
+            item.InsertTextMode = InsertTextMode.AdjustIndentation;
 
             return item;
         }
 
-
-        public static CompletionItem WithSnippetEdit(this CompletionItem item, Range range, string snippet, InsertTextMode insertTextMode = InsertTextMode.AsIs)
+        public static CompletionItem WithSnippetEdit(this CompletionItem item, Range range, string snippet)
         {
             AssertNoInsertText(item);
-            SetTextEditInternal(item, range, InsertTextFormat.Snippet, snippet, insertTextMode);
+            SetTextEditInternal(item, range, InsertTextFormat.Snippet, snippet);
             return item;
         }
 
@@ -111,7 +110,7 @@ namespace Bicep.LanguageServer.Completions
             return item;
         }
 
-        private static void SetTextEditInternal(CompletionItem item, Range range, InsertTextFormat format, string text, InsertTextMode insertTextMode)
+        private static void SetTextEditInternal(CompletionItem item, Range range, InsertTextFormat format, string text)
         {
             item.InsertTextFormat = format;
             item.TextEdit = new TextEdit
@@ -119,7 +118,7 @@ namespace Bicep.LanguageServer.Completions
                 Range = range,
                 NewText = text
             };
-            item.InsertTextMode = insertTextMode;
+            item.InsertTextMode = InsertTextMode.AdjustIndentation;
         }
 
         private static void AssertNoTextEdit(CompletionItem item)

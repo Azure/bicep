@@ -26,9 +26,10 @@ var curliesInInterp = '{${123}{0}${true}}'
 // verify correct bracket escaping
 var bracketInTheMiddle = 'a[b]'
 //@[4:22) Variable bracketInTheMiddle. Type: 'a[b]'. Declaration start char: 0, length: 31
-// #completionTest(25) -> symbolsPlusTypes
+// #completionTest(25) -> empty
 var bracketAtBeginning = '[test'
 //@[4:22) Variable bracketAtBeginning. Type: '[test'. Declaration start char: 0, length: 32
+// #completionTest(23) -> symbolsPlusTypes
 var enclosingBrackets = '[test]'
 //@[4:21) Variable enclosingBrackets. Type: '[test]'. Declaration start char: 0, length: 32
 var emptyJsonArray = '[]'
@@ -330,6 +331,52 @@ var myBigIntExpression = 2199023255552 * 2
 var myBigIntExpression2 = 2199023255552 * 2199023255552
 //@[4:23) Variable myBigIntExpression2. Type: int. Declaration start char: 0, length: 55
 
+// variable loops
+var incrementingNumbers = [for i in range(0,10) : i]
+//@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
+//@[4:23) Variable incrementingNumbers. Type: int[]. Declaration start char: 0, length: 52
+var loopInput = [
+//@[4:13) Variable loopInput. Type: array. Declaration start char: 0, length: 35
+  'one'
+  'two'
+]
+var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
+//@[34:38) Local name. Type: any. Declaration start char: 34, length: 4
+//@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
+//@[4:25) Variable arrayOfStringsViaLoop. Type: string[]. Declaration start char: 0, length: 79
+var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
+//@[34:38) Local name. Type: any. Declaration start char: 34, length: 4
+//@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
+//@[4:25) Variable arrayOfObjectsViaLoop. Type: object[]. Declaration start char: 0, length: 123
+  index: i
+  name: name
+  value: 'prefix-${i}-${name}-suffix'
+}]
+var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
+//@[33:37) Local name. Type: any. Declaration start char: 33, length: 4
+//@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
+//@[4:24) Variable arrayOfArraysViaLoop. Type: array[]. Declaration start char: 0, length: 102
+  i
+  name
+  'prefix-${i}-${name}-suffix'
+]]
+var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
+//@[28:32) Local name. Type: any. Declaration start char: 28, length: 4
+//@[34:35) Local i. Type: int. Declaration start char: 34, length: 1
+//@[4:19) Variable arrayOfBooleans. Type: bool[]. Declaration start char: 0, length: 62
+var arrayOfHardCodedNumbers = [for i in range(0,10): 3]
+//@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
+//@[4:27) Variable arrayOfHardCodedNumbers. Type: int[]. Declaration start char: 0, length: 55
+var arrayOfHardCodedBools = [for i in range(0,10): false]
+//@[33:34) Local i. Type: int. Declaration start char: 33, length: 1
+//@[4:25) Variable arrayOfHardCodedBools. Type: bool[]. Declaration start char: 0, length: 57
+var arrayOfHardCodedStrings = [for i in range(0,3): 'hi']
+//@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
+//@[4:27) Variable arrayOfHardCodedStrings. Type: 'hi'[]. Declaration start char: 0, length: 57
+var arrayOfNonRuntimeFunctionCalls = [for i in range(0,3): concat('hi', i)]
+//@[42:43) Local i. Type: int. Declaration start char: 42, length: 1
+//@[4:34) Variable arrayOfNonRuntimeFunctionCalls. Type: string[]. Declaration start char: 0, length: 75
+
 var multilineString = '''
 //@[4:19) Variable multilineString. Type: 'HELLO!\n'. Declaration start char: 0, length: 36
 HELLO!
@@ -381,3 +428,4 @@ module.exports = function (context) {
     context.done();
 }
 '''
+

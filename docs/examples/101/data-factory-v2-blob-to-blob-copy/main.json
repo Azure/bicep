@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6503079842720782005"
+    }
+  },
   "parameters": {
     "systemName": {
       "type": "string",
@@ -166,12 +173,5 @@
         "[resourceId('Microsoft.DataFactory/factories/datasets', split(format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetOutName')), '/')[0], split(format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetOutName')), '/')[1])]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "6897753619463271757"
-    }
-  }
+  ]
 }

@@ -204,12 +204,21 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.OpenSquare);
             this.Visit(syntax.ForKeyword);
-            this.Visit(syntax.ItemVariable);
+            this.Visit(syntax.VariableSection);
             this.Visit(syntax.InKeyword);
             this.Visit(syntax.Expression);
             this.Visit(syntax.Colon);
             this.Visit(syntax.Body);
             this.Visit(syntax.CloseSquare);
+        }
+
+        public virtual void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax)
+        {
+            this.Visit(syntax.OpenParen);
+            this.Visit(syntax.ItemVariable);
+            this.Visit(syntax.Comma);
+            this.Visit(syntax.IndexVariable);
+            this.Visit(syntax.CloseParen);
         }
 
         public virtual void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
@@ -247,6 +256,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.BaseExpression);
             this.Visit(syntax.Dot);
             this.Visit(syntax.PropertyName);
+        }
+
+        public virtual void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.DoubleColon);
+            this.Visit(syntax.ResourceName);
         }
 
         public virtual void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)

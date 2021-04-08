@@ -1,15 +1,12 @@
 param location string = resourceGroup().location
 param wanname string
-param wantype string {
-  default: 'Standard'
-  allowed: [
-    'Standard'
-    'Basic'
-  ]
-  metadata: {
-    description: 'Specifies the type of Virtual WAN.'
-  }
-}
+
+@allowed([
+  'Standard'
+  'Basic'
+])
+@description('Specifies the type of Virtual WAN.')
+param wantype string = 'Standard'
 
 resource wan 'Microsoft.Network/virtualWans@2020-06-01' = {
   name: wanname

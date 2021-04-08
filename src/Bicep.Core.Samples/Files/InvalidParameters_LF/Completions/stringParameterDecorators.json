@@ -7,7 +7,7 @@
     "preselect": false,
     "sortText": "3_allowed",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "allowed($0)"
@@ -24,7 +24,7 @@
     "preselect": false,
     "sortText": "3_description",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "description($0)"
@@ -41,7 +41,7 @@
     "preselect": false,
     "sortText": "3_maxLength",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "maxLength($0)"
@@ -58,7 +58,7 @@
     "preselect": false,
     "sortText": "3_metadata",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "metadata($0)"
@@ -75,7 +75,7 @@
     "preselect": false,
     "sortText": "3_minLength",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "minLength($0)"
@@ -92,7 +92,7 @@
     "preselect": false,
     "sortText": "3_secure",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "secure()$0"

@@ -1,0 +1,12 @@
+<Project TreatAsLocalProperty="BicepExecutableDirectory;BicepNonWindowsExecutableName;BicepWindowsExecutableName">
+  <PropertyGroup>
+    <BicepExecutableDirectory>$(MSBuildThisFileDirectory)..\tools</BicepExecutableDirectory>
+    <BicepNonWindowsExecutableName>bicep</BicepNonWindowsExecutableName>
+    <BicepWindowsExecutableName>$(BicepNonWindowsExecutableName).exe</BicepWindowsExecutableName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(BicepPath) == '' ">
+    <BicepPath>$(BicepExecutableDirectory)\$(BicepNonWindowsExecutableName)</BicepPath>
+    <BicepPath Condition=" Exists('$(BicepExecutableDirectory)\$(BicepWindowsExecutableName)') ">$(BicepExecutableDirectory)\$(BicepWindowsExecutableName)</BicepPath>
+  </PropertyGroup>
+</Project>

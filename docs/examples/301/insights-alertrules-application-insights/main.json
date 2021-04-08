@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2273655890687549318"
+    }
+  },
   "parameters": {
     "workspaceName": {
       "type": "string"
@@ -14,9 +21,9 @@
     },
     "responseTimeThreshold": {
       "type": "int",
-      "minValue": 1,
+      "defaultValue": 3,
       "maxValue": 10000,
-      "defaultValue": 3
+      "minValue": 1
     }
   },
   "functions": [],
@@ -104,12 +111,5 @@
         ]
       }
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "7148710910195702585"
-    }
-  }
+  ]
 }

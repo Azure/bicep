@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1057262426090808550"
+    }
+  },
   "parameters": {
     "managedInstanceName": {
       "type": "string"
@@ -54,9 +61,9 @@
     },
     "storageSizeInGB": {
       "type": "int",
-      "minValue": 32,
+      "defaultValue": 256,
       "maxValue": 8192,
-      "defaultValue": 256
+      "minValue": 32
     }
   },
   "functions": [],
@@ -202,12 +209,5 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1])]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "12534528881795377871"
-    }
-  }
+  ]
 }

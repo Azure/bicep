@@ -1,9 +1,10 @@
 param storageAccountType string = 'Standard_LRS'
 param fileShareName string = 'sftpfileshare'
 param sftpUser string
-param sftpPassword string {
-  secure: true
-}
+
+@secure()
+param sftpPassword string
+
 param location string = resourceGroup().location
 
 var scriptName = 'createFileShare'

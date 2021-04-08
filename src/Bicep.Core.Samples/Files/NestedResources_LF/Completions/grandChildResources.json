@@ -1,0 +1,19 @@
+[
+  {
+    "label": "basicGrandchild",
+    "kind": "interface",
+    "detail": "basicGrandchild",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_basicGrandchild",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "basicGrandchild"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

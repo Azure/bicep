@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -34,7 +34,9 @@ namespace Bicep.LangServer.UnitTests
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
-            var provider = new BicepCompletionProvider(new FileResolver());
+            ResourceSnippetsProvider resourceSnippetsProvider = new ResourceSnippetsProvider();
+
+            var provider = new BicepCompletionProvider(new FileResolver(), resourceSnippetsProvider);
 
             var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, 0));
 
@@ -43,9 +45,10 @@ namespace Bicep.LangServer.UnitTests
                 .OrderBy(c => c.Label)
                 .ToList();
 
+            IEnumerable<ResourceSnippet> resourceSnippets = resourceSnippetsProvider.GetResourceSnippets();
             snippetCompletions.Should().OnlyContain(c => c.Kind == CompletionItemKind.Snippet && c.InsertTextFormat == InsertTextFormat.Snippet);
             snippetCompletions.Should().OnlyContain(c => c.InsertTextFormat == InsertTextFormat.Snippet);
-            snippetCompletions.Should().OnlyContain(c => LanguageConstants.DeclarationKeywords.Contains(c.Label));
+            snippetCompletions.Should().OnlyContain(c => LanguageConstants.DeclarationKeywords.Contains(c.Label) || resourceSnippets.Any(rs => rs.Name == c.Label));
             snippetCompletions.Should().OnlyContain(c => c.Documentation!.HasMarkupContent && c.Documentation.MarkupContent!.Kind == MarkupKind.Markdown);
 
             var snippetsByDetail = snippetCompletions.Where(c => c.Detail != null).ToImmutableDictionaryExcludingNull(c => c.Detail, StringComparer.Ordinal);
@@ -56,18 +59,27 @@ namespace Bicep.LangServer.UnitTests
                 ["Parameter declaration"] = new[] {string.Empty, "myParam", "string"},
                 ["Parameter declaration with default value"] = new[] {string.Empty, "myParam", "string", "'myDefault'"},
                 ["Parameter declaration with default and allowed values"] = new[] {string.Empty, "myParam", "string", "'myDefault'", "'val1'\n'val2'"},
-                ["Parameter declaration with options"] = new[] {string.Empty, "myParam", "string", "default: 'myDefault'\nsecure: true"},
-                ["Secure string parameter"] = new[] {string.Empty, "myParam"},
+                ["Secure string parameter"] = new[] {"myParam"},
                 ["Variable declaration"] = new[] {"'stringVal'", "myVariable"},
                 ["Resource with defaults"] = new[] {"prop1: 'val1'", "myResource", "myProvider", "myType", "2020-01-01", "'parent'", "'West US'"},
                 ["Child Resource with defaults"] = new[] {"prop1: 'val1'", "myResource", "myProvider", "myType", "myChildType", "2020-01-01", "'parent/child'"},
                 ["Resource without defaults"] = new[] {"properties: {\nprop1: 'val1'\n}", "myResource", "myProvider", "myType", "2020-01-01", "'parent'"},
                 ["Child Resource without defaults"] = new[] {"properties: {\nprop1: 'val1'\n}", "myResource", "myProvider", "myType", "myChildType", "2020-01-01", "'parent/child'"},
-                ["Output declaration"] = new[] {"'stringVal'", "myOutput", "string"}
+                ["Output declaration"] = new[] {"'stringVal'", "myOutput", "string"},
+                ["Kubernetes Service Cluster"] = new[] { "aksCluster", "1.5", "prefix", "2", "Standard_All", "userName", "keyData", "appId", "test" },
+                ["Application Security Group"] = new[] { "myApplicationSecurityGroup" },
+                ["Automation Account"] = new[] { "myAutomationAccount", "Basic" },
+                ["Availability Set"] = new[] { "availabilitySet", "availabilitySet" },
+                ["Container Group"] = new[] { "myContainerGroup",  "container", "image", "80", "1", "4", "Linux", "TCP", "80" },
+                ["Container Registry"] = new[] { "myContainerRegistry", "Basic", "true" },
+                ["Cosmos DB Database Account"] = new[] { "myCosmosDBAccount", "MongoDB", "session", "1", "5", "location", "0", "filter", "false", "EnableTable" },
+                ["Data Lake Store Account"] = new[] { "myDataLakeStore", "Consumption", "Enabled" },
+                ["DNS Zone"] = new[] { "dnsZone" },
+                ["Public IP Address"] = new[] { "192.168.1.10", "192.168.1.10",  "dnsName" },
+                ["Public IP Prefix"] = new[] { "publicIpPrefix", "28" }
             };
 
             snippetsByDetail.Keys.Should().BeEquivalentTo(replacementsByDetail.Keys);
-
 
             foreach (var (detail, completion) in snippetsByDetail)
             {
@@ -100,7 +112,7 @@ namespace Bicep.LangServer.UnitTests
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
 
             var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, 0));
 
@@ -180,7 +192,7 @@ output o int = 42
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single().Value.Span.Position;
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
             var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
             
@@ -198,7 +210,7 @@ output o int = 42
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
             resourceCompletion.TextEdit!.NewText.Should().Be(expectedResource);
-            resourceCompletion.CommitCharacters.Should().BeNull();
+            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new[]{ ":", });
             resourceCompletion.Detail.Should().Be(expectedResource);
 
             const string expectedParam = "p";
@@ -219,7 +231,7 @@ output o int = 42
 
             var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
 
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
             var completions = provider.GetFilteredCompletions(
                 compilation,
                 BicepCompletionContext.Create(compilation, offset)).ToList();
@@ -250,7 +262,7 @@ output o int = 42
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var context = BicepCompletionContext.Create(compilation, offset);
 
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
@@ -281,7 +293,7 @@ output length int =
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Value.Span.Position;
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
             var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
@@ -305,7 +317,7 @@ output length int =
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
             resourceCompletion.TextEdit!.NewText.Should().Be(expectedResource);
-            resourceCompletion.CommitCharacters.Should().BeNull();
+            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new []{ ":", });
             resourceCompletion.Detail.Should().Be(expectedResource);
 
             const string expectedParam = "concat";
@@ -323,7 +335,7 @@ output length int =
         {
             var grouping = SyntaxTreeGroupingFactory.CreateFromText("output test ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -340,7 +352,7 @@ output length int =
         {
             var grouping = SyntaxTreeGroupingFactory.CreateFromText("param foo ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver());
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -356,8 +368,14 @@ output length int =
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.TextEdit!.NewText.Should().StartWith("object");
-                    c.TextEdit.NewText.Should().Contain("secure: true");
+                    c.TextEdit.NewText.Should().Be("object");
                     c.Detail.Should().Be("Secure object");
+                    c.AdditionalTextEdits!.Count().Should().Be(1);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(0);
                 },
                 c =>
                 {
@@ -365,8 +383,63 @@ output length int =
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.TextEdit!.NewText.Should().StartWith("string");
-                    c.TextEdit.NewText.Should().Contain("secure: true");
+                    c.TextEdit.NewText.Should().Be("string");
                     c.Detail.Should().Be("Secure string");
+                    c.AdditionalTextEdits!.Count().Should().Be(1);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(0);
+                });
+        }
+
+        [TestMethod]
+        public void VerifyParameterTypeCompletionWithPrecedingComment()
+        {
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText("/*test*/param foo ");
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
+            var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
+
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
+
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset));
+            var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
+
+            AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
+
+            completions.Where(c => c.Kind == CompletionItemKind.Snippet).Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("secureObject");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.TextEdit!.NewText.Should().Be("object");
+                    c.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.Range.Start.Character.Should().Be(18);
+                    c.Detail.Should().Be("Secure object");
+                    c.AdditionalTextEdits!.Count().Should().Be(1);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(8);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(8);
+                },
+                c =>
+                {
+                    c.Label.Should().Be("secureString");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.TextEdit!.NewText.Should().Be("string");
+                    c.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.Range.Start.Character.Should().Be(18);
+                    c.Detail.Should().Be("Secure string");
+                    c.AdditionalTextEdits!.Count().Should().Be(1);
+                    c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(8);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
+                    c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(8);
                 });
         }
 
@@ -384,7 +457,7 @@ output length int =
         {
         var grouping = SyntaxTreeGroupingFactory.CreateFromText(codeFragment);
         var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-        var provider = new BicepCompletionProvider(new FileResolver());
+        var provider = new BicepCompletionProvider(new FileResolver(), new ResourceSnippetsProvider());
 
         var offset = codeFragment.IndexOf('|');
 

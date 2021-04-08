@@ -12,7 +12,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
     public class ParentChildResourceNameRewriterTests
     {
         [TestMethod]
-        public void Parent_snytax_common_variable_reference_can_be_replaced()
+        public void Parent_syntax_common_variable_reference_can_be_replaced()
         {
             var bicepFile = @"
 var parentName = 'resA'
@@ -32,7 +32,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
 resource resA 'My.Rp/resA@2020-01-01' = {
@@ -48,7 +48,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
         }
 
         [TestMethod]
-        public void Parent_snytax_common_variable_reference_in_string_can_be_replaced()
+        public void Parent_syntax_common_variable_reference_in_string_can_be_replaced()
         {
             var bicepFile = @"
 var parentName = 'resA'
@@ -68,7 +68,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
 resource resA 'My.Rp/resA@2020-01-01' = {
@@ -84,7 +84,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
         }
 
         [TestMethod]
-        public void Parent_snytax_common_multiple_variable_references_in_string_can_be_replaced()
+        public void Parent_syntax_common_multiple_variable_references_in_string_can_be_replaced()
         {
             var bicepFile = @"
 param parentName string = 'resA'
@@ -113,7 +113,7 @@ resource resC 'My.Rp/resA/childB/childC@2020-01-01' = {
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"param parentName string = 'resA'
 var parentSuffix = 'suffix'
 var test = 'hello'
@@ -158,7 +158,7 @@ resource resB 'My.Rp/resB/childB@2020-01-01' = {
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
 resource resA 'My.Rp/resA@2020-01-01' = {
@@ -170,6 +170,55 @@ resource resB 'My.Rp/resB/childB@2020-01-01' = {
   dependsOn: [
     resA
   ]
+}");
+        }
+
+        [TestMethod]
+        public void Parent_resources_with_expression_names_are_identified()
+        {
+            // this is a minimal repro for https://github.com/Azure/bicep/issues/2008
+            var bicepFile = @"
+var resAName = 'resA'
+var resBName = 'resB'
+
+resource resA 'My.Rp/parent@2020-01-01' = {
+  name: '${resAName}'
+}
+
+resource resB 'My.Rp/parent@2020-01-01' = {
+  name: '${resBName}'
+}
+
+resource childA 'My.Rp/parent/child@2020-01-01' = {
+  name: '${resAName}/child'
+}
+
+resource childB 'My.Rp/parent/child@2020-01-01' = {
+  name: '${resBName}/child'
+}";
+
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+@"var resAName = 'resA'
+var resBName = 'resB'
+
+resource resA 'My.Rp/parent@2020-01-01' = {
+  name: '${resAName}'
+}
+
+resource resB 'My.Rp/parent@2020-01-01' = {
+  name: '${resBName}'
+}
+
+resource childA 'My.Rp/parent/child@2020-01-01' = {
+  name: '${resA.name}/child'
+}
+
+resource childB 'My.Rp/parent/child@2020-01-01' = {
+  name: '${resB.name}/child'
 }");
         }
     }

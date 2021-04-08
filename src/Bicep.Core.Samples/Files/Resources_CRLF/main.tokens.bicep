@@ -1357,6 +1357,66 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 //@[1:2) RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
+// storage account loop with index
+//@[34:36) NewLine |\r\n|
+resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
+//@[0:8) Identifier |resource|
+//@[9:34) Identifier |storageResourcesWithIndex|
+//@[35:81) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[82:83) Assignment |=|
+//@[84:85) LeftSquare |[|
+//@[85:88) Identifier |for|
+//@[89:90) LeftParen |(|
+//@[90:97) Identifier |account|
+//@[97:98) Comma |,|
+//@[99:100) Identifier |i|
+//@[100:101) RightParen |)|
+//@[102:104) Identifier |in|
+//@[105:120) Identifier |storageAccounts|
+//@[120:121) Colon |:|
+//@[122:123) LeftBrace |{|
+//@[123:125) NewLine |\r\n|
+  name: '${account.name}${i}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:18) Identifier |account|
+//@[18:19) Dot |.|
+//@[19:23) Identifier |name|
+//@[23:26) StringMiddlePiece |}${|
+//@[26:27) Identifier |i|
+//@[27:29) StringRightPiece |}'|
+//@[29:31) NewLine |\r\n|
+  location: account.location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:19) Identifier |account|
+//@[19:20) Dot |.|
+//@[20:28) Identifier |location|
+//@[28:30) NewLine |\r\n|
+  sku: {
+//@[2:5) Identifier |sku|
+//@[5:6) Colon |:|
+//@[7:8) LeftBrace |{|
+//@[8:10) NewLine |\r\n|
+    name: 'Standard_LRS'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:24) StringComplete |'Standard_LRS'|
+//@[24:26) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'StorageV2'|
+//@[19:21) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
 // basic nested loop
 //@[20:22) NewLine |\r\n|
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
@@ -1643,4 +1703,632 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
-//@[2:2) EndOfFile ||
+//@[2:6) NewLine |\r\n\r\n|
+
+/*
+  Scope values created via array access on a resource collection
+*/
+//@[2:4) NewLine |\r\n|
+resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
+//@[0:8) Identifier |resource|
+//@[9:17) Identifier |dnsZones|
+//@[18:57) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[58:59) Assignment |=|
+//@[60:61) LeftSquare |[|
+//@[61:64) Identifier |for|
+//@[65:69) Identifier |zone|
+//@[70:72) Identifier |in|
+//@[73:78) Identifier |range|
+//@[78:79) LeftParen |(|
+//@[79:80) Integer |0|
+//@[80:81) Comma |,|
+//@[81:82) Integer |4|
+//@[82:83) RightParen |)|
+//@[83:84) Colon |:|
+//@[85:86) LeftBrace |{|
+//@[86:88) NewLine |\r\n|
+  name: 'zone${zone}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:15) StringLeftPiece |'zone${|
+//@[15:19) Identifier |zone|
+//@[19:21) StringRightPiece |}'|
+//@[21:23) NewLine |\r\n|
+  location: 'global'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'global'|
+//@[20:22) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+//@[0:8) Identifier |resource|
+//@[9:21) Identifier |locksOnZones|
+//@[22:64) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[65:66) Assignment |=|
+//@[67:68) LeftSquare |[|
+//@[68:71) Identifier |for|
+//@[72:76) Identifier |lock|
+//@[77:79) Identifier |in|
+//@[80:85) Identifier |range|
+//@[85:86) LeftParen |(|
+//@[86:87) Integer |0|
+//@[87:88) Comma |,|
+//@[88:89) Integer |2|
+//@[89:90) RightParen |)|
+//@[90:91) Colon |:|
+//@[92:93) LeftBrace |{|
+//@[93:95) NewLine |\r\n|
+  name: 'lock${lock}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:15) StringLeftPiece |'lock${|
+//@[15:19) Identifier |lock|
+//@[19:21) StringRightPiece |}'|
+//@[21:23) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    level: 'CanNotDelete'
+//@[4:9) Identifier |level|
+//@[9:10) Colon |:|
+//@[11:25) StringComplete |'CanNotDelete'|
+//@[25:27) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  scope: dnsZones[lock]
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:17) Identifier |dnsZones|
+//@[17:18) LeftSquare |[|
+//@[18:22) Identifier |lock|
+//@[22:23) RightSquare |]|
+//@[23:25) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+//@[0:8) Identifier |resource|
+//@[9:25) Identifier |moreLocksOnZones|
+//@[26:68) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[69:70) Assignment |=|
+//@[71:72) LeftSquare |[|
+//@[72:75) Identifier |for|
+//@[76:77) LeftParen |(|
+//@[77:81) Identifier |lock|
+//@[81:82) Comma |,|
+//@[83:84) Identifier |i|
+//@[84:85) RightParen |)|
+//@[86:88) Identifier |in|
+//@[89:94) Identifier |range|
+//@[94:95) LeftParen |(|
+//@[95:96) Integer |0|
+//@[96:97) Comma |,|
+//@[97:98) Integer |3|
+//@[98:99) RightParen |)|
+//@[99:100) Colon |:|
+//@[101:102) LeftBrace |{|
+//@[102:104) NewLine |\r\n|
+  name: 'another${i}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:18) StringLeftPiece |'another${|
+//@[18:19) Identifier |i|
+//@[19:21) StringRightPiece |}'|
+//@[21:23) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    level: 'ReadOnly'
+//@[4:9) Identifier |level|
+//@[9:10) Colon |:|
+//@[11:21) StringComplete |'ReadOnly'|
+//@[21:23) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  scope: dnsZones[i]
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:17) Identifier |dnsZones|
+//@[17:18) LeftSquare |[|
+//@[18:19) Identifier |i|
+//@[19:20) RightSquare |]|
+//@[20:22) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[0:8) Identifier |resource|
+//@[9:30) Identifier |singleLockOnFirstZone|
+//@[31:73) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[74:75) Assignment |=|
+//@[76:77) LeftBrace |{|
+//@[77:79) NewLine |\r\n|
+  name: 'single-lock'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:21) StringComplete |'single-lock'|
+//@[21:23) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    level: 'ReadOnly'
+//@[4:9) Identifier |level|
+//@[9:10) Colon |:|
+//@[11:21) StringComplete |'ReadOnly'|
+//@[21:23) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  scope: dnsZones[0]
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:17) Identifier |dnsZones|
+//@[17:18) LeftSquare |[|
+//@[18:19) Integer |0|
+//@[19:20) RightSquare |]|
+//@[20:22) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:7) NewLine |\r\n\r\n\r\n|
+
+
+resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p1_vnet|
+//@[17:63) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[64:65) Assignment |=|
+//@[66:67) LeftBrace |{|
+//@[67:69) NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:25) Identifier |resourceGroup|
+//@[25:26) LeftParen |(|
+//@[26:27) RightParen |)|
+//@[27:28) Dot |.|
+//@[28:36) Identifier |location|
+//@[36:38) NewLine |\r\n|
+  name: 'myVnet'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'myVnet'|
+//@[16:18) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    addressSpace: {
+//@[4:16) Identifier |addressSpace|
+//@[16:17) Colon |:|
+//@[18:19) LeftBrace |{|
+//@[19:21) NewLine |\r\n|
+      addressPrefixes: [
+//@[6:21) Identifier |addressPrefixes|
+//@[21:22) Colon |:|
+//@[23:24) LeftSquare |[|
+//@[24:26) NewLine |\r\n|
+        '10.0.0.0/20'
+//@[8:21) StringComplete |'10.0.0.0/20'|
+//@[21:23) NewLine |\r\n|
+      ]
+//@[6:7) RightSquare |]|
+//@[7:9) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:19) Identifier |p1_subnet1|
+//@[20:74) StringComplete |'Microsoft.Network/virtualNetworks/subnets@2020-06-01'|
+//@[75:76) Assignment |=|
+//@[77:78) LeftBrace |{|
+//@[78:80) NewLine |\r\n|
+  parent: p1_vnet
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p1_vnet|
+//@[17:19) NewLine |\r\n|
+  name: 'subnet1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringComplete |'subnet1'|
+//@[17:19) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    addressPrefix: '10.0.0.0/24'
+//@[4:17) Identifier |addressPrefix|
+//@[17:18) Colon |:|
+//@[19:32) StringComplete |'10.0.0.0/24'|
+//@[32:34) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:19) Identifier |p1_subnet2|
+//@[20:74) StringComplete |'Microsoft.Network/virtualNetworks/subnets@2020-06-01'|
+//@[75:76) Assignment |=|
+//@[77:78) LeftBrace |{|
+//@[78:80) NewLine |\r\n|
+  parent: p1_vnet
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p1_vnet|
+//@[17:19) NewLine |\r\n|
+  name: 'subnet2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringComplete |'subnet2'|
+//@[17:19) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    addressPrefix: '10.0.1.0/24'
+//@[4:17) Identifier |addressPrefix|
+//@[17:18) Colon |:|
+//@[19:32) StringComplete |'10.0.1.0/24'|
+//@[32:34) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p1_subnet1prefix|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:43) Identifier |p1_subnet1|
+//@[43:44) Dot |.|
+//@[44:54) Identifier |properties|
+//@[54:55) Dot |.|
+//@[55:68) Identifier |addressPrefix|
+//@[68:70) NewLine |\r\n|
+output p1_subnet1name string = p1_subnet1.name
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p1_subnet1name|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:41) Identifier |p1_subnet1|
+//@[41:42) Dot |.|
+//@[42:46) Identifier |name|
+//@[46:48) NewLine |\r\n|
+output p1_subnet1type string = p1_subnet1.type
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p1_subnet1type|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:41) Identifier |p1_subnet1|
+//@[41:42) Dot |.|
+//@[42:46) Identifier |type|
+//@[46:48) NewLine |\r\n|
+output p1_subnet1id string = p1_subnet1.id
+//@[0:6) Identifier |output|
+//@[7:19) Identifier |p1_subnet1id|
+//@[20:26) Identifier |string|
+//@[27:28) Assignment |=|
+//@[29:39) Identifier |p1_subnet1|
+//@[39:40) Dot |.|
+//@[40:42) Identifier |id|
+//@[42:46) NewLine |\r\n\r\n|
+
+// parent property with extension resource
+//@[42:44) NewLine |\r\n|
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p2_res1|
+//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:55) Assignment |=|
+//@[56:57) LeftBrace |{|
+//@[57:59) NewLine |\r\n|
+  name: 'res1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'res1'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:21) Identifier |p2_res1child|
+//@[22:65) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[66:67) Assignment |=|
+//@[68:69) LeftBrace |{|
+//@[69:71) NewLine |\r\n|
+  parent: p2_res1
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p2_res1|
+//@[17:19) NewLine |\r\n|
+  name: 'child1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child1'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p2_res2|
+//@[17:53) StringComplete |'Microsoft.Rp2/resource2@2020-06-01'|
+//@[54:55) Assignment |=|
+//@[56:57) LeftBrace |{|
+//@[57:59) NewLine |\r\n|
+  scope: p2_res1child
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:21) Identifier |p2_res1child|
+//@[21:23) NewLine |\r\n|
+  name: 'res2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'res2'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:21) Identifier |p2_res2child|
+//@[22:65) StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[66:67) Assignment |=|
+//@[68:69) LeftBrace |{|
+//@[69:71) NewLine |\r\n|
+  parent: p2_res2
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p2_res2|
+//@[17:19) NewLine |\r\n|
+  name: 'child2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child2'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p2_res2childprop string = p2_res2child.properties.someProp
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p2_res2childprop|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:45) Identifier |p2_res2child|
+//@[45:46) Dot |.|
+//@[46:56) Identifier |properties|
+//@[56:57) Dot |.|
+//@[57:65) Identifier |someProp|
+//@[65:67) NewLine |\r\n|
+output p2_res2childname string = p2_res2child.name
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p2_res2childname|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:45) Identifier |p2_res2child|
+//@[45:46) Dot |.|
+//@[46:50) Identifier |name|
+//@[50:52) NewLine |\r\n|
+output p2_res2childtype string = p2_res2child.type
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p2_res2childtype|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:45) Identifier |p2_res2child|
+//@[45:46) Dot |.|
+//@[46:50) Identifier |type|
+//@[50:52) NewLine |\r\n|
+output p2_res2childid string = p2_res2child.id
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p2_res2childid|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:43) Identifier |p2_res2child|
+//@[43:44) Dot |.|
+//@[44:46) Identifier |id|
+//@[46:50) NewLine |\r\n\r\n|
+
+// parent property with 'existing' resource
+//@[43:45) NewLine |\r\n|
+resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p3_res1|
+//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:62) Identifier |existing|
+//@[63:64) Assignment |=|
+//@[65:66) LeftBrace |{|
+//@[66:68) NewLine |\r\n|
+  name: 'res1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'res1'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |p3_child1|
+//@[19:62) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:64) Assignment |=|
+//@[65:66) LeftBrace |{|
+//@[66:68) NewLine |\r\n|
+  parent: p3_res1
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p3_res1|
+//@[17:19) NewLine |\r\n|
+  name: 'child1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child1'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p3_res1childprop string = p3_child1.properties.someProp
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p3_res1childprop|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p3_child1|
+//@[42:43) Dot |.|
+//@[43:53) Identifier |properties|
+//@[53:54) Dot |.|
+//@[54:62) Identifier |someProp|
+//@[62:64) NewLine |\r\n|
+output p3_res1childname string = p3_child1.name
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p3_res1childname|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p3_child1|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |name|
+//@[47:49) NewLine |\r\n|
+output p3_res1childtype string = p3_child1.type
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p3_res1childtype|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p3_child1|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |type|
+//@[47:49) NewLine |\r\n|
+output p3_res1childid string = p3_child1.id
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p3_res1childid|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:40) Identifier |p3_child1|
+//@[40:41) Dot |.|
+//@[41:43) Identifier |id|
+//@[43:47) NewLine |\r\n\r\n|
+
+// parent & child with 'existing'
+//@[33:35) NewLine |\r\n|
+resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:16) Identifier |p4_res1|
+//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[54:62) Identifier |existing|
+//@[63:64) Assignment |=|
+//@[65:66) LeftBrace |{|
+//@[66:68) NewLine |\r\n|
+  scope: tenant()
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:15) Identifier |tenant|
+//@[15:16) LeftParen |(|
+//@[16:17) RightParen |)|
+//@[17:19) NewLine |\r\n|
+  name: 'res1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'res1'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |p4_child1|
+//@[19:62) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:71) Identifier |existing|
+//@[72:73) Assignment |=|
+//@[74:75) LeftBrace |{|
+//@[75:77) NewLine |\r\n|
+  parent: p4_res1
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:17) Identifier |p4_res1|
+//@[17:19) NewLine |\r\n|
+  name: 'child1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child1'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output p4_res1childprop string = p4_child1.properties.someProp
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p4_res1childprop|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p4_child1|
+//@[42:43) Dot |.|
+//@[43:53) Identifier |properties|
+//@[53:54) Dot |.|
+//@[54:62) Identifier |someProp|
+//@[62:64) NewLine |\r\n|
+output p4_res1childname string = p4_child1.name
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p4_res1childname|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p4_child1|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |name|
+//@[47:49) NewLine |\r\n|
+output p4_res1childtype string = p4_child1.type
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |p4_res1childtype|
+//@[24:30) Identifier |string|
+//@[31:32) Assignment |=|
+//@[33:42) Identifier |p4_child1|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |type|
+//@[47:49) NewLine |\r\n|
+output p4_res1childid string = p4_child1.id
+//@[0:6) Identifier |output|
+//@[7:21) Identifier |p4_res1childid|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:40) Identifier |p4_child1|
+//@[40:41) Dot |.|
+//@[41:43) Identifier |id|
+//@[43:43) EndOfFile ||

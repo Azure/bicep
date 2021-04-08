@@ -1,0 +1,3 @@
+<Project>
+  <Import Project="..\build\Azure.Bicep.CommandLine.Common.props" />
+</Project>

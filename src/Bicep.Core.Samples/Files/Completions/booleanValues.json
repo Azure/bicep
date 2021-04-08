@@ -7,7 +7,7 @@
     "preselect": true,
     "sortText": "1_false",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "false"
@@ -21,7 +21,7 @@
     "preselect": true,
     "sortText": "1_true",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "true"

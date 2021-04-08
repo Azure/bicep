@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17579601539293354052"
+    }
+  },
   "parameters": {
     "vmSku": {
       "type": "string",
@@ -22,8 +29,8 @@
     },
     "instanceCount": {
       "type": "int",
-      "minValue": 1,
-      "maxValue": 100
+      "maxValue": 100,
+      "minValue": 1
     },
     "adminUsername": {
       "type": "string"
@@ -264,12 +271,5 @@
         "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "4611734565961028292"
-    }
-  }
+  ]
 }

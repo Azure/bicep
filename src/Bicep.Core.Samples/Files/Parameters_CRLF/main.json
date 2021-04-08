@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4791804594827369921"
+    }
+  },
   "parameters": {
     "myString": {
       "type": "string"
@@ -251,6 +258,16 @@
       "defaultValue": 123,
       "minValue": 200
     },
+    "negativeValues": {
+      "type": "int",
+      "maxValue": -3,
+      "minValue": -10
+    },
+    "negativeModifiers": {
+      "type": "int",
+      "minValue": -100,
+      "maxValue": -33
+    },
     "decoratedBool": {
       "type": "bool",
       "defaultValue": "[not(equals(and(true(), false()), true()))]",
@@ -301,12 +318,5 @@
     }
   },
   "functions": [],
-  "resources": [],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "1221792736613608003"
-    }
-  }
+  "resources": []
 }

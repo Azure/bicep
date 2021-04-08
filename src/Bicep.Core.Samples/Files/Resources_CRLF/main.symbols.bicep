@@ -335,6 +335,19 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
   kind: 'StorageV2'
 }]
 
+// storage account loop with index
+resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
+//@[90:97) Local account. Type: any. Declaration start char: 90, length: 7
+//@[99:100) Local i. Type: int. Declaration start char: 99, length: 1
+//@[9:34) Resource storageResourcesWithIndex. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 250
+  name: '${account.name}${i}'
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}]
+
 // basic nested loop
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[68:69) Local i. Type: int. Declaration start char: 68, length: 1
@@ -391,3 +404,160 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
     }]
   }
 }]
+
+/*
+  Scope values created via array access on a resource collection
+*/
+resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
+//@[65:69) Local zone. Type: int. Declaration start char: 65, length: 4
+//@[9:17) Resource dnsZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 135
+  name: 'zone${zone}'
+  location: 'global'
+}]
+
+resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+//@[72:76) Local lock. Type: int. Declaration start char: 72, length: 4
+//@[9:21) Resource locksOnZones. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 194
+  name: 'lock${lock}'
+  properties: {
+    level: 'CanNotDelete'
+  }
+  scope: dnsZones[lock]
+}]
+
+resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+//@[77:81) Local lock. Type: int. Declaration start char: 77, length: 4
+//@[83:84) Local i. Type: int. Declaration start char: 83, length: 1
+//@[9:25) Resource moreLocksOnZones. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 196
+  name: 'another${i}'
+  properties: {
+    level: 'ReadOnly'
+  }
+  scope: dnsZones[i]
+}]
+
+resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[9:30) Resource singleLockOnFirstZone. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 170
+  name: 'single-lock'
+  properties: {
+    level: 'ReadOnly'
+  }
+  scope: dnsZones[0]
+}
+
+
+resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[9:16) Resource p1_vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 234
+  location: resourceGroup().location
+  name: 'myVnet'
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/20'
+      ]
+    }
+  }
+}
+
+resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[9:19) Resource p1_subnet1. Type: Microsoft.Network/virtualNetworks/subnets@2020-06-01. Declaration start char: 0, length: 175
+  parent: p1_vnet
+  name: 'subnet1'
+  properties: {
+    addressPrefix: '10.0.0.0/24'
+  }
+}
+
+resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[9:19) Resource p1_subnet2. Type: Microsoft.Network/virtualNetworks/subnets@2020-06-01. Declaration start char: 0, length: 175
+  parent: p1_vnet
+  name: 'subnet2'
+  properties: {
+    addressPrefix: '10.0.1.0/24'
+  }
+}
+
+output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
+//@[7:23) Output p1_subnet1prefix. Type: string. Declaration start char: 0, length: 68
+output p1_subnet1name string = p1_subnet1.name
+//@[7:21) Output p1_subnet1name. Type: string. Declaration start char: 0, length: 46
+output p1_subnet1type string = p1_subnet1.type
+//@[7:21) Output p1_subnet1type. Type: string. Declaration start char: 0, length: 46
+output p1_subnet1id string = p1_subnet1.id
+//@[7:19) Output p1_subnet1id. Type: string. Declaration start char: 0, length: 42
+
+// parent property with extension resource
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res1'
+}
+
+resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[9:21) Resource p2_res1child. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 109
+  parent: p2_res1
+  name: 'child1'
+}
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[9:16) Resource p2_res2. Type: Microsoft.Rp2/resource2@2020-06-01. Declaration start char: 0, length: 99
+  scope: p2_res1child
+  name: 'res2'
+}
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[9:21) Resource p2_res2child. Type: Microsoft.Rp2/resource2/child2@2020-06-01. Declaration start char: 0, length: 109
+  parent: p2_res2
+  name: 'child2'
+}
+
+output p2_res2childprop string = p2_res2child.properties.someProp
+//@[7:23) Output p2_res2childprop. Type: string. Declaration start char: 0, length: 65
+output p2_res2childname string = p2_res2child.name
+//@[7:23) Output p2_res2childname. Type: string. Declaration start char: 0, length: 50
+output p2_res2childtype string = p2_res2child.type
+//@[7:23) Output p2_res2childtype. Type: string. Declaration start char: 0, length: 50
+output p2_res2childid string = p2_res2child.id
+//@[7:21) Output p2_res2childid. Type: string. Declaration start char: 0, length: 46
+
+// parent property with 'existing' resource
+resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[9:16) Resource p3_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 85
+  name: 'res1'
+}
+
+resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[9:18) Resource p3_child1. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 106
+  parent: p3_res1
+  name: 'child1'
+}
+
+output p3_res1childprop string = p3_child1.properties.someProp
+//@[7:23) Output p3_res1childprop. Type: string. Declaration start char: 0, length: 62
+output p3_res1childname string = p3_child1.name
+//@[7:23) Output p3_res1childname. Type: string. Declaration start char: 0, length: 47
+output p3_res1childtype string = p3_child1.type
+//@[7:23) Output p3_res1childtype. Type: string. Declaration start char: 0, length: 47
+output p3_res1childid string = p3_child1.id
+//@[7:21) Output p3_res1childid. Type: string. Declaration start char: 0, length: 43
+
+// parent & child with 'existing'
+resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[9:16) Resource p4_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 104
+  scope: tenant()
+  name: 'res1'
+}
+
+resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
+//@[9:18) Resource p4_child1. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 115
+  parent: p4_res1
+  name: 'child1'
+}
+
+output p4_res1childprop string = p4_child1.properties.someProp
+//@[7:23) Output p4_res1childprop. Type: string. Declaration start char: 0, length: 62
+output p4_res1childname string = p4_child1.name
+//@[7:23) Output p4_res1childname. Type: string. Declaration start char: 0, length: 47
+output p4_res1childtype string = p4_child1.type
+//@[7:23) Output p4_res1childtype. Type: string. Declaration start char: 0, length: 47
+output p4_res1childid string = p4_child1.id
+//@[7:21) Output p4_res1childid. Type: string. Declaration start char: 0, length: 43

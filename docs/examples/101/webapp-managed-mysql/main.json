@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17478612712825184147"
+    }
+  },
   "parameters": {
     "websiteName": {
       "type": "string"
@@ -10,8 +17,8 @@
     },
     "dbAdminPassword": {
       "type": "secureString",
-      "minLength": 8,
-      "maxLength": 128
+      "maxLength": 128,
+      "minLength": 8
     },
     "dbSkuCapacity": {
       "type": "int",
@@ -165,12 +172,5 @@
         "[resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "10938510001943113378"
-    }
-  }
+  ]
 }

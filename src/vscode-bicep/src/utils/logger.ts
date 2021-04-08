@@ -92,7 +92,7 @@ function isTestEnv() {
 export function createLogger(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
-): void {
+): Logger {
   // TODO:
   // - make log level configurable
   // - Default log level should be info
@@ -102,6 +102,8 @@ export function createLogger(
   logger.info("Current log level: debug.");
 
   context.subscriptions.push(winstonLogger);
+
+  return logger;
 }
 
 export function getLogger(): Logger {

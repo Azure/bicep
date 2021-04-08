@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16142692707918007690"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -75,6 +82,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "2069337511543626233"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -199,6 +213,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3236288366958585083"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -320,12 +341,5 @@
         "[resourceId('Microsoft.Resources/deployments', 'network')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "13803228379190223896"
-    }
-  }
+  ]
 }

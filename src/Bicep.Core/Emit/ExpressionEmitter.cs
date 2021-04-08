@@ -79,6 +79,7 @@ namespace Bicep.Core.Emit
                 case FunctionCallSyntax _:
                 case ArrayAccessSyntax _:
                 case PropertyAccessSyntax _:
+                case ResourceAccessSyntax _:
                 case VariableAccessSyntax _:
                     EmitLanguageExpression(syntax);
                     
@@ -89,9 +90,11 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitUnqualifiedResourceId(ResourceSymbol resourceSymbol)
+        public void EmitUnqualifiedResourceId(ResourceSymbol resourceSymbol, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var unqualifiedResourceId = converter.GetUnqualifiedResourceId(resourceSymbol);
+            var converterForContext = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resourceSymbol), indexExpression, newContext);
+
+            var unqualifiedResourceId = converterForContext.GetUnqualifiedResourceId(resourceSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(unqualifiedResourceId);
 
             writer.WriteValue(serialized);
@@ -115,6 +118,11 @@ namespace Bicep.Core.Emit
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
+        }
+
+        public LanguageExpression GetFullyQualifiedResourceName(ResourceSymbol resourceSymbol)
+        {
+            return converter.GetFullyQualifiedResourceName(resourceSymbol);
         }
 
         public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
@@ -164,8 +172,27 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null)
+        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null, long? batchSize = null)
         {
+            // local function
+            static bool CanEmitAsInputDirectly(SyntaxBase input)
+            {
+                // the deployment engine only allows JTokenType of String or Object in the copy loop "input" property
+                // everything else must be converted into an expression
+                return input switch
+                {
+                    // objects should be emitted as is
+                    ObjectSyntax => true,
+
+                    // non-interpolated strings should be emitted as-is
+                    StringSyntax @string when !@string.IsInterpolated() => true,
+
+                    // all other expressions should be converted into a language expression before emitting
+                    // which will have the resulting JTokenType of String
+                    _ => false
+                };
+            }
+
             writer.WriteStartObject();
 
             if (name is not null)
@@ -180,16 +207,34 @@ namespace Bicep.Core.Emit
                 syntax.Expression,
                 arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
 
+            if(batchSize.HasValue)
+            {
+                this.EmitProperty("mode", "serial");
+                this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
+            }
+
             if (input != null)
             {
                 if (copyIndexOverride == null)
                 {
-                    this.EmitProperty("input", input);
+                    if (CanEmitAsInputDirectly(input))
+                    {
+                        this.EmitProperty("input", input);
+                    }
+                    else
+                    {
+                        this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
+                    }
                 }
                 else
                 {
                     this.EmitPropertyWithTransform("input", input, expression =>
                     {
+                        if(!CanEmitAsInputDirectly(input))
+                        {
+                            expression = ExpressionConverter.ToFunctionExpression(expression);
+                        }
+
                         // the named copy index in the serialized expression is incorrect
                         // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
                         // for now, we will manually replace the copy index in the converted expression

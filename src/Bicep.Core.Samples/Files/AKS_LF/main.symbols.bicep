@@ -5,32 +5,31 @@ param linuxAdminUsername string
 //@[6:24) Parameter linuxAdminUsername. Type: string. Declaration start char: 0, length: 31
 param sshRSAPublicKey string
 //@[6:21) Parameter sshRSAPublicKey. Type: string. Declaration start char: 0, length: 28
-param servcePrincipalClientId string {
-//@[6:29) Parameter servcePrincipalClientId. Type: string. Declaration start char: 0, length: 57
-    secure: true
-}
-param servicePrincipalClientSecret string {
-//@[6:34) Parameter servicePrincipalClientSecret. Type: string. Declaration start char: 0, length: 62
-    secure: true
-}
+
+@secure()
+param servcePrincipalClientId string
+//@[6:29) Parameter servcePrincipalClientId. Type: string. Declaration start char: 0, length: 46
+
+@secure()
+param servicePrincipalClientSecret string
+//@[6:34) Parameter servicePrincipalClientSecret. Type: string. Declaration start char: 0, length: 51
 
 // optional params
 param clusterName string = 'aks101cluster'
 //@[6:17) Parameter clusterName. Type: string. Declaration start char: 0, length: 42
 param location string = resourceGroup().location
 //@[6:14) Parameter location. Type: string. Declaration start char: 0, length: 48
-param osDiskSizeGB int {
-//@[6:18) Parameter osDiskSizeGB. Type: int. Declaration start char: 0, length: 76
-    default: 0
-    minValue: 0
-    maxValue: 1023
-}
-param agentCount int {
-//@[6:16) Parameter agentCount. Type: int. Declaration start char: 0, length: 72
-    default: 3
-    minValue: 1
-    maxValue: 50
-}
+
+@minValue(0)
+@maxValue(1023)
+param osDiskSizeGB int = 0
+//@[6:18) Parameter osDiskSizeGB. Type: int. Declaration start char: 0, length: 55
+
+@minValue(1)
+@maxValue(50)
+param agentCount int = 3
+//@[6:16) Parameter agentCount. Type: int. Declaration start char: 0, length: 51
+
 param agentVMSize string = 'Standard_DS2_v2'
 //@[6:17) Parameter agentVMSize. Type: string. Declaration start char: 0, length: 44
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test

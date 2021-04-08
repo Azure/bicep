@@ -1,34 +1,41 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2371301085388694835"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
+      "defaultValue": "westeurope",
       "metadata": {
         "description": "Specify the location for the hub Virtual Network and its related resources"
-      },
-      "defaultValue": "westeurope"
+      }
     },
     "vwanlocation": {
       "type": "string",
+      "defaultValue": "eastus",
       "metadata": {
         "description": "Specify the location for the vWAN and its related resources"
-      },
-      "defaultValue": "eastus"
+      }
     },
     "nameprefix": {
       "type": "string",
+      "defaultValue": "contoso",
       "metadata": {
         "description": "Specify the name prefix for all resources and resource groups"
-      },
-      "defaultValue": "contoso"
+      }
     },
     "psk": {
       "type": "secureString",
+      "defaultValue": "[uniqueString(subscription().id)]",
       "metadata": {
         "description": "Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet"
-      },
-      "defaultValue": "[uniqueString(subscription().id)]"
+      }
     }
   },
   "functions": [],
@@ -97,6 +104,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "162847684193433085"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -107,38 +121,38 @@
             },
             "addressprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.0/24",
               "metadata": {
                 "description": "Specifies the VNet Address Prefix."
-              },
-              "defaultValue": "10.0.1.0/24"
+              }
             },
             "serversubnetprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.0/26",
               "metadata": {
                 "description": "Specifies the Subnet Address Prefix for the server subnet"
-              },
-              "defaultValue": "10.0.1.0/26"
+              }
             },
             "bastionsubnetprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.64/26",
               "metadata": {
                 "description": "Specifies the Subnet Address Prefix for the bastion subnet"
-              },
-              "defaultValue": "10.0.1.64/26"
+              }
             },
             "gatewaysubnetprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.128/26",
               "metadata": {
                 "description": "Specifies the Subnet Address Prefix for the GatewaySubnet"
-              },
-              "defaultValue": "10.0.1.128/26"
+              }
             },
             "firewallsubnetprefix": {
               "type": "string",
+              "defaultValue": "10.0.1.192/26",
               "metadata": {
                 "description": "Specifies the Subnet Address Prefix for the AzureFirewallSubnet"
-              },
-              "defaultValue": "10.0.1.192/26"
+              }
             }
           },
           "functions": [],
@@ -347,6 +361,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7580795918915588757"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -469,6 +490,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "17229205886978523807"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -479,12 +507,12 @@
             },
             "dnsservers": {
               "type": "array",
-              "metadata": {
-                "description": "Specify custom DNS Servers for Azure Firewall"
-              },
               "defaultValue": [
                 "168.63.129.16"
-              ]
+              ],
+              "metadata": {
+                "description": "Specify custom DNS Servers for Azure Firewall"
+              }
             }
           },
           "functions": [],
@@ -637,6 +665,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16196232026889583677"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -652,10 +687,10 @@
             },
             "ipprefixlength": {
               "type": "int",
+              "defaultValue": 31,
               "metadata": {
                 "description": "Specifies the size of the Public IP Prefix"
               },
-              "defaultValue": 31,
               "allowedValues": [
                 28,
                 29,
@@ -744,6 +779,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10150724618130200737"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -770,31 +812,31 @@
             },
             "hubid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "Virtual Hub Resource ID, used when deploying Azure Firewall to Virtual WAN"
-              },
-              "defaultValue": ""
+              }
             },
             "hubpublicipcount": {
               "type": "int",
+              "defaultValue": 1,
               "metadata": {
                 "description": "Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN"
-              },
-              "defaultValue": 1
+              }
             },
             "subnetid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "AzureFirewallSubnet ID, used when deploying Azure Firewall to Virtual Network"
-              },
-              "defaultValue": ""
+              }
             },
             "publicipid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "Azure Firewall Public IP ID, used when deploying Azure Firewall to Virtual Network"
-              },
-              "defaultValue": ""
+              }
             }
           },
           "functions": [],
@@ -885,6 +927,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9376297639875019220"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -895,10 +944,10 @@
             },
             "wantype": {
               "type": "string",
+              "defaultValue": "Standard",
               "metadata": {
                 "description": "Specifies the type of Virtual WAN."
               },
-              "defaultValue": "Standard",
               "allowedValues": [
                 "Standard",
                 "Basic"
@@ -959,6 +1008,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "1358326818298344733"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -969,10 +1025,10 @@
             },
             "hubaddressprefix": {
               "type": "string",
+              "defaultValue": "10.10.0.0/24",
               "metadata": {
                 "description": "Specifies the Virtual Hub Address Prefix."
-              },
-              "defaultValue": "10.10.0.0/24"
+              }
             },
             "wanid": {
               "type": "string",
@@ -1038,6 +1094,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "17229205886978523807"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -1048,12 +1111,12 @@
             },
             "dnsservers": {
               "type": "array",
-              "metadata": {
-                "description": "Specify custom DNS Servers for Azure Firewall"
-              },
               "defaultValue": [
                 "168.63.129.16"
-              ]
+              ],
+              "metadata": {
+                "description": "Specify custom DNS Servers for Azure Firewall"
+              }
             }
           },
           "functions": [],
@@ -1212,6 +1275,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10150724618130200737"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -1238,31 +1308,31 @@
             },
             "hubid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "Virtual Hub Resource ID, used when deploying Azure Firewall to Virtual WAN"
-              },
-              "defaultValue": ""
+              }
             },
             "hubpublicipcount": {
               "type": "int",
+              "defaultValue": 1,
               "metadata": {
                 "description": "Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN"
-              },
-              "defaultValue": 1
+              }
             },
             "subnetid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "AzureFirewallSubnet ID, used when deploying Azure Firewall to Virtual Network"
-              },
-              "defaultValue": ""
+              }
             },
             "publicipid": {
               "type": "string",
+              "defaultValue": "",
               "metadata": {
                 "description": "Azure Firewall Public IP ID, used when deploying Azure Firewall to Virtual Network"
-              },
-              "defaultValue": ""
+              }
             }
           },
           "functions": [],
@@ -1355,6 +1425,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9383154409251617345"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -1458,6 +1535,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10666666379829743627"
+            }
+          },
           "parameters": {
             "vpnsitename": {
               "type": "string"
@@ -1564,6 +1648,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5891653832840361751"
+            }
+          },
           "parameters": {
             "hubvpngwname": {
               "type": "string"
@@ -1649,6 +1740,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12459440482450201372"
+            }
+          },
           "parameters": {
             "location": {
               "type": "string",
@@ -1749,12 +1847,5 @@
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5987788707490908447"
-    }
-  }
+  ]
 }

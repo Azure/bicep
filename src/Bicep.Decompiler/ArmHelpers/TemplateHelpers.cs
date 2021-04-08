@@ -34,19 +34,29 @@ namespace Bicep.Decompiler.ArmHelpers
         public static bool HasProperty(JObject parent, string name)
             => GetProperty(parent, name) != null;
 
-        public static void AssertUnsupportedProperty(JObject resource, string propertyName, string message)
+        public static void AssertUnsupportedProperty(JObject parent, string propertyName, string message)
         {
-            if (HasProperty(resource, propertyName))
+            if (HasProperty(parent, propertyName))
             {
-                throw new ConversionFailedException(message, resource);
+                throw new ConversionFailedException(message, parent);
             }
+        }
+
+        public static JToken AssertRequiredProperty(JObject parent, string propertyName, string message)
+        {
+            if (GetProperty(parent, propertyName) is not {} value)
+            {
+                throw new ConversionFailedException(message, parent);
+            }
+
+            return value.Value;            
         }
 
         public static (string type, string name, string apiVersion) ParseResource(JObject resource)
         {
-            var type = GetProperty(resource, "type")?.Value.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'type' for resource", resource);
-            var name = GetProperty(resource, "name")?.Value.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'name' for resource", resource);
-            var apiVersion = GetProperty(resource, "apiVersion")?.Value.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'apiVersion' for resource", resource);
+            var type = AssertRequiredProperty(resource, "type", $"Unable to parse \"type\" for resource").ToString();
+            var name = AssertRequiredProperty(resource, "name", $"Unable to parse \"name\" for resource").ToString();
+            var apiVersion = AssertRequiredProperty(resource, "apiVersion", $"Unable to parse \"apiVersion\" for resource").ToString();
             
             return (type, name, apiVersion);
         }

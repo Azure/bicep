@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1358326818298344733"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -11,10 +18,10 @@
     },
     "hubaddressprefix": {
       "type": "string",
+      "defaultValue": "10.10.0.0/24",
       "metadata": {
         "description": "Specifies the Virtual Hub Address Prefix."
-      },
-      "defaultValue": "10.10.0.0/24"
+      }
     },
     "wanid": {
       "type": "string",
@@ -50,13 +57,6 @@
     "vhubaddress": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Network/virtualHubs', parameters('hubname'))).addressPrefix]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "8037978691182688537"
     }
   }
 }

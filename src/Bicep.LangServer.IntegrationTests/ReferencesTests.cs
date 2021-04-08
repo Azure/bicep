@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -162,9 +162,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static IEnumerable<object[]> GetData()
         {
-            return DataSets.AllDataSets.ToDynamicTestData();
+            return DataSets.NonStressDataSets.ToDynamicTestData();
         }
     }
-
-    
 }

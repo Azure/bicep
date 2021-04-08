@@ -1,8 +1,8 @@
 param _artifactsLocation string = 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/301-nested-vms-in-virtual-network/'
-param _artifactsLocationSasToken string {
-  secure: true
-  default: ''
-}
+
+@secure()
+param _artifactsLocationSasToken string = ''
+
 param location string = resourceGroup().location
 param HostPublicIPAddressName string = 'HVHOSTPIP'
 param virtualNetworkName string = 'VirtualNetwork'
@@ -18,43 +18,42 @@ param azureVMsSubnetName string = 'Azure-VMs'
 param azureVMsSubnetPrefix string = '10.0.3.0/24'
 param HostNetworkInterface1Name string = 'HVHOSTNIC1'
 param HostNetworkInterface2Name string = 'HVHOSTNIC2'
-param HostVirtualMachineName string {
-  default: 'HVHOST'
-  maxLength: 15
-}
-param HostVirtualMachineSize string {
-  default: 'Standard_D4s_v3'
-  allowed: [
-    'Standard_D2_v3'
-    'Standard_D4_v3'
-    'Standard_D8_v3'
-    'Standard_D16_v3'
-    'Standard_D32_v3'
-    'Standard_D2s_v3'
-    'Standard_D4s_v3'
-    'Standard_D8s_v3'
-    'Standard_D16s_v3'
-    'Standard_D32s_v3'
-    'Standard_D64_v3'
-    'Standard_E2_v3'
-    'Standard_E4_v3'
-    'Standard_E8_v3'
-    'Standard_E16_v3'
-    'Standard_E32_v3'
-    'Standard_E64_v3'
-    'Standard_D64s_v3'
-    'Standard_E2s_v3'
-    'Standard_E4s_v3'
-    'Standard_E8s_v3'
-    'Standard_E16s_v3'
-    'Standard_E32s_v3'
-    'Standard_E64s_v3'
-  ]
-}
+
+@maxLength(15)
+param HostVirtualMachineName string = 'HVHOST'
+
+@allowed([
+  'Standard_D2_v3'
+  'Standard_D4_v3'
+  'Standard_D8_v3'
+  'Standard_D16_v3'
+  'Standard_D32_v3'
+  'Standard_D2s_v3'
+  'Standard_D4s_v3'
+  'Standard_D8s_v3'
+  'Standard_D16s_v3'
+  'Standard_D32s_v3'
+  'Standard_D64_v3'
+  'Standard_E2_v3'
+  'Standard_E4_v3'
+  'Standard_E8_v3'
+  'Standard_E16_v3'
+  'Standard_E32_v3'
+  'Standard_E64_v3'
+  'Standard_D64s_v3'
+  'Standard_E2s_v3'
+  'Standard_E4s_v3'
+  'Standard_E8s_v3'
+  'Standard_E16s_v3'
+  'Standard_E32s_v3'
+  'Standard_E64s_v3'
+])
+param HostVirtualMachineSize string = 'Standard_D4s_v3'
+
 param HostAdminUsername string
-param HostAdminPassword string {
-  secure: true
-}
+
+@secure()
+param HostAdminPassword string
 
 var NATSubnetNSGName = '${NATSubnetName}NSG'
 var hyperVSubnetNSGName = '${hyperVSubnetName}NSG'

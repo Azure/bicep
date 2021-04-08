@@ -2,13 +2,13 @@ param nicName string
 param location string = resourceGroup().location
 param subnetId string
 param pipId string = ''
-param ipAllocationMethod string {
-  default: 'Dynamic'
-  allowed: [
-    'Dynamic'
-    'Static'
-  ]
-}
+
+@allowed([
+  'Dynamic'
+  'Static'
+])
+param ipAllocationMethod string = 'Dynamic'
+
 param staticIpAddress string = ''
 param enableIPForwarding bool = false
 

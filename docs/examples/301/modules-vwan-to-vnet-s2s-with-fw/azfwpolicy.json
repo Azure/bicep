@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17229205886978523807"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -11,12 +18,12 @@
     },
     "dnsservers": {
       "type": "array",
-      "metadata": {
-        "description": "Specify custom DNS Servers for Azure Firewall"
-      },
       "defaultValue": [
         "168.63.129.16"
-      ]
+      ],
+      "metadata": {
+        "description": "Specify custom DNS Servers for Azure Firewall"
+      }
     }
   },
   "functions": [],
@@ -134,13 +141,6 @@
     "id": {
       "type": "string",
       "value": "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "12627680286591408003"
     }
   }
 }

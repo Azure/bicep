@@ -6,7 +6,7 @@ param vnetLocation string = 'westeurope'
 param subnetName string = 'WVD'
 
 //Create Vnet and Subnet
-resource vnet 'Microsoft.Network/virtualnetworks@2015-05-01-preview' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2019-12-01' = {
   name: vnetName
   location: vnetLocation
   properties: {

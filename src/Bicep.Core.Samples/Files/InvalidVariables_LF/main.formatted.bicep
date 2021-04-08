@@ -160,8 +160,15 @@ var anotherThing = true
 var ☕ = true
 var a☕ = true
 
-// loops are not allowed in variables
-var noVariableLoopsYet = [for thing in stuff: 4]
+var missingArrayVariable = [for thing in stuff: 4]
+
+// loops are only allowed at the top level
+var nonTopLevelLoop = {
+  notOkHere: [for thing in stuff: 4]
+}
+
+// loops with conditions won't even parse
+var noFilteredLoopsInVariables = [for thing in stuff: if]
 
 // nested loops are also not allowed
 var noNestedVariableLoopsEither = [for thing in stuff: {
@@ -178,5 +185,39 @@ var innerPropertyLoop2 = {
   }
 }
 
+// loops using expressions with a runtime dependency are also not allowed
+var keys = listKeys('fake', 'fake')
+var indirection = keys
+
+var runtimeLoop = [for (item, index) in []: indirection]
+var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
+
+var zoneInput = []
+resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
+  name: zone
+  location: az.resourceGroup().location
+}]
+var inlinedVariable = zones[0].properties.zoneType
+
+var runtimeLoop3 = [for (zone, i) in zoneInput: {
+  a: inlinedVariable
+}]
+
+var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
+  a: 0
+}]
+
+var notRuntime = concat('a', 'b')
+var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
+var moreIndirection = reference('s', 's', 'Full')
+
+var myRef = [
+  evenMoreIndirection
+]
+var runtimeLoop5 = [for (item, index) in myRef: 's']
+
 // cannot use loops in expressions
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
+
+@batchSize(1)
+var batchSizeMakesNoSenseHere = false

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14974550603307173803"
+    }
+  },
   "parameters": {
     "vnetName": {
       "type": "string"
@@ -23,8 +30,8 @@
   "functions": [],
   "resources": [
     {
-      "type": "Microsoft.Network/virtualnetworks",
-      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-12-01",
       "name": "[parameters('vnetName')]",
       "location": "[parameters('vnetLocation')]",
       "properties": {
@@ -48,18 +55,11 @@
   "outputs": {
     "subnetId": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/virtualnetworks', parameters('vnetName'))).subnets[0].id]"
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))).subnets[0].id]"
     },
     "vnetId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Network/virtualnetworks', parameters('vnetName'))]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "0.2.476.60462",
-      "templateHash": "7563517972701665491"
+      "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
     }
   }
 }

@@ -1,9 +1,7 @@
 param applicationName string
-param dnsZone string {
-  metadata: {
-    description: 'Existing Azure DNS zone in target resource group'
-  }
-}
+
+@description('Existing Azure DNS zone in target resource group')
+param dnsZone string
 
 var location = resourceGroup().location
 var componentBase = '${substring(uniqueString(resourceGroup().id), 4)}-${applicationName}'

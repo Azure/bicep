@@ -209,10 +209,21 @@ var ☕ = true
 var a☕ = true
 //@[4:5) Variable a. Type: error. Declaration start char: 0, length: 13
 
-// loops are not allowed in variables
-var noVariableLoopsYet = [for thing in stuff: 4]
-//@[30:35) Local thing. Type: any. Declaration start char: 30, length: 5
-//@[4:22) Variable noVariableLoopsYet. Type: error. Declaration start char: 0, length: 48
+var missingArrayVariable = [for thing in stuff: 4]
+//@[32:37) Local thing. Type: any. Declaration start char: 32, length: 5
+//@[4:24) Variable missingArrayVariable. Type: error. Declaration start char: 0, length: 50
+
+// loops are only allowed at the top level
+var nonTopLevelLoop = {
+//@[4:19) Variable nonTopLevelLoop. Type: error. Declaration start char: 0, length: 62
+  notOkHere: [for thing in stuff: 4]
+//@[18:23) Local thing. Type: any. Declaration start char: 18, length: 5
+}
+
+// loops with conditions won't even parse
+var noFilteredLoopsInVariables = [for thing in stuff: if]
+//@[38:43) Local thing. Type: any. Declaration start char: 38, length: 5
+//@[4:30) Variable noFilteredLoopsInVariables. Type: error. Declaration start char: 0, length: 57
 
 // nested loops are also not allowed
 var noNestedVariableLoopsEither = [for thing in stuff: {
@@ -236,8 +247,70 @@ var innerPropertyLoop2 = {
   }
 }
 
+// loops using expressions with a runtime dependency are also not allowed
+var keys = listKeys('fake','fake')
+//@[4:8) Variable keys. Type: any. Declaration start char: 0, length: 34
+var indirection = keys
+//@[4:15) Variable indirection. Type: any. Declaration start char: 0, length: 22
+
+var runtimeLoop = [for (item, index) in []: indirection]
+//@[24:28) Local item. Type: any. Declaration start char: 24, length: 4
+//@[30:35) Local index. Type: int. Declaration start char: 30, length: 5
+//@[4:15) Variable runtimeLoop. Type: any[]. Declaration start char: 0, length: 56
+var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
+//@[25:29) Local item. Type: any. Declaration start char: 25, length: 4
+//@[31:36) Local index. Type: int. Declaration start char: 31, length: 5
+//@[4:16) Variable runtimeLoop2. Type: 's'[]. Declaration start char: 0, length: 63
+
+var zoneInput = []
+//@[4:13) Variable zoneInput. Type: array. Declaration start char: 0, length: 18
+resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
+//@[63:67) Local zone. Type: any. Declaration start char: 63, length: 4
+//@[69:70) Local i. Type: int. Declaration start char: 69, length: 1
+//@[9:14) Resource zones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 143
+  name: zone
+  location: az.resourceGroup().location
+}]
+var inlinedVariable = zones[0].properties.zoneType
+//@[4:19) Variable inlinedVariable. Type: 'Private' | 'Public'. Declaration start char: 0, length: 50
+
+var runtimeLoop3 = [for (zone, i) in zoneInput: {
+//@[25:29) Local zone. Type: any. Declaration start char: 25, length: 4
+//@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
+//@[4:16) Variable runtimeLoop3. Type: object[]. Declaration start char: 0, length: 73
+  a: inlinedVariable
+}]
+
+var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
+//@[25:29) Local zone. Type: SubResource. Declaration start char: 25, length: 4
+//@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
+//@[4:16) Variable runtimeLoop4. Type: object[]. Declaration start char: 0, length: 97
+  a: 0
+}]
+
+var notRuntime = concat('a','b')
+//@[4:14) Variable notRuntime. Type: string. Declaration start char: 0, length: 32
+var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
+//@[4:23) Variable evenMoreIndirection. Type: string. Declaration start char: 0, length: 69
+var moreIndirection = reference('s','s', 'Full')
+//@[4:19) Variable moreIndirection. Type: object. Declaration start char: 0, length: 48
+
+var myRef = [
+//@[4:9) Variable myRef. Type: string[]. Declaration start char: 0, length: 37
+  evenMoreIndirection
+]
+var runtimeLoop5 = [for (item, index) in myRef: 's']
+//@[25:29) Local item. Type: string. Declaration start char: 25, length: 4
+//@[31:36) Local index. Type: int. Declaration start char: 31, length: 5
+//@[4:16) Variable runtimeLoop5. Type: 's'[]. Declaration start char: 0, length: 52
+
 // cannot use loops in expressions
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[32:37) Local thing. Type: any. Declaration start char: 32, length: 5
 //@[57:62) Local thing. Type: any. Declaration start char: 57, length: 5
 //@[4:18) Variable loopExpression. Type: error. Declaration start char: 0, length: 79
+
+@batchSize(1)
+var batchSizeMakesNoSenseHere = false
+//@[4:29) Variable batchSizeMakesNoSenseHere. Type: bool. Declaration start char: 0, length: 51
+

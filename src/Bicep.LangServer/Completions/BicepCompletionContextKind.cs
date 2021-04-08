@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 
@@ -71,20 +71,51 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is accessing properties or methods.
         /// </summary>
         MemberAccess = 1 << 11,
+
+        /// <summary>
+        /// The current location is accessing a nested resource.
+        /// </summary>
+        ResourceAccess = 1 << 12,
         
         /// <summary>
         /// The current location needs target scope value.
         /// </summary>
-        TargetScope = 1 << 12,
+        TargetScope = 1 << 13,
 
         /// <summary>
         /// The current location needs an array index.
         /// </summary>
-        ArrayIndex = 1 << 13,
+        ArrayIndex = 1 << 14,
 
         /// <summary>
         /// The current location needs a decorator name.
         /// </summary>
-        DecoratorName = 1 << 14,
+        DecoratorName = 1 << 15,
+
+        /// <summary>
+        /// The current location could be the start of a nested resource declaration.
+        /// </summary>
+        NestedResourceDeclarationStart = 1 << 16,
+
+        /// <summary>
+        /// The current location needs a variable value.
+        /// </summary>
+        VariableValue = 1 << 17,
+
+        /// <summary>
+        /// The current location needs an output value.
+        /// </summary>
+        OutputValue = 1 << 18,
+
+        /// <summary>
+        /// The current location needs a parameter default value.
+        /// </summary>
+        ParameterDefaultValue = 1 << 19,
+
+        /// <summary>
+        /// The current location is not a valid scope where we can offer completions.
+        /// </summary>
+        /// <remarks>This is used to prevent fallback to Expression kind</remarks>
+        NotValid = 1 << 20
     }
 }

@@ -22,13 +22,13 @@ namespace Bicep.Core.Emit
             DeployTimeConstantVisitor.ValidateDeployTimeConstants(model, diagnosticWriter);
 
             ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
-
-            diagnosticWriter.WriteMultiple(DetectDuplicateNames(model, resourceScopeData, moduleScopeData));
+            DetectDuplicateNames(model, diagnosticWriter, resourceScopeData, moduleScopeData);
+            DetectIncorrectlyFormattedNames(model, diagnosticWriter);
 
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
 
-        private static IEnumerable<Diagnostic> DetectDuplicateNames(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
+        private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
         {
             // This method only checks, if in one deployment we do not have 2 or more resources with this same name in one deployment to avoid template validation error
             // This will not check resource constraints such as necessity of having unique virtual network names within resource group
@@ -42,7 +42,7 @@ namespace Bicep.Core.Emit
                 var duplicatedResourceNames = duplicatedResourceGroup.Select(x => x.ResourceName).ToArray();
                 foreach (var duplicatedResource in duplicatedResourceGroup)
                 {
-                    yield return DiagnosticBuilder.ForPosition(duplicatedResource.ResourceNamePropertyValue).ResourceMultipleDeclarations(duplicatedResourceNames);
+                    diagnosticWriter.Write(duplicatedResource.ResourceNamePropertyValue, x => x.ResourceMultipleDeclarations(duplicatedResourceNames));
                 }
             }
 
@@ -55,7 +55,7 @@ namespace Bicep.Core.Emit
                 var duplicatedModuleNames = duplicatedModuleGroup.Select(x => x.ModuleName).ToArray();
                 foreach (var duplicatedModule in duplicatedModuleGroup)
                 {
-                    yield return DiagnosticBuilder.ForPosition(duplicatedModule.ModulePropertyNameValue).ModuleMultipleDeclarations(duplicatedModuleNames);
+                    diagnosticWriter.Write(duplicatedModule.ModulePropertyNameValue, x => x.ModuleMultipleDeclarations(duplicatedModuleNames));
                 }
             }
         }
@@ -83,7 +83,7 @@ namespace Bicep.Core.Emit
 
         private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData)
         {
-            foreach (var resource in semanticModel.Root.ResourceDeclarations)
+            foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
             {
                 if (resource.DeclaringResource.IsExistingResource())
                 {
@@ -91,9 +91,15 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                if (!resourceScopeData.TryGetValue(resource, out var scopeData))
+                // Determine the scope - this is either something like a resource group/subscription or another resource
+                ResourceSymbol? scopeSymbol;
+                if (resourceScopeData.TryGetValue(resource, out var scopeData) && scopeData.ResourceScopeSymbol is ResourceSymbol)
                 {
-                    scopeData = null;
+                    scopeSymbol = scopeData.ResourceScopeSymbol;
+                }
+                else
+                {
+                    scopeSymbol = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
                 if (resource.Type is not ResourceType resourceType || resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
@@ -102,7 +108,52 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                yield return new ResourceDefinition(resource.Name, scopeData?.ResourceScopeSymbol, resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
+                yield return new ResourceDefinition(resource.Name, scopeSymbol, resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
+            }
+        }
+
+        public static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
+            {
+                if (semanticModel.GetTypeInfo(resource.DeclaringSyntax) is not ResourceType resourceType)
+                {
+                    continue;
+                }
+
+                var resourceName = resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName);
+                if (resourceName is not StringSyntax resourceNameString)
+                {
+                    // not easy to do analysis if it's not a string!
+                    continue;
+                }
+
+                var ancestors = semanticModel.ResourceAncestors.GetAncestors(resource);
+                if (ancestors.Any())
+                {
+                    // try to detect cases where someone has applied top-level resource declaration naming to a nested/parent resource
+                    // e.g. '{parent.name}/child' or 'parent/child'
+                    if (resourceNameString.SegmentValues.Any(v => v.IndexOf('/') > -1))
+                    {
+                        diagnosticWriter.Write(resourceName, x => x.ChildResourceNameContainsQualifiers());
+                    }
+                }
+                else
+                {
+                    if (resourceNameString.TryGetLiteralValue() is {} typeString)
+                    {
+                        // try to detect cases where someone has applied nested/parent resource declaration naming to a top-level resource - e.g. 'child'.
+                        // this unfortunately limits us to only validating uninterpolated strings, as we can't do analysis on the number of '/' characters
+                        // being pulled in from variables.
+                        
+                        var slashCount = typeString.Count(x => x == '/');
+                        var expectedSlashCount = resourceType.TypeReference.Types.Length - 1;
+                        if (slashCount != expectedSlashCount)
+                        {
+                            diagnosticWriter.Write(resourceName, x => x.TopLevelChildResourceNameMissingQualifiers(expectedSlashCount));
+                        }
+                    }
+                }
             }
         }
     }

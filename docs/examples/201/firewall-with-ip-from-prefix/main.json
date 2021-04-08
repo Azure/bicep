@@ -1,41 +1,48 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4032869191795247741"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Specifies the Azure location where the key vault should be created."
-      },
-      "defaultValue": "[resourceGroup().location]"
+      }
     },
     "vnetname": {
       "type": "string",
+      "defaultValue": "[format('{0}-azfw-sample-vnet', parameters('location'))]",
       "metadata": {
         "description": "Specifies the name of the VNet."
-      },
-      "defaultValue": "[format('{0}-azfw-sample-vnet', parameters('location'))]"
+      }
     },
     "vnetaddressprefix": {
       "type": "string",
+      "defaultValue": "10.0.0.0/24",
       "metadata": {
         "description": "Specifies the address prefix to use for the VNet."
-      },
-      "defaultValue": "10.0.0.0/24"
+      }
     },
     "firewallsubnetprefix": {
       "type": "string",
+      "defaultValue": "10.0.0.0/26",
       "metadata": {
         "description": "Specifies the address prefix to use for the AzureFirewallSubnet"
-      },
-      "defaultValue": "10.0.0.0/26"
+      }
     },
     "ipprefixlength": {
       "type": "int",
+      "defaultValue": 31,
       "metadata": {
         "description": "Specifies the size of the Public IP Prefix"
       },
-      "defaultValue": 31,
       "allowedValues": [
         28,
         29,
@@ -130,12 +137,5 @@
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "385151546875596961"
-    }
-  }
+  ]
 }

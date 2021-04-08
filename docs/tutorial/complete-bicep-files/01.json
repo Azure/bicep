@@ -6,9 +6,11 @@
       "type": "string",
       "defaultValue": "eastus"
     },
-    "name": {
+    "storageAccountName": {
       "type": "string",
-      "defaultValue": "uniquestorage001"
+      "defaultValue": "uniquestorage001",
+      "maxLength": 24,
+      "minLength": 3
     }
   },
   "functions": [],
@@ -19,7 +21,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
-      "name": "[parameters('name')]",
+      "name": "[parameters('storageAccountName')]",
       "location": "[parameters('location')]",
       "kind": "Storage",
       "sku": {
@@ -30,7 +32,14 @@
   "outputs": {
     "storageId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.2.478.16004",
+      "templateHash": "12511487055879237954"
     }
   }
 }

@@ -157,6 +157,19 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   }
 }
 
+// there should be no completions without the colon
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:34) Resource noCompletionsWithoutColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
+  // #completionTest(7,8) -> empty
+  kind  
+}
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:33) Resource noCompletionsBeforeColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
+  // #completionTest(7,8) -> empty
+  kind  :
+}
+
 // unsupported resource ref
 var resrefvar = bar.name
 //@[4:13) Variable resrefvar. Type: string. Declaration start char: 0, length: 24
@@ -414,6 +427,50 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[76:81) Local thing. Type: any. Declaration start char: 76, length: 5
+//@[9:28) Resource loopForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 130
+  name: 'test'
+  location: 'test'
+}]
+
+var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
+//@[4:19) Variable runtimeCheckVar. Type: 'Private' | 'Public'. Declaration start char: 0, length: 64
+var runtimeCheckVar2 = runtimeCheckVar
+//@[4:20) Variable runtimeCheckVar2. Type: 'Private' | 'Public'. Declaration start char: 0, length: 38
+
+resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[9:38) Resource singleResourceForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 131
+  name: runtimeCheckVar2
+  location: 'test'
+}
+
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[77:82) Local thing. Type: any. Declaration start char: 77, length: 5
+//@[9:29) Resource loopForRuntimeCheck2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 141
+  name: runtimeCheckVar2
+  location: 'test'
+}]
+
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[77:87) Local otherThing. Type: any. Declaration start char: 77, length: 10
+//@[9:29) Resource loopForRuntimeCheck3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 172
+  name: loopForRuntimeCheck[0].properties.zoneType
+  location: 'test'
+}]
+
+var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
+//@[4:24) Variable varForRuntimeCheck4a. Type: 'Private' | 'Public'. Declaration start char: 0, length: 69
+var varForRuntimeCheck4b = varForRuntimeCheck4a
+//@[4:24) Variable varForRuntimeCheck4b. Type: 'Private' | 'Public'. Declaration start char: 0, length: 47
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[77:87) Local otherThing. Type: any. Declaration start char: 77, length: 10
+//@[9:29) Resource loopForRuntimeCheck4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 150
+  name: varForRuntimeCheck4b
+  location: 'test'
+}]
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 151
   // #completionTest(0, 1, 2) -> topLevelProperties
@@ -480,6 +537,16 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 }]
 
 /*
+Discriminator key missing (filtered loop)
+*/
+resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+//@[98:103) Local thing. Type: any. Declaration start char: 98, length: 5
+//@[9:39) Resource discriminatorKeyMissing_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 183
+  // #completionTest(0,1,2) -> discriminatorProperty
+  
+}]
+
+/*
 Discriminator key value missing with property access
 */
 resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -501,7 +568,6 @@ var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
 /*
 Discriminator key value missing with property access (conditional)
 */
-
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
 //@[9:40) Resource discriminatorKeyValueMissing_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 191
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
@@ -542,6 +608,31 @@ var discriminatorKeyValueMissingCompletions2_for = discriminatorKeyValueMissing_
 // #completionTest(87) -> missingDiscriminatorPropertyIndexPlusSymbols_for
 var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_for[0][]
 //@[4:48) Variable discriminatorKeyValueMissingCompletions3_for. Type: error. Declaration start char: 0, length: 88
+
+/*
+Discriminator key value missing with property access (filtered loops)
+*/
+resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+//@[103:108) Local thing. Type: any. Declaration start char: 103, length: 5
+//@[9:44) Resource discriminatorKeyValueMissing_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 217
+  // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
+  kind:   
+}]
+
+// cannot . access properties of a resource loop
+var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
+//@[4:38) Variable resourceListIsNotSingleResource_if. Type: error. Declaration start char: 0, length: 81
+
+// #completionTest(93) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
+//@[4:50) Variable discriminatorKeyValueMissingCompletions_for_if. Type: any. Declaration start char: 0, length: 93
+// #completionTest(93) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
+//@[4:51) Variable discriminatorKeyValueMissingCompletions2_for_if. Type: any. Declaration start char: 0, length: 93
+
+// #completionTest(93) -> missingDiscriminatorPropertyIndexPlusSymbols_for_if
+var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissing_for_if[0][]
+//@[4:51) Variable discriminatorKeyValueMissingCompletions3_for_if. Type: error. Declaration start char: 0, length: 94
 
 /*
 Discriminator value set 1
@@ -617,6 +708,32 @@ var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].prope
 //@[4:42) Variable discriminatorKeySetOneCompletions3_for. Type: error. Declaration start char: 0, length: 87
 
 /*
+Discriminator value set 1 (filtered loop)
+*/
+resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
+//@[98:103) Local thing. Type: any. Declaration start char: 98, length: 5
+//@[9:38) Resource discriminatorKeySetOne_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 300
+  kind: 'AzureCLI'
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
+  properties: {
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    
+  }
+}]
+// #completionTest(92) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions_for_if = discriminatorKeySetOne_for_if[0].properties.a
+//@[4:44) Variable discriminatorKeySetOneCompletions_for_if. Type: any. Declaration start char: 0, length: 92
+// #completionTest(100) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions2_for_if = discriminatorKeySetOne_for_if[any(true)].properties.
+//@[4:45) Variable discriminatorKeySetOneCompletions2_for_if. Type: error. Declaration start char: 0, length: 100
+
+// #completionTest(92) -> cliPropertyAccessIndexesPlusSymbols_for_if
+var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1].properties[]
+//@[4:45) Variable discriminatorKeySetOneCompletions3_for_if. Type: error. Declaration start char: 0, length: 93
+
+
+/*
 Discriminator value set 2
 */
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -670,6 +787,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer_if = discriminatorKeySetTwo_if
 var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_if['properties'].
 //@[4:53) Variable discriminatorKeySetTwoCompletionsArrayIndexer2_if. Type: error. Declaration start char: 0, length: 96
 
+
 /*
 Discriminator value set 2 (loops)
 */
@@ -697,6 +815,35 @@ var discriminatorKeySetTwoCompletionsArrayIndexer_for = discriminatorKeySetTwo_f
 // #completionTest(101) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_for[0]['properties'].
 //@[4:54) Variable discriminatorKeySetTwoCompletionsArrayIndexer2_for. Type: error. Declaration start char: 0, length: 101
+
+
+/*
+Discriminator value set 2 (filtered loops)
+*/
+resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+//@[97:102) Local thing. Type: any. Declaration start char: 97, length: 5
+//@[9:38) Resource discriminatorKeySetTwo_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 305
+  kind: 'AzurePowerShell'
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
+  properties: {
+    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+    
+  }
+}]
+// #completionTest(92) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions_for_if = discriminatorKeySetTwo_for_if[0].properties.a
+//@[4:44) Variable discriminatorKeySetTwoCompletions_for_if. Type: any. Declaration start char: 0, length: 92
+// #completionTest(92) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions2_for_if = discriminatorKeySetTwo_for_if[0].properties.
+//@[4:45) Variable discriminatorKeySetTwoCompletions2_for_if. Type: error. Declaration start char: 0, length: 92
+
+// #completionTest(107) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer_for_if = discriminatorKeySetTwo_for_if[0]['properties'].a
+//@[4:56) Variable discriminatorKeySetTwoCompletionsArrayIndexer_for_if. Type: any. Declaration start char: 0, length: 107
+// #completionTest(107) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetTwo_for_if[0]['properties'].
+//@[4:57) Variable discriminatorKeySetTwoCompletionsArrayIndexer2_for_if. Type: error. Declaration start char: 0, length: 107
 
 
 
@@ -835,6 +982,31 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 //@[4:53) Variable nestedDiscriminatorMissingKeyIndexCompletions_for. Type: any. Declaration start char: 0, length: 107
 
 
+/* 
+Nested discriminator missing key (filtered loop)
+*/
+resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
+//@[112:117) Local thing. Type: any. Declaration start char: 112, length: 5
+//@[9:45) Resource nestedDiscriminatorMissingKey_for_if. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 225
+  name: 'test'
+  location: 'l'
+  properties: {
+    //createMode: 'Default'
+
+  }
+}]
+// #completionTest(107) -> createMode
+var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties.cr
+//@[4:51) Variable nestedDiscriminatorMissingKeyCompletions_for_if. Type: any. Declaration start char: 0, length: 107
+// #completionTest(109) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2_for_if = nestedDiscriminatorMissingKey_for_if[0]['properties'].
+//@[4:52) Variable nestedDiscriminatorMissingKeyCompletions2_for_if. Type: any. Declaration start char: 0, length: 109
+
+// #completionTest(111) -> createModeIndexPlusSymbols_for_if
+var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties['']
+//@[4:56) Variable nestedDiscriminatorMissingKeyIndexCompletions_for_if. Type: any. Declaration start char: 0, length: 113
+
+
 /*
 Nested discriminator
 */
@@ -924,6 +1096,39 @@ var nestedDiscriminatorCompletions4_for = nestedDiscriminator_for[0]['properties
 var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].properties[a]
 //@[4:48) Variable nestedDiscriminatorArrayIndexCompletions_for. Type: error. Declaration start char: 0, length: 91
 
+
+/*
+Nested discriminator (filtered loop)
+*/
+resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
+//@[102:107) Local thing. Type: any. Declaration start char: 102, length: 5
+//@[9:35) Resource nestedDiscriminator_for_if. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 213
+  name: 'test'
+  location: 'l'
+  properties: {
+    createMode: 'Default'
+
+  }
+}]
+// #completionTest(86) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].properties.a
+//@[4:41) Variable nestedDiscriminatorCompletions_for_if. Type: any. Declaration start char: 0, length: 86
+// #completionTest(90) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions2_for_if = nestedDiscriminator_for_if[0]['properties'].a
+//@[4:42) Variable nestedDiscriminatorCompletions2_for_if. Type: any. Declaration start char: 0, length: 90
+// #completionTest(86) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].properties.
+//@[4:42) Variable nestedDiscriminatorCompletions3_for_if. Type: error. Declaration start char: 0, length: 86
+// #completionTest(89) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['properties'].
+//@[4:42) Variable nestedDiscriminatorCompletions4_for_if. Type: error. Declaration start char: 0, length: 89
+
+// #completionTest(96) -> defaultCreateModeIndexes_for_if
+var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
+//@[4:51) Variable nestedDiscriminatorArrayIndexCompletions_for_if. Type: error. Declaration start char: 0, length: 97
+
+
+
 // sample resource to validate completions on the next declarations
 resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' = if(true) {
 //@[9:42) Resource nestedPropertyAccessOnConditional. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 209
@@ -939,6 +1144,17 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 //#completionTest(56) -> vmProperties
 var sigh = nestedPropertyAccessOnConditional.properties.
 //@[4:8) Variable sigh. Type: error. Declaration start char: 0, length: 56
+
+/*
+  boolean property value completions
+*/ 
+resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:36) Resource booleanPropertyPartialValue. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 222
+  properties: {
+    // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
+    autoUpgradeMinorVersion: t
+  }
+}
 
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
 //@[9:18) Resource selfScope. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 98
@@ -1026,7 +1242,6 @@ resource expectedForKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [f
 //@[9:28) Resource expectedForKeyword2. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 81
 
 resource expectedLoopVar 'Microsoft.Storage/storageAccounts@2019-06-01' = [for]
-//@[78:78) Local <missing>. Type: any. Declaration start char: 78, length: 0
 //@[9:24) Resource expectedLoopVar. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 79
 
 resource expectedInKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x]
@@ -1049,17 +1264,96 @@ resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 //@[80:81) Local x. Type: any. Declaration start char: 80, length: 1
 //@[9:25) Resource expectedLoopBody. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 88
 
-// loop semantic analysis cases
+// loop index parsing cases
+resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
+//@[78:78) Local <missing>. Type: any. Declaration start char: 78, length: 0
+//@[78:78) Local <missing>. Type: int. Declaration start char: 78, length: 0
+//@[9:29) Resource expectedLoopItemName. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 80
+
+resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
+//@[79:79) Local <missing>. Type: any. Declaration start char: 79, length: 0
+//@[79:79) Local <missing>. Type: int. Declaration start char: 79, length: 0
+//@[9:30) Resource expectedLoopItemName2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 79
+
+resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
+//@[71:72) Local x. Type: any. Declaration start char: 71, length: 1
+//@[72:72) Local <missing>. Type: int. Declaration start char: 72, length: 0
+//@[9:22) Resource expectedComma. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 74
+
+resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
+//@[79:80) Local x. Type: any. Declaration start char: 79, length: 1
+//@[82:82) Local <missing>. Type: int. Declaration start char: 82, length: 0
+//@[9:30) Resource expectedLoopIndexName. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 84
+
+resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
+//@[76:77) Local x. Type: any. Declaration start char: 76, length: 1
+//@[79:80) Local y. Type: int. Declaration start char: 79, length: 1
+//@[9:27) Resource expectedInKeyword3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 82
+
+resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
+//@[76:77) Local x. Type: any. Declaration start char: 76, length: 1
+//@[79:80) Local y. Type: int. Declaration start char: 79, length: 1
+//@[9:27) Resource expectedInKeyword4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 84
+
+resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
+//@[82:83) Local x. Type: any. Declaration start char: 82, length: 1
+//@[85:86) Local y. Type: int. Declaration start char: 85, length: 1
+//@[9:33) Resource expectedArrayExpression2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 92
+
+resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
+//@[72:73) Local x. Type: any. Declaration start char: 72, length: 1
+//@[75:76) Local y. Type: int. Declaration start char: 75, length: 1
+//@[9:23) Resource expectedColon2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 83
+
+resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
+//@[75:76) Local x. Type: any. Declaration start char: 75, length: 1
+//@[78:79) Local y. Type: int. Declaration start char: 78, length: 1
+//@[9:26) Resource expectedLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 87
+
+// loop filter parsing cases
+resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
+//@[91:92) Local x. Type: any. Declaration start char: 91, length: 1
+//@[9:36) Resource expectedLoopFilterOpenParen. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 102
+resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
+//@[86:87) Local x. Type: any. Declaration start char: 86, length: 1
+//@[89:90) Local y. Type: int. Declaration start char: 89, length: 1
+//@[9:37) Resource expectedLoopFilterOpenParen2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 101
+
+resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
+//@[98:99) Local x. Type: any. Declaration start char: 98, length: 1
+//@[9:43) Resource expectedLoopFilterPredicateAndBody. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 111
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+//@[93:94) Local x. Type: any. Declaration start char: 93, length: 1
+//@[96:97) Local y. Type: int. Declaration start char: 96, length: 1
+//@[9:44) Resource expectedLoopFilterPredicateAndBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
+
+// wrong body type
 var emptyArray = []
 //@[4:14) Variable emptyArray. Type: array. Declaration start char: 0, length: 19
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
 //@[81:82) Local x. Type: any. Declaration start char: 81, length: 1
 //@[9:26) Resource wrongLoopBodyType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 99
+resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
+//@[83:84) Local x. Type: any. Declaration start char: 83, length: 1
+//@[86:87) Local i. Type: int. Declaration start char: 86, length: 1
+//@[9:27) Resource wrongLoopBodyType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 105
+
+// duplicate variable in the same scope
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
+//@[80:84) Local same. Type: any. Declaration start char: 80, length: 4
+//@[86:90) Local same. Type: int. Declaration start char: 86, length: 4
+//@[9:29) Resource itemAndIndexSameName. Type: Microsoft.AAD/domainServices@2020-01-01[]. Declaration start char: 0, length: 112
+}]
 
 // errors in the array expression
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
 //@[85:92) Local account. Type: any. Declaration start char: 85, length: 7
 //@[9:30) Resource arrayExpressionErrors. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 115
+}]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
+//@[87:94) Local account. Type: any. Declaration start char: 87, length: 7
+//@[95:96) Local k. Type: int. Declaration start char: 95, length: 1
+//@[9:31) Resource arrayExpressionErrors2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 120
 }]
 
 // wrong array type
@@ -1069,11 +1363,32 @@ resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for ac
 //@[78:85) Local account. Type: any. Declaration start char: 78, length: 7
 //@[9:23) Resource wrongArrayType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 106
 }]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
+//@[80:87) Local account. Type: any. Declaration start char: 80, length: 7
+//@[88:89) Local i. Type: int. Declaration start char: 88, length: 1
+//@[9:24) Resource wrongArrayType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 111
+}]
+
+// wrong filter expression type
+resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
+//@[89:96) Local account. Type: any. Declaration start char: 89, length: 7
+//@[9:34) Resource wrongFilterExpressionType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 123
+}]
+resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
+//@[91:98) Local account. Type: any. Declaration start char: 91, length: 7
+//@[99:100) Local i. Type: int. Declaration start char: 99, length: 1
+//@[9:35) Resource wrongFilterExpressionType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 137
+}]
 
 // missing required properties
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
 //@[89:96) Local account. Type: any. Declaration start char: 89, length: 7
 //@[9:34) Resource missingRequiredProperties. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 109
+}]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
+//@[91:98) Local account. Type: any. Declaration start char: 91, length: 7
+//@[99:100) Local j. Type: int. Declaration start char: 99, length: 1
+//@[9:35) Resource missingRequiredProperties2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 114
 }]
 
 // fewer missing required properties and a wrong property
@@ -1097,6 +1412,19 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
 //@[18:19) Local j. Type: int. Declaration start char: 18, length: 1
       doesNotExist: 'test'
       name: 'subnet-${i}-${j}'
+    }]
+  }
+}]
+resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
+//@[91:92) Local i. Type: int. Declaration start char: 91, length: 1
+//@[93:94) Local k. Type: int. Declaration start char: 93, length: 1
+//@[9:35) Resource wrongPropertyInNestedLoop2. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 272
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for j in range(0, 4): {
+//@[18:19) Local j. Type: int. Declaration start char: 18, length: 1
+      doesNotExist: 'test'
+      name: 'subnet-${i}-${j}-${k}'
     }]
   }
 }]
@@ -1133,6 +1461,30 @@ resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' 
         id: '${account.name}-${account.location}'
         state: [for lol in []: 4]
 //@[20:23) Local lol. Type: any. Declaration start char: 20, length: 3
+      }]
+    }
+  }
+}]
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in storageAccounts: {
+//@[89:96) Local account. Type: any. Declaration start char: 89, length: 7
+//@[97:98) Local i. Type: int. Declaration start char: 97, length: 1
+//@[9:33) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 441
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+
+    networkAcls: {
+      virtualNetworkRules: [for (rule,j) in []: {
+//@[33:37) Local rule. Type: any. Declaration start char: 33, length: 4
+//@[38:39) Local j. Type: int. Declaration start char: 38, length: 1
+        id: '${account.name}-${account.location}'
+        state: [for (lol,k) in []: 4]
+//@[21:24) Local lol. Type: any. Declaration start char: 21, length: 3
+//@[25:26) Local k. Type: int. Declaration start char: 25, length: 1
       }]
     }
   }
@@ -1223,18 +1575,20 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
   }
 }
 
+@batchSize()
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[98:99) Local i. Type: int. Declaration start char: 98, length: 1
-//@[9:43) Resource directRefViaSingleLoopResourceBody. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 194
+//@[9:43) Resource directRefViaSingleLoopResourceBody. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 208
   name: 'vnet-${i}'
   properties: {
     subnets: premiumStorages
   }
 }]
 
+@batchSize(0)
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[116:117) Local i. Type: int. Declaration start char: 116, length: 1
-//@[9:61) Resource directRefViaSingleLoopResourceBodyWithExtraDependsOn. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 287
+//@[9:61) Resource directRefViaSingleLoopResourceBodyWithExtraDependsOn. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 302
   name: 'vnet-${i}'
   properties: {
     subnets: premiumStorages
@@ -1260,9 +1614,165 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 }
 
 // resource loop body that isn't an object
+@batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 //@[82:87) Local thing. Type: any. Declaration start char: 82, length: 5
-//@[9:34) Resource nonObjectResourceLoopBody. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 102
+//@[9:34) Resource nonObjectResourceLoopBody. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 118
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
 //@[83:88) Local thing. Type: any. Declaration start char: 83, length: 5
 //@[9:35) Resource nonObjectResourceLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
+//@[84:89) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[90:91) Local i. Type: int. Declaration start char: 90, length: 1
+//@[9:35) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 107
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
+//@[84:89) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[90:91) Local i. Type: int. Declaration start char: 90, length: 1
+//@[9:35) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 114
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
+//@[84:89) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[90:91) Local i. Type: int. Declaration start char: 90, length: 1
+//@[9:35) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 116
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
+//@[84:89) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[90:91) Local i. Type: int. Declaration start char: 90, length: 1
+//@[9:35) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 123
+
+// #completionTest(54,55) -> objectPlusFor
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+//@[9:12) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 55
+
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
+//@[60:64) Local item. Type: any. Declaration start char: 60, length: 4
+//@[9:12) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 257
+  properties: {
+    // #completionTest(32,33) -> symbolsPlusArrayAndFor
+    registrationVirtualNetworks: 
+    resolutionVirtualNetworks: [for lol in []: {
+//@[36:39) Local lol. Type: any. Declaration start char: 36, length: 3
+      
+    }]
+  }
+}]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 325
+  properties: {
+    virtualNetworkPeerings: [for item in []: {
+//@[33:37) Local item. Type: any. Declaration start char: 33, length: 4
+        properties: {
+          remoteAddressSpace: {
+            // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
+            addressPrefixes: 
+          }
+        }
+    }]
+  }
+}
+
+// parent property with 'existing' resource at different scope
+resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[9:16) Resource p1_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 104
+  scope: tenant()
+  name: 'res1'
+}
+
+resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[9:18) Resource p1_child1. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 106
+  parent: p1_res1
+  name: 'child1'
+}
+
+// parent property with scope on child resource
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res1'
+}
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[9:16) Resource p2_res2. Type: Microsoft.Rp2/resource2@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res2'
+}
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[9:21) Resource p2_res2child. Type: Microsoft.Rp2/resource2/child2@2020-06-01. Declaration start char: 0, length: 127
+  scope: p2_res1
+  parent: p2_res2
+  name: 'child2'
+}
+
+// parent property self-cycle
+resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:17) Resource p3_vmExt. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 124
+  parent: p3_vmExt
+  location: 'eastus'
+}
+
+// parent property 2-cycle
+resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+//@[9:14) Resource p4_vm. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 110
+  parent: p4_vmExt
+  location: 'eastus'
+}
+
+resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:17) Resource p4_vmExt. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 121
+  parent: p4_vm
+  location: 'eastus'
+}
+
+// parent property with invalid child
+resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p5_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res1'
+}
+
+resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[9:16) Resource p5_res2. Type: error. Declaration start char: 0, length: 102
+  parent: p5_res1
+  name: 'res2'
+}
+
+// parent property with invalid parent
+resource p6_res1 '${true}' = {
+//@[9:16) Resource p6_res1. Type: error. Declaration start char: 0, length: 49
+  name: 'res1'
+}
+
+resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[9:16) Resource p6_res2. Type: error. Declaration start char: 0, length: 102
+  parent: p6_res1
+  name: 'res2'
+}
+
+// parent property with incorrectly-formatted name
+resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p7_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
+  name: 'res1'
+}
+
+resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[9:16) Resource p7_res2. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 107
+  parent: p7_res1
+  name: 'res1/res2'
+}
+
+resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[9:16) Resource p7_res3. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 118
+  parent: p7_res1
+  name: '${p7_res1.name}/res2'
+}
+
+// top-level resource with too many '/' characters
+resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[9:16) Resource p8_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 81
+  name: 'res1/res2'
+}
+
+resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+//@[9:27) Resource existngResProperty. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 164
+  name: 'existngResProperty'
+  location: 'westeurope'
+  properties: {}
+}
+

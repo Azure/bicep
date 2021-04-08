@@ -1,38 +1,29 @@
-param suffix string = '001'
-param owner string = 'alex'
-param costCenter string = '12345'
-param addressPrefix string = '10.0.0.0/15'
+targetScope = 'subscription'
 
-var vnetName = 'vnet-${suffix}'
+param deployStorage bool = true
 
-resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-  name: vnetName
-  location: resourceGroup().location
-  tags: {
-    Owner: owner
-    CostCenter: costCenter
-  }
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        addressPrefix
-      ]
-    }
-    enableVmProtection: false
-    enableDdosProtection: false
-    subnets: [
-      {
-        name: 'subnet001'
-        properties: {
-          addressPrefix: '10.0.0.0/24'
-        }
-      }
-      {
-        name: 'subnet002'
-        properties: {
-          addressPrefix: '10.0.1.0/24'
-        }
-      }
-    ]
+@description('The object ID of the principal that will get the role assignment')
+param aadPrincipalId string
+
+module stg './storage.bicep' = if(deployStorage) {
+  name: 'storageDeploy'
+  scope: resourceGroup('another-rg') // this will target another resource group in the same subscription
+  params: {
+    storageAccountName: '<YOURUNIQUESTORAGENAME>'
   }
 }
+
+var contributor = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+resource roleDef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+  name: contributor
+}
+
+resource rbac 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(subscription().id, aadPrincipalId, contributor)
+  properties: {
+    roleDefinitionId: roleDef.id
+    principalId: aadPrincipalId
+  }
+}
+
+output storageName array = stg.outputs.containerProps

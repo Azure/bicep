@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10150724618130200737"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -27,31 +34,31 @@
     },
     "hubid": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Virtual Hub Resource ID, used when deploying Azure Firewall to Virtual WAN"
-      },
-      "defaultValue": ""
+      }
     },
     "hubpublicipcount": {
       "type": "int",
+      "defaultValue": 1,
       "metadata": {
         "description": "Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN"
-      },
-      "defaultValue": 1
+      }
     },
     "subnetid": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "AzureFirewallSubnet ID, used when deploying Azure Firewall to Virtual Network"
-      },
-      "defaultValue": ""
+      }
     },
     "publicipid": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Azure Firewall Public IP ID, used when deploying Azure Firewall to Virtual Network"
-      },
-      "defaultValue": ""
+      }
     }
   },
   "functions": [],
@@ -108,12 +115,5 @@
       "location": "[parameters('location')]",
       "properties": "[if(equals(parameters('fwtype'), 'VNet'), variables('vnetfwproperties').properties, if(equals(parameters('fwtype'), 'vWAN'), variables('hubfwproperties').properties, null()))]"
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "12898515349131983239"
-    }
-  }
+  ]
 }

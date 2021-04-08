@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17071071458183814945"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
@@ -17,8 +24,8 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2020-08-01-preview",
-      "location": "[parameters('location')]",
       "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
@@ -27,8 +34,8 @@
     {
       "type": "Microsoft.Cdn/profiles",
       "apiVersion": "2020-04-15",
-      "location": "[parameters('location')]",
       "name": "[variables('profileName')]",
+      "location": "[parameters('location')]",
       "sku": {
         "name": "Standard_Akamai"
       }
@@ -36,8 +43,8 @@
     {
       "type": "Microsoft.Cdn/profiles/endpoints",
       "apiVersion": "2020-04-15",
-      "location": "[parameters('location')]",
       "name": "[variables('endPointName')]",
+      "location": "[parameters('location')]",
       "properties": {
         "originHostHeader": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'https://', ''), '/', '')]",
         "isHttpAllowed": true,
@@ -73,13 +80,6 @@
     "originHostHeader": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).originHostHeader]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "8124028730334468476"
     }
   }
 }

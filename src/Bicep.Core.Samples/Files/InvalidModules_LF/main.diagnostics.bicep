@@ -230,6 +230,7 @@ module moduleWithValidScope './empty.bicep' = {
 module moduleWithInvalidScope './empty.bicep' = {
   name: 'moduleWithInvalidScope'
   scope: moduleWithValidScope
+//@[9:29) [BCP134 (Error)] Scope "module" is not valid for this module. Permitted scopes: "resourceGroup". |moduleWithValidScope|
 }
 
 module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
@@ -304,6 +305,35 @@ module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 //@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
 }
+
+module singleModuleForRuntimeCheck 'modulea.bicep' = {
+//@[7:34) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |singleModuleForRuntimeCheck|
+  name: 'test'
+}
+
+var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
+var moduleRuntimeCheck2 = moduleRuntimeCheck
+
+module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck|
+  name: moduleRuntimeCheck2
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Accessible properties of singleModuleForRuntimeCheck are "name", "scope". |moduleRuntimeCheck2|
+}]
+
+var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
+var moduleRuntimeCheck4 = moduleRuntimeCheck3
+module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck2|
+  name: moduleRuntimeCheck4
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleRuntimeCheck4|
+}]
+
+module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck3|
+  name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
+//@[15:65) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleLoopForRuntimeCheck[1].outputs.stringOutputB|
+//@[67:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleLoopForRuntimeCheck[1].outputs.stringOutputA|
+}]
 
 module moduleWithDuplicateName1 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
@@ -386,7 +416,7 @@ module expectedForKeyword2 'modulea.bicep' = [f]
 //@[46:47) [BCP012 (Error)] Expected the "for" keyword at this location. |f|
 
 module expectedLoopVar 'modulea.bicep' = [for]
-//@[45:46) [BCP136 (Error)] Expected a loop variable identifier at this location. |]|
+//@[45:45) [BCP162 (Error)] Expected a loop item variable identifier or "(" at this location. ||
 
 module expectedInKeyword 'modulea.bicep' = [for x]
 //@[49:50) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
@@ -404,16 +434,62 @@ module expectedColon 'modulea.bicep' = [for x in y]
 
 module expectedLoopBody 'modulea.bicep' = [for x in y:]
 //@[52:53) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-//@[54:55) [BCP018 (Error)] Expected the "{" character at this location. |]|
+//@[54:55) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |]|
+
+// indexed loop parsing cases
+module expectedItemVarName 'modulea.bicep' = [for ()]
+//@[51:52) [BCP136 (Error)] Expected a loop item variable identifier at this location. |)|
+
+module expectedComma 'modulea.bicep' = [for (x)]
+//@[46:47) [BCP018 (Error)] Expected the "," character at this location. |)|
+
+module expectedIndexVarName 'modulea.bicep' = [for (x,)]
+//@[54:55) [BCP163 (Error)] Expected a loop index variable identifier at this location. |)|
+
+module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
+//@[54:55) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
+
+module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
+//@[64:65) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+
+module expectedColon2 'modulea.bicep' = [for (x,y) in z]
+//@[54:55) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[55:56) [BCP018 (Error)] Expected the ":" character at this location. |]|
+
+module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
+//@[57:58) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[59:60) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |]|
+
+// loop filter parsing cases
+module expectedLoopFilterOpenParen 'modulea.bicep' = [for x in y: if]
+//@[63:64) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[68:69) [BCP018 (Error)] Expected the "(" character at this location. |]|
+module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
+//@[68:69) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[73:74) [BCP018 (Error)] Expected the "(" character at this location. |]|
+
+module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
+//@[70:71) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[76:77) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+//@[77:78) [BCP018 (Error)] Expected the "{" character at this location. |]|
+module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
+//@[75:76) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[81:82) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+//@[82:83) [BCP018 (Error)] Expected the "{" character at this location. |]|
 
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
-//@[64:65) [BCP018 (Error)] Expected the "{" character at this location. |4|
+//@[64:65) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |4|
+module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
+//@[69:70) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |4|
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 //@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |missingLoopBodyProperties|
+}]
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |missingLoopBodyProperties2|
 }]
 
 // wrong array type
@@ -444,6 +520,44 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
   }
 }]
+module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if(true) {
+  // #completionTest(17) -> symbolsPlusX_if
+  name: 'hello-${x}'
+  params: {
+    arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+  }
+}]
+module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
+  name: 'hello-${x}'
+  params: {
+    arrayParam: [
+      i
+    ]
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+  }
+}]
+
+module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in emptyArray: if(true) {
+  name: 'hello-${x}'
+  params: {
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
+    // #completionTest(0,1,2) -> moduleAParams
+
+  }
+}]
+
+// #completionTest(100) -> moduleAOutputs
+var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilteredLoops[0].outputs.
+//@[100:100) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'
@@ -518,6 +632,11 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
 
 // module body that isn't an object
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
-//@[63:70) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
+//@[63:70) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'hello'|
 module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
-//@[64:70) [BCP018 (Error)] Expected the "{" character at this location. |concat|
+//@[64:70) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |concat|
+module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
+//@[68:75) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'hello'|
+module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
+//@[68:74) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |concat|
+

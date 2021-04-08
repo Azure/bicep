@@ -17,7 +17,7 @@ We are very happy to accept community contributions to Bicep, whether those are 
 
 The Bicep solution is comprised of the following main components:
 
-* **Bicep CLI** (`src/Bicep.Cli`): the `bicep` CLI exectuable.
+* **Bicep CLI** (`src/Bicep.Cli`): the `bicep` CLI executable.
 * **Bicep Language Server** (`src/Bicep.LangServer`): the LanguageServer used by the VSCode extension for parsing and providing information about a Bicep file.
 * **Bicep Core** (`src/Bicep.Core`): the library containing the majority of the Bicep compiler code.
 * **Bicep VSCode Extension** (`src/vscode-bicep`): the VSCode extension itself. This is mostly a thin wrapper around the Bicep Language Server.
@@ -30,11 +30,22 @@ The Bicep solution is comprised of the following main components:
   * `dotnet test`
 
 ### Updating test baselines
-* Many of the bicep integration tests rely on baseline test assertion files that are checked into the repo. Code changes in some areas will require updates to the baseline assertions. 
+Many of the bicep integration tests rely on baseline test assertion files that are checked into the repo. Code changes in some areas will require updates to the baseline assertions. 
+
+#### Manually
 * If you see a test failure with a message containing Windows and *nix copy commands, you have encountered such a test. You have the following options to fix the test:
   1. Manually execute the provided command in a shell. This makes sense for a single test, but is extremely tedious otherwise.
   1. Run the `SetBaseline.ps1` script at the repo root to execute the tests in `SetBaseLine` mode, which causes the baselines to be automatically updated in bulk for failing tests. You should see baseline file modifications in Git pending changes. (Make sure your Git pending changes are empty before doing so - your changes could get overwritten!).
 * Inspect the baseline assertion diffs to ensure changes are expected and match the code changes you have made. (If a pull request contains changes to baseline files that can't be explained, it will not be merged.)
+
+#### Via GitHub Action
+If you have an active branch pushed to your GitHub fork, you can use the "Update Baselines" GitHub action to automatically update any broken baselines:
+1. Under your fork of the repo, navigate to "Actions" -> "Update Baselines".
+1. Press "Run workflow", and select your branch name under the "Use work flow from" dropdown.
+1. If any baseline changes are detected, the action will create a commit with the diffs, and push it to your branch.
+1. Because of [this limitation](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token), you will need to manually re-run the CI action once the commit has been made:
+    1. Under your fork of the repo, navigate to "Actions" -> "Build".
+    1. Press "Run workflow", and select your branch name under the "Use work flow from" dropdown.
 
 ### Creating new integration tests dataset
 * To Add new integration tests dataset you need to:
