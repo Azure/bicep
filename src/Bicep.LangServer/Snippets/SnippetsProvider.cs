@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -19,10 +20,9 @@ namespace Bicep.LanguageServer.Snippets
 {
     public class SnippetsProvider : ISnippetsProvider
     {
-        private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
         private Dictionary<string, string> resourceTypeToBodyMap = new Dictionary<string, string>();
-        public Dictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> Dependencies = new Dictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
         private Dictionary<string, string> resourceTypeToDependentsMap = new Dictionary<string, string>();
+        private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
 
         public SnippetsProvider()
         {
@@ -81,7 +81,7 @@ namespace Bicep.LanguageServer.Snippets
                         description = syntaxTrivia.Text.Substring("// ".Length);
                     }
 
-                    CacheResourceDependencies(template, manifestResourceName);
+                    CacheResourceDeclarationAndDependencies(template, manifestResourceName);
                 }
             }
 
@@ -90,32 +90,60 @@ namespace Bicep.LanguageServer.Snippets
 
         public IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets() => topLevelNamedDeclarationSnippets;
 
-        private void CacheResourceDependencies(string template, string manifestResourceName)
+        private void CacheResourceDeclarationAndDependencies(string template, string manifestResourceName)
         {
             ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> dependencies = GetResourceDependencies(template, manifestResourceName);
 
             foreach (KeyValuePair<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> kvp in dependencies)
             {
-                CacheResourceDeclarations(template, kvp.Key.DeclaringSyntax);
+                (ResourceDeclarationSyntax? resourceDeclarationSyntax, string? resourceType) = GetResourceDeclarationSyntaxWithType(kvp.Key);
 
-                if (kvp.Value.Any())
+                if (resourceDeclarationSyntax is not null && resourceType is not null)
                 {
-                    if (kvp.Key.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax &&
-                        resourceDeclarationSyntax.TypeString is StringSyntax stringSyntax)
-                    {
-                        string resourceDependencies = string.Empty;
-                        foreach (ResourceDependency resourceDependency in kvp.Value)
-                        {
-                            TextSpan span = resourceDependency.Resource.DeclaringSyntax.Span;
-                            resourceDependencies = template.Substring(span.Position, span.Length) + "\n";
-                        }
+                    CacheResourceDeclaration(resourceDeclarationSyntax, resourceType, template);
 
-                        string type = stringSyntax.StringTokens.First().Text;
-
-                        resourceTypeToDependentsMap.Add(type, resourceDependencies);
-                    }
+                    CacheResourceDependencies(kvp.Value, template, resourceType);
                 }
             }
+        }
+
+        private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclarationSyntax, string type, string template)
+        {
+            TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
+            string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
+
+            if (!resourceTypeToBodyMap.ContainsKey(type))
+            {
+                resourceTypeToBodyMap.Add(type, bodyText);
+            }
+        }
+
+        private void CacheResourceDependencies(ImmutableHashSet<ResourceDependency> resourceDependencies, string template, string resourceType)
+        {
+            if (resourceDependencies.Any())
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (ResourceDependency resourceDependency in resourceDependencies)
+                {
+                    TextSpan span = resourceDependency.Resource.DeclaringSyntax.Span;
+                    sb.AppendLine(template.Substring(span.Position, span.Length));
+                }
+
+                resourceTypeToDependentsMap.Add(resourceType, sb.ToString());
+            }
+        }
+
+        private (ResourceDeclarationSyntax?, string?) GetResourceDeclarationSyntaxWithType(DeclaredSymbol declaredSymbol)
+        {
+            SyntaxBase syntaxBase = declaredSymbol.DeclaringSyntax;
+
+            if (syntaxBase is ResourceDeclarationSyntax resourceDeclarationSyntax &&
+                resourceDeclarationSyntax.TypeString is StringSyntax stringSyntax)
+            {
+                return (resourceDeclarationSyntax, stringSyntax.StringTokens.First().Text);
+            }
+
+            return (null, null);
         }
 
         private ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(string template, string manifestResourceName)
@@ -125,31 +153,13 @@ namespace Bicep.LanguageServer.Snippets
             SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
                 syntaxTree,
                 ImmutableHashSet.Create(syntaxTree),
-                null!,
-                null!);
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, SyntaxTree>(),
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>());
 
             Compilation compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 
             return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
-        }
-
-        private void CacheResourceDeclarations(string template, SyntaxBase syntaxBase)
-        {
-            if (syntaxBase is ResourceDeclarationSyntax resourceDeclarationSyntax &&
-                resourceDeclarationSyntax.TypeString is StringSyntax stringSyntax)
-            {
-                string type = stringSyntax.StringTokens.First().Text;
-
-                TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
-
-                string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
-
-                if (!resourceTypeToBodyMap.ContainsKey(type))
-                {
-                    resourceTypeToBodyMap.Add(type, bodyText);
-                }
-            }
         }
 
         public Snippet? GetResourceBodyCompletionSnippet(string type)
@@ -161,19 +171,21 @@ namespace Bicep.LanguageServer.Snippets
                 return null;
             }
 
-            string text = string.Empty;
+            StringBuilder sb = new StringBuilder();
 
             if (resourceTypeToBodyMap.TryGetValue(type, out string? resourceBody))
             {
-                text = resourceBody;
+                sb.AppendLine(resourceBody);
 
                 if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
                 {
-                    text += "\n" + resourceDependencies;
+                    sb.Append(resourceDependencies);
                 }
+
+                return new Snippet(sb.ToString(), snippet.CompletionPriority, snippet.Prefix, snippet.Detail);
             }
 
-            return new Snippet(text, snippet.CompletionPriority, snippet.Prefix, snippet.Detail);
+            return null;
         }
     }
 }

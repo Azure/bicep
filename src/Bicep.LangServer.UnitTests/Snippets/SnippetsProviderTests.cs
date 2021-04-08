@@ -156,7 +156,8 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             snippet.Text.Should().BeEquivalentToIgnoringNewlines(@"{
   name: '${1:dnsZone}'
   location: 'global'
-}");
+}
+");
         }
 
         [TestMethod]

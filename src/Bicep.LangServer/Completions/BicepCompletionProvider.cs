@@ -352,33 +352,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody))
             {
-                StringSyntax? stringSyntax = (context.EnclosingDeclaration as ResourceDeclarationSyntax)?.TypeString;
-
-                if (stringSyntax is not null)
-                {
-                    string type = stringSyntax.StringTokens[0].Text;
-
-                    Snippet? snippet = SnippetsProvider.GetResourceBodyCompletionSnippet(type);
-
-                    if (snippet is null)
-                    {
-                       yield return CompletionItemBuilder.Create(CompletionItemKind.Value)
-                            .WithLabel("{}")
-                            .WithSnippetEdit(context.ReplacementRange, "{\n\t$0\n}")
-                            .WithDetail("{}")
-                            .Preselect()
-                            .WithSortText(GetSortText("{}", CompletionPriority.High));
-                    }
-                    else
-                    {
-                        yield return CreateContextualSnippetCompletion(snippet.Prefix,
-                            snippet.Detail,
-                            snippet.Text,
-                            context.ReplacementRange,
-                            snippet.CompletionPriority,
-                            preselect: true);
-                    }
-                }
+                yield return CreateResourceBodyCompletion(context);
 
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
@@ -388,6 +362,30 @@ namespace Bicep.LanguageServer.Completions
                     yield return completion;
                 }
             }
+        }
+
+        private CompletionItem CreateResourceBodyCompletion(BicepCompletionContext context)
+        {
+            StringSyntax? stringSyntax = (context.EnclosingDeclaration as ResourceDeclarationSyntax)?.TypeString;
+
+            if (stringSyntax is not null)
+            {
+                string type = stringSyntax.StringTokens[0].Text;
+
+                Snippet? snippet = SnippetsProvider.GetResourceBodyCompletionSnippet(type);
+
+                if (snippet is not null)
+                {
+                    return CreateContextualSnippetCompletion(snippet.Prefix,
+                        snippet.Detail,
+                        snippet.Text,
+                        context.ReplacementRange,
+                        snippet.CompletionPriority,
+                        preselect: true);
+                }
+            }
+
+            return CreateObjectBodyCompletion(context.ReplacementRange);
         }
 
         private IEnumerable<CompletionItem> GetModuleBodyCompletions(BicepCompletionContext context)
