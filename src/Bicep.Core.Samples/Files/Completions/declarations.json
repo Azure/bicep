@@ -96,7 +96,7 @@
     }
   },
   {
-    "label": "param",
+    "label": "param-defaults",
     "kind": "snippet",
     "detail": "Parameter declaration with default value",
     "documentation": {
@@ -105,7 +105,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_param",
+    "sortText": "2_param-defaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -114,25 +114,25 @@
     }
   },
   {
-    "label": "param",
+    "label": "param-defaults-allowed-values",
     "kind": "snippet",
     "detail": "Parameter declaration with default and allowed values",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nparam Identifier Type {\n  default: \n  allowed: [\n    \n  ]\n}\n```"
+      "value": "```bicep\n@allowed([\n  \n])\nparam Identifier Type = \n```"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_param",
+    "sortText": "2_param-defaults-allowed-values",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "param ${1:Identifier} ${2:Type} {\n  default: $3\n  allowed: [\n    $4\n  ]\n}"
+      "newText": "@allowed([\n  $3\n])\nparam ${1:Identifier} ${2:Type} = $4"
     }
   },
   {
-    "label": "param",
+    "label": "param-secure-string",
     "kind": "snippet",
     "detail": "Secure string parameter",
     "documentation": {
@@ -141,7 +141,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_param",
+    "sortText": "2_param-secure-string",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -362,25 +362,7 @@
     }
   },
   {
-    "label": "resource",
-    "kind": "snippet",
-    "detail": "Resource with defaults",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_resource",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}"
-    }
-  },
-  {
-    "label": "resource",
+    "label": "resource-child-defaults",
     "kind": "snippet",
     "detail": "Child Resource with defaults",
     "documentation": {
@@ -389,7 +371,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_resource",
+    "sortText": "1_resource-child-defaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -398,25 +380,7 @@
     }
   },
   {
-    "label": "resource",
-    "kind": "snippet",
-    "detail": "Resource without defaults",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  \n}\n\n```"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_resource",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}\n"
-    }
-  },
-  {
-    "label": "resource",
+    "label": "resource-child-without-defaults",
     "kind": "snippet",
     "detail": "Child Resource without defaults",
     "documentation": {
@@ -425,12 +389,48 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_resource",
+    "sortText": "1_resource-child-without-defaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}"
+    }
+  },
+  {
+    "label": "resource-defaults",
+    "kind": "snippet",
+    "detail": "Resource with defaults",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_resource-defaults",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}"
+    }
+  },
+  {
+    "label": "resource-without-defaults",
+    "kind": "snippet",
+    "detail": "Resource without defaults",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  \n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_resource-without-defaults",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}"
     }
   },
   {

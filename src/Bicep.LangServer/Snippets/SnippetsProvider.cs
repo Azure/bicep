@@ -10,14 +10,15 @@ using System.Reflection;
 using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.LanguageServer.Completions;
 
 namespace Bicep.LanguageServer.Snippets
 {
-    public class ResourceSnippetsProvider : IResourceSnippetsProvider
+    public class SnippetsProvider : ISnippetsProvider
     {
-        private HashSet<ResourceSnippet> resourceSnippets = new HashSet<ResourceSnippet>();
+        private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
 
-        public ResourceSnippetsProvider()
+        public SnippetsProvider()
         {
             Initialize();
         }
@@ -25,7 +26,7 @@ namespace Bicep.LanguageServer.Snippets
         private void Initialize()
         {
             string pathPrefix = "Snippets/Templates/";
-            Assembly assembly = typeof(ResourceSnippetsProvider).Assembly;
+            Assembly assembly = typeof(SnippetsProvider).Assembly;
             IEnumerable<string> manifestResourceNames = assembly.GetManifestResourceNames().Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal));
 
             foreach (var manifestResourceName in manifestResourceNames)
@@ -35,9 +36,16 @@ namespace Bicep.LanguageServer.Snippets
 
                 (string description, string snippetText) = GetDescriptionAndText(streamReader.ReadToEnd());
                 string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
-                ResourceSnippet resourceSnippet = new ResourceSnippet(prefix, description, snippetText);
+                CompletionPriority completionPriority = CompletionPriority.Medium;
 
-                resourceSnippets.Add(resourceSnippet);
+                if (prefix.StartsWith("resource"))
+                {
+                    completionPriority = CompletionPriority.High;
+                }
+
+                Snippet snippet = new Snippet(snippetText, completionPriority, prefix, description);
+
+                topLevelNamedDeclarationSnippets.Add(snippet);
             }
         }
 
@@ -52,9 +60,9 @@ namespace Bicep.LanguageServer.Snippets
                 ProgramSyntax programSyntax = parser.Program();
                 IEnumerable<SyntaxBase> declarations = programSyntax.Declarations;
 
-                if (declarations.Any() && declarations.First() is ResourceDeclarationSyntax resourceDeclarationSyntax)
+                if (declarations.Any() && declarations.First() is StatementSyntax statementSyntax)
                 {
-                    text = template.Substring(resourceDeclarationSyntax.Span.Position);
+                    text = template.Substring(statementSyntax.Span.Position);
 
                     ImmutableArray<SyntaxBase> children = programSyntax.Children;
 
@@ -72,6 +80,6 @@ namespace Bicep.LanguageServer.Snippets
             return (description, text);
         }
 
-        public IEnumerable<ResourceSnippet> GetResourceSnippets() => resourceSnippets;
+        public IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets() => topLevelNamedDeclarationSnippets;
     }
 }
