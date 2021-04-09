@@ -92,7 +92,7 @@ namespace Bicep.Core.TypeSystem
                     return GetArrayAccessType(arrayAccess);
 
                 case VariableDeclarationSyntax variable:
-                    return new DeclaredTypeAssignment(LanguageConstants.Any, variable);
+                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(variable.Value), variable);
 
                 case LocalVariableSyntax localVariable:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(localVariable), localVariable);
@@ -387,8 +387,14 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var parentTypeAssignment = GetDeclaredTypeAssignment(parent);
-            if (parentTypeAssignment == null)
+            var parentTypeAssignment = parent switch {
+                // variable declared type is calculated using its assigned type, so querying it here causes endless recursion.
+                // we can shortcut that by returning any[] here
+                VariableDeclarationSyntax var => new DeclaredTypeAssignment(LanguageConstants.Array, var),
+                _ => GetDeclaredTypeAssignment(parent),
+            };
+
+            if (parentTypeAssignment is null)
             {
                 return null;
             }
