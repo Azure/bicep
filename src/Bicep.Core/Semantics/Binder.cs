@@ -55,15 +55,6 @@ namespace Bicep.Core.Semantics
         /// <param name="syntax">the syntax node</param>
         public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.bindings.TryGetValue(syntax);
 
-        /// <summary>
-        /// Returns all syntax nodes that represent a reference to the specified symbol. This includes the definitions of the symbol as well.
-        /// Unusued declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
-        /// </summary>
-        /// <param name="symbol">The symbol</param>
-        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol) => this.bindings
-            .Where(binding => ReferenceEquals(binding.Value, symbol))
-            .Select(binding => binding.Key);
-
         public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
 

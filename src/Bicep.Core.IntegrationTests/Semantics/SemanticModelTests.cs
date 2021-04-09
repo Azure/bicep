@@ -17,6 +17,7 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests.Semantics
@@ -158,7 +159,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 .SelectMany(s => semanticModel.FindReferences(s!))
                 .Where(refSyntax => !(refSyntax is INamedDeclarationSyntax));
 
-            foundReferences.Should().BeEquivalentTo(symbolReferences);
+            symbolReferences.Should().BeSubsetOf(foundReferences);
         }
 
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program, SemanticModel semanticModel)
@@ -168,7 +169,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 new List<SyntaxBase>(),
                 (accumulated, current) =>
                 {
-                    if (current is ISymbolReference symbolReference && TestSyntaxHelper.NodeShouldBeBound(symbolReference, semanticModel))
+                    if (current is ISymbolReference symbolReference && TestSyntaxHelper.NodeShouldBeBound(symbolReference))
                     {
                         accumulated.Add(current);
                     }

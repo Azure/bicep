@@ -132,7 +132,7 @@ namespace Bicep.Core.TypeSystem.Az
                     bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:
-                    if (LanguageConstants.IdentifierComparer.Equals(bodyDiscriminatedType.DiscriminatorKey, LanguageConstants.ResourceNamePropertyName) && 
+                    if (bodyDiscriminatedType.TryGetDiscriminatorProperty(LanguageConstants.ResourceNamePropertyName) is not null && 
                         !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).

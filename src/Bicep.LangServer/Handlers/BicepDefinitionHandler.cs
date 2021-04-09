@@ -29,6 +29,12 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult(new LocationOrLocationLinks());
             }
 
+            if (result.Symbol is PropertySymbol)
+            {
+                // TODO: Implement for PropertySymbol
+                return Task.FromResult(new LocationOrLocationLinks());
+            }
+
             if (result.Symbol is DeclaredSymbol declaration)
             {
                 return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink

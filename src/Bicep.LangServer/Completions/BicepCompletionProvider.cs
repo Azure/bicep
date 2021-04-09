@@ -973,6 +973,11 @@ namespace Bicep.LanguageServer.Completions
                 buffer.Append($"Requires a compile-time constant value.{MarkdownNewLine}");
             }
 
+            if (property.Description is not null)
+            {
+                buffer.Append($"{property.Description}{MarkdownNewLine}");
+            }
+
             return buffer.ToString();
         }
     }

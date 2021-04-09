@@ -1524,5 +1524,24 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
             evaluated.Should().HaveValueAtPath("$.outputs['providersApiVersionFirst'].value", "3024-01-01");
             evaluated.Should().HaveValueAtPath("$.outputs['providersLocationFirst'].value", "Earth");
         }
+
+        [TestMethod]
+        public void Variable_loops_should_not_cause_infinite_recursion()
+        {
+            var result = CompilationHelper.Compile(@"
+var loopInput = [
+  'one'
+  'two'
+]
+var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
+  index: i
+  name: name
+  value: 'prefix-${i}-${name}-suffix'
+}]
+");
+
+            result.Should().NotHaveDiagnostics();
+            result.Template.Should().NotBeNull();
+        }
     }
 }

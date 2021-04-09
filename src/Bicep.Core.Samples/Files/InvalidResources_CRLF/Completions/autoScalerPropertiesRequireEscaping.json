@@ -5,7 +5,7 @@
     "detail": "balance-similar-node-groups",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -32,7 +32,7 @@
     "detail": "expander",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'least-waste' | 'most-pods' | 'random'`  \n"
+      "value": "Type: `'least-waste' | 'most-pods' | 'random'`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -53,7 +53,7 @@
     "detail": "max-empty-bulk-delete",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -80,7 +80,7 @@
     "detail": "max-graceful-termination-sec",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -107,7 +107,7 @@
     "detail": "max-total-unready-percentage",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -134,7 +134,7 @@
     "detail": "new-pod-scale-up-delay",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -161,7 +161,7 @@
     "detail": "ok-total-unready-count",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -188,7 +188,7 @@
     "detail": "scale-down-delay-after-add",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -215,7 +215,7 @@
     "detail": "scale-down-delay-after-delete",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -242,7 +242,7 @@
     "detail": "scale-down-delay-after-failure",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -269,7 +269,7 @@
     "detail": "scale-down-unneeded-time",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -296,7 +296,7 @@
     "detail": "scale-down-unready-time",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -323,7 +323,7 @@
     "detail": "scale-down-utilization-threshold",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -350,7 +350,7 @@
     "detail": "scan-interval",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -377,7 +377,7 @@
     "detail": "skip-nodes-with-local-storage",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -404,7 +404,7 @@
     "detail": "skip-nodes-with-system-pods",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \n  \n"
     },
     "deprecated": false,
     "preselect": false,

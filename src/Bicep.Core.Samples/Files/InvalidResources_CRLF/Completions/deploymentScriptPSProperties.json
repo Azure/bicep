@@ -5,7 +5,7 @@
     "detail": "arguments",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nCommand line arguments to pass to the script. Arguments are separated by spaces. ex: -Name blue* -Location 'West US 2'   \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -26,7 +26,7 @@
     "detail": "azPowerShellVersion (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nAzure PowerShell module version to be used.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -47,7 +47,7 @@
     "detail": "cleanupPreference",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Always' | 'OnExpiration' | 'OnSuccess'`  \n"
+      "value": "Type: `'Always' | 'OnExpiration' | 'OnSuccess'`  \nThe clean up preference when the script execution gets in a terminal state. Default setting is 'Always'.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -68,7 +68,7 @@
     "detail": "containerSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ContainerConfiguration`  \n"
+      "value": "Type: `ContainerConfiguration`  \nSettings to customize ACI container instance.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -89,7 +89,7 @@
     "detail": "environmentVariables",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `EnvironmentVariable[]`  \n"
+      "value": "Type: `EnvironmentVariable[]`  \nThe environment variables to pass over to the script.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -110,7 +110,7 @@
     "detail": "forceUpdateTag",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nGets or sets how the deployment script should be forced to execute even if the script resource has not changed. Can be current time stamp or a GUID.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -131,7 +131,7 @@
     "detail": "primaryScriptUri",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nUri for the script. This is the entry point for the external script.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -152,7 +152,7 @@
     "detail": "retentionInterval (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nInterval for which the service retains the script resource after it reaches a terminal state. Resource will be deleted when this duration expires. Duration is based on ISO 8601 pattern (for example P1D means one day).  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -173,7 +173,7 @@
     "detail": "scriptContent",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nScript body.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -194,7 +194,7 @@
     "detail": "storageAccountSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `StorageAccountConfiguration`  \n"
+      "value": "Type: `StorageAccountConfiguration`  \nSettings to use an existing storage account. Valid storage account kinds are: Storage, StorageV2 and FileStorage  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -215,7 +215,7 @@
     "detail": "supportingScriptUris",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string[]`  \n"
+      "value": "Type: `string[]`  \nSupporting files for the external script.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -236,7 +236,7 @@
     "detail": "timeout",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nMaximum allowed script execution time specified in ISO 8601 format. Default value is P1D  \n"
     },
     "deprecated": false,
     "preselect": false,

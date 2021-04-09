@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -12,12 +13,16 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -45,6 +50,8 @@ namespace Bicep.LangServer.IntegrationTests
             // filter out bind failures and locals with invalid identifiers
             // (locals are special because their span is equal to their identifier span)
             var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
+            // TODO: Implement for PropertySymbol
+            filteredSymbolTable = filteredSymbolTable.Where(pair => pair.Value is not PropertySymbol);
             var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
 
             foreach (var (syntax, symbol) in filteredSymbolTable)
@@ -66,8 +73,13 @@ namespace Bicep.LangServer.IntegrationTests
                 var expectedRanges = symbolToSyntaxLookup[symbol]
                     .Select(node => PositionHelper.GetNameRange(lineStarts, node));
 
-                // ranges should match what we got from our own symbol table
-                locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
+                using (new AssertionScope()
+                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "expected", expectedRanges, _ => "here", x => x)
+                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "actual", locations, _ => "here", x => x.Range))
+                {
+                    // ranges should match what we got from our own symbol table
+                    locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
+                }
             }
         }
 
@@ -85,6 +97,8 @@ namespace Bicep.LangServer.IntegrationTests
             // filter out bind failures and locals with invalid identifiers
             // (locals are special because their span is equal to their identifier span)
             var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
+            // TODO: Implement for PropertySymbol
+            filteredSymbolTable = filteredSymbolTable.Where(pair => pair.Value is not PropertySymbol);
             var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
 
             foreach (var (syntax, symbol) in filteredSymbolTable)
@@ -107,8 +121,13 @@ namespace Bicep.LangServer.IntegrationTests
                     .Where(node => !(node is INamedDeclarationSyntax))
                     .Select(node => PositionHelper.GetNameRange(lineStarts, node));
 
-                // ranges should match what we got from our own symbol table
-                locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
+                using (new AssertionScope()
+                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "expected", expectedRanges, _ => "here", x => x)
+                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "actual", locations, _ => "here", x => x.Range))
+                {
+                    // ranges should match what we got from our own symbol table
+                    locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
+                }
             }
         }
 
@@ -160,9 +179,57 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
+        [TestMethod]
+        public async Task FindReferences_displays_references_on_namespaced_and_non_namespaced_methods()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+var rg1 = resourc|eGroup().location
+
+var rg2 = az.r|esourceGroup()
+
+var rg3 = resourceGr|oup().id
+
+var dep1 = az.depl|oyment()
+
+var dep2 = az.deploy|ment()
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var references = await RequestReferences(client, syntaxTree, cursors);
+            
+            references.Should().SatisfyRespectively(
+                r => r.Should().HaveCount(3),
+                r => r.Should().HaveCount(3),
+                r => r.Should().HaveCount(3),
+                r => r.Should().HaveCount(2),
+                r => r.Should().HaveCount(2));
+        }
+
         private static IEnumerable<object[]> GetData()
         {
             return DataSets.NonStressDataSets.ToDynamicTestData();
+        }
+
+        private static async Task<IEnumerable<LocationContainer?>> RequestReferences(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
+        {
+            var references = new List<LocationContainer?>();
+            foreach (var cursor in cursors)
+            {
+                var referenceList = await client.RequestReferences(new ReferenceParams
+                {
+                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                    Context = new ReferenceContext
+                    {
+                        IncludeDeclaration = false
+                    },
+                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                });
+
+                references.Add(referenceList);
+            }
+
+            return references;
         }
     }
 }

@@ -104,7 +104,8 @@ param inputb string
                 template.Should().NotHaveValue();
                 diagnostics.Should().HaveDiagnostics(new[] {
                     ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
-                    ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
+                    ("BCP132", DiagnosticLevel.Error, "Expected a declaration after the decorator."),
+                    ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator.")
                 });
             }
         }
