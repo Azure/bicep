@@ -89,6 +89,11 @@ var linuxConfiguration = {
 }
 
 var virtualNetworkName = last(split(virtualNetworkId, '/'))
+var logAnalyticsWorkspaceName = last(split(logAnalyticsWorkspaceId, '/'))
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = {
+  name: logAnalyticsWorkspaceName
+}
 
 resource blobStorageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: blobStorageAccountName
@@ -180,13 +185,13 @@ resource omsAgentForLinux 'Microsoft.Compute/virtualMachines/extensions@2020-12-
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'OmsAgentForLinux'
-    typeHandlerVersion: '1.12'
+    typeHandlerVersion: '1.13'
     settings: {
-      workspaceId: reference(logAnalyticsWorkspaceId, '2020-03-01-preview').customerId
+      workspaceId: logAnalyticsWorkspace.properties.customerId
       stopOnMultipleConnections: false
     }
     protectedSettings: {
-      workspaceKey: listKeys(logAnalyticsWorkspaceId, '2020-03-01-preview').primarySharedKey
+      workspaceKey: listKey(logAnalyticsWorkspace.id, logAnalyticsWorkspace.apiVersion).primarySharedKey
     }
   }
 }
