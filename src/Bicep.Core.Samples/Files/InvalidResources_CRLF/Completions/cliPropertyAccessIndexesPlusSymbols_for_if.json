@@ -5,7 +5,7 @@
     "detail": "arguments",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nCommand line arguments to pass to the script. Arguments are separated by spaces. ex: -Name blue* -Location 'West US 2'   \n"
+      "value": "Type: `string`  \nCommand line arguments to pass to the script. Arguments are separated by spaces. ex: -Name blue* -Location 'West US 2'  \n"
     },
     "deprecated": false,
     "preselect": false,
