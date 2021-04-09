@@ -30,7 +30,7 @@ param aksClusterNetworkPolicy string = 'azure'
 @description('Specifies the CIDR notation IP range from which to assign pod IPs when kubenet is used.')
 param aksClusterPodCidr string = '10.244.0.0/16'
 
-@description('A CIDR notation IP range from which to assign service cluster IPs. It must not overlap with any Subnet IP ranges.')
+@description('A CIDR notation IP range from which to assign service cluster IPs. It must not overlap with any st IP ranges.')
 param aksClusterServiceCidr string = '10.2.0.0/16'
 
 @description('Specifies the IP address assigned to the Kubernetes DNS service. It must be within the Kubernetes service address range specified in serviceCidr.')
@@ -236,490 +236,116 @@ param blobStorageAccountPrivateEndpointName string = 'BlobStorageAccountPrivateE
 param bastionSubnetAddressPrefix string = '10.1.1.0/26'
 
 @description('Specifies the name of the Azure Bastion resource.')
-param bastionHostName string = '${aksClusterName}Bastion'
+param bastionName string = '${aksClusterName}Bastion'
 
-var vmSubnetNsgName = '${vmSubnetName}Nsg'
-var bastionSubnetNsgName = '${bastionHostName}Nsg'
-var vmSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, vmSubnetName)
-var aksSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, aksSubnetName)
-var vmNicName = '${vmName}Nic'
-var vmNicId = vmNic.id
-var blobPublicDNSZoneForwarder = '.blob.${environment().suffixes.storage}'
-var blobPrivateDnsZoneName = 'privatelink${blobPublicDNSZoneForwarder}'
-var blobStorageAccountPrivateEndpointGroupName = 'blob'
-var omsAgentForLinuxName = 'LogAnalytics'
-var omsDependencyAgentForLinuxName = 'DependencyAgent'
-var linuxConfiguration = {
-  disablePasswordAuthentication: true
-  ssh: {
-    publicKeys: [
-      {
-        path: '/home/${vmAdminUsername}/.ssh/authorized_keys'
-        keyData: vmAdminPasswordOrKey
-      }
-    ]
-  }
-  provisionVMAgent: true
-}
-var bastionPublicIpAddressName = '${bastionHostName}PublicIp'
-var bastionSubnetName = 'AzureBastionSubnet'
-var bastionSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, bastionSubnetName)
-var aadProfileConfiguration = {
-  managed: aadProfileManaged
-  enableAzureRBAC: aadProfileEnableAzureRBAC
-  adminGroupObjectIDs: aadProfileAdminGroupObjectIDs
-  tenantID: aadProfileTenantId
-}
-
-resource bastionPublicIpAddress 'Microsoft.Network/publicIPAddresses@2020-08-01' = {
-  name: bastionPublicIpAddressName
-  location: location
-  sku: {
-    name: 'Standard'
-  }
-  properties: {
-    publicIPAllocationMethod: 'Static'
+module vnet 'vnet.bicep' = {
+  name: 'vnet'
+  params: {
+    location: location
+    virtualNetworkName: virtualNetworkName
+    virtualNetworkAddressPrefixes: virtualNetworkAddressPrefixes
+    aksSubnetName: aksSubnetName
+    aksSubnetAddressPrefix: aksSubnetAddressPrefix
+    bastionSubnetAddressPrefix: bastionSubnetAddressPrefix
+    vmSubnetName: vmSubnetName
+    vmSubnetAddressPrefix: vmSubnetAddressPrefix
   }
 }
 
-resource bastionSubnetNsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
-  name: bastionSubnetNsgName
-  location: location
-  properties: {
-    securityRules: [
-      {
-        name: 'bastionInAllow'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'Internet'
-          destinationPortRange: '443'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 100
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'bastionControlInAllow'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'GatewayManager'
-          destinationPortRanges: [
-            '443'
-            '4443'
-          ]
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 120
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'AllowLoadBalancerInBound'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'AzureLoadBalancer'
-          destinationPortRange: '443'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 130
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'AllowBastionHostCommunicationInBound'
-        properties: {
-          protocol: '*'
-          sourcePortRange: '*'
-          sourceAddressPrefix: 'VirtualNetwork'
-          destinationPortRanges: [
-            '8080'
-            '5701'
-          ]
-          destinationAddressPrefix: 'VirtualNetwork'
-          access: 'Allow'
-          priority: 140
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'bastionInDeny'
-        properties: {
-          protocol: '*'
-          sourcePortRange: '*'
-          destinationPortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationAddressPrefix: '*'
-          access: 'Deny'
-          priority: 900
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'bastionVnetOutAllow'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRanges: [
-            '22'
-            '3389'
-          ]
-          destinationAddressPrefix: 'VirtualNetwork'
-          access: 'Allow'
-          priority: 100
-          direction: 'Outbound'
-        }
-      }
-      {
-        name: 'bastionAzureOutAllow'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '443'
-          destinationAddressPrefix: 'AzureCloud'
-          access: 'Allow'
-          priority: 120
-          direction: 'Outbound'
-        }
-      }
-    ]
+module bastion 'bastion.bicep' = {
+  name: 'bastion'
+  params: {
+    bastionHostName: bastionName
+    bastionSubnetId: vnet.outputs.bastionSubnetId
+    location: location
   }
 }
 
-resource bastionHost 'Microsoft.Network/bastionHosts@2020-08-01' = {
-  name: bastionHostName
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'IpConf'
-        properties: {
-          subnet: {
-            id: bastionSubnetId
-          }
-          publicIPAddress: {
-            id: bastionPublicIpAddress.id
-          }
-        }
-      }
-    ]
+module logAnalytics 'log-analytics.bicep' = {
+  name: 'log-analytics.bicep'
+  params: {
+    location: location
+    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    logAnalyticsSku: logAnalyticsSku
+    logAnalyticsRetentionInDays: logAnalyticsRetentionInDays
   }
 }
 
-resource blobStorageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
-  name: blobStorageAccountName
-  location: location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-}
+module jumpbox 'jumpbox.bicep' = {
+  name: 'jumpbox'
+  params: {
+    location: location
 
-resource vmNic 'Microsoft.Network/networkInterfaces@2020-08-01' = {
-  name: vmNicName
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig1'
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: vmSubnetId
-          }
-        }
-      }
-    ]
-  }
-}
+    vmName: vmName
+    vmAdminUsername: vmAdminUsername
+    vmAdminPasswordOrKey: vmAdminPasswordOrKey
 
-resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-  name: vmName
-  location: location
-  properties: {
-    hardwareProfile: {
-      vmSize: vmSize
-    }
-    osProfile: {
-      computerName: vmName
-      adminUsername: vmAdminUsername
-      adminPassword: vmAdminPasswordOrKey
-      linuxConfiguration: ((authenticationType == 'password') ? json('null') : linuxConfiguration)
-    }
-    storageProfile: {
-      imageReference: {
-        publisher: imagePublisher
-        offer: imageOffer
-        sku: imageSku
-        version: 'latest'
-      }
-      osDisk: {
-        name: '${vmName}_OSDisk'
-        caching: 'ReadWrite'
-        createOption: 'FromImage'
-        diskSizeGB: osDiskSize
-        managedDisk: {
-          storageAccountType: diskStorageAccounType
-        }
-      }
-      dataDisks: [for j in range(0, numDataDisks): {
-        caching: dataDiskCaching
-        diskSizeGB: dataDiskSize
-        lun: j
-        name: '${vmName}-DataDisk${j}'
-        createOption: 'Empty'
-        managedDisk: {
-          storageAccountType: diskStorageAccounType
-        }
-      }]
-    }
-    networkProfile: {
-      networkInterfaces: [
-        {
-          id: vmNic.id
-        }
-      ]
-    }
-    diagnosticsProfile: {
-      bootDiagnostics: {
-        enabled: true
-        storageUri: blobStorageAccount.properties.primaryEndpoints.blob
-      }
-    }
+    vmSize: vmSize
+    authenticationType: authenticationType
+
+    diskStorageAccounType: diskStorageAccounType
+    osDiskSize: osDiskSize
+    dataDiskCaching: dataDiskCaching
+    dataDiskSize: dataDiskSize
+    numDataDisks: numDataDisks
+
+    imageOffer: imageOffer
+    imagePublisher: imagePublisher
+    imageSku: imageSku
+
+    blobStorageAccountName: blobStorageAccountName
+    blobStorageAccountPrivateEndpointName: blobStorageAccountPrivateEndpointName
+
+    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
+    virtualNetworkId: vnet.outputs.virtualNetworkResourceId
+    vmSubnetId: vnet.outputs.vmSubnetId
   }
 }
 
-resource omsAgentForLinux 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${vm.name}/${omsAgentForLinuxName}'
-  location: location
-  properties: {
-    publisher: 'Microsoft.EnterpriseCloud.Monitoring'
-    type: 'OmsAgentForLinux'
-    typeHandlerVersion: '1.12'
-    settings: {
-      workspaceId: reference(logAnalyticsWorkspace.id, '2020-03-01-preview').customerId
-      stopOnMultipleConnections: false
-    }
-    protectedSettings: {
-      workspaceKey: listKeys(logAnalyticsWorkspace.id, '2020-03-01-preview').primarySharedKey
-    }
-  }
-}
+module aks 'aks.bicep' = {
+  name: 'aks'
+  params: {
+    location: location
 
-resource omsDependencyAgentForLinux 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${vm.name}/${omsDependencyAgentForLinuxName}'
-  location: location
-  properties: {
-    publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
-    type: 'DependencyAgentLinux'
-    typeHandlerVersion: '9.10'
-    autoUpgradeMinorVersion: true
-  }
-}
+    aadEnabled: aadEnabled
+    aadProfileAdminGroupObjectIDs: aadProfileAdminGroupObjectIDs
+    aadProfileEnableAzureRBAC: aadProfileEnableAzureRBAC
+    aadProfileManaged: aadProfileManaged
+    aadProfileTenantId: aadProfileTenantId
+    aksClusterAdminUsername: aksClusterAdminUsername
+    aksClusterDnsPrefix: aksClusterDnsPrefix
+    aksClusterDnsServiceIP: aksClusterDnsServiceIP
+    aksClusterDockerBridgeCidr: aksClusterDockerBridgeCidr
+    aksClusterEnablePrivateCluster: aksClusterEnablePrivateCluster
+    aksClusterKubernetesVersion: aksClusterKubernetesVersion
+    aksClusterLoadBalancerSku: aksClusterLoadBalancerSku
+    aksClusterName: aksClusterName
+    aksClusterNetworkPlugin: aksClusterNetworkPlugin
+    aksClusterNetworkPolicy: aksClusterNetworkPolicy
+    aksClusterPodCidr: aksClusterPodCidr
+    aksClusterServiceCidr: aksClusterServiceCidr
+    aksClusterSkuTier: aksClusterSkuTier
+    aksClusterSshPublicKey: aksClusterSshPublicKey
+    aksClusterTags: aksClusterTags
+    aksSubnetName: aksSubnetName
 
-resource vmSubnetNsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
-  name: vmSubnetNsgName
-  location: location
-  properties: {
-    securityRules: [
-      {
-        name: 'AllowSshInbound'
-        properties: {
-          priority: 100
-          access: 'Allow'
-          direction: 'Inbound'
-          destinationPortRange: '22'
-          protocol: 'Tcp'
-          sourceAddressPrefix: '*'
-          sourcePortRange: '*'
-          destinationAddressPrefix: '*'
-        }
-      }
-    ]
-  }
-}
+    nodePoolAvailabilityZones: nodePoolAvailabilityZones
+    nodePoolCount: nodePoolCount
+    nodePoolEnableAutoScaling: nodePoolEnableAutoScaling
+    nodePoolMaxCount: nodePoolMaxCount
+    nodePoolMaxPods: nodePoolMaxPods
+    nodePoolMinCount: nodePoolMinCount
+    nodePoolMode: nodePoolMode
+    nodePoolName: nodePoolName
+    nodePoolNodeLabels: nodePoolNodeLabels
+    nodePoolNodeTaints: nodePoolNodeTaints
+    nodePoolOsDiskSizeGB: nodePoolOsDiskSizeGB
+    nodePoolOsType: nodePoolOsType
+    nodePoolScaleSetPriority: nodePoolScaleSetPriority
+    nodePoolType: nodePoolType
+    nodePoolVmSize: nodePoolVmSize
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-08-01' = {
-  name: virtualNetworkName
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        virtualNetworkAddressPrefixes
-      ]
-    }
-    subnets: [
-      {
-        name: aksSubnetName
-        properties: {
-          addressPrefix: aksSubnetAddressPrefix
-          privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
-        }
-      }
-      {
-        name: vmSubnetName
-        properties: {
-          addressPrefix: vmSubnetAddressPrefix
-          networkSecurityGroup: {
-            id: vmSubnetNsg.id
-          }
-          privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
-        }
-      }
-      {
-        name: bastionSubnetName
-        properties: {
-          addressPrefix: bastionSubnetAddressPrefix
-          networkSecurityGroup: {
-            id: bastionSubnetNsg.id
-          }
-        }
-      }
-    ]
-    enableDdosProtection: false
-    enableVmProtection: false
-  }
-}
-
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-02-01' = {
-  name: aksClusterName
-  location: location
-  identity: {
-    type: 'SystemAssigned'
-  }
-  tags: aksClusterTags
-  sku: {
-    name: 'Basic'
-    tier: aksClusterSkuTier
-  }
-  properties: {
-    kubernetesVersion: aksClusterKubernetesVersion
-    dnsPrefix: aksClusterDnsPrefix
-    agentPoolProfiles: [
-      {
-        name: toLower(nodePoolName)
-        count: nodePoolCount
-        vmSize: nodePoolVmSize
-        osDiskSizeGB: nodePoolOsDiskSizeGB
-        vnetSubnetID: aksSubnetId
-        maxPods: nodePoolMaxPods
-        osType: nodePoolOsType
-        maxCount: nodePoolMaxCount
-        minCount: nodePoolMinCount
-        scaleSetPriority: nodePoolScaleSetPriority
-        enableAutoScaling: nodePoolEnableAutoScaling
-        mode: nodePoolMode
-        type: nodePoolType
-        availabilityZones: nodePoolAvailabilityZones
-        nodeLabels: nodePoolNodeLabels
-        nodeTaints: nodePoolNodeTaints
-      }
-    ]
-    linuxProfile: {
-      adminUsername: aksClusterAdminUsername
-      ssh: {
-        publicKeys: [
-          {
-            keyData: aksClusterSshPublicKey
-          }
-        ]
-      }
-    }
-    addonProfiles: {
-      omsagent: {
-        enabled: true
-        config: {
-          logAnalyticsWorkspaceResourceID: logAnalyticsWorkspace.id
-        }
-      }
-    }
-    enableRBAC: true
-    networkProfile: {
-      networkPlugin: aksClusterNetworkPlugin
-      networkPolicy: aksClusterNetworkPolicy
-      podCidr: aksClusterPodCidr
-      serviceCidr: aksClusterServiceCidr
-      dnsServiceIP: aksClusterDnsServiceIP
-      dockerBridgeCidr: aksClusterDockerBridgeCidr
-      loadBalancerSku: aksClusterLoadBalancerSku
-    }
-    aadProfile: (aadEnabled ? aadProfileConfiguration : json('null'))
-    apiServerAccessProfile: {
-      enablePrivateCluster: aksClusterEnablePrivateCluster
-    }
-  }
-}
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
-  name: logAnalyticsWorkspaceName
-  location: location
-  properties: {
-    sku: {
-      name: logAnalyticsSku
-    }
-    retentionInDays: logAnalyticsRetentionInDays
-  }
-}
-
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-  name: blobPrivateDnsZoneName
-  location: 'global'
-}
-
-resource blobPrivateDnsZoneLinkToVirtualNetwork 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
-  name: '${blobPrivateDnsZone.name}/link_to_${toLower(virtualNetworkName)}'
-  location: 'global'
-  properties: {
-    registrationEnabled: false
-    virtualNetwork: {
-      id: virtualNetwork.id
-    }
-  }
-}
-
-resource blobStorageAccountPrivateEndpoint 'Microsoft.Network/privateEndpoints@2020-08-01' = {
-  name: blobStorageAccountPrivateEndpointName
-  location: location
-  properties: {
-    privateLinkServiceConnections: [
-      {
-        name: blobStorageAccountPrivateEndpointName
-        properties: {
-          privateLinkServiceId: blobStorageAccount.id
-          groupIds: [
-            blobStorageAccountPrivateEndpointGroupName
-          ]
-        }
-      }
-    ]
-    subnet: {
-      id: vmSubnetId
-    }
-    customDnsConfigs: [
-      {
-        fqdn: concat(blobStorageAccountName, blobPublicDNSZoneForwarder)
-      }
-    ]
-  }
-}
-
-resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-08-01' = {
-  name: '${blobStorageAccountPrivateEndpoint.name}/${blobStorageAccountPrivateEndpointGroupName}PrivateDnsZoneGroup'
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: 'dnsConfig'
-        properties: {
-          privateDnsZoneId: blobPrivateDnsZone.id
-        }
-      }
-    ]
+    virtualNetworkId: vnet.outputs.virtualNetworkResourceId
+    logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
   }
 }
