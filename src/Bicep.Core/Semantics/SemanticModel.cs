@@ -119,21 +119,18 @@ namespace Bicep.Core.Semantics
         {
             static PropertySymbol? GetPropertySymbol(TypeSymbol? baseType, string property)
             {
-                var bodyObjectType = baseType switch
+                if (baseType is null)
                 {
-                    ResourceType { Body: ObjectType objectType } _ => objectType,
-                    ModuleType { Body: ObjectType objectType } => objectType,
-                    ObjectType objectType => objectType,
-                    _ => null,
-                };
-
-                if (bodyObjectType is not null &&
-                    bodyObjectType.Properties.TryGetValue(property, out var typeProperty))
-                {
-                    return new PropertySymbol(property, typeProperty.Description, typeProperty.TypeReference.Type);
+                    return null;
                 }
 
-                return null;
+                if (TypeAssignmentVisitor.UnwrapType(baseType) is not ObjectType bodyObjectType ||
+                    !bodyObjectType.Properties.TryGetValue(property, out var typeProperty))
+                {
+                    return null;
+                }
+
+                return new PropertySymbol(property, typeProperty.Description, typeProperty.TypeReference.Type);
             }
 
             switch (syntax)

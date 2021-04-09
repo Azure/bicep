@@ -83,7 +83,7 @@ namespace Bicep.LangServer.IntegrationTests
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
-            var undeclaredSymbolBindings = symbolTable.Where(pair => pair.Value is not DeclaredSymbol && pair.Value is not PropertySymbol);
+            var undeclaredSymbolBindings = symbolTable.Where(pair => pair.Value is not DeclaredSymbol and not PropertySymbol);
 
             foreach (var (syntax, _) in undeclaredSymbolBindings)
             {

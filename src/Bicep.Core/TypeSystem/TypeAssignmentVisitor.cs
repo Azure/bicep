@@ -526,9 +526,13 @@ namespace Bicep.Core.TypeSystem
 
                         if (declaredType is ObjectType objectType && objectType.Properties.TryGetValue(group.Key, out var property))
                         {
+                            // we've found a declared object type for the containing object, with a matching property name definition.
+                            // preserve the type property details (name, descriptions etc.), and update the assigned type.
                             return new TypeProperty(property.Name, resolvedType, property.Flags, property.Description);
                         }
 
+                        // we've not been able to find a declared object type for the containing object, or it doesn't contain a property matching this one.
+                        // best we can do is to simply generate a property for the assigned type.
                         return new TypeProperty(group.Key, resolvedType);
                     });
 

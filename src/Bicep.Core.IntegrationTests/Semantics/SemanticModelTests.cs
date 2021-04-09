@@ -169,7 +169,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 new List<SyntaxBase>(),
                 (accumulated, current) =>
                 {
-                    if (current is ISymbolReference symbolReference && TestSyntaxHelper.NodeShouldBeBound(symbolReference, semanticModel))
+                    if (current is ISymbolReference symbolReference && TestSyntaxHelper.NodeShouldBeBound(symbolReference))
                     {
                         accumulated.Add(current);
                     }
