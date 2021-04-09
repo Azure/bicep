@@ -265,6 +265,23 @@ output string test = testRes.prop|erties.rea|donly
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
 
+        [DataTestMethod]
+        public async Task PropertyHovers_are_displayed_on_partial_discriminator_objects()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
+  ki|nd
+}
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, syntaxTree, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
+        }
+
         private static void ValidateHover(Hover? hover, Symbol symbol)
         {
             hover.Should().NotBeNull();

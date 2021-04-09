@@ -609,7 +609,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var discriminatorProperties = syntax.Properties
-                .Where(p => string.Equals(p.TryGetKeyText(), discriminated.DiscriminatorKey, LanguageConstants.IdentifierComparison))
+                .Where(p => discriminated.TryGetDiscriminatorProperty(p.TryGetKeyText()) is not null)
                 .ToList();
 
             if (discriminatorProperties.Count != 1)

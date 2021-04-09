@@ -124,8 +124,13 @@ namespace Bicep.Core.Semantics
                     return null;
                 }
 
-                if (TypeAssignmentVisitor.UnwrapType(baseType) is not ObjectType bodyObjectType ||
-                    !bodyObjectType.Properties.TryGetValue(property, out var typeProperty))
+                var typeProperty = TypeAssignmentVisitor.UnwrapType(baseType) switch {
+                    ObjectType x => x.Properties.TryGetValue(property, out var tp) ? tp : null,
+                    DiscriminatedObjectType x => x.TryGetDiscriminatorProperty(property),
+                    _ => null
+                };
+
+                if (typeProperty is null)
                 {
                     return null;
                 }
