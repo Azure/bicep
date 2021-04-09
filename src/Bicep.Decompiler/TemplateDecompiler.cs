@@ -19,45 +19,42 @@ namespace Bicep.Decompiler
 {
     public static class TemplateDecompiler
     {
-        private static Uri ChangeExtension(Uri prevUri, string newExtension)
-        {
-            var uriString = prevUri.ToString();
-            var finalDot = uriString.LastIndexOf('.');
-            uriString = (finalDot >= 0 ? uriString.Substring(0, finalDot) : uriString) + $".{newExtension}";
-
-            return new Uri(uriString);
-        }
-
         public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, Uri jsonUri)
         {
-            var decompileQueue = new Queue<Uri>();
+            const string bicepExtension = "bicep";
 
-            var entryUri = ChangeExtension(jsonUri, "bicep");
             var workspace = new Workspace();
+            var decompileQueue = new Queue<Uri>();
+            var entryUri = ChangeExtension(jsonUri, bicepExtension);
 
-            decompileQueue.Enqueue(entryUri);
+            decompileQueue.Enqueue(jsonUri);
 
-            while (decompileQueue.Any())
+            while (decompileQueue.Count > 0)
             {
-                var bicepUri = decompileQueue.Dequeue();
-                if (!bicepUri.AbsolutePath.EndsWith(".bicep", StringComparison.OrdinalIgnoreCase))
+                jsonUri = decompileQueue.Dequeue();
+
+                if (HasExtension(jsonUri, bicepExtension))
+                {
+                    throw new InvalidOperationException($"Cannot decompile the file with .bicep extension: {jsonUri}.");
+                }
+
+                var bicepUri = ChangeExtension(jsonUri, bicepExtension);
+                if (!HasExtension(bicepUri, bicepExtension))
                 {
                     continue;
                 }
-
-                var currentJsonUri = ChangeExtension(bicepUri, "json");
 
                 if (workspace.TryGetSyntaxTree(bicepUri, out _))
                 {
                     continue;
                 }
 
-                if (!fileResolver.TryRead(currentJsonUri, out var jsonInput, out _))
+                if (!fileResolver.TryRead(jsonUri, out var jsonInput, out _))
                 {
-                    throw new InvalidOperationException($"Failed to read {currentJsonUri}");
+                    throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                var program = TemplateConverter.DecompileTemplate(workspace, fileResolver, currentJsonUri, jsonInput);
+                var program = TemplateConverter.DecompileTemplate(workspace, fileResolver, jsonUri, jsonInput);
                 var syntaxTree = new SyntaxTree(bicepUri, ImmutableArray<int>.Empty, program);
                 workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
 
@@ -72,9 +69,9 @@ namespace Bicep.Decompiler
                         continue;
                     }
 
-                    if (!workspace.TryGetSyntaxTree(moduleUri, out _))
+                    if (!workspace.TryGetSyntaxTree(moduleUri, out _) && module.TemplateUri is not null)
                     {
-                        decompileQueue.Enqueue(moduleUri);
+                        decompileQueue.Enqueue(module.TemplateUri);
                     }
                 }
             }
@@ -94,6 +91,22 @@ namespace Bicep.Decompiler
             }
 
             return (entryUri, PrintFiles(workspace));
+        }
+
+        private static Uri ChangeExtension(Uri prevUri, string newExtension)
+        {
+            var uriString = prevUri.ToString();
+            var finalDot = uriString.LastIndexOf('.');
+            uriString = (finalDot >= 0 ? uriString.Substring(0, finalDot) : uriString) + $".{newExtension}";
+
+            return new Uri(uriString);
+        }
+
+        private static bool HasExtension(Uri uri, string extension)
+        {
+            extension = extension.StartsWith(".") ? extension : $".{extension}";
+
+            return uri.AbsolutePath.EndsWith(extension, StringComparison.OrdinalIgnoreCase);
         }
 
         private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)

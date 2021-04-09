@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
@@ -665,7 +665,7 @@ namespace Bicep.Decompiler
                 ParseJToken(value.Value));
         }
 
-        private SyntaxBase GetModuleFilePath(JObject resource, string templateLink)
+        private (SyntaxBase moduleFilePath, Uri? templateUri) GetModuleFilePath(string templateLink)
         {
             StringSyntax createFakeModulePath(string templateLinkExpression)
                 => SyntaxFactory.CreateStringLiteralWithComment("?", $"TODO: replace with correct path to {templateLinkExpression}");
@@ -676,18 +676,18 @@ namespace Bicep.Decompiler
             if (nestedRelativePath is null)
             {
                 // return the original expression so that the author can fix it up rather than failing
-                return createFakeModulePath(templateLink);
+                return (createFakeModulePath(templateLink), null);
             }
             
             var nestedUri = fileResolver.TryResolveModulePath(fileUri, nestedRelativePath);
             if (nestedUri == null || !fileResolver.TryRead(nestedUri, out _, out _))
             {
                 // return the original expression so that the author can fix it up rather than failing
-                return createFakeModulePath(templateLink);
+                return (createFakeModulePath(templateLink), null);
             }
 
             var filePath = Path.ChangeExtension(nestedRelativePath, "bicep").Replace("\\", "/");
-            return SyntaxFactory.CreateStringLiteral(filePath);
+            return (SyntaxFactory.CreateStringLiteral(filePath), nestedUri);
         }
 
 
@@ -1023,13 +1023,20 @@ namespace Bicep.Decompiler
                 throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
             }
 
+            /*
+             * We need to save templateUri to the module declaration because it may not necessarily end with .json extension.
+             * When decompiling the module, templateUri will be used to load the JSON template file.
+             */
+            var (modulePath, templateUri) = GetModuleFilePath(templatePathString);
+
             return new ModuleDeclarationSyntax(
                 decorators,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
                 SyntaxFactory.CreateIdentifier(identifier),
-                GetModuleFilePath(resource, templatePathString),
+                modulePath,
                 SyntaxFactory.AssignmentToken,
-                value);
+                value,
+                templateUri);
         }
 
         private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource, string nameString)

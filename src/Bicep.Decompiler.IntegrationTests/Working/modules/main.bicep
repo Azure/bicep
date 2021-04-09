@@ -5,7 +5,7 @@ param baseUrl string = 'https://my.base/url'
 
 var armBaseUrl = baseUrl
 var module1Url = '${armBaseUrl}/nested/module1.json'
-var module2Url = '${armBaseUrl}/nested/module2.json'
+var module2Url = '${armBaseUrl}/nested/module2.jsonc'
 var objectVar = {
   val1: 'a${location}b'
 }
@@ -23,7 +23,8 @@ module module1Deploy 'nested/module1.bicep' = {
   }
 }
 
-module module2Deploy 'nested/module2.bicep' = {
+module module2Deploy '?' /*TODO: replace with correct path to [variables('module2Url')]*/ = {
+//@[21:24) [BCP085 (Error)] The specified module path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". |'?'|
   name: 'module2Deploy'
   params: {
     location: location

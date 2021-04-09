@@ -50,22 +50,18 @@ namespace Bicep.Core.IntegrationTests
         private static IEnumerable<object[]> GetWorkingExampleData()
         {
             const string pathPrefix = "Working/";
-            const string jsonExtension = ".json";
+            const string bicepExtension = ".bicep";
 
             foreach (var streamName in typeof(DecompilationTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal)))
             {
                 var extension = Path.GetExtension(streamName);
-                if (!StringComparer.OrdinalIgnoreCase.Equals(extension, jsonExtension))
+                if (StringComparer.OrdinalIgnoreCase.Equals(extension, bicepExtension))
                 {
                     continue;
                 }
 
-                var outputFolderName = streamName
-                    .Substring(0, streamName.Length - jsonExtension.Length)
-                    .Substring(pathPrefix.Length)
-                    .Replace('/', '_');
-
-                var exampleData = new ExampleData(streamName, Path.ChangeExtension(streamName, "json"), outputFolderName);
+                var outputFolderName = streamName[pathPrefix.Length..^extension.Length].Replace('/', '_');
+                var exampleData = new ExampleData(Path.ChangeExtension(streamName, bicepExtension), streamName, outputFolderName);
 
                 yield return new object[] { exampleData };
             }
@@ -84,7 +80,6 @@ namespace Bicep.Core.IntegrationTests
             // save all the files in the containing directory to disk so that we can test module resolution
             var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, parentStream);
-            var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             var typeProvider = new AzResourceTypeProvider();
 
@@ -112,7 +107,7 @@ namespace Bicep.Core.IntegrationTests
                     File.WriteAllText(syntaxTree.FileUri.LocalPath + ".actual", sourceTextWithDiags);
 
                     sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                        TestContext, 
+                        TestContext,
                         exampleExists ? File.ReadAllText(syntaxTree.FileUri.LocalPath) : "",
                         expectedLocation: Path.Combine("src", "Bicep.Decompiler.IntegrationTests", parentStream, Path.GetRelativePath(outputDirectory, syntaxTree.FileUri.LocalPath)),
                         actualLocation: syntaxTree.FileUri.LocalPath + ".actual");
@@ -225,6 +220,30 @@ namespace Bicep.Core.IntegrationTests
             var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = ({expectedValue})");
+        }
+
+        [TestMethod]
+        public void Decompiler_should_not_decompile_bicep_extension()
+        {
+            const string template = @"{
+    ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+    ""contentVersion"": ""1.0.0.0"",
+    ""parameters"": {},
+    ""variables"": {},
+    ""resources"": [],
+    ""outputs"": {}
+}";
+
+            var fileUri = new Uri("file:///path/to/main.bicep");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [fileUri] = template,
+            });
+
+            Action sut = () => TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
+
+            sut.Should().Throw<InvalidOperationException>()
+                .WithMessage("Cannot decompile the file with .bicep extension: file:///path/to/main.bicep.");
         }
     }
 }
