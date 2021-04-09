@@ -93,11 +93,11 @@ All of the following methods will install the Bicep CLI and add it to your PATH.
 #### Linux
 ```sh
 # Fetch the latest Bicep CLI binary
-curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+curl -Lo bicep.bin https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
 # Mark it as executable
-chmod +x ./bicep
+chmod +x ./bicep.bin
 # Add bicep to your PATH (requires admin)
-sudo mv ./bicep /usr/local/bin/bicep
+sudo mv ./bicep.bin /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
 bicep --help
 # Done!
