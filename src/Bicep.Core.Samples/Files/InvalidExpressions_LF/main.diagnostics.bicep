@@ -335,7 +335,7 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[36:37) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 var invalidInstanceFunctionCall = az.az()
-//@[37:39) [BCP109 (Error)] The type "az" does not contain function "az". |az|
+//@[37:39) [BCP107 (Error)] The function "az" does not exist in namespace "az". |az|
 var invalidPropertyAccessOnAzNamespace = az.az
 //@[44:46) [BCP052 (Error)] The type "az" does not contain property "az". |az|
 var invalidPropertyAccessOnSysNamespace = sys.az

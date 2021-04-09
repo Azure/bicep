@@ -37,7 +37,13 @@ namespace Bicep.Core.Semantics
                 });
 
         public static Symbol ResolveObjectQualifiedFunction(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)
-            => ResolveSymbolInternal(
+        {
+            if (objectType is NamespaceType namespaceType)
+            {
+                return ResolveNamespaceQualifiedFunction(FunctionFlags.Default, foundSymbol, identifierSyntax, namespaceType);
+            }
+
+            return ResolveSymbolInternal(
                 FunctionFlags.Default,
                 foundSymbol,
                 identifierSyntax,
@@ -46,6 +52,7 @@ namespace Bicep.Core.Semantics
                     null => builder.FunctionDoesNotExistOnObject(objectType, identifierSyntax.IdentifierName),
                     _ => builder.FunctionDoesNotExistOnObjectWithSuggestion(objectType, identifierSyntax.IdentifierName, suggestedName),
                 });
+        }
 
         public static Symbol ResolveUnqualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, IEnumerable<NamespaceSymbol> namespaces)
             => ResolveSymbolInternal(
