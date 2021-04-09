@@ -26,7 +26,7 @@
     "detail": "availabilitySet",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n  \n"
+      "value": "Type: `SubResource`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -152,7 +152,7 @@
     "detail": "host",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n  \n"
+      "value": "Type: `SubResource`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -173,7 +173,7 @@
     "detail": "hostGroup",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n  \n"
+      "value": "Type: `SubResource`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -320,7 +320,7 @@
     "detail": "proximityPlacementGroup",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n  \n"
+      "value": "Type: `SubResource`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -383,7 +383,7 @@
     "detail": "virtualMachineScaleSet",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n  \n"
+      "value": "Type: `SubResource`  \n"
     },
     "deprecated": false,
     "preselect": false,
