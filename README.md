@@ -33,7 +33,6 @@ To get going with Bicep:
 
 1. **Start by [installing the tooling](./docs/installing.md).**
 1. **Complete the [Bicep tutorial](./docs/tutorial/01-simple-template.md)**
-  * walks you through the structure and capabilities of Bicep, deploying Bicep files, and converting an ARM template into the equivalent Bicep file.
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VSCode Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
 
