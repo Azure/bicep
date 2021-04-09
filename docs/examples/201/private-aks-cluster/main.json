@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1683714625248973461"
+      "templateHash": "1249505672473444374"
     }
   },
   "parameters": {
@@ -1076,7 +1076,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18286756281893662168"
+              "templateHash": "8981540929624240020"
             }
           },
           "parameters": {
@@ -1242,7 +1242,8 @@
               },
               "provisionVMAgent": true
             },
-            "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]"
+            "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]",
+            "logAnalyticsWorkspaceName": "[last(split(parameters('logAnalyticsWorkspaceId'), '/'))]"
           },
           "resources": [
             {
@@ -1349,13 +1350,13 @@
               "properties": {
                 "publisher": "Microsoft.EnterpriseCloud.Monitoring",
                 "type": "OmsAgentForLinux",
-                "typeHandlerVersion": "1.12",
+                "typeHandlerVersion": "1.13",
                 "settings": {
-                  "workspaceId": "[reference(parameters('logAnalyticsWorkspaceId'), '2020-03-01-preview').customerId]",
+                  "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').customerId]",
                   "stopOnMultipleConnections": false
                 },
                 "protectedSettings": {
-                  "workspaceKey": "[listKeys(parameters('logAnalyticsWorkspaceId'), '2020-03-01-preview').primarySharedKey]"
+                  "workspaceKey": "[listKey(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').primarySharedKey]"
                 }
               },
               "dependsOn": [
