@@ -209,7 +209,7 @@ namespace Bicep.Core.TypeSystem.Az
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
 
-            var functions = GetTypeBicepFunctions(objectType.Name);
+            var functions = GetTypeBicepFunctions(typeReference);
 
             return new ObjectType(
                 objectType.Name,
@@ -220,9 +220,9 @@ namespace Bicep.Core.TypeSystem.Az
                 functions);
         }
 
-        private static IEnumerable<FunctionOverload> GetTypeBicepFunctions(string name)
+        private static IEnumerable<FunctionOverload> GetTypeBicepFunctions(ResourceTypeReference resourceType)
         {
-            switch (name.ToLowerInvariant())
+            switch (resourceType.FullyQualifiedType.ToLowerInvariant())
             {
                 case "microsoft.keyvault/vaults":
                     yield return new FunctionOverloadBuilder("getSecret")
