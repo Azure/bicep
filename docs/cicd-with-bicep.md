@@ -201,7 +201,7 @@ The following contains a default Console App SDK-based C# project file that was 
 
 > Replace `__LATEST_VERSION__` with the latest version of the Bicep NuGet packages.
 
-```msbuild
+```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -224,7 +224,7 @@ The following contains a default Console App SDK-based C# project file that was 
 The following contains a project that compiles Bicep files into ARM templates using the NoTargets SDK. This allows creation of standalone projects that compile only Bicep files.
 > Replace `__LATEST_VERSION__` with the latest version of the Bicep NuGet packages.
 
-```msbuild
+```xml
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
@@ -245,7 +245,7 @@ The following contains a project that compiles Bicep files into ARM templates us
 The following contains an example of how to build Bicep files inside a classic .csproj file (not SDK-based). Only use this if the previous examples do not work for you.
 > Replace `__LATEST_VERSION__` with the latest version of the Bicep NuGet packages.
 
-```msbuild
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
