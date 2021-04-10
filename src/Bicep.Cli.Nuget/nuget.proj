@@ -1,0 +1,46 @@
+<!--
+  This project pulls down the setup compiler from a nuget and invokes it to build the setup exe.
+  It depends on the published self-contained bicep.exe and bicep.pdb to be placed in a bicep subfolder.
+  During the CI build, this happens via artifact download action.
+
+  Prerequisites:
+  - Copy bicep.exe and *.pdb from Bicep CLI publish directory to bicep\ directory under this project.
+-->
+<Project Sdk="Microsoft.Build.NoTargets">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <!-- NoTargets SDK no longer sets Language, which is required by NerdBank.GitVersioning -->
+    <Language>C#</Language>
+
+    <NugetExePath>$(PkgNuGet_CommandLine)\tools\NuGet.exe</NugetExePath>
+    <NugetExePath Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">mono $(NugetExePath)</NugetExePath>
+
+    <BicepBinariesDirectory>$(MSBuildProjectDirectory)\tools</BicepBinariesDirectory>
+    <BicepExePathWindows>$(BicepBinariesDirectory)\bicep.exe</BicepExePathWindows>
+    <BicepExePathNonWindows>$(BicepBinariesDirectory)\bicep</BicepExePathNonWindows>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NuGet.CommandLine" Version="5.8.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <NuSpec Include="Package.nuspec" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <BicepExecutable Include="$(BicepExePathWindows)" Condition=" Exists('$(BicepExePathWindows)') " />
+    <BicepExecutable Include="$(BicepExePathNonWindows)" Condition= " Exists('$(BicepExePathNonWindows)') " />
+  </ItemGroup>
+
+  <Target Name="RunTool" AfterTargets="Build" DependsOnTargets="GetBuildVersion">
+    <Error Text="This project requires the RuntimeSuffix property (-r in dotnet build) to set explicitly." Condition=" $(RuntimeSuffix) == '' " />
+    <Error Text="Unexpected number of bicep executables found: @(BicepExecutable->Count())" Condition=" @(BicepExecutable->Count()) != 1 " />
+
+    <Exec Command="$(NugetExePath) pack @(NuSpec) -Version $(NuGetPackageVersion) -NonInteractive -Properties rid=$(RuntimeSuffix)"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+</Project>

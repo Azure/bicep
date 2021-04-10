@@ -430,6 +430,24 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
+            static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
+            {
+                UnaryOperationSyntax { Operator: UnaryOperator.Minus } unaryOperatorSyntax
+                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => -1 * integerLiteralSyntax.Value,
+                IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value,
+                _ => null,
+            };
+
+            static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
+            {
+                var lengthSyntax = SingleArgumentSelector(decoratorSyntax);
+
+                if (TryGetIntegerLiteralValue(lengthSyntax) is not null and < 0)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(lengthSyntax).LengthMustNotBeNegative());
+                }
+            }
+
             yield return new DecoratorBuilder(LanguageConstants.ParameterModifierSecureName)
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
@@ -455,11 +473,25 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
+                {
+                    if (ReferenceEquals(targetType, LanguageConstants.Array) &&
+                        SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
+                        allowedValues.Items.All(item => item.Value is not ArraySyntax))
+                    {
+                        /* 
+                         * ARM handles array params with allowed values differently. If none of items of
+                         * the allowed values is array, it will check if the parameter value is a subset
+                         * of the allowed values.
+                         */
+                        return;
+                    }
+
                      TypeValidator.NarrowTypeAndCollectDiagnostics(
                             typeManager,
                         SingleArgumentSelector(decoratorSyntax),
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
-                        diagnosticWriter))
+                        diagnosticWriter);
+                })
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();
 
@@ -484,6 +516,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("length", LanguageConstants.Int, "The minimum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
+                .WithValidator(ValidateLength)
                 .WithEvaluator(MergeToTargetObject("minLength", SingleArgumentSelector))
                 .Build();
 
@@ -492,6 +525,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("length", LanguageConstants.Int, "The maximum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
+                .WithValidator(ValidateLength)
                 .WithEvaluator(MergeToTargetObject("maxLength", SingleArgumentSelector))
                 .Build();
 
@@ -526,14 +560,13 @@ namespace Bicep.Core.Semantics.Namespaces
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).BatchSizeNotAllowed(decoratorName));
                     }
 
-                    // do not rely on casting - the type checker does not guarantee IntegerLiteralSyntax
-                    if (SingleArgumentSelector(decoratorSyntax) is IntegerLiteralSyntax batchSizeSyntax)
+                    const long MinimumBatchSize = 1;
+                    SyntaxBase batchSizeSyntax = SingleArgumentSelector(decoratorSyntax);
+                    long? batchSize = TryGetIntegerLiteralValue(batchSizeSyntax);
+
+                    if (batchSize is not null and < MinimumBatchSize)
                     {
-                        const long MinimumBatchSize = 1;
-                        if (batchSizeSyntax.Value < MinimumBatchSize)
-                        {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSizeSyntax.Value, MinimumBatchSize));
-                        }
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSize.Value, MinimumBatchSize));
                     }
                 })
                 .WithEvaluator(MergeToTargetObject("batchSize", SingleArgumentSelector))

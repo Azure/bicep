@@ -9,6 +9,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Diagnostics;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -415,10 +416,10 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "child");
-            model.ResourceAncestors.GetAncestors(child).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
 
             var grandchild = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "grandchild");
-            model.ResourceAncestors.GetAncestors(grandchild).Should().Equal(new []{ parent, child, }); // order matters
+            model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new []{ parent, child, }); // order matters
         }
 
         [TestMethod]
@@ -464,22 +465,22 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "child");
-            model.ResourceAncestors.GetAncestors(child).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
 
             var childGrandChild = (ResourceSymbol)model.GetSymbolInfo(child.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(childGrandChild).Should().Equal(new []{ parent, child, });
+            model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new []{ parent, child, });
 
             var sibling = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "sibling");
-            model.ResourceAncestors.GetAncestors(child).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
 
             var siblingGrandChild = (ResourceSymbol)model.GetSymbolInfo(sibling.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(siblingGrandChild).Should().Equal(new []{ parent, sibling, });
+            model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new []{ parent, sibling, });
         }
 
         [TestMethod] // Should turn into positive test when support is added.
         public void NestedResources_cannot_appear_inside_loops()
         {
-            var program = @"
+            var (template, diags, _) = CompilationHelper.Compile(@"
 var items = [
   'a'
   'b'
@@ -495,19 +496,21 @@ resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
     }
   }
 }]
-";
+");
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
-            var model = compilation.GetEntrypointSemanticModel();
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
-            });
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
+                });
+            }
         }
 
         [TestMethod]
         public void NestedResources_can_have_loops()
         {
-            var program = @"
+            var (template, diags, _) = CompilationHelper.Compile(@"
 var items = [
   'a'
   'b'
@@ -525,18 +528,13 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 
 output loopy string = parent::child[0].name
-";
+");
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
-            var model = compilation.GetEntrypointSemanticModel();
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
-
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
-            using var outputStream = new MemoryStream();
-            emitter.Emit(outputStream);
-
-            outputStream.Seek(0L, SeekOrigin.Begin);
-            var text = Encoding.UTF8.GetString(outputStream.GetBuffer());
+            using (new AssertionScope())
+            {
+                diags.ExcludingMissingTypes().Should().BeEmpty();
+                template.Should().NotBeNull();
+            }
         }
 
         [TestMethod]
@@ -671,7 +669,7 @@ output res2childid string = res2::child.id
 
             using (new AssertionScope())
             {
-                diags.Where(x => x.Code != "BCP081").Should().BeEmpty();
+                diags.ExcludingMissingTypes().Should().BeEmpty();
 
                 // res1
                 template.Should().HaveValueAtPath("$.resources[2].name", "res1");
@@ -716,11 +714,11 @@ output res1childid string = res1::child.id
 
             using (new AssertionScope())
             {
-                diags.Where(x => x.Code != "BCP081").Should().BeEmpty();
+                diags.ExcludingMissingTypes().Should().BeEmpty();
 
                 // res1::child1
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'res1', 'child1')]");
-                template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray());
+                template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
 
                 template.Should().NotHaveValueAtPath("$.resources[1]");
 
@@ -752,7 +750,7 @@ output res1childid string = res1::child.id
 
             using (new AssertionScope())
             {
-                diags.Where(x => x.Code != "BCP081").Should().BeEmpty();
+                diags.ExcludingMissingTypes().Should().BeEmpty();
 
                 template.Should().NotHaveValueAtPath("$.resources[0]");
 
@@ -780,7 +778,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP165", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
                 });
             }
@@ -807,11 +805,37 @@ resource res2 'Microsoft.Rp2/resource2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.Where(x => x.Code != "BCP081").Should().HaveDiagnostics(new[] {
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP164", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
                 });
             }
         }
 
+        [TestMethod]
+        public void Nested_resource_detects_invalid_child_resource_literal_names()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: 'res1'
+
+  resource res2 'child' = {
+    name: 'res1/res2'
+  }
+
+  resource res3 'child' = {
+    name: '${res1.name}/res2'
+  }
+}
+");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                  ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
+                  ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
+                });
+            }
+        }
     }
 }

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10423930535761061776"
+    }
+  },
   "parameters": {
     "_artifactsLocation": {
       "type": "string",
@@ -356,6 +363,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7684617739934394954"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -402,7 +416,7 @@
                     "properties": {
                       "primary": true,
                       "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-                      "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
                       },
@@ -454,6 +468,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7684617739934394954"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -500,7 +521,7 @@
                     "properties": {
                       "primary": true,
                       "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-                      "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
                       },
@@ -557,6 +578,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7684617739934394954"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -603,7 +631,7 @@
                     "properties": {
                       "primary": true,
                       "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-                      "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
                       },
@@ -662,6 +690,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7684617739934394954"
+            }
+          },
           "parameters": {
             "nicName": {
               "type": "string"
@@ -708,7 +743,7 @@
                     "properties": {
                       "primary": true,
                       "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-                      "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
                       },
@@ -754,6 +789,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9608574906046857876"
+            }
+          },
           "parameters": {
             "udrName": {
               "type": "string"
@@ -815,6 +857,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9608574906046857876"
+            }
+          },
           "parameters": {
             "udrName": {
               "type": "string"
@@ -856,12 +905,5 @@
         "[resourceId('Microsoft.Resources/deployments', 'createNic2')]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "7524364292299147799"
-    }
-  }
+  ]
 }

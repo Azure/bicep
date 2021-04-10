@@ -156,6 +156,9 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax) =>
             this.BuildWithConcat(() => base.VisitParenthesizedExpressionSyntax(syntax));
 
+        public override void VisitIfConditionSyntax(IfConditionSyntax syntax) =>
+            this.BuildWithSpread(() => base.VisitIfConditionSyntax(syntax));
+
         public override void VisitForSyntax(ForSyntax syntax) =>
             this.Build(() => base.VisitForSyntax(syntax), children =>
             {

@@ -648,21 +648,59 @@ var a☕ = true
 //@[9:13) TrueKeyword |true|
 //@[13:15) NewLine |\n\n|
 
-// loops are not allowed in variables
-//@[37:38) NewLine |\n|
-var noVariableLoopsYet = [for thing in stuff: 4]
+var missingArrayVariable = [for thing in stuff: 4]
 //@[0:3) Identifier |var|
-//@[4:22) Identifier |noVariableLoopsYet|
-//@[23:24) Assignment |=|
-//@[25:26) LeftSquare |[|
-//@[26:29) Identifier |for|
-//@[30:35) Identifier |thing|
-//@[36:38) Identifier |in|
-//@[39:44) Identifier |stuff|
-//@[44:45) Colon |:|
-//@[46:47) Integer |4|
-//@[47:48) RightSquare |]|
-//@[48:50) NewLine |\n\n|
+//@[4:24) Identifier |missingArrayVariable|
+//@[25:26) Assignment |=|
+//@[27:28) LeftSquare |[|
+//@[28:31) Identifier |for|
+//@[32:37) Identifier |thing|
+//@[38:40) Identifier |in|
+//@[41:46) Identifier |stuff|
+//@[46:47) Colon |:|
+//@[48:49) Integer |4|
+//@[49:50) RightSquare |]|
+//@[50:52) NewLine |\n\n|
+
+// loops are only allowed at the top level
+//@[42:43) NewLine |\n|
+var nonTopLevelLoop = {
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |nonTopLevelLoop|
+//@[20:21) Assignment |=|
+//@[22:23) LeftBrace |{|
+//@[23:24) NewLine |\n|
+  notOkHere: [for thing in stuff: 4]
+//@[2:11) Identifier |notOkHere|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:17) Identifier |for|
+//@[18:23) Identifier |thing|
+//@[24:26) Identifier |in|
+//@[27:32) Identifier |stuff|
+//@[32:33) Colon |:|
+//@[34:35) Integer |4|
+//@[35:36) RightSquare |]|
+//@[36:37) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// loops with conditions won't even parse
+//@[41:42) NewLine |\n|
+var noFilteredLoopsInVariables = [for thing in stuff: if]
+//@[0:3) Identifier |var|
+//@[4:30) Identifier |noFilteredLoopsInVariables|
+//@[31:32) Assignment |=|
+//@[33:34) LeftSquare |[|
+//@[34:37) Identifier |for|
+//@[38:43) Identifier |thing|
+//@[44:46) Identifier |in|
+//@[47:52) Identifier |stuff|
+//@[52:53) Colon |:|
+//@[54:56) Identifier |if|
+//@[56:57) RightSquare |]|
+//@[57:59) NewLine |\n\n|
 
 // nested loops are also not allowed
 //@[36:37) NewLine |\n|
@@ -758,6 +796,250 @@ var innerPropertyLoop2 = {
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+// loops using expressions with a runtime dependency are also not allowed
+//@[73:74) NewLine |\n|
+var keys = listKeys('fake','fake')
+//@[0:3) Identifier |var|
+//@[4:8) Identifier |keys|
+//@[9:10) Assignment |=|
+//@[11:19) Identifier |listKeys|
+//@[19:20) LeftParen |(|
+//@[20:26) StringComplete |'fake'|
+//@[26:27) Comma |,|
+//@[27:33) StringComplete |'fake'|
+//@[33:34) RightParen |)|
+//@[34:35) NewLine |\n|
+var indirection = keys
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |indirection|
+//@[16:17) Assignment |=|
+//@[18:22) Identifier |keys|
+//@[22:24) NewLine |\n\n|
+
+var runtimeLoop = [for (item, index) in []: indirection]
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |runtimeLoop|
+//@[16:17) Assignment |=|
+//@[18:19) LeftSquare |[|
+//@[19:22) Identifier |for|
+//@[23:24) LeftParen |(|
+//@[24:28) Identifier |item|
+//@[28:29) Comma |,|
+//@[30:35) Identifier |index|
+//@[35:36) RightParen |)|
+//@[37:39) Identifier |in|
+//@[40:41) LeftSquare |[|
+//@[41:42) RightSquare |]|
+//@[42:43) Colon |:|
+//@[44:55) Identifier |indirection|
+//@[55:56) RightSquare |]|
+//@[56:57) NewLine |\n|
+var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |runtimeLoop2|
+//@[17:18) Assignment |=|
+//@[19:20) LeftSquare |[|
+//@[20:23) Identifier |for|
+//@[24:25) LeftParen |(|
+//@[25:29) Identifier |item|
+//@[29:30) Comma |,|
+//@[31:36) Identifier |index|
+//@[36:37) RightParen |)|
+//@[38:40) Identifier |in|
+//@[41:52) Identifier |indirection|
+//@[52:53) Dot |.|
+//@[53:57) Identifier |keys|
+//@[57:58) Colon |:|
+//@[59:62) StringComplete |'s'|
+//@[62:63) RightSquare |]|
+//@[63:65) NewLine |\n\n|
+
+var zoneInput = []
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |zoneInput|
+//@[14:15) Assignment |=|
+//@[16:17) LeftSquare |[|
+//@[17:18) RightSquare |]|
+//@[18:19) NewLine |\n|
+resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |zones|
+//@[15:54) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[55:56) Assignment |=|
+//@[57:58) LeftSquare |[|
+//@[58:61) Identifier |for|
+//@[62:63) LeftParen |(|
+//@[63:67) Identifier |zone|
+//@[67:68) Comma |,|
+//@[69:70) Identifier |i|
+//@[70:71) RightParen |)|
+//@[72:74) Identifier |in|
+//@[75:84) Identifier |zoneInput|
+//@[84:85) Colon |:|
+//@[86:87) LeftBrace |{|
+//@[87:88) NewLine |\n|
+  name: zone
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:12) Identifier |zone|
+//@[12:13) NewLine |\n|
+  location: az.resourceGroup().location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:14) Identifier |az|
+//@[14:15) Dot |.|
+//@[15:28) Identifier |resourceGroup|
+//@[28:29) LeftParen |(|
+//@[29:30) RightParen |)|
+//@[30:31) Dot |.|
+//@[31:39) Identifier |location|
+//@[39:40) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+var inlinedVariable = zones[0].properties.zoneType
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |inlinedVariable|
+//@[20:21) Assignment |=|
+//@[22:27) Identifier |zones|
+//@[27:28) LeftSquare |[|
+//@[28:29) Integer |0|
+//@[29:30) RightSquare |]|
+//@[30:31) Dot |.|
+//@[31:41) Identifier |properties|
+//@[41:42) Dot |.|
+//@[42:50) Identifier |zoneType|
+//@[50:52) NewLine |\n\n|
+
+var runtimeLoop3 = [for (zone, i) in zoneInput: {
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |runtimeLoop3|
+//@[17:18) Assignment |=|
+//@[19:20) LeftSquare |[|
+//@[20:23) Identifier |for|
+//@[24:25) LeftParen |(|
+//@[25:29) Identifier |zone|
+//@[29:30) Comma |,|
+//@[31:32) Identifier |i|
+//@[32:33) RightParen |)|
+//@[34:36) Identifier |in|
+//@[37:46) Identifier |zoneInput|
+//@[46:47) Colon |:|
+//@[48:49) LeftBrace |{|
+//@[49:50) NewLine |\n|
+  a: inlinedVariable
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:20) Identifier |inlinedVariable|
+//@[20:21) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |runtimeLoop4|
+//@[17:18) Assignment |=|
+//@[19:20) LeftSquare |[|
+//@[20:23) Identifier |for|
+//@[24:25) LeftParen |(|
+//@[25:29) Identifier |zone|
+//@[29:30) Comma |,|
+//@[31:32) Identifier |i|
+//@[32:33) RightParen |)|
+//@[34:36) Identifier |in|
+//@[37:42) Identifier |zones|
+//@[42:43) LeftSquare |[|
+//@[43:44) Integer |0|
+//@[44:45) RightSquare |]|
+//@[45:46) Dot |.|
+//@[46:56) Identifier |properties|
+//@[56:57) Dot |.|
+//@[57:84) Identifier |registrationVirtualNetworks|
+//@[84:85) Colon |:|
+//@[86:87) LeftBrace |{|
+//@[87:88) NewLine |\n|
+  a: 0
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:6) Integer |0|
+//@[6:7) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+var notRuntime = concat('a','b')
+//@[0:3) Identifier |var|
+//@[4:14) Identifier |notRuntime|
+//@[15:16) Assignment |=|
+//@[17:23) Identifier |concat|
+//@[23:24) LeftParen |(|
+//@[24:27) StringComplete |'a'|
+//@[27:28) Comma |,|
+//@[28:31) StringComplete |'b'|
+//@[31:32) RightParen |)|
+//@[32:33) NewLine |\n|
+var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |evenMoreIndirection|
+//@[24:25) Assignment |=|
+//@[26:32) Identifier |concat|
+//@[32:33) LeftParen |(|
+//@[33:43) Identifier |notRuntime|
+//@[43:44) Comma |,|
+//@[45:51) Identifier |string|
+//@[51:52) LeftParen |(|
+//@[52:67) Identifier |moreIndirection|
+//@[67:68) RightParen |)|
+//@[68:69) RightParen |)|
+//@[69:70) NewLine |\n|
+var moreIndirection = reference('s','s', 'Full')
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |moreIndirection|
+//@[20:21) Assignment |=|
+//@[22:31) Identifier |reference|
+//@[31:32) LeftParen |(|
+//@[32:35) StringComplete |'s'|
+//@[35:36) Comma |,|
+//@[36:39) StringComplete |'s'|
+//@[39:40) Comma |,|
+//@[41:47) StringComplete |'Full'|
+//@[47:48) RightParen |)|
+//@[48:50) NewLine |\n\n|
+
+var myRef = [
+//@[0:3) Identifier |var|
+//@[4:9) Identifier |myRef|
+//@[10:11) Assignment |=|
+//@[12:13) LeftSquare |[|
+//@[13:14) NewLine |\n|
+  evenMoreIndirection
+//@[2:21) Identifier |evenMoreIndirection|
+//@[21:22) NewLine |\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:2) NewLine |\n|
+var runtimeLoop5 = [for (item, index) in myRef: 's']
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |runtimeLoop5|
+//@[17:18) Assignment |=|
+//@[19:20) LeftSquare |[|
+//@[20:23) Identifier |for|
+//@[24:25) LeftParen |(|
+//@[25:29) Identifier |item|
+//@[29:30) Comma |,|
+//@[31:36) Identifier |index|
+//@[36:37) RightParen |)|
+//@[38:40) Identifier |in|
+//@[41:46) Identifier |myRef|
+//@[46:47) Colon |:|
+//@[48:51) StringComplete |'s'|
+//@[51:52) RightSquare |]|
+//@[52:54) NewLine |\n\n|
 
 // cannot use loops in expressions
 //@[34:35) NewLine |\n|

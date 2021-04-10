@@ -1,6 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { deflate, inflate } from "pako";
 
-export function handleShareLink(onContents: (contents : string | null) => void) {
+export function handleShareLink(onContents: (contents : string | null) => void): void {
   try {
     const rawHash = window.location.hash.substr(1);
     if (!rawHash) {
@@ -16,7 +18,7 @@ export function handleShareLink(onContents: (contents : string | null) => void) 
   }
 }
 
-export function copyShareLinkToClipboard(content: string) {
+export function copyShareLinkToClipboard(content: string): void {
   document.addEventListener('copy', function onCopy(e: ClipboardEvent) {
     const contentHash = encodeHash(content);
     e.clipboardData.setData('text/plain', `https://aka.ms/bicepdemo#${contentHash}`);

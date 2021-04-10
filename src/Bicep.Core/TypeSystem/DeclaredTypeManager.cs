@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -54,6 +54,8 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetTypeAssignment(SyntaxBase syntax)
         {
+            RuntimeHelpers.EnsureSufficientExecutionStack();
+
             switch (syntax)
             {
                 case ParameterDeclarationSyntax parameter:
@@ -67,6 +69,9 @@ namespace Bicep.Core.TypeSystem
 
                 case VariableAccessSyntax variableAccess:
                     return GetVariableAccessType(variableAccess);
+
+                case OutputDeclarationSyntax output:
+                    return GetOutputType(output);
 
                 case TargetScopeSyntax targetScope:
                     return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
@@ -87,7 +92,7 @@ namespace Bicep.Core.TypeSystem
                     return GetArrayAccessType(arrayAccess);
 
                 case VariableDeclarationSyntax variable:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(variable), variable);
+                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(variable.Value), variable);
 
                 case LocalVariableSyntax localVariable:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(localVariable), localVariable);
@@ -115,7 +120,9 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new DeclaredTypeAssignment(syntax.GetDeclaredType(), syntax);
+        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
+
+        private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
 
         private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax)
         {
@@ -192,6 +199,7 @@ namespace Bicep.Core.TypeSystem
             var body = baseExpressionAssignment?.DeclaringSyntax switch
             {
                 ResourceDeclarationSyntax resourceDeclarationSyntax => resourceDeclarationSyntax.TryGetBody(),
+                ModuleDeclarationSyntax moduleDeclarationSyntax => moduleDeclarationSyntax.TryGetBody(),
                 _ => baseExpressionAssignment?.DeclaringSyntax as ObjectSyntax,
             };
             return GetObjectPropertyType(
@@ -246,10 +254,15 @@ namespace Bicep.Core.TypeSystem
                 case ArrayType arrayType when TypeValidator.AreTypesAssignable(indexAssignedType, LanguageConstants.Int):
                     // we are accessing an array by an expression of a numeric type
                     // return the item type of the array
-                    
+
                     // for regular array we can't evaluate the array index at this point, but for loops the index is irrelevant
                     // and we need to set declaring syntax, so property access can provide completions correctly for resource and module loops
-                    var declaringSyntax = baseExpressionAssignment.DeclaringSyntax is ForSyntax {Body: ObjectSyntax loopBody} ? loopBody : null;
+                    var declaringSyntax = baseExpressionAssignment.DeclaringSyntax switch
+                    {
+                        ForSyntax { Body: ObjectSyntax loopBody } => loopBody,
+                        ForSyntax { Body: IfConditionSyntax { Body: ObjectSyntax loopBody } } => loopBody,
+                        _ => null
+                    };
                     
                     return new DeclaredTypeAssignment(arrayType.Item.Type, declaringSyntax);
 
@@ -356,6 +369,11 @@ namespace Bicep.Core.TypeSystem
                     // parent is an if-condition under a module
                     // use the object as declaring syntax to make property access and variable access code easier
                     return TryCreateAssignment(ResolveDiscriminatedObjects(moduleType.Body.Type, @object), @object, parentTypeAssignment.Flags);
+
+                case ArrayType arrayType:
+                    // parent is an if-condition used as a resource/module loop filter
+                    // discriminated objects are already resolved by the parent
+                    return TryCreateAssignment(arrayType.Item.Type, @object, parentTypeAssignment.Flags);
             }
 
             return null;
@@ -369,8 +387,14 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var parentTypeAssignment = GetDeclaredTypeAssignment(parent);
-            if (parentTypeAssignment == null)
+            var parentTypeAssignment = parent switch {
+                // variable declared type is calculated using its assigned type, so querying it here causes endless recursion.
+                // we can shortcut that by returning any[] here
+                VariableDeclarationSyntax var => new DeclaredTypeAssignment(LanguageConstants.Array, var),
+                _ => GetDeclaredTypeAssignment(parent),
+            };
+
+            if (parentTypeAssignment is null)
             {
                 return null;
             }
@@ -384,7 +408,8 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            if (syntax.Body is ObjectSyntax @object)
+            // local function
+            DeclaredTypeAssignment? ResolveType(ObjectSyntax @object)
             {
                 // the object may be a discriminated object type - we need to resolve it
                 var itemType = arrayType.Item.Type switch
@@ -401,68 +426,104 @@ namespace Bicep.Core.TypeSystem
                     : TryCreateAssignment(new TypedArrayType(itemType, TypeSymbolValidationFlags.Default), syntax, parentTypeAssignment.Flags);
             }
 
-            // pass the type through
-            return new DeclaredTypeAssignment(parentType, syntax, parentTypeAssignment.Flags);
+            return syntax.Body switch
+            {
+                ObjectSyntax @object => ResolveType(@object),
+                IfConditionSyntax { Body: ObjectSyntax @object } => ResolveType(@object),
+
+                // pass the type through
+                _ => new DeclaredTypeAssignment(parentType, syntax, parentTypeAssignment.Flags)
+            };
         }
 
         private DeclaredTypeAssignment? GetObjectType(ObjectSyntax syntax)
         {
             var parent = this.binder.GetParent(syntax);
-
-            if (parent == null)
+            if (parent is null)
             {
                 return null;
             }
-
-            var parentTypeAssignment = GetDeclaredTypeAssignment(parent);
-            if (parentTypeAssignment == null)
-            {
-                return null;
-            }
-
-            var parentType = parentTypeAssignment.Reference.Type;
 
             switch (parent)
             {
-                case ResourceDeclarationSyntax when parentType is ResourceType resourceType:
+                case ResourceDeclarationSyntax:
+                    if (GetDeclaredTypeAssignment(parent)?.Reference.Type is not ResourceType resourceType)
+                    {
+                        return null;
+                    }
+
                     // the object literal's parent is a resource declaration, which makes this the body of the resource
                     // the declared type will be the same as the parent
                     return TryCreateAssignment(ResolveDiscriminatedObjects(resourceType.Body.Type, syntax), syntax);
 
-                case ModuleDeclarationSyntax when parentType is ModuleType moduleType:
+                case ModuleDeclarationSyntax:
+                    if (GetDeclaredTypeAssignment(parent)?.Reference.Type is not ModuleType moduleType)
+                    {
+                        return null;
+                    }
+
                     // the object literal's parent is a module declaration, which makes this the body of the module
                     // the declared type will be the same as the parent
                     return TryCreateAssignment(ResolveDiscriminatedObjects(moduleType.Body.Type, syntax), syntax);
 
                 case IfConditionSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not {} ifParentTypeAssignment)
+                    {
+                        return null;
+                    }
+
                     // if-condition declared type already resolved discriminators and used the object as the declaring syntax
-                    Debug.Assert(ReferenceEquals(syntax, parentTypeAssignment.DeclaringSyntax), "ReferenceEquals(syntax,parentTypeAssignment.DeclaringSyntax)");
+                    Debug.Assert(ReferenceEquals(syntax, ifParentTypeAssignment.DeclaringSyntax), "ReferenceEquals(syntax,parentTypeAssignment.DeclaringSyntax)");
                     
                     // the declared type will be the same as the parent
-                    return parentTypeAssignment;
+                    return ifParentTypeAssignment;
 
-                case ForSyntax when parentType is ArrayType arrayType:
+                case ForSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not {} forParentTypeAssignment ||
+                        forParentTypeAssignment.Reference.Type is not ArrayType arrayType)
+                    {
+                        return null;
+                    }
+
                     // the parent is a for-expression
                     // this object is the body of the array, so its declared type is the type of the item
                     // (discriminators have already been resolved when declared type was determined for the for-expression
-                    return TryCreateAssignment(arrayType.Item.Type, syntax, parentTypeAssignment.Flags);
+                    return TryCreateAssignment(arrayType.Item.Type, syntax, forParentTypeAssignment.Flags);
 
-                case ParameterDeclarationSyntax parameterDeclaration when ReferenceEquals(parameterDeclaration.Modifier, syntax):
+                case ParameterDeclarationSyntax parameterDeclaration:
+                    if (!object.ReferenceEquals(parameterDeclaration.Modifier, syntax) ||
+                        GetDeclaredTypeAssignment(parent)?.Reference.Type is not {} paramParent)
+                    {
+                        return null;
+                    }
+
                     // the object is a modifier of a parameter type
                     // the declared type should be the appropriate modifier type
                     // however we need the parameter's assigned type to determine the modifier type
                     var parameterAssignedType = parameterDeclaration.GetAssignedType(this.typeManager, null);
-                    return TryCreateAssignment(LanguageConstants.CreateParameterModifierType(parentType, parameterAssignedType), syntax);
+                    return TryCreateAssignment(LanguageConstants.CreateParameterModifierType(paramParent, parameterAssignedType), syntax);
 
                 case ObjectPropertySyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not {} objectPropertyAssignment ||
+                        objectPropertyAssignment.Reference.Type is not {} objectPropertyParent)
+                    {
+                        return null;
+                    }
+
                     // the object is the value of a property of another object
                     // use the declared type of the property and propagate the flags
-                    return TryCreateAssignment(ResolveDiscriminatedObjects(parentType, syntax), syntax, parentTypeAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(objectPropertyParent, syntax), syntax, objectPropertyAssignment.Flags);
 
                 case ArrayItemSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not {} arrayItemAssignment ||
+                        arrayItemAssignment.Reference.Type is not {} arrayParent)
+                    {
+                        return null;
+                    }
+
                     // the object is an item in an array
                     // use the item's type and propagate flags
-                    return TryCreateAssignment(ResolveDiscriminatedObjects(parentType, syntax), syntax, parentTypeAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(arrayParent, syntax), syntax, arrayItemAssignment.Flags);
             }
 
             return null;
@@ -541,14 +602,14 @@ namespace Bicep.Core.TypeSystem
 
         private static TypeSymbol? ResolveDiscriminatedObjects(TypeSymbol type, ObjectSyntax syntax)
         {
-            if (!(type is DiscriminatedObjectType discriminated))
+            if (type is not DiscriminatedObjectType discriminated)
             {
                 // not a discriminated object type - return as-is
                 return type;
             }
 
             var discriminatorProperties = syntax.Properties
-                .Where(p => string.Equals(p.TryGetKeyText(), discriminated.DiscriminatorKey, LanguageConstants.IdentifierComparison))
+                .Where(p => discriminated.TryGetDiscriminatorProperty(p.TryGetKeyText()) is not null)
                 .ToList();
 
             if (discriminatorProperties.Count != 1)
@@ -563,7 +624,7 @@ namespace Bicep.Core.TypeSystem
             // for the purposes of resolving the discriminated object, we just need to check if it's a literal string
             // which doesn't require the full type check, so we're fine
             var discriminatorProperty = discriminatorProperties.Single();
-            if (!(discriminatorProperty.Value is StringSyntax stringSyntax))
+            if (discriminatorProperty.Value is not StringSyntax stringSyntax)
             {
                 // the discriminator property value is not a string
                 return type;

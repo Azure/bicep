@@ -11,7 +11,7 @@
     "preselect": false,
     "sortText": "2_apiProperties",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "apiProperties"
@@ -26,13 +26,13 @@
     "detail": "backupPolicy",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `BackupPolicy`  \n"
+      "value": "Type: `BackupPolicy`  \nThe object representing the policy for taking backups on an account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_backupPolicy",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "backupPolicy"
@@ -47,13 +47,13 @@
     "detail": "capabilities",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Capability[]`  \n"
+      "value": "Type: `Capability[]`  \nList of Cosmos DB capabilities for the account  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_capabilities",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "capabilities"
@@ -68,13 +68,13 @@
     "detail": "connectorOffer",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Small'`  \n"
+      "value": "Type: `'Small'`  \nThe cassandra connector offer type for the Cosmos DB database C* account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_connectorOffer",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "connectorOffer"
@@ -89,13 +89,13 @@
     "detail": "consistencyPolicy",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ConsistencyPolicy`  \n"
+      "value": "Type: `ConsistencyPolicy`  \nThe consistency policy for the Cosmos DB database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_consistencyPolicy",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "consistencyPolicy"
@@ -110,13 +110,13 @@
     "detail": "cors",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `CorsPolicy[]`  \n"
+      "value": "Type: `CorsPolicy[]`  \nThe CORS policy for the Cosmos DB database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_cors",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "cors"
@@ -131,13 +131,13 @@
     "detail": "createMode (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Default'`  \n"
+      "value": "Type: `'Default'`  \nProperties for non-restore Azure Cosmos DB database account requests.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_createMode",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "createMode"
@@ -152,13 +152,13 @@
     "detail": "databaseAccountOfferType (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe offer type for the database  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_databaseAccountOfferType",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "databaseAccountOfferType"
@@ -173,13 +173,13 @@
     "detail": "disableKeyBasedMetadataWriteAccess",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nDisable write operations on metadata resources (databases, containers, throughput) via account keys  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_disableKeyBasedMetadataWriteAccess",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "disableKeyBasedMetadataWriteAccess"
@@ -194,13 +194,13 @@
     "detail": "documentEndpoint",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
+      "value": "Type: `string`  \nRead-only property  \nThe connection endpoint for the Cosmos DB database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_documentEndpoint",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "documentEndpoint"
@@ -215,13 +215,13 @@
     "detail": "enableAnalyticalStorage",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nFlag to indicate whether to enable storage analytics.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_enableAnalyticalStorage",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "enableAnalyticalStorage"
@@ -236,13 +236,13 @@
     "detail": "enableAutomaticFailover",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nEnables automatic failover of the write region in the rare event that the region is unavailable due to an outage. Automatic failover will result in a new write region for the account and is chosen based on the failover priorities configured for the account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_enableAutomaticFailover",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "enableAutomaticFailover"
@@ -257,13 +257,13 @@
     "detail": "enableCassandraConnector",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nEnables the cassandra connector on the Cosmos DB C* account  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_enableCassandraConnector",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "enableCassandraConnector"
@@ -278,13 +278,13 @@
     "detail": "enableFreeTier",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nFlag to indicate whether Free Tier is enabled.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_enableFreeTier",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "enableFreeTier"
@@ -299,13 +299,13 @@
     "detail": "enableMultipleWriteLocations",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nEnables the account to write in multiple locations  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_enableMultipleWriteLocations",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "enableMultipleWriteLocations"
@@ -320,13 +320,13 @@
     "detail": "failoverPolicies",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `FailoverPolicy[]`  \nRead-only property  \n"
+      "value": "Type: `FailoverPolicy[]`  \nRead-only property  \nAn array that contains the regions ordered by their failover priorities.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_failoverPolicies",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "failoverPolicies"
@@ -341,13 +341,13 @@
     "detail": "instanceId",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
+      "value": "Type: `string`  \nRead-only property  \nA unique identifier assigned to the database account  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_instanceId",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "instanceId"
@@ -362,13 +362,13 @@
     "detail": "ipRules",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `IpAddressOrRange[]`  \n"
+      "value": "Type: `IpAddressOrRange[]`  \nArray of IpAddressOrRange objects.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_ipRules",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "ipRules"
@@ -383,13 +383,13 @@
     "detail": "isVirtualNetworkFilterEnabled",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `bool`  \nFlag to indicate whether to enable/disable Virtual Network ACL rules.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_isVirtualNetworkFilterEnabled",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "isVirtualNetworkFilterEnabled"
@@ -404,13 +404,13 @@
     "detail": "keyVaultKeyUri",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe URI of the key vault  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_keyVaultKeyUri",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "keyVaultKeyUri"
@@ -425,13 +425,13 @@
     "detail": "locations (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \n"
+      "value": "Type: `Location[]`  \nAn array that contains the georeplication locations enabled for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_locations",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "locations"
@@ -446,13 +446,13 @@
     "detail": "privateEndpointConnections",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `PrivateEndpointConnection[]`  \nRead-only property  \n"
+      "value": "Type: `PrivateEndpointConnection[]`  \nRead-only property  \nList of Private Endpoint Connections configured for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_privateEndpointConnections",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "privateEndpointConnections"
@@ -467,13 +467,13 @@
     "detail": "provisioningState",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nRead-only property  \n"
+      "value": "Type: `string`  \nRead-only property  \nThe status of the Cosmos DB account at the time the operation was called. The status can be one of following. 'Creating' – the Cosmos DB account is being created. When an account is in Creating state, only properties that are specified as input for the Create Cosmos DB account operation are returned. 'Succeeded' – the Cosmos DB account is active for use. 'Updating' – the Cosmos DB account is being updated. 'Deleting' – the Cosmos DB account is being deleted. 'Failed' – the Cosmos DB account failed creation. 'DeletionFailed' – the Cosmos DB account deletion failed.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_provisioningState",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "provisioningState"
@@ -488,13 +488,13 @@
     "detail": "publicNetworkAccess",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Disabled' | 'Enabled'`  \n"
+      "value": "Type: `'Disabled' | 'Enabled'`  \nWhether requests from Public Network are allowed.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_publicNetworkAccess",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "publicNetworkAccess"
@@ -509,13 +509,13 @@
     "detail": "readLocations",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nRead-only property  \n"
+      "value": "Type: `Location[]`  \nRead-only property  \nAn array that contains of the read locations enabled for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_readLocations",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "readLocations"
@@ -530,13 +530,13 @@
     "detail": "restoreParameters",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `RestoreParameters`  \nRead-only property  \n"
+      "value": "Type: `RestoreParameters`  \nRead-only property  \nParameters to indicate the information about the restore.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_restoreParameters",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "restoreParameters"
@@ -551,13 +551,13 @@
     "detail": "virtualNetworkRules",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `VirtualNetworkRule[]`  \n"
+      "value": "Type: `VirtualNetworkRule[]`  \nList of Virtual Network ACL rules configured for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_virtualNetworkRules",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "virtualNetworkRules"
@@ -572,13 +572,13 @@
     "detail": "writeLocations",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nRead-only property  \n"
+      "value": "Type: `Location[]`  \nRead-only property  \nAn array that contains the write location for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_writeLocations",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "writeLocations"

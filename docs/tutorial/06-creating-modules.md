@@ -56,12 +56,17 @@ module stg './storage.bicep' = {
 output storageName array = stg.outputs.containerProps
 ```
 
-Bicep files assume that the target scope of the deployment is a resource group, but you can override this as well. Let's make a final change to our `main.bicep` file to change the `targetScope` to `subscription` and create a simple role assignment resource.
+Bicep files assume that the target scope of the deployment is a resource group, but you can override this as well. Let's make a final change to our `main.bicep` file to change the `targetScope` to `subscription` and create a simple role assignment resource. Notice, we are going to use the `existing` syntax to get a reference to the role definition resource.
 
 ```bicep
 targetScope = 'subscription'
 
-module stg './storage.bicep' = {
+param deployStorage bool = true
+
+@description('The object ID of the principal that will get the role assignment')
+param aadPrincipalId string
+
+module stg './storage.bicep' = if(deployStorage) {
   name: 'storageDeploy'
   scope: resourceGroup('another-rg') // this will target another resource group in the same subscription
   params: {
@@ -69,13 +74,16 @@ module stg './storage.bicep' = {
   }
 }
 
-var objectId = 'cf024e4c-f790-45eb-a992-5218c39bde1a' // change this AAD object ID. This is specific to the microsoft tenant
 var contributor = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+resource roleDef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+  name: contributor
+}
+
 resource rbac 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(subscription().id, objectId, contributor)
+  name: guid(subscription().id, aadPrincipalId, contributor)
   properties: {
-    roleDefinitionId: contributor
-    principalId: objectId
+    roleDefinitionId: roleDef.id
+    principalId: aadPrincipalId
   }
 }
 

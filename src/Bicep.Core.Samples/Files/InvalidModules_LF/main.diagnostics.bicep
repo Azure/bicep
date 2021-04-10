@@ -434,7 +434,7 @@ module expectedColon 'modulea.bicep' = [for x in y]
 
 module expectedLoopBody 'modulea.bicep' = [for x in y:]
 //@[52:53) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-//@[54:55) [BCP018 (Error)] Expected the "{" character at this location. |]|
+//@[54:55) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |]|
 
 // indexed loop parsing cases
 module expectedItemVarName 'modulea.bicep' = [for ()]
@@ -458,14 +458,31 @@ module expectedColon2 'modulea.bicep' = [for (x,y) in z]
 
 module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
 //@[57:58) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
-//@[59:60) [BCP018 (Error)] Expected the "{" character at this location. |]|
+//@[59:60) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |]|
+
+// loop filter parsing cases
+module expectedLoopFilterOpenParen 'modulea.bicep' = [for x in y: if]
+//@[63:64) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[68:69) [BCP018 (Error)] Expected the "(" character at this location. |]|
+module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
+//@[68:69) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[73:74) [BCP018 (Error)] Expected the "(" character at this location. |]|
+
+module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
+//@[70:71) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[76:77) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+//@[77:78) [BCP018 (Error)] Expected the "{" character at this location. |]|
+module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
+//@[75:76) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[81:82) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+//@[82:83) [BCP018 (Error)] Expected the "{" character at this location. |]|
 
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
-//@[64:65) [BCP018 (Error)] Expected the "{" character at this location. |4|
+//@[64:65) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |4|
 module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
-//@[69:70) [BCP018 (Error)] Expected the "{" character at this location. |4|
+//@[69:70) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |4|
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
@@ -503,6 +520,18 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[4:13) [BCP038 (Error)] The property "notAThing" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam". |notAThing|
   }
 }]
+module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if(true) {
+  // #completionTest(17) -> symbolsPlusX_if
+  name: 'hello-${x}'
+  params: {
+    arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+//@[4:13) [BCP038 (Error)] The property "notAThing" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam". |notAThing|
+  }
+}]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
   name: 'hello-${x}'
   params: {
@@ -516,6 +545,19 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
 //@[4:13) [BCP038 (Error)] The property "notAThing" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam". |notAThing|
   }
 }]
+
+module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in emptyArray: if(true) {
+  name: 'hello-${x}'
+  params: {
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
+    // #completionTest(0,1,2) -> moduleAParams
+
+  }
+}]
+
+// #completionTest(100) -> moduleAOutputs
+var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilteredLoops[0].outputs.
+//@[100:100) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'
@@ -590,13 +632,13 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
 
 // module body that isn't an object
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
-//@[63:70) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
+//@[63:70) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'hello'|
 module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
-//@[64:70) [BCP018 (Error)] Expected the "{" character at this location. |concat|
+//@[64:70) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |concat|
 module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
-//@[68:75) [BCP018 (Error)] Expected the "{" character at this location. |'hello'|
+//@[68:75) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'hello'|
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
-//@[68:74) [BCP018 (Error)] Expected the "{" character at this location. |concat|
+//@[68:74) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |concat|
 
 // Key Vault Secret Reference
 
@@ -610,11 +652,15 @@ module secureModule1 'modulea.bicep' = {
     stringParamA: kv.getSecret('mySecret')
 //@[18:42) [BCP036 (Error)] The property "stringParamA" expected a value of type "string" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
+//@[21:45) [BCP177 (Error)] Type "keyVaultSecretReference" cannot be used inside String interpolation. |kv.getSecret('mySecret')|
     objParam: kv.getSecret('mySecret')
+//@[14:38) [BCP036 (Error)] The property "objParam" expected a value of type "object" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     arrayParam: kv.getSecret('mySecret')
 //@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
+//@[26:50) [BCP177 (Error)] Type "keyVaultSecretReference" cannot be used inside String interpolation. |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
+//@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
   }
 }
 

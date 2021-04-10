@@ -48,7 +48,7 @@ namespace Bicep.Core.TypeSystem
             {
                 // key vault reference type can be assigned only to string type parameters with secure decorator
                 // other usages of this type is forbidden
-                return targetType is PrimitiveType && targetType.Name == LanguageConstants.StringTypeName && targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowKeyVaultSecretReferenceAssignment);
+                return targetType is PrimitiveType && targetType.Name == LanguageConstants.TypeNameString && targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowKeyVaultSecretReferenceAssignment);
             }
 
             if (sourceType is AnyType)
@@ -267,7 +267,7 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            var discriminatorProperty = expression.Properties.FirstOrDefault(x => LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), targetType.DiscriminatorKey));
+            var discriminatorProperty = expression.Properties.FirstOrDefault(p => targetType.TryGetDiscriminatorProperty(p.TryGetKeyText()) is not null);
             if (discriminatorProperty == null)
             {
                 // object doesn't contain the discriminator field
@@ -295,7 +295,7 @@ namespace Bicep.Core.TypeSystem
             // Let's not do this just yet, and see if a use-case arises.
 
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
-            if (!(discriminatorType is StringLiteralType stringLiteralDiscriminator))
+            if (discriminatorType is not StringLiteralType stringLiteralDiscriminator)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).PropertyTypeMismatch(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
                 return LanguageConstants.Any;
@@ -371,7 +371,15 @@ namespace Bicep.Core.TypeSystem
                     {
                         // the declared property is read-only
                         // value cannot be assigned to a read-only property
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
+                        var parent = typeManager.GetParent(expression);
+                        if (parent is ResourceDeclarationSyntax resourceSyntax && resourceSyntax.IsExistingResource())
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotUsePropertyInExistingResource(declaredProperty.Name));
+                        }
+                        else
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
+                        }
                         narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
                         continue;
                     }
@@ -476,7 +484,7 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            return new NamedObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver);
+            return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver);
         }
 
         private static (IPositionable positionable, string blockName) GetMissingPropertyContext(ITypeManager typeManager, SyntaxBase expression)

@@ -215,6 +215,11 @@ param decoratedInt int = 123
 @maxValue(-3)
 param negativeValues int
 
+// negative zeros are valid lengths
+@minLength(-0)
+@maxLength(-0)
+param negativeZeros string
+
 // negative integer literals in modifiers
 param negativeModifiers int {
   minValue: -100
@@ -244,3 +249,65 @@ param decoratedObject object = {
 @maxLength(20)
 @sys.description('I will be overrode.')
 param decoratedArray array
+
+param allowedPermutation array {
+  default: [
+    'Microsoft.AnalysisServices/servers'
+    'Microsoft.ContainerRegistry/registries'
+  ]
+  allowed: [
+    'Microsoft.AnalysisServices/servers'
+    'Microsoft.ApiManagement/service'
+    'Microsoft.Network/applicationGateways'
+    'Microsoft.Automation/automationAccounts'
+    'Microsoft.ContainerInstance/containerGroups'
+    'Microsoft.ContainerRegistry/registries'
+    'Microsoft.ContainerService/managedClusters'
+  ]
+}
+
+@allowed([
+  'Microsoft.AnalysisServices/servers'
+  'Microsoft.ApiManagement/service'
+  'Microsoft.Network/applicationGateways'
+  'Microsoft.Automation/automationAccounts'
+  'Microsoft.ContainerInstance/containerGroups'
+  'Microsoft.ContainerRegistry/registries'
+  'Microsoft.ContainerService/managedClusters'
+])
+param allowedPermutationWithDecorator array = [
+  'Microsoft.AnalysisServices/servers'
+  'Microsoft.ContainerRegistry/registries'
+]
+
+param allowedArray array {
+  default: [
+    'Microsoft.AnalysisServices/servers'
+    'Microsoft.ApiManagement/service'
+  ]
+  allowed: [
+    [
+      'Microsoft.AnalysisServices/servers'
+      'Microsoft.ApiManagement/service'
+    ]
+    [
+      'Microsoft.Network/applicationGateways'
+      'Microsoft.Automation/automationAccounts'
+    ]
+  ]
+}
+
+@allowed([
+  [
+    'Microsoft.AnalysisServices/servers'
+    'Microsoft.ApiManagement/service'
+  ]
+  [
+    'Microsoft.Network/applicationGateways'
+    'Microsoft.Automation/automationAccounts'
+  ]
+])
+param allowedArrayWithDecorator array = [
+  'Microsoft.AnalysisServices/servers'
+  'Microsoft.ApiManagement/service'
+]

@@ -76,6 +76,18 @@ param wrongAssignmentToken string: 'hello'
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 //@[6:267) [BCP024 (Error)] The identifier exceeds the limit of 255. Reduce the length of the identifier. |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
 
+// #completionTest(28,29) -> boolPlusSymbols
+param boolCompletions bool = 
+//@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(30,31) -> arrayPlusSymbols
+param arrayCompletions array = 
+//@[31:31) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(32,33) -> objectPlusSymbols
+param objectCompletions object = 
+//@[33:33) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
 // badly escaped string
 param wrongType fluffyBunny = 'what's up doc?'
 //@[6:15) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. |wrongType|
@@ -595,7 +607,7 @@ param tooManyArguments2 string
 //@[13:26) [BCP032 (Error)] The value must be a compile-time constant. |sys.concat(2)|
 @allowed([for thing in []: 's'])
 //@[9:31) [BCP032 (Error)] The value must be a compile-time constant. |[for thing in []: 's']|
-//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[10:13) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
 param nonConstantInDecorator string
 
 @minValue(-length('s'))
@@ -617,6 +629,82 @@ param unaryMinusOnFunction int
 @maxLength(4)
 //@[0:13) [BCP166 (Error)] Duplicate "maxLength" decorator. |@maxLength(4)|
 param duplicateDecorators string
+
+@minLength(-1)
+//@[11:13) [BCP168 (Error)] Length must not be a negative value. |-1|
+@maxLength(-100)
+//@[11:15) [BCP168 (Error)] Length must not be a negative value. |-100|
+param invalidLength string
+
+
+param invalidPermutation array {
+//@[31:402) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    default: [\n\t\t'foobar'\n\t\ttrue\n        100\n\t]\n    allowed: [\n\t\t'Microsoft.AnalysisServices/servers'\n\t\t'Microsoft.ApiManagement/service'\n\t\t'Microsoft.Network/applicationGateways'\n\t\t'Microsoft.Automation/automationAccounts'\n\t\t'Microsoft.ContainerInstance/containerGroups'\n\t\t'Microsoft.ContainerRegistry/registries'\n\t\t'Microsoft.ContainerService/managedClusters'\n    ]\n}|
+    default: [
+		'foobar'
+//@[2:10) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "'foobar'". |'foobar'|
+		true
+//@[2:6) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "bool". |true|
+        100
+//@[8:11) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "int". |100|
+	]
+    allowed: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+		'Microsoft.ContainerInstance/containerGroups'
+		'Microsoft.ContainerRegistry/registries'
+		'Microsoft.ContainerService/managedClusters'
+    ]
+}
+
+@allowed([
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ApiManagement/service'
+	'Microsoft.Network/applicationGateways'
+	'Microsoft.Automation/automationAccounts'
+	'Microsoft.ContainerInstance/containerGroups'
+	'Microsoft.ContainerRegistry/registries'
+	'Microsoft.ContainerService/managedClusters'
+])
+param invalidPermutationWithDecorator array = [
+	'foobar'
+//@[1:9) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "'foobar'". |'foobar'|
+	true
+//@[1:5) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "bool". |true|
+    100
+//@[4:7) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "int". |100|
+]
+
+param invalidDefaultWithAllowedArray array {
+//@[43:266) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    default: true\n    allowed: [\n\t\t[\n\t\t\t'Microsoft.AnalysisServices/servers'\n\t\t\t'Microsoft.ApiManagement/service'\n\t\t]\n\t\t[\n\t\t\t'Microsoft.Network/applicationGateways'\n\t\t\t'Microsoft.Automation/automationAccounts'\n\t\t]\n    ]\n}|
+    default: true
+//@[13:17) [BCP036 (Error)] The property "default" expected a value of type "array" but the provided value is of type "bool". |true|
+    allowed: [
+		[
+			'Microsoft.AnalysisServices/servers'
+			'Microsoft.ApiManagement/service'
+		]
+		[
+			'Microsoft.Network/applicationGateways'
+			'Microsoft.Automation/automationAccounts'
+		]
+    ]
+}
+
+
+@allowed([
+	[
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+	]
+	[
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+	]
+])
+param invalidDefaultWithAllowedArrayDecorator array = true
+//@[54:58) [BCP027 (Error)] The parameter expects a default value of type "array" but provided value is of type "bool". |true|
 
 // unterminated multi-line comment
 /*    

@@ -27,7 +27,7 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Named object type. (Examples: ResourceGroup, ParameterModifier, etc.)
         /// </summary>
-        NamedObject,
+        Object,
 
         /// <summary>
         /// Resource type

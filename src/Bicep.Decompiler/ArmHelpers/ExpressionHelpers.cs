@@ -163,7 +163,7 @@ namespace Bicep.Decompiler.ArmHelpers
                 // It doesn't really hurt to see if we can find a match for it.
 
                 var segments = functionExpression.Parameters
-                    .SelectMany(x => x is JTokenExpression jTokenExpression ? jTokenExpression.Value.Value<string>().Split('/').Where(y => y != "").Select(y => new JTokenExpression(y)) : x.AsEnumerable())
+                    .SelectMany(x => x is JTokenExpression jTokenExpression ? jTokenExpression.Value.ToString().Split('/').Where(y => y != "").Select(y => new JTokenExpression(y)) : x.AsEnumerable())
                     .ToArray();
 
                 if (segments.Length < 3 || segments.Length % 2 != 1)
@@ -279,7 +279,7 @@ namespace Bicep.Decompiler.ArmHelpers
 
             if (token is JValue && token.Type == JTokenType.String)
             {
-                var rewritten = RewriteStringValue(token.Value<string>());
+                var rewritten = RewriteStringValue(token.ToString());
 
                 return (new JValue(rewritten) as TToken)!;
             }

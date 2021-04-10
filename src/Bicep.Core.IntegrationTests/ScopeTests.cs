@@ -168,7 +168,7 @@ output resourceARef string = resourceA.properties.myProp
             using (new AssertionScope())
             {
                 template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", expectedScopeExpression);
-                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn", new JArray());
+                template.Should().NotHaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn");
 
                 template.Should().HaveValueAtPath("$.outputs['resourceARef'].value", expectedReferenceExpression);
             }
@@ -181,8 +181,8 @@ output resourceARef string = resourceA.properties.myProp
             var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
                 var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
                 var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant),
-                    ["kind"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.ReadOnly),
+                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
+                    ["kind"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.ReadOnly, "kind property"),
                 }, null));
                 var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup, factory.GetReference(objectType)));
             });
@@ -226,7 +226,7 @@ output resourceARef string = resourceA.kind
             var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
                 var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
                 var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant),
+                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
                 }, null));
                 var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup, factory.GetReference(objectType)));
             });
@@ -264,7 +264,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
             var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
                 var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
                 var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant),
+                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
                 }, null));
                 var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup | ScopeType.Extension, factory.GetReference(objectType)));
             });
@@ -294,7 +294,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
             var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
                 var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
                 var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant),
+                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
                 }, null));
                 var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup | ScopeType.Extension, factory.GetReference(objectType)));
             });

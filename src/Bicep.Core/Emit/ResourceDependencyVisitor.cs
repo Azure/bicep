@@ -62,7 +62,7 @@ namespace Bicep.Core.Emit
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = resourceSymbol;
-            this.resourceDependencies[resourceSymbol] = new HashSet<ResourceDependency>(ancestors.Select(a => new ResourceDependency(a, null)));
+            this.resourceDependencies[resourceSymbol] = new HashSet<ResourceDependency>(ancestors.Select(a => new ResourceDependency(a.Resource, a.IndexExpression)));
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -105,6 +105,19 @@ namespace Bicep.Core.Emit
             this.currentDeclaration = prevDeclaration;
         }
 
+        private IEnumerable<ResourceDependency> GetResourceDependencies(DeclaredSymbol declaredSymbol)
+        {
+            if (!resourceDependencies.TryGetValue(declaredSymbol, out var dependencies))
+            {
+                // recursively visit dependent variables
+                this.Visit(declaredSymbol.DeclaringSyntax);
+
+                dependencies = resourceDependencies[declaredSymbol];
+            }
+
+            return dependencies;
+        }
+
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
             if (currentDeclaration is null)
@@ -115,22 +128,20 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case VariableSymbol variableSymbol:
-                    if (!resourceDependencies.TryGetValue(variableSymbol, out var dependencies))
-                    {
-                        // recursively visit dependent variables
-                        this.Visit(variableSymbol.DeclaringSyntax);
+                    var varDependencies = GetResourceDependencies(variableSymbol);
 
-                        dependencies = resourceDependencies[variableSymbol];
-                    }
-
-                    foreach (var dependency in dependencies)
-                    {
-                        resourceDependencies[currentDeclaration].Add(dependency);
-                    }
-
+                    resourceDependencies[currentDeclaration].UnionWith(varDependencies);
                     return;
 
                 case ResourceSymbol resourceSymbol:
+                    if (resourceSymbol.DeclaringResource.IsExistingResource())
+                    {
+                        var existingDependencies = GetResourceDependencies(resourceSymbol);
+
+                        resourceDependencies[currentDeclaration].UnionWith(existingDependencies);
+                        return;
+                    }
+
                     resourceDependencies[currentDeclaration].Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
                     return;
 
@@ -150,6 +161,14 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case ResourceSymbol resourceSymbol:
+                    if (resourceSymbol.DeclaringResource.IsExistingResource())
+                    {
+                        var existingDependencies = GetResourceDependencies(resourceSymbol);
+
+                        resourceDependencies[currentDeclaration].UnionWith(existingDependencies);
+                        return;
+                    }
+
                     resourceDependencies[currentDeclaration].Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
                     return;
 
@@ -158,7 +177,6 @@ namespace Bicep.Core.Emit
                     return;
             }
         }
-
             
         private SyntaxBase? GetIndexExpression(SyntaxBase syntax, bool isCollection)
         {

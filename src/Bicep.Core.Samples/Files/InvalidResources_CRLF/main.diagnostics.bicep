@@ -231,6 +231,19 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   }
 }
 
+// there should be no completions without the colon
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  
+//@[8:8) [BCP018 (Error)] Expected the ":" character at this location. ||
+}
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  :
+//@[9:9) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+}
+
 // unsupported resource ref
 var resrefvar = bar.name
 
@@ -595,6 +608,15 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 }]
 
 /*
+Discriminator key missing (filtered loop)
+*/
+resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+//@[120:182) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
+  // #completionTest(0,1,2) -> discriminatorProperty
+  
+}]
+
+/*
 Discriminator key value missing with property access
 */
 resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -615,7 +637,6 @@ var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
 /*
 Discriminator key value missing with property access (conditional)
 */
-
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
   kind:   
@@ -654,6 +675,30 @@ var discriminatorKeyValueMissingCompletions2_for = discriminatorKeyValueMissing_
 // #completionTest(87) -> missingDiscriminatorPropertyIndexPlusSymbols_for
 var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_for[0][]
 //@[87:87) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+
+/*
+Discriminator key value missing with property access (filtered loops)
+*/
+resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+  // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
+  kind:   
+//@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+}]
+
+// cannot . access properties of a resource loop
+var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
+//@[41:76) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |discriminatorKeyValueMissing_for_if|
+//@[77:81) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. |kind|
+
+// #completionTest(93) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
+// #completionTest(93) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
+//@[93:93) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// #completionTest(93) -> missingDiscriminatorPropertyIndexPlusSymbols_for_if
+var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissing_for_if[0][]
+//@[93:93) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
 Discriminator value set 1
@@ -731,6 +776,32 @@ var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].prope
 //@[86:86) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
+Discriminator value set 1 (filtered loop)
+*/
+resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
+//@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for_if|
+  kind: 'AzureCLI'
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
+  properties: {
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    
+  }
+}]
+// #completionTest(92) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions_for_if = discriminatorKeySetOne_for_if[0].properties.a
+//@[91:92) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
+// #completionTest(100) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions2_for_if = discriminatorKeySetOne_for_if[any(true)].properties.
+//@[100:100) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// #completionTest(92) -> cliPropertyAccessIndexesPlusSymbols_for_if
+var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1].properties[]
+//@[92:92) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+
+
+/*
 Discriminator value set 2
 */
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -786,6 +857,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer_if = discriminatorKeySetTwo_if
 var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_if['properties'].
 //@[96:96) [BCP020 (Error)] Expected a function or property name at this location. ||
 
+
 /*
 Discriminator value set 2 (loops)
 */
@@ -813,6 +885,35 @@ var discriminatorKeySetTwoCompletionsArrayIndexer_for = discriminatorKeySetTwo_f
 // #completionTest(101) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_for[0]['properties'].
 //@[101:101) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+
+/*
+Discriminator value set 2 (filtered loops)
+*/
+resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
+//@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for_if|
+  kind: 'AzurePowerShell'
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
+  properties: {
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
+    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+    
+  }
+}]
+// #completionTest(92) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions_for_if = discriminatorKeySetTwo_for_if[0].properties.a
+//@[91:92) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
+// #completionTest(92) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions2_for_if = discriminatorKeySetTwo_for_if[0].properties.
+//@[92:92) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// #completionTest(107) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer_for_if = discriminatorKeySetTwo_for_if[0]['properties'].a
+//@[106:107) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
+// #completionTest(107) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetTwo_for_if[0]['properties'].
+//@[107:107) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 
 
@@ -953,6 +1054,28 @@ var nestedDiscriminatorMissingKeyCompletions2_for = nestedDiscriminatorMissingKe
 var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissingKey_for[0].properties['']
 
 
+/* 
+Nested discriminator missing key (filtered loop)
+*/
+resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
+  name: 'test'
+  location: 'l'
+  properties: {
+//@[14:51) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. |{\r\n    //createMode: 'Default'\r\n\r\n  }|
+    //createMode: 'Default'
+
+  }
+}]
+// #completionTest(107) -> createMode
+var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties.cr
+// #completionTest(109) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2_for_if = nestedDiscriminatorMissingKey_for_if[0]['properties'].
+//@[109:109) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// #completionTest(111) -> createModeIndexPlusSymbols_for_if
+var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties['']
+
+
 /*
 Nested discriminator
 */
@@ -1043,6 +1166,38 @@ var nestedDiscriminatorCompletions4_for = nestedDiscriminator_for[0]['properties
 var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].properties[a]
 //@[89:90) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 
+
+/*
+Nested discriminator (filtered loop)
+*/
+resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
+  name: 'test'
+  location: 'l'
+  properties: {
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". |properties|
+    createMode: 'Default'
+
+  }
+}]
+// #completionTest(86) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].properties.a
+//@[85:86) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
+// #completionTest(90) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions2_for_if = nestedDiscriminator_for_if[0]['properties'].a
+//@[89:90) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
+// #completionTest(86) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].properties.
+//@[86:86) [BCP020 (Error)] Expected a function or property name at this location. ||
+// #completionTest(89) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['properties'].
+//@[89:89) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// #completionTest(96) -> defaultCreateModeIndexes_for_if
+var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
+//@[95:96) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
+
+
+
 // sample resource to validate completions on the next declarations
 resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' = if(true) {
   location: 'test'
@@ -1057,6 +1212,17 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 //#completionTest(56) -> vmProperties
 var sigh = nestedPropertyAccessOnConditional.properties.
 //@[56:56) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+/*
+  boolean property value completions
+*/ 
+resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  properties: {
+    // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
+    autoUpgradeMinorVersion: t
+//@[29:30) [BCP057 (Error)] The name "t" does not exist in the current context. |t|
+  }
+}
 
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
 //@[19:50) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. |'My.Rp/mockResource@2020-12-01'|
@@ -1173,7 +1339,7 @@ resource expectedColon 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x i
 
 resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y:]
 //@[85:86) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-//@[87:88) [BCP018 (Error)] Expected the "{" character at this location. |]|
+//@[87:88) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |]|
 
 // loop index parsing cases
 resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
@@ -1204,14 +1370,31 @@ resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in
 
 resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
 //@[84:85) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
-//@[86:87) [BCP018 (Error)] Expected the "{" character at this location. |]|
+//@[86:87) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |]|
 
-// loop semantic analysis cases
+// loop filter parsing cases
+resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
+//@[96:97) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[101:102) [BCP018 (Error)] Expected the "(" character at this location. |]|
+resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
+//@[95:96) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[100:101) [BCP018 (Error)] Expected the "(" character at this location. |]|
+
+resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
+//@[103:104) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[109:110) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+//@[110:111) [BCP018 (Error)] Expected the "{" character at this location. |]|
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+//@[102:103) [BCP057 (Error)] The name "z" does not exist in the current context. |z|
+//@[108:109) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+//@[109:110) [BCP018 (Error)] Expected the "{" character at this location. |]|
+
+// wrong body type
 var emptyArray = []
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-//@[97:98) [BCP018 (Error)] Expected the "{" character at this location. |4|
+//@[97:98) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |4|
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
-//@[103:104) [BCP018 (Error)] Expected the "{" character at this location. |4|
+//@[103:104) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |4|
 
 // duplicate variable in the same scope
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
@@ -1235,6 +1418,16 @@ resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for ac
 }]
 resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
 //@[94:104) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "bool". |notAnArray|
+}]
+
+// wrong filter expression type
+resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |wrongFilterExpressionType|
+//@[114:117) [BCP046 (Error)] Expected a value of type "bool". |(4)|
+}]
+resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |wrongFilterExpressionType2|
+//@[119:132) [BCP046 (Error)] Expected a value of type "bool". |(concat('s'))|
 }]
 
 // missing required properties
@@ -1374,7 +1567,7 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
   properties: {
     networkAcls: {
       virtualNetworkRules: concat([for lol in []: {
-//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
         id: '${account.name}-${account.location}'
       }])
     }
@@ -1461,14 +1654,23 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 
 // resource loop body that isn't an object
 @batchSize(-1)
+//@[11:13) [BCP154 (Error)] Expected a batch size of at least 1 but the specified value was "-1". |-1|
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
-//@[95:101) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
+//@[95:101) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'test'|
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
-//@[96:107) [BCP018 (Error)] Expected the "{" character at this location. |environment|
+//@[96:107) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |environment|
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
-//@[100:106) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
+//@[9:35) [BCP028 (Error)] Identifier "nonObjectResourceLoopBody3" is declared multiple times. Remove or rename the duplicates. |nonObjectResourceLoopBody3|
+//@[100:106) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'test'|
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
-//@[100:111) [BCP018 (Error)] Expected the "{" character at this location. |environment|
+//@[9:35) [BCP028 (Error)] Identifier "nonObjectResourceLoopBody4" is declared multiple times. Remove or rename the duplicates. |nonObjectResourceLoopBody4|
+//@[100:111) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |environment|
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
+//@[9:35) [BCP028 (Error)] Identifier "nonObjectResourceLoopBody3" is declared multiple times. Remove or rename the duplicates. |nonObjectResourceLoopBody3|
+//@[109:115) [BCP018 (Error)] Expected the "{" character at this location. |'test'|
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
+//@[9:35) [BCP028 (Error)] Identifier "nonObjectResourceLoopBody4" is declared multiple times. Remove or rename the duplicates. |nonObjectResourceLoopBody4|
+//@[109:120) [BCP018 (Error)] Expected the "{" character at this location. |environment|
 
 // #completionTest(54,55) -> objectPlusFor
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
@@ -1499,5 +1701,120 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
         }
     }]
   }
+}
+
+// parent property with 'existing' resource at different scope
+resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  scope: tenant()
+  name: 'res1'
+}
+
+resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[65:106) [BCP165 (Error)] Cannot deploy a resource with ancestor under a different scope. Resource "p1_res1" has the "scope" property set. |{\r\n  parent: p1_res1\r\n  name: 'child1'\r\n}|
+  parent: p1_res1
+  name: 'child1'
+}
+
+// parent property with scope on child resource
+resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1'
+//@[8:14) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. |'res1'|
+}
+
+resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2@2020-06-01" does not have types available. |'Microsoft.Rp2/resource2@2020-06-01'|
+  name: 'res2'
+}
+
+resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+  scope: p2_res1
+//@[9:16) [BCP164 (Error)] The "scope" property is unsupported for a resource with a parent resource. This resource has "p2_res2" declared as its parent. |p2_res1|
+  parent: p2_res2
+  name: 'child2'
+}
+
+// parent property self-cycle
+resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: p3_vmExt
+//@[10:18) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |p3_vmExt|
+  location: 'eastus'
+}
+
+// parent property 2-cycle
+resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  parent: p4_vmExt
+//@[10:18) [BCP080 (Error)] The expression is involved in a cycle ("p4_vmExt" -> "p4_vm"). |p4_vmExt|
+  location: 'eastus'
+}
+
+resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: p4_vm
+//@[10:15) [BCP080 (Error)] The expression is involved in a cycle ("p4_vm" -> "p4_vmExt"). |p4_vm|
+  location: 'eastus'
+}
+
+// parent property with invalid child
+resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1'
+//@[8:14) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. |'res1'|
+}
+
+resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+  parent: p5_res1
+//@[10:17) [BCP171 (Error)] Resource type "Microsoft.Rp2/resource2/child2" is not a valid child resource of parent "Microsoft.Rp1/resource1". |p5_res1|
+  name: 'res2'
+}
+
+// parent property with invalid parent
+resource p6_res1 '${true}' = {
+//@[17:26) [BCP047 (Error)] String interpolation is unsupported for specifying the resource type. |'${true}'|
+  name: 'res1'
+}
+
+resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+  parent: p6_res1
+//@[10:17) [BCP172 (Error)] The resource type cannot be validated due to an error in parent resource "p6_res1". |p6_res1|
+  name: 'res2'
+}
+
+// parent property with incorrectly-formatted name
+resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1'
+//@[8:14) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. |'res1'|
+}
+
+resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[17:60) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+  parent: p7_res1
+  name: 'res1/res2'
+//@[8:19) [BCP170 (Error)] Expected resource name to not contain any "/" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name. |'res1/res2'|
+}
+
+resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[17:60) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+  parent: p7_res1
+  name: '${p7_res1.name}/res2'
+//@[8:30) [BCP170 (Error)] Expected resource name to not contain any "/" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name. |'${p7_res1.name}/res2'|
+}
+
+// top-level resource with too many '/' characters
+resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. |'Microsoft.Rp1/resource1@2020-06-01'|
+  name: 'res1/res2'
+//@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" characters. The number of name segments must match the number of segments in the resource type. |'res1/res2'|
+}
+
+resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+  name: 'existngResProperty'
+  location: 'westeurope'
+//@[2:10) [BCP173 (Error)] The property "location" cannot be used in an existing resource declaration. |location|
+  properties: {}
+//@[2:12) [BCP173 (Error)] The property "properties" cannot be used in an existing resource declaration. |properties|
 }
 

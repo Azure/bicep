@@ -4,6 +4,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
@@ -36,10 +37,14 @@ namespace Bicep.LanguageServer.Providers
 
             // convert text coordinates
             int offset = PositionHelper.GetOffset(context.LineStarts, position);
+            var semanticModel = context.Compilation.GetEntrypointSemanticModel();
 
-            // locate the most specific node that intersects with the text coordinate that isn't an identifier
-            SyntaxBase? node = context.ProgramSyntax.TryFindMostSpecificNodeInclusive(offset, n => !(n is IdentifierSyntax) && !(n is Token));
-            if (node == null)
+            // locate the most specific node that can be bound as a symbol
+            var node = context.ProgramSyntax.TryFindMostSpecificNodeInclusive(
+                offset,
+                n => n is not IdentifierSyntax && n is not Token);
+
+            if (node is null)
             {
                 // the program node must enclose all locations in the file, so this should not happen
                 this.logger.LogError("The symbol resolution request position exceeded the bounds of the file '{Uri}'.", uri);
@@ -47,15 +52,12 @@ namespace Bicep.LanguageServer.Providers
                 return null;
             }
 
-            // resolve symbol (if any)
-            Symbol? symbol = context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(node);
-            if (symbol == null)
+            if (semanticModel.GetSymbolInfo(node) is {} symbol)
             {
-                // not a symbol
-                return null;
+                return new SymbolResolutionResult(node, symbol, context);
             }
 
-            return new SymbolResolutionResult(node, symbol, context);
+            return null;
         }
     }
 }

@@ -36,6 +36,33 @@ output missingValue string =
 //@[27:28) Assignment |=|
 //@[29:33) NewLine |\r\n\r\n|
 
+// #completionTest(31,32) -> arrayPlusSymbols
+//@[45:47) NewLine |\r\n|
+output arrayCompletions array = 
+//@[0:6) Identifier |output|
+//@[7:23) Identifier |arrayCompletions|
+//@[24:29) Identifier |array|
+//@[30:31) Assignment |=|
+//@[32:36) NewLine |\r\n\r\n|
+
+// #completionTest(33,34) -> objectPlusSymbols
+//@[46:48) NewLine |\r\n|
+output objectCompletions object = 
+//@[0:6) Identifier |output|
+//@[7:24) Identifier |objectCompletions|
+//@[25:31) Identifier |object|
+//@[32:33) Assignment |=|
+//@[34:38) NewLine |\r\n\r\n|
+
+// #completionTest(29,30) -> boolPlusSymbols
+//@[44:46) NewLine |\r\n|
+output boolCompletions bool = 
+//@[0:6) Identifier |output|
+//@[7:22) Identifier |boolCompletions|
+//@[23:27) Identifier |bool|
+//@[28:29) Assignment |=|
+//@[30:34) NewLine |\r\n\r\n|
+
 output foo
 //@[0:6) Identifier |output|
 //@[7:10) Identifier |foo|

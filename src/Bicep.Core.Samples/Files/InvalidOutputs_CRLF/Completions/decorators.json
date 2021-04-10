@@ -7,7 +7,7 @@
     "preselect": false,
     "sortText": "3_batchSize",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "batchSize($0)"

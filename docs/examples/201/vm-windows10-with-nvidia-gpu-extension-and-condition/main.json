@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16597445251187931568"
+    }
+  },
   "parameters": {
     "localAdminName": {
       "type": "string",
@@ -145,12 +152,5 @@
         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ]
     }
-  ],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "14115673084354052029"
-    }
-  }
+  ]
 }

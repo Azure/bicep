@@ -904,6 +904,30 @@ param negativeValues int
 //@[21:24) Identifier |int|
 //@[24:26) NewLine |\n\n|
 
+// negative zeros are valid lengths
+//@[35:36) NewLine |\n|
+@minLength(-0)
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Minus |-|
+//@[12:13) Integer |0|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+@maxLength(-0)
+//@[0:1) At |@|
+//@[1:10) Identifier |maxLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Minus |-|
+//@[12:13) Integer |0|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+param negativeZeros string
+//@[0:5) Identifier |param|
+//@[6:19) Identifier |negativeZeros|
+//@[20:26) Identifier |string|
+//@[26:28) NewLine |\n\n|
+
 // negative integer literals in modifiers
 //@[41:42) NewLine |\n|
 param negativeModifiers int {
@@ -1039,6 +1063,214 @@ param decoratedArray array
 //@[0:5) Identifier |param|
 //@[6:20) Identifier |decoratedArray|
 //@[21:26) Identifier |array|
+//@[26:28) NewLine |\n\n|
+
+param allowedPermutation array {
+//@[0:5) Identifier |param|
+//@[6:24) Identifier |allowedPermutation|
+//@[25:30) Identifier |array|
+//@[31:32) LeftBrace |{|
+//@[32:33) NewLine |\n|
+    default: [
+//@[4:11) Identifier |default|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39) NewLine |\n|
+		'Microsoft.ContainerRegistry/registries'
+//@[2:42) StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[42:43) NewLine |\n|
+	]
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+    allowed: [
+//@[4:11) Identifier |allowed|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39) NewLine |\n|
+		'Microsoft.ApiManagement/service'
+//@[2:35) StringComplete |'Microsoft.ApiManagement/service'|
+//@[35:36) NewLine |\n|
+		'Microsoft.Network/applicationGateways'
+//@[2:41) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[41:42) NewLine |\n|
+		'Microsoft.Automation/automationAccounts'
+//@[2:43) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[43:44) NewLine |\n|
+		'Microsoft.ContainerInstance/containerGroups'
+//@[2:47) StringComplete |'Microsoft.ContainerInstance/containerGroups'|
+//@[47:48) NewLine |\n|
+		'Microsoft.ContainerRegistry/registries'
+//@[2:42) StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[42:43) NewLine |\n|
+		'Microsoft.ContainerService/managedClusters'
+//@[2:46) StringComplete |'Microsoft.ContainerService/managedClusters'|
+//@[46:47) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+@allowed([
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+	'Microsoft.AnalysisServices/servers'
+//@[1:37) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[37:38) NewLine |\n|
+	'Microsoft.ApiManagement/service'
+//@[1:34) StringComplete |'Microsoft.ApiManagement/service'|
+//@[34:35) NewLine |\n|
+	'Microsoft.Network/applicationGateways'
+//@[1:40) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[40:41) NewLine |\n|
+	'Microsoft.Automation/automationAccounts'
+//@[1:42) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[42:43) NewLine |\n|
+	'Microsoft.ContainerInstance/containerGroups'
+//@[1:46) StringComplete |'Microsoft.ContainerInstance/containerGroups'|
+//@[46:47) NewLine |\n|
+	'Microsoft.ContainerRegistry/registries'
+//@[1:41) StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[41:42) NewLine |\n|
+	'Microsoft.ContainerService/managedClusters'
+//@[1:45) StringComplete |'Microsoft.ContainerService/managedClusters'|
+//@[45:46) NewLine |\n|
+])
+//@[0:1) RightSquare |]|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+param allowedPermutationWithDecorator array = [
+//@[0:5) Identifier |param|
+//@[6:37) Identifier |allowedPermutationWithDecorator|
+//@[38:43) Identifier |array|
+//@[44:45) Assignment |=|
+//@[46:47) LeftSquare |[|
+//@[47:48) NewLine |\n|
+	'Microsoft.AnalysisServices/servers'
+//@[1:37) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[37:38) NewLine |\n|
+	'Microsoft.ContainerRegistry/registries'
+//@[1:41) StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[41:42) NewLine |\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:3) NewLine |\n\n|
+
+param allowedArray array {
+//@[0:5) Identifier |param|
+//@[6:18) Identifier |allowedArray|
+//@[19:24) Identifier |array|
+//@[25:26) LeftBrace |{|
 //@[26:27) NewLine |\n|
+    default: [
+//@[4:11) Identifier |default|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39) NewLine |\n|
+		'Microsoft.ApiManagement/service'
+//@[2:35) StringComplete |'Microsoft.ApiManagement/service'|
+//@[35:36) NewLine |\n|
+	]
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+    allowed: [
+//@[4:11) Identifier |allowed|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+		[
+//@[2:3) LeftSquare |[|
+//@[3:4) NewLine |\n|
+			'Microsoft.AnalysisServices/servers'
+//@[3:39) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[39:40) NewLine |\n|
+			'Microsoft.ApiManagement/service'
+//@[3:36) StringComplete |'Microsoft.ApiManagement/service'|
+//@[36:37) NewLine |\n|
+		]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+		[
+//@[2:3) LeftSquare |[|
+//@[3:4) NewLine |\n|
+			'Microsoft.Network/applicationGateways'
+//@[3:42) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[42:43) NewLine |\n|
+			'Microsoft.Automation/automationAccounts'
+//@[3:44) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[44:45) NewLine |\n|
+		]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+@allowed([
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+	[
+//@[1:2) LeftSquare |[|
+//@[2:3) NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39) NewLine |\n|
+		'Microsoft.ApiManagement/service'
+//@[2:35) StringComplete |'Microsoft.ApiManagement/service'|
+//@[35:36) NewLine |\n|
+	]
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+	[
+//@[1:2) LeftSquare |[|
+//@[2:3) NewLine |\n|
+		'Microsoft.Network/applicationGateways'
+//@[2:41) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[41:42) NewLine |\n|
+		'Microsoft.Automation/automationAccounts'
+//@[2:43) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[43:44) NewLine |\n|
+	]
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+])
+//@[0:1) RightSquare |]|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+param allowedArrayWithDecorator array = [
+//@[0:5) Identifier |param|
+//@[6:31) Identifier |allowedArrayWithDecorator|
+//@[32:37) Identifier |array|
+//@[38:39) Assignment |=|
+//@[40:41) LeftSquare |[|
+//@[41:42) NewLine |\n|
+	'Microsoft.AnalysisServices/servers'
+//@[1:37) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[37:38) NewLine |\n|
+	'Microsoft.ApiManagement/service'
+//@[1:34) StringComplete |'Microsoft.ApiManagement/service'|
+//@[34:35) NewLine |\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:2) NewLine |\n|
 
 //@[0:0) EndOfFile ||

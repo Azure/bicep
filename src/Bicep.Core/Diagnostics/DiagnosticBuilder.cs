@@ -619,15 +619,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP106",
                 "Expected a new line character at this location. Commas are not used as separator delimiters.");
 
-            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceSymbol, string name) => new(
+            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceType, string name) => new(
                 TextSpan,
                 "BCP107",
-                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\".");
+                $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\".");
 
-            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceSymbol, string name, string suggestedName) => new(
+            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceType, string name, string suggestedName) => new(
                 TextSpan,
                 "BCP108",
-                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\". Did you mean \"{suggestedName}\"?",
+                $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?",
                 null,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
@@ -700,14 +700,14 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
             {
-                var variableDependencyChainClause = variableDependencyChain != null ?
-                 $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
+                var variableDependencyChainClause = variableDependencyChain != null
+                    ? $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). "
+                    : string.Empty;
 
                 return new ErrorDiagnostic(
-                TextSpan,
-                "BCP120",
-                $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}."
-                );
+                    TextSpan,
+                    "BCP120",
+                    $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}.");
             }
 
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
@@ -800,7 +800,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ForExpressionsNotSupportedHere() => new(
                 TextSpan,
                 "BCP138",
-                "For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs.");
+                "For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties.");
 
             public Diagnostic InvalidCrossResourceScope() => new(
                 TextSpan,
@@ -945,13 +945,67 @@ namespace Bicep.Core.Diagnostics
                 "BCP166",
                 $"Duplicate \"{decoratorName}\" decorator.");
 
-            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+            public ErrorDiagnostic ExpectBodyStartOrIf() => new(
                 TextSpan,
                 "BCP167",
-                $"Function \"{functionName}\" is not valid at this location. It can only be used in assigning value to a module parameter.");
-            public ErrorDiagnostic TypeNotValidInStringInterpolation(TypeSymbol type) => new(
+                "Expected the \"{\" character or the \"if\" keyword at this location.");
+
+            public ErrorDiagnostic LengthMustNotBeNegative() => new(
                 TextSpan,
                 "BCP168",
+                $"Length must not be a negative value.");
+
+            public ErrorDiagnostic TopLevelChildResourceNameMissingQualifiers(int expectedSlashCount) => new(
+                TextSpan,
+                "BCP169",
+                $"Expected resource name to contain {expectedSlashCount} \"/\" characters. The number of name segments must match the number of segments in the resource type.");
+
+            public ErrorDiagnostic ChildResourceNameContainsQualifiers() => new(
+                TextSpan,
+                "BCP170",
+                $"Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.");
+
+            public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
+                TextSpan,
+                "BCP171",
+                $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
+
+            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
+                TextSpan,
+                "BCP172",
+                $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
+
+            public ErrorDiagnostic CannotUsePropertyInExistingResource(string property) => new(
+                TextSpan,
+                "BCP173",
+                $"The property \"{property}\" cannot be used in an existing resource declaration.");
+
+            public Diagnostic ResourceTypeContainsProvidersSegment() => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP174",
+                $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information.");
+
+            public ErrorDiagnostic VariableLoopsRuntimeDependencyNotAllowed(IEnumerable<string> variableDependencyChain)
+            {
+                var variableDependencyChainClause = variableDependencyChain.Any()
+                    ? $" Variable dependency chain: \"{string.Join("\" -> \"", variableDependencyChain)}\"."
+                    : string.Empty;
+
+                return new(
+                    TextSpan,
+                    "BCP175",
+                    $"The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}");
+            }
+
+            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+                TextSpan,
+                "BCP176",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used in assigning value to a module parameter.");
+
+            public ErrorDiagnostic TypeNotValidInStringInterpolation(TypeSymbol type) => new(
+                TextSpan,
+                "BCP177",
                 $"Type \"{type.Name}\" cannot be used inside String interpolation.");
         }
 

@@ -76,11 +76,11 @@ namespace Bicep.Core.Syntax
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(allowedSyntax).AllowedMustContainItems());
             }
 
-            if (object.ReferenceEquals(assignedType, LanguageConstants.String))
-            {
-                var allowedItemTypes = allowedSyntax?.Items.Select(typeManager.GetTypeInfo);
+            var allowedItemTypes = allowedSyntax?.Items.Select(typeManager.GetTypeInfo);
 
-                if (allowedItemTypes != null && allowedItemTypes.All(itemType => itemType is StringLiteralType))
+            if (ReferenceEquals(assignedType, LanguageConstants.String))
+            {
+                if (allowedItemTypes?.All(itemType => itemType is StringLiteralType) == true)
                 {
                     assignedType = UnionType.Create(allowedItemTypes);
                 }
@@ -96,6 +96,12 @@ namespace Bicep.Core.Syntax
                     // we need to relax the validation for string parameters without 'allowed' values specified.
                     assignedType = LanguageConstants.LooseString;
                 }
+            }
+
+            if (ReferenceEquals(assignedType, LanguageConstants.Array) &&
+                allowedItemTypes?.All(itemType => itemType is StringLiteralType) == true)
+            {
+                assignedType = new TypedArrayType(UnionType.Create(allowedItemTypes), TypeSymbolValidationFlags.Default);
             }
 
             return assignedType;

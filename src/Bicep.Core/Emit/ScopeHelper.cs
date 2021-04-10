@@ -110,10 +110,16 @@ namespace Bicep.Core.Emit
                     };
 
                 case { } when scopeSymbol is ResourceSymbol targetResourceSymbol:
-                    if(targetResourceSymbol.IsCollection && indexExpression is null)
+                    if (targetResourceSymbol.IsCollection && indexExpression is null)
                     {
                         // the target is a resource collection, but the user didn't apply an array indexer to it
                         // the type check will produce a good error
+                        return null;
+                    }
+
+                    if (targetResourceSymbol.Type is ErrorType)
+                    {
+                        // the scope resource has errors
                         return null;
                     }
 
@@ -410,25 +416,30 @@ namespace Bicep.Core.Emit
                     if (scopeProperty is not null)
                     {
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
-                        diagnosticWriter.Write(scopeProperty.Value, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Name));
+                        diagnosticWriter.Write(scopeProperty.Value, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Name));
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
                         continue;
                     }
 
                     var firstAncestor = ancestors.First();
                     if (!resourceSymbol.DeclaringResource.IsExistingResource() && 
-                        firstAncestor.DeclaringResource.IsExistingResource() && 
-                        firstAncestor.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName) is {} firstAncestorScope)
+                        firstAncestor.Resource.DeclaringResource.IsExistingResource() && 
+                        firstAncestor.Resource.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName) is {} firstAncestorScope)
                     {
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
-                        diagnosticWriter.Write(resourceSymbol.DeclaringResource.Value, x => x.ScopeDisallowedForAncestorResource(firstAncestor.Name));
+                        diagnosticWriter.Write(resourceSymbol.DeclaringResource.Value, x => x.ScopeDisallowedForAncestorResource(firstAncestor.Resource.Name));
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
+                        continue;
+                    }
+
+                    if (semanticModel.Binder.TryGetCycle(resourceSymbol) is not null)
+                    {
                         continue;
                     }
 
                     // we really just want the scope allocated to the oldest ancestor.
                     // since we are looping in order of depth, we can just read back the value from a previous iteration.
-                    scopeInfo[resourceSymbol] = scopeInfo[firstAncestor];
+                    scopeInfo[resourceSymbol] = scopeInfo[firstAncestor.Resource];
                     continue;
                 }
 

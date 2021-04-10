@@ -29,7 +29,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static ObjectType GetResourceGroupReturnType(IEnumerable<FunctionArgumentSyntax> arguments)
         {
-            var properties = new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+            var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("provisioningState", LanguageConstants.String),
             }, null);
@@ -57,23 +57,33 @@ namespace Bicep.Core.Semantics.Namespaces
             });
         }
 
-        private static ObjectType GetSingleProvidersReturnType()
+        private static ObjectType GetProvidersSingleResourceReturnType()
         {
             // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
-            return new NamedObjectType("provider", TypeSymbolValidationFlags.Default, new []
+            return new ObjectType("ProviderResource", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("resourceType", LanguageConstants.String),
                 new TypeProperty("locations", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
                 new TypeProperty("apiVersions", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
             }, null);
         }
-        
-        private static NamedObjectType GetEnvironmentReturnType()
+
+        private static ObjectType GetProvidersSingleProviderReturnType()
         {
-            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
+            // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
+            return new ObjectType("Provider", TypeSymbolValidationFlags.Default, new []
+            {
+                new TypeProperty("namespace", LanguageConstants.String),
+                new TypeProperty("resourceTypes", new TypedArrayType(GetProvidersSingleResourceReturnType(), TypeSymbolValidationFlags.Default)),
+                }, null);
+        }
+        
+        private static ObjectType GetEnvironmentReturnType()
+        {
+            return new ObjectType("environment", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("activeDirectoryDataLake", LanguageConstants.String),
-                new TypeProperty("authentication", new NamedObjectType("authentication", TypeSymbolValidationFlags.Default, new []
+                new TypeProperty("authentication", new ObjectType("authentication", TypeSymbolValidationFlags.Default, new []
                 {
                     new TypeProperty("audiences", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
                     new TypeProperty("identityProvider", LanguageConstants.String),
@@ -89,7 +99,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("portal", LanguageConstants.String),
                 new TypeProperty("resourceManager", LanguageConstants.String),
                 new TypeProperty("sqlManagement", LanguageConstants.String),
-                new TypeProperty("suffixes", new NamedObjectType("suffixes", TypeSymbolValidationFlags.Default, new []
+                new TypeProperty("suffixes", new ObjectType("suffixes", TypeSymbolValidationFlags.Default, new []
                 {
                     new TypeProperty("acrLoginServer", LanguageConstants.String),
                     new TypeProperty("azureDatalakeAnalyticsCatalogAndJob", LanguageConstants.String),
@@ -103,7 +113,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static NamedObjectType GetDeploymentReturnType(ResourceScope targetScope)
+        private static ObjectType GetDeploymentReturnType(ResourceScope targetScope)
         {
             // Note: there are other properties which could be included here, but they allow you to break out of the bicep world.
             // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
@@ -111,9 +121,9 @@ namespace Bicep.Core.Semantics.Namespaces
             IEnumerable<TypeProperty> properties = new []
             {
                 new TypeProperty("name", LanguageConstants.String),
-                new TypeProperty("properties", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
                 {
-                    new TypeProperty("templateLink", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                    new TypeProperty("templateLink", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
                     {
                         new TypeProperty("id", LanguageConstants.String),
                         new TypeProperty("uri", LanguageConstants.String),
@@ -128,7 +138,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 properties = properties.Concat(locationProperty.AsEnumerable());
             }
 
-            return new NamedObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null);
+            return new ObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null);
         }
 
         private static IEnumerable<(FunctionOverload functionOverload, ResourceScope allowedScopes)> GetScopeFunctions()
@@ -290,15 +300,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithVariableParameter("resourceName",LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
                 .Build();
 
-            var singleProvider = GetSingleProvidersReturnType();
             yield return new FunctionOverloadBuilder("providers")
-                .WithReturnType(new TypedArrayType(singleProvider, TypeSymbolValidationFlags.Default))
+                .WithReturnType(GetProvidersSingleProviderReturnType())
                 .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
                 .WithRequiredParameter("providerNamespace",LanguageConstants.String, "the namespace of the provider")
                 .Build();
 
             yield return new FunctionOverloadBuilder("providers")
-                .WithReturnType(singleProvider)
+                .WithReturnType(GetProvidersSingleResourceReturnType())
                 .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
                 .WithRequiredParameter("providerNamespace",LanguageConstants.String, "the namespace of the provider")
                 .WithRequiredParameter("resourceType",LanguageConstants.String, "The type of resource within the specified namespace")

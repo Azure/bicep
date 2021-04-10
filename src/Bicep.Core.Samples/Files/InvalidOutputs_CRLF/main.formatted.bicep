@@ -12,6 +12,15 @@ output missingValueAndType =
 // #completionTest(28,29) -> symbols
 output missingValue string = 
 
+// #completionTest(31,32) -> arrayPlusSymbols
+output arrayCompletions array = 
+
+// #completionTest(33,34) -> objectPlusSymbols
+output objectCompletions object = 
+
+// #completionTest(29,30) -> boolPlusSymbols
+output boolCompletions bool = 
+
 output foo
 
 // space after identifier #completionTest(20) -> outputTypes

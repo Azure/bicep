@@ -257,6 +257,12 @@ param decoratedInt int = 123
 param negativeValues int
 //@[6:20) Parameter negativeValues. Type: int. Declaration start char: 0, length: 53
 
+// negative zeros are valid lengths
+@minLength(-0)
+@maxLength(-0)
+param negativeZeros string
+//@[6:19) Parameter negativeZeros. Type: string. Declaration start char: 0, length: 56
+
 // negative integer literals in modifiers
 param negativeModifiers int {
 //@[6:23) Parameter negativeModifiers. Type: int. Declaration start char: 0, length: 64
@@ -291,4 +297,70 @@ param decoratedObject object = {
 @sys.description('I will be overrode.')
 param decoratedArray array
 //@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 125
+
+param allowedPermutation array {
+//@[6:24) Parameter allowedPermutation. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 454
+    default: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ContainerRegistry/registries'
+	]
+    allowed: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+		'Microsoft.ContainerInstance/containerGroups'
+		'Microsoft.ContainerRegistry/registries'
+		'Microsoft.ContainerService/managedClusters'
+    ]
+}
+
+@allowed([
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ApiManagement/service'
+	'Microsoft.Network/applicationGateways'
+	'Microsoft.Automation/automationAccounts'
+	'Microsoft.ContainerInstance/containerGroups'
+	'Microsoft.ContainerRegistry/registries'
+	'Microsoft.ContainerService/managedClusters'
+])
+param allowedPermutationWithDecorator array = [
+//@[6:37) Parameter allowedPermutationWithDecorator. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 435
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ContainerRegistry/registries'
+]
+
+param allowedArray array {
+//@[6:18) Parameter allowedArray. Type: array. Declaration start char: 0, length: 323
+    default: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+	]
+    allowed: [
+		[
+			'Microsoft.AnalysisServices/servers'
+			'Microsoft.ApiManagement/service'
+		]
+		[
+			'Microsoft.Network/applicationGateways'
+			'Microsoft.Automation/automationAccounts'
+		]
+    ]
+}
+
+@allowed([
+	[
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+	]
+	[
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+	]
+])
+param allowedArrayWithDecorator array = [
+//@[6:31) Parameter allowedArrayWithDecorator. Type: array. Declaration start char: 0, length: 303
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ApiManagement/service'
+]
 

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4791804594827369921"
+    }
+  },
   "parameters": {
     "myString": {
       "type": "string"
@@ -311,12 +318,5 @@
     }
   },
   "functions": [],
-  "resources": [],
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "16608949399804011015"
-    }
-  }
+  "resources": []
 }

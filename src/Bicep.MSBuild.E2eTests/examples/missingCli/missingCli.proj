@@ -1,0 +1,22 @@
+<!--
+  Do not include this project in the solution. It is intended to validate our MSBuild task.
+-->
+<Project Sdk="Microsoft.Build.NoTargets">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <!--
+    Pickup latest available packages (including prerelease) from local feed configured in NuGet.config.
+
+    Intentionally skipping the CLI package to force the failure and assert on error message.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Azure.Bicep.MSBuild" Version="*-*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- the following file name is intentionally wrong -->
+    <Bicep Include="empty.bicep"/>
+  </ItemGroup>
+</Project>

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16298988830996959523"
+    }
+  },
   "parameters": {
     "batchAccountName": {
       "type": "string"
@@ -34,13 +41,6 @@
     "batchaccountFQDN": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Batch/batchAccounts', parameters('batchAccountName'))).accountEndpoint]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "4962501741369866600"
     }
   }
 }
