@@ -113,7 +113,7 @@ bicep --help
 brew tap azure/bicep
 
 # Install the tool
-brew install azure/bicep
+brew install bicep
 ```
 
 ##### macOS manual install
