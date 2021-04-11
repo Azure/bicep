@@ -6,7 +6,7 @@
 // $6 = testLocation
 // $7 = 0
 // $8 = testIpRangeFilter
-// $9 = testPassword
+// $9 = true
 // $10 = EnableTable
 
 // Insert snippet here

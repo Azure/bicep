@@ -118,6 +118,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     options.OnPublishDiagnostics(diags => diagnosticsListener.AddMessage(diags));
                 },
+                resourceTypeProvider: new AzResourceTypeProvider(),
                 fileResolver: new InMemoryFileResolver(fileSystemDict));
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFileName);

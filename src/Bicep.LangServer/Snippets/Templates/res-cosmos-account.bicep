@@ -6,18 +6,18 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
   properties: {
     consistencyPolicy: {
       defaultConsistencyLevel: '${3|Eventual,Session,BoundedStaleness,Strong,ConsistentPrefix|}'
-      maxStalenessPrefix: '${4:1}'
-      maxIntervalInSeconds: '${5:5}'
+      maxStalenessPrefix: ${4:1}
+      maxIntervalInSeconds: ${5:5}
     }
     locations: [
       {
         locationName: '${6:location1}'
-        failoverPriority: '${7:0}'
+        failoverPriority: ${7:0}
       }
     ]
     databaseAccountOfferType: 'Standard'
     ipRangeFilter: '${8:ipRangeFilter}'
-    enableAutomaticFailover: '${9|true,false|}'
+    enableAutomaticFailover: ${9|true,false|}
     capabilities: [
       {
         name: '${10|EnableTable,EnableGremlin|}'

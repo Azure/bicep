@@ -7,6 +7,6 @@ resource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {
   }
   properties: {
     publicIPAddressVersion: 'IPv4'
-    prefixLength: '${2:28}'
+    prefixLength: ${2:28}
   }
 }
