@@ -191,7 +191,7 @@ resource omsAgentForLinux 'Microsoft.Compute/virtualMachines/extensions@2020-12-
       stopOnMultipleConnections: false
     }
     protectedSettings: {
-      workspaceKey: listKey(logAnalyticsWorkspace.id, logAnalyticsWorkspace.apiVersion).primarySharedKey
+      workspaceKey: listKeys(logAnalyticsWorkspace.id, logAnalyticsWorkspace.apiVersion).primarySharedKey
     }
   }
 }
