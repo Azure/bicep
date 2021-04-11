@@ -221,14 +221,6 @@ output noInnerLoopsInOutputs2 object = {
   }]
 }
 
-// #completionTest(1) -> decoratorsPlusNamespace
-@
-//@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
-// #completionTest(5) -> decorators
-@sys.
-//@[5:5) [BCP020 (Error)] Expected a function or property name at this location. ||
-
-
 //KeyVault Secret Reference
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
@@ -237,3 +229,14 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 output keyVaultOutput string = kv.getSecret('mySecret')
 //@[34:43) [BCP176 (Error)] Function "getSecret" is not valid at this location. It can only be used in assigning value to a module parameter. |getSecret|
 
+
+// WARNING!!!!! dangling decorators
+
+// #completionTest(1) -> decoratorsPlusNamespace
+@
+//@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
+// #completionTest(5) -> decorators
+@sys.
+//@[5:5) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13455401630336949432"
+      "templateHash": "644771070514456132"
     }
   },
   "parameters": {
@@ -1625,6 +1625,64 @@
             "reference": {
               "keyVault": {
                 "id": "[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]"
+              },
+              "secretName": "mySecret",
+              "secretVersion": "secretVersion"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10472196812999824211"
+            }
+          },
+          "parameters": {
+            "secureStringParam1": {
+              "type": "secureString"
+            },
+            "secureStringParam2": {
+              "type": "secureString",
+              "defaultValue": ""
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "exposedSecureString": {
+              "type": "string",
+              "value": "[parameters('secureStringParam1')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "secureModule2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "secureStringParam1": {
+            "reference": {
+              "keyVault": {
+                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'otherGroup'), 'Microsoft.KeyVault/vaults', 'testkeyvault')]"
+              },
+              "secretName": "mySecret"
+            }
+          },
+          "secureStringParam2": {
+            "reference": {
+              "keyVault": {
+                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'otherGroup'), 'Microsoft.KeyVault/vaults', 'testkeyvault')]"
               },
               "secretName": "mySecret",
               "secretVersion": "secretVersion"

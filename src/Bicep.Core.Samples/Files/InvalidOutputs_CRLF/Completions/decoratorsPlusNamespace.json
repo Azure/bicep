@@ -1,5 +1,22 @@
 [
   {
+    "label": "allowed",
+    "kind": "function",
+    "detail": "allowed()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_allowed",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "allowed($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "batchSize",
     "kind": "function",
     "detail": "batchSize()",
@@ -14,6 +31,122 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "description",
+    "kind": "function",
+    "detail": "description()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_description",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "description($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "maxLength",
+    "kind": "function",
+    "detail": "maxLength()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_maxLength",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "maxLength($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "maxValue",
+    "kind": "function",
+    "detail": "maxValue()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_maxValue",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "maxValue($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "metadata",
+    "kind": "function",
+    "detail": "metadata()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_metadata",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "metadata($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "minLength",
+    "kind": "function",
+    "detail": "minLength()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_minLength",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "minLength($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "minValue",
+    "kind": "function",
+    "detail": "minValue()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_minValue",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "minValue($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "secure",
+    "kind": "function",
+    "detail": "secure()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_secure",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "secure()$0"
     }
   },
   {

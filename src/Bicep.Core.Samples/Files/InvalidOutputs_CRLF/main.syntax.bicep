@@ -886,32 +886,10 @@ output noInnerLoopsInOutputs2 object = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-// #completionTest(1) -> decoratorsPlusNamespace
-//@[48:50) NewLine |\r\n|
-@
-//@[0:170) ResourceDeclarationSyntax
-//@[0:1)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:1)   SkippedTriviaSyntax
-//@[1:3)  NewLine |\r\n|
-// #completionTest(5) -> decorators
-//@[35:37)  NewLine |\r\n|
-@sys.
-//@[0:5)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:5)   PropertyAccessSyntax
-//@[1:4)    VariableAccessSyntax
-//@[1:4)     IdentifierSyntax
-//@[1:4)      Identifier |sys|
-//@[4:5)    Dot |.|
-//@[5:5)    IdentifierSyntax
-//@[5:5)     SkippedTriviaSyntax
-//@[5:11)  NewLine |\r\n\r\n\r\n|
-
-
 //KeyVault Secret Reference
-//@[27:29)  NewLine |\r\n|
+//@[27:29) NewLine |\r\n|
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[0:90) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:11)  IdentifierSyntax
 //@[9:11)   Identifier |kv|
@@ -954,6 +932,33 @@ output keyVaultOutput string = kv.getSecret('mySecret')
 //@[44:54)    StringSyntax
 //@[44:54)     StringComplete |'mySecret'|
 //@[54:55)   RightParen |)|
-//@[55:57) NewLine |\r\n|
+//@[55:61) NewLine |\r\n\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+
+// WARNING!!!!! dangling decorators
+//@[35:39) NewLine |\r\n\r\n|
+
+// #completionTest(1) -> decoratorsPlusNamespace
+//@[48:50) NewLine |\r\n|
+@
+//@[0:49) MissingDeclarationSyntax
+//@[0:1)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:1)   SkippedTriviaSyntax
+//@[1:3)  NewLine |\r\n|
+// #completionTest(5) -> decorators
+//@[35:37)  NewLine |\r\n|
+@sys.
+//@[0:5)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:5)   PropertyAccessSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:5)    IdentifierSyntax
+//@[5:5)     SkippedTriviaSyntax
+//@[5:9)  NewLine |\r\n\r\n|
+
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
+//@[110:110) EndOfFile ||

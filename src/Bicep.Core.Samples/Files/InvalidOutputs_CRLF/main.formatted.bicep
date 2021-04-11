@@ -121,15 +121,18 @@ output noInnerLoopsInOutputs2 object = {
   }]
 }
 
-// #completionTest(1) -> decoratorsPlusNamespace
-@
-// #completionTest(5) -> decorators
-@sys.
-
-
 //KeyVault Secret Reference
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
 }
 
 output keyVaultOutput string = kv.getSecret('mySecret')
+
+// WARNING!!!!! dangling decorators
+
+// #completionTest(1) -> decoratorsPlusNamespace
+@
+// #completionTest(5) -> decorators
+@sys.
+
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 

@@ -575,20 +575,6 @@ output noInnerLoopsInOutputs2 object = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-// #completionTest(1) -> decoratorsPlusNamespace
-//@[48:50) NewLine |\r\n|
-@
-//@[0:1) At |@|
-//@[1:3) NewLine |\r\n|
-// #completionTest(5) -> decorators
-//@[35:37) NewLine |\r\n|
-@sys.
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[5:11) NewLine |\r\n\r\n\r\n|
-
-
 //KeyVault Secret Reference
 //@[27:29) NewLine |\r\n|
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
@@ -619,6 +605,24 @@ output keyVaultOutput string = kv.getSecret('mySecret')
 //@[43:44) LeftParen |(|
 //@[44:54) StringComplete |'mySecret'|
 //@[54:55) RightParen |)|
-//@[55:57) NewLine |\r\n|
+//@[55:61) NewLine |\r\n\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+
+// WARNING!!!!! dangling decorators
+//@[35:39) NewLine |\r\n\r\n|
+
+// #completionTest(1) -> decoratorsPlusNamespace
+//@[48:50) NewLine |\r\n|
+@
+//@[0:1) At |@|
+//@[1:3) NewLine |\r\n|
+// #completionTest(5) -> decorators
+//@[35:37) NewLine |\r\n|
+@sys.
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:9) NewLine |\r\n\r\n|
+
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
+//@[110:110) EndOfFile ||

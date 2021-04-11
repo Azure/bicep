@@ -1503,8 +1503,8 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[2:8) NewLine |\r\n\r\n\r\n|
 
 
-// Key Vault Secret Reference
-//@[29:33) NewLine |\r\n\r\n|
+// BEGIN: Key Vault Secret Reference
+//@[36:40) NewLine |\r\n\r\n|
 
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@[0:8) Identifier |resource|
@@ -1567,4 +1567,78 @@ module secureModule1 'child/secureParams.bicep' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:17) Identifier |scopedKv|
+//@[18:56) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[57:65) Identifier |existing|
+//@[66:67) Assignment |=|
+//@[68:69) LeftBrace |{|
+//@[69:71) NewLine |\r\n|
+  name: 'testkeyvault'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:22) StringComplete |'testkeyvault'|
+//@[22:24) NewLine |\r\n|
+  scope: resourceGroup('otherGroup')
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:22) Identifier |resourceGroup|
+//@[22:23) LeftParen |(|
+//@[23:35) StringComplete |'otherGroup'|
+//@[35:36) RightParen |)|
+//@[36:38) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module secureModule2 'child/secureParams.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:20) Identifier |secureModule2|
+//@[21:47) StringComplete |'child/secureParams.bicep'|
+//@[48:49) Assignment |=|
+//@[50:51) LeftBrace |{|
+//@[51:53) NewLine |\r\n|
+  name: 'secureModule2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:23) StringComplete |'secureModule2'|
+//@[23:25) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    secureStringParam1: scopedKv.getSecret('mySecret')
+//@[4:22) Identifier |secureStringParam1|
+//@[22:23) Colon |:|
+//@[24:32) Identifier |scopedKv|
+//@[32:33) Dot |.|
+//@[33:42) Identifier |getSecret|
+//@[42:43) LeftParen |(|
+//@[43:53) StringComplete |'mySecret'|
+//@[53:54) RightParen |)|
+//@[54:56) NewLine |\r\n|
+    secureStringParam2: scopedKv.getSecret('mySecret','secretVersion')
+//@[4:22) Identifier |secureStringParam2|
+//@[22:23) Colon |:|
+//@[24:32) Identifier |scopedKv|
+//@[32:33) Dot |.|
+//@[33:42) Identifier |getSecret|
+//@[42:43) LeftParen |(|
+//@[43:53) StringComplete |'mySecret'|
+//@[53:54) Comma |,|
+//@[54:69) StringComplete |'secretVersion'|
+//@[69:70) RightParen |)|
+//@[70:72) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// END: Key Vault Secret Reference
+//@[34:34) EndOfFile ||

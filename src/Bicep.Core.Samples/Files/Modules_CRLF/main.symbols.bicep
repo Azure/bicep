@@ -318,7 +318,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 }]
 
 
-// Key Vault Secret Reference
+// BEGIN: Key Vault Secret Reference
 
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@[9:11) Resource kv. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 90
@@ -333,3 +333,20 @@ module secureModule1 'child/secureParams.bicep' = {
     secureStringParam2: kv.getSecret('mySecret','secretVersion')
   }
 }
+
+resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[9:17) Resource scopedKv. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 134
+  name: 'testkeyvault'
+  scope: resourceGroup('otherGroup')
+}
+
+module secureModule2 'child/secureParams.bicep' = {
+//@[7:20) Module secureModule2. Type: module. Declaration start char: 0, length: 225
+  name: 'secureModule2'
+  params: {
+    secureStringParam1: scopedKv.getSecret('mySecret')
+    secureStringParam2: scopedKv.getSecret('mySecret','secretVersion')
+  }
+}
+
+// END: Key Vault Secret Reference
