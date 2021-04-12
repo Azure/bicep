@@ -39,7 +39,7 @@ namespace Bicep.Cli
         public static int Main(string[] args)
         {
             BicepDeploymentsInterop.Initialize();
-            var program = new Program(new AzResourceTypeProvider(), Console.Out, Console.Error, ThisAssembly.AssemblyFileVersion);
+            var program = new Program(AzResourceTypeProvider.CreateWithAzTypes(), Console.Out, Console.Error, ThisAssembly.AssemblyFileVersion);
             return program.Run(args);
         }
 

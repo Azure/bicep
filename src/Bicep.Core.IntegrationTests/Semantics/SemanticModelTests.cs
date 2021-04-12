@@ -49,7 +49,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestMethod]
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText("parameter "));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText("parameter "));
             compilation.GetEntrypointSemanticModel().GetParseDiagnostics();
         }
 
