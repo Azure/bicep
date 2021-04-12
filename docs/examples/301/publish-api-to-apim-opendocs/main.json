@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11978305779510962702"
-    }
-  },
   "parameters": {
     "apimInstanceName": {
       "type": "string"
@@ -87,7 +80,8 @@
         "approvalRequired": "[variables('productsSet')[copyIndex()].isApprovalRequired]",
         "subscriptionsLimit": "[variables('productsSet')[copyIndex()].subscriptionLimit]",
         "state": "[variables('productsSet')[copyIndex()].publishState]"
-      }
+      },
+      "dependsOn": []
     },
     {
       "type": "Microsoft.ApiManagement/service/apis",
@@ -97,7 +91,8 @@
         "format": "[parameters('apiFormat')]",
         "value": "[parameters('apiEndPointURL')]",
         "path": "[parameters('apiPath')]"
-      }
+      },
+      "dependsOn": []
     },
     {
       "copy": {
@@ -122,6 +117,13 @@
           "productName": "[format('{0}/{1}', parameters('apimInstanceName'), variables('productsSet')[copyIndex()].productName)]"
         }
       }
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.126.58533",
+      "templateHash": "2704626513424145734"
     }
   }
 }

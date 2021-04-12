@@ -32,6 +32,10 @@
         "description": "101/api-management-create-with-msi"
     },
     {
+        "filePath": "101/api-management-modular/main.bicep",
+        "description": "101/api-management-modular"
+    },
+    {
         "filePath": "101/app-config/main.bicep",
         "description": "101/app-config"
     },
@@ -364,7 +368,6 @@
         "description": "201/portal-dashboard-with-appinsights"
     },
     {
-
         "filePath": "201/private-aks-cluster/main.bicep",
         "description": "201/private-aks-cluster"
     },
@@ -491,6 +494,10 @@
     {
         "filePath": "301/nested-vms-in-virtual-network/main.bicep",
         "description": "301/nested-vms-in-virtual-network"
+    },
+    {
+        "filePath": "301/publish-api-to-apim-opendocs/main.bicep",
+        "description": "301/publish-api-to-apim-opendocs"
     },
     {
         "filePath": "301/servicebus-namespace-vnet/main.bicep",
