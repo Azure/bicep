@@ -5,7 +5,7 @@
     "detail": "apiProperties",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ApiProperties`  \n  \n"
+      "value": "Type: `ApiProperties`  \n"
     },
     "deprecated": false,
     "preselect": false,

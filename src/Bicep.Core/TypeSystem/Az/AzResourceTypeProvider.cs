@@ -3,15 +3,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
-using Bicep.Core.Emit;
 using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.Az
 {
+
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
+        public static IResourceTypeProvider CreateWithAzTypes()
+            => CreateWithLoader(new AzResourceTypeLoader(), true);
+
+        public static IResourceTypeProvider CreateWithLoader(IResourceTypeLoader resourceTypeLoader, bool warnOnMissingType)
+            => new AzResourceTypeProvider(resourceTypeLoader, warnOnMissingType);
+
         private class ResourceTypeCache
         {
             private class KeyComparer : IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)>
@@ -47,10 +52,10 @@ namespace Bicep.Core.TypeSystem.Az
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
 
-        private readonly ITypeLoader typeLoader;
-        private readonly AzResourceTypeFactory resourceTypeFactory;
-        private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
+        private readonly IResourceTypeLoader resourceTypeLoader;
+        private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache loadedTypeCache;
+        private readonly bool warnOnMissingType;
 
         private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new []
         {
@@ -59,27 +64,12 @@ namespace Bicep.Core.TypeSystem.Az
             LanguageConstants.ResourceParentPropertyName,
         }.ToImmutableHashSet();
 
-        public AzResourceTypeProvider()
-            : this(new TypeLoader())
+        private AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, bool warnOnMissingType)
         {
-        }
-
-        private static IReadOnlyDictionary<ResourceTypeReference, TypeLocation> GetAvailableResourceTypes(ITypeLoader typeLoader)
-        {
-            var indexedTypes = typeLoader.GetIndexedTypes();
-
-            return indexedTypes.Types.ToDictionary(
-                kvp => ResourceTypeReference.Parse(kvp.Key),
-                kvp => kvp.Value,
-                ResourceTypeReferenceComparer.Instance);
-        }
-
-        public AzResourceTypeProvider(ITypeLoader typeLoader)
-        {
-            this.typeLoader = typeLoader;
-            this.resourceTypeFactory = new AzResourceTypeFactory();
-            this.availableResourceTypes = GetAvailableResourceTypes(typeLoader);
+            this.resourceTypeLoader = resourceTypeLoader;
+            this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet(ResourceTypeReferenceComparer.Instance);
             this.loadedTypeCache = new ResourceTypeCache();
+            this.warnOnMissingType = warnOnMissingType;
         }
 
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
@@ -91,10 +81,9 @@ namespace Bicep.Core.TypeSystem.Az
 
         private ResourceType GenerateResourceType(ResourceTypeReference typeReference)
         {
-            if (availableResourceTypes.TryGetValue(typeReference, out var typeLocation))
+            if (availableResourceTypes.Contains(typeReference))
             {
-                var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
-                return resourceTypeFactory.GetResourceType(serializedResourceType);
+                return this.resourceTypeLoader.LoadType(typeReference);
             }
 
             return new ResourceType(
@@ -103,7 +92,7 @@ namespace Bicep.Core.TypeSystem.Az
                 CreateGenericResourceBody(typeReference, p => true));
         }
 
-        public static ResourceType SetBicepResourceProperties(ResourceType resourceType, ResourceTypeGenerationFlags flags)
+        private static ResourceType SetBicepResourceProperties(ResourceType resourceType, ResourceTypeGenerationFlags flags)
         {
             var bodyType = resourceType.Body.Type;
 
@@ -247,9 +236,9 @@ namespace Bicep.Core.TypeSystem.Az
         }
 
         public bool HasType(ResourceTypeReference typeReference)
-            => availableResourceTypes.ContainsKey(typeReference);
+            => availableResourceTypes.Contains(typeReference) || !warnOnMissingType;
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
-            => availableResourceTypes.Keys;
+            => availableResourceTypes;
     }
 }
