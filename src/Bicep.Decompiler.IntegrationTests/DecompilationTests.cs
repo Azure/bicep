@@ -86,7 +86,7 @@ namespace Bicep.Core.IntegrationTests
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
-            var typeProvider = new AzResourceTypeProvider();
+            var typeProvider = AzResourceTypeProvider.CreateWithAzTypes();
 
             var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
 
@@ -142,7 +142,7 @@ namespace Bicep.Core.IntegrationTests
         {
             Action onDecompile = () => {
                 var fileResolver = ReadResourceFile(resourcePath);
-                TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(),fileResolver, new Uri($"file:///{resourcePath}"));
+                TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(),fileResolver, new Uri($"file:///{resourcePath}"));
             };
 
             onDecompile.Should().Throw<ConversionFailedException>().WithMessage(expectedMessage);
@@ -175,7 +175,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });;
 
-            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
+            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri);
 
             // this behavior is actually controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");
@@ -222,7 +222,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });
 
-            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
+            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri);
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = ({expectedValue})");
         }

@@ -435,7 +435,7 @@
         "name": "dnsZones",
         "count": "[length(range(0, 4))]"
       },
-      "type": "Microsoft.Network/dnsZones",
+      "type": "Microsoft.Network/dnszones",
       "apiVersion": "2018-05-01",
       "name": "[format('zone{0}', range(0, 4)[copyIndex()])]",
       "location": "global"
@@ -447,13 +447,13 @@
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
+      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
       "name": "[format('lock{0}', range(0, 2)[copyIndex()])]",
       "properties": {
         "level": "CanNotDelete"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]"
+        "[resourceId('Microsoft.Network/dnszones', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]"
       ]
     },
     {
@@ -463,25 +463,25 @@
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[copyIndex()]))]",
+      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[copyIndex()]))]",
       "name": "[format('another{0}', copyIndex())]",
       "properties": {
         "level": "ReadOnly"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[copyIndex()]))]"
+        "[resourceId('Microsoft.Network/dnszones', format('zone{0}', range(0, 4)[copyIndex()]))]"
       ]
     },
     {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[0]))]",
+      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[0]))]",
       "name": "single-lock",
       "properties": {
         "level": "ReadOnly"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[0]))]"
+        "[resourceId('Microsoft.Network/dnszones', format('zone{0}', range(0, 4)[0]))]"
       ]
     },
     {
