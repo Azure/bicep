@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "740545288034603176"
-    }
-  },
   "parameters": {
     "apimInstanceName": {
       "type": "string",
@@ -41,7 +34,8 @@
       "properties": {
         "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
         "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
-      }
+      },
+      "dependsOn": []
     }
   ],
   "outputs": {
@@ -50,10 +44,17 @@
       "copy": {
         "count": "[length(variables('groupsSet'))]",
         "input": {
-          "groupId": "[resourceId('Microsoft.ApiManagement/service/groups', split(format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName), '/')[0], split(format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName), '/')[1])]",
-          "groupName": "[format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]"
+          "groupId": "[resourceId('Microsoft.ApiManagement/service/groups', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]",
+          "groupName": "[variables('groupsSet')[copyIndex()].groupName]"
         }
       }
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.126.58533",
+      "templateHash": "15915156561859524306"
     }
   }
 }

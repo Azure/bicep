@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "10498410804815344853"
-    }
-  },
   "parameters": {
     "apimInstanceName": {
       "type": "string",
@@ -72,6 +65,11 @@
     }
   },
   "functions": [],
+  "variables": {
+    "deployGroups": true,
+    "deployUsers": true,
+    "deployNameValuePairs": true
+  },
   "resources": [
     {
       "type": "Microsoft.Insights/components",
@@ -118,9 +116,9 @@
     {
       "type": "Microsoft.ApiManagement/service/diagnostics",
       "apiVersion": "2020-06-01-preview",
-      "name": "[format('{0}/applicationinsights', parameters('apimInstanceName'))]",
+      "name": "[format('{0}/{1}', parameters('apimInstanceName'), 'applicationinsights')]",
       "properties": {
-        "loggerId": "[resourceId('Microsoft.ApiManagement/service/loggers', split(format('{0}/{1}', parameters('apimInstanceName'), parameters('appInsightsName')), '/')[0], split(format('{0}/{1}', parameters('apimInstanceName'), parameters('appInsightsName')), '/')[1])]",
+        "loggerId": "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('apimInstanceName'), parameters('appInsightsName'))]",
         "alwaysLog": "allErrors",
         "logClientIp": true,
         "sampling": {
@@ -130,10 +128,11 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))]",
-        "[resourceId('Microsoft.ApiManagement/service/loggers', split(format('{0}/{1}', parameters('apimInstanceName'), parameters('appInsightsName')), '/')[0], split(format('{0}/{1}', parameters('apimInstanceName'), parameters('appInsightsName')), '/')[1])]"
+        "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('apimInstanceName'), parameters('appInsightsName'))]"
       ]
     },
     {
+      "condition": "[variables('deployGroups')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "apimGroups",
@@ -150,13 +149,6 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "740545288034603176"
-            }
-          },
           "parameters": {
             "apimInstanceName": {
               "type": "string",
@@ -190,7 +182,8 @@
               "properties": {
                 "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
                 "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
-              }
+              },
+              "dependsOn": []
             }
           ],
           "outputs": {
@@ -199,8 +192,8 @@
               "copy": {
                 "count": "[length(variables('groupsSet'))]",
                 "input": {
-                  "groupId": "[resourceId('Microsoft.ApiManagement/service/groups', split(format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName), '/')[0], split(format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName), '/')[1])]",
-                  "groupName": "[format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]"
+                  "groupId": "[resourceId('Microsoft.ApiManagement/service/groups', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]",
+                  "groupName": "[variables('groupsSet')[copyIndex()].groupName]"
                 }
               }
             }
@@ -212,6 +205,7 @@
       ]
     },
     {
+      "condition": "[variables('deployUsers')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "apimUsers",
@@ -228,13 +222,6 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "12156850811244742809"
-            }
-          },
           "parameters": {
             "apimInstanceName": {
               "type": "string",
@@ -243,7 +230,7 @@
           },
           "functions": [],
           "variables": {
-            "usersDJSet": [
+            "usersSet": [
               {
                 "userId": "pvd",
                 "firstName": "Paul",
@@ -266,18 +253,19 @@
             {
               "copy": {
                 "name": "apimUser",
-                "count": "[length(variables('usersDJSet'))]"
+                "count": "[length(variables('usersSet'))]"
               },
               "type": "Microsoft.ApiManagement/service/users",
               "apiVersion": "2020-06-01-preview",
-              "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('usersDJSet')[copyIndex()].userId)]",
+              "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('usersSet')[copyIndex()].userId)]",
               "properties": {
-                "firstName": "[variables('usersDJSet')[copyIndex()].firstName]",
-                "lastName": "[variables('usersDJSet')[copyIndex()].lastName]",
-                "email": "[variables('usersDJSet')[copyIndex()].email]",
-                "state": "[variables('usersDJSet')[copyIndex()].state]",
-                "note": "[variables('usersDJSet')[copyIndex()].notes]"
-              }
+                "firstName": "[variables('usersSet')[copyIndex()].firstName]",
+                "lastName": "[variables('usersSet')[copyIndex()].lastName]",
+                "email": "[variables('usersSet')[copyIndex()].email]",
+                "state": "[variables('usersSet')[copyIndex()].state]",
+                "note": "[variables('usersSet')[copyIndex()].notes]"
+              },
+              "dependsOn": []
             }
           ]
         }
@@ -287,6 +275,7 @@
       ]
     },
     {
+      "condition": "[variables('deployNameValuePairs')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "apimNameValuePairs",
@@ -303,13 +292,6 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "13114755207936402063"
-            }
-          },
           "parameters": {
             "apimInstanceName": {
               "type": "string",
@@ -352,7 +334,8 @@
                 "secret": "[variables('apimNameValueSet')[copyIndex()].isSecret]",
                 "value": "[variables('apimNameValueSet')[copyIndex()].value]",
                 "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
-              }
+              },
+              "dependsOn": []
             }
           ],
           "outputs": {
@@ -361,8 +344,8 @@
               "copy": {
                 "count": "[length(variables('apimNameValueSet'))]",
                 "input": {
-                  "nameValueId": "[resourceId('Microsoft.ApiManagement/service/namedValues', split(format('{0}/{1}', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName), '/')[0], split(format('{0}/{1}', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName), '/')[1])]",
-                  "naameValueName": "[format('{0}/{1}', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName)]"
+                  "nameValueId": "[resourceId('Microsoft.ApiManagement/service/namedValues', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName)]",
+                  "nameValueName": "[variables('apimNameValueSet')[copyIndex()].displayName]"
                 }
               }
             }
@@ -382,6 +365,13 @@
     "apimURL": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))).portalUrl]"
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.126.58533",
+      "templateHash": "2071164394958481867"
     }
   }
 }

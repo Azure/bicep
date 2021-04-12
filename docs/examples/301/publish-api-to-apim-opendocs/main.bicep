@@ -32,36 +32,36 @@ param apiFormat string = 'swagger-link-json'
 //we maintain here a record of products to use. These products may / may not exists.
 var productsSet = [
   {
-    'productName': 'product1'
-    'displayName': 'Product 1'
-    'productDescription': 'Some description of this product'
-    'productTerms': 'Tems and conditions here for this product'
-    'isSubscriptionRequired': true
-    'isApprovalRequired': true
-    'subscriptionLimit': 1
-    'publishState': 'published' // may be 'notPublished'
+    productName: 'product1'
+    displayName: 'Product 1'
+    productDescription: 'Some description of this product'
+    productTerms: 'Tems and conditions here for this product'
+    isSubscriptionRequired: true
+    isApprovalRequired: true
+    subscriptionLimit: 1
+    publishState: 'published' // may be 'notPublished'
   }
   {
-    'productName': 'product2'
-    'displayName': 'Product 2'
-    'productDescription': 'Some description of this product'
-    'productTerms': 'Tems and conditions here for this product'
-    'isSubscriptionRequired': true
-    'isApprovalRequired': true
-    'subscriptionLimit': 1
-    'publishState': 'published' // may be 'notPublished'
+    productName: 'product2'
+    displayName: 'Product 2'
+    productDescription: 'Some description of this product'
+    productTerms: 'Tems and conditions here for this product'
+    isSubscriptionRequired: true
+    isApprovalRequired: true
+    subscriptionLimit: 1
+    publishState: 'published' // may be 'notPublished'
   }
 ]
 
 //we refer to exisitng APIM instance. This may even be in a different resoruce group
 resource apiManagementService 'Microsoft.ApiManagement/service@2020-12-01' existing = {
   name: apimInstanceName
-  scope: resourceGroup(apimRG) // this will target another resource group in the same subscription
 }
 
 //establish one or many products to an existing APIM instance
 resource ProductRecords 'Microsoft.ApiManagement/service/products@2020-12-01' = [for product in productsSet: {
-  name: '${apiManagementService.name}/${product.productName}'
+  parent: apiManagementService
+  name: product.productName
   properties: {
     displayName: product.displayName
     description: product.productDescription
@@ -85,10 +85,8 @@ resource functionAPI 'Microsoft.ApiManagement/service/apis@2020-12-01' = {
 
 //attach API to product(s)
 resource attachAPIToProducts 'Microsoft.ApiManagement/service/products/apis@2020-12-01' = [for (product, i) in productsSet: {
-  name: '${apiManagementService.name}/${product.productName}/${apiName}'
-  dependsOn: [
-    ProductRecords[i]
-  ]
+  parent: ProductRecords[i]
+  name: apiName
 }]
 
 output apimProducts array = [for (name, i) in productsSet: {

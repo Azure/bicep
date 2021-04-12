@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "13114755207936402063"
-    }
-  },
   "parameters": {
     "apimInstanceName": {
       "type": "string",
@@ -50,7 +43,8 @@
         "secret": "[variables('apimNameValueSet')[copyIndex()].isSecret]",
         "value": "[variables('apimNameValueSet')[copyIndex()].value]",
         "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
-      }
+      },
+      "dependsOn": []
     }
   ],
   "outputs": {
@@ -59,10 +53,17 @@
       "copy": {
         "count": "[length(variables('apimNameValueSet'))]",
         "input": {
-          "nameValueId": "[resourceId('Microsoft.ApiManagement/service/namedValues', split(format('{0}/{1}', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName), '/')[0], split(format('{0}/{1}', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName), '/')[1])]",
-          "naameValueName": "[format('{0}/{1}', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName)]"
+          "nameValueId": "[resourceId('Microsoft.ApiManagement/service/namedValues', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName)]",
+          "nameValueName": "[variables('apimNameValueSet')[copyIndex()].displayName]"
         }
       }
+    }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.126.58533",
+      "templateHash": "9013315187385624491"
     }
   }
 }

@@ -5,27 +5,32 @@
 @minLength(1)
 param apimInstanceName string
 
-var usersDJSet = [
+var usersSet = [
   {
-    'userId': 'pvd'
-    'firstName': 'Paul'
-    'lastName': 'Van Dyk'
-    'email': 'pvd@vonyc.de'
-    'state': 'active'
-    'notes': 'Good DJ'
+    userId: 'pvd'
+    firstName: 'Paul'
+    lastName: 'Van Dyk'
+    email: 'pvd@vonyc.de'
+    state: 'active'
+    notes: 'Good DJ'
   }
   {
-    'userId': 'abuuren'
-    'firstName': 'Armin'
-    'lastName': 'van Buuren'
-    'email': 'armin@armadamusic.com'
-    'state': 'active'
-    'notes': 'OK meh!'
+    userId: 'abuuren'
+    firstName: 'Armin'
+    lastName: 'van Buuren'
+    email: 'armin@armadamusic.com'
+    state: 'active'
+    notes: 'OK meh!'
   }
 ]
+//parent APIM instance
+resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
+  name: apimInstanceName
+}
 
-resource apimUser 'Microsoft.ApiManagement/service/users@2020-06-01-preview' = [for usr in usersDJSet: {
-  name: '${apimInstanceName}/${usr.userId}'
+resource apimUser 'Microsoft.ApiManagement/service/users@2020-06-01-preview' = [for usr in usersSet: {
+  parent: parentAPIM
+  name: '${usr.userId}'
   properties: {
     firstName: usr.firstName
     lastName: usr.lastName

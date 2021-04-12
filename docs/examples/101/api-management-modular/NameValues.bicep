@@ -7,27 +7,33 @@ param apimInstanceName string
 //Name-Value Pair records
 var apimNameValueSet = [
   {
-    'displayName': 'NameValue1'
-    'value': 'SomeValue1'
-    'tags': [
+    displayName: 'NameValue1'
+    value: 'SomeValue1'
+    tags: [
       'Example'
     ]
-    'isSecret': false
+    isSecret: false
   }
   {
-    'displayName': 'NameSecretValue'
-    'value': 'SomeSecretValue'
-    'tags': [
+    displayName: 'NameSecretValue'
+    value: 'SomeSecretValue'
+    tags: [
       'Example'
       'AnotherExampleTag'
     ]
-    'isSecret': true
+    isSecret: true
   }
 ]
 
+//parent APIM instance
+resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
+  name: apimInstanceName
+}
+
 //APIM name value pairs
 resource apiManagementNVPair 'Microsoft.ApiManagement/service/namedValues@2020-06-01-preview' = [for nv in apimNameValueSet: {
-  name: '${apimInstanceName}/${nv.displayName}'
+  parent: parentAPIM
+  name: '${nv.displayName}'
   properties: {
     displayName: nv.displayName
     secret: nv.isSecret
@@ -38,5 +44,5 @@ resource apiManagementNVPair 'Microsoft.ApiManagement/service/namedValues@2020-0
 
 output apimNameValues array = [for (nv, i) in apimNameValueSet: {
   nameValueId: apiManagementNVPair[i].id
-  naameValueName: apiManagementNVPair[i].name
+  nameValueName: apiManagementNVPair[i].name
 }]
