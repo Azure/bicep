@@ -103,23 +103,23 @@ resource apimInstanceDiagnostics 'Microsoft.ApiManagement/service/diagnostics@20
 //optional modules
 
 //Include Group modules
-module apimGroups './groups.bicep' = if (deployGroups)  {
-  params: { 
+module apimGroups './groups.bicep' = if (deployGroups) {
+  params: {
     apimInstanceName: apiManagement.name
   }
-  name:'apimGroups'
+  name: 'apimGroups'
 }
 
 //Include users modules
-module apimUsers './users.bicep' = if (deployUsers){
-  params: { 
+module apimUsers './users.bicep' = if (deployUsers) {
+  params: {
     apimInstanceName: apiManagement.name
   }
-  name:'apimUsers'
+  name: 'apimUsers'
 }
 
 //include Name value pair modules
-module apimNVPairs './NameValues.bicep' =if (deployNameValuePairs) {
+module apimNVPairs './NameValues.bicep' = if (deployNameValuePairs) {
   params: {
     apimInstanceName: apiManagement.name
   }
