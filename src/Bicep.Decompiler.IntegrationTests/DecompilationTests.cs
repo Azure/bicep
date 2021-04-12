@@ -52,7 +52,11 @@ namespace Bicep.Core.IntegrationTests
             const string pathPrefix = "Working/";
             const string bicepExtension = ".bicep";
 
-            foreach (var streamName in typeof(DecompilationTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal)))
+            // Only return files whose path segment length is 3 as entry files to avoid decompiling nested templates twice.
+            var entryStreamNames = typeof(DecompilationTests).Assembly.GetManifestResourceNames()
+                .Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal) && p.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length == 3);
+
+            foreach (var streamName in entryStreamNames)
             {
                 var extension = Path.GetExtension(streamName);
                 if (StringComparer.OrdinalIgnoreCase.Equals(extension, bicepExtension))

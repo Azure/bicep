@@ -7,10 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="./Working/**/*.json" />
-    <None Remove="./Working/**/*.bicep" />
-    <None Remove="./NonWorking/**/*.json" />
-    <None Remove="./NonWorking/**/*.bicep" />
+    <None Remove="./Working/**/*.*" />
+    <None Remove="./NonWorking/**/*.*" />
   </ItemGroup>
 
   <ItemGroup>
