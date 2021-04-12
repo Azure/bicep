@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12156850811244742809"
+    }
+  },
+  "parameters": {
+    "apimInstanceName": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "functions": [],
+  "variables": {
+    "usersDJSet": [
+      {
+        "userId": "pvd",
+        "firstName": "Paul",
+        "lastName": "Van Dyk",
+        "email": "pvd@vonyc.de",
+        "state": "active",
+        "notes": "Good DJ"
+      },
+      {
+        "userId": "abuuren",
+        "firstName": "Armin",
+        "lastName": "van Buuren",
+        "email": "armin@armadamusic.com",
+        "state": "active",
+        "notes": "OK meh!"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "apimUser",
+        "count": "[length(variables('usersDJSet'))]"
+      },
+      "type": "Microsoft.ApiManagement/service/users",
+      "apiVersion": "2020-06-01-preview",
+      "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('usersDJSet')[copyIndex()].userId)]",
+      "properties": {
+        "firstName": "[variables('usersDJSet')[copyIndex()].firstName]",
+        "lastName": "[variables('usersDJSet')[copyIndex()].lastName]",
+        "email": "[variables('usersDJSet')[copyIndex()].email]",
+        "state": "[variables('usersDJSet')[copyIndex()].state]",
+        "note": "[variables('usersDJSet')[copyIndex()].notes]"
+      }
+    }
+  ]
+}

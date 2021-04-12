@@ -43,7 +43,6 @@ param skuCount int = 1
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-
 resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
   name: appInsightsName
   location: location
@@ -102,22 +101,22 @@ resource apimInstanceName_diagnostics 'Microsoft.ApiManagement/service/diagnosti
 
 //Include Group modules
 module apimGroup './groups.bicep' = {
-  params: { 
+  params: {
     apimInstanceName: apiManagement.name
   }
-  name:'apimGroups'
-  dependsOn:[
+  name: 'apimGroups'
+  dependsOn: [
     apiManagement
   ]
 }
 
 //Include users modules
 module apimUsers './users.bicep' = {
-  params: { 
+  params: {
     apimInstanceName: apiManagement.name
   }
-  name:'apimUsers'
-  dependsOn:[
+  name: 'apimUsers'
+  dependsOn: [
     apiManagement
   ]
 }
@@ -128,7 +127,7 @@ module apimNVPairs './NameValues.bicep' = {
     apimInstanceName: apiManagement.name
   }
   name: 'apimNameValuePairs'
-  dependsOn:[
+  dependsOn: [
     apiManagement
   ]
 }

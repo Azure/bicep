@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "740545288034603176"
+    }
+  },
+  "parameters": {
+    "apimInstanceName": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "functions": [],
+  "variables": {
+    "groupsSet": [
+      {
+        "groupName": "APIMGroup1",
+        "groupDisplayName": "APIM Group 1",
+        "groupDescription": "Description for this group"
+      },
+      {
+        "groupName": "APIMGroup2",
+        "groupDisplayName": "APIM Group 2",
+        "groupDescription": "Description for this group"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "apimGroup",
+        "count": "[length(variables('groupsSet'))]"
+      },
+      "type": "Microsoft.ApiManagement/service/groups",
+      "apiVersion": "2020-06-01-preview",
+      "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]",
+      "properties": {
+        "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
+        "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
+      }
+    }
+  ],
+  "outputs": {
+    "apimGroups": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('groupsSet'))]",
+        "input": {
+          "groupId": "[resourceId('Microsoft.ApiManagement/service/groups', split(format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName), '/')[0], split(format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName), '/')[1])]",
+          "groupName": "[format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]"
+        }
+      }
+    }
+  }
+}
