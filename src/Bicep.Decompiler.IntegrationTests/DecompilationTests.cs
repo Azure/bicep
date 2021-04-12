@@ -240,7 +240,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });
 
-            Action sut = () => TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
+            Action sut = () => TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri);
 
             sut.Should().Throw<InvalidOperationException>()
                 .WithMessage("Cannot decompile the file with .bicep extension: file:///path/to/main.bicep.");
