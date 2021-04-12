@@ -14,6 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="./Working/**/*.arm" LogicalName="$([System.String]::new('Working/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./Working/**/*.jsonc" LogicalName="$([System.String]::new('Working/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
     <EmbeddedResource Include="./Working/**/*.json" LogicalName="$([System.String]::new('Working/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
     <EmbeddedResource Include="./Working/**/*.bicep" LogicalName="$([System.String]::new('Working/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
     <EmbeddedResource Include="./NonWorking/**/*.json" LogicalName="$([System.String]::new('NonWorking/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />

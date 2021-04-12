@@ -23,8 +23,7 @@ module module1Deploy 'nested/module1.bicep' = {
   }
 }
 
-module module2Deploy '?' /*TODO: replace with correct path to [variables('module2Url')]*/ = {
-//@[21:24) [BCP085 (Error)] The specified module path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". |'?'|
+module module2Deploy 'nested/module2.bicep' = {
   name: 'module2Deploy'
   params: {
     location: location

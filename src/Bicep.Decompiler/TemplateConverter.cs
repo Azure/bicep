@@ -678,7 +678,7 @@ namespace Bicep.Decompiler
                 ParseJToken(value.Value));
         }
 
-        private (SyntaxBase moduleFilePath, Uri? jsonTemplateUri) GetModuleFilePath(string templateLink)
+        private (SyntaxBase moduleFilePathStringLiteral, Uri? jsonTemplateUri) GetModuleFilePath(string templateLink)
         {
             StringSyntax createFakeModulePath(string templateLinkExpression)
                 => SyntaxFactory.CreateStringLiteralWithComment("?", $"TODO: replace with correct path to {templateLinkExpression}");
@@ -693,14 +693,25 @@ namespace Bicep.Decompiler
             }
 
             var nestedUri = fileResolver.TryResolveModulePath(fileUri, nestedRelativePath);
-            if (nestedUri == null || !fileResolver.TryRead(nestedUri, out _, out _))
+            if (nestedUri is null || !fileResolver.TryRead(nestedUri, out _, out _))
             {
                 // return the original expression so that the author can fix it up rather than failing
                 return (createFakeModulePath(templateLink), null);
             }
 
-            var filePath = Path.ChangeExtension(nestedRelativePath, "bicep").Replace("\\", "/");
-            return (SyntaxFactory.CreateStringLiteral(filePath), nestedUri);
+            var existIdenticalUrisWithDifferentExtensions = jsonTemplateUrisByModule.Values.Any(uri =>
+                uri != nestedUri && PathHelper.RemoveExtension(uri) == PathHelper.RemoveExtension(nestedUri));
+
+            /*
+             * If there exist another nested template with the same path and filename but a different extension,
+             * append ".bicep" to path of the current nested template to avoid the generate bicep files overwrite each other.
+             * Otherwise, change the extenstion of the nested template to ".bicep".
+             */
+            var moduleFilePath = (existIdenticalUrisWithDifferentExtensions
+                ? nestedRelativePath + ".bicep"
+                : Path.ChangeExtension(nestedRelativePath, ".bicep")).Replace("\\", "/");
+
+            return (SyntaxFactory.CreateStringLiteral(moduleFilePath), nestedUri);
         }
 
 
