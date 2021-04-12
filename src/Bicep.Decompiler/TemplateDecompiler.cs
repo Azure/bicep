@@ -54,7 +54,7 @@ namespace Bicep.Decompiler
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                var program = TemplateConverter.DecompileTemplate(workspace, fileResolver, jsonUri, jsonInput);
+                var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, jsonUri, jsonInput);
                 var syntaxTree = new SyntaxTree(bicepUri, ImmutableArray<int>.Empty, program);
                 workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
 
@@ -69,9 +69,9 @@ namespace Bicep.Decompiler
                         continue;
                     }
 
-                    if (!workspace.TryGetSyntaxTree(moduleUri, out _) && module.TemplateUri is not null)
+                    if (!workspace.TryGetSyntaxTree(moduleUri, out _) && jsonTemplateUrisByModule.TryGetValue(module, out var jsonTemplateUri))
                     {
-                        decompileQueue.Enqueue(module.TemplateUri);
+                        decompileQueue.Enqueue(jsonTemplateUri);
                     }
                 }
             }

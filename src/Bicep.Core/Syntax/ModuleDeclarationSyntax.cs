@@ -13,7 +13,7 @@ namespace Bicep.Core.Syntax
 {
     public class ModuleDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase value, Uri? templateUri = null)
+        public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase value)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
@@ -29,7 +29,6 @@ namespace Bicep.Core.Syntax
             this.Path = path;
             this.Assignment = assignment;
             this.Value = value;
-            this.TemplateUri = templateUri;
         }
 
         public Token Keyword { get; }
@@ -41,11 +40,6 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Assignment { get; }
         
         public SyntaxBase Value { get; }
-
-        /// <summary>
-        /// The URI of the JSON template from which the module will be converted. This is only used in the decompiler.
-        /// </summary>
-        public Uri? TemplateUri { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 

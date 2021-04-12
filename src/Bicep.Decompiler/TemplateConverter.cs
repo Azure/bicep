@@ -31,25 +31,36 @@ namespace Bicep.Decompiler
         private readonly IFileResolver fileResolver;
         private readonly Uri fileUri;
         private readonly JObject template;
+        private readonly Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule;
 
-        private TemplateConverter(Workspace workspace, IFileResolver fileResolver, Uri fileUri, JObject template)
+        private TemplateConverter(Workspace workspace, IFileResolver fileResolver, Uri fileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule)
         {
             this.workspace = workspace;
             this.fileResolver = fileResolver;
             this.fileUri = fileUri;
             this.template = template;
             this.nameResolver = new UniqueNamingResolver();
+            this.jsonTemplateUrisByModule = jsonTemplateUrisByModule;
         }
 
-        public static ProgramSyntax DecompileTemplate(Workspace workspace, IFileResolver fileResolver, Uri fileUri, string content)
+        public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule) DecompileTemplate(
+            Workspace workspace,
+            IFileResolver fileResolver,
+            Uri fileUri,
+            string content)
         {
-            var instance = new TemplateConverter(workspace, fileResolver, fileUri, JObject.Parse(content, new JsonLoadSettings
-            {
-                CommentHandling = CommentHandling.Ignore,
-                LineInfoHandling = LineInfoHandling.Load,
-            }));
+            var instance = new TemplateConverter(
+                workspace,
+                fileResolver,
+                fileUri,
+                JObject.Parse(content, new JsonLoadSettings
+                {
+                    CommentHandling = CommentHandling.Ignore,
+                    LineInfoHandling = LineInfoHandling.Load,
+                }),
+                new());
 
-            return instance.Parse();
+            return (instance.Parse(), instance.jsonTemplateUrisByModule);
         }
 
         private void RegisterNames(IEnumerable<JProperty> parameters, IEnumerable<JToken> resources, IEnumerable<JProperty> variables, IEnumerable<JProperty> outputs)
@@ -159,7 +170,8 @@ namespace Bicep.Decompiler
             => value is null ? null : ParseJToken(value);
 
         private SyntaxBase ParseJToken(JToken? value)
-            => value switch {
+            => value switch
+            {
                 JObject jObject => ParseJObject(jObject),
                 JArray jArray => ParseJArray(jArray),
                 JValue jValue => ParseJValue(jValue),
@@ -172,7 +184,7 @@ namespace Bicep.Decompiler
             {
                 JTokenType.String => SyntaxFactory.CreateStringLiteral(expression.Value.Value<string>()!),
                 JTokenType.Integer => new IntegerLiteralSyntax(SyntaxFactory.CreateToken(TokenType.Integer, expression.Value.ToString()), expression.Value.Value<long>()),
-                JTokenType.Boolean =>  expression.Value.Value<bool>() ?
+                JTokenType.Boolean => expression.Value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
                     new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
                 JTokenType.Null => new NullLiteralSyntax(SyntaxFactory.NullKeywordToken),
@@ -268,7 +280,7 @@ namespace Bicep.Decompiler
                         SyntaxFactory.QuestionToken,
                         ParseLanguageExpression(expression.Parameters[1]),
                         SyntaxFactory.ColonToken,
-                        ParseLanguageExpression(expression.Parameters[2])),                        
+                        ParseLanguageExpression(expression.Parameters[2])),
                     SyntaxFactory.RightParenToken);
                 return true;
             }
@@ -342,7 +354,7 @@ namespace Bicep.Decompiler
             {
                 return null;
             }
-            
+
             return new StringSyntax(stringTokens, expressions, rawSegments);
         }
 
@@ -370,7 +382,7 @@ namespace Bicep.Decompiler
                     return true;
                 }
             }
-            
+
             return false;
         }
 
@@ -409,7 +421,7 @@ namespace Bicep.Decompiler
                     {
                         // resourceid directly inside a reference - check if it's a reference to a known resource
                         var resourceName = TryLookupResource(resourceIdExpression);
-                        
+
                         if (resourceName != null)
                         {
                             baseSyntax = new PropertyAccessSyntax(
@@ -511,7 +523,7 @@ namespace Bicep.Decompiler
 
                 return ParseLanguageExpression(expression);
             }
-            
+
             return SyntaxFactory.CreateStringLiteral(value);
         }
 
@@ -522,13 +534,14 @@ namespace Bicep.Decompiler
         }
 
         private SyntaxBase ParseJValue(JValue value)
-            => value.Type switch {
+            => value.Type switch
+            {
                 JTokenType.String => ParseString(value.ToString()),
                 JTokenType.Uri => ParseString(value.ToString()),
                 JTokenType.Integer => ParseIntegerJToken(value),
                 JTokenType.Date => ParseString(value.ToString()),
                 JTokenType.Float => ParseString(value.ToString()),
-                JTokenType.Boolean =>  value.Value<bool>() ?
+                JTokenType.Boolean => value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
                     new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
                 JTokenType.Null => new NullLiteralSyntax(SyntaxFactory.NullKeywordToken),
@@ -578,7 +591,7 @@ namespace Bicep.Decompiler
                     {
                         keySyntax = SyntaxFactory.CreateInterpolatedKey(keySyntax);
                     }
-                    
+
                     var objectProperty = new ObjectPropertySyntax(keySyntax, SyntaxFactory.ColonToken, ParseJToken(value));
                     properties.Add(objectProperty);
                 }
@@ -665,7 +678,7 @@ namespace Bicep.Decompiler
                 ParseJToken(value.Value));
         }
 
-        private (SyntaxBase moduleFilePath, Uri? templateUri) GetModuleFilePath(string templateLink)
+        private (SyntaxBase moduleFilePath, Uri? jsonTemplateUri) GetModuleFilePath(string templateLink)
         {
             StringSyntax createFakeModulePath(string templateLinkExpression)
                 => SyntaxFactory.CreateStringLiteralWithComment("?", $"TODO: replace with correct path to {templateLinkExpression}");
@@ -678,7 +691,7 @@ namespace Bicep.Decompiler
                 // return the original expression so that the author can fix it up rather than failing
                 return (createFakeModulePath(templateLink), null);
             }
-            
+
             var nestedUri = fileResolver.TryResolveModulePath(fileUri, nestedRelativePath);
             if (nestedUri == null || !fileResolver.TryRead(nestedUri, out _, out _))
             {
@@ -697,13 +710,15 @@ namespace Bicep.Decompiler
         public ForSyntax ProcessUnnamedCopySyntax<TToken>(TToken input, string indexIdentifier, Func<TToken, SyntaxBase> getSyntaxForInputFunc, JToken count)
             where TToken : JToken
         {
-            return PerformScopedAction(() => {
-                input = ExpressionHelpers.ReplaceFunctionExpressions(input, function => {
+            return PerformScopedAction(() =>
+            {
+                input = ExpressionHelpers.ReplaceFunctionExpressions(input, function =>
+                {
                     if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
                     {
                         return;
                     }
-    
+
                     if (function.Parameters.Length == 0)
                     {
                         // copyIndex() - replace with '<index>'
@@ -734,7 +749,7 @@ namespace Bicep.Decompiler
                 });
 
                 return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), getSyntaxForInputFunc(input));
-            }, new [] { indexIdentifier });
+            }, new[] { indexIdentifier });
         }
 
         /// <summary>
@@ -743,8 +758,10 @@ namespace Bicep.Decompiler
         public ForSyntax ProcessNamedCopySyntax<TToken>(TToken input, string indexIdentifier, Func<TToken, SyntaxBase> getSyntaxForInputFunc, JToken count, string name)
             where TToken : JToken
         {
-            return PerformScopedAction(() => {
-                input = ExpressionHelpers.ReplaceFunctionExpressions(input, function => {
+            return PerformScopedAction(() =>
+            {
+                input = ExpressionHelpers.ReplaceFunctionExpressions(input, function =>
+                {
                     if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
                     {
                         return;
@@ -780,7 +797,7 @@ namespace Bicep.Decompiler
                 });
 
                 return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), getSyntaxForInputFunc(input));
-            }, new [] { indexIdentifier });
+            }, new[] { indexIdentifier });
         }
 
         private (SyntaxBase body, IEnumerable<SyntaxBase> decorators) ProcessResourceCopy(JObject resource, Func<JObject, SyntaxBase> resourceBodyFunc)
@@ -799,7 +816,7 @@ namespace Bicep.Decompiler
 
             var decoratorAndNewLines = new List<SyntaxBase>();
 
-            if(IsSerialMode(TemplateHelpers.GetProperty(copyProperty, "mode")?.Value, resource))
+            if (IsSerialMode(TemplateHelpers.GetProperty(copyProperty, "mode")?.Value, resource))
             {
                 var batchSize = ParseBatchSize(TemplateHelpers.GetProperty(copyProperty, "batchSize")?.Value, resource);
                 decoratorAndNewLines.Add(SyntaxFactory.CreateDecorator("batchSize", batchSize));
@@ -811,13 +828,13 @@ namespace Bicep.Decompiler
 
         private static IntegerLiteralSyntax ParseBatchSize(JToken? batchSize, JObject resource)
         {
-            if(batchSize is null)
+            if (batchSize is null)
             {
                 // default batch size is 1
                 return SyntaxFactory.CreateIntegerLiteral(1);
             }
 
-            if(batchSize is not JValue value || batchSize.Type != JTokenType.Integer)
+            if (batchSize is not JValue value || batchSize.Type != JTokenType.Integer)
             {
                 throw new ConversionFailedException("Expected the value of the \"batchSize\" property to be an integer.", resource);
             }
@@ -842,12 +859,12 @@ namespace Bicep.Decompiler
             }
 
             var value = mode.ToString();
-            
+
             if (string.Equals(value, Serial, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
-                        
+
             if (string.Equals(value, Parallel, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
@@ -918,7 +935,7 @@ namespace Bicep.Decompiler
                     syntaxEntry = ParseJToken(entry);
                 }
 
-                
+
                 syntaxItems.Add(syntaxEntry);
             }
 
@@ -945,7 +962,7 @@ namespace Bicep.Decompiler
 
         private SyntaxBase ParseModule(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource, string typeString, string nameString)
         {
-            var expectedProps = new HashSet<string>(new [] {
+            var expectedProps = new HashSet<string>(new[] {
                 "name",
                 "type",
                 "apiVersion",
@@ -955,7 +972,7 @@ namespace Bicep.Decompiler
                 "comments",
             }, StringComparer.OrdinalIgnoreCase);
 
-            var propsToOmit = new HashSet<string>(new [] {
+            var propsToOmit = new HashSet<string>(new[] {
                 "condition",
                 "copy",
                 "resourceGroup",
@@ -980,7 +997,7 @@ namespace Bicep.Decompiler
             var value = ProcessCondition(resource, body);
 
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
-            
+
             var nestedTemplate = TemplateHelpers.GetNestedProperty(resource, "properties", "template");
             if (nestedTemplate is not null)
             {
@@ -994,7 +1011,7 @@ namespace Bicep.Decompiler
                 {
                     throw new ConversionFailedException($"Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information {typeString} {nameString}", nestedTemplate);
                 }
-            
+
                 var filePath = $"./nested_{identifier}.bicep";
                 var nestedModuleUri = fileResolver.TryResolveModulePath(fileUri, filePath) ?? throw new ConversionFailedException($"Unable to module uri for {typeString} {nameString}", nestedTemplate);
                 if (workspace.TryGetSyntaxTree(nestedModuleUri, out _))
@@ -1002,7 +1019,7 @@ namespace Bicep.Decompiler
                     throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
                 }
 
-                var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject);
+                var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule);
                 var nestedSyntaxTree = new SyntaxTree(nestedModuleUri, ImmutableArray<int>.Empty, nestedConverter.Parse());
                 workspace.UpsertSyntaxTrees(nestedSyntaxTree.AsEnumerable());
 
@@ -1023,20 +1040,25 @@ namespace Bicep.Decompiler
                 throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
             }
 
-            /*
-             * We need to save templateUri to the module declaration because it may not necessarily end with .json extension.
-             * When decompiling the module, templateUri will be used to load the JSON template file.
-             */
-            var (modulePath, templateUri) = GetModuleFilePath(templatePathString);
-
-            return new ModuleDeclarationSyntax(
+            var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
+            var module = new ModuleDeclarationSyntax(
                 decorators,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 modulePath,
                 SyntaxFactory.AssignmentToken,
-                value,
-                templateUri);
+                value);
+
+            /*
+             * We need to save jsonTemplateUri because it may not necessarily end with .json extension.
+             * When decompiling the module, jsonTemplateUri will be used to load the JSON template file.
+             */
+            if (jsonTemplateUri is not null)
+            {
+                this.jsonTemplateUrisByModule[module] = jsonTemplateUri;
+            }
+
+            return module;
         }
 
         private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource, string nameString)
@@ -1083,7 +1105,7 @@ namespace Bicep.Decompiler
 
             if (TryParseStringExpression(scopeExpression) is SyntaxBase parsedSyntax)
             {
-                return parsedSyntax;                    
+                return parsedSyntax;
             }
 
             throw new ConversionFailedException($"Parsing failed for property value {scopeProperty}", scopeProperty);
@@ -1100,7 +1122,7 @@ namespace Bicep.Decompiler
             {
                 return ParseModule(copyResourceLookup, resource, typeString, nameString);
             }
-            
+
             var (body, decorators) = ProcessResourceCopy(resource, x => ProcessResourceBody(copyResourceLookup, x));
             var value = ProcessCondition(resource, body);
 
@@ -1327,7 +1349,7 @@ namespace Bicep.Decompiler
             AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
             return new ProgramSyntax(
-                statements.SelectMany(x => new [] { x, SyntaxFactory.NewlineToken}),
+                statements.SelectMany(x => new[] { x, SyntaxFactory.NewlineToken }),
                 SyntaxFactory.CreateToken(TokenType.EndOfFile, ""),
                 Enumerable.Empty<Diagnostic>()
             );
