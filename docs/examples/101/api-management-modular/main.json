@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15865901353726008853"
+    }
+  },
   "parameters": {
     "apimInstanceName": {
       "type": "string",
@@ -149,6 +156,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "269945473018568666"
+            }
+          },
           "parameters": {
             "apimInstanceName": {
               "type": "string",
@@ -182,8 +196,7 @@
               "properties": {
                 "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
                 "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
-              },
-              "dependsOn": []
+              }
             }
           ],
           "outputs": {
@@ -222,6 +235,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6264722847644916500"
+            }
+          },
           "parameters": {
             "apimInstanceName": {
               "type": "string",
@@ -264,8 +284,7 @@
                 "email": "[variables('usersSet')[copyIndex()].email]",
                 "state": "[variables('usersSet')[copyIndex()].state]",
                 "note": "[variables('usersSet')[copyIndex()].notes]"
-              },
-              "dependsOn": []
+              }
             }
           ]
         }
@@ -292,6 +311,13 @@
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "889242633662542516"
+            }
+          },
           "parameters": {
             "apimInstanceName": {
               "type": "string",
@@ -334,8 +360,7 @@
                 "secret": "[variables('apimNameValueSet')[copyIndex()].isSecret]",
                 "value": "[variables('apimNameValueSet')[copyIndex()].value]",
                 "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
-              },
-              "dependsOn": []
+              }
             }
           ],
           "outputs": {
@@ -365,13 +390,6 @@
     "apimURL": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))).portalUrl]"
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "2071164394958481867"
     }
   }
 }

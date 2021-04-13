@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "269945473018568666"
+    }
+  },
   "parameters": {
     "apimInstanceName": {
       "type": "string",
@@ -34,8 +41,7 @@
       "properties": {
         "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
         "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
-      },
-      "dependsOn": []
+      }
     }
   ],
   "outputs": {
@@ -48,13 +54,6 @@
           "groupName": "[variables('groupsSet')[copyIndex()].groupName]"
         }
       }
-    }
-  },
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "15915156561859524306"
     }
   }
 }
