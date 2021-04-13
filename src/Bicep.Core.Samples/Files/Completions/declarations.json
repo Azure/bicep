@@ -407,7 +407,7 @@
     "detail": "Logic App Connector",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: 'logicAppConnector'\n  location: resourceGroup().location\n  properties: {\n    name: 'logicAppConnector'\n    apiDefinitionUrl: '${subscription().id}/providers/Microsoft.Web/locations/${resourceGroup().location}/managedApis/logicAppConnectorApi'\n  }\n}\n```"
+      "value": "```bicep\nresource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: 'logicAppConnector'\n  location: resourceGroup().location\n  properties: {\n    name: 'logicAppConnector'\n    apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'logicAppConnectorApi')\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -416,7 +416,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: '${1:logicAppConnector}'\n  location: resourceGroup().location\n  properties: {\n    name: '${1:logicAppConnector}'\n    apiDefinitionUrl: '${subscription().id}/providers/Microsoft.Web/locations/${resourceGroup().location}/managedApis/${2:logicAppConnectorApi}'\n  }\n}"
+      "newText": "resource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: '${1:logicAppConnector}'\n  location: resourceGroup().location\n  properties: {\n    name: '${1:logicAppConnector}'\n    apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, '${2:logicAppConnectorApi}')\n  }\n}"
     }
   },
   {

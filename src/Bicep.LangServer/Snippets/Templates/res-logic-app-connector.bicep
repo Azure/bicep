@@ -4,6 +4,6 @@ resource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {
   location: resourceGroup().location
   properties: {
     name: '${1:logicAppConnector}'
-    apiDefinitionUrl: '${subscription().id}/providers/Microsoft.Web/locations/${resourceGroup().location}/managedApis/${2:logicAppConnectorApi}'
+    apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, '${2:logicAppConnectorApi}')
   }
 }
