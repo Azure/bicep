@@ -134,6 +134,8 @@ If you'd like to contribute to the collection of snippets:
 
 * Add a file named diagnostics.json - this should contain information about expected errors. There should not be any for new contributions, this is used for things like deprecated features.
   * E.g. [`res-aks-cluster/diagnostics.json`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/diagnostics.json)
+  
+* Run `dotnet test` to ensure all tests pass
 
 * Submit a PR for review
 
