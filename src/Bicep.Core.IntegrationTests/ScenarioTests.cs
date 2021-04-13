@@ -1543,5 +1543,26 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
             result.Should().NotHaveDiagnostics();
             result.Template.Should().NotBeNull();
         }
+
+        [TestMethod]
+        public void Test_Issue1883()
+        {
+            var result = CompilationHelper.Compile(@"
+resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
+  name: 'myVM'
+  location: 'westus'
+  
+  resource vmExt 'extensions' = {
+    name: 'myVMExtension'
+    location: vm.location
+  }
+}
+
+output vmExtName string = vm::vmExt.name
+");
+
+            result.Should().NotHaveDiagnostics();
+            result.Template.Should().NotBeNull();
+        }
     }
 }
