@@ -127,7 +127,7 @@ If you'd like to contribute to the collection of snippets:
   * The folder name should match the snippet label/prefix.
 
 * Add a file named main.bicep
-  * This should include information about placeholder replacements. The test will replace the snippet placeholders and ensure there are no errors.
+  * The test will read this input file for snippet completions. It will take the replacement values listed in this file, replace them with their corresponding placeholder, then ensure Bicep reports no warnings or errors.
 
   * E.g. [`res-aks-cluster/main.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.bicep)
 
