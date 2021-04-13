@@ -132,7 +132,7 @@ If you'd like to contribute to the collection of snippets:
 
   * E.g. [`res-aks-cluster/main.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.bicep)
 
-* Add a file named diagnostics.json - this should contain information about expected errors. There should not be any for new contributions, this is used for things like deprecated features.
+* Add a file named diagnostics.json with empty brackets `[]`.
   * E.g. [`res-aks-cluster/diagnostics.json`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/diagnostics.json)
   
 * Run `dotnet test` to ensure all tests pass
