@@ -1,5 +1,5 @@
 ﻿// Kubernetes Service Cluster
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
   name: '${1:aksCluster}'
   location: resourceGroup().location
   properties: {
