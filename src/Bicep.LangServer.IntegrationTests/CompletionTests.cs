@@ -118,7 +118,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     options.OnPublishDiagnostics(diags => diagnosticsListener.AddMessage(diags));
                 },
-                resourceTypeProvider: new AzResourceTypeProvider(),
+                resourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes(),
                 fileResolver: new InMemoryFileResolver(fileSystemDict));
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
@@ -297,7 +297,7 @@ output string test2 = testRes.properties.|
             var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var completions = await RequestCompletions(client, syntaxTree, cursors);
-            
+
             completions.Should().SatisfyRespectively(
                 x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
                     d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
