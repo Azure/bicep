@@ -136,7 +136,7 @@ If you'd like to contribute to the collection of snippets:
 
 * Submit a PR for review
 
-More info on snippet syntax: <https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax>
+[More info on snippet syntax](https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax)
 
 ## Feature Suggestions
 
