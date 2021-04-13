@@ -117,7 +117,7 @@ If you'd like to contribute example `.bicep` files that showcase abilities of th
 
 If you'd like to contribute to the collection of snippets:  
 
-* A snippet should be a single, generic, resource. Ensure your snippet meets this criteria.
+* A snippet should be a single, generic resource. Ensure your snippet meets this criteria.
 * Add a Bicep file to [`./src/Bicep.LangServer/Snippets/Templates`](./src/Bicep.LangServer/Snippets/Templates) using the naming convention res-RESOURCENAME.bicep
   * The file name without extension will be used as the label.
   * A single line comment at the top of the file will be used as the description.
