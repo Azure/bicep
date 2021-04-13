@@ -101,7 +101,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                 sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                     TestContext,
-                    File.Exists(combinedFileName) ? (await File.ReadAllTextAsync(combinedFileName)) : "",
+                    File.Exists(combinedFileName) ? (await File.ReadAllTextAsync(combinedFileName)) : string.Empty,
                     expectedLocation: combinedSourceFileName,
                     actualLocation: combinedFileName + ".actual");
             }
