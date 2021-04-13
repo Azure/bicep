@@ -366,5 +366,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))).portalUrl]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2071164394958481867"
+    }
   }
 }

@@ -75,7 +75,8 @@ resource ProductRecords 'Microsoft.ApiManagement/service/products@2020-12-01' = 
 
 //publish the API endpint to APIM
 resource functionAPI 'Microsoft.ApiManagement/service/apis@2020-12-01' = {
-  name: '${apiManagementService.name}/${apiName}'
+  parent: apiManagementService
+  name: apiName
   properties: {
     format: apiFormat
     value: apiEndPointURL

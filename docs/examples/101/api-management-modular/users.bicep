@@ -30,7 +30,7 @@ resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
 
 resource apimUser 'Microsoft.ApiManagement/service/users@2020-06-01-preview' = [for usr in usersSet: {
   parent: parentAPIM
-  name: '${usr.userId}'
+  name: usr.userId
   properties: {
     firstName: usr.firstName
     lastName: usr.lastName

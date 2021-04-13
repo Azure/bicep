@@ -33,7 +33,7 @@ resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
 //APIM name value pairs
 resource apiManagementNVPair 'Microsoft.ApiManagement/service/namedValues@2020-06-01-preview' = [for nv in apimNameValueSet: {
   parent: parentAPIM
-  name: '${nv.displayName}'
+  name: nv.displayName
   properties: {
     displayName: nv.displayName
     secret: nv.isSecret

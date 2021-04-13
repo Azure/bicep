@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "apimInstanceName": {
-            "value": "PGA-existingAPIM-Instance-name"
+            "value": "PG-existingAPIM-Instance-name"
         },
         "apimRG": {
             "value": "APIM-ResourceGroupName"

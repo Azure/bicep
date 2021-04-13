@@ -46,5 +46,12 @@
       },
       "dependsOn": []
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "18329290144220610086"
+    }
+  }
 }

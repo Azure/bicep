@@ -58,5 +58,12 @@
         }
       }
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9013315187385624491"
+    }
   }
 }

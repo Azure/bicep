@@ -25,7 +25,7 @@ resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
 //APIM Groups
 resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = [for grp in groupsSet: {
   parent: parentAPIM
-  name: '${grp.groupName}'
+  name: grp.groupName
   properties: {
     displayName: grp.groupDisplayName
     description: grp.groupDescription
