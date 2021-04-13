@@ -126,7 +126,7 @@ If you'd like to contribute to the collection of snippets:
 * Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates)
   * The folder name should match the snippet label/prefix.
 
-* Add a file named main.json
+* Add a file named main.bicep
   * This should include information about placeholder replacements. The test will replace the snippet placeholders and ensure there are no errors.
 
   * E.g. [`res-aks-cluster/main.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.bicep)
