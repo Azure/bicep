@@ -121,7 +121,7 @@ If you'd like to contribute to the collection of snippets:
   * The file name without extension will be used as the label.
   * A single line comment at the top of the file will be used as the description.
   * E.g. [`res-aks-cluster.bicep`](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep) results in the following label and description:
- ![image](https://user-images.githubusercontent.com/6855361/114454607-69617780-9ba0-11eb-80b0-1f9f2d76ae6c.png)
+ ![](./docs/images/snippet-template.png)
 
 * Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates)
   * The folder name should match the snippet label/prefix.
