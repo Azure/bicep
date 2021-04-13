@@ -128,6 +128,9 @@ If you'd like to contribute to the collection of snippets:
   * A single line comment at the top of the file will be used as the description.
   * E.g. [`res-aks-cluster.bicep`](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep) results in the following label and description:
  ![](./docs/images/snippet-template.png)
+  * Add the Bicep resource declaration.
+  * Add placeholders for tab stops with values using `${1:foo}`. The placeholder text will be inserted and selected such that it can be easily changed.
+  * To add a multi-choice placeholder, the syntax is a comma separated enumeration of values, enclosed with the pipe-character, for example `${1|one,two,three|}`. When the snippet is inserted and the placeholder selected, choices will prompt the user to pick one of the values. [More info on snippet syntax](https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax)
 
 * Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates)
   * The folder name should match the snippet label/prefix.
@@ -143,8 +146,6 @@ If you'd like to contribute to the collection of snippets:
 * See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR, and [Updating test baselines](#updating-test-baselines) for information on how to automatically update your snippet files to match the format expected by the tests.
 
 * Submit a PR for review
-
-[More info on snippet syntax](https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax)
 
 ## Feature Suggestions
 
