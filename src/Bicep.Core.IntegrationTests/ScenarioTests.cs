@@ -1030,31 +1030,31 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
-                    ResourceTypeProviderHelper.CreateObjectType(
+                    TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
                         ("name", LanguageConstants.String))),
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
-                    ResourceTypeProviderHelper.CreateDiscriminatedObjectType(
+                    TestTypeHelper.CreateDiscriminatedObjectType(
                         "Rp.A/parent/child@2020-10-01",
                         "name",
-                        ResourceTypeProviderHelper.CreateObjectType(
+                        TestTypeHelper.CreateObjectType(
                             "Val1Type",
                             ("name", new StringLiteralType("val1")),
-                            ("properties", ResourceTypeProviderHelper.CreateObjectType(
+                            ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnVal1", LanguageConstants.Bool)))),
-                        ResourceTypeProviderHelper.CreateObjectType(
+                        TestTypeHelper.CreateObjectType(
                             "Val2Type",
                             ("name", new StringLiteralType("val2")),
-                            ("properties", ResourceTypeProviderHelper.CreateObjectType(
+                            ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnVal2", LanguageConstants.Bool)))))),
             };
 
             var result = CompilationHelper.Compile(
-                ResourceTypeProviderHelper.CreateMockTypeProvider(customTypes),
+                TestTypeHelper.CreateProviderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1092,7 +1092,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             result.Should().NotHaveDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
-                ResourceTypeProviderHelper.CreateMockTypeProvider(customTypes),
+                TestTypeHelper.CreateProviderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1128,22 +1128,22 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
-                    ResourceTypeProviderHelper.CreateObjectType(
+                    TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
                         ("name", LanguageConstants.String))),
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
-                    ResourceTypeProviderHelper.CreateObjectType(
+                    TestTypeHelper.CreateObjectType(
                         "Rp.A/parent/child@2020-10-01",
                         ("name", UnionType.Create(new StringLiteralType("val1"), new StringLiteralType("val2"))),
-                            ("properties", ResourceTypeProviderHelper.CreateObjectType(
+                            ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnEnum", LanguageConstants.Bool))))),
             };
 
             var result = CompilationHelper.Compile(
-                ResourceTypeProviderHelper.CreateMockTypeProvider(customTypes),
+                TestTypeHelper.CreateProviderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1181,7 +1181,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             result.Should().NotHaveDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
-                ResourceTypeProviderHelper.CreateMockTypeProvider(customTypes),
+                TestTypeHelper.CreateProviderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'

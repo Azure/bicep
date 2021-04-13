@@ -48,7 +48,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().Should().BeEmpty();
@@ -86,7 +86,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
 
             // The property "resource" is not allowed ...
@@ -144,7 +144,7 @@ output fromChild string = parent::child.properties.style
 output fromGrandchild string = parent::child::grandchild.properties.style
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().Should().BeEmpty();
@@ -204,7 +204,7 @@ output fromChildInvalid string = parent::child2.properties.style
 output fromGrandchildInvalid string = parent::child::cousin.properties.temperature
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().Should().HaveDiagnostics(new []{
@@ -239,7 +239,7 @@ resource other 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"child\" does not exist in the current context."),
@@ -264,7 +264,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
@@ -289,7 +289,7 @@ resource parent 'My.RP/parentType@invalid-version' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
                 ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\"."),
@@ -321,7 +321,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
@@ -348,7 +348,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"child\" -> \"parent\")."),
             });
@@ -379,7 +379,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"grandchild\" does not exist in the current context."),
             });
@@ -408,7 +408,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().Should().BeEmpty();
 
@@ -457,7 +457,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().Should().BeEmpty();
 
@@ -556,7 +556,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 output hmmmm string = parent::child.properties
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
 
             var output = model.Root.OutputDeclarations.Single();
@@ -574,7 +574,7 @@ resource broken 'Microsoft.Network/virtualNetworks@2020-06-01' =
 output foo string = broken::fake
 ";
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP118", DiagnosticLevel.Error, "Expected the \"{\" character, the \"[\" character, or the \"if\" keyword at this location."),

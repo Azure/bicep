@@ -76,7 +76,7 @@ param inputb string
 ",
             };
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
             var diagnosticsByFile = compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
 
@@ -156,7 +156,7 @@ param inputb string
 ",
             };
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
             var diagnosticsByFile = compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
 

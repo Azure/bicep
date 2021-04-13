@@ -15,6 +15,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -37,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class CompletionTests
     {
-        public static readonly AzResourceTypeProvider TypeProvider = new AzResourceTypeProvider();
+        public static readonly IResourceTypeProvider TypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
 
         [NotNull]
         public TestContext? TestContext { get; set; }
