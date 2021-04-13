@@ -140,7 +140,7 @@ If you'd like to contribute to the collection of snippets:
 * Add a file named diagnostics.json with empty brackets `[]`.
   * E.g. [`res-aks-cluster/diagnostics.json`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/diagnostics.json)
   
-* Run `dotnet test` to ensure all tests pass
+* See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR, and [Updating test baselines](#updating-test-baselines) for information on how to automatically update your snippet files to match the format expected by the tests.
 
 * Submit a PR for review
 
