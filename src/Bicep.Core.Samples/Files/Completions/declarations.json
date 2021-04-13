@@ -155,7 +155,7 @@
     "detail": "Kubernetes Service Cluster",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {\n  name: 'aksCluster'\n  location: resourceGroup().location\n  properties: {\n    kubernetesVersion: '1.15.7'\n    dnsPrefix: 'dnsprefix'\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: 2\n        vmSize: 'Standard_A1'\n        osType: 'Linux'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: 'adminUserName'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: 'keyData'\n          }\n        ]\n      }\n    }\n    servicePrincipalProfile: {\n      clientId: 'servicePrincipalAppId'\n      secret: 'servicePrincipalAppPassword'\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {\n  name: 'aksCluster'\n  location: resourceGroup().location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    kubernetesVersion: '1.19.7'\n    dnsPrefix: 'dnsprefix'\n    enableRBAC: true\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: 3\n        vmSize: 'Standard_DS2_v2'\n        osType: 'Linux'\n        mode: 'System'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: 'adminUserName'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: 'keyData'\n          }\n        ]\n      }\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -164,7 +164,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {\n  name: '${1:aksCluster}'\n  location: resourceGroup().location\n  properties: {\n    kubernetesVersion: '${2|1.15.7,1.15.5,1.14.8|}'\n    dnsPrefix: '${3:dnsprefix}'\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: ${4:2}\n        vmSize: '${5:Standard_A1}'\n        osType: 'Linux'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: '${6:adminUserName}'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: '${7:keyData}'\n          }\n        ]\n      }\n    }\n    servicePrincipalProfile: {\n      clientId: '${8:servicePrincipalAppId}'\n      secret: '${9:servicePrincipalAppPassword}'\n    }\n  }\n}"
+      "newText": "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {\n  name: '${1:aksCluster}'\n  location: resourceGroup().location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    kubernetesVersion: '${2|1.19.7,1.19.6,1.18.14,1.18.10,1.17.16,1.17.13|}'\n    dnsPrefix: '${3:dnsprefix}'\n    enableRBAC: true\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: ${4:3}\n        vmSize: '${5:Standard_DS2_v2}'\n        osType: 'Linux'\n        mode: 'System'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: '${6:adminUserName}'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: '${7:keyData}'\n          }\n        ]\n      }\n    }\n  }\n}\n"
     }
   },
   {
