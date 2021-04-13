@@ -227,6 +227,58 @@ hel|lo
         }
 
         [TestMethod]
+        public async Task Completions_are_offered_immediately_before_and_after_comments()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+var test = |// comment here
+var test2 = |/* block comment */|
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), file);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+
+            foreach (var cursor in cursors)
+            {
+                using (new AssertionScope().WithVisualCursor(syntaxTree, new TextSpan(cursor, 0)))
+                {
+                    var completions = await client.RequestCompletion(new CompletionParams
+                    {
+                        TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                        Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                    });
+
+                    completions.Should().NotBeEmpty();
+                }
+            }
+        }
+
+        [TestMethod]
+        public async Task Completions_are_not_offered_inside_comments()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+var test = /|/ comment here|
+var test2 = /|* block c|omment *|/
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), file);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+
+            foreach (var cursor in cursors)
+            {
+                using (new AssertionScope().WithVisualCursor(syntaxTree, new TextSpan(cursor, 0)))
+                {
+                    var completions = await client.RequestCompletion(new CompletionParams
+                    {
+                        TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                        Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                    });
+
+                    completions.Should().BeEmpty();
+                }
+            }
+        }
+
+        [TestMethod]
         public async Task Property_completions_include_descriptions()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
