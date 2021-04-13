@@ -1,4 +1,4 @@
-﻿// $1 = testLogAnalyticsWorkspace
-// $2 = Free
+﻿// $1 = 'testLogAnalyticsWorkspace'
+// $2 = 'Free'
 
 // Insert snippet here

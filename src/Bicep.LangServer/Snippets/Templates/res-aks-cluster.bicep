@@ -19,11 +19,11 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
       }
     ]
     linuxProfile: {
-      adminUsername: '${6:adminUserName}'
+      adminUsername: ${6:adminUserName}
       ssh: {
         publicKeys: [
           {
-            keyData: '${7:keyData}'
+            keyData: ${7:keyData}
           }
         ]
       }
