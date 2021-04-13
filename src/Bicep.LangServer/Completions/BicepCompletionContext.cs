@@ -90,10 +90,13 @@ namespace Bicep.LanguageServer.Completions
             // the check at the beginning guarantees we have at least 1 node
             var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
 
-            var matchingTriviaType = FindTriviaMatchingOffset(syntaxTree.ProgramSyntax, offset)?.Type;
-            if (matchingTriviaType is not null && (matchingTriviaType == SyntaxTriviaType.MultiLineComment || matchingTriviaType == SyntaxTriviaType.SingleLineComment)) {
-                //we're in a comment, no hints here
-                return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+            var triviaMatchingOffset = FindTriviaMatchingOffset(syntaxTree.ProgramSyntax, offset);
+            switch (triviaMatchingOffset?.Type)
+            {
+                case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
+                case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
+                    //we're in a comment, no hints here
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
