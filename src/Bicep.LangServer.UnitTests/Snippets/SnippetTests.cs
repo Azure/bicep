@@ -139,5 +139,27 @@ namespace Bicep.LangServer.UnitTests.Snippets
 
             Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
         }
+
+        [TestMethod]
+        public void SnippetPlaceholderTextWithAsteriskShouldParseCorrectly()
+        {
+            string text = @"var destinationPortRange = '${1:*}'";
+
+            string expectedTextAfterPlaceholderReplacements = "var destinationPortRange = '*'";
+
+            var snippet = new Snippet(text);
+            snippet.Text.Should().Be(text);
+
+            snippet.Placeholders.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Index.Should().Be(1);
+                    x.Name.Should().Be("*");
+                    x.Span.ToString().Should().Be("[28:34]");
+                });
+
+            Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
+        }
+
     }
 }
