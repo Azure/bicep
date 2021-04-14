@@ -137,13 +137,12 @@ If you'd like to contribute to the collection of snippets:
 
 * Add a file named main.bicep
   * The test will read this input file for snippet completions. It will take the replacement values listed in this file, replace them with their corresponding placeholder, then ensure Bicep reports no warnings or errors.
+    * E.g. [`res-aks-cluster/main.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.bicep)
 
-  * E.g. [`res-aks-cluster/main.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.bicep)
+* Add a file named main.combined.bicep that contains the template combined with placeholder values. See [Updating test baselines](#updating-test-baselines) for information on how to automatically generate this file to match the format expected by the tests.
+  * E.g. [`res-aks-cluster/main.combined.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.combined.bicep)
 
-* Add a file named diagnostics.json with empty brackets `[]`.
-  * E.g. [`res-aks-cluster/diagnostics.json`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/diagnostics.json)
-  
-* See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR, and [Updating test baselines](#updating-test-baselines) for information on how to automatically update your snippet files to match the format expected by the tests.
+* See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR.
 
 * Submit a PR for review
 
