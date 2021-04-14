@@ -297,6 +297,51 @@ output string test2 = testRes.properties.|
                     d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which is required.")));
         }
 
+        [TestMethod]
+        public async Task Completions_after_resource_type_should_only_include_existing_keyword()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' |
+
+resource testRes2 'Test.Rp/readWriteTests@2020-01-01' | = {
+}
+
+resource testRes3 'Test.Rp/readWriteTests@2020-01-01' e| = {
+}
+
+resource testRes4 'Test.Rp/readWriteTests@2020-01-01' e|= {
+}
+
+resource testRes5 'Test.Rp/readWriteTests@2020-01-01' |= {
+}
+");
+
+            static void AssertExistingKeywordCompletion(CompletionItem item)
+            {
+                item.Label.Should().Be("existing");
+                item.Detail.Should().Be("existing");
+                item.Documentation.Should().BeNull();
+                item.Kind.Should().Be(CompletionItemKind.Keyword);
+                item.Preselect.Should().BeFalse();
+                item.TextEdit!.NewText.Should().Be("existing");
+
+                // do not add = to the list of commit chars
+                // it makes it difficult to type = without the "existing" keyword :)
+                item.CommitCharacters.Should().BeNull();
+            }
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var completions = await RequestCompletions(client, syntaxTree, cursors);
+
+            completions.Should().SatisfyRespectively(
+                x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
+                x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
+                x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
+                x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
+                x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)));
+        }
+
         private void ValidateCompletions(DataSet dataSet, string setName, List<(Position position, JToken actual)> intermediate)
         {
             // if the test author asserts on the wrong completion set in their tests
