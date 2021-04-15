@@ -19,6 +19,7 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
     capabilities: [
       {
         name: 
+//@[14:14) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
       }
     ]
   }

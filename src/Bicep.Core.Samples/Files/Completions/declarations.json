@@ -263,7 +263,7 @@
     "detail": "Cosmos DB Database Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: cosmosDbAccount\n  location: resourceGroup().location\n  kind: GlobalDocumentDB\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: Eventual\n      maxStalenessPrefix: 1\n      maxIntervalInSeconds: 5\n    }\n    locations: [\n      {\n        locationName: location1\n        failoverPriority: 0\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: true\n    capabilities: [\n      {\n        name: EnableTable\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: cosmosDbAccount\n  location: resourceGroup().location\n  kind: GlobalDocumentDB\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: Eventual\n      maxStalenessPrefix: 1\n      maxIntervalInSeconds: 5\n    }\n    locations: [\n      {\n        locationName: testLocation\n        failoverPriority: 0\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: true\n    capabilities: [\n      {\n        name: EnableTable\n      }\n    ]\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -272,7 +272,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: ${1:cosmosDbAccount}\n  location: resourceGroup().location\n  kind: ${2|GlobalDocumentDB,MongoDB,Parse|}\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: ${3|Eventual,Session,BoundedStaleness,Strong,ConsistentPrefix|}\n      maxStalenessPrefix: ${4:1}\n      maxIntervalInSeconds: ${5:5}\n    }\n    locations: [\n      {\n        locationName: ${6:location1}\n        failoverPriority: ${7:0}\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: ${9|true,false|}\n    capabilities: [\n      {\n        name: ${10|EnableTable,EnableGremlin|}\n      }\n    ]\n  }\n}\n"
+      "newText": "resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: ${1:cosmosDbAccount}\n  location: resourceGroup().location\n  kind: ${2|GlobalDocumentDB,MongoDB,Parse|}\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: ${3|Eventual,Session,BoundedStaleness,Strong,ConsistentPrefix|}\n      maxStalenessPrefix: ${4:1}\n      maxIntervalInSeconds: ${5:5}\n    }\n    locations: [\n      {\n        locationName: ${6:testLocation}\n        failoverPriority: ${7:0}\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: ${9|true,false|}\n    capabilities: [\n      {\n        name: ${10|EnableTable,EnableGremlin|}\n      }\n    ]\n  }\n}\n"
     }
   },
   {
