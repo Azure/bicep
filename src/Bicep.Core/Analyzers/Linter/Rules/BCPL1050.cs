@@ -39,7 +39,5 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 yield return CreateDiagnosticForSpan(sym.NameSyntax.Span);
             }
         }
-
-
     }
 }

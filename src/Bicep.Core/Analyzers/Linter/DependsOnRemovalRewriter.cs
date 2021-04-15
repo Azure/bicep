@@ -7,7 +7,7 @@ using Bicep.Core.Visitors;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bicep.Core.Decompiler.Rewriters
+namespace Bicep.Core.Analyzers.Linter
 {
     // Looks for resources where a dependency can already be inferred by the structure of the resource declaration.
     // 

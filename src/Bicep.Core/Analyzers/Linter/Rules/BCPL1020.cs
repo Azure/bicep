@@ -12,8 +12,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         internal BCPL1020() : base(
             code: "BCPL1020",
-            ruleName: "Environment URl hardcoded",
-            description: "Environment URLs can't be hardcoded",
+            ruleName: "Environment URL hardcoded",
+            description: "Environment URLs should not be hardcoded",
             level: Diagnostics.DiagnosticLevel.Error,
             docUri: "https://bicep/linter/rules/BCPL1020")// TODO: setup up doc pages
         { }
@@ -22,7 +22,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             // TODO: Implement this
             yield break;
-
         }
     }
 }

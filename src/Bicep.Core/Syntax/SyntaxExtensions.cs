@@ -22,6 +22,9 @@ namespace Bicep.Core.Syntax
         public static bool HasParseErrors(this SyntaxBase syntax)
             => syntax.GetParseDiagnostics().Any(d => d.Level == DiagnosticLevel.Error);
 
+        public static bool ReferencesResource(this VariableAccessSyntax syntax, ResourceDeclarationSyntax resource)
+            => StringComparer.Ordinal.Equals(syntax.Name.IdentifierName, resource.Name.IdentifierName);
+
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
             => StringComparer.OrdinalIgnoreCase.Equals(funcSyntax.Name.IdentifierName, compareTo);
 
