@@ -30,7 +30,7 @@
         <key>name</key>
         <string>meta.array-literal.bicep</string>
         <key>begin</key>
-        <string>\[(?!(?:\s|/\*.*\*/)*\bfor\b)</string>
+        <string>\[(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\bfor\b)</string>
         <key>end</key>
         <string>]</string>
         <key>patterns</key>
@@ -73,7 +73,7 @@
         <key>name</key>
         <string>meta.decorator.bicep</string>
         <key>begin</key>
-        <string>@(?:\s|/\*.*\*/)*(?=\b[_$[:alpha:]][_$[:alnum:]]*\b)</string>
+        <string>@(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*(?=\b[_$[:alpha:]][_$[:alnum:]]*\b)</string>
         <key>end</key>
         <string/>
         <key>patterns</key>
@@ -146,7 +146,7 @@
         <key>name</key>
         <string>meta.function-call.bicep</string>
         <key>begin</key>
-        <string>(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:\s|/\*.*\*/)*\(</string>
+        <string>(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\(</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
@@ -174,7 +174,7 @@
         <key>name</key>
         <string>variable.other.readwrite.bicep</string>
         <key>match</key>
-        <string>\b[_$[:alpha:]][_$[:alnum:]]*\b(?!(?:\s|/\*.*\*/)*\()</string>
+        <string>\b[_$[:alpha:]][_$[:alnum:]]*\b(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\()</string>
       </dict>
       <key>keyword</key>
       <dict>
@@ -229,7 +229,7 @@
         <key>name</key>
         <string>meta.object-property.bicep</string>
         <key>begin</key>
-        <string>^(?!(?:\s|/\*.*\*/)*})</string>
+        <string>^(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*})</string>
         <key>end</key>
         <string>$</string>
         <key>patterns</key>
@@ -253,7 +253,7 @@
         <key>name</key>
         <string>meta.object-property-end.bicep</string>
         <key>begin</key>
-        <string>:((?:\s|/\*.*\*/)*)</string>
+        <string>:((?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*)</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
@@ -272,7 +272,7 @@
           </dict>
         </dict>
         <key>end</key>
-        <string>(?=(?:\s|/\*.*\*/)*$)</string>
+        <string>(?=(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*$)</string>
         <key>patterns</key>
         <array>
           <dict>
@@ -305,7 +305,7 @@
         <key>name</key>
         <string>meta.object-property-start.bicep</string>
         <key>begin</key>
-        <string>^((?:\s|/\*.*\*/)*)</string>
+        <string>^((?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*)</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
@@ -324,7 +324,7 @@
           </dict>
         </dict>
         <key>end</key>
-        <string>(?=(?:\s|/\*.*\*/)*:)</string>
+        <string>(?=(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*:)</string>
         <key>patterns</key>
         <array>
           <dict>

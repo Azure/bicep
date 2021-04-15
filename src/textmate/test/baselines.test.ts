@@ -6,7 +6,7 @@ import { readFile, writeFile } from 'fs/promises';
 import { IOnigLib, IToken, parseRawGrammar, Registry, StackElement } from 'vscode-textmate';
 import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma';
 import path, { dirname, basename, extname } from 'path';
-import { grammarPath, BicepScope } from '../src/grammar';
+import { grammarPath, BicepScope } from '../src/bicep';
 import { spawnSync } from 'child_process';
 import { escape } from 'html-escaper';
 
@@ -42,9 +42,20 @@ const tokenToHljsClass: Record<BicepScope, string | null> = {
   'string.quoted.multi.bicep': 'string',
   'variable.other.readwrite.bicep': 'variable',
   'variable.other.property.bicep': 'property',
-  'punctuation.definition.template-expression.begin.bicep': null,
-  'punctuation.definition.template-expression.end.bicep': null,
+  'punctuation.definition.template-expression.begin.bicep': 'subst',
+  'punctuation.definition.template-expression.end.bicep': 'subst',
 };
+
+function getTokenPriority(scope: BicepScope) {
+  switch (scope) {
+    // a bit of a hack to make changes easier to review; if there are multiple tokens, layer them on top of the string.
+    // this basically emulates what VSCode does.
+    case 'string.quoted.single.bicep':
+      return 0;
+    default:
+      return 1;
+  }
+}
 
 async function getTokensByLine(content: string) {
   const grammar = await registry.loadGrammar('source.bicep');
@@ -103,7 +114,10 @@ async function writeBaseline(filePath: string) {
   for (const { line, tokens } of tokensByLine) {
     let currentIndex = 0;
     for (const token of tokens) {
-      const visibleScopes = token.scopes.filter(x => !!(tokenToHljsClass as any)[x]) as BicepScope[];
+      const visibleScopes = token.scopes
+        .filter(x => !!(tokenToHljsClass as any)[x]) as BicepScope[];
+
+      visibleScopes.sort((a, b) => getTokenPriority(b) - getTokenPriority(a));
 
       if (token.startIndex > currentIndex) {
         html += escape(line.substring(currentIndex, token.startIndex));

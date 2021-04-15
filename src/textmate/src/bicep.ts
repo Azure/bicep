@@ -40,7 +40,7 @@ const identifierContinue = "[_$[:alnum:]]";
 const identifier = bounded(`${identifierStart}${identifierContinue}*`);
 
 // whitespace. ideally we'd tokenize in-line block comments, but that's a lot of work. For now, ignore them.
-const ws = `(?:\\s|/\\*.*\\*/)*`;
+const ws = `(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*`;
 
 const keywords = [
   'targetScope',
