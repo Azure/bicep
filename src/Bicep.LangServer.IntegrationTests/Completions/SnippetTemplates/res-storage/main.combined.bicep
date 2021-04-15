@@ -7,3 +7,4 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
     tier: 'Premium'
   }
 }
+

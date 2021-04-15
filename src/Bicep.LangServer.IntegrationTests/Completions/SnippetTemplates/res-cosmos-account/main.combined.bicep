@@ -1,4 +1,4 @@
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
   name: 'testCosmosDbAccount'
   location: resourceGroup().location
   kind: 'GlobalDocumentDB'
@@ -15,11 +15,12 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
       }
     ]
     databaseAccountOfferType: 'Standard'
-    enableAutomaticFailover: true
+    enableAutomaticFailover: 'EnableTable'
     capabilities: [
       {
-        name: 'EnableTable'
+        name: 
       }
     ]
   }
 }
+
