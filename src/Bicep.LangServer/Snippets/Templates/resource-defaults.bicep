@@ -1,7 +1,7 @@
 ﻿// Resource with defaults
-resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
-  name: $5
-  location: $6
+resource ${1:Identifier} 'Microsoft.${2:Provider/Type@Version}' = {
+  name: $3
+  location: $4
   properties: {
     $0
   }

@@ -682,7 +682,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}"
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
     }
   },
   {
@@ -700,7 +700,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}"
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  $0\n}"
     }
   },
   {
@@ -718,7 +718,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}"
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider/Type@Version}' = {\n  name: $3\n  location: $4\n  properties: {\n    $0\n  }\n}"
     }
   },
   {
@@ -736,7 +736,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}"
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider/Type@Version}' = {\n  name: $3\n  $0\n}"
     }
   },
   {
