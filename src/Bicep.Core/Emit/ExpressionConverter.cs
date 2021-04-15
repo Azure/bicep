@@ -195,6 +195,12 @@ namespace Bicep.Core.Emit
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
                             .ConvertExpression(GetResourceNameSyntax(resourceSymbol));
                     case "location":
+                        if (resourceSymbol.DeclaringResource.IsExistingResource())
+                        {
+                            // We cannot substitute the value of the existing resource's location because it requires runtime evaluation.
+                            return null;
+                        }
+
                         // the location is dependent on the name expression which could involve locals in case of a resource collection
                         return this
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
