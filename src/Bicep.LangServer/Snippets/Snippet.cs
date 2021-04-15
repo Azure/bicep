@@ -16,9 +16,9 @@ namespace Bicep.LanguageServer.Snippets
         // Below regex is used to detect following snippet syntax:
         // ${(?<index>\d+):(?<name>[^}]+)} detects placeholders i.e. tab stops with values e.g ${1:foo}
         // $(?<index>\d+) detects tab stops e.g. $1
-        // $(?<index>\d+)\|((?<name>[^,]+)(?<value>.*))\|} detects placeholders with choices e.g. ${1|one,two,three|}
+        // $(?<index>\d+)\|((?<name>[^,]+)(.*))\|} detects placeholders with choices e.g. ${1|one,two,three|}
         // See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax for more information
-        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>[^}]+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(?<value>.*))\|})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>[^}]+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(.*))\|})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         public Snippet(string text, CompletionPriority completionPriority = CompletionPriority.Medium, string prefix = "", string detail = "")
         {
