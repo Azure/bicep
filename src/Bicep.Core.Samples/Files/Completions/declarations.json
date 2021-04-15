@@ -654,6 +654,60 @@
     }
   },
   {
+    "label": "res-wvd-appgroup",
+    "kind": "snippet",
+    "detail": "WVD AppGroup",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: appGroupName\n  location: resourceGroup().location\n  properties: {\n    friendlyName: appgroupNameFriendlyName\n    applicationGroupType: Desktop\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', hostpoolName)\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-wvd-appgroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${1:appGroupName}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:appgroupNameFriendlyName}\n    applicationGroupType: ${3|Desktop,RailApplications|}\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${4:hostpoolName})\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-wvd-hostpool",
+    "kind": "snippet",
+    "detail": "WVD Host Pool",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: hostpoolName\n  location: resourceGroup().location\n  properties: {\n    friendlyName: hostpoolFriendlyName\n    hostPoolType: Personal\n    loadBalancerType: BreadthFirst\n    preferredAppGroupType: Desktop\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-wvd-hostpool",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: ${1:hostpoolName}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:hostpoolFriendlyName}\n    hostPoolType: ${3|Personal,Pooled|}\n    loadBalancerType: ${4|BreadthFirst,DepthFirst,Persistent|}\n    preferredAppGroupType: ${5|Desktop,RailApplications,None|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-wvd-workspace",
+    "kind": "snippet",
+    "detail": "WVD Workspace",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: workspaceName\n  location: resourceGroup().location\n  properties: {\n    friendlyName: workspaceFriendlyName\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-wvd-workspace",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: ${1:workspaceName}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:workspaceFriendlyName}\n  }\n}\n"
+    }
+  },
+  {
     "label": "resource",
     "kind": "keyword",
     "detail": "Resource keyword",
