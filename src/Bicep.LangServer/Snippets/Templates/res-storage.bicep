@@ -1,5 +1,5 @@
 ﻿// Storage Account
-resource storageaccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   name: ${1:storageaccount}
   location: resourceGroup().location
   kind: ${2|StorageV2,Storage,BlobStorage,BlockBlobStorage,FileStorage|}

@@ -1,4 +1,4 @@
-resource appServicePlan 'Microsoft.Web/serverfarms@2018-02-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
   name: 'testAppServicePlan'
   location: resourceGroup().location
   sku: {
@@ -6,3 +6,4 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2018-02-01' = {
     capacity: 1
   }
 }
+
