@@ -10,16 +10,15 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
     }
     locations: [
       {
-        locationName: 'testLocation'
+        locationName: 'location'
         failoverPriority: 0
       }
     ]
     databaseAccountOfferType: 'Standard'
-    enableAutomaticFailover: 'EnableTable'
+    enableAutomaticFailover: true
     capabilities: [
       {
-        name: 
-//@[14:14) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+        name: 'EnableTable'
       }
     ]
   }

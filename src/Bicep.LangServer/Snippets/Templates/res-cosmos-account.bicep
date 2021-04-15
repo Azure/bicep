@@ -11,15 +11,15 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
     }
     locations: [
       {
-        locationName: ${6:testLocation}
+        locationName: ${6:location}
         failoverPriority: ${7:0}
       }
     ]
     databaseAccountOfferType: 'Standard'
-    enableAutomaticFailover: ${9|true,false|}
+    enableAutomaticFailover: ${8|true,false|}
     capabilities: [
       {
-        name: ${10|EnableTable,EnableGremlin|}
+        name: ${9|EnableTable,EnableGremlin|}
       }
     ]
   }
