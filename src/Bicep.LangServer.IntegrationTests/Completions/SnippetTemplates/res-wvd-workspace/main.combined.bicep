@@ -5,4 +5,3 @@ resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
     friendlyName: 'testFriendlyName'
   }
 }
-
