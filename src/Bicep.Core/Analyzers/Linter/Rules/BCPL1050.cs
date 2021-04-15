@@ -15,7 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: "BCPL1050",
             ruleName: "Declared variable not used",
             description: "Declared variable encountered that is not used within scope.",
-            docUri: "https://bicep/linter/rules/BCPL1050")
+            docUri: "https://bicep/linter/rules/BCPL1050")// TODO: setup up doc pages
         { }
 
         override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)

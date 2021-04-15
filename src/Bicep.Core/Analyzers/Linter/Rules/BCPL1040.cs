@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: "BCPL1040",
             ruleName: "Location set by parameter",
             description: "Best practice dictates that Location be set via parameter.",
-            docUri: "https://bicep/linter/rules/BCPL1040")
+            docUri: "https://bicep/linter/rules/BCPL1040")// TODO: setup up doc pages
         { }
 
         override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)

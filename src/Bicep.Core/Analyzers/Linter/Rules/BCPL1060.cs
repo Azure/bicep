@@ -21,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: "BCPL1060",
             ruleName: "Dynamic variable used concat",
             description: "Dynamic variable should not use concat - string interpolation should be used.",
-            docUri: "https://bicep/linter/rules/BCPL1060")
+            docUri: "https://bicep/linter/rules/BCPL1060") // TODO: setup up doc pages
         { }
 
         private CodeReplacement GetCodeReplacement(TextSpan span)
@@ -64,15 +64,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             var rewrite = CallbackConvertorRewriter<FunctionCallSyntax, StringSyntax>.Rewrite(func, RewriteConcatCallback);
             return rewrite;
-        }
-
-        string SyntaxPrint(SyntaxBase syntax)
-        {
-            var sb = new StringBuilder();
-            var documentBuildVisitor = new DocumentBuildVisitor();
-            var document = documentBuildVisitor.BuildDocument(syntax);
-            document.Layout(sb, "", System.Environment.NewLine);
-            return sb.ToString();
         }
 
         private StringSyntax RewriteConcatCallback(FunctionCallSyntax syntax)

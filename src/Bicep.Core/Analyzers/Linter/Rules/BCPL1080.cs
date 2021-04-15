@@ -17,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: "BCPL1080",
             ruleName: "String interpolation can be simplified.",
             description: "String interpolation can be simplified. String variables can be directly assigned to string properties and variables.",
-            docUri: "https://bicep/linter/rules/BCPL1080")
+            docUri: "https://bicep/linter/rules/BCPL1080") // TODO: setup up doc pages
         { }
 
 

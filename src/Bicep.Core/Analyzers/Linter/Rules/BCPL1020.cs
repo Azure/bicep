@@ -15,7 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             ruleName: "Environment URl hardcoded",
             description: "Environment URLs can't be hardcoded",
             level: Diagnostics.DiagnosticLevel.Error,
-            docUri: "https://bicep/linter/rules/BCPL1020")
+            docUri: "https://bicep/linter/rules/BCPL1020")// TODO: setup up doc pages
         { }
 
         public override IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)

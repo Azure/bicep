@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.CodeAction;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,34 +19,21 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: "BCPL1030",
             ruleName: "Secure parameter default not allowed",
             description: "Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.",
-            docUri: "https://bicep/linter/rules/BCPL1030")
+            docUri: "https://bicep/linter/rules/BCPL1030") // TODO: setup up doc pages
         { }
 
         public override IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
         {
-            var parameters = model.Root.Declarations.OfType<ParameterSymbol>();
+            var defaultValueSyntaxes = model.Root.ParameterDeclarations.Where(p => p.IsSecure())
+                .Select(p => p.Modifier as ParameterDefaultValueSyntax)
+                .OfType<ParameterDefaultValueSyntax>(); // this eliminates nulls
 
-            foreach (var param in parameters.Where( p => IsSecure(p) && HasDefault(p)))
+            foreach (var defaultValueSyntax in defaultValueSyntaxes)
             {
-                yield return new AnalyzerDiagnostic(
-                                    this.AnalyzerName,
-                                    param.DeclaringParameter.Span,
-                                    this.DiagnosticLevel,
-                                    this.Code,
-                                    this.GetMessage());
+                yield return CreateFixableDiagnosticForSpan(defaultValueSyntax.Span,
+                    new CodeFix("Remove default value of secure parameter", true,
+                            new CodeReplacement(defaultValueSyntax.Span, string.Empty)));
             }
-        }
-
-        private bool HasDefault(ParameterSymbol p)
-        {
-            //TODO: how to figure out?
-            return false;
-        }
-
-        private bool IsSecure(ParameterSymbol p)
-        {
-            // TODO: find value or no
-            return false;
         }
     }
 }
