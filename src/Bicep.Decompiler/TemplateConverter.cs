@@ -759,7 +759,13 @@ namespace Bicep.Decompiler
                     }
                 });
 
-                return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), getSyntaxForInputFunc(input));
+                var value = getSyntaxForInputFunc(input);
+                if (input is JObject inputObject)
+                {
+                    value = ProcessCondition(inputObject, value);
+                }
+
+                return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), value);
             }, new[] { indexIdentifier });
         }
 
@@ -817,8 +823,6 @@ namespace Bicep.Decompiler
             {
                 return (resourceBodyFunc(resource), Enumerable.Empty<SyntaxBase>());
             }
-
-            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'copy' property is not supported in conjunction with the 'condition' property");
 
             var name = TemplateHelpers.AssertRequiredProperty(copyProperty, "name", "The copy object is missing a \"name\" property");
             var count = TemplateHelpers.AssertRequiredProperty(copyProperty, "count", "The copy object is missing a \"count\" property");
@@ -886,6 +890,12 @@ namespace Bicep.Decompiler
 
         private SyntaxBase ProcessCondition(JObject resource, SyntaxBase body)
         {
+            if(body is ForSyntax)
+            {
+                // condition within the loop has already been processed
+                return body;
+            }
+
             JProperty? conditionProperty = TemplateHelpers.GetProperty(resource, "condition");
 
             if (conditionProperty == null)
