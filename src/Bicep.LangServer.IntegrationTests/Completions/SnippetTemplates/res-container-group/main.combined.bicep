@@ -21,6 +21,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01'
         }
       }
     ]
+    restartPolicy: 'OnFailure'
     osType: 'Linux'
     ipAddress: {
       type: 'Public'
