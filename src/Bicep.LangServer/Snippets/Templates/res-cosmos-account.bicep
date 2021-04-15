@@ -1,5 +1,5 @@
 ﻿// Cosmos DB Database Account
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
   name: ${1:cosmosDbAccount}
   location: resourceGroup().location
   kind: ${2|GlobalDocumentDB,MongoDB,Parse|}
@@ -16,7 +16,6 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
       }
     ]
     databaseAccountOfferType: 'Standard'
-    ipRangeFilter: ${8:ipRangeFilter}
     enableAutomaticFailover: ${9|true,false|}
     capabilities: [
       {

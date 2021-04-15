@@ -1,7 +1,7 @@
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
   name: 'testCosmosDbAccount'
   location: resourceGroup().location
-  kind: 'MongoDB'
+  kind: 'GlobalDocumentDB'
   properties: {
     consistencyPolicy: {
       defaultConsistencyLevel: 'Eventual'
@@ -15,7 +15,6 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {
       }
     ]
     databaseAccountOfferType: 'Standard'
-    ipRangeFilter: 'testIpRangeFilter'
     enableAutomaticFailover: true
     capabilities: [
       {
