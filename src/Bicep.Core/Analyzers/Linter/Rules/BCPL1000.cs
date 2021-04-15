@@ -24,7 +24,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
         {
-            bool parametersExist = model.Root.Declarations.OfType<ParameterSymbol>().Any();
+            bool parametersExist = model.Root.ParameterDeclarations.Any();
 
             if (!parametersExist)
             {
