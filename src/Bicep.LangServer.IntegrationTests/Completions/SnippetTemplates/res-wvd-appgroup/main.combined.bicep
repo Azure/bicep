@@ -7,3 +7,4 @@ resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-previe
     hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'testHostPool')
   }
 }
+

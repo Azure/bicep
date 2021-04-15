@@ -659,7 +659,7 @@
     "detail": "WVD AppGroup",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: appgroupName\n  location: resourceGroup().location\n  properties: {\n    friendlyName: appgroupNameFriendlyName\n    applicationGroupType: Desktop\n  }\n}\n\n```"
+      "value": "```bicep\nresource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: appGroupName\n  location: resourceGroup().location\n  properties: {\n    friendlyName: appgroupNameFriendlyName\n    applicationGroupType: Desktop\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', hostpoolName)\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -668,7 +668,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${1:appgroupName}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:appgroupNameFriendlyName}\n    applicationGroupType: ${3|Desktop,RailApplications|}\n  }\n}\n"
+      "newText": "resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${1:appGroupName}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:appgroupNameFriendlyName}\n    applicationGroupType: ${3|Desktop,RailApplications|}\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${4:hostpoolName})\n  }\n}\n"
     }
   },
   {
@@ -695,7 +695,7 @@
     "detail": "WVD Workspace",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: workspaceName\n  location: wresourceGroup().location\n  properties: {\n    friendlyName: workspaceFriendlyName\n  }\n}\n\n```"
+      "value": "```bicep\nresource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: workspaceName\n  location: resourceGroup().location\n  properties: {\n    friendlyName: workspaceFriendlyName\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -704,7 +704,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: ${1:workspaceName}\n  location: wresourceGroup().location\n  properties: {\n    friendlyName: ${2:workspaceFriendlyName}\n  }\n}\n"
+      "newText": "resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: ${1:workspaceName}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:workspaceFriendlyName}\n  }\n}\n"
     }
   },
   {
