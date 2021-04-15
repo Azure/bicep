@@ -1,4 +1,4 @@
-resource MySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+resource MySQLdb 'Microsoft.DBForMySQL/servers@2017-12-01' = {
   name: 'testMySQLdb'
   location: resourceGroup().location
   properties: {
