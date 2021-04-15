@@ -55,6 +55,10 @@ resource secrets4 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret i
   }
 }]
 
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-08-01' existing = {
+  name: 'myVnet'
+}
+
 var multi = ''''''
 var multi2 = '''
       hello!

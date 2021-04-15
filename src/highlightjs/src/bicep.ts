@@ -28,6 +28,7 @@ const KEYWORDS = {
     'for',
     'in',
     'if',
+    'existing',
   ],
   literal: [
     "true",
