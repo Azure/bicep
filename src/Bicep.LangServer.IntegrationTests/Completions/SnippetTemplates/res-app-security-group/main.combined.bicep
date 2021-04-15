@@ -2,3 +2,4 @@ resource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2
   name: 'testApplicationSecurityGroup'
   location: resourceGroup().location
 }
+
