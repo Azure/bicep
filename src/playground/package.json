@@ -14,7 +14,7 @@
   "private": true,
   "devDependencies": {
     "@types/copy-webpack-plugin": "^6.4.1",
-    "@types/node": "^14.14.37",
+    "@types/node": "^14.14.39",
     "@types/pako": "^1.0.1",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
