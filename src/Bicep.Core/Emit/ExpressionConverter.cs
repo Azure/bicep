@@ -194,6 +194,11 @@ namespace Bicep.Core.Emit
                         return this
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
                             .ConvertExpression(GetResourceNameSyntax(resourceSymbol));
+                    case "location":
+                        // the location is dependent on the name expression which could involve locals in case of a resource collection
+                        return this
+                            .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
+                            .ConvertExpression(resourceSymbol.UnsafeGetBodyPropertyValue(LanguageConstants.ResourceLocationPropertyName));
                     case "type":
                         return new JTokenExpression(typeReference.FullyQualifiedType);
                     case "apiVersion":
