@@ -11,7 +11,7 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
     }
     locations: [
       {
-        locationName: ${6:location1}
+        locationName: ${6:testLocation}
         failoverPriority: ${7:0}
       }
     ]
