@@ -18,3 +18,10 @@ If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). 
 * [ ] I have opened a new issue for the proposal, or commented on an existing one, and ensured that the Bicep maintainers are good with the design of the feature being implemented
 * [ ] I have included "Fixes #{issue_number}" in the PR description, so GitHub can link to the issue and close it when the PR is merged
 * [ ] I have appropriate test coverage of my new feature
+
+## Contributing a snippet
+
+* [ ] I have checked that there is not an equivalent snippet already submitted
+* [ ] I have consistent casing for all of my identifiers and am using camelCasing unless I have a justification to use another casing style
+* [ ] I have property names for placeholders and the resource name matches the identifier
+* [ ] I have a single resource in my snippet
