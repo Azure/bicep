@@ -745,7 +745,7 @@
     "detail": "Child Resource with defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -754,7 +754,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}"
+      "newText": "resource ${1:Identifier} '${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
     }
   },
   {
@@ -763,7 +763,7 @@
     "detail": "Child Resource without defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -772,7 +772,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}"
+      "newText": "resource ${1:Identifier} '${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  $0\n}"
     }
   },
   {
@@ -781,7 +781,7 @@
     "detail": "Resource with defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -790,7 +790,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}"
+      "newText": "resource ${1:Identifier} '${2:Provider/Type@Version}' = {\n  name: $3\n  location: $4\n  properties: {\n    $0\n  }\n}"
     }
   },
   {
@@ -799,7 +799,7 @@
     "detail": "Resource without defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  \n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/Type@Version' = {\n  name: \n  \n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -808,7 +808,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}"
+      "newText": "resource ${1:Identifier} '${2:Provider/Type@Version}' = {\n  name: $3\n  $0\n}"
     }
   },
   {
