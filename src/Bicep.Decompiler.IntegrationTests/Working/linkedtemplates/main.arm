@@ -1,0 +1,101 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]"
+      },
+      "baseUrl": {
+        "type": "string",
+        "defaultValue": "https://my.base/url",
+        "metadata": {
+          "description": "Base URL for the reference templates and scripts"
+        }
+      }
+    },
+    "variables": {
+      "armBaseUrl": "[parameters('baseUrl')]",
+      "objectVar": {
+        "val1": "[concat('a', parameters('location'), 'b')]"
+      },
+      "arrayVar": [
+        "abc",
+        "[parameters('location')]"
+      ],
+      "boolVar": true
+    },
+    "resources": [
+      {
+        "name": "module1Deploy",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2020-10-01",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[concat(variables('armBaseUrl'),'/nested/module1.json')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "stringParam": {
+              "value": "[parameters('location')]"
+            },
+            "objectParam": {
+              "value": "[variables('objectVar')]"
+            },
+            "arrayParam": {
+              "value": "[variables('arrayVar')]"
+            }
+          }
+        }
+      },
+      {
+        "name": "module1ArmDeploy",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2020-10-01",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[concat(variables('armBaseUrl'),'/nested/module1.arm')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "stringParam": {
+              "value": "[parameters('location')]"
+            },
+            "objectParam": {
+              "value": "[variables('objectVar')]"
+            },
+            "boolParam": {
+              "value": "[variables('boolVar')]"
+            }
+          }
+        }
+      },
+      {
+        "name": "module2Deploy",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2020-10-01",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+            "relativePath": "/nested/module2.json",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "stringParam": {
+              "value": "[parameters('location')]"
+            },
+            "objectParam": {
+              "value": "[variables('objectVar')]"
+            },
+            "arrayParam": {
+              "value": "[variables('arrayVar')]"
+            }
+          }
+        }
+      }
+    ],
+    "outputs": {}
+  }
+  

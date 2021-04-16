@@ -50,22 +50,22 @@ namespace Bicep.Core.IntegrationTests
         private static IEnumerable<object[]> GetWorkingExampleData()
         {
             const string pathPrefix = "Working/";
-            const string jsonExtension = ".json";
+            const string bicepExtension = ".bicep";
 
-            foreach (var streamName in typeof(DecompilationTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal)))
+            // Only return files whose path segment length is 3 as entry files to avoid decompiling nested templates twice.
+            var entryStreamNames = typeof(DecompilationTests).Assembly.GetManifestResourceNames()
+                .Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal) && p.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length == 3);
+
+            foreach (var streamName in entryStreamNames)
             {
                 var extension = Path.GetExtension(streamName);
-                if (!StringComparer.OrdinalIgnoreCase.Equals(extension, jsonExtension))
+                if (StringComparer.OrdinalIgnoreCase.Equals(extension, bicepExtension))
                 {
                     continue;
                 }
 
-                var outputFolderName = streamName
-                    .Substring(0, streamName.Length - jsonExtension.Length)
-                    .Substring(pathPrefix.Length)
-                    .Replace('/', '_');
-
-                var exampleData = new ExampleData(streamName, Path.ChangeExtension(streamName, "json"), outputFolderName);
+                var outputFolderName = streamName[pathPrefix.Length..^extension.Length].Replace('/', '_');
+                var exampleData = new ExampleData(Path.ChangeExtension(streamName, bicepExtension), streamName, outputFolderName);
 
                 yield return new object[] { exampleData };
             }
@@ -84,7 +84,6 @@ namespace Bicep.Core.IntegrationTests
             // save all the files in the containing directory to disk so that we can test module resolution
             var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, parentStream);
-            var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             var typeProvider = AzResourceTypeProvider.CreateWithAzTypes();
 
@@ -107,12 +106,12 @@ namespace Bicep.Core.IntegrationTests
 
                     var diagnostics = diagnosticsBySyntaxTree[syntaxTree];
                     var bicepOutput = filesToSave[syntaxTree.FileUri];
-                    
+
                     var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, Environment.NewLine, diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, outputDirectory, diag));
                     File.WriteAllText(syntaxTree.FileUri.LocalPath + ".actual", sourceTextWithDiags);
 
                     sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                        TestContext, 
+                        TestContext,
                         exampleExists ? File.ReadAllText(syntaxTree.FileUri.LocalPath) : "",
                         expectedLocation: Path.Combine("src", "Bicep.Decompiler.IntegrationTests", parentStream, Path.GetRelativePath(outputDirectory, syntaxTree.FileUri.LocalPath)),
                         actualLocation: syntaxTree.FileUri.LocalPath + ".actual");
@@ -136,7 +135,6 @@ namespace Bicep.Core.IntegrationTests
         [DataTestMethod]
         [DataRow("NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
         [DataRow("NonWorking/nested-outer.json", "[11:23]: Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information Microsoft.Resources/deployments pid-00000000-0000-0000-0000-000000000000")]
-        [DataRow("NonWorking/condition-loop.json", "[14:9]: The 'copy' property is not supported in conjunction with the 'condition' property")]
         [DataRow("NonWorking/invalid-schema.json", "[2:98]: $schema value \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\" did not match any of the known ARM template deployment schemas.")]
         public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
@@ -225,6 +223,30 @@ namespace Bicep.Core.IntegrationTests
             var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri);
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = ({expectedValue})");
+        }
+
+        [TestMethod]
+        public void Decompiler_should_not_decompile_bicep_extension()
+        {
+            const string template = @"{
+    ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+    ""contentVersion"": ""1.0.0.0"",
+    ""parameters"": {},
+    ""variables"": {},
+    ""resources"": [],
+    ""outputs"": {}
+}";
+
+            var fileUri = new Uri("file:///path/to/main.bicep");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [fileUri] = template,
+            });
+
+            Action sut = () => TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri);
+
+            sut.Should().Throw<InvalidOperationException>()
+                .WithMessage("Cannot decompile the file with .bicep extension: file:///path/to/main.bicep.");
         }
     }
 }

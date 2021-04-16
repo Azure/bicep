@@ -194,6 +194,17 @@ namespace Bicep.Core.Emit
                         return this
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
                             .ConvertExpression(GetResourceNameSyntax(resourceSymbol));
+                    case "location":
+                        if (resourceSymbol.DeclaringResource.IsExistingResource())
+                        {
+                            // We cannot substitute the value of the existing resource's location because it requires runtime evaluation.
+                            return null;
+                        }
+
+                        // the location is dependent on the name expression which could involve locals in case of a resource collection
+                        return this
+                            .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
+                            .ConvertExpression(resourceSymbol.UnsafeGetBodyPropertyValue(LanguageConstants.ResourceLocationPropertyName));
                     case "type":
                         return new JTokenExpression(typeReference.FullyQualifiedType);
                     case "apiVersion":
@@ -302,7 +313,7 @@ namespace Bicep.Core.Emit
 
             if (ancestors.Length > 0)
             {
-                Debug.Assert(ancestors.Length + 1 == typeReference.Types.Length, "ancestors.Length + 1 == typeReference.Types.Length");
+                var firstAncestorNameLength = typeReference.Types.Length - ancestors.Length;
 
                 SyntaxBase? indexExpression = null;
                 if (resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is ArrayAccessSyntax arraySyntax)
@@ -312,9 +323,21 @@ namespace Bicep.Core.Emit
 
                 var resourceName = ConvertExpression(GetResourceNameSyntax(resourceSymbol));
 
-                var parentNames = ancestors.Select(x => 
-                    CreateConverterForIndexReplacement(GetResourceNameSyntax(x.Resource), x.IndexExpression, x.Resource.NameSyntax)
-                        .ConvertExpression(GetResourceNameSyntax(x.Resource)));
+                var parentNames = ancestors.SelectMany((x, i) => {
+                    var nameSyntax = GetResourceNameSyntax(x.Resource);
+                    var nameExpression = CreateConverterForIndexReplacement(nameSyntax, x.IndexExpression, x.Resource.NameSyntax)
+                        .ConvertExpression(nameSyntax);
+
+                    if (i == 0 && firstAncestorNameLength > 1)
+                    {
+                        return Enumerable.Range(0, firstAncestorNameLength).Select(
+                            (_, i) => AppendProperties(
+                                CreateFunction("split", nameExpression, new JTokenExpression("/")),
+                                new JTokenExpression(i)));
+                    }
+
+                    return nameExpression.AsEnumerable();
+                });
 
                 return parentNames.Concat(resourceName.AsEnumerable());
             }
@@ -348,14 +371,11 @@ namespace Bicep.Core.Emit
             //
             // args.Length = 1 (format string) + N (ancestor names) + 1 (resource name)
 
+            var nameSegments = GetResourceNameSegments(resourceSymbol, EmitHelpers.GetTypeReference(resourceSymbol));
             // {0}/{1}/{2}....
-            var format = string.Join("/", Enumerable.Range(0, ancestors.Length + 1).Select(i => $"{{{i}}}"));
-            var formatExpression = new JTokenExpression(format);
+            var formatString = string.Join("/", nameSegments.Select((_, i) => $"{{{i}}}"));
 
-            var args = formatExpression.AsEnumerable()
-                .Concat(GetResourceNameSegments(resourceSymbol, EmitHelpers.GetTypeReference(resourceSymbol)));
-
-            return CreateFunction("format", args);
+            return CreateFunction("format", new JTokenExpression(formatString).AsEnumerable().Concat(nameSegments));
         }
 
         public static SyntaxBase GetResourceNameSyntax(ResourceSymbol resourceSymbol)

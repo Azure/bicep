@@ -168,12 +168,23 @@ namespace Bicep.Core.TypeSystem.Az
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
                 var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
                 properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+
+                if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
+                {
+                    // An existing resource's location is not a deployment-time constant, because it requires runtime evaluation get the value.
+                    properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags & ~TypePropertyFlags.DeployTimeConstant));
+                }
             }
             else
             {
                 // TODO: remove 'dependsOn' from the type library
                 properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly));
 
+                if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
+                {
+                    properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
+                }
+                
                 // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
                 if (validParentScopes.HasFlag(ResourceScope.Resource))
                 {

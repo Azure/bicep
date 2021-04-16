@@ -64,6 +64,7 @@ namespace Bicep.Core
         public const string ModuleOutputsPropertyName = "outputs";
 
         public const string ResourceIdPropertyName = "id";
+        public const string ResourceLocationPropertyName = "location";
         public const string ResourceNamePropertyName = "name";
         public const string ResourceTypePropertyName = "type";
         public const string ResourceApiVersionPropertyName = "apiVersion";

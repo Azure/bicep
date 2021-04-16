@@ -19,45 +19,34 @@ namespace Bicep.Decompiler
 {
     public static class TemplateDecompiler
     {
-        private static Uri ChangeExtension(Uri prevUri, string newExtension)
+        public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, Uri entryJsonUri)
         {
-            var uriString = prevUri.ToString();
-            var finalDot = uriString.LastIndexOf('.');
-            uriString = (finalDot >= 0 ? uriString.Substring(0, finalDot) : uriString) + $".{newExtension}";
-
-            return new Uri(uriString);
-        }
-
-        public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, Uri jsonUri)
-        {
-            var decompileQueue = new Queue<Uri>();
-
-            var entryUri = ChangeExtension(jsonUri, "bicep");
             var workspace = new Workspace();
+            var decompileQueue = new Queue<(Uri, Uri)>();
+            var entryBicepUri = PathHelper.ChangeToBicepExtension(entryJsonUri);
 
-            decompileQueue.Enqueue(entryUri);
+            decompileQueue.Enqueue((entryJsonUri, entryBicepUri));
 
-            while (decompileQueue.Any())
+            while (decompileQueue.Count > 0)
             {
-                var bicepUri = decompileQueue.Dequeue();
-                if (!bicepUri.AbsolutePath.EndsWith(".bicep", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
+                var (jsonUri, bicepUri) = decompileQueue.Dequeue();
 
-                var currentJsonUri = ChangeExtension(bicepUri, "json");
+                if (PathHelper.HasBicepExtension(jsonUri))
+                {
+                    throw new InvalidOperationException($"Cannot decompile the file with .bicep extension: {jsonUri}.");
+                }
 
                 if (workspace.TryGetSyntaxTree(bicepUri, out _))
                 {
                     continue;
                 }
 
-                if (!fileResolver.TryRead(currentJsonUri, out var jsonInput, out _))
+                if (!fileResolver.TryRead(jsonUri, out var jsonInput, out _))
                 {
-                    throw new InvalidOperationException($"Failed to read {currentJsonUri}");
+                    throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                var program = TemplateConverter.DecompileTemplate(workspace, fileResolver, currentJsonUri, jsonInput);
+                var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, jsonUri, jsonInput);
                 var syntaxTree = new SyntaxTree(bicepUri, ImmutableArray<int>.Empty, program);
                 workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
 
@@ -72,28 +61,28 @@ namespace Bicep.Decompiler
                         continue;
                     }
 
-                    if (!workspace.TryGetSyntaxTree(moduleUri, out _))
+                    if (!workspace.TryGetSyntaxTree(moduleUri, out _) && jsonTemplateUrisByModule.TryGetValue(module, out var linkedTemplateUri))
                     {
-                        decompileQueue.Enqueue(moduleUri);
+                        decompileQueue.Enqueue((linkedTemplateUri, moduleUri));
                     }
                 }
             }
 
-            RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
-            RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new DependsOnRemovalRewriter(semanticModel));
-            RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new ForExpressionSimplifierRewriter(semanticModel));
+            RewriteSyntax(resourceTypeProvider, workspace, entryBicepUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
+            RewriteSyntax(resourceTypeProvider, workspace, entryBicepUri, semanticModel => new DependsOnRemovalRewriter(semanticModel));
+            RewriteSyntax(resourceTypeProvider, workspace, entryBicepUri, semanticModel => new ForExpressionSimplifierRewriter(semanticModel));
             for (var i = 0; i < 5; i++)
             {
                 // This is a little weird. If there are casing issues nested inside casing issues (e.g. in an object), then the inner casing issue will have no type information
                 // available, as the compilation will not have associated a type with it (since there was no match on the outer object). So we need to correct the outer issue first,
                 // and then move to the inner one. We need to recompute the entire compilation to do this. It feels simpler to just do this in passes over the file, rather than on demand.
-                if (!RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new TypeCasingFixerRewriter(semanticModel)))
+                if (!RewriteSyntax(resourceTypeProvider, workspace, entryBicepUri, semanticModel => new TypeCasingFixerRewriter(semanticModel)))
                 {
                     break;
                 }
             }
 
-            return (entryUri, PrintFiles(workspace));
+            return (entryBicepUri, PrintFiles(workspace));
         }
 
         private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)

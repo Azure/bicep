@@ -27,11 +27,11 @@ namespace Bicep.LanguageServer.Completions
     {
         private const string MarkdownNewLine = "  \n";
 
-        private static readonly Container<string> PropertyCommitChars = new Container<string>(":");
+        private static readonly Container<string> PropertyCommitChars = new(":");
 
-        private static readonly Container<string> ResourceSymbolCommitChars = new Container<string>(":");
+        private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
-        private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
+        private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
         private IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
@@ -56,6 +56,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
+                .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetModulePathCompletions(model, context))
                 .Concat(GetResourceOrModuleBodyCompletions(context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
@@ -209,6 +210,15 @@ namespace Bicep.LanguageServer.Completions
                 .ToList();
         }
 
+        private IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
+            {
+                const string existing = "existing";
+                yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
+            }
+        }
+
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
@@ -235,7 +245,7 @@ namespace Bicep.LanguageServer.Completions
             var dirs = Enumerable.Empty<Uri>();
 
 
-            // technically bicep files do not have to follow the bicep extension, so 
+            // technically bicep files do not have to follow the bicep extension, so
             // we are not enforcing *.bicep get files command
             if (FileResolver.TryDirExists(query))
             {

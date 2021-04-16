@@ -61,7 +61,8 @@ namespace Bicep.Core.Semantics
             // There may be additional scopes nested inside this between the resource declaration
             // and the actual object body (for-loop). That's OK, in that case, this scope will
             // be empty and we'll use the `for` scope for lookups.
-            var scope = new LocalScope(string.Empty, syntax, syntax.Value, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty);
+            var bindingSyntax = syntax.Value is IfConditionSyntax ifConditionSyntax ? ifConditionSyntax.Body : syntax.Value;
+            var scope = new LocalScope(string.Empty, syntax, bindingSyntax, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty);
             this.PushScope(scope);
 
             base.VisitResourceDeclarationSyntax(syntax);

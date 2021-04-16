@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Update Baselines"]
+    types:
+      - completed
 
 jobs:
   build-bicep:
