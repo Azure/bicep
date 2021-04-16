@@ -409,3 +409,33 @@ jobs:
       - name: Run Tests
         run: npm test
         working-directory: ./src/highlightjs
+
+  build-monarch:
+    name: 'Build Monarch'
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.7.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14.x
+      
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/monarch
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./src/monarch
+
+      - name: Run Build
+        run: npm run build
+        working-directory: ./src/monarch
