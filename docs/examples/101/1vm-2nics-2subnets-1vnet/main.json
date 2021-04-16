@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3516908380971039592"
+      "templateHash": "16720749881706550461"
     }
   },
   "parameters": {
@@ -34,7 +34,7 @@
     "virtualNetworkName": "virtualNetwork",
     "subnet1Name": "subnet-1",
     "subnet2Name": "subnet-2",
-    "publicIPAddressName": "publicIp",
+    "publicIPAddressName": "testing the baseline update action!",
     "diagStorageAccountName": "[concat('diags', uniqueString(resourceGroup().id))]",
     "networkSecurityGroupName": "NSG",
     "networkSecurityGroupName2": "[concat(variables('subnet2Name'), '-nsg')]"
