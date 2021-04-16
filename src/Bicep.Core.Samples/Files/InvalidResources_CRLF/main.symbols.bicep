@@ -1769,10 +1769,17 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1/res2'
 }
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-//@[9:27) Resource existngResProperty. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 164
-  name: 'existngResProperty'
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+//@[9:28) Resource existingResProperty. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 166
+  name: 'existingResProperty'
   location: 'westeurope'
   properties: {}
+}
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:35) Resource invalidExistingLocationRef. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 196
+    parent: existingResProperty
+    name: 'myExt'
+    location: existingResProperty.location
 }
 

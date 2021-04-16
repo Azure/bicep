@@ -1564,5 +1564,46 @@ output vmExtName string = vm::vmExt.name
             result.Should().NotHaveDiagnostics();
             result.Template.Should().NotBeNull();
         }
+
+        [TestMethod]
+        public void Test_Issue1988()
+        {
+            var result = CompilationHelper.Compile(@"
+var subnet1Name = 'foobarsubnet-blueprint'
+var virtualNetworkResourceGroup = 'alex-test-feb'
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-08-01' existing = {
+  name: 'foobarvnet-blueprint'
+  scope: resourceGroup(virtualNetworkResourceGroup)
+}
+
+resource my_subnet 'Microsoft.Network/virtualNetworks/subnets@2020-08-01' existing = {
+  name: subnet1Name
+  parent: vnet
+}
+
+resource my_interface 'Microsoft.Network/networkInterfaces@2015-05-01-preview' = {
+  name: 'nic-test01'
+  location: vnet.location // this is not valid because it requires reference() if resource is 'existing'
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: my_subnet.id
+          }
+        }
+      }
+    ]
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP120", DiagnosticLevel.Error, "The property \"location\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"scope\", \"type\"."),
+            });
+        }
     }
 }

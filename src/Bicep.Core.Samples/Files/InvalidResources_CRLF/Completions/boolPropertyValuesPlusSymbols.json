@@ -1429,17 +1429,17 @@
     }
   },
   {
-    "label": "existngResProperty",
+    "label": "existingResProperty",
     "kind": "interface",
-    "detail": "existngResProperty",
+    "detail": "existingResProperty",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_existngResProperty",
+    "sortText": "2_existingResProperty",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "existngResProperty"
+      "newText": "existingResProperty"
     },
     "commitCharacters": [
       ":"
@@ -2111,6 +2111,23 @@
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "invalidExistingLocationRef",
+    "kind": "interface",
+    "detail": "invalidExistingLocationRef",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidExistingLocationRef",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidExistingLocationRef"
     },
     "commitCharacters": [
       ":"
