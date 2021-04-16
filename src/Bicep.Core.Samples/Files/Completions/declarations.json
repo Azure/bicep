@@ -600,6 +600,24 @@
     }
   },
   {
+    "label": "res-template-spec",
+    "kind": "snippet",
+    "detail": "Template spec",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: templateSpecName\n  location: resourceGroup().location\n  properties: {\n    description: templateDescription\n    displayName: templateDisplayName\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-template-spec",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: ${1:templateSpecName}\n  location: resourceGroup().location\n  properties: {\n    description: ${2:templateDescription}\n    displayName: ${3:templateDisplayName}\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-traffic-manager",
     "kind": "snippet",
     "detail": "Traffic Manager Profile",
