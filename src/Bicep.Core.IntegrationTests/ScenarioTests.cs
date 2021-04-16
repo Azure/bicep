@@ -1545,6 +1545,7 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1883
         public void Test_Issue1883()
         {
             var result = CompilationHelper.Compile(@"
@@ -1566,6 +1567,7 @@ output vmExtName string = vm::vmExt.name
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/1988
         public void Test_Issue1988()
         {
             var result = CompilationHelper.Compile(@"
@@ -1604,6 +1606,39 @@ resource my_interface 'Microsoft.Network/networkInterfaces@2015-05-01-preview' =
             result.Should().HaveDiagnostics(new[] {
                 ("BCP120", DiagnosticLevel.Error, "The property \"location\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"scope\", \"type\"."),
             });
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/2268
+        public void Test_Issue2268()
+        {
+            var result = CompilationHelper.Compile(@"
+param sqlServerName string = 'myServer'
+param sqlDbName string = 'myDb'
+var sqlDatabase = {
+  name: sqlDbName
+  dataEncryption: 'Enabled'
+}
+
+resource sqlDb 'Microsoft.Sql/servers/databases@2020-02-02-preview' existing = {
+  name: '${sqlServerName}/${sqlDatabase.name}'
+}
+
+resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
+  name: 'myTde'
+  parent: sqlDb
+  properties: {
+    status: sqlDatabase.dataEncryption
+  }
+}
+
+output tdeId string = transparentDataEncryption.id
+");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+
+            evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/myTde");
+            evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/myTde");
         }
     }
 }
