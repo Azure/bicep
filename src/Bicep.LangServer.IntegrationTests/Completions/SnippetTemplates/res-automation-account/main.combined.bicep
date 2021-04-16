@@ -1,4 +1,4 @@
-resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {
+resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'testAutomationAccount'
   location: resourceGroup().location
   properties: {
@@ -7,3 +7,4 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
     }
   }
 }
+

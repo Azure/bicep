@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as CopyPlugin from 'copy-webpack-plugin';
 
 module.exports = {
   target: 'node',
@@ -19,6 +20,13 @@ module.exports = {
       exclude: /node_modules/,
     }]
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: '../textmate/bicep.tmlanguage', to: './bicep.tmlanguage/' },
+      ],
+    }),
+  ],
   resolve: {
     extensions: [ '.ts', '.js' ],
   }

@@ -47,7 +47,7 @@
     "detail": "location (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nThe location of the ACI and the storage account for the deployment script.  \n"
+      "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,

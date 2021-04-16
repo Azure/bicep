@@ -1,4 +1,4 @@
-resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01' = {
+resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
   name: 'testContainerGroup'
   location: resourceGroup().location
   properties: {
@@ -21,6 +21,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01'
         }
       }
     ]
+    restartPolicy: 'OnFailure'
     osType: 'Linux'
     ipAddress: {
       type: 'Public'
@@ -33,3 +34,4 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01'
     }
   }
 }
+

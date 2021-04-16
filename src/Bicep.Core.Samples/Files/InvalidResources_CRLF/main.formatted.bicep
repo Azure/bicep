@@ -1317,8 +1317,14 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1/res2'
 }
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-  name: 'existngResProperty'
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+  name: 'existingResProperty'
   location: 'westeurope'
   properties: {}
+}
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  parent: existingResProperty
+  name: 'myExt'
+  location: existingResProperty.location
 }

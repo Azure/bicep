@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11131288573167988504"
+      "templateHash": "14268276865822848078"
     }
   },
   "parameters": {
@@ -496,6 +496,22 @@
           ]
         }
       }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "myVnet2",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/24"
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]"
+      ]
     },
     {
       "type": "Microsoft.Network/virtualNetworks/subnets",
