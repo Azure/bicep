@@ -1,6 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+declare const window: Record<string, unknown>;
+
+// See https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom.
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
 import { readdirSync, existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import path, { dirname, basename, extname } from 'path';
@@ -34,7 +51,7 @@ async function getTokensByLine(content: string) {
 async function writeBaseline(filePath: string) {
   const baselineBaseName = basename(filePath, extname(filePath));
   const baselineFilePath = path.join(dirname(filePath), `${baselineBaseName}.html`);
-  
+
   let diffBefore = '';
   const bicepFile = await readFile(filePath, { encoding: 'utf-8' });
   try {
@@ -124,14 +141,14 @@ for (const filePath of baselineFiles) {
 
       it('can be compiled', async () => {
         const cliCsproj = `${__dirname}/../../Bicep.Cli/Bicep.Cli.csproj`;
-  
+
         if (!existsSync(cliCsproj)) {
           fail(`Unable to find '${cliCsproj}'`);
           return;
         }
-  
+
         const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], { encoding: 'utf-8' });
-  
+
         // NOTE - if stderr or status are null, this indicates we were unable to invoke the exe (missing file, or hasn't had 'chmod +x' run)
         expect(result.error).toBeUndefined();
         expect(result.stderr).toBe('');
