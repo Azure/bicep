@@ -26,11 +26,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var spanDiagnostics = new List<TextSpan>();
             var visitor = new BCPL1070Visitor(model, spanDiagnostics);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);
-            return spanDiagnostics.Select(span => CreateFixableDiagnosticForSpan(span, GetCodeFix(span)));
+            return spanDiagnostics.Select(span => CreateDiagnosticForSpan(span));
         }
-
-        private CodeFix GetCodeFix(TextSpan span) =>
-            new CodeFix(this.Description, true, new CodeReplacement(span, string.Empty));
 
         private sealed class BCPL1070Visitor : SyntaxVisitor
         {
