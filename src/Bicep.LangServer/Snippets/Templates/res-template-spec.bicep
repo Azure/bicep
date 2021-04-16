@@ -1,5 +1,5 @@
-//Template spec
-resource templatespec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {
+// Template spec
+resource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {
   name: ${1:templateSpecName}
   location: resourceGroup().location
   properties: {

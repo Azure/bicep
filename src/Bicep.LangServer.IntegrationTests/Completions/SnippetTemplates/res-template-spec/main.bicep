@@ -1,5 +1,5 @@
-﻿// $1 = 'myTemplateSpecName'
-// $2 = 'myTemplateSpecFriendlyName'
-// $3 = 'myTemplateSpecDisplayName'
+﻿// $1 = 'templateSpec'
+// $2 = 'description'
+// $3 = 'displayName'
 
 // Insert snippet here
