@@ -6,7 +6,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
   }
   properties: {
     kubernetesVersion: '1.19.7'
-    dnsPrefix: 'testDnsPrefix'
+    dnsPrefix: 'dnsPrefix'
     enableRBAC: true
     agentPoolProfiles: [
       {
@@ -18,11 +18,11 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
       }
     ]
     linuxProfile: {
-      adminUsername: 'testUser'
+      adminUsername: 'adminUsername'
       ssh: {
         publicKeys: [
           {
-            keyData: 'testKeyData'
+            keyData: 'keyData'
           }
         ]
       }
