@@ -12,3 +12,4 @@ resource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGrou
     direction: 'Inbound'
   }
 }
+

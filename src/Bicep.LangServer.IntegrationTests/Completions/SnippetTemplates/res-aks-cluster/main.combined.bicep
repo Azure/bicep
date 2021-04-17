@@ -6,6 +6,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
   }
   properties: {
     kubernetesVersion: ''1.19.7''
+//@[25:26) [BCP019 (Error)] Expected a new line character at this location. |1|
     dnsPrefix: 'dnsPrefix'
     enableRBAC: true
     agentPoolProfiles: [

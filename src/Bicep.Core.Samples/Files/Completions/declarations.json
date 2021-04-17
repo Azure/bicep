@@ -353,7 +353,7 @@
     "detail": "KeyVault Secret",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource keyVault_keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: 'keyVault/keyVaultSecret'\n  properties: {\n    value: 'secretValue'\n  }\n}\n\n```"
+      "value": "```bicep\nresource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: 'keyVault/secret'\n  properties: {\n    value: 'value'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -362,7 +362,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource keyVault_keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: '${1:keyVault}/${2:keyVaultSecret}'\n  properties: {\n    value: ${3:'secretValue'}\n  }\n}\n"
+      "newText": "resource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: '${1:keyVault}/${2:secret}'\n  properties: {\n    value: ${3:'value'}\n  }\n}\n"
     }
   },
   {
@@ -443,7 +443,7 @@
     "detail": "MySQL Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource MySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: 'MySQLdb'\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: 'adminUsername'\n    administratorLoginPassword: 'adminPassword'\n    createMode: 'Default'\n  }\n}\n```"
+      "value": "```bicep\nresource mySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: 'mySQLdb'\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    createMode: 'Default'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -452,7 +452,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource MySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: ${1:'MySQLdb'}\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: ${2:'adminUsername'}\n    administratorLoginPassword: ${3:'adminPassword'}\n    createMode: '${4|Default,GeoRestore,PointInTimeRestore,Replica|}'\n  }\n}"
+      "newText": "resource mySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: ${1:'mySQLdb'}\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: ${2:'administratorLogin'}\n    administratorLoginPassword: ${3:'administratorLoginPassword'}\n    createMode: '${4|Default,GeoRestore,PointInTimeRestore,Replica|}'\n  }\n}\n"
     }
   },
   {
@@ -479,7 +479,7 @@
     "detail": "Network Security Group Rule",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource networkSecurityGroupRuleName 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: 'networkSecurityGroupRuleName'\n  properties: {\n    description: 'nsgRuleDescription'\n    protocol: '*'\n    sourcePortRange: 'nsgRuleSourcePortRange'\n    destinationPortRange: 'nsgRuleDestinationPortRange'\n    sourceAddressPrefix: 'nsgRuleSourceAddressPrefix'\n    destinationAddressPrefix: 'nsgRuleDestinationAddressRange'\n    access: 'Allow'\n    priority: 100\n    direction: 'Inbound'\n  }\n}\n```"
+      "value": "```bicep\nresource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: 'networkSecurityGroupSecurityRule'\n  properties: {\n    description: 'description'\n    protocol: '*'\n    sourcePortRange: 'sourcePortRange'\n    destinationPortRange: 'destinationPortRange'\n    sourceAddressPrefix: 'sourceAddressPrefix'\n    destinationAddressPrefix: 'destinationAddressPrefix'\n    access: 'Allow'\n    priority: 100\n    direction: 'Inbound'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -488,7 +488,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource networkSecurityGroupRuleName 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: ${1:'networkSecurityGroupRuleName'}\n  properties: {\n    description: ${2:'nsgRuleDescription'}\n    protocol: '${3|*,Ah,Esp,Icmp,Tcp,Udb|}'\n    sourcePortRange: ${4:'nsgRuleSourcePortRange'}\n    destinationPortRange: ${5:'nsgRuleDestinationPortRange'}\n    sourceAddressPrefix: ${6:'nsgRuleSourceAddressPrefix'}\n    destinationAddressPrefix: ${7:'nsgRuleDestinationAddressRange'}\n    access: '${8|Allow,Deny|}'\n    priority: ${9:100}\n    direction: '${10|Inbound,Outbound|}'\n  }\n}"
+      "newText": "resource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: ${1:'networkSecurityGroupSecurityRule'}\n  properties: {\n    description: ${2:'description'}\n    protocol: '${3|*,Ah,Esp,Icmp,Tcp,Udb|}'\n    sourcePortRange: ${4:'sourcePortRange'}\n    destinationPortRange: ${5:'destinationPortRange'}\n    sourceAddressPrefix: ${6:'sourceAddressPrefix'}\n    destinationAddressPrefix: ${7:'destinationAddressPrefix'}\n    access: '${8|Allow,Deny|}'\n    priority: ${9:100}\n    direction: '${10|Inbound,Outbound|}'\n  }\n}\n"
     }
   },
   {
@@ -569,7 +569,7 @@
     "detail": "Azure Route Table Route",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource routeName 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: 'routeName'\n  properties: {\n    addressPrefix: 'addressPrefix'\n    nextHopType: 'VirtualNetworkGateway'\n    nextHopIpAddress: 'nextHopIp'\n  }\n}\n```"
+      "value": "```bicep\nresource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: 'routeTableRoute'\n  properties: {\n    addressPrefix: 'addressPrefix'\n    nextHopType: 'VirtualNetworkGateway'\n    nextHopIpAddress: 'nextHopIp'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -578,7 +578,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource routeName 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: ${1:'routeName'}\n  properties: {\n    addressPrefix: ${2:'addressPrefix'}\n    nextHopType: '${3|VirtualNetworkGateway,VnetLocal,Internet,VirtualAppliance,None|}'\n    nextHopIpAddress: ${4:'nextHopIp'}\n  }\n}"
+      "newText": "resource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: ${1:'routeTableRoute'}\n  properties: {\n    addressPrefix: ${2:'addressPrefix'}\n    nextHopType: '${3|VirtualNetworkGateway,VnetLocal,Internet,VirtualAppliance,None|}'\n    nextHopIpAddress: ${4:'nextHopIp'}\n  }\n}\n"
     }
   },
   {
@@ -605,7 +605,7 @@
     "detail": "Template spec",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: 'templateSpecName'\n  location: resourceGroup().location\n  properties: {\n    description: 'templateDescription'\n    displayName: 'templateDisplayName'\n  }\n}\n\n```"
+      "value": "```bicep\nresource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: 'templateSpec'\n  location: resourceGroup().location\n  properties: {\n    description: 'description'\n    displayName: 'displayName'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -614,7 +614,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: ${1:'templateSpecName'}\n  location: resourceGroup().location\n  properties: {\n    description: ${2:'templateDescription'}\n    displayName: ${3:'templateDisplayName'}\n  }\n}\n"
+      "newText": "resource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: ${1:'templateSpec'}\n  location: resourceGroup().location\n  properties: {\n    description: ${2:'description'}\n    displayName: ${3:'displayName'}\n  }\n}\n"
     }
   },
   {
@@ -623,7 +623,7 @@
     "detail": "Traffic Manager Profile",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {\n  name: 'trafficManagerProfile'\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: 'Performance'\n    dnsConfig: {\n      relativeName: 'dnsConfig'\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: 'HTTP'\n      port: 80\n      path: 'path'\n      intervalInSeconds: 30\n      timeoutInSeconds: 5\n      toleratedNumberOfFailures: 3\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: 'targetId'\n          endpointStatus: 'Enabled'\n          weight: 100\n          priority: 1\n        }\n      }\n    ]\n  }\n}\n```"
+      "value": "```bicep\nresource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {\n  name: 'trafficManagerProfile'\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: 'Performance'\n    dnsConfig: {\n      relativeName: 'dnsConfigRelativeName'\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: 'HTTP'\n      port: 80\n      path: 'path'\n      intervalInSeconds: 30\n      timeoutInSeconds: 5\n      toleratedNumberOfFailures: 3\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: 'targetResourceId'\n          endpointStatus: 'Enabled'\n          weight: 100\n          priority: 1\n        }\n      }\n    ]\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -632,7 +632,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {\n  name: ${1:'trafficManagerProfile'}\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: '${2|Performance,Priority,Weighted,Geographic|}'\n    dnsConfig: {\n      relativeName: ${3:'dnsConfig'}\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: '${4|HTTP,HTTPS,TCP|}'\n      port: ${5:80}\n      path: ${6:'path'}\n      intervalInSeconds: ${7:30}\n      timeoutInSeconds: ${8:5}\n      toleratedNumberOfFailures: ${9:3}\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: ${10:'targetId'}\n          endpointStatus: '${11|Enabled,Disabled|}'\n          weight: ${12:100}\n          priority: ${13:1}\n        }\n      }\n    ]\n  }\n}"
+      "newText": "resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {\n  name: ${1:'trafficManagerProfile'}\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: '${2|Performance,Priority,Weighted,Geographic|}'\n    dnsConfig: {\n      relativeName: ${3:'dnsConfigRelativeName'}\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: '${4|HTTP,HTTPS,TCP|}'\n      port: ${5:80}\n      path: ${6:'path'}\n      intervalInSeconds: ${7:30}\n      timeoutInSeconds: ${8:5}\n      toleratedNumberOfFailures: ${9:3}\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: ${10:'targetResourceId'}\n          endpointStatus: '${11|Enabled,Disabled|}'\n          weight: ${12:100}\n          priority: ${13:1}\n        }\n      }\n    ]\n  }\n}\n"
     }
   },
   {
@@ -659,7 +659,7 @@
     "detail": "VPN Local Network Gateway",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: 'localNetworkGateway'\n  location: resourceGroup().location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        'networkprefix'\n      ]\n    }\n    gatewayIpAddress: 'gatewayIP'\n  }\n}\n```"
+      "value": "```bicep\nresource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: 'localNetworkGateway'\n  location: resourceGroup().location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        'addressPrefixes'\n      ]\n    }\n    gatewayIpAddress: 'gatewayIpAddress'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -668,7 +668,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: ${1:'localNetworkGateway'}\n  location: resourceGroup().location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        ${2:'networkprefix'}\n      ]\n    }\n    gatewayIpAddress: ${3:'gatewayIP'}\n  }\n}"
+      "newText": "resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: ${1:'localNetworkGateway'}\n  location: resourceGroup().location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        ${2:'addressPrefixes'}\n      ]\n    }\n    gatewayIpAddress: ${3:'gatewayIpAddress'}\n  }\n}\n"
     }
   },
   {
@@ -677,7 +677,7 @@
     "detail": "WVD AppGroup",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: 'appGroupName'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'appgroupNameFriendlyName'\n    applicationGroupType: 'Desktop'\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'hostpoolName')\n  }\n}\n\n```"
+      "value": "```bicep\nresource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: 'applicationGroup'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'friendlyName'\n    applicationGroupType: 'Desktop'\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'hostpoolName')\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -686,7 +686,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${1:'appGroupName'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:'appgroupNameFriendlyName'}\n    applicationGroupType: '${3|Desktop,RailApplications|}'\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${4:'hostpoolName'})\n  }\n}\n"
+      "newText": "resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${1:'applicationGroup'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:'friendlyName'}\n    applicationGroupType: '${3|Desktop,RailApplications|}'\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${4:'hostpoolName'})\n  }\n}\n"
     }
   },
   {
@@ -695,7 +695,7 @@
     "detail": "WVD Host Pool",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: 'hostpoolName'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'hostpoolFriendlyName'\n    hostPoolType: 'Personal'\n    loadBalancerType: 'BreadthFirst'\n    preferredAppGroupType: 'Desktop'\n  }\n}\n\n```"
+      "value": "```bicep\nresource hostPool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: 'hostPool'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'hostpoolFriendlyName'\n    hostPoolType: 'Personal'\n    loadBalancerType: 'BreadthFirst'\n    preferredAppGroupType: 'Desktop'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -704,7 +704,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: ${1:'hostpoolName'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:'hostpoolFriendlyName'}\n    hostPoolType: '${3|Personal,Pooled|}'\n    loadBalancerType: '${4|BreadthFirst,DepthFirst,Persistent|}'\n    preferredAppGroupType: '${5|Desktop,RailApplications,None|}'\n  }\n}\n"
+      "newText": "resource hostPool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: ${1:'hostPool'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:'hostpoolFriendlyName'}\n    hostPoolType: '${3|Personal,Pooled|}'\n    loadBalancerType: '${4|BreadthFirst,DepthFirst,Persistent|}'\n    preferredAppGroupType: '${5|Desktop,RailApplications,None|}'\n  }\n}\n"
     }
   },
   {
@@ -713,7 +713,7 @@
     "detail": "WVD Workspace",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: 'workspaceName'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'workspaceFriendlyName'\n  }\n}\n\n```"
+      "value": "```bicep\nresource workSpace 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: 'workSpace'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'friendlyName'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -722,7 +722,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: ${1:'workspaceName'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:'workspaceFriendlyName'}\n  }\n}\n"
+      "newText": "resource workSpace 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: ${1:'workSpace'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${2:'friendlyName'}\n  }\n}\n"
     }
   },
   {
