@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "17671454004803647679"
-    }
-  },
   "parameters": {
     "virtualNetworkName": {
       "type": "string",
@@ -84,6 +77,7 @@
       "type": "Microsoft.Network/azureFirewalls",
       "apiVersion": "2020-06-01",
       "name": "[parameters('firewallName')]",
+      "location": "[parameters('location')]",
       "zones": "[if(equals(length(parameters('availabilityZones')), 0), json('null'), parameters('availabilityZones'))]",
       "properties": {
         "ipConfigurations": [
@@ -161,5 +155,12 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), variables('azureFirewallSubnetName')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), variables('azureFirewallSubnetName')), '/')[1])]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.126.58533",
+      "templateHash": "11912755341882984212"
+    }
+  }
 }
