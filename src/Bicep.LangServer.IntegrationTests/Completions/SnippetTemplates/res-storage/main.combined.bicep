@@ -1,4 +1,4 @@
-resource storageaccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   name: 'testStorageaccount'
   location: resourceGroup().location
   kind: 'StorageV2'
@@ -7,3 +7,4 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     tier: 'Premium'
   }
 }
+
