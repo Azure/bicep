@@ -21,7 +21,14 @@ If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). 
 
 ## Contributing a snippet
 
+* [ ] I have only a single resource in my snippet
 * [ ] I have checked that there is not an equivalent snippet already submitted
 * [ ] I have consistent casing for all of my identifiers and am using camelCasing unless I have a justification to use another casing style
-* [ ] I have property names for placeholders and the resource name matches the identifier
-* [ ] I have a single resource in my snippet
+* [ ] I have placeholders values that correspond to their property names (e.g. `dnsPrefix: 'dnsPrefix'`)
+* [ ] I have a resource name that matches the identifier 
+
+e.g. 
+``` 
+resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
+  name: 'aksCluster'
+```
