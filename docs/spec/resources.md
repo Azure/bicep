@@ -54,7 +54,7 @@ resource myParent 'My.Rp/parentType@2020-01-01' = {
   resource myChild 'childType' = {
     name: 'myChild'
     properties: {
-      displayName: 'child in ${parent.location}'
+      displayName: 'child in ${myParent.location}'
     }
   }
 }
