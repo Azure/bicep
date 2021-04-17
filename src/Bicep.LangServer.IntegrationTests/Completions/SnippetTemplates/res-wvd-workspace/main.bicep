@@ -1,4 +1,4 @@
-﻿// $1 = 'testWorkSpace'
-// $2 = 'testFriendlyName'
+﻿// $1 = 'workSpace'
+// $2 = 'friendlyName'
 
 // Insert snippet here

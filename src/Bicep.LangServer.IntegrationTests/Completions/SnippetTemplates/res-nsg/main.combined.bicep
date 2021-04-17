@@ -1,12 +1,12 @@
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
-  name: 'testNetworkSecurityGroup'
+  name: 'networkSecurityGroup'
   location: resourceGroup().location
   properties: {
     securityRules: [
       {
         name: 'nsgRule'
         properties: {
-          description: 'testDescription'
+          description: 'description'
           protocol: 'Tcp'
           sourcePortRange: '5'
           destinationPortRange: '*'

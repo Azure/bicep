@@ -1,5 +1,5 @@
-﻿// $1 = 'testHostPool'
-// $2 = 'testFriendlyName'
+﻿// $1 = 'hostPool'
+// $2 = 'friendlyName'
 // $3 = Pooled
 // $4 = BreadthFirst
 // $5 = Desktop

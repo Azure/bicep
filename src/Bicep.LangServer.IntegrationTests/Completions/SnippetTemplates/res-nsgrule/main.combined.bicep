@@ -1,7 +1,7 @@
-resource networkSecurityGroupRuleName 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {
-  name: 'testNetworkSecurityGroup/SecurityRule'
+resource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {
+  name: 'networkSecurityGroup/SecurityRule'
   properties: {
-    description: 'testDescription'
+    description: 'description'
     protocol: 'Tcp'
     sourcePortRange: '1026'
     destinationPortRange: '1067'

@@ -1,3 +1,3 @@
-﻿// $1 = 'testAppServicePlan'
+﻿// $1 = 'appServicePlan'
 
 // Insert snippet here

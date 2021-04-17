@@ -1,5 +1,5 @@
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {
-  name: 'testContainerRegistry'
+  name: 'containerRegistry'
   location: resourceGroup().location
   sku: {
     name: 'Classic'

@@ -6,7 +6,7 @@ resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04
     profileStatus: 'Enabled'
     trafficRoutingMethod: '${2|Performance,Priority,Weighted,Geographic|}'
     dnsConfig: {
-      relativeName: ${3:'dnsConfig'}
+      relativeName: ${3:'dnsConfigRelativeName'}
       ttl: 30
     }
     monitorConfig: {
@@ -20,7 +20,7 @@ resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04
     endpoints: [
       {
         properties: {
-          targetResourceId: ${10:'targetId'}
+          targetResourceId: ${10:'targetResourceId'}
           endpointStatus: '${11|Enabled,Disabled|}'
           weight: ${12:100}
           priority: ${13:1}

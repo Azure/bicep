@@ -1,4 +1,4 @@
-﻿// $1 = 'testCosmosDbAccount'
+﻿// $1 = 'cosmosDbAccount'
 // $2 = GlobalDocumentDB
 // $3 = Eventual
 // $4 = 1

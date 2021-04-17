@@ -1,5 +1,5 @@
-﻿// $1 = 'testNetworkSecurityGroup/SecurityRule'
-// $2 = 'testDescription'
+﻿// $1 = 'networkSecurityGroup/SecurityRule'
+// $2 = 'description'
 // $3 = Tcp
 // $4 = '1026'
 // $5 = '1067'

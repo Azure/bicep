@@ -1,12 +1,12 @@
 resource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
-  name: 'testRouteTable'
+  name: 'routeTable'
   location: resourceGroup().location
   properties: {
     routes: [
       {
-        name: 'testRoute'
+        name: 'route'
         properties: {
-          addressPrefix: 'testDestinationCIDR'
+          addressPrefix: 'destinationCIDR'
           nextHopType: 'VirtualNetworkGateway'
           nextHopIpAddress: '0.11.26.162'
         }

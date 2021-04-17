@@ -1,6 +1,6 @@
-﻿// $1 = 'testAppGroup'
-// $2 = 'testFriendlyName'
+﻿// $1 = 'applicationGroup'
+// $2 = 'friendlyName'
 // $3 = Desktop
-// $4 = 'testHostPool'
+// $4 = 'hostPool'
 
 // Insert snippet here

@@ -1,6 +1,6 @@
-﻿// $1 = 'testMySQLdb'
-// $2 = 'testUsername'
-// $3 = 'testPassword'
+﻿// $1 = 'mySQLdb'
+// $2 = 'administratorLogin'
+// $3 = 'administratorLoginPassword'
 // $4 = Default
 
 // Insert snippet here

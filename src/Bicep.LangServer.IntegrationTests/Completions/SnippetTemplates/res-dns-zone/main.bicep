@@ -1,3 +1,3 @@
-﻿// $1 = 'testDnsZone'
+﻿// $1 = 'dnsZone'
 
 // Insert snippet here

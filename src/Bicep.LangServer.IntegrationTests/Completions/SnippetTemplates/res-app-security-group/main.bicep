@@ -1,3 +1,3 @@
-﻿// $1 = 'testApplicationSecurityGroup'
+﻿// $1 = 'applicationSecurityGroup'
 
 // Insert snippet here

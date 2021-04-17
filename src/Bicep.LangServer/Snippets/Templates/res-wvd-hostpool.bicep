@@ -1,6 +1,6 @@
 // WVD Host Pool
-resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
-  name: ${1:'hostpoolName'}
+resource hostPool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
+  name: ${1:'hostPool'}
   location: resourceGroup().location
   properties: {
     friendlyName: ${2:'hostpoolFriendlyName'}

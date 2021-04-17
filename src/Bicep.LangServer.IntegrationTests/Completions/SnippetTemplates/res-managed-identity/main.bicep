@@ -1,3 +1,3 @@
-﻿// $1 = 'testManagedIdentity'
+﻿// $1 = 'managedIdentity'
 
 // Insert snippet here
