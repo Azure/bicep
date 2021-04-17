@@ -1,4 +1,4 @@
 ﻿// $1 = 'testRecoveryServiceVault'
-// $2 = 'Standard'
+// $2 = Standard
 
 // Insert snippet here
