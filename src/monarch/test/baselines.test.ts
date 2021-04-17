@@ -24,15 +24,16 @@ import path, { dirname, basename, extname } from 'path';
 import { spawnSync } from 'child_process';
 import { BicepLanguage } from '../src/bicep';
 import { editor, languages } from 'monaco-editor-core';
+import { escape } from 'html-escaper';
 
 const tokenToHljsClass: Record<string, string | null> = {
-  'string': 'string',
-  'string.quote': 'string',
-  'string.escape': 'string',
-  'comment': 'comment',
-  'number': 'number',
-  'keyword': 'keyword',
-  'identifier': 'variable',
+  'string.bicep': 'string',
+  'string.quote.bicep': 'string',
+  'string.escape.bicep': 'string',
+  'comment.bicep': 'comment',
+  'number.bicep': 'number',
+  'keyword.bicep': 'keyword',
+  'identifier.bicep': 'variable',
 };
 
 async function getTokensByLine(content: string) {
@@ -71,11 +72,7 @@ async function writeBaseline(filePath: string) {
       }
 
       const tokenEnd = i + 1 < tokens.length ? tokens[i + 1].offset : line.length;
-      const hljsClass = tokenToHljsClass[token.language];
-
-      html += `<span class="hljs-${tokenToHljsClass[token.language]}">`;
-      html += escape(line.substring(token.offset, tokenEnd));
-      html += `</span>`;
+      const hljsClass = tokenToHljsClass[token.type];
 
       if (hljsClass) {
         html += `<span class="hljs-${hljsClass}">`;
