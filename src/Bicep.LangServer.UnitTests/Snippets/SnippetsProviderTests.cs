@@ -154,7 +154,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             Assert.AreEqual("DNS Zone", snippet.Detail);
             Assert.AreEqual(CompletionPriority.Medium, snippet.CompletionPriority);
             snippet.Text.Should().BeEquivalentToIgnoringNewlines(@"{
-  name: '${1:dnsZone}'
+  name: ${1:'dnsZone'}
   location: 'global'
 }
 ");
@@ -187,12 +187,12 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${automationAccount.name}/${2:automationVariable}'
   properties: {
     contentLink: {
-      uri: '${3:https://content-url.nupkg}'
+      uri: ${3:'https://content-url.nupkg'}
     }
   }
 }
 resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {
-  name: '${1:automationAccount}'
+  name: ${1:'automationAccount'}
 }
 ");
         }
