@@ -350,7 +350,7 @@
   {
     "label": "res-keyvault-secret",
     "kind": "snippet",
-    "detail": "KeyVault Secret",
+    "detail": "Key Vault Secret",
     "documentation": {
       "kind": "markdown",
       "value": "```bicep\nresource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: 'keyVault/secret'\n  properties: {\n    value: 'value'\n  }\n}\n\n```"
