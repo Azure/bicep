@@ -218,7 +218,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource automationAccount_automationVariable 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {\n  name: '${automationAccount.name}/${2:automationVariable}'\n  properties: {\n    contentLink: {\n      uri: '${3:https://content-url.nupkg}'\n    }\n  }\n}\n\nresource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: '${1:automationAccount}'\n}"
+      "newText": "resource automationAccount_automationVariable 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {\n  name: '${automationAccount.name}/${2:automationVariable}'\n  properties: {\n    contentLink: {\n      uri: ${3:'https://content-url.nupkg'}\n    }\n  }\n}\n\nresource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: ${1:'automationAccount'}\n}"
     }
   },
   {

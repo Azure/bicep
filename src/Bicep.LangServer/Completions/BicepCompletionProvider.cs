@@ -792,7 +792,7 @@ namespace Bicep.LanguageServer.Completions
         private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Property)
                 .WithLabel(property.Name)
-                // property names containg spaces need to be escaped
+                // property names containing spaces need to be escaped
                 .WithPlainTextEdit(replacementRange, IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name)
                 .WithCommitCharacters(PropertyCommitChars)
                 .WithDetail(FormatPropertyDetail(property))

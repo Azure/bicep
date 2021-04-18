@@ -82,7 +82,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n  name: '${1:dnsZone}'\n  location: 'global'\n}\n"
+      "newText": "{\n  name: ${1:'dnsZone'}\n  location: 'global'\n}\n"
     }
   }
 ]
