@@ -14,12 +14,19 @@ namespace Bicep.Core.Emit
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
         private readonly SemanticModel model;
+        private readonly bool faultTolerant;
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(SemanticModel model)
+        /// <summary>
+        /// Get resource dependencies from the given semantic model.
+        /// </summary>
+        /// <param name="model">The semantic model.</param>
+        /// <param name="faultTolerant">Whether to suppress errors like unbounded declartions. This is only set to true when calling from BicepDeploymentGraphHandler.</param>
+        /// <returns>The resource dependencies dictionary.</returns>
+        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(SemanticModel model, bool faultTolerant = false)
         {
-            var visitor = new ResourceDependencyVisitor(model);
+            var visitor = new ResourceDependencyVisitor(model, faultTolerant);
             visitor.Visit(model.Root.Syntax);
 
             var output = new Dictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
@@ -41,18 +48,24 @@ namespace Bicep.Core.Emit
                     : @group)
                 .ToImmutableHashSet();
 
-        private ResourceDependencyVisitor(SemanticModel model)
+        private ResourceDependencyVisitor(SemanticModel model, bool faultTolerant)
         {
             this.model = model;
+            this.faultTolerant = faultTolerant;
             this.resourceDependencies = new Dictionary<DeclaredSymbol, HashSet<ResourceDependency>>();
             this.currentDeclaration = null;
         }
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (!(this.model.GetSymbolInfo(syntax) is ResourceSymbol resourceSymbol))
+            if (this.model.GetSymbolInfo(syntax) is not ResourceSymbol resourceSymbol)
             {
-                throw new InvalidOperationException("Unbound declaration");
+                if (!this.faultTolerant)
+                {
+                    throw new InvalidOperationException("Unbound declaration");
+                }
+
+                return;
             }
 
             // Resource ancestors are always dependencies.
@@ -71,9 +84,14 @@ namespace Bicep.Core.Emit
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
-            if (!(this.model.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol))
+            if (this.model.GetSymbolInfo(syntax) is not ModuleSymbol moduleSymbol)
             {
-                throw new InvalidOperationException("Unbound declaration");
+                if (!this.faultTolerant)
+                {
+                    throw new InvalidOperationException("Unbound declaration");
+                }
+
+                return;
             }
 
             // save previous declaration as we may call this recursively
@@ -89,9 +107,14 @@ namespace Bicep.Core.Emit
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            if (!(this.model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol))
+            if (this.model.GetSymbolInfo(syntax) is not VariableSymbol variableSymbol)
             {
-                throw new InvalidOperationException("Unbound declaration");
+                if (!this.faultTolerant)
+                {
+                    throw new InvalidOperationException("Unbound declaration");
+                }
+
+                return;
             }
 
             // save previous declaration as we may call this recursively
@@ -204,7 +227,7 @@ namespace Bicep.Core.Emit
                 VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.Value,
                 _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
             };
-            
+
             // using the resource/module body as the context to allow indexed depdnencies relying on the resource/module loop index to work as expected
             var inaccessibleLocals = dfa.GetInaccessibleLocalsAfterSyntaxMove(candidateIndexExpression, context);
             if(inaccessibleLocals.Any())
