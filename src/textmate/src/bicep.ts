@@ -29,6 +29,7 @@ export type BicepScope =
   | "punctuation.definition.template-expression.end.bicep";
 
 const bounded = (text: string) => `\\b${text}\\b`;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const after = (regex: string) => `(?<=${regex})`;
 const notAfter = (regex: string) => `(?<!${regex})`;
 const before = (regex: string) => `(?=${regex})`;
