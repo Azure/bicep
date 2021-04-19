@@ -1,4 +1,4 @@
-﻿// $1 = 'containerRegistry'
+﻿// $1 = containerRegistry
 // $2 = Classic
 // $3 = true
 

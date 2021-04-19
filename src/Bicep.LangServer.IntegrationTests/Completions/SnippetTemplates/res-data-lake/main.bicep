@@ -1,4 +1,4 @@
-﻿// $1 = 'dataLakeStore'
+﻿// $1 = dataLakeStore
 // $2 = Consumption
 // $3 = Enabled
 

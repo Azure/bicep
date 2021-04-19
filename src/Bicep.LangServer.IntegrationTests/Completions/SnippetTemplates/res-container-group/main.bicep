@@ -1,4 +1,4 @@
-﻿// $1 = 'containerGroup'
+﻿// $1 = containerGroup
 // $2 = 'containerName'
 // $3 = 'UPDATEME'
 // $4 = 80

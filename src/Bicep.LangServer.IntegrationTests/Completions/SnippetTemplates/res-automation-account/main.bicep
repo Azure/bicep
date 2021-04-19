@@ -1,4 +1,4 @@
-﻿// $1 = 'automationAccount'
+﻿// $1 = automationAccount
 // $2 = Basic
 
 // Insert snippet here

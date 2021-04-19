@@ -1,3 +1,3 @@
-﻿// $1 = 'availabilitySet'
+﻿// $1 = availabilitySet
 
 // Insert snippet here

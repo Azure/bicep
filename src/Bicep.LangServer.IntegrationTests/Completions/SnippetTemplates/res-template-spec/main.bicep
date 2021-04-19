@@ -1,4 +1,4 @@
-﻿// $1 = 'templateSpec'
+﻿// $1 = templateSpec
 // $2 = 'description'
 // $3 = 'displayName'
 

@@ -1,3 +1,3 @@
-﻿// $1 = 'redisCache'
+﻿// $1 = redisCache
 
 // Insert snippet here

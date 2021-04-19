@@ -1,4 +1,4 @@
-﻿// $1 = 'publicIPAddress'
+﻿// $1 = publicIPAddress
 // $2 = 'dnsName'
 
 // Insert snippet here

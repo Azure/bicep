@@ -1,4 +1,4 @@
-﻿// $1 = 'logicAppConnector'
+﻿// $1 = logicAppConnector
 // $2 = 'logicAppConnector'
 // $3 = 'logicAppConnectorApi'
 

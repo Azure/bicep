@@ -1,4 +1,4 @@
-﻿// $1 = 'routeTable'
+﻿// $1 = routeTable
 // $2 = 'name'
 // $3 = 'destinationCIDR'
 // $4 = VirtualNetworkGateway

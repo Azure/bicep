@@ -1,4 +1,4 @@
-﻿// $1 = 'aksCluster'
+﻿// $1 = aksCluster
 // $2 = 1.19.7
 // $3 = 'dnsPrefix'
 // $4 = 3

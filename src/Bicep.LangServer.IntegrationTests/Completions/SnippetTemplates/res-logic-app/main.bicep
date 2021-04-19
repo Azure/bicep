@@ -1,3 +1,3 @@
-﻿// $1 = 'logicApp'
+﻿// $1 = logicApp
 
 // Insert snippet here

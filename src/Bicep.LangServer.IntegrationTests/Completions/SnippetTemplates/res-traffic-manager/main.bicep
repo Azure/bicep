@@ -1,4 +1,4 @@
-﻿// $1 = 'trafficManagerProfile'
+﻿// $1 = trafficManagerProfile
 // $2 = Performance
 // $3 = 'dnsConfigRelativeName'
 // $4 = HTTP
