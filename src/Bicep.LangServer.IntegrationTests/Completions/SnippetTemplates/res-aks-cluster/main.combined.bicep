@@ -1,5 +1,5 @@
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
-  name: 'aksCluster'
+  name: 'name'
   location: resourceGroup().location
   identity: {
     type: 'SystemAssigned'
@@ -22,7 +22,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
       ssh: {
         publicKeys: [
           {
-            keyData: 'keyData'
+            keyData: 'UPDATEME'
           }
         ]
       }

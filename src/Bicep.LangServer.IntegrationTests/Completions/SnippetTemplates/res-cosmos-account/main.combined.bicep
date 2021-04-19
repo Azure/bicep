@@ -1,5 +1,5 @@
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
-  name: 'cosmosDbAccount'
+  name: 'name'
   location: resourceGroup().location
   kind: 'GlobalDocumentDB'
   properties: {

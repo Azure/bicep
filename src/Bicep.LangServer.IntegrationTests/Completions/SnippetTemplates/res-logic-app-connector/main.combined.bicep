@@ -1,5 +1,5 @@
 resource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {
-  name: 'logicAppConnector'
+  name: 'name'
   location: resourceGroup().location
   properties: {
     name: 'logicAppConnector'

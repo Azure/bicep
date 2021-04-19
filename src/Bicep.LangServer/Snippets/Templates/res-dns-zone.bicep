@@ -1,5 +1,5 @@
 ﻿// DNS Zone
-resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
-  name: ${1:'dnsZone'}
+resource ${1:'dnsZone'} 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'name'
   location: 'global'
 }

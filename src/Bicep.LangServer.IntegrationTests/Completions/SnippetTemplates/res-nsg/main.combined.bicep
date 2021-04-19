@@ -1,5 +1,5 @@
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
-  name: 'networkSecurityGroup'
+  name: 'name'
   location: resourceGroup().location
   properties: {
     securityRules: [

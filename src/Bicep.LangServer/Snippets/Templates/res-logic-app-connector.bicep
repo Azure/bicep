@@ -1,6 +1,6 @@
 ﻿// Logic App Connector
-resource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {
-  name: ${1:'logicAppConnector'}
+resource ${1:'logicAppConnector'} 'Microsoft.Web/connections@2015-08-01-preview' = {
+  name: 'name'
   location: resourceGroup().location
   properties: {
     name: ${2:'logicAppConnector'}

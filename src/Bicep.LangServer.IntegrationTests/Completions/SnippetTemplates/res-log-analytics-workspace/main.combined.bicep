@@ -1,5 +1,5 @@
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
-  name: 'logAnalyticsWorkspace'
+  name: 'name'
   location: resourceGroup().location
   properties: {
     sku: {

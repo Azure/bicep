@@ -1,6 +1,6 @@
 ﻿// Public IP Prefix
-resource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {
-  name: ${1:'publicIPPrefix'}
+resource ${1:'publicIPPrefix'} 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {
+  name: 'name'
   location: resourceGroup().location
   sku: {
     name: 'Standard'

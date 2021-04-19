@@ -1,6 +1,6 @@
 ﻿// $1 = 'containerGroup'
 // $2 = 'containerName'
-// $3 = 'containerImage'
+// $3 = 'UPDATEME'
 // $4 = 80
 // $5 = 1
 // $6 = 4

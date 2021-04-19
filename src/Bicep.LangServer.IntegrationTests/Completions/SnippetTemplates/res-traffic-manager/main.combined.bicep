@@ -1,5 +1,5 @@
 resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {
-  name: 'trafficManagerProfile'
+  name: 'name'
   location: 'global'
   properties: {
     profileStatus: 'Enabled'

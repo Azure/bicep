@@ -1,5 +1,5 @@
 ﻿// Application Security Group
-resource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {
-  name: ${1:'applicationSecurityGroup'}
+resource ${1:'applicationSecurityGroup'} 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {
+  name: 'name'
   location: resourceGroup().location
 }

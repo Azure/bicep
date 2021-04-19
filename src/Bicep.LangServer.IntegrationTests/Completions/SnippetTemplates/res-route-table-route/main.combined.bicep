@@ -1,5 +1,5 @@
 resource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {
-  name: 'routeTable/route'
+  name: 'routeTableName/name'
   properties: {
     addressPrefix: '0.11.26.162'
     nextHopType: 'None'

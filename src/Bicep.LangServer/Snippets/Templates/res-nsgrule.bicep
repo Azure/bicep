@@ -1,6 +1,6 @@
 ﻿// Network Security Group Rule
-resource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {
-  name: ${1:'networkSecurityGroupSecurityRule'}
+resource ${1:'networkSecurityGroupSecurityRule'} 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {
+  name: 'networkSecurityGroup/name'
   properties: {
     description: ${2:'description'}
     protocol: '${3|*,Ah,Esp,Icmp,Tcp,Udb|}'

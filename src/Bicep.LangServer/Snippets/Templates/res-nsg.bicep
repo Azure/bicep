@@ -1,6 +1,6 @@
 ﻿// Network Security Group
-resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
-  name: ${1:'networkSecurityGroup'}
+resource ${1:'networkSecurityGroup'} 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
+  name: 'name'
   location: resourceGroup().location
   properties: {
     securityRules: [

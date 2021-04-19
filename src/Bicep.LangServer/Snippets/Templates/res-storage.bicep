@@ -1,6 +1,6 @@
 ﻿// Storage Account
-resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: ${1:'storageaccount'}
+resource ${1:'storageaccount'} 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: 'name'
   location: resourceGroup().location
   kind: '${2|StorageV2,Storage,BlobStorage,BlockBlobStorage,FileStorage|}'
   sku: {

@@ -1,5 +1,5 @@
 resource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
-  name: 'routeTable'
+  name: 'name'
   location: resourceGroup().location
   properties: {
     routes: [

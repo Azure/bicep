@@ -1,6 +1,6 @@
 ﻿// Kubernetes Service Cluster
-resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
-  name: ${1:'aksCluster'}
+resource ${1:'aksCluster'} 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
+  name: 'name'
   location: resourceGroup().location
   identity: {
     type: 'SystemAssigned'
@@ -23,7 +23,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
       ssh: {
         publicKeys: [
           {
-            keyData: ${7:'keyData'}
+            keyData: ${7:'UPDATEME'}
           }
         ]
       }

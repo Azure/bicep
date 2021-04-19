@@ -1,13 +1,13 @@
 ﻿// Container Group
-resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
-  name: ${1:'containerGroup'}
+resource ${1:'containerGroup'} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
+  name: 'name'
   location: resourceGroup().location
   properties: {
     containers: [
       {
         name: ${2:'containerName'}
         properties: {
-          image: ${3:'containerImage'}
+          image: ${3:'UPDATEME'}
           ports: [
             {
               port: ${4:80}

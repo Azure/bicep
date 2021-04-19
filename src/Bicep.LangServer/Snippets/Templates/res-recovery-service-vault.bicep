@@ -1,6 +1,6 @@
 ﻿// Recovery Service Vault
-resource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {
-  name: ${1:'recoveryServiceVault'}
+resource ${1:'recoveryServiceVault'} 'Microsoft.RecoveryServices/vaults@2021-01-01' = {
+  name: 'name'
   location: resourceGroup().location
   sku: {
     name: '${2|RS0,Standard|}'
