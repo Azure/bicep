@@ -6,3 +6,4 @@ resource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {
     apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'logicAppConnectorApi')
   }
 }
+

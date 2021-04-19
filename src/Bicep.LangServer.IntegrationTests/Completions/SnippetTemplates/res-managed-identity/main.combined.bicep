@@ -2,3 +2,4 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
   name: 'name'
   location: resourceGroup().location
 }
+

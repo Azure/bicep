@@ -8,3 +8,4 @@ resource logicApp 'Microsoft.Logic/integrationAccounts@2016-06-01' = {
     }
   }
 }
+

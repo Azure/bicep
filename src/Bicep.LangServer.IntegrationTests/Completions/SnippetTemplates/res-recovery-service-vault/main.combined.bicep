@@ -6,3 +6,4 @@ resource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {
     tier: 'Standard'
   }
 }
+
