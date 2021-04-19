@@ -1,5 +1,5 @@
 resource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {
-  name: 'networkSecurityGroup/SecurityRule'
+  name: 'networkSecurityGroup/name'
   properties: {
     description: 'description'
     protocol: 'Tcp'
