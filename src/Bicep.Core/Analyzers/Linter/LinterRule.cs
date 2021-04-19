@@ -3,11 +3,13 @@
 
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -16,21 +18,29 @@ namespace Bicep.Core.Analyzers.Linter
         public LinterRule(string code, string ruleName, string description, string docUri,
                           bool enableForEdit = true,
                           bool enableForCLI = true,
-                          DiagnosticLevel level = DiagnosticLevel.Warning)
+                          DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning)
         {
+
+            this.ConfigHelper = new ConfigHelper();
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
             this.RuleName = ruleName;
             this.Description = description;
             this.DocumentationUri = docUri;
-            this.DiagnosticLevel = level;
-            this.EnabledForEdits = enableForEdit;
+
             this.EnabledForCLI = enableForCLI;
+            this.EnabledForEditing = enableForEdit;
+            this.DiagnosticLevel = diagnosticLevel;
+
+            LoadConfiguration();
         }
 
+        private readonly ConfigHelper ConfigHelper;
         public string AnalyzerName { get; }
         public string Code { get; }
         public string RuleName { get; }
+
+        public const string RuleConfigSection = "Linter:Rules";
 
         // TODO: Decide how we want to manage configuration
         // Variants:
@@ -38,11 +48,22 @@ namespace Bicep.Core.Analyzers.Linter
         //  2. set severity of diagnostic
         //  3. when fix is present what about auto application
 
-        public bool EnabledForEdits { get; private set; }
+        public bool EnabledForEditing { get; private set; }
         public bool EnabledForCLI { get; private set; }
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
         public string DocumentationUri { get; }
+
+        private void LoadConfiguration()
+        {
+            this.EnabledForCLI = GetConfiguration(nameof(this.EnabledForCLI), this.EnabledForCLI);
+            this.EnabledForEditing = GetConfiguration(nameof(this.EnabledForEditing), this.EnabledForEditing);
+
+            var configDiagLevel = GetConfiguration(nameof(this.DiagnosticLevel), this.DiagnosticLevel.ToString());
+            if(DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl)){
+                this.DiagnosticLevel = lvl;
+            }
+        }
 
         /// <summary>
         /// GetMessage allows a linter rule display message to be dynamic without
@@ -52,20 +73,72 @@ namespace Bicep.Core.Analyzers.Linter
         /// <returns></returns>
         protected virtual string GetMessage() => this.Description;
 
+        /// <summary>
+        /// Gets a formatted message using the supplied parameter values.
+        /// In the base class this ignores the parameters and will throw
+        /// an exception if called in Debug build.
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        protected virtual string GetFormattedMessage(params object[] values)
+        {
+            Debug.Assert(values == null || values.Length == 0, "LinterRule GetFormattedMessage when needed should always be overridden. Values are ignored in base class.");
+            return this.Description;
+        }
+
         public abstract IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model);
 
         public void ConfigureRule(bool enabledOnChange, bool enabledForDocument, DiagnosticLevel level)
         {
-            this.EnabledForEdits = enabledOnChange;
+            this.EnabledForEditing = enabledOnChange;
             this.EnabledForCLI = enabledForDocument;
             this.DiagnosticLevel = level;
         }
 
+        protected bool GetConfiguration(string name, bool defaultValue)
+            => ConfigHelper.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
+
+        protected string GetConfiguration(string name, string defaultValue)
+            => ConfigHelper.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
+
+        protected IEnumerable<string> GetConfiguration(string name, string[] defaultValue)
+            => ConfigHelper.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
+
+        /// <summary>
+        ///  Create a simple diagnostic that displays the defined Description
+        ///  of the derived rule.
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
         internal virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span) =>
-            new(analyzerName: this.AnalyzerName, span: span, level: this.DiagnosticLevel, code: this.Code, message: this.GetMessage());
+            new(analyzerName: this.AnalyzerName,
+                span: span,
+                level: this.DiagnosticLevel,
+                code: this.Code,
+                message: this.GetMessage());
+
+        /// <summary>
+        /// Create a diagnostic message for a span that has a customized string
+        /// formatter defined in the deriving class.
+        /// </summary>
+        /// <param name="span"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        internal virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span, params object[] values) =>
+            new(analyzerName: this.AnalyzerName,
+                span: span,
+                level: this.DiagnosticLevel,
+                code: this.Code,
+                message: this.GetFormattedMessage(values));
 
         internal virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
-            new(analyzerName: this.AnalyzerName, span: span, level: this.DiagnosticLevel, code: this.Code, message: this.GetMessage(), codeFixes: new[] { fix }, label: null);
+            new(analyzerName: this.AnalyzerName,
+                span: span,
+                level: this.DiagnosticLevel,
+                code: this.Code,
+                message: this.GetMessage(),
+                codeFixes: new[] { fix },
+                label: null);
 
     }
 }

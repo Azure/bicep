@@ -14,7 +14,7 @@ namespace Bicep.Core.Analyzers.Interfaces
         string Description { get; }
         DiagnosticLevel DiagnosticLevel { get; }
         string DocumentationUri { get; }
-        bool EnabledForEdits { get; }
+        bool EnabledForEditing { get; }
         bool EnabledForCLI { get; }
         string RuleName { get; }
 

@@ -17,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             description: "A valid template must be parameterized.",
             enableForCLI: true,
             enableForEdit: true,
-            level: Diagnostics.DiagnosticLevel.Error,
+            diagnosticLevel: Diagnostics.DiagnosticLevel.Error,
             docUri: "https://bicep/linter/rules/BCPL1000")
         {
         }
