@@ -17,6 +17,7 @@ using Bicep.Core.Workspaces;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.BicepHelpers;
 using Bicep.Decompiler.Exceptions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler
@@ -510,21 +511,28 @@ namespace Bicep.Decompiler
                 _ => throw new NotImplementedException($"Unrecognized expression {ExpressionsEngine.SerializeExpression(expression)}"),
             };
 
-        private SyntaxBase ParseString(string? value)
+        private SyntaxBase ParseString(string? value, IJsonLineInfo lineInfo)
         {
-            if (value == null)
+            try
             {
-                throw new ArgumentNullException(nameof(value));
-            }
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
 
-            if (ExpressionsEngine.IsLanguageExpression(value))
+                if (ExpressionsEngine.IsLanguageExpression(value))
+                {
+                    var expression = ExpressionsEngine.ParseLanguageExpression(value);
+
+                    return ParseLanguageExpression(expression);
+                }
+
+                return SyntaxFactory.CreateStringLiteral(value);
+            }
+            catch (Exception exception)
             {
-                var expression = ExpressionsEngine.ParseLanguageExpression(value);
-
-                return ParseLanguageExpression(expression);
+                throw new ConversionFailedException(exception.Message, lineInfo, exception);
             }
-
-            return SyntaxFactory.CreateStringLiteral(value);
         }
 
         private static IntegerLiteralSyntax ParseIntegerJToken(JValue value)
@@ -536,11 +544,11 @@ namespace Bicep.Decompiler
         private SyntaxBase ParseJValue(JValue value)
             => value.Type switch
             {
-                JTokenType.String => ParseString(value.ToString()),
-                JTokenType.Uri => ParseString(value.ToString()),
+                JTokenType.String => ParseString(value.ToString(), value),
+                JTokenType.Uri => ParseString(value.ToString(), value),
                 JTokenType.Integer => ParseIntegerJToken(value),
-                JTokenType.Date => ParseString(value.ToString()),
-                JTokenType.Float => ParseString(value.ToString()),
+                JTokenType.Date => ParseString(value.ToString(), value),
+                JTokenType.Float => ParseString(value.ToString(), value),
                 JTokenType.Boolean => value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
                     new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
@@ -563,8 +571,11 @@ namespace Bicep.Decompiler
         private ObjectSyntax ParseJObject(JObject jObject)
         {
             var properties = new List<ObjectPropertySyntax>();
-            foreach (var (key, value) in jObject)
+            foreach (var property in jObject.Properties())
             {
+                var key = property.Name;
+                var value = property.Value;
+
                 // here we're handling a property copy
                 if (key == "copy" && value is JArray)
                 {
@@ -586,7 +597,7 @@ namespace Bicep.Decompiler
                 }
                 else if (ExpressionsEngine.IsLanguageExpression(key))
                 {
-                    var keySyntax = ParseString(key);
+                    var keySyntax = ParseString(key, property);
                     if (keySyntax is not StringSyntax)
                     {
                         keySyntax = SyntaxFactory.CreateInterpolatedKey(keySyntax);
@@ -1014,13 +1025,11 @@ namespace Bicep.Decompiler
                 }
             }
 
-            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
-            var value = ProcessCondition(resource, body);
-
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
 
+            var nestedProperties = TemplateHelpers.GetNestedProperty(resource, "properties");
             var nestedTemplate = TemplateHelpers.GetNestedProperty(resource, "properties", "template");
-            if (nestedTemplate is not null)
+            if (nestedProperties is not null && nestedTemplate is not null)
             {
                 if (nestedTemplate is not JObject nestedTemplateObject)
                 {
@@ -1030,8 +1039,44 @@ namespace Bicep.Decompiler
                 var expressionEvaluationScope = TemplateHelpers.GetNestedProperty(resource, "properties", "expressionEvaluationOptions", "scope")?.ToString();
                 if (!StringComparer.OrdinalIgnoreCase.Equals(expressionEvaluationScope, "inner"))
                 {
-                    throw new ConversionFailedException($"Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information {typeString} {nameString}", nestedTemplate);
+                    var (rewrittenTemplate, parameters) = TemplateHelpers.ConvertNestedTemplateInnerToOuter(nestedTemplateObject);
+
+                    if (TemplateHelpers.GetNestedProperty(rewrittenTemplate, "parameters") is not JObject rewrittenParameters)
+                    {
+                        rewrittenParameters = new JObject();
+                        rewrittenTemplate["parameters"] = rewrittenParameters;
+                    }
+
+                    foreach (var parameter in parameters.Keys)
+                    {
+                        if (TemplateHelpers.GetNestedProperty(template, "parameters", parameter) is {} parentTemplateParam && 
+                            parentTemplateParam.DeepClone() is JObject nestedParam)
+                        {
+                            rewrittenParameters[parameter] = nestedParam;
+                            TemplateHelpers.RemoveNestedProperty(nestedParam, "defaultValue");
+                        }
+                        else
+                        {
+                            rewrittenParameters[parameter] = new JObject
+                            {
+                                ["type"] = "string"
+                            };
+                        }
+                    }
+
+                    nestedTemplateObject = rewrittenTemplate;
+                    nestedProperties["template"] = rewrittenTemplate;
+                    nestedProperties["parameters"] = new JObject(parameters.Select(x => new JProperty(
+                        x.Key,
+                        new JObject{
+                            ["value"] = ExpressionsEngine.SerializeExpression(x.Value), 
+                        })));
+
+                    //throw new ConversionFailedException($"Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information {typeString} {nameString}", nestedTemplate);
                 }
+
+                var (nestedBody, nestedDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
+                var nestedValue = ProcessCondition(resource, nestedBody);
 
                 var filePath = $"./nested_{identifier}.bicep";
                 var nestedModuleUri = fileResolver.TryResolveModulePath(fileUri, filePath) ?? throw new ConversionFailedException($"Unable to module uri for {typeString} {nameString}", nestedTemplate);
@@ -1045,12 +1090,12 @@ namespace Bicep.Decompiler
                 workspace.UpsertSyntaxTrees(nestedSyntaxTree.AsEnumerable());
 
                 return new ModuleDeclarationSyntax(
-                    decorators,
+                    nestedDecorators,
                     SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
                     SyntaxFactory.CreateIdentifier(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
                     SyntaxFactory.AssignmentToken,
-                    value);
+                    nestedValue);
             }
 
             var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") ??
@@ -1060,6 +1105,9 @@ namespace Bicep.Decompiler
             {
                 throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
             }
+
+            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
+            var value = ProcessCondition(resource, body);
 
             var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
             var module = new ModuleDeclarationSyntax(
@@ -1153,7 +1201,7 @@ namespace Bicep.Decompiler
                 decorators,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "resource"),
                 SyntaxFactory.CreateIdentifier(identifier),
-                ParseString($"{typeString}@{apiVersionString}"),
+                SyntaxFactory.CreateStringLiteral($"{typeString}@{apiVersionString}"),
                 null,
                 SyntaxFactory.AssignmentToken,
                 value);

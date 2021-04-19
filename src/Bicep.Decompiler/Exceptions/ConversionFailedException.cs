@@ -8,8 +8,8 @@ namespace Bicep.Decompiler.Exceptions
 {
     public class ConversionFailedException : Exception
     {
-        public ConversionFailedException(string message, IJsonLineInfo jsonLineInfo)
-            : base(FormatMessage(message, jsonLineInfo))
+        public ConversionFailedException(string message, IJsonLineInfo jsonLineInfo, Exception? innerException = null)
+            : base(FormatMessage(message, jsonLineInfo), innerException)
         {
         }
 
