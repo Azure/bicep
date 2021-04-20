@@ -30,7 +30,14 @@ namespace Bicep.Decompiler
 
         public static string EscapeIdentifier(string identifier)
         {
-            return Regex.Replace(identifier, "[^a-zA-Z0-9\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Nd}\\p{Mn}\\p{Mc}\\p{Cf}]+", "_").Trim('_');
+            var value = Regex.Replace(identifier, "[^a-zA-Z0-9\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Nd}\\p{Mn}\\p{Mc}\\p{Cf}]+", "_").Trim('_');
+            if (Regex.IsMatch(value, "^[0-9].*"))
+            {
+                // an identifier cannot start with a digit - work around this by prefixing with '_'
+                value = "_" + value;
+            }
+
+            return value;
         }
 
         public string? TryLookupName(NameType nameType, string desiredName)
