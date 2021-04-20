@@ -13,11 +13,11 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BCPL1020 : LinterRule
+    public sealed class BCPL1020 : LinterRule
     {
         private readonly HashSet<string> DisallowedHosts;
 
-        internal BCPL1020() : base(
+        public BCPL1020() : base(
             code: "BCPL1020",
             ruleName: "Environment() URL hardcoded",
             description: "Environment() URLs should not be hardcoded",

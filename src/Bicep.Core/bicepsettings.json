@@ -1,0 +1,41 @@
+{
+  "Linter": {
+    "Rules": {
+      "BCPL1010": {
+        "EnabledForEditing": true,
+        "EnabledForCLI": true
+      },
+      "BCPL1020": {
+        "EnabledForEditing": true,
+        "EnabledForCLI": true,
+        "DiagnosticLevel": "Warning",
+        "DisallowedHosts": [
+          "management.core.windows.net",
+          "gallery.azure.com",
+          "management.core.windows.net",
+          "management.azure.com",
+          "database.windows.net",
+          "core.windows.net",
+          "login.microsoftonline.com",
+          "graph.windows.net",
+          "graph.windows.net",
+          "trafficmanager.net",
+          "vault.azure.net",
+          "datalake.azure.net",
+          "azuredatalakestore.net",
+          "azuredatalakeanalytics.net",
+          "vault.azure.net",
+          "api.loganalytics.io",
+          "api.loganalytics.iov1",
+          "asazure.windows.net",
+          "region.asazure.windows.net",
+          "api.loganalytics.iov1",
+          "api.loganalytics.io",
+          "asazure.windows.net",
+          "region.asazure.windows.net",
+          "batch.core.windows.net"
+        ]
+      }
+    }
+  }
+}

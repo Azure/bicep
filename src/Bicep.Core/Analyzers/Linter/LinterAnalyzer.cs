@@ -2,44 +2,58 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Semantics;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Bicep.Core.Analyzers.Linter
 {
     internal class LinterAnalyzer : IBicepAnalyzer
     {
         public static string AnalyzerName => "Bicep Internal Linter";
-        readonly List<IBicepAnalyzerRule> RuleSet;
+        private static readonly IEnumerable<Type> RuleTypes;
+        private static readonly ImmutableArray<IBicepAnalyzerRule> RuleSet;
 
-        public LinterAnalyzer()
+
+        static LinterAnalyzer()
         {
-            RuleSet = CreateLinterRules().ToList();
+            System.Diagnostics.Debugger.Launch();
+
+            RuleTypes = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => t.IsSubclassOf(typeof(LinterRule)));
+
+            RuleSet = CreateLinterRules().ToImmutableArray();
         }
 
-        public IEnumerable<IBicepAnalyzerRule> CreateLinterRules()
+        private static  IEnumerable<IBicepAnalyzerRule> CreateLinterRules()
         {
-            yield return new BCPL1000();
-            yield return new BCPL1010();
-            yield return new BCPL1020();
-            yield return new BCPL1030();
-            yield return new BCPL1040();
-            yield return new BCPL1050();
-            yield return new BCPL1060();
-            yield return new BCPL1070();
-            yield return new BCPL1080();
-            // TODO: use reflection to load these rules
+            //yield return new BCPL1000();
+            //yield return new BCPL1010();
+            //yield return new BCPL1020();
+            //yield return new BCPL1030();
+            //yield return new BCPL1040();
+            //yield return new BCPL1050();
+            //yield return new BCPL1060();
+            //yield return new BCPL1070();
+            //yield return new BCPL1080();
+
+            foreach(var ruleType in RuleTypes)
+            {
+                if(typeof(IBicepAnalyzerRule).IsAssignableFrom(ruleType))
+                {
+                    yield return (IBicepAnalyzerRule) Activator.CreateInstance(ruleType);
+                }
+            }
         }
 
-        public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => this.RuleSet;
+        public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => RuleSet;
 
         public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel)
-            => this.RuleSet.SelectMany(r => r.Analyze(semanticModel));
+            => RuleSet.SelectMany(r => r.Analyze(semanticModel));
 
     }
 }

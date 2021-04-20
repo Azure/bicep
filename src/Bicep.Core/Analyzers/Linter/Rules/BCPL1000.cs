@@ -9,9 +9,9 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BCPL1000 : LinterRule
+    public sealed class BCPL1000 : LinterRule
     {
-        internal BCPL1000() : base(
+        public BCPL1000() : base(
             code: "BCPL1000",
             ruleName: "Parameters Required",
             description: "A valid template must be parameterized.",

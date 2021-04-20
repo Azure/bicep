@@ -9,9 +9,9 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BCPL1010 : LinterRule
+    public sealed class BCPL1010 : LinterRule
     {
-        internal BCPL1010() : base(
+        public BCPL1010() : base(
             code: "BCPL1010",
             ruleName: "Parameters must be used",
             description: "Declared parameter must be referenced within the document scope.",

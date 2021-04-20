@@ -11,15 +11,14 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BCPL1080 : LinterRule
+    public sealed class BCPL1080 : LinterRule
     {
-        internal BCPL1080() : base(
+        public BCPL1080() : base(
             code: "BCPL1080",
             ruleName: "String interpolation can be simplified.",
             description: "String interpolation can be simplified. String variables can be directly assigned to string properties and variables.",
             docUri: "https://bicep/linter/rules/BCPL1080") // TODO: setup up doc pages
         { }
-
 
         override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
         {

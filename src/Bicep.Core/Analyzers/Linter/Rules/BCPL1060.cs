@@ -15,9 +15,9 @@ using System.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BCPL1060 : LinterRule
+    public sealed class BCPL1060 : LinterRule
     {
-        internal BCPL1060() : base(
+        public BCPL1060() : base(
             code: "BCPL1060",
             ruleName: "Dynamic variable used concat",
             description: "Dynamic variable should not use concat - string interpolation should be used.",
@@ -156,7 +156,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// Rewriter that allows use of a callback to rewrite any type of node.
         /// It can also replace the node type based on callback conversion
         /// </summary>
-        protected class CallbackConvertorRewriter<TSyntax, TReturn> : SyntaxRewriteVisitor
+        private class CallbackConvertorRewriter<TSyntax, TReturn> : SyntaxRewriteVisitor
             where TSyntax : SyntaxBase
             where TReturn : SyntaxBase
         {

@@ -10,9 +10,9 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    internal class BCPL1040 : LinterRule
+    public sealed class BCPL1040 : LinterRule
     {
-        internal BCPL1040() : base(
+        public BCPL1040() : base(
             code: "BCPL1040",
             ruleName: "Location set by parameter",
             description: "Best practice dictates that Location be set via parameter.",

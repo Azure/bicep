@@ -13,7 +13,7 @@ using System.Diagnostics;
 
 namespace Bicep.Core.Analyzers.Linter
 {
-    internal abstract class LinterRule : IBicepAnalyzerRule
+    public abstract class LinterRule : IBicepAnalyzerRule
     {
         public LinterRule(string code, string ruleName, string description, string docUri,
                           bool enableForEdit = true,
