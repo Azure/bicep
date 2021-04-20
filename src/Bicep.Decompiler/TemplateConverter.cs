@@ -734,40 +734,40 @@ namespace Bicep.Decompiler
         {
             return PerformScopedAction(() =>
             {
-                input = ExpressionHelpers.ReplaceFunctionExpressions(input, function =>
+                input = ExpressionHelpers.RewriteExpressions(input, expression =>
                 {
-                    if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
+                    if (expression is not FunctionExpression function || !StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
                     {
-                        return;
+                        return expression;
                     }
 
                     if (function.Parameters.Length == 0)
                     {
                         // copyIndex() - replace with '<index>'
-                        function.Function = "variables";
-                        function.Parameters = new LanguageExpression[]
-                        {
-                            new JTokenExpression(indexIdentifier),
-                        };
+                        return new FunctionExpression(
+                            "variables",
+                            new [] { new JTokenExpression(indexIdentifier), },
+                            function.Properties);
                     }
                     else if (function.Parameters.Length == 1 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == null) // exclude 'named' copyIndex - it does not apply to resources.
                     {
                         // copyIndex(<offset>) - replace with '<index> + <offset>'
                         var varExpression = new FunctionExpression(
                             "variables",
-                            new LanguageExpression[]
-                            {
-                                new JTokenExpression(indexIdentifier),
-                            },
+                            new [] { new JTokenExpression(indexIdentifier), },
                             Array.Empty<LanguageExpression>());
 
-                        function.Function = "add";
-                        function.Parameters = new LanguageExpression[]
-                        {
-                            varExpression,
-                            function.Parameters[0],
-                        };
+                        return new FunctionExpression(
+                            "add",
+                            new []
+                            {
+                                varExpression,
+                                function.Parameters[0],
+                            },
+                            function.Properties);
                     }
+
+                    return expression;
                 });
 
                 var value = getSyntaxForInputFunc(input);
@@ -788,40 +788,40 @@ namespace Bicep.Decompiler
         {
             return PerformScopedAction(() =>
             {
-                input = ExpressionHelpers.ReplaceFunctionExpressions(input, function =>
+                input = ExpressionHelpers.RewriteExpressions(input, expression =>
                 {
-                    if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
+                    if (expression is not FunctionExpression function || !StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
                     {
-                        return;
+                        return expression;
                     }
 
                     if (function.Parameters.Length == 1 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == name)
                     {
                         // copyIndex(<name>) - replace with '<index>'
-                        function.Function = "variables";
-                        function.Parameters = new LanguageExpression[]
-                        {
-                            new JTokenExpression(indexIdentifier),
-                        };
+                        return new FunctionExpression(
+                            "variables",
+                            new [] { new JTokenExpression(indexIdentifier) },
+                            function.Properties);
                     }
                     else if (function.Parameters.Length == 2 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == name)
                     {
                         // copyIndex(<name>, <offset>) - replace with '<index> + <offset>'
                         var varExpression = new FunctionExpression(
                             "variables",
-                            new LanguageExpression[]
-                            {
-                                new JTokenExpression(indexIdentifier),
-                            },
+                            new [] { new JTokenExpression(indexIdentifier), },
                             Array.Empty<LanguageExpression>());
 
-                        function.Function = "add";
-                        function.Parameters = new LanguageExpression[]
-                        {
-                            varExpression,
-                            function.Parameters[1],
-                        };
+                        return new FunctionExpression(
+                            "add",
+                            new []
+                            {
+                                varExpression,
+                                function.Parameters[1],
+                            },
+                            function.Properties);
                     }
+
+                    return expression;
                 });
 
                 return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), getSyntaxForInputFunc(input));
@@ -1146,7 +1146,8 @@ namespace Bicep.Decompiler
             }
 
             var properties = new List<ObjectPropertySyntax>();
-            properties.Add(SyntaxFactory.CreateObjectProperty("name", ParseJToken(nameString)));
+            var nameProperty = TemplateHelpers.GetProperty(resource, "name");
+            properties.Add(SyntaxFactory.CreateObjectProperty("name", ParseJToken(nameProperty?.Value)));
 
             var scope = TryModuleGetScopeProperty(resource);
             if (scope is not null)

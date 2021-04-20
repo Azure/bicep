@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Helpers;
+using Azure.Deployments.Core.Utilities;
+using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
@@ -255,39 +257,193 @@ namespace Bicep.Decompiler.ArmHelpers
 
             return output.Trim('/');
         }
-
-        public static TToken ReplaceFunctionExpressions<TToken>(TToken token, Action<FunctionExpression> onFunctionExpression)
-            where TToken : JToken
+        
+        private static class LanguageExpressionRewriter
         {
-            var expressionRewriter = new LanguageExpressionVisitor
+            public static string Rewrite(string value, Func<LanguageExpression, LanguageExpression> rewriteFunc)
             {
-                OnFunctionExpression = onFunctionExpression,
-            };
-
-            string RewriteStringValue(string value)
-            {
-                if (!ExpressionsEngine.IsLanguageExpression(value))
+                LanguageExpression expression;
+                if (ExpressionsEngine.IsLanguageExpression(value))
                 {
-                    return value;
+                    expression = ExpressionsEngine.ParseLanguageExpression(value);
+                }
+                else
+                {
+                    expression = new JTokenExpression(value);
                 }
 
-                var expression = ExpressionsEngine.ParseLanguageExpression(value);
-                expression.Accept(expressionRewriter);
-
-                return ExpressionsEngine.SerializeExpression(expression);
+                var (hasChanges, rewritten) = RewriteInternal(expression, rewriteFunc);
+                
+                return hasChanges ? ExpressionsEngine.SerializeExpression(rewritten, new ExpressionSerializerSettings { IncludeOuterSquareBrackets = true }) : value;
             }
 
-            if (token is JValue && token.Type == JTokenType.String)
+            private static (bool hasChanges, LanguageExpression[] output) RewriteInternal(LanguageExpression[] input, Func<LanguageExpression, LanguageExpression> rewriteFunc)
             {
-                var rewritten = RewriteStringValue(token.ToString());
+                var output = new LanguageExpression[input.Length];
 
-                return (new JValue(rewritten) as TToken)!;
+                var hasChanges = false;
+                for (var i = 0; i < input.Length; i++)
+                {
+                    var (entryHasChanges, entryOutput) = RewriteInternal(input[i], rewriteFunc);
+
+                    hasChanges |= entryHasChanges;
+                    output[i] = entryOutput;
+                }
+
+                return (hasChanges, output);
             }
 
-            // transform in-place
-            JTokenHelper.TransformJsonStringValues(token, (key, value) => RewriteStringValue(value));
+            private static (bool hasChanges, LanguageExpression output) RewriteInternal(LanguageExpression input, Func<LanguageExpression, LanguageExpression> rewriteFunc)
+            {
+                switch (input)
+                {
+                    case FunctionExpression function:
+                    {
+                        var hasChanges = false;
+                        
+                        var newParameters = function.Parameters;
+                        if (function.Parameters is not null)
+                        {
+                            var (hasChangesInner, output) = RewriteInternal(function.Parameters, rewriteFunc);
+                            hasChanges |= hasChangesInner;
+                            newParameters = output;
+                        }
 
-            return token;
+                        var newProperties = function.Properties;
+                        if (function.Properties is not null)
+                        {
+                            var (hasChangesInner, output) = RewriteInternal(function.Properties, rewriteFunc);
+                            hasChanges |= hasChangesInner;
+                            newProperties = output;
+                        }
+
+                        if (hasChanges)
+                        {
+                            function = new FunctionExpression(function.Function, newParameters, newProperties);
+                        }
+
+                        var rewritten = rewriteFunc(function);
+                        hasChanges |= !object.ReferenceEquals(function, rewritten);
+
+                        return (hasChanges, rewritten);
+                    }
+                    case JTokenExpression jtoken:
+                    {
+                        var rewritten = rewriteFunc(jtoken);
+                        var hasChanges = !object.ReferenceEquals(jtoken, rewritten);
+
+                        return (hasChanges, rewritten);
+                    }
+                    default:
+                        throw new NotImplementedException($"Unrecognized expression type {input.GetType()}");
+                }
+            }
+        }
+
+        public static TToken RewriteExpressions<TToken>(TToken input, Func<LanguageExpression, LanguageExpression> rewriteFunc)
+            where TToken : JToken
+        {
+            if (input.DeepClone() is not TToken clonedInput)
+            {
+                throw new InvalidOperationException($"Failed to clone input");
+            }
+
+            input = clonedInput;
+
+            JsonUtility.WalkJsonRecursive(
+                input,
+                objectAction: @object => {
+                    // force enumeration with .ToArray() - to avoid modifying a collection while iterating
+                    foreach (var property in @object.Properties().ToArray())
+                    {
+                        var newName = LanguageExpressionRewriter.Rewrite(property.Name, rewriteFunc);
+                        if (newName != property.Name)
+                        {
+                            property.AddBeforeSelf(new JProperty(newName, property.Value));
+                            property.Remove();
+                        }
+                    }
+                },
+                propertyAction: property => {
+                    if (property.Value is null)
+                    {
+                        return;
+                    }
+
+                    if (property.Value.Type == JTokenType.String && property.Value.ToObject<string>() is string value)
+                    {
+                        var newValue = LanguageExpressionRewriter.Rewrite(value, rewriteFunc);
+                        if (newValue != value)
+                        {
+                            property.Value.Replace(newValue);
+                        }
+                    }
+                    else if (property.Value.Type == JTokenType.Array)
+                    {
+                        // force enumeration with .ToArray() - to avoid modifying a collection while iterating
+                        foreach (var child in property.Value.Children().ToArray())
+                        {
+                            if (child.Type == JTokenType.String && child.ToObject<string>() is string childValue)
+                            {
+                                var newValue = LanguageExpressionRewriter.Rewrite(childValue, rewriteFunc);
+                                if (newValue != childValue)
+                                {
+                                    child.Replace(newValue);
+                                }
+                            }
+                        }
+                    }
+                });
+
+            return input;
+        }
+
+        public static void VisitExpressions<TToken>(TToken input, Action<LanguageExpression> visitFunc)
+            where TToken : JToken
+        {
+            if (input is null)
+            {
+                return;
+            }
+
+            var visitor = new LanguageExpressionVisitor
+            {
+                OnFunctionExpression = visitFunc,
+                OnJTokenExpression = visitFunc,
+            };
+
+            JsonUtility.WalkJsonRecursive(
+                input,
+                objectAction: @object => {
+                    foreach (var property in @object.Properties())
+                    {
+                        if (ExpressionsEngine.IsLanguageExpression(property.Name))
+                        {
+                            var expression = ExpressionsEngine.ParseLanguageExpression(property.Name);
+                            expression.Accept(visitor);
+                        }
+                        else
+                        {
+                            var expression = new JTokenExpression(property.Name);
+                            expression.Accept(visitor);
+                        }
+                    }
+                },
+                tokenAction: token => {
+                    if (token.Type == JTokenType.String && token.ToObject<string>() is string value)
+                    {
+                        if (ExpressionsEngine.IsLanguageExpression(value))
+                        {
+                            var expression = ExpressionsEngine.ParseLanguageExpression(value);
+                            expression.Accept(visitor);
+                        }
+                        else
+                        {
+                            var expression = new JTokenExpression(value);
+                            expression.Accept(visitor);
+                        }
+                    }
+                });
         }
 
         public static string? TryGetStringValue(LanguageExpression expression)

@@ -8,6 +8,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.UnitTests.Assertions;
+using Azure.Deployments.Expression.Expressions;
 
 namespace Bicep.Core.IntegrationTests.ArmHelpers
 {
@@ -100,13 +101,15 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         [DataRow("{\"val\": \"[replaceMe()]\"}", "{\"val\": \"[replaced()]\"}")]
         [DataRow("{\"val\": [\"[replaceMe()]\"]}", "{\"val\": [\"[replaced()]\"]}")]
         [DataRow("\"[replaceMe()]\"", "\"[replaced()]\"")]
-        public void ReplaceFunctionExpressions_replaces_function_expressions(string jsonInput, string expectedJsonOutput)
+        public void RewriteExpressions_replaces_expressions(string jsonInput, string expectedJsonOutput)
         {
             var input = JToken.Parse(jsonInput);
-            var output = ExpressionHelpers.ReplaceFunctionExpressions(input, function => {
-                if (function.Function == "replaceMe") {
+            var output = ExpressionHelpers.RewriteExpressions(input, expression => {
+                if (expression is FunctionExpression function && function.Function == "replaceMe") {
                     function.Function = "replaced";
                 }
+
+                return expression;
             });
 
             output.Should().DeepEqual(JToken.Parse(expectedJsonOutput));
