@@ -39,21 +39,17 @@ module addAccessPolicy './nested_addAccessPolicy.bicep' = {
   name: 'addAccessPolicy'
   scope: resourceGroup(keyVaultResourceGroupName)
   params: {
+    resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName: reference(dataLakeStoreName_resource.id, '2016-11-01', 'Full')
     keyVaultName: keyVaultName
-    dataLakeStoreName: dataLakeStoreName
   }
-  dependsOn: [
-    dataLakeStoreName_resource
-  ]
 }
 
 module updateAdlsAccount './nested_updateAdlsAccount.bicep' = {
   name: 'updateAdlsAccount'
   params: {
+    resourceId_parameters_keyVaultResourceGroupName_Microsoft_KeyVault_vaults_parameters_keyVaultName: resourceId(keyVaultResourceGroupName, 'Microsoft.KeyVault/vaults', keyVaultName)
     dataLakeStoreName: dataLakeStoreName
     location: location
-    keyVaultResourceGroupName: keyVaultResourceGroupName
-    keyVaultName: keyVaultName
     keyName: keyName
     keyVersion: keyVersion
   }

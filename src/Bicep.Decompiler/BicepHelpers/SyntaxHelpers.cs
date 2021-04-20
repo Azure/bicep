@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
@@ -114,5 +115,12 @@ namespace Bicep.Decompiler.BicepHelpers
 
         public static TokenType? TryGetBinaryOperatorReplacement(string bannedFunctionName)
             => BinaryOperatorReplacements.TryGetValue(bannedFunctionName, out var tokenType) ? tokenType : null;
+
+        public static Token CreatePlaceholderToken(TokenType tokenType, string trailingComment)
+        {
+            var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, SyntaxFactory.EmptySpan, $"/* {trailingComment} */");
+
+            return new Token(tokenType, SyntaxFactory.EmptySpan, "?", SyntaxFactory.EmptyTrivia, trailingTrivia.AsEnumerable());
+        }
     }
 }

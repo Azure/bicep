@@ -126,7 +126,8 @@ namespace Bicep.Decompiler.ArmHelpers
                 }
             }
         }
-        public static (JObject template, IReadOnlyDictionary<string, FunctionExpression> parameters) ConvertNestedTemplateInnerToOuter(JObject template)
+
+        public static (JObject template, IReadOnlyDictionary<string, (FunctionExpression expression, string type)> parameters) ConvertNestedTemplateInnerToOuter(JObject template)
         {
             // this is useful to avoid naming clashes - we should prioritize names that have come from the parent template
             var paramsAccessed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -148,9 +149,9 @@ namespace Bicep.Decompiler.ArmHelpers
 
             // we don't want to populate this when we first visit parameters, because we may end up removing parameters
             // - for example if they are only in-use inside 'reference()' functions
-            var parameters = new Dictionary<string, FunctionExpression>(StringComparer.OrdinalIgnoreCase);
+            var parameters = new Dictionary<string, (FunctionExpression expression, string type)>(StringComparer.OrdinalIgnoreCase);
 
-            LanguageExpression ReplaceWithParameter(FunctionExpression function, LanguageExpression paramNameExpression)
+            LanguageExpression ReplaceWithParameter(FunctionExpression function, string type, LanguageExpression paramNameExpression)
             {
                 var withoutProperties = new FunctionExpression(
                     function.Function,
@@ -167,7 +168,7 @@ namespace Bicep.Decompiler.ArmHelpers
 
                 if (!parameters.ContainsKey(paramName))
                 {
-                    parameters[paramName] = withoutProperties;
+                    parameters[paramName] = (withoutProperties, type);
                 }
 
                 return new FunctionExpression(
@@ -190,7 +191,7 @@ namespace Bicep.Decompiler.ArmHelpers
                     paramNameExpression = firstParam;
                 }
 
-                return ReplaceWithParameter(function, paramNameExpression);
+                return ReplaceWithParameter(function, "object", paramNameExpression);
             });
 
             // process resourceIds
@@ -201,7 +202,7 @@ namespace Bicep.Decompiler.ArmHelpers
                     return expression;
                 }
 
-                return ReplaceWithParameter(function, function);
+                return ReplaceWithParameter(function, "string", function);
             });
 
             // process variables
@@ -212,7 +213,24 @@ namespace Bicep.Decompiler.ArmHelpers
                     return expression;
                 }
 
-                return ReplaceWithParameter(function, function);
+                return ReplaceWithParameter(function, "__BICEP_REPLACE", function);
+            });
+
+            // unescape escaped expressions
+            template = ExpressionHelpers.RewriteExpressions(template, expression => 
+            {
+                if (expression is not JTokenExpression jtoken)
+                {
+                    return expression;
+                }
+
+                var stringValue = jtoken.Value.ToString();
+                if (!ExpressionsEngine.IsLanguageExpression(stringValue))
+                {
+                    return expression;
+                }
+                
+                return ExpressionsEngine.ParseLanguageExpression(stringValue);
             });
 
             // add parameters to lookup
@@ -231,10 +249,12 @@ namespace Bicep.Decompiler.ArmHelpers
                 var paramNameString = parameterName.Value.ToString();
                 if (!parameters.ContainsKey(paramNameString))
                 {
-                    parameters[parameterName.Value.ToString()] = new FunctionExpression(
+                    var paramExpression = new FunctionExpression(
                         "parameters",
                         function.Parameters,
                         Array.Empty<LanguageExpression>());
+
+                    parameters[parameterName.Value.ToString()] = (paramExpression, "__BICEP_REPLACE");
                 }
             });
 

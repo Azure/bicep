@@ -1,16 +1,15 @@
+param resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName object
+
 @description('The Azure Key Vault name.')
 param keyVaultName string
-
-@description('The name of the Data Lake Store account to create.')
-param dataLakeStoreName string
 
 resource keyVaultName_add 'Microsoft.KeyVault/vaults/accessPolicies@2019-09-01' = {
   name: '${keyVaultName}/add'
   properties: {
     accessPolicies: [
       {
-        objectId: reference(resourceId('Microsoft.DataLakeStore/accounts', dataLakeStoreName), '2016-11-01', 'Full').identity.principalId
-        tenantId: reference(resourceId('Microsoft.DataLakeStore/accounts', dataLakeStoreName), '2016-11-01', 'Full').identity.tenantId
+        objectId: resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName.identity.principalId
+        tenantId: resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName.identity.tenantId
         permissions: {
           keys: [
             'encrypt'

@@ -645,18 +645,22 @@ namespace Bicep.Decompiler
 
             var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{value.Name}'", value);
 
-            if (typeSyntax.TypeName == "securestring")
+            switch (typeSyntax.TypeName)
             {
-                typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string"));
-                decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure"));
-                decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
-            }
-
-            if (typeSyntax.TypeName == "secureobject")
-            {
-                typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "object"));
-                decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure"));
-                decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
+                case "securestring":
+                    typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string"));
+                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure"));
+                    decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
+                    break;
+                case "secureobject":
+                    typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "object"));
+                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure"));
+                    decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
+                    break;
+                case "__bicep_replace":
+                    var fixupToken = SyntaxHelpers.CreatePlaceholderToken(TokenType.Identifier, "TODO: fill in correct type");
+                    typeSyntax = new TypeSyntax(fixupToken);
+                    break;
             }
 
             // If there are decorators, insert a NewLine token at the beginning to make it more readable.
@@ -1065,7 +1069,7 @@ namespace Bicep.Decompiler
                         {
                             rewrittenParameters[parameter] = new JObject
                             {
-                                ["type"] = "__BICEP_REPLACE"
+                                ["type"] = parameters[parameter].type,
                             };
                         }
                     }
@@ -1075,10 +1079,8 @@ namespace Bicep.Decompiler
                     nestedProperties["parameters"] = new JObject(parameters.Select(x => new JProperty(
                         x.Key,
                         new JObject{
-                            ["value"] = ExpressionsEngine.SerializeExpression(x.Value), 
+                            ["value"] = ExpressionsEngine.SerializeExpression(x.Value.expression), 
                         })));
-
-                    //throw new ConversionFailedException($"Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information {typeString} {nameString}", nestedTemplate);
                 }
 
                 var (nestedBody, nestedDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
@@ -1384,7 +1386,8 @@ namespace Bicep.Decompiler
             var functions = TemplateHelpers.GetProperty(template, "functions")?.Value as JArray;
             if (functions?.Any() == true)
             {
-                throw new ConversionFailedException($"User defined functions are not currently supported", functions);
+                var fixupToken = SyntaxHelpers.CreatePlaceholderToken(TokenType.Unrecognized, "TODO: User defined functions are not supported and have not been decompiled");
+                statements.Add(fixupToken);
             }
 
             var targetScope = ParseTargetScope(template);
