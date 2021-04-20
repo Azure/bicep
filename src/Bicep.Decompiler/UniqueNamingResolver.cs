@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
+using Bicep.Decompiler.ArmHelpers;
 
 namespace Bicep.Decompiler
 {
@@ -98,6 +99,9 @@ namespace Bicep.Decompiler
 
         public string? TryLookupResourceName(string? typeString, LanguageExpression nameExpression)
         {
+            // normalize strings - this flattens nested format() and concat() expressions, and outputs via concat()
+            nameExpression = ArmHelpers.ExpressionHelpers.RewriteExpressions(nameExpression, ExpressionHelpers.FlattenStringOperations);
+
             if (typeString is null)
             {
                 var nameString = ExpressionsEngine.SerializeExpression(nameExpression);
@@ -128,6 +132,9 @@ namespace Bicep.Decompiler
 
         public string? TryRequestResourceName(string typeString, LanguageExpression nameExpression)
         {
+            // normalize strings - this flattens nested format() and concat() expressions, and outputs via concat()
+            nameExpression = ArmHelpers.ExpressionHelpers.RewriteExpressions(nameExpression, ExpressionHelpers.FlattenStringOperations);
+
             // it's valid to include a trailing slash, so we need to normalize it
             typeString = typeString.TrimEnd('/');
 

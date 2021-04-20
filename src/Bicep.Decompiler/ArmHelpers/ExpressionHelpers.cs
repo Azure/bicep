@@ -277,6 +277,13 @@ namespace Bicep.Decompiler.ArmHelpers
                 return hasChanges ? ExpressionsEngine.SerializeExpression(rewritten, new ExpressionSerializerSettings { IncludeOuterSquareBrackets = true }) : value;
             }
 
+            public static LanguageExpression Rewrite(LanguageExpression expression, Func<LanguageExpression, LanguageExpression> rewriteFunc)
+            {
+                var (_, rewritten) = RewriteInternal(expression, rewriteFunc);
+
+                return rewritten;
+            }
+
             private static (bool hasChanges, LanguageExpression[] output) RewriteInternal(LanguageExpression[] input, Func<LanguageExpression, LanguageExpression> rewriteFunc)
             {
                 var output = new LanguageExpression[input.Length];
@@ -339,6 +346,9 @@ namespace Bicep.Decompiler.ArmHelpers
                 }
             }
         }
+
+        public static LanguageExpression RewriteExpressions(LanguageExpression expression, Func<LanguageExpression, LanguageExpression> rewriteFunc)
+            => LanguageExpressionRewriter.Rewrite(expression, rewriteFunc);
 
         public static TToken RewriteExpressions<TToken>(TToken input, Func<LanguageExpression, LanguageExpression> rewriteFunc)
             where TToken : JToken
