@@ -161,5 +161,31 @@ namespace Bicep.LangServer.UnitTests.Snippets
             Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
         }
 
+        [TestMethod]
+        public void SnippetPlaceholderTextWithTypeStringShouldParseCorrectly()
+        {
+            string text = "resource ${1:Identifier} 'Microsoft.${2:Aad/domainServices/ouContainer@2017-06-01}' = { }";
+            var snippet = new Snippet(text);
+
+            snippet.Text.Should().Be(text);
+
+            snippet.Placeholders.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Index.Should().Be(1);
+                    x.Name.Should().Be("Identifier");
+                    x.Span.ToString().Should().Be("[9:24]");
+                },
+                x =>
+                {
+                    x.Index.Should().Be(2);
+                    x.Name.Should().Be("Aad/domainServices/ouContainer@2017-06-01");
+                    x.Span.ToString().Should().Be("[36:82]");
+                });
+
+            string expectedTextAfterPlaceholderReplacements = "resource Identifier 'Microsoft.Aad/domainServices/ouContainer@2017-06-01' = { }";
+
+            Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
+        }
     }
 }

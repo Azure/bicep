@@ -38,6 +38,10 @@ updates:
     directory: "/src/highlightjs"
     schedule:
       interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/src/monarch"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
