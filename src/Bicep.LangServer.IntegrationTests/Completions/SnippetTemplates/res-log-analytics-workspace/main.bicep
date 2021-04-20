@@ -1,5 +1,5 @@
 ﻿// $1 = logAnalyticsWorkspace
 // $2 = 'name'
-// $2 = 'Free'
+// $3 = 'Free'
 
 // Insert snippet here

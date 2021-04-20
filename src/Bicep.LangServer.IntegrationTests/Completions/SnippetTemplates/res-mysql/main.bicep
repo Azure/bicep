@@ -1,7 +1,7 @@
 ﻿// $1 = mySQLdb
 // $2 = 'name'
-// $2 = 'administratorLogin'
-// $3 = 'administratorLoginPassword'
-// $4 = 'Default'
+// $3 = 'administratorLogin'
+// $4 = 'administratorLoginPassword'
+// $5 = 'Default'
 
 // Insert snippet here
