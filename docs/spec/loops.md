@@ -1,8 +1,6 @@
 # Loops
 
->**Note:** Variable loops are not yet implemented [#1814](https://github.com/Azure/bicep/issues/1814). This will be added in a subsequent 0.3.* release.
-
-Loops may be used to iterate over an array to declare multiple resources or to set an array property inside a resource declaration. Iteration over the array occurs over the elements of the array. The index of the iteration is also available.
+Loops may be used to iterate over an array to declare multiple resources/modules or to set an array property inside a resource/module declaration. Iteration over the array occurs over the elements of the array. Loops may also be used when defining variables. The index of the iteration is also available.
 
 A new scope is created inside the loop body. Identifiers declared in the outer scope may be accessed inside the inner scope, but identifiers declared in the inner scope will not be added to the outer scope. [Resources](./resources.md), [variables](./variables.md), and [parameters](./parameters.md) declared at the scope of the file may be referenced within the loop body. Multiple loops may be nested inside each other.
 
@@ -147,6 +145,44 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
         addressPrefix: subnet.subnetPrefix
       }
     }]
+  }
+}
+```
+
+### Generate an array variable using a loop
+
+In the example below we are implementing the same loop as in the previous example, but instead defining the `subnets` property as a variable `subnets` by iterating over the `subnetsDefinitions` parameter.
+
+
+```bicep
+parameter subnetsDefinitions array = [
+  {
+    name: 'api'
+    subnetPrefix: '10.144.0.0/24'
+  }
+  {
+    name: 'worker'
+    subnetPrefix: '10.144.1.0/24'
+  }
+]
+
+var subnets = [for subnet in subnetsDefinitions: {
+  name: subnet.name
+  properties: {
+    addressPrefix: subnet.subnetPrefix
+  }
+}]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
+  name: 'vnet'
+  location: resourceGroup().location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.144.0.0/20'
+      ]
+    }
+    subnets: subnets
   }
 }
 ```
