@@ -1,5 +1,5 @@
 ﻿// $1 = networkSecurityGroupSecurityRule
-// $2 = name
+// $2 = 'networkSecurityGroup/name'
 // $2 = 'description'
 // $3 = Tcp
 // $4 = '1026'

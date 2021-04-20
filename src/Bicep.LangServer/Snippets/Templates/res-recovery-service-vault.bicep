@@ -4,6 +4,6 @@ resource ${1:'recoveryServiceVault'} 'Microsoft.RecoveryServices/vaults@2021-01-
   location: resourceGroup().location
   sku: {
     name: '${3|RS0,Standard|}'
-    tier: 'Standard'
+    tier: ${4:'Standard'}
   }
 }

@@ -6,6 +6,6 @@ resource ${1:'containerRegistry'} 'Microsoft.ContainerRegistry/registries@2019-0
     name: '${3|Classic,Basic,Standard,Premium|}'
   }
   properties: {
-    adminUserEnabled: ${3|true,false|}
+    adminUserEnabled: ${4|true,false|}
   }
 }

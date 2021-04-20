@@ -1,5 +1,5 @@
 ﻿// $1 = aksCluster
-// $2 = name
+// $2 = 'name'
 // $3 = 1.19.7
 // $4 = 'dnsPrefix'
 // $5 = 3
