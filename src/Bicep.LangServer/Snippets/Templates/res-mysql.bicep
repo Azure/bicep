@@ -1,5 +1,5 @@
 ﻿// MySQL Database
-resource ${1:'mySQLdb'} 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+resource ${1:mySQLdb} 'Microsoft.DBforMySQL/servers@2017-12-01' = {
   name: ${2:'name'}
   location: resourceGroup().location
   properties: {

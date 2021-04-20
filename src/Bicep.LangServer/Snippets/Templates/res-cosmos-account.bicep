@@ -1,5 +1,5 @@
 ﻿// Cosmos DB Database Account
-resource ${1:'cosmosDbAccount'} 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
+resource ${1:cosmosDbAccount} 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
   name: ${2:'name'}
   location: resourceGroup().location
   kind: ${3|'GlobalDocumentDB','MongoDB','Parse'|}

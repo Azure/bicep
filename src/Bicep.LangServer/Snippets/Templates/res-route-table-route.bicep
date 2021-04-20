@@ -1,5 +1,5 @@
 ﻿// Azure Route Table Route
-resource ${1:'routeTableRoute'} 'Microsoft.Network/routeTables/routes@2019-11-01' = {
+resource ${1:routeTableRoute} 'Microsoft.Network/routeTables/routes@2019-11-01' = {
   name: ${2:'routeTableName/name'}
   properties: {
     addressPrefix: ${3:'addressPrefix'}

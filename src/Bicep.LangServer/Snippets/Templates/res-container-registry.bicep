@@ -1,5 +1,5 @@
 ﻿// Container Registry
-resource ${1:'containerRegistry'} 'Microsoft.ContainerRegistry/registries@2019-05-01' = {
+resource ${1:containerRegistry} 'Microsoft.ContainerRegistry/registries@2019-05-01' = {
   name: ${2:'name'}
   location: resourceGroup().location
   sku: {

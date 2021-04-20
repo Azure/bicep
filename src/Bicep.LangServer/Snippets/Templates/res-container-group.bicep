@@ -1,5 +1,5 @@
 ﻿// Container Group
-resource ${1:'containerGroup'} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
+resource ${1:containerGroup} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
   name: ${2:'name'}
   location: resourceGroup().location
   properties: {

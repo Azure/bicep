@@ -1,5 +1,5 @@
 ﻿// Route Table
-resource ${1:'routeTable'} 'Microsoft.Network/routeTables@2019-11-01' = {
+resource ${1:routeTable} 'Microsoft.Network/routeTables@2019-11-01' = {
   name: ${2:'name'}
   location: resourceGroup().location
   properties: {

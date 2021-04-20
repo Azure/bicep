@@ -1,5 +1,5 @@
 ﻿// Network Security Group Rule
-resource ${1:'networkSecurityGroupSecurityRule'} 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {
+resource ${1:networkSecurityGroupSecurityRule} 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {
   name: ${2:'networkSecurityGroup/name'}
   properties: {
     description: ${3:'description'}
