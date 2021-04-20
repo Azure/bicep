@@ -1,6 +1,6 @@
 # Loops
 
-Loops may be used to iterate over an array to declare multiple resources/modules or to set an array property inside a resource/module declaration. Iteration over the array occurs over the elements of the array. Loops may also be used when defining variables. The index of the iteration is also available.
+Loops may be used to iterate over an array to declare multiple resources/modules or to set an array property inside a resource/module declaration. Loops may also be used when defining variables. Iteration over the array occurs over the elements of the array. The index of the iteration is also available.
 
 A new scope is created inside the loop body. Identifiers declared in the outer scope may be accessed inside the inner scope, but identifiers declared in the inner scope will not be added to the outer scope. [Resources](./resources.md), [variables](./variables.md), and [parameters](./parameters.md) declared at the scope of the file may be referenced within the loop body. Multiple loops may be nested inside each other.
 
