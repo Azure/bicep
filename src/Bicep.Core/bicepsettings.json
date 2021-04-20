@@ -18,7 +18,6 @@
           "core.windows.net",
           "login.microsoftonline.com",
           "graph.windows.net",
-          "graph.windows.net",
           "trafficmanager.net",
           "vault.azure.net",
           "datalake.azure.net",

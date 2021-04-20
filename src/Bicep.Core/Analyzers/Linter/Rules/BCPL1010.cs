@@ -28,7 +28,5 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             return unreferencedParams.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span));
         }
-
-
     }
 }
