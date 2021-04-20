@@ -227,7 +227,7 @@ namespace Bicep.Core.TypeSystem.Az
                 case "microsoft.keyvault/vaults":
                     yield return new FunctionOverloadBuilder("getSecret")
                         .WithReturnType(LanguageConstants.KeyVaultSecretReference)
-                        .WithDescription("References a secret from this key vault to be binded to a secure string module parameter")
+                        .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
                         .WithFlags(FunctionFlags.ModuleParamsAssignmentOnly)
                         .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")
                         .WithOptionalParameter("secretVersion", LanguageConstants.String, "Secret Version")

@@ -116,9 +116,7 @@ namespace Bicep.Core.Syntax
                     : mergedObject);
         }
 
-        public static DecoratorSyntax? SafeGetDecoaratorByName(this StatementSyntax syntax, string name)
-        {
-            return syntax.Decorators.FirstOrDefault(d => d.Expression is FunctionCallSyntax func && string.Equals(func.Name.IdentifierName, name, System.StringComparison.OrdinalIgnoreCase));
-        }
+        public static DecoratorSyntax? SafeGetDecoratorByName(this StatementSyntax syntax, string name) =>
+            syntax.Decorators.FirstOrDefault(d => d.Expression is FunctionCallSyntaxBase func && string.Equals(func.Name.IdentifierName, name, LanguageConstants.IdentifierComparison));
     }
 }

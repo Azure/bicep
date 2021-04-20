@@ -59,6 +59,7 @@ namespace Bicep.Core
 
         public const string ParameterAllowedPropertyName = "allowed";
         public const string ParameterDefaultPropertyName = "default";
+        public const string ParameterModifierSecureName = "secure";
 
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
@@ -126,7 +127,6 @@ namespace Bicep.Core
             return new ObjectType($"ParameterModifier<{allowedValuesType.Name}>", TypeSymbolValidationFlags.Default, CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
         }
 
-        public const string ParameterModifierSecureName = "secure";
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
             /*

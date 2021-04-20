@@ -85,7 +85,7 @@ namespace Bicep.Core.Syntax
                     assignedType = UnionType.Create(allowedItemTypes);
                 }
                 else if ((Modifier is ObjectSyntax modifierSyntax && IsBooleanTrue(modifierSyntax.SafeGetPropertyByName(LanguageConstants.ParameterModifierSecureName)?.Value)) ||
-                    (this.SafeGetDecoaratorByName(LanguageConstants.ParameterModifierSecureName) is not null))
+                    (this.SafeGetDecoratorByName(LanguageConstants.ParameterModifierSecureName) is not null))
                 {
                     //parameter can accept either LooseString (see below) or reference to key vault secret
                     assignedType = LanguageConstants.SecureString;
@@ -103,7 +103,7 @@ namespace Bicep.Core.Syntax
             {
                 assignedType = new TypedArrayType(UnionType.Create(allowedItemTypes), TypeSymbolValidationFlags.Default);
             }
-
+            
             return assignedType;
         }
     }
