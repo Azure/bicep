@@ -1,34 +1,34 @@
 ﻿// Container Group
 resource ${1:'containerGroup'} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
-  name: 'name'
+  name: ${2:'name'}
   location: resourceGroup().location
   properties: {
     containers: [
       {
-        name: ${2:'containerName'}
+        name: ${3:'containerName'}
         properties: {
-          image: ${3:'UPDATEME'}
+          image: ${4:'UPDATEME'}
           ports: [
             {
-              port: ${4:80}
+              port: ${5:80}
             }
           ]
           resources: {
             requests: {
-              cpu: ${5:1}
-              memoryInGB: ${6:4}
+              cpu: ${6:1}
+              memoryInGB: ${7:4}
             }
           }
         }
       }
     ]
-    restartPolicy: '${7|OnFailure,Always,Never|}'
-    osType: '${8|Linux,Windows|}'
+    restartPolicy: '${8|OnFailure,Always,Never|}'
+    osType: '${9|Linux,Windows|}'
     ipAddress: {
       type: 'Public'
       ports: [
         {
-          protocol: '${9|TCP,UDP|}'
+          protocol: '${10|TCP,UDP|}'
           port: ${10:80}
         }
       ]

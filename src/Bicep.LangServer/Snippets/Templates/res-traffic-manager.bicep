@@ -1,29 +1,29 @@
 ﻿// Traffic Manager Profile
 resource ${1:'trafficManagerProfile'} 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {
-  name: 'name'
+  name: ${2:'name'}
   location: 'global'
   properties: {
     profileStatus: 'Enabled'
-    trafficRoutingMethod: '${2|Performance,Priority,Weighted,Geographic|}'
+    trafficRoutingMethod: '${3|Performance,Priority,Weighted,Geographic|}'
     dnsConfig: {
-      relativeName: ${3:'dnsConfigRelativeName'}
+      relativeName: ${4:'dnsConfigRelativeName'}
       ttl: 30
     }
     monitorConfig: {
-      protocol: '${4|HTTP,HTTPS,TCP|}'
-      port: ${5:80}
-      path: ${6:'path'}
-      intervalInSeconds: ${7:30}
-      timeoutInSeconds: ${8:5}
-      toleratedNumberOfFailures: ${9:3}
+      protocol: '${5|HTTP,HTTPS,TCP|}'
+      port: ${6:80}
+      path: ${7:'path'}
+      intervalInSeconds: ${8:30}
+      timeoutInSeconds: ${9:5}
+      toleratedNumberOfFailures: ${10:3}
     }
     endpoints: [
       {
         properties: {
-          targetResourceId: ${10:'targetResourceId'}
-          endpointStatus: '${11|Enabled,Disabled|}'
-          weight: ${12:100}
-          priority: ${13:1}
+          targetResourceId: ${11:'targetResourceId'}
+          endpointStatus: '${12|Enabled,Disabled|}'
+          weight: ${13:100}
+          priority: ${14:1}
         }
       }
     ]

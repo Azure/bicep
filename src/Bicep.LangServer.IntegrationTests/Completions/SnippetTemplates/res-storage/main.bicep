@@ -1,6 +1,7 @@
 ﻿// $1 = storageaccount
-// $2 = StorageV2
-// $3 = 'Premium_LRS'
-// $4 = Premium
+// $2 = name
+// $3 = StorageV2
+// $4 = 'Premium_LRS'
+// $5 = Premium
 
 // Insert snippet here

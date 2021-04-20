@@ -1,6 +1,6 @@
 ﻿// Logic App
 resource ${1:'logicApp'} 'Microsoft.Logic/integrationAccounts@2016-06-01' = {
-  name: 'name'
+  name: ${2:'name'}
   location: resourceGroup().location
   properties: {
     definition: {

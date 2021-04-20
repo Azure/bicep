@@ -1,9 +1,9 @@
 ﻿// Container Registry
 resource ${1:'containerRegistry'} 'Microsoft.ContainerRegistry/registries@2019-05-01' = {
-  name: 'name'
+  name: ${2:'name'}
   location: resourceGroup().location
   sku: {
-    name: '${2|Classic,Basic,Standard,Premium|}'
+    name: '${3|Classic,Basic,Standard,Premium|}'
   }
   properties: {
     adminUserEnabled: ${3|true,false|}

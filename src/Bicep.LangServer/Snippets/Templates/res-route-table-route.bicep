@@ -1,9 +1,9 @@
 ﻿// Azure Route Table Route
 resource ${1:'routeTableRoute'} 'Microsoft.Network/routeTables/routes@2019-11-01' = {
-  name: 'routeTableName/name'
+  name: ${2:'routeTableName/name'}
   properties: {
-    addressPrefix: ${2:'addressPrefix'}
-    nextHopType: '${3|VirtualNetworkGateway,VnetLocal,Internet,VirtualAppliance,None|}'
-    nextHopIpAddress: ${4:'nextHopIp'}
+    addressPrefix: ${3:'addressPrefix'}
+    nextHopType: '${4|VirtualNetworkGateway,VnetLocal,Internet,VirtualAppliance,None|}'
+    nextHopIpAddress: ${5:'nextHopIp'}
   }
 }
