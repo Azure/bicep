@@ -328,5 +328,5 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 }
 
 var keyVaultSecretVar = kv.getSecret('mySecret')
-//@[27:36) [BCP176 (Error)] Function "getSecret" is not valid at this location. It can only be used in assigning value to a module parameter. |getSecret|
+//@[27:36) [BCP176 (Error)] Function "getSecret" is not valid at this location. It can only be used when assigning a value to a module parameter. |getSecret|
 

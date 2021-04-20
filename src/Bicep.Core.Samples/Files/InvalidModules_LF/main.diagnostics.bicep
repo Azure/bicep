@@ -650,13 +650,13 @@ module secureModule1 'modulea.bicep' = {
     stringParamA: kv.getSecret('mySecret')
 //@[18:42) [BCP036 (Error)] The property "stringParamA" expected a value of type "string" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
-//@[21:45) [BCP177 (Error)] Type "keyVaultSecretReference" cannot be used inside String interpolation. |kv.getSecret('mySecret')|
+//@[21:45) [BCP177 (Error)] Type "keyVaultSecretReference" cannot be used inside string interpolation. |kv.getSecret('mySecret')|
     objParam: kv.getSecret('mySecret')
 //@[14:38) [BCP036 (Error)] The property "objParam" expected a value of type "object" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     arrayParam: kv.getSecret('mySecret')
 //@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
-//@[26:50) [BCP177 (Error)] Type "keyVaultSecretReference" cannot be used inside String interpolation. |kv.getSecret('mySecret')|
+//@[26:50) [BCP177 (Error)] Type "keyVaultSecretReference" cannot be used inside string interpolation. |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
 //@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
   }
