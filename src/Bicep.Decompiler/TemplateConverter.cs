@@ -1033,12 +1033,18 @@ namespace Bicep.Decompiler
             {
                 if (nestedTemplate is not JObject nestedTemplateObject)
                 {
-                    throw new ConversionFailedException($"Expected template objectfor {typeString} {nameString}", nestedTemplate);
+                    throw new ConversionFailedException($"Expected template object for {typeString} {nameString}", nestedTemplate);
                 }
 
                 var expressionEvaluationScope = TemplateHelpers.GetNestedProperty(resource, "properties", "expressionEvaluationOptions", "scope")?.ToString();
                 if (!StringComparer.OrdinalIgnoreCase.Equals(expressionEvaluationScope, "inner"))
                 {
+                    if (TemplateHelpers.GetNestedProperty(nestedTemplateObject, "parameters") is {} existingParameters &&
+                        existingParameters.Children().Any())
+                    {
+                        throw new ConversionFailedException($"Outer-scoped nested templates cannot contain parameters", existingParameters);
+                    }
+
                     var (rewrittenTemplate, parameters) = TemplateHelpers.ConvertNestedTemplateInnerToOuter(nestedTemplateObject);
 
                     if (TemplateHelpers.GetNestedProperty(rewrittenTemplate, "parameters") is not JObject rewrittenParameters)
@@ -1059,7 +1065,7 @@ namespace Bicep.Decompiler
                         {
                             rewrittenParameters[parameter] = new JObject
                             {
-                                ["type"] = "string"
+                                ["type"] = "__BICEP_REPLACE"
                             };
                         }
                     }

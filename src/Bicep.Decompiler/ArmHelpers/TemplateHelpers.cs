@@ -262,6 +262,12 @@ namespace Bicep.Decompiler.ArmHelpers
                 return;
             }
 
+            var visitor = new LanguageExpressionVisitor
+            {
+                OnFunctionExpression = visitFunc,
+                OnJTokenExpression = visitFunc,
+            };
+
             JsonUtility.WalkJsonRecursive(
                 input,
                 objectAction: @object => {
@@ -269,11 +275,13 @@ namespace Bicep.Decompiler.ArmHelpers
                     {
                         if (ExpressionsEngine.IsLanguageExpression(property.Name))
                         {
-                            visitFunc(ExpressionsEngine.ParseLanguageExpression(property.Name));
+                            var expression = ExpressionsEngine.ParseLanguageExpression(property.Name);
+                            expression.Accept(visitor);
                         }
                         else
                         {
-                            visitFunc(new JTokenExpression(property.Name));
+                            var expression = new JTokenExpression(property.Name);
+                            expression.Accept(visitor);
                         }
                     }
                 },
@@ -282,11 +290,13 @@ namespace Bicep.Decompiler.ArmHelpers
                     {
                         if (ExpressionsEngine.IsLanguageExpression(value))
                         {
-                            visitFunc(ExpressionsEngine.ParseLanguageExpression(value));
+                            var expression = ExpressionsEngine.ParseLanguageExpression(value);
+                            expression.Accept(visitor);
                         }
                         else
                         {
-                            visitFunc(new JTokenExpression(value));
+                            var expression = new JTokenExpression(value);
+                            expression.Accept(visitor);
                         }
                     }
                 });
@@ -294,94 +304,120 @@ namespace Bicep.Decompiler.ArmHelpers
 
         public static (JObject template, IReadOnlyDictionary<string, FunctionExpression> parameters) ConvertNestedTemplateInnerToOuter(JObject template)
         {
+            // this is useful to avoid naming clashes - we should prioritize names that have come from the parent template
             var paramsAccessed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var variablesAccessed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            var visitor = new LanguageExpressionVisitor
+            VisitExpressions(template, expression => 
             {
-                OnFunctionExpression = (function) =>
+                if (expression is not FunctionExpression function || !IsFunction(function, "parameters"))
                 {
-                    if (StringComparer.OrdinalIgnoreCase.Equals(function.Function, "variables"))
-                    {
-                        if (function.Parameters.Length != 1 || function.Parameters[0] is not JTokenExpression variableName)
-                        {
-                            throw new InvalidOperationException($"Found \"{function.Function}\" function with invalid signature");
-                        }
+                    return;
+                }
 
-                        variablesAccessed.Add(variableName.Value.ToString());
-                    }
-                    else if (StringComparer.OrdinalIgnoreCase.Equals(function.Function, "parameters"))
-                    {
-                        if (function.Parameters.Length != 1 || function.Parameters[0] is not JTokenExpression parameterName)
-                        {
-                            throw new InvalidOperationException($"Found \"{function.Function}\" function with invalid signature");
-                        }
-
-                        paramsAccessed.Add(parameterName.Value.ToString());
-                    }
-                },
-                OnJTokenExpression = (expression) =>
+                if (function.Parameters.Length != 1 || function.Parameters[0] is not JTokenExpression parameterName)
                 {
-                    var valueString = expression.Value.ToString();
-                    if (ExpressionsEngine.IsLanguageExpression(valueString))
-                    {
-                        var deferredExpression = ExpressionsEngine.ParseLanguageExpression(valueString);
-                        if (deferredExpression is FunctionExpression deferredFunction && 
-                            StringComparer.OrdinalIgnoreCase.Equals(deferredFunction.Function, "parameters"))
-                        {
-                            throw new InvalidOperationException($"Outer-scoped nested templates with parameters are not supported");
-                        }
-                    }
-                },
-            };
+                    throw new InvalidOperationException($"Found \"{function.Function}\" function with invalid signature");
+                }
 
-            VisitExpressions(template, expression => expression.Accept(visitor));
+                paramsAccessed.Add(parameterName.Value.ToString());
+            });
 
-            var varNameMapping = variablesAccessed.ToDictionary(
-                x => x,
-                x => paramsAccessed.Contains(x) ? $"var_{x}" : x,
-                StringComparer.OrdinalIgnoreCase);
+            // we don't want to populate this when we first visit parameters, because we may end up removing parameters
+            // - for example if they are only in-use inside 'reference()' functions
+            var parameters = new Dictionary<string, FunctionExpression>(StringComparer.OrdinalIgnoreCase);
 
+            LanguageExpression ReplaceWithParameter(FunctionExpression function, LanguageExpression paramNameExpression)
+            {
+                var withoutProperties = new FunctionExpression(
+                    function.Function,
+                    function.Parameters,
+                    Array.Empty<LanguageExpression>());
+                
+                var paramNameSerialized = ExpressionsEngine.SerializeExpression(paramNameExpression);
+                var paramName = UniqueNamingResolver.EscapeIdentifier(paramNameSerialized);
+
+                if (paramsAccessed.Contains(paramName))
+                {
+                    paramName = $"generated_{paramName}";
+                }
+
+                if (!parameters.ContainsKey(paramName))
+                {
+                    parameters[paramName] = withoutProperties;
+                }
+
+                return new FunctionExpression(
+                    "parameters",
+                    new [] { new JTokenExpression(paramName) },
+                    function.Properties);
+            }
+
+            // process references first
             template = RewriteExpressions(template, expression =>
             {
-                if (expression is not FunctionExpression function)
+                if (expression is not FunctionExpression function || !IsFunction(function, "reference"))
                 {
                     return expression;
                 }
 
-                if (StringComparer.OrdinalIgnoreCase.Equals(function.Function, "variables"))
+                var paramNameExpression = function;
+                if (function.Parameters.Length > 0 && function.Parameters[0] is FunctionExpression firstParam && IsFunction(firstParam, "resourceId"))
                 {
-                    if (function.Parameters.Length != 1 || function.Parameters[0] is not JTokenExpression variableName)
-                    {
-                        throw new InvalidOperationException($"Found \"{function.Function}\" function with invalid signature");
-                    }
-
-                    return new FunctionExpression("parameters", new LanguageExpression[] 
-                    {
-                        new JTokenExpression(varNameMapping[variableName.Value.ToString()]),
-                    }, function.Properties);
+                    paramNameExpression = firstParam;
                 }
 
-                return expression;
+                return ReplaceWithParameter(function, paramNameExpression);
             });
 
-            var parameters = new Dictionary<string, FunctionExpression>(StringComparer.OrdinalIgnoreCase);
-            foreach (var param in paramsAccessed)
+            // process resourceIds
+            template = RewriteExpressions(template, expression => 
             {
-                parameters[param] = new FunctionExpression("parameters", new LanguageExpression[] 
-                    {
-                        new JTokenExpression(param),
-                    }, Array.Empty<LanguageExpression>());
-            }
-            foreach (var (key, value) in varNameMapping)
+                if (expression is not FunctionExpression function || !IsFunction(function, "resourceId"))
+                {
+                    return expression;
+                }
+
+                return ReplaceWithParameter(function, function);
+            });
+
+            // process variables
+            template = RewriteExpressions(template, expression => 
             {
-                parameters[value] = new FunctionExpression("variables", new LanguageExpression[] 
-                    {
-                        new JTokenExpression(key),
-                    }, Array.Empty<LanguageExpression>());
-            }
+                if (expression is not FunctionExpression function || !IsFunction(function, "variables"))
+                {
+                    return expression;
+                }
+
+                return ReplaceWithParameter(function, function);
+            });
+
+            // add parameters to lookup
+            VisitExpressions(template, expression => 
+            {
+                if (expression is not FunctionExpression function || !IsFunction(function, "parameters"))
+                {
+                    return;
+                }
+
+                if (function.Parameters.Length != 1 || function.Parameters[0] is not JTokenExpression parameterName)
+                {
+                    throw new InvalidOperationException($"Found \"{function.Function}\" function with invalid signature");
+                }
+
+                var paramNameString = parameterName.Value.ToString();
+                if (!parameters.ContainsKey(paramNameString))
+                {
+                    parameters[parameterName.Value.ToString()] = new FunctionExpression(
+                        "parameters",
+                        function.Parameters,
+                        Array.Empty<LanguageExpression>());
+                }
+            });
 
             return (template, parameters);
         }
+
+        private static bool IsFunction(FunctionExpression function, string name)
+            => StringComparer.OrdinalIgnoreCase.Equals(function.Function, name);
     }
 }

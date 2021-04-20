@@ -28,7 +28,7 @@ namespace Bicep.Decompiler
                 _ => nameType.ToString().ToUpperInvariant(),
             };
 
-        private static string EscapeIdentifier(string identifier)
+        public static string EscapeIdentifier(string identifier)
         {
             return Regex.Replace(identifier, "[^a-zA-Z0-9\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Nd}\\p{Mn}\\p{Mc}\\p{Cf}]+", "_").Trim('_');
         }
