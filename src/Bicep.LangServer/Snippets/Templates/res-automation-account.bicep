@@ -4,7 +4,7 @@ resource ${1:'automationAccount'} 'Microsoft.Automation/automationAccounts@2019-
   location: resourceGroup().location
   properties: {
     sku: {
-      name: '${3|Free,Basic|}'
+      name: ${3|'Free','Basic'|}
     }
   }
 }

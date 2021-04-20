@@ -22,14 +22,14 @@ resource ${1:'containerGroup'} 'Microsoft.ContainerInstance/containerGroups@2021
         }
       }
     ]
-    restartPolicy: '${8|OnFailure,Always,Never|}'
-    osType: '${9|Linux,Windows|}'
+    restartPolicy: ${8|'OnFailure','Always','Never'|}
+    osType: ${9|'Linux','Windows'|}
     ipAddress: {
       type: 'Public'
       ports: [
         {
-          protocol: '${10|TCP,UDP|}'
-          port: ${10:80}
+          protocol: ${10|'TCP','UDP'|}
+          port: ${11:80}
         }
       ]
     }

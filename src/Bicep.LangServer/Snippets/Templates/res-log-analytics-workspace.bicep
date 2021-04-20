@@ -4,7 +4,7 @@ resource ${1:'logAnalyticsWorkspace'} 'Microsoft.OperationalInsights/workspaces@
   location: resourceGroup().location
   properties: {
     sku: {
-      name: '${3|Free,Standard,Premium,Unlimited,PerNode,PerGB2018,Standalone|}'
+      name: ${3|'Free','Standard','Premium','Unlimited','PerNode','PerGB2018','Standalone'|}
     }
   }
 }
