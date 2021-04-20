@@ -18,7 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             enableForCLI: true,
             enableForEdit: true,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Error,
-            docUri: "https://bicep/linter/rules/BCPL1000")
+            docUri: "https://bicep/linter/rules/BCPL1000") //TODO: set up online documentation location
         {
         }
 

@@ -2,10 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Semantics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics
