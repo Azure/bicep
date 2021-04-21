@@ -57,7 +57,6 @@ module transparentDataEncryption 'transparent-data-encryption.bicep' = {
 //  }
 //}
 
-
 // Short term backup
 module shortTermBackup 'short-term-backup.bicep' = if (!(sqlDatabase.shortTermBackupRetention == 0)) {
   dependsOn: [
@@ -105,8 +104,6 @@ resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccoun
   scope: resourceGroup(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName)
   name: sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
 }
-
-
 
 // Vulnerability Assessments
 // Can be enabled only if Azure Defender is enabled as well

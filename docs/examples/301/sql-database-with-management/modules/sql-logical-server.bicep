@@ -74,12 +74,11 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2020-02-02-preview' = {
     administratorLoginPassword: password
     version: '12.0'
     minimalTlsVersion: sqlLogicalServer.minimalTlsVersion
-    //publicNetworkAccess: sqlLogicalServer.publicNetworkAccess
-
+    publicNetworkAccess: sqlLogicalServer.publicNetworkAccess
   }
 }
 
- // Azure Active Directory integration
+// Azure Active Directory integration
 resource azureAdIntegration 'Microsoft.Sql/servers/administrators@2020-08-01-preview' = if (!empty(sqlLogicalServer.azureActiveDirectoryAdministrator.objectId)) {
   name: 'activeDirectory'
   parent: sqlLogicalServerRes
@@ -180,7 +179,7 @@ resource dummyDeployments 'Microsoft.Resources/deployments@2020-10-01' = [for (d
     mode: 'Incremental'
     template: {
       '$schema': 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
-      contentVersion:'1.0.0.0'
+      contentVersion: '1.0.0.0'
       resources: []
     }
   }
