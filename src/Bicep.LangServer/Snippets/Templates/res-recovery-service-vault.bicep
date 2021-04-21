@@ -6,4 +6,5 @@ resource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {
     name: '${2|RS0,Standard|}'
     tier: 'Standard'
   }
+  properties:{}
 }

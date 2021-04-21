@@ -515,7 +515,7 @@
     "detail": "Recovery Service Vault",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: 'recoveryServiceVault'\n  location: resourceGroup().location\n  sku: {\n    name: 'RS0'\n    tier: 'Standard'\n  }\n}\n```"
+      "value": "```bicep\nresource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: 'recoveryServiceVault'\n  location: resourceGroup().location\n  sku: {\n    name: 'RS0'\n    tier: 'Standard'\n  }\n  properties:{}\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -524,7 +524,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: ${1:'recoveryServiceVault'}\n  location: resourceGroup().location\n  sku: {\n    name: '${2|RS0,Standard|}'\n    tier: 'Standard'\n  }\n}"
+      "newText": "resource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: ${1:'recoveryServiceVault'}\n  location: resourceGroup().location\n  sku: {\n    name: '${2|RS0,Standard|}'\n    tier: 'Standard'\n  }\n  properties:{}\n}\n"
     }
   },
   {
