@@ -17,23 +17,23 @@ namespace Bicep.Core.TypeSystem
         public DeployTimeConstantVariableVisitor(SemanticModel model)
         {
             this.model = model;
-            this.VisitedStack = new Stack<string>();
+            this.VisitedStack = new Stack<(string, SyntaxBase)>();
         }
 
-        public Stack<string> VisitedStack { get; }
+        public Stack<(string, SyntaxBase)> VisitedStack { get; }
 
         public ObjectType? InvalidReferencedBodyType { get; private set; }
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            VisitedStack.Push(syntax.Name.IdentifierName);
+            VisitedStack.Push((syntax.Name.IdentifierName, syntax));
             base.VisitVariableDeclarationSyntax(syntax);
             if (this.InvalidReferencedBodyType != null)
             {
                 return;
             }
             // This variable declaration was deployment time constant
-            if (VisitedStack.Pop() is var popped &&
+            if (VisitedStack.Pop() is var (popped, _) &&
                 popped != syntax.Name.IdentifierName)
             {
                 throw new InvalidOperationException($"{this.GetType().Name} performed an invalid Stack push/pop: expected popped element to be {syntax.Name.IdentifierName} but got {popped}");
@@ -57,7 +57,7 @@ namespace Bicep.Core.TypeSystem
             if (DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, syntax) is ({} declaredSymbol, {} referencedBodyType))
             {
                 this.InvalidReferencedBodyType = referencedBodyType;
-                VisitedStack.Push(declaredSymbol.Name);
+                VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
             }
             else if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol)
             {
@@ -79,7 +79,7 @@ namespace Bicep.Core.TypeSystem
                     !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                     {
                         this.InvalidReferencedBodyType = referencedBodyType;
-                        VisitedStack.Push(declaredSymbol.Name);
+                        VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
                     }
 
                     // Do not VisitVariableAccessSyntax on Resources or Modules
@@ -95,10 +95,16 @@ namespace Bicep.Core.TypeSystem
             {
                 case VariableAccessSyntax baseVariableAccess when DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, baseVariableAccess) is ({ } declaredSymbol, { } referencedBodyType):
                     {
-                        if (referencedBodyType.Properties.TryGetValue(syntax.PropertyName.IdentifierName, out var propertyType) && !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                        if (!referencedBodyType.Properties.TryGetValue(syntax.PropertyName.IdentifierName, out var propertyType))
+                        {
+                            return;
+                        }
+
+                        if (!propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
+                            DeployTimeConstantVisitor.DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, syntax.PropertyName.IdentifierName))
                         {
                             this.InvalidReferencedBodyType = referencedBodyType;
-                            VisitedStack.Push(declaredSymbol.Name);
+                            VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
                         }
 
                         // Do not VisitVariableAccessSyntax on Resources or Modules
@@ -107,10 +113,16 @@ namespace Bicep.Core.TypeSystem
 
                 case ArrayAccessSyntax { BaseExpression: VariableAccessSyntax baseBaseVariableAccess } when DeployTimeConstantVisitor.ExtractResourceOrModuleCollectionSymbolAndBodyType(this.model, baseBaseVariableAccess) is ({ } declaredSymbol, { } referencedBodyType):
                     {
-                        if (referencedBodyType.Properties.TryGetValue(syntax.PropertyName.IdentifierName, out var propertyType) && !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                        if (!referencedBodyType.Properties.TryGetValue(syntax.PropertyName.IdentifierName, out var propertyType))
+                        {
+                            return;
+                        }
+
+                        if (!propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
+                            DeployTimeConstantVisitor.DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, syntax.PropertyName.IdentifierName))
                         {
                             this.InvalidReferencedBodyType = referencedBodyType;
-                            VisitedStack.Push(declaredSymbol.Name);
+                            VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
                         }
 
                         // Do not VisitVariableAccessSyntax on Resources or Modules

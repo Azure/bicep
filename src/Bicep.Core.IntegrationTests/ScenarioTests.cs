@@ -1640,5 +1640,38 @@ output tdeId string = transparentDataEncryption.id
             evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/myTde");
             evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/myTde");
         }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/1809
+        public void Test_Issue1809()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module tags './tags.bicep' = {
+  name: 'tags'
+}
+
+resource vwan 'Microsoft.Network/virtualWans@2020-05-01' = {
+  location: 'westus'
+  name: 'vwan'
+  properties: {
+    disableVpnEncryption: false
+    allowBranchToBranchTraffic: true
+    allowVnetToVnetTraffic: true
+    type: 'foo'
+  }
+  tags: tags.outputs.tagsoutput
+}
+"),
+                ("tags.bicep", @"
+output tagsoutput object = {
+  tag1: 'tag1Value'
+}
+"));
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\", \"scope\"."),
+            });
+        }
     }
 }

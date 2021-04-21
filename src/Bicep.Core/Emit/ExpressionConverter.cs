@@ -175,11 +175,12 @@ namespace Bicep.Core.Emit
             LanguageExpression? ConvertResourcePropertyAccess(ResourceSymbol resourceSymbol, SyntaxBase? indexExpression)
             {
                 var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+                var propertyName = propertyAccess.PropertyName.IdentifierName;
 
                 // special cases for certain resource property access. if we recurse normally, we'll end up
                 // generating statements like reference(resourceId(...)).id which are not accepted by ARM
 
-                switch (propertyAccess.PropertyName.IdentifierName)
+                switch (propertyName)
                 {
                     case "id":
                         // the ID is dependent on the name expression which could involve locals in case of a resource collection
@@ -194,17 +195,6 @@ namespace Bicep.Core.Emit
                         return this
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
                             .ConvertExpression(GetResourceNameSyntax(resourceSymbol));
-                    case "location":
-                        if (resourceSymbol.DeclaringResource.IsExistingResource())
-                        {
-                            // We cannot substitute the value of the existing resource's location because it requires runtime evaluation.
-                            return null;
-                        }
-
-                        // the location is dependent on the name expression which could involve locals in case of a resource collection
-                        return this
-                            .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
-                            .ConvertExpression(resourceSymbol.UnsafeGetBodyPropertyValue(LanguageConstants.ResourceLocationPropertyName));
                     case "type":
                         return new JTokenExpression(typeReference.FullyQualifiedType);
                     case "apiVersion":
@@ -215,9 +205,18 @@ namespace Bicep.Core.Emit
                         return this
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
                             .GetReferenceExpression(resourceSymbol, typeReference, false);
-                }
+                    default:
+                        if (LanguageConstants.OptionalDeployTimeConstantPropertyNames.Contains(propertyName) &&
+                            resourceSymbol.DeclaringResource.TryGetBody()?.SafeGetPropertyByName(propertyName) is not null)
+                        {
+                            // Only subsitute optional deploy-time constant properties if they are declared in the resource body.
+                            return this
+                                .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
+                                .ConvertExpression(resourceSymbol.UnsafeGetBodyPropertyValue(propertyName));
+                        }
 
-                return null;
+                        return null;
+                }
             }
 
             LanguageExpression? ConvertModulePropertyAccess(ModuleSymbol moduleSymbol, SyntaxBase? indexExpression)

@@ -22,10 +22,12 @@ namespace Bicep.Core.TypeSystem
         private SyntaxBase? errorSyntax;
         private string? currentProperty;
         private string? accessedSymbol;
+        private SyntaxBase? accessedSyntax;
+        private bool withinDeployTimeConstantScope;
         private ObjectType? bodyType;
         private ObjectType? referencedBodyType;
 
-        private Stack<string>? variableVisitorStack;
+        private Stack<(string, SyntaxBase)>? variableVisitorStack;
 
         private DeployTimeConstantVisitor(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
@@ -122,12 +124,28 @@ namespace Bicep.Core.TypeSystem
             // Only visit the object properties if they are required to be deploy time constant.
             foreach (var deployTimeIdentifier in ObjectSyntaxExtensions.ToNamedPropertyDictionary(syntax))
             {
-                if (this.bodyType.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType) &&
-                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                if (!this.bodyType.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType))
+                {
+                    continue;
+                }
+
+                if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
+                    propertyType.Flags.HasFlag(TypePropertyFlags.WeakDeployTimeConstant))
+                {
+                    this.withinDeployTimeConstantScope = true;
+                }
+
+                if (this.withinDeployTimeConstantScope)
                 {
                     this.currentProperty = deployTimeIdentifier.Key;
                     this.VisitObjectPropertySyntax(deployTimeIdentifier.Value);
                     this.currentProperty = null;
+                }
+
+                if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
+                    propertyType.Flags.HasFlag(TypePropertyFlags.WeakDeployTimeConstant))
+                {
+                    this.withinDeployTimeConstantScope = false;
                 }
             }
         }
@@ -161,7 +179,7 @@ namespace Bicep.Core.TypeSystem
                         this.errorSyntax = syntax;
                         this.referencedBodyType = variableVisitor.InvalidReferencedBodyType;
                         this.variableVisitorStack = variableVisitor.VisitedStack;
-                        this.accessedSymbol = variableVisitor.VisitedStack.Peek();
+                        (this.accessedSymbol, this.accessedSyntax) = variableVisitor.VisitedStack.Peek();
                     }
                     break;
             }
@@ -199,6 +217,7 @@ namespace Bicep.Core.TypeSystem
                             // we will block referencing module and resource properties using string interpolation and number indexing
                             this.errorSyntax = syntax;
                             this.accessedSymbol = declaredSymbol.Name;
+                            this.accessedSyntax = declaredSymbol.DeclaringSyntax;
                             this.referencedBodyType = referencedBodyType;
                             break;
                     }
@@ -256,10 +275,19 @@ namespace Bicep.Core.TypeSystem
 
         private void SetState(SyntaxBase syntax, DeclaredSymbol declaredSymbol, ObjectType referencedBodyType, string propertyName)
         {
-            if(referencedBodyType.Properties.TryGetValue(propertyName, out var propertyType) && !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+            if (!referencedBodyType.Properties.TryGetValue(propertyName, out var propertyType))
             {
+                return;
+            }
+
+            if (!propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
+                DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, propertyName))
+            {
+                // Set error state if the property is not a deploy-time constant, or it is a
+                // deploy-time constant of a resource, but it does not exist in the resource body.
                 this.errorSyntax = syntax;
                 this.accessedSymbol = declaredSymbol.Name;
+                this.accessedSyntax = declaredSymbol.DeclaringSyntax;
                 this.referencedBodyType = referencedBodyType;
             }
         }
@@ -286,8 +314,28 @@ namespace Bicep.Core.TypeSystem
             {
                 throw new InvalidOperationException($"{nameof(this.accessedSymbol)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
             }
-            var usableKeys = this.referencedBodyType.Properties.Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant)).Select(kv => kv.Key);
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys, this.accessedSymbol, this.variableVisitorStack?.ToArray().Reverse()));
+            if (this.accessedSyntax == null)
+            {
+                throw new InvalidOperationException($"{nameof(this.accessedSyntax)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
+            }
+
+            var usableKeys = this.referencedBodyType.Properties
+                .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                .Select(kv => kv.Key);
+
+            if (this.accessedSyntax is ResourceDeclarationSyntax resourceSyntax &&
+                resourceSyntax.TryGetBody() is { } bodySyntax)
+            {
+                var declaredTopLevelPropertyNames = bodySyntax.ToKnownPropertyNames()
+                    .Add(LanguageConstants.ResourceIdPropertyName)
+                    .Add(LanguageConstants.ResourceTypePropertyName)
+                    .Add(LanguageConstants.ResourceApiVersionPropertyName);
+
+                usableKeys = usableKeys.Intersect(declaredTopLevelPropertyNames);
+            }
+
+            var variableDependencyChain = this.variableVisitorStack?.ToArray().Reverse().Select((pair) => pair.Item1);
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys, this.accessedSymbol, variableDependencyChain));
 
             ResetState();
         }
@@ -297,6 +345,7 @@ namespace Bicep.Core.TypeSystem
             this.errorSyntax = null;
             this.referencedBodyType = null;
             this.accessedSymbol = null;
+            this.accessedSyntax = null;
             this.variableVisitorStack = null;
         }
 
@@ -326,6 +375,29 @@ namespace Bicep.Core.TypeSystem
                     return (declaredCollectionSymbol, declaredCollectionSymbol.Type is ArrayType arrayType ? TypeAssignmentVisitor.UnwrapType(arrayType.Item.Type) as ObjectType : null);
             }
             return (null, null);
+        }
+
+        public static bool DeclaredSymbolIsResourceAndPropertyIsAbsent(DeclaredSymbol declaredSymbol, string propertyName)
+        {
+            if (declaredSymbol is not ResourceSymbol { DeclaringResource: ResourceDeclarationSyntax resourceSyntax })
+            {
+                return false;
+            }
+
+            if (propertyName == LanguageConstants.ResourceIdPropertyName ||
+                propertyName == LanguageConstants.ResourceNamePropertyName ||
+                propertyName == LanguageConstants.ResourceTypePropertyName ||
+                propertyName == LanguageConstants.ResourceApiVersionPropertyName)
+            {
+                return false;
+            }
+
+            if (resourceSyntax.TryGetBody() is not { } bodySyntax || bodySyntax.HasParseErrors())
+            {
+                return false;
+            }
+
+            return bodySyntax.SafeGetPropertyByName(propertyName) is null;
         }
         #endregion
     }

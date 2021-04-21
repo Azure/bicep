@@ -168,10 +168,22 @@ namespace Bicep.Core.TypeSystem.Az
                 var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
                 properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
 
-                if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
+                foreach (var propertyName in LanguageConstants.OptionalDeployTimeConstantPropertyNames)
                 {
-                    // An existing resource's location is not a deployment-time constant, because it requires runtime evaluation get the value.
-                    properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags & ~TypePropertyFlags.DeployTimeConstant));
+                    // Optional deploy-time constant properties of an existing resource are not deploy-time constant, because it requires runtime evaluation get their values.
+                    if (properties.TryGetValue(propertyName, out var typeProperty))
+                    {
+                        properties = properties.SetItem(propertyName, new TypeProperty(propertyName, typeProperty.TypeReference, typeProperty.Flags & ~TypePropertyFlags.DeployTimeConstant, typeProperty.Description));
+                    }
+                }
+
+                // TODO: move this to the type library
+                foreach (var propertyName in LanguageConstants.WeakDeployTimeConstantPropertyNames)
+                {
+                    if (properties.TryGetValue(propertyName, out var typeProperty))
+                    {
+                        properties = properties.SetItem(propertyName, new TypeProperty(propertyName, typeProperty.TypeReference, typeProperty.Flags | TypePropertyFlags.WeakDeployTimeConstant, typeProperty.Description));
+                    }
                 }
             }
             else
@@ -179,9 +191,22 @@ namespace Bicep.Core.TypeSystem.Az
                 // TODO: remove 'dependsOn' from the type library
                 properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly));
 
-                if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
+                // TODO: move this to the type library
+                foreach (var propertyName in LanguageConstants.OptionalDeployTimeConstantPropertyNames)
                 {
-                    properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
+                    if (properties.TryGetValue(propertyName, out var typeProperty))
+                    {
+                        properties = properties.SetItem(propertyName, new TypeProperty(propertyName, typeProperty.TypeReference, typeProperty.Flags | TypePropertyFlags.DeployTimeConstant, typeProperty.Description));
+                    }
+                }
+
+                // TODO: move this to the type library
+                foreach (var propertyName in LanguageConstants.WeakDeployTimeConstantPropertyNames)
+                {
+                    if (properties.TryGetValue(propertyName, out var typeProperty))
+                    {
+                        properties = properties.SetItem(propertyName, new TypeProperty(propertyName, typeProperty.TypeReference, typeProperty.Flags | TypePropertyFlags.WeakDeployTimeConstant, typeProperty.Description));
+                    }
                 }
                 
                 // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)

@@ -36,5 +36,10 @@ namespace Bicep.Core.TypeSystem
         /// This property's value known at the start of the deployment, and does not require inlining.
         /// </summary>
         DeployTimeConstant = 1 << 4,
+
+        /// <summary>
+        /// The property's value must be a known at the start of the deployment when set by users, but it cannot be referenced to set other deploy-time constants. E.g. tags.
+        /// </summary>
+        WeakDeployTimeConstant = 1 << 5,
     }
 }

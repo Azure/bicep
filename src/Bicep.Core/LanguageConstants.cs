@@ -73,6 +73,39 @@ namespace Bicep.Core
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string TypeNameString = "string";
 
+
+        /*
+         * The following top-level properties are deploy-time constant string,
+         * but unlike name, apiVersion and type, they might be absent from resource bodies.
+         */
+        public static readonly string[] OptionalDeployTimeConstantPropertyNames = new[]
+        {
+            "location",
+            "kind",
+            "subscriptionId",
+            "resourceGroup",
+            "managedBy",
+        };
+
+        /*
+         * The following top-level properties are are deploy-time constant objects/arrays
+         * when declared in resources, because their values will get evaluated during pre-flight.
+         * However, it is not safe to reference them when setting values of other deploy-time
+         * constants due to the fact that:
+         *   - They can be changed by Policy Modify effect (e.g. tags, sku)
+         *   - Some RPs are doing Put-as-Patch
+         */
+        public static readonly string[] WeakDeployTimeConstantPropertyNames = new[]
+        {
+            "extendedLocation",
+            "zones",
+            "plan",
+            "sku",
+            "identity",
+            "managedByExtended",
+            "tags",
+        };
+
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 
