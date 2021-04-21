@@ -132,7 +132,7 @@ namespace Bicep.Decompiler.ArmHelpers
             // this is useful to avoid naming clashes - we should prioritize names that have come from the parent template
             var paramsAccessed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            ExpressionHelpers.VisitExpressions(template, expression => 
+            JTokenHelpers.VisitExpressions(template, expression => 
             {
                 if (expression is not FunctionExpression function || !IsFunction(function, "parameters"))
                 {
@@ -178,7 +178,7 @@ namespace Bicep.Decompiler.ArmHelpers
             }
 
             // process references first
-            template = ExpressionHelpers.RewriteExpressions(template, expression =>
+            template = JTokenHelpers.RewriteExpressions(template, expression =>
             {
                 if (expression is not FunctionExpression function || !IsFunction(function, "reference"))
                 {
@@ -195,7 +195,7 @@ namespace Bicep.Decompiler.ArmHelpers
             });
 
             // process resourceIds
-            template = ExpressionHelpers.RewriteExpressions(template, expression => 
+            template = JTokenHelpers.RewriteExpressions(template, expression => 
             {
                 if (expression is not FunctionExpression function || !IsFunction(function, "resourceId"))
                 {
@@ -206,7 +206,7 @@ namespace Bicep.Decompiler.ArmHelpers
             });
 
             // process variables
-            template = ExpressionHelpers.RewriteExpressions(template, expression => 
+            template = JTokenHelpers.RewriteExpressions(template, expression => 
             {
                 if (expression is not FunctionExpression function || !IsFunction(function, "variables"))
                 {
@@ -217,7 +217,7 @@ namespace Bicep.Decompiler.ArmHelpers
             });
 
             // unescape escaped expressions
-            template = ExpressionHelpers.RewriteExpressions(template, expression => 
+            template = JTokenHelpers.RewriteExpressions(template, expression => 
             {
                 if (expression is not JTokenExpression jtoken)
                 {
@@ -234,7 +234,7 @@ namespace Bicep.Decompiler.ArmHelpers
             });
 
             // add parameters to lookup
-            ExpressionHelpers.VisitExpressions(template, expression => 
+            JTokenHelpers.VisitExpressions(template, expression => 
             {
                 if (expression is not FunctionExpression function || !IsFunction(function, "parameters"))
                 {

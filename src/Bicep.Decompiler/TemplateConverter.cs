@@ -738,7 +738,7 @@ namespace Bicep.Decompiler
         {
             return PerformScopedAction(() =>
             {
-                input = ExpressionHelpers.RewriteExpressions(input, expression =>
+                input = JTokenHelpers.RewriteExpressions(input, expression =>
                 {
                     if (expression is not FunctionExpression function || !StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
                     {
@@ -792,7 +792,7 @@ namespace Bicep.Decompiler
         {
             return PerformScopedAction(() =>
             {
-                input = ExpressionHelpers.RewriteExpressions(input, expression =>
+                input = JTokenHelpers.RewriteExpressions(input, expression =>
                 {
                     if (expression is not FunctionExpression function || !StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
                     {

@@ -103,10 +103,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         [DataRow("{\"val\": [\"[replaceMe()]\"]}", "{\"val\": [\"[replaced()]\"]}")]
         [DataRow("{\"val\": [\"[nested(replaceMe())]\"]}", "{\"val\": [\"[nested(replaced())]\"]}")]
         [DataRow("{\"[replaceMe()]\": \"val\"}", "{\"[replaced()]\": \"val\"}")]
+        [DataRow("\"[replaceMe()]\"", "\"[replaced()]\"")]
         public void RewriteExpressions_replaces_expressions(string jsonInput, string expectedJsonOutput)
         {
             var input = JToken.Parse(jsonInput);
-            var output = ExpressionHelpers.RewriteExpressions(input, expression => {
+            var output = JTokenHelpers.RewriteExpressions(input, expression => {
                 if (expression is FunctionExpression function && function.Function == "replaceMe") {
                     return new FunctionExpression("replaced", Array.Empty<LanguageExpression>(), Array.Empty<LanguageExpression>());
                 }
@@ -122,12 +123,13 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         [DataRow("{\"val\": [\"[visitMe()]\"]}")]
         [DataRow("{\"val\": [\"[nested(visitMe())]\"]}")]
         [DataRow("{\"[visitMe()]\": \"val\"}")]
+        [DataRow("\"[visitMe()]\"")]
         public void VisitExpressions_visits_expressions(string jsonInput)
         {
             var input = JToken.Parse(jsonInput);
 
             var visited = false;
-            ExpressionHelpers.VisitExpressions(input, expression => {
+            JTokenHelpers.VisitExpressions(input, expression => {
                 if (expression is FunctionExpression function && function.Function == "visitMe") {
                     visited = true;
                 }
