@@ -1,4 +1,3 @@
-
 param sqlDatabase object
 param sqlServerName string
 

@@ -53,7 +53,6 @@ var defaultSqlLogicalServerProperties = {
   databases: []
 }
 
-
 module sqlLogicalServer 'sql-logical-server.bicep' = [for (sqlLogicalServer, index) in sqlLogicalServers: {
   name: 'sqlLogicalServer-${index}'
   params: {
