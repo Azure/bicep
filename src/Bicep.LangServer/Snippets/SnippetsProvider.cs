@@ -13,6 +13,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.LanguageServer.Completions;
 
@@ -20,8 +21,11 @@ namespace Bicep.LanguageServer.Snippets
 {
     public class SnippetsProvider : ISnippetsProvider
     {
+        // Used to cache resource declarations. Maps resource type to body text
         private Dictionary<string, string> resourceTypeToBodyMap = new Dictionary<string, string>();
+        // Used to cache resource dependencies. Maps resource type to it's dependencies
         private Dictionary<string, string> resourceTypeToDependentsMap = new Dictionary<string, string>();
+        // Used to cache top level declarations
         private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
 
         public SnippetsProvider()
@@ -96,12 +100,14 @@ namespace Bicep.LanguageServer.Snippets
 
             foreach (KeyValuePair<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> kvp in dependencies)
             {
-                (ResourceDeclarationSyntax? resourceDeclarationSyntax, string? resourceType) = GetResourceDeclarationSyntaxWithType(kvp.Key);
+                DeclaredSymbol declaredSymbol = kvp.Key;
 
-                if (resourceDeclarationSyntax is not null && resourceType is not null)
+                if (declaredSymbol.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax)
                 {
-                    CacheResourceDeclaration(resourceDeclarationSyntax, resourceType, template);
-                    CacheResourceDependencies(kvp.Value, template, resourceType);
+                    string type = declaredSymbol.Type.Name;
+
+                    CacheResourceDeclaration(resourceDeclarationSyntax, type, template);
+                    CacheResourceDependencies(kvp.Value, template, type);
                 }
             }
         }
@@ -132,17 +138,6 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        private (ResourceDeclarationSyntax?, string?) GetResourceDeclarationSyntaxWithType(DeclaredSymbol declaredSymbol)
-        {
-            if (declaredSymbol.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax &&
-                resourceDeclarationSyntax.TypeString is StringSyntax stringSyntax)
-            {
-                return (resourceDeclarationSyntax, stringSyntax.StringTokens.First().Text);
-            }
-
-            return (null, null);
-        }
-
         private ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(string template, string manifestResourceName)
         {
             string path = Path.GetFullPath(manifestResourceName);
@@ -159,33 +154,87 @@ namespace Bicep.LanguageServer.Snippets
             return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
         }
 
-        public Snippet? GetResourceBodyCompletionSnippet(string type)
+        public Snippet GetResourceBodyCompletionSnippet(TypeSymbol typeSymbol)
         {
-            if (string.IsNullOrWhiteSpace(type))
+            string label = "{}";
+            string type = typeSymbol.Name;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Get resource body completion snippet from checked in static template file, if available
+            if (resourceTypeToBodyMap.TryGetValue(type, out string? resourceBody))
             {
-                return null;
+                sb.AppendLine(resourceBody);
+
+                if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
+                {
+                    sb.Append(resourceDependencies);
+                }
+
+                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, label);
             }
 
-            Snippet? snippet = topLevelNamedDeclarationSnippets.Where(x => x.Text.Contains(type)).FirstOrDefault();
+            // Get resource body completion snippet from swagger spec
+            return GetResourceBodyCompletionSnippetFromSwaggerSpec(typeSymbol, label);
+        }
 
-            if (snippet is not null)
+        private Snippet GetResourceBodyCompletionSnippetFromSwaggerSpec(TypeSymbol typeSymbol, string label)
+        {
+            if (typeSymbol is ResourceType resourceType && resourceType.Body is ObjectType objectType)
             {
-                StringBuilder sb = new StringBuilder();
+                int index = 1;
+                string? snippetText = null;
 
-                if (resourceTypeToBodyMap.TryGetValue(type, out string? resourceBody))
+                foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
                 {
-                    sb.AppendLine(resourceBody);
+                    snippetText = GetSnippetText(kvp.Value, snippetText, ref index);
+                }
 
-                    if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
-                    {
-                        sb.Append(resourceDependencies);
-                    }
+                if (snippetText is not null)
+                {
+                    // Define final tab stop
+                    snippetText += "\t$0\n}";
 
-                    return new Snippet(sb.ToString(), snippet.CompletionPriority, snippet.Prefix, snippet.Detail);
+                    // Add to cache
+                    resourceTypeToBodyMap.Add(typeSymbol.Name, snippetText);
+
+                    return new Snippet(snippetText, CompletionPriority.Medium, label, label);
                 }
             }
 
-            return null;
+            return new Snippet("{\n\t$0\n}", CompletionPriority.Medium, label, label);
+        }
+
+        private string? GetSnippetText(TypeProperty typeProperty, string? snippetText, ref int index)
+        {
+            if (typeProperty.Flags.HasFlag(TypePropertyFlags.Required))
+            {
+                if (snippetText is null)
+                {
+                    snippetText = "{\n";
+                }
+
+                if (typeProperty.TypeReference.Type is ObjectType objectType)
+                {
+                    snippetText += "\t" + typeProperty.Name + ": {\n";
+
+                    foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
+                    {
+                        snippetText = GetSnippetText(kvp.Value, snippetText, ref index);
+                    }
+
+                    snippetText += "\t}\n";
+                }
+                else
+                {
+                    snippetText += "\t" + typeProperty.Name + ": $" + (index).ToString() + "\n";
+                    index++;
+                }
+
+                return snippetText;
+            }
+
+            return snippetText;
         }
     }
 }

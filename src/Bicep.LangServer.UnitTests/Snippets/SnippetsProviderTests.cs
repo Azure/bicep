@@ -3,7 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
@@ -144,14 +148,21 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         }
 
         [TestMethod]
-        public void GetResourceBodyCompletionSnippet_WithValidTypeAndNoDependencies_ShouldReturnSnippet()
+        public void GetResourceBodyCompletionSnippet_WithSnippetSourcedFromStaticTemplateAndNoResourceDependencies_ShouldReturnNonEmptySnippet()
         {
             SnippetsProvider snippetsProvider = new SnippetsProvider();
-            Snippet? snippet = snippetsProvider.GetResourceBodyCompletionSnippet("'Microsoft.Network/dnsZones@2018-05-01'");
+            TypeSymbol typeSymbol = new ResourceType(
+                    ResourceTypeReference.Parse("Microsoft.Network/dnsZones@2018-05-01"),
+                    ResourceScope.ResourceGroup,
+                    TestTypeHelper.CreateObjectType(
+                        "Microsoft.Network/dnsZones@2018-05-01",
+                        ("name", LanguageConstants.String)));
+
+            Snippet? snippet = snippetsProvider.GetResourceBodyCompletionSnippet(typeSymbol);
 
             Assert.IsNotNull(snippet);
-            Assert.AreEqual("res-dns-zone", snippet.Prefix);
-            Assert.AreEqual("DNS Zone", snippet.Detail);
+            Assert.AreEqual("{}", snippet.Prefix);
+            Assert.AreEqual("{}", snippet.Detail);
             Assert.AreEqual(CompletionPriority.Medium, snippet.CompletionPriority);
             snippet.Text.Should().BeEquivalentToIgnoringNewlines(@"{
   name: ${1:'dnsZone'}
@@ -160,28 +171,22 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 ");
         }
 
-        [DataTestMethod]
-        [DataRow("'invalid_type'")]
-        [DataRow(null)]
-        [DataRow("   ")]
-        [DataRow("")]
-        public void GetResourceBodyCompletionSnippet_WithInvalidType_ShouldReturnNull(string type)
-        {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
-            Snippet? snippet = snippetsProvider.GetResourceBodyCompletionSnippet(type);
-
-            Assert.IsNull(snippet);
-        }
-
         [TestMethod]
-        public void GetResourceBodyCompletionSnippet_WithValidTypeAndDependencies_ShouldReturnSnippet()
+        public void GetResourceBodyCompletionSnippet_WithSnippetSourcedFromStaticTemplateAndResourceDependencies_ShouldReturnNonEmptySnippet()
         {
             SnippetsProvider snippetsProvider = new SnippetsProvider();
-            Snippet? snippet = snippetsProvider.GetResourceBodyCompletionSnippet("'Microsoft.Automation/automationAccounts/modules@2015-10-31'");
+            TypeSymbol typeSymbol = new ResourceType(
+                    ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
+                    ResourceScope.ResourceGroup,
+                    TestTypeHelper.CreateObjectType(
+                        "Microsoft.Automation/automationAccounts/modules@2015-10-31",
+                        ("name", LanguageConstants.String)));
+
+            Snippet snippet = snippetsProvider.GetResourceBodyCompletionSnippet(typeSymbol);
 
             Assert.IsNotNull(snippet);
-            Assert.AreEqual("res-automation-module", snippet.Prefix);
-            Assert.AreEqual("Automation Module", snippet.Detail);
+            Assert.AreEqual("{}", snippet.Prefix);
+            Assert.AreEqual("{}", snippet.Detail);
             Assert.AreEqual(CompletionPriority.Medium, snippet.CompletionPriority);
             snippet.Text.Should().BeEquivalentToIgnoringNewlines(@"{
   name: '${automationAccount.name}/${2:automationVariable}'
@@ -196,5 +201,73 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
 }
 ");
         }
+
+        [TestMethod]
+        public void GetResourceBodyCompletionSnippet_WithPropertiesFromSwaggerSpec_ShouldReturnSnippetWithRequiredProperties()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            TypeSymbol typeSymbol = new ResourceType(
+                    ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
+                    ResourceScope.ResourceGroup,
+                    CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview",
+                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("location", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("kind", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("id", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                    ("hostPoolType", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("sku", CreateObjectType("applicationGroup",
+                            ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                            ("friendlyName", LanguageConstants.String, TypePropertyFlags.None),
+                            ("properties", CreateObjectType("properties",
+                                           ("loadBalancerType", LanguageConstants.String, TypePropertyFlags.Required),
+                                           ("preferredAppGroupType", LanguageConstants.String, TypePropertyFlags.WriteOnly)),
+                                           TypePropertyFlags.Required)),
+                            TypePropertyFlags.Required)));
+
+            Snippet snippet = snippetsProvider.GetResourceBodyCompletionSnippet(typeSymbol);
+
+            Assert.IsNotNull(snippet);
+            Assert.AreEqual("{}", snippet.Prefix);
+            Assert.AreEqual("{}", snippet.Detail);
+            Assert.AreEqual(CompletionPriority.Medium, snippet.CompletionPriority);
+            snippet.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+	hostPoolType: $1
+	kind: $2
+	location: $3
+	name: $4
+	sku: {
+	name: $5
+	properties: {
+	loadBalancerType: $6
+	}
+	}
+	$0
+}");
+        }
+
+        [TestMethod]
+        public void GetResourceBodyCompletionSnippet_WithNoRequiredProperties_ShouldReturnEmptySnippet()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            TypeSymbol typeSymbol = new ResourceType(
+                    ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
+                    ResourceScope.ResourceGroup,
+                    CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
+
+            Snippet snippet = snippetsProvider.GetResourceBodyCompletionSnippet(typeSymbol);
+
+            Assert.IsNotNull(snippet);
+            Assert.AreEqual("{}", snippet.Prefix);
+            Assert.AreEqual("{}", snippet.Detail);
+            Assert.AreEqual(CompletionPriority.Medium, snippet.CompletionPriority);
+            snippet.Text.Should().BeEquivalentToIgnoringNewlines("{\n\t$0\n}");
+        }
+
+        private static ObjectType CreateObjectType(string name, params (string name, ITypeReference type, TypePropertyFlags typePropertyFlags)[] properties)
+            => new(
+                name,
+                TypeSymbolValidationFlags.Default,
+                properties.Select(val => new TypeProperty(val.name, val.type, val.typePropertyFlags)),
+                null);
     }
 }

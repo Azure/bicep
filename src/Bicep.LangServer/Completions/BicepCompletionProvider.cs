@@ -15,6 +15,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -59,7 +60,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetModulePathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(context))
-                .Concat(GetResourceBodyCompletions(context))
+                .Concat(GetResourceBodyCompletions(model, context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
                 .Concat(GetOutputValueCompletions(model, context))
@@ -348,11 +349,11 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(declaredType, context.ReplacementRange, model, context, loopsAllowed: true);
         }
 
-        private IEnumerable<CompletionItem> GetResourceBodyCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody))
             {
-                yield return CreateResourceBodyCompletion(context);
+                yield return CreateResourceBodyCompletion(model, context);
 
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
@@ -364,25 +365,19 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private CompletionItem CreateResourceBodyCompletion(BicepCompletionContext context)
+        private CompletionItem CreateResourceBodyCompletion(SemanticModel model, BicepCompletionContext context)
         {
-            StringSyntax? stringSyntax = (context.EnclosingDeclaration as ResourceDeclarationSyntax)?.TypeString;
-
-            if (stringSyntax is not null)
+            if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
-                string type = stringSyntax.StringTokens[0].Text;
+                TypeSymbol typeSymbol = resourceDeclarationSyntax.GetDeclaredType(model.Binder, AzResourceTypeProvider.CreateWithAzTypes());
 
-                Snippet? snippet = SnippetsProvider.GetResourceBodyCompletionSnippet(type);
-
-                if (snippet is not null)
-                {
-                    return CreateContextualSnippetCompletion(snippet.Prefix,
-                        snippet.Detail,
-                        snippet.Text,
-                        context.ReplacementRange,
-                        snippet.CompletionPriority,
-                        preselect: true);
-                }
+                Snippet snippet = SnippetsProvider.GetResourceBodyCompletionSnippet(typeSymbol);
+                return CreateContextualSnippetCompletion(snippet.Prefix,
+                    snippet.Detail,
+                    snippet.Text,
+                    context.ReplacementRange,
+                    snippet.CompletionPriority,
+                    preselect: true);
             }
 
             return CreateObjectBodyCompletion(context.ReplacementRange);
