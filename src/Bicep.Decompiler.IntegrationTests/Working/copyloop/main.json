@@ -98,6 +98,21 @@
                 "name": "vmcopy",
                 "count": "[parameters('vmCount')]"
             }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[tolower(concat(copyIndex('namedcopy'), 'blah', uniqueString(resourceGroup().id)))]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "Storage",
+            "properties": {},
+            "copy": {
+                "name": "namedcopy",
+                "count": "[parameters('storageCount')]"
+            }
         }
     ],
     "outputs": {
