@@ -268,3 +268,67 @@ param decoratedObject object = {
 @sys.description('I will be overrode.')
 param decoratedArray array
 
+param allowedPermutation array {
+//@[31:454) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    default: [\n\t\t'Microsoft.AnalysisServices/servers'\n\t\t'Microsoft.ContainerRegistry/registries'\n\t]\n    allowed: [\n\t\t'Microsoft.AnalysisServices/servers'\n\t\t'Microsoft.ApiManagement/service'\n\t\t'Microsoft.Network/applicationGateways'\n\t\t'Microsoft.Automation/automationAccounts'\n\t\t'Microsoft.ContainerInstance/containerGroups'\n\t\t'Microsoft.ContainerRegistry/registries'\n\t\t'Microsoft.ContainerService/managedClusters'\n    ]\n}|
+    default: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ContainerRegistry/registries'
+	]
+    allowed: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+		'Microsoft.ContainerInstance/containerGroups'
+		'Microsoft.ContainerRegistry/registries'
+		'Microsoft.ContainerService/managedClusters'
+    ]
+}
+
+@allowed([
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ApiManagement/service'
+	'Microsoft.Network/applicationGateways'
+	'Microsoft.Automation/automationAccounts'
+	'Microsoft.ContainerInstance/containerGroups'
+	'Microsoft.ContainerRegistry/registries'
+	'Microsoft.ContainerService/managedClusters'
+])
+param allowedPermutationWithDecorator array = [
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ContainerRegistry/registries'
+]
+
+param allowedArray array {
+//@[25:323) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    default: [\n\t\t'Microsoft.AnalysisServices/servers'\n\t\t'Microsoft.ApiManagement/service'\n\t]\n    allowed: [\n\t\t[\n\t\t\t'Microsoft.AnalysisServices/servers'\n\t\t\t'Microsoft.ApiManagement/service'\n\t\t]\n\t\t[\n\t\t\t'Microsoft.Network/applicationGateways'\n\t\t\t'Microsoft.Automation/automationAccounts'\n\t\t]\n    ]\n}|
+    default: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+	]
+    allowed: [
+		[
+			'Microsoft.AnalysisServices/servers'
+			'Microsoft.ApiManagement/service'
+		]
+		[
+			'Microsoft.Network/applicationGateways'
+			'Microsoft.Automation/automationAccounts'
+		]
+    ]
+}
+
+@allowed([
+	[
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+	]
+	[
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+	]
+])
+param allowedArrayWithDecorator array = [
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ApiManagement/service'
+]
+

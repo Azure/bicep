@@ -7,7 +7,7 @@
     "preselect": true,
     "sortText": "2_'one'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'one'"
@@ -21,7 +21,7 @@
     "preselect": true,
     "sortText": "2_'three'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'three'"
@@ -35,7 +35,7 @@
     "preselect": true,
     "sortText": "2_'two'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'two'"

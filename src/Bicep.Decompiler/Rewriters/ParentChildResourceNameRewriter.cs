@@ -152,7 +152,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             for (var i = 0; i < parent.Expressions.Length; i++)
             {
                 var childSymbol = semanticModel.GetSymbolInfo(child.Expressions[i]);
-                var parentSymbol = semanticModel.GetSymbolInfo(child.Expressions[i]);
+                var parentSymbol = semanticModel.GetSymbolInfo(parent.Expressions[i]);
 
                 if (childSymbol == null || childSymbol != parentSymbol)
                 {

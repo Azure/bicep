@@ -260,7 +260,7 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            var discriminatorProperty = expression.Properties.FirstOrDefault(x => LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), targetType.DiscriminatorKey));
+            var discriminatorProperty = expression.Properties.FirstOrDefault(p => targetType.TryGetDiscriminatorProperty(p.TryGetKeyText()) is not null);
             if (discriminatorProperty == null)
             {
                 // object doesn't contain the discriminator field
@@ -288,7 +288,7 @@ namespace Bicep.Core.TypeSystem
             // Let's not do this just yet, and see if a use-case arises.
 
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
-            if (!(discriminatorType is StringLiteralType stringLiteralDiscriminator))
+            if (discriminatorType is not StringLiteralType stringLiteralDiscriminator)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).PropertyTypeMismatch(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
                 return LanguageConstants.Any;

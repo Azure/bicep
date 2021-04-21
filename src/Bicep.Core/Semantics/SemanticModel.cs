@@ -8,6 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
@@ -131,14 +132,87 @@ namespace Bicep.Core.Semantics
         /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
         /// </summary>
         /// <param name="syntax">the syntax node</param>
-        public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.Binder.GetSymbolInfo(syntax);
+        public Symbol? GetSymbolInfo(SyntaxBase syntax)
+        {
+            static PropertySymbol? GetPropertySymbol(TypeSymbol? baseType, string property)
+            {
+                if (baseType is null)
+                {
+                    return null;
+                }
+
+                var typeProperty = TypeAssignmentVisitor.UnwrapType(baseType) switch {
+                    ObjectType x => x.Properties.TryGetValue(property, out var tp) ? tp : null,
+                    DiscriminatedObjectType x => x.TryGetDiscriminatorProperty(property),
+                    _ => null
+                };
+
+                if (typeProperty is null)
+                {
+                    return null;
+                }
+
+                return new PropertySymbol(property, typeProperty.Description, typeProperty.TypeReference.Type);
+            }
+
+            switch (syntax)
+            {
+                case InstanceFunctionCallSyntax ifc:
+                {
+                    var baseType = GetTypeInfo(ifc.BaseExpression);
+                    switch (baseType)
+                    {
+                        case NamespaceType namespaceType when SyntaxTree.Hierarchy.GetParent(ifc) is DecoratorSyntax:
+                            return namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name);
+                        case ObjectType objectType:
+                            return objectType.MethodResolver.TryGetSymbol(ifc.Name);
+                    }
+
+                    return null;
+                }
+                case PropertyAccessSyntax propertyAccess:
+                {
+                    var baseType = GetDeclaredType(propertyAccess.BaseExpression);
+                    var property = propertyAccess.PropertyName.IdentifierName;
+
+                    return GetPropertySymbol(baseType, property);
+                }
+                case ObjectPropertySyntax objectProperty:
+                {
+                    if (Binder.GetParent(objectProperty) is not {} parentSyntax)
+                    {
+                        return null;
+                    }
+                    
+                    var baseType = GetDeclaredType(parentSyntax);
+                    if (objectProperty.TryGetKeyText() is not {} property)
+                    {
+                        return null;
+                    }
+
+                    return GetPropertySymbol(baseType, property);
+                }
+            }
+
+            return this.Binder.GetSymbolInfo(syntax);
+        }
 
         /// <summary>
         /// Returns all syntax nodes that represent a reference to the specified symbol. This includes the definitions of the symbol as well.
         /// Unusued declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
         /// </summary>
         /// <param name="symbol">The symbol</param>
-        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol) => this.Binder.FindReferences(symbol);
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol)
+            => SyntaxAggregator.Aggregate(this.SyntaxTree.ProgramSyntax, new List<SyntaxBase>(), (accumulated, current) =>
+                {
+                    if (object.ReferenceEquals(symbol, this.GetSymbolInfo(current)))
+                    {
+                        accumulated.Add(current);
+                    }
+
+                    return accumulated;
+                },
+                accumulated => accumulated);
 
         /// <summary>
         /// Gets the file that was compiled.

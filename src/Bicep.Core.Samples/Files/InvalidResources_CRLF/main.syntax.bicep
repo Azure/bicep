@@ -877,6 +877,56 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+// there should be no completions without the colon
+//@[51:53) NewLine |\r\n|
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:138) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:34)  IdentifierSyntax
+//@[9:34)   Identifier |noCompletionsWithoutColon|
+//@[35:85)  StringSyntax
+//@[35:85)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[86:87)  Assignment |=|
+//@[88:138)  ObjectSyntax
+//@[88:89)   LeftBrace |{|
+//@[89:91)   NewLine |\r\n|
+  // #completionTest(7,8) -> empty
+//@[34:36)   NewLine |\r\n|
+  kind  
+//@[2:8)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[8:8)    SkippedTriviaSyntax
+//@[8:8)    SkippedTriviaSyntax
+//@[8:10)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:138) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:33)  IdentifierSyntax
+//@[9:33)   Identifier |noCompletionsBeforeColon|
+//@[34:84)  StringSyntax
+//@[34:84)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[85:86)  Assignment |=|
+//@[87:138)  ObjectSyntax
+//@[87:88)   LeftBrace |{|
+//@[88:90)   NewLine |\r\n|
+  // #completionTest(7,8) -> empty
+//@[34:36)   NewLine |\r\n|
+  kind  :
+//@[2:9)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[8:9)    Colon |:|
+//@[9:9)    SkippedTriviaSyntax
+//@[9:11)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // unsupported resource ref
 //@[27:29) NewLine |\r\n|
 var resrefvar = bar.name
@@ -10169,26 +10219,26 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-//@[0:164) ResourceDeclarationSyntax
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+//@[0:166) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |existngResProperty|
-//@[28:74)  StringSyntax
-//@[28:74)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[75:83)  Identifier |existing|
-//@[84:85)  Assignment |=|
-//@[86:164)  ObjectSyntax
-//@[86:87)   LeftBrace |{|
-//@[87:89)   NewLine |\r\n|
-  name: 'existngResProperty'
-//@[2:28)   ObjectPropertySyntax
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |existingResProperty|
+//@[29:75)  StringSyntax
+//@[29:75)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[76:84)  Identifier |existing|
+//@[85:86)  Assignment |=|
+//@[87:166)  ObjectSyntax
+//@[87:88)   LeftBrace |{|
+//@[88:90)   NewLine |\r\n|
+  name: 'existingResProperty'
+//@[2:29)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
-//@[8:28)    StringSyntax
-//@[8:28)     StringComplete |'existngResProperty'|
-//@[28:30)   NewLine |\r\n|
+//@[8:29)    StringSyntax
+//@[8:29)     StringComplete |'existingResProperty'|
+//@[29:31)   NewLine |\r\n|
   location: 'westeurope'
 //@[2:24)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
@@ -10208,4 +10258,51 @@ resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' exist
 //@[16:18)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[0:196) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |invalidExistingLocationRef|
+//@[36:93)  StringSyntax
+//@[36:93)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[94:95)  Assignment |=|
+//@[96:196)  ObjectSyntax
+//@[96:97)   LeftBrace |{|
+//@[97:99)   NewLine |\r\n|
+    parent: existingResProperty
+//@[4:31)   ObjectPropertySyntax
+//@[4:10)    IdentifierSyntax
+//@[4:10)     Identifier |parent|
+//@[10:11)    Colon |:|
+//@[12:31)    VariableAccessSyntax
+//@[12:31)     IdentifierSyntax
+//@[12:31)      Identifier |existingResProperty|
+//@[31:33)   NewLine |\r\n|
+    name: 'myExt'
+//@[4:17)   ObjectPropertySyntax
+//@[4:8)    IdentifierSyntax
+//@[4:8)     Identifier |name|
+//@[8:9)    Colon |:|
+//@[10:17)    StringSyntax
+//@[10:17)     StringComplete |'myExt'|
+//@[17:19)   NewLine |\r\n|
+    location: existingResProperty.location
+//@[4:42)   ObjectPropertySyntax
+//@[4:12)    IdentifierSyntax
+//@[4:12)     Identifier |location|
+//@[12:13)    Colon |:|
+//@[14:42)    PropertyAccessSyntax
+//@[14:33)     VariableAccessSyntax
+//@[14:33)      IdentifierSyntax
+//@[14:33)       Identifier |existingResProperty|
+//@[33:34)     Dot |.|
+//@[34:42)     IdentifierSyntax
+//@[34:42)      Identifier |location|
+//@[42:44)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

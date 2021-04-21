@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Update Baselines"]
+    types:
+      - completed
 
 jobs:
   build-bicep:
@@ -329,10 +333,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: 10.x
+          node-version: 14.x
       
       - name: npm ci
         run: npm ci
+        working-directory: ./src/playground
+
+      - name: Run lint
+        run: npm run lint
         working-directory: ./src/playground
 
       - name: Build
@@ -345,3 +353,42 @@ jobs:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
+
+  build-grammars:
+    name: 'Build Grammars'
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.7.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14.x
+      
+      - name: TextMate Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm test
+        working-directory: ./src/textmate
+      
+      - name: HighlightJs Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm test
+        working-directory: ./src/highlightjs
+      
+      - name: Monarch Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+        working-directory: ./src/monarch

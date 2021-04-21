@@ -22,7 +22,7 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly IResourceTypeProvider resourceTypeProvider = new AzResourceTypeProvider();
+        private static readonly IResourceTypeProvider resourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
 
         private readonly IJSRuntime jsRuntime;
 

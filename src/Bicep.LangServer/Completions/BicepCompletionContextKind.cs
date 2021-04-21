@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 
@@ -96,5 +96,31 @@ namespace Bicep.LanguageServer.Completions
         /// The current location could be the start of a nested resource declaration.
         /// </summary>
         NestedResourceDeclarationStart = 1 << 16,
+
+        /// <summary>
+        /// The current location needs a variable value.
+        /// </summary>
+        VariableValue = 1 << 17,
+
+        /// <summary>
+        /// The current location needs an output value.
+        /// </summary>
+        OutputValue = 1 << 18,
+
+        /// <summary>
+        /// The current location needs a parameter default value.
+        /// </summary>
+        ParameterDefaultValue = 1 << 19,
+
+        /// <summary>
+        /// The current location is not a valid scope where we can offer completions.
+        /// </summary>
+        /// <remarks>This is used to prevent fallback to Expression kind</remarks>
+        NotValid = 1 << 20,
+
+        /// <summary>
+        /// The current location is after the resource type.
+        /// </summary>
+        ResourceTypeFollower = 1 << 21,
     }
 }

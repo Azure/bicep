@@ -172,5 +172,54 @@ resource resB 'My.Rp/resB/childB@2020-01-01' = {
   ]
 }");
         }
+
+        [TestMethod]
+        public void Parent_resources_with_expression_names_are_identified()
+        {
+            // this is a minimal repro for https://github.com/Azure/bicep/issues/2008
+            var bicepFile = @"
+var resAName = 'resA'
+var resBName = 'resB'
+
+resource resA 'My.Rp/parent@2020-01-01' = {
+  name: '${resAName}'
+}
+
+resource resB 'My.Rp/parent@2020-01-01' = {
+  name: '${resBName}'
+}
+
+resource childA 'My.Rp/parent/child@2020-01-01' = {
+  name: '${resAName}/child'
+}
+
+resource childB 'My.Rp/parent/child@2020-01-01' = {
+  name: '${resBName}/child'
+}";
+
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+@"var resAName = 'resA'
+var resBName = 'resB'
+
+resource resA 'My.Rp/parent@2020-01-01' = {
+  name: '${resAName}'
+}
+
+resource resB 'My.Rp/parent@2020-01-01' = {
+  name: '${resBName}'
+}
+
+resource childA 'My.Rp/parent/child@2020-01-01' = {
+  name: '${resA.name}/child'
+}
+
+resource childB 'My.Rp/parent/child@2020-01-01' = {
+  name: '${resB.name}/child'
+}");
+        }
     }
 }

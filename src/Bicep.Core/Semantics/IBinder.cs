@@ -12,8 +12,6 @@ namespace Bicep.Core.Semantics
         ResourceScope TargetScope { get; }
 
         FileSymbol FileSymbol { get; }
-        
-        IEnumerable<SyntaxBase> FindReferences(Symbol symbol);
 
         Symbol? GetSymbolInfo(SyntaxBase syntax);
 

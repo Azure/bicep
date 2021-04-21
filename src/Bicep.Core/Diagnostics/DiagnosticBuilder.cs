@@ -619,15 +619,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP106",
                 "Expected a new line character at this location. Commas are not used as separator delimiters.");
 
-            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceSymbol, string name) => new(
+            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceType, string name) => new(
                 TextSpan,
                 "BCP107",
-                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\".");
+                $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\".");
 
-            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceSymbol, string name, string suggestedName) => new(
+            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceType, string name, string suggestedName) => new(
                 TextSpan,
                 "BCP108",
-                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\". Did you mean \"{suggestedName}\"?",
+                $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?",
                 null,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
@@ -700,14 +700,14 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
             {
-                var variableDependencyChainClause = variableDependencyChain != null ?
-                 $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
+                var variableDependencyChainClause = variableDependencyChain != null
+                    ? $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). "
+                    : string.Empty;
 
                 return new ErrorDiagnostic(
-                TextSpan,
-                "BCP120",
-                $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}."
-                );
+                    TextSpan,
+                    "BCP120",
+                    $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}.");
             }
 
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
@@ -800,7 +800,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ForExpressionsNotSupportedHere() => new(
                 TextSpan,
                 "BCP138",
-                "For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs.");
+                "For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties.");
 
             public Diagnostic InvalidCrossResourceScope() => new(
                 TextSpan,
@@ -986,6 +986,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP174",
                 $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information.");
 
+            public ErrorDiagnostic VariableLoopsRuntimeDependencyNotAllowed(IEnumerable<string> variableDependencyChain)
+            {
+                var variableDependencyChainClause = variableDependencyChain.Any()
+                    ? $" Variable dependency chain: \"{string.Join("\" -> \"", variableDependencyChain)}\"."
+                    : string.Empty;
+
+                return new(
+                    TextSpan,
+                    "BCP175",
+                    $"The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

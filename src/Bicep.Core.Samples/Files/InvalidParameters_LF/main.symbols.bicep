@@ -75,6 +75,18 @@ param wrongAssignmentToken string: 'hello'
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 //@[6:267) Parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong. Type: string. Declaration start char: 0, length: 287
 
+// #completionTest(28,29) -> boolPlusSymbols
+param boolCompletions bool = 
+//@[6:21) Parameter boolCompletions. Type: bool. Declaration start char: 0, length: 29
+
+// #completionTest(30,31) -> arrayPlusSymbols
+param arrayCompletions array = 
+//@[6:22) Parameter arrayCompletions. Type: array. Declaration start char: 0, length: 31
+
+// #completionTest(32,33) -> objectPlusSymbols
+param objectCompletions object = 
+//@[6:23) Parameter objectCompletions. Type: object. Declaration start char: 0, length: 33
+
 // badly escaped string
 param wrongType fluffyBunny = 'what's up doc?'
 //@[6:15) Parameter wrongType. Type: error. Declaration start char: 0, length: 36
@@ -516,6 +528,70 @@ param duplicateDecorators string
 @maxLength(-100)
 param invalidLength string
 //@[6:19) Parameter invalidLength. Type: string. Declaration start char: 0, length: 58
+
+
+param invalidPermutation array {
+//@[6:24) Parameter invalidPermutation. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 402
+    default: [
+		'foobar'
+		true
+        100
+	]
+    allowed: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+		'Microsoft.ContainerInstance/containerGroups'
+		'Microsoft.ContainerRegistry/registries'
+		'Microsoft.ContainerService/managedClusters'
+    ]
+}
+
+@allowed([
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ApiManagement/service'
+	'Microsoft.Network/applicationGateways'
+	'Microsoft.Automation/automationAccounts'
+	'Microsoft.ContainerInstance/containerGroups'
+	'Microsoft.ContainerRegistry/registries'
+	'Microsoft.ContainerService/managedClusters'
+])
+param invalidPermutationWithDecorator array = [
+//@[6:37) Parameter invalidPermutationWithDecorator. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 379
+	'foobar'
+	true
+    100
+]
+
+param invalidDefaultWithAllowedArray array {
+//@[6:36) Parameter invalidDefaultWithAllowedArray. Type: array. Declaration start char: 0, length: 266
+    default: true
+    allowed: [
+		[
+			'Microsoft.AnalysisServices/servers'
+			'Microsoft.ApiManagement/service'
+		]
+		[
+			'Microsoft.Network/applicationGateways'
+			'Microsoft.Automation/automationAccounts'
+		]
+    ]
+}
+
+
+@allowed([
+	[
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+	]
+	[
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+	]
+])
+param invalidDefaultWithAllowedArrayDecorator array = true
+//@[6:45) Parameter invalidDefaultWithAllowedArrayDecorator. Type: array. Declaration start char: 0, length: 245
 
 // unterminated multi-line comment
 /*    

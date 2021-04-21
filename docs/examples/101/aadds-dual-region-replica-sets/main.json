@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12629033095565085541"
+      "templateHash": "13468177288182087587"
     }
   },
   "parameters": {
@@ -43,11 +43,11 @@
         "replicaSets": [
           {
             "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')).subnets[0].id]",
-            "location": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet'), '2020-06-01', 'full').location]"
+            "location": "East US"
           },
           {
             "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')).subnets[0].id]",
-            "location": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet'), '2020-06-01', 'full').location]"
+            "location": "West Europe"
           }
         ],
         "sku": "Enterprise"

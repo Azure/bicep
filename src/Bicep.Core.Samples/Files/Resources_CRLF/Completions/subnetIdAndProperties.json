@@ -5,13 +5,13 @@
     "detail": "id",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nResource ID.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_id",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "id"
@@ -26,13 +26,13 @@
     "detail": "properties",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubnetPropertiesFormat`  \n"
+      "value": "Type: `SubnetPropertiesFormat`  \nProperties of the subnet.  \n"
     },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_properties",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "properties"

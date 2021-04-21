@@ -224,7 +224,7 @@ stages:
       displayName: Copy language server for packaging
       inputs:
         sourceFolder: '$(Pipeline.Workspace)/drop_build_bicep_windows/bicep.LangServer/'
-        contents: '*.*'
+        contents: '**'
         targetFolder: '$(Build.SourcesDirectory)/src/vscode-bicep/bicepLanguageServer'
     
     - script: npm run test:unit

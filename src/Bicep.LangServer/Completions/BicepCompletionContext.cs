@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -89,10 +91,13 @@ namespace Bicep.LanguageServer.Completions
             // the check at the beginning guarantees we have at least 1 node
             var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
 
-            var matchingTriviaType = FindTriviaMatchingOffset(syntaxTree.ProgramSyntax, offset)?.Type;
-            if (matchingTriviaType is not null && (matchingTriviaType == SyntaxTriviaType.MultiLineComment || matchingTriviaType == SyntaxTriviaType.SingleLineComment)) {
-                //we're in a comment, no hints here
-                return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+            var triviaMatchingOffset = FindTriviaMatchingOffset(syntaxTree.ProgramSyntax, offset);
+            switch (triviaMatchingOffset?.Type)
+            {
+                case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
+                case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
+                    //we're in a comment, no hints here
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
@@ -108,14 +113,18 @@ namespace Bicep.LanguageServer.Completions
             var kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
                        ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
+                       ConvertFlag(IsResourceTypeFollowerContext(matchingNodes, offset), BicepCompletionContextKind.ResourceTypeFollower) |
                        ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
                        ConvertFlag(IsMemberAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
                        ConvertFlag(IsResourceAccessContext(matchingNodes, resourceAccessInfo, offset), BicepCompletionContextKind.ResourceAccess) |
                        ConvertFlag(IsArrayIndexContext(matchingNodes, arrayAccessInfo), BicepCompletionContextKind.ArrayIndex | BicepCompletionContextKind.Expression) |
-                       ConvertFlag(IsPropertyValueContext(matchingNodes, propertyInfo), BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression) |
+                       GetPropertyValueFlags(matchingNodes, propertyInfo, offset) |
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
                        ConvertFlag(IsModuleBodyContext(matchingNodes, offset), BicepCompletionContextKind.ModuleBody) |
+                       ConvertFlag(IsParameterDefaultValueContext(matchingNodes, offset), BicepCompletionContextKind.ParameterDefaultValue | BicepCompletionContextKind.Expression) |
+                       ConvertFlag(IsVariableValueContext(matchingNodes, offset), BicepCompletionContextKind.VariableValue | BicepCompletionContextKind.Expression) |
+                       ConvertFlag(IsOutputValueContext(matchingNodes, offset), BicepCompletionContextKind.OutputValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName);
@@ -182,7 +191,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => CheckTypeIsExpected(resource.Name, resource.Type)) ||
                 SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
-                SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
+                SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => resource.Type == skipped && token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a resource declaration
                 // the declaration syntax is "resource <identifier> '<type>' ..."
@@ -208,6 +217,18 @@ namespace Bicep.LanguageServer.Completions
 
             return BicepCompletionContextKind.None;
         }
+
+        private static bool IsResourceTypeFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // resource foo '...' |
+            // OR
+            // resource foo '...' | = {
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => !resource.IsExistingResource() && offset > resource.Type.GetEndPosition() && offset <= resource.Assignment.Span.Position) ||
+            // resource foo '...' e|
+            // OR
+            // resource foo '...' e| = {
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => !resource.IsExistingResource() && resource.Assignment == skipped && token.Type == TokenType.Identifier) ||
+            // resource foo '...' |=
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => !resource.IsExistingResource() && resource.Assignment == token && token.Type == TokenType.Assignment && offset == token.Span.Position);
 
         private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<TargetScopeSyntax>(matchingNodes, targetScope =>
@@ -390,23 +411,43 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        private static bool IsPropertyValueContext(List<SyntaxBase> matchingNodes, (ObjectPropertySyntax? node, int index) propertyInfo) =>
-            propertyInfo.node != null &&
-                (
-                // the cursor position may be in the trivia following the colon that follows the property name
-                // if that's the case, the offset should match the end of the property span exactly
-                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, _ => true) ||
+        private static BicepCompletionContextKind GetPropertyValueFlags(List<SyntaxBase> matchingNodes, (ObjectPropertySyntax? node, int index) propertyInfo, int offset)
+        {
+            if (propertyInfo.node is not null)
+            {
+                if (
+                    // the cursor position may be in the trivia following the colon that follows the property name
+                    // if that's the case, the offset should match the end of the property span exactly
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => property.Colon is not SkippedTriviaSyntax && offset >= property.Colon.GetEndPosition()) ||
+                    // the cursor position is after the colon that follows the property name
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset>= token.GetEndPosition()) ||
+                    // the cursor is inside a string value of the property
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax)) ||
+                    // the cursor could is a partial or full identifier
+                    // which will present as either a keyword or identifier token
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (property, variableAccess, identifier, token) => ReferenceEquals(property.Value, variableAccess)))
+                {
+                    return BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression;
+                };
 
-                // the cursor position is after the colon that follows the property name
-                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon) ||
+                // | indicates cursor position
+                if (
+                    // {
+                    //   key |
+                    // }
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => true) ||
+                    // {
+                    //   key |:
+                    // }
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon))
+                {
+                    // we don't want to offer completions in this case and also want to prevent fallback to expression
+                    return BicepCompletionContextKind.NotValid;
+                }
+            }
 
-                // the cursor is inside a string value of the property
-                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax)) ||
-
-                // the cursor could is a partial or full identifier
-                // which will present as either a keyword or identifier token
-                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (property, variableAccess, identifier, token) => ReferenceEquals(property.Value, variableAccess))
-                );
+            return BicepCompletionContextKind.None;
+        }
 
         private static bool IsArrayItemContext(List<SyntaxBase> matchingNodes, (ArraySyntax? node, int index) arrayInfo)
         {
@@ -439,6 +480,33 @@ namespace Bicep.LanguageServer.Completions
 
             return false;
         }
+
+        private static bool IsParameterDefaultValueContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // | below indicates cursor position
+            // param foo type = |
+            SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, ParameterDefaultValueSyntax>(matchingNodes, (_, @default) => offset >= @default.AssignmentToken.GetEndPosition()) ||
+            // param foo type =|
+            SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, ParameterDefaultValueSyntax, Token>(matchingNodes, (_, @default, token) => @default.AssignmentToken == token && offset == token.GetEndPosition()) ||
+            // param foo type = a|
+            SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, ParameterDefaultValueSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier);
+
+        private static bool IsOutputValueContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // | below indicates cursor position
+            // output foo type = |
+            SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => output.Assignment is not SkippedTriviaSyntax && offset >= output.Assignment.GetEndPosition()) ||
+            // output foo type =|
+            SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, Token>(matchingNodes, (output, token) => output.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
+            // output foo type = a|
+            SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
+
+        private static bool IsVariableValueContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // | below indicates cursor position
+            // var foo = |
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax>(matchingNodes, variable => variable.Assignment is not SkippedTriviaSyntax && offset >= variable.Assignment.GetEndPosition()) ||
+            // var foo =|
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax, Token>(matchingNodes, (variable, token) => variable.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
+            // var foo = a|
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
 
         private static bool IsResourceBodyContext(List<SyntaxBase> matchingNodes, int offset)
         {

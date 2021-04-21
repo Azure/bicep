@@ -44,6 +44,26 @@
             "stopAtEntry": false
         },
         {
+            "name": "Textmate Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "test"
+            ],
+            "cwd": "${workspaceFolder}/src/textmate"
+        },
+        {
+            "name": "HighlightJs Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "test"
+            ],
+            "cwd": "${workspaceFolder}/src/highlightjs"
+        },
+        {
             "name": "Attach",
             "type": "coreclr",
             "request": "attach",

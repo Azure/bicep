@@ -231,6 +231,19 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   }
 }
 
+// there should be no completions without the colon
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  
+//@[8:8) [BCP018 (Error)] Expected the ":" character at this location. ||
+}
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  :
+//@[9:9) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+}
+
 // unsupported resource ref
 var resrefvar = bar.name
 
@@ -348,17 +361,15 @@ resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 }
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
 }
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: runtimeValidRes1.properties.evictionPolicy
-//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.properties.evictionPolicy|
+//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.properties.evictionPolicy|
   kind:'AzureCLI'
   location: 'eastus'
   properties: {
@@ -369,35 +380,35 @@ resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties'].evictionPolicy
-//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['properties'].evictionPolicy|
+//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['properties'].evictionPolicy|
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties']['evictionPolicy']
-//@[8:56) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['properties']['evictionPolicy']|
+//@[8:56) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['properties']['evictionPolicy']|
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.properties['evictionPolicy']
-//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.properties['evictionPolicy']|
+//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.properties['evictionPolicy']|
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2.properties.azCliVersion
-//@[8:48) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2.properties.azCliVersion|
+//@[8:48) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes2.properties.azCliVersion|
 }
 
 var magicString1 = 'location'
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString1}']
-//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString1}']|
+//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes2['${magicString1}']|
 }
 
 // note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
 var magicString2 = 'name'
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString2}']
-//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString2}']|
+//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes2['${magicString2}']|
 }
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -413,18 +424,14 @@ resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@202
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
-//@[15:40) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
-//@[42:70) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
-//@[72:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3['properties'].azCliVersion|
+//@[72:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "location", "name", "type". |runtimeInvalidRes3['properties'].azCliVersion|
 //@[119:142) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name", "scope". |validModule.params.name|
 //@[131:137) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
 }
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
-//@[11:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
-//@[39:67) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
-//@[70:115) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3.properties['azCliVersion']|
+//@[70:115) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "location", "name", "type". |runtimeInvalidRes3.properties['azCliVersion']|
 //@[118:144) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name", "scope". |validModule['params'].name|
 //@[130:138) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |'params'|
 }
@@ -453,31 +460,30 @@ var runtimeValid = {
 
 resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo1
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo1|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo1|
 }
 
 resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo2
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo2|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo2|
 }
 
 resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo3.properties.azCliVersion
-//@[8:51) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo3.properties.azCliVersion|
+//@[8:51) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo3.properties.azCliVersion|
 }
 
 // Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
 resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo4
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo4|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo4|
 }
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
-//@[15:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo1|
-//@[36:79) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['properties'].azCliVersion|
-//@[84:109) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
-//@[113:128) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimefoo4.hop|
+//@[15:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo1|
+//@[36:79) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes2['properties'].azCliVersion|
+//@[113:128) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimefoo4.hop|
 }
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -507,19 +513,19 @@ var runtimeCheckVar2 = runtimeCheckVar
 
 resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: runtimeCheckVar2
-//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |runtimeCheckVar2|
+//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "location", "name", "type". |runtimeCheckVar2|
   location: 'test'
 }
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
   name: runtimeCheckVar2
-//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |runtimeCheckVar2|
+//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "location", "name", "type". |runtimeCheckVar2|
   location: 'test'
 }]
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
   name: loopForRuntimeCheck[0].properties.zoneType
-//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |loopForRuntimeCheck[0].properties.zoneType|
+//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "location", "name", "type". |loopForRuntimeCheck[0].properties.zoneType|
   location: 'test'
 }]
 
@@ -527,7 +533,7 @@ var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
 var varForRuntimeCheck4b = varForRuntimeCheck4a
 resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
   name: varForRuntimeCheck4b
-//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |varForRuntimeCheck4b|
+//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "location", "name", "type". |varForRuntimeCheck4b|
   location: 'test'
 }]
 
@@ -1554,7 +1560,7 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
   properties: {
     networkAcls: {
       virtualNetworkRules: concat([for lol in []: {
-//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations, values of resource and module properties, or values of outputs. |for|
+//@[35:38) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. |for|
         id: '${account.name}-${account.location}'
       }])
     }
@@ -1797,10 +1803,18 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" characters. The number of name segments must match the number of segments in the resource type. |'res1/res2'|
 }
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-  name: 'existngResProperty'
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+  name: 'existingResProperty'
   location: 'westeurope'
 //@[2:10) [BCP173 (Error)] The property "location" cannot be used in an existing resource declaration. |location|
   properties: {}
 //@[2:12) [BCP173 (Error)] The property "properties" cannot be used in an existing resource declaration. |properties|
 }
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+    parent: existingResProperty
+    name: 'myExt'
+    location: existingResProperty.location
+//@[14:42) [BCP120 (Error)] The property "location" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of existingResProperty are "apiVersion", "id", "name", "scope", "type". |existingResProperty.location|
+}
+

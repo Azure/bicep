@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import * as monacoEditor from 'monaco-editor';
 import React, { useRef } from 'react';
 import MonacoEditor from 'react-monaco-editor';

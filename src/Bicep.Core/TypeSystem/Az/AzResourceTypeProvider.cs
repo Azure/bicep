@@ -1,17 +1,22 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
-using Bicep.Core.Emit;
 using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.Az
 {
+
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
+        public static IResourceTypeProvider CreateWithAzTypes()
+            => CreateWithLoader(new AzResourceTypeLoader(), true);
+
+        public static IResourceTypeProvider CreateWithLoader(IResourceTypeLoader resourceTypeLoader, bool warnOnMissingType)
+            => new AzResourceTypeProvider(resourceTypeLoader, warnOnMissingType);
+
         private class ResourceTypeCache
         {
             private class KeyComparer : IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)>
@@ -47,10 +52,10 @@ namespace Bicep.Core.TypeSystem.Az
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
 
-        private readonly ITypeLoader typeLoader;
-        private readonly AzResourceTypeFactory resourceTypeFactory;
-        private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
+        private readonly IResourceTypeLoader resourceTypeLoader;
+        private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache loadedTypeCache;
+        private readonly bool warnOnMissingType;
 
         private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new []
         {
@@ -59,27 +64,12 @@ namespace Bicep.Core.TypeSystem.Az
             LanguageConstants.ResourceParentPropertyName,
         }.ToImmutableHashSet();
 
-        public AzResourceTypeProvider()
-            : this(new TypeLoader())
+        private AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, bool warnOnMissingType)
         {
-        }
-
-        private static IReadOnlyDictionary<ResourceTypeReference, TypeLocation> GetAvailableResourceTypes(ITypeLoader typeLoader)
-        {
-            var indexedTypes = typeLoader.GetIndexedTypes();
-
-            return indexedTypes.Types.ToDictionary(
-                kvp => ResourceTypeReference.Parse(kvp.Key),
-                kvp => kvp.Value,
-                ResourceTypeReferenceComparer.Instance);
-        }
-
-        public AzResourceTypeProvider(ITypeLoader typeLoader)
-        {
-            this.typeLoader = typeLoader;
-            this.resourceTypeFactory = new AzResourceTypeFactory();
-            this.availableResourceTypes = GetAvailableResourceTypes(typeLoader);
+            this.resourceTypeLoader = resourceTypeLoader;
+            this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet(ResourceTypeReferenceComparer.Instance);
             this.loadedTypeCache = new ResourceTypeCache();
+            this.warnOnMissingType = warnOnMissingType;
         }
 
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
@@ -91,10 +81,9 @@ namespace Bicep.Core.TypeSystem.Az
 
         private ResourceType GenerateResourceType(ResourceTypeReference typeReference)
         {
-            if (availableResourceTypes.TryGetValue(typeReference, out var typeLocation))
+            if (availableResourceTypes.Contains(typeReference))
             {
-                var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
-                return resourceTypeFactory.GetResourceType(serializedResourceType);
+                return this.resourceTypeLoader.LoadType(typeReference);
             }
 
             return new ResourceType(
@@ -103,7 +92,7 @@ namespace Bicep.Core.TypeSystem.Az
                 CreateGenericResourceBody(typeReference, p => true));
         }
 
-        public static ResourceType SetBicepResourceProperties(ResourceType resourceType, ResourceTypeGenerationFlags flags)
+        private static ResourceType SetBicepResourceProperties(ResourceType resourceType, ResourceTypeGenerationFlags flags)
         {
             var bodyType = resourceType.Body.Type;
 
@@ -132,7 +121,7 @@ namespace Bicep.Core.TypeSystem.Az
                     bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:
-                    if (LanguageConstants.IdentifierComparer.Equals(bodyDiscriminatedType.DiscriminatorKey, LanguageConstants.ResourceNamePropertyName) && 
+                    if (bodyDiscriminatedType.TryGetDiscriminatorProperty(LanguageConstants.ResourceNamePropertyName) is not null && 
                         !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
@@ -178,11 +167,22 @@ namespace Bicep.Core.TypeSystem.Az
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
                 var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
                 properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+
+                if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
+                {
+                    // An existing resource's location is not a deployment-time constant, because it requires runtime evaluation get the value.
+                    properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags & ~TypePropertyFlags.DeployTimeConstant));
+                }
             }
             else
             {
                 // TODO: remove 'dependsOn' from the type library
                 properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly));
+
+                if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
+                {
+                    properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
+                }
                 
                 // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
                 if (validParentScopes.HasFlag(ResourceScope.Resource))
@@ -247,9 +247,9 @@ namespace Bicep.Core.TypeSystem.Az
         }
 
         public bool HasType(ResourceTypeReference typeReference)
-            => availableResourceTypes.ContainsKey(typeReference);
+            => availableResourceTypes.Contains(typeReference) || !warnOnMissingType;
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
-            => availableResourceTypes.Keys;
+            => availableResourceTypes;
     }
 }

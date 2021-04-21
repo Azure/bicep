@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
+using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -33,9 +34,11 @@ namespace Bicep.LanguageServer.Handlers
                 .Select(referenceSyntax => new DocumentHighlight
                 {
                     Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax),
-                    Kind = referenceSyntax is INamedDeclarationSyntax
-                        ? DocumentHighlightKind.Write
-                        : DocumentHighlightKind.Read
+                    Kind = referenceSyntax switch {
+                        INamedDeclarationSyntax _ => DocumentHighlightKind.Write,
+                        ObjectPropertySyntax _ => DocumentHighlightKind.Write,
+                        _ => DocumentHighlightKind.Read,
+                    },
                 });
 
             return Task.FromResult<DocumentHighlightContainer?>(new DocumentHighlightContainer(highlights));

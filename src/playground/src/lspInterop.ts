@@ -1,15 +1,18 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
-let interop: any;
+let interop: any; /* eslint-disable-line */
 
-export function initializeInterop(self: any): Promise<boolean> {
+export function initializeInterop(self: any): Promise<boolean> { /* eslint-disable */ /* eslint-disable-line */
   return new Promise<boolean>((resolve, reject) => {
     self['BicepInitialize'] = (newInterop: any) => {
       interop = newInterop;
       resolve(true);
     }
   
-    const test = require('../../Bicep.Wasm/bin/Release/net5.0/wwwroot/_framework/blazor.webassembly.js');  
+    // this is necessary to invoke the Blazor startup code - do not remove it!
+    const test = require('../../Bicep.Wasm/bin/Release/net5.0/wwwroot/_framework/blazor.webassembly.js');
   });
 }
 

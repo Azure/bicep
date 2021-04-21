@@ -128,6 +128,17 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   }
 }
 
+// there should be no completions without the colon
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  
+}
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8) -> empty
+  kind  :
+}
+
 // unsupported resource ref
 var resrefvar = bar.name
 
@@ -1366,8 +1377,14 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1/res2'
 }
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-  name: 'existngResProperty'
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+  name: 'existingResProperty'
   location: 'westeurope'
   properties: {}
+}
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+    parent: existingResProperty
+    name: 'myExt'
+    location: existingResProperty.location
 }

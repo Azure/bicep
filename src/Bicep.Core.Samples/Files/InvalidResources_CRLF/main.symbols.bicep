@@ -157,6 +157,19 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   }
 }
 
+// there should be no completions without the colon
+resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:34) Resource noCompletionsWithoutColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
+  // #completionTest(7,8) -> empty
+  kind  
+}
+
+resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:33) Resource noCompletionsBeforeColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
+  // #completionTest(7,8) -> empty
+  kind  :
+}
+
 // unsupported resource ref
 var resrefvar = bar.name
 //@[4:13) Variable resrefvar. Type: string. Declaration start char: 0, length: 24
@@ -1756,9 +1769,17 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1/res2'
 }
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-//@[9:27) Resource existngResProperty. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 164
-  name: 'existngResProperty'
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+//@[9:28) Resource existingResProperty. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 166
+  name: 'existingResProperty'
   location: 'westeurope'
   properties: {}
 }
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:35) Resource invalidExistingLocationRef. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 196
+    parent: existingResProperty
+    name: 'myExt'
+    location: existingResProperty.location
+}
+

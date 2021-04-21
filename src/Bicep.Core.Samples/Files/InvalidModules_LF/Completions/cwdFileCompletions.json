@@ -7,7 +7,7 @@
     "sortText": "2_ChildModules/",
     "filterText": "'ChildModules/'",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'ChildModules/$0'"
@@ -24,7 +24,7 @@
     "sortText": "2_Completions/",
     "filterText": "'Completions/'",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'Completions/$0'"
@@ -41,7 +41,7 @@
     "sortText": "1_cycle.bicep",
     "filterText": "'cycle.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'cycle.bicep'"
@@ -55,7 +55,7 @@
     "sortText": "1_empty.bicep",
     "filterText": "'empty.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'empty.bicep'"
@@ -69,7 +69,7 @@
     "sortText": "1_main.diagnostics.bicep",
     "filterText": "'main.diagnostics.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'main.diagnostics.bicep'"
@@ -83,7 +83,7 @@
     "sortText": "1_main.formatted.bicep",
     "filterText": "'main.formatted.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'main.formatted.bicep'"
@@ -97,7 +97,7 @@
     "sortText": "1_main.symbols.bicep",
     "filterText": "'main.symbols.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'main.symbols.bicep'"
@@ -111,7 +111,7 @@
     "sortText": "1_main.syntax.bicep",
     "filterText": "'main.syntax.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'main.syntax.bicep'"
@@ -125,7 +125,7 @@
     "sortText": "1_main.tokens.bicep",
     "filterText": "'main.tokens.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'main.tokens.bicep'"
@@ -139,7 +139,7 @@
     "sortText": "1_mg_empty.bicep",
     "filterText": "'mg_empty.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'mg_empty.bicep'"
@@ -153,7 +153,7 @@
     "sortText": "1_modulea.bicep",
     "filterText": "'modulea.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'modulea.bicep'"
@@ -167,7 +167,7 @@
     "sortText": "1_subscription_empty.bicep",
     "filterText": "'subscription_empty.bicep'",
     "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'subscription_empty.bicep'"

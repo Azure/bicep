@@ -64,6 +64,7 @@ namespace Bicep.Core
         public const string ModuleOutputsPropertyName = "outputs";
 
         public const string ResourceIdPropertyName = "id";
+        public const string ResourceLocationPropertyName = "location";
         public const string ResourceNamePropertyName = "name";
         public const string ResourceTypePropertyName = "type";
         public const string ResourceApiVersionPropertyName = "apiVersion";
@@ -139,7 +140,9 @@ namespace Bicep.Core
             // default value is allowed to have expressions
             yield return new TypeProperty(ParameterDefaultPropertyName, allowedValuesType);
 
-            yield return new TypeProperty(ParameterAllowedPropertyName, new TypedArrayType(allowedValuesType, TypeSymbolValidationFlags.Default), TypePropertyFlags.Constant);
+            //if (premitiveType is ArrayType && allowedValuesType)
+            allowedValuesType = allowedValuesType is TypedArrayType ? allowedValuesType : new TypedArrayType(allowedValuesType, TypeSymbolValidationFlags.Default);
+            yield return new TypeProperty(ParameterAllowedPropertyName, allowedValuesType, TypePropertyFlags.Constant);
 
             if (ReferenceEquals(primitiveType, Int) || ReferenceEquals(primitiveType, Any))
             {
