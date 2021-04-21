@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.255.40792",
+      "templateHash": "17127545981622889090"
+    }
+  },
+  "parameters": {
+    "sqlDatabase": {
+      "type": "object"
+    },
+    "sqlServerName": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+      "apiVersion": "2014-04-01",
+      "name": "[format('{0}/{1}/current', parameters('sqlServerName'), parameters('sqlDatabase').name)]",
+      "properties": {
+        "status": "[parameters('sqlDatabase').dataEncryption]"
+      }
+    }
+  ]
+}
