@@ -273,7 +273,19 @@ namespace Bicep.Decompiler.ArmHelpers
             return jTokenExpression.Value.ToString();
         }
 
-        public static bool IsFunction(FunctionExpression function, string name)
-            => StringComparer.OrdinalIgnoreCase.Equals(function.Function, name);
+        public static FunctionExpression? TryGetNamedFunction(LanguageExpression expression, string name)
+        {
+            if (expression is not FunctionExpression function)
+            {
+                return null;
+            }
+
+            if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, name))
+            {
+                return null;
+            }
+
+            return function;
+        }
     }
 }

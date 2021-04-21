@@ -134,7 +134,7 @@ namespace Bicep.Decompiler.ArmHelpers
 
             JTokenHelpers.VisitExpressions(template, expression => 
             {
-                if (expression is not FunctionExpression function || !ExpressionHelpers.IsFunction(function, "parameters"))
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "parameters") is not {} function)
                 {
                     return;
                 }
@@ -180,13 +180,13 @@ namespace Bicep.Decompiler.ArmHelpers
             // process references first
             template = JTokenHelpers.RewriteExpressions(template, expression =>
             {
-                if (expression is not FunctionExpression function || !ExpressionHelpers.IsFunction(function, "reference"))
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "reference") is not {} function)
                 {
                     return expression;
                 }
 
                 var paramNameExpression = function;
-                if (function.Parameters.Length > 0 && function.Parameters[0] is FunctionExpression firstParam && ExpressionHelpers.IsFunction(firstParam, "resourceId"))
+                if (function.Parameters.Length > 0 && ExpressionHelpers.TryGetNamedFunction(function.Parameters[0], "resourceId") is {} firstParam)
                 {
                     paramNameExpression = firstParam;
                 }
@@ -197,7 +197,7 @@ namespace Bicep.Decompiler.ArmHelpers
             // process resourceIds
             template = JTokenHelpers.RewriteExpressions(template, expression => 
             {
-                if (expression is not FunctionExpression function || !ExpressionHelpers.IsFunction(function, "resourceId"))
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "resourceId") is not {} function)
                 {
                     return expression;
                 }
@@ -208,7 +208,7 @@ namespace Bicep.Decompiler.ArmHelpers
             // process variables
             template = JTokenHelpers.RewriteExpressions(template, expression => 
             {
-                if (expression is not FunctionExpression function || !ExpressionHelpers.IsFunction(function, "variables"))
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "variables") is not {} function)
                 {
                     return expression;
                 }
@@ -236,7 +236,7 @@ namespace Bicep.Decompiler.ArmHelpers
             // add parameters to lookup
             JTokenHelpers.VisitExpressions(template, expression => 
             {
-                if (expression is not FunctionExpression function || !ExpressionHelpers.IsFunction(function, "parameters"))
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "parameters") is not {} function)
                 {
                     return;
                 }

@@ -754,7 +754,7 @@ namespace Bicep.Decompiler
                 // this avoids the scenario with a nested copy loop referring ambiguously to the outer index with copyIndex()
                 input = JTokenHelpers.RewriteExpressions(input, expression =>
                 {
-                    if (expression is FunctionExpression function && ExpressionHelpers.IsFunction(function, "copyIndex"))
+                    if (ExpressionHelpers.TryGetNamedFunction(expression, "copyIndex") is {} function)
                     {
                         if (function.Parameters.Length == 0)
                         {
