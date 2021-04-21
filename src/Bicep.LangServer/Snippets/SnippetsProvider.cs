@@ -140,6 +140,12 @@ namespace Bicep.LanguageServer.Snippets
 
         private ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(string template, string manifestResourceName)
         {
+            // Snippets with prefix resource will not have valid type, so there can't be any dependencies
+            if (manifestResourceName.Contains("resource"))
+            {
+                return ImmutableDictionary.Create<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
+            }
+
             string path = Path.GetFullPath(manifestResourceName);
             SyntaxTree syntaxTree = SyntaxTree.Create(new Uri(path), template);
             SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
