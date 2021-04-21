@@ -24,7 +24,7 @@ module moduleWithoutPath = {
 module 
 //@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 7
 
-// #completionTest(24,25) -> object
+// #completionTest(24,25) -> moduleObject
 module missingValue '' = 
 //@[7:19) Module missingValue. Type: error. Declaration start char: 0, length: 25
 

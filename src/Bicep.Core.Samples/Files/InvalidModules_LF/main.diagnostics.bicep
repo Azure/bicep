@@ -28,7 +28,7 @@ module
 //@[7:7) [BCP096 (Error)] Expected a module identifier at this location. ||
 //@[7:7) [BCP090 (Error)] This module declaration is missing a file path reference. ||
 
-// #completionTest(24,25) -> object
+// #completionTest(24,25) -> moduleObject
 module missingValue '' = 
 //@[20:22) [BCP050 (Error)] The specified module path is empty. |''|
 //@[25:25) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
