@@ -320,7 +320,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var usableKeys = this.referencedBodyType.Properties
-                .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) && !kv.Value.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(kv => kv.Key);
 
             if (this.accessedSyntax is ResourceDeclarationSyntax resourceSyntax &&
