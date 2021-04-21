@@ -75,17 +75,16 @@ Please see [Resource Scopes](./resource-scopes.md) for more information and adva
 
 ## Using existing Key Vault's secret as input for secure string module parameter
 
-When a module expects a `string` parameter with `secure: true` modifier, you can use existing secret from a Key Vault. To obtain the secret you need to use special method `getSecret` that can be called on a Microsoft.KeyVault/vaults resource only and can be used only with parameter with `secure: true` or `@secure()` decorator. For example:
+When a module expects a `string` parameter with `secure: true` modifier, you can use existing secret from a Key Vault. To obtain the secret you need to use special method `getSecret` that can be called on a Microsoft.KeyVault/vaults resource only and can be used only with parameter with `@secure()` decorator. For example:
 
 ```bicep
 // Module accepting secure string
-param myPassword string { 
-  secure: true
-}
-
+@secure()
+param myPassword string
 @secure()
 param mySecondPassword string
 ```
+
 ```bicep
 param keyVaultName string
 param keyVaultSubscription string
@@ -111,4 +110,8 @@ module secretModule './secretModule.bicep' = {
 ### Notes
 * Key Vault must have `enabledForDeployment` property set to `true`
 * Key Vault and secret must exist before entire deployment starts.
-* Secret version is optional
+* Secret version is optional. It defaults to latest version if omitted.
+
+### Additional links
+ * https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/key-vault-parameter
+ * https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-tutorial-use-key-vault

@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
+using Bicep.Core.Diagnostics;
+using System.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
 {
@@ -65,7 +67,7 @@ module secret 'secret.bicep' = {
 }
 "),
                 ("secret.bicep", @"
-@secure()
+@sys.secure()
 param mySecret string = 'defaultSecret'
 
 output exposed string = mySecret
@@ -86,7 +88,7 @@ output exposed string = mySecret
         [TestMethod]
         public void InvalidKeyVaultSecretReferenceUsageInOutput()
         {
-            var (template, diags, _) = CompilationHelper.Compile(
+            var result = CompilationHelper.Compile(
                 ("main.bicep", @"
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
@@ -95,14 +97,14 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 output exposed string = kv.getSecret('mySecret','secretversionguid')
 "));
 
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
+            result.Should().NotGenerateATemplate();
+            result.Should().OnlyContainDiagnostic("BCP176", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when assigning a value to a module parameter.");
         }
 
         [TestMethod]
         public void InvalidKeyVaultSecretReferenceUsageInVariable()
         {
-            var (template, diags, _) = CompilationHelper.Compile(
+            var result = CompilationHelper.Compile(
                 ("main.bicep", @"
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
@@ -111,15 +113,15 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 var secret = kv.getSecret('mySecret','secretversionguid')
 "));
 
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
+            result.Should().NotGenerateATemplate();
+            result.Should().OnlyContainDiagnostic("BCP176", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when assigning a value to a module parameter.");
         }
 
 
         [TestMethod]
         public void InvalidKeyVaultSecretReferenceUsageInNonSecretParam()
         {
-            var (template, diags, _) = CompilationHelper.Compile(
+            var result = CompilationHelper.Compile(
                 ("main.bicep", @"
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
@@ -136,14 +138,14 @@ module secret 'secret.bicep' = {
 param notSecret string
 "));
 
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
+            result.Should().NotGenerateATemplate();
+            result.Should().OnlyContainDiagnostic("BCP036", DiagnosticLevel.Error, "The property \"notSecret\" expected a value of type \"string\" but the provided value is of type \"keyVaultSecretReference\".");
         }
 
         [TestMethod]
         public void InvalidKeyVaultSecretReferenceUsageInSecureParamInterpolation()
         {
-            var (template, diags, _) = CompilationHelper.Compile(
+            var result = CompilationHelper.Compile(
                 ("main.bicep", @"
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
@@ -161,14 +163,14 @@ module secret 'secret.bicep' = {
 param testParam string
 "));
 
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
+            result.Should().NotGenerateATemplate();
+            result.Should().OnlyContainDiagnostic("BCP177", DiagnosticLevel.Error, "Type \"keyVaultSecretReference\" cannot be used inside string interpolation.");
         }
 
         [TestMethod]
         public void InvalidKeyVaultSecretReferenceUsageInObjectParam()
         {
-            var (template, diags, _) = CompilationHelper.Compile(
+            var result = CompilationHelper.Compile(
                 ("main.bicep", @"
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
@@ -185,14 +187,15 @@ module secret 'secret.bicep' = {
 param testParam object
 "));
 
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
+
+            result.Should().NotGenerateATemplate();
+            result.Should().OnlyContainDiagnostic("BCP036", DiagnosticLevel.Error, "The property \"testParam\" expected a value of type \"object\" but the provided value is of type \"keyVaultSecretReference\".");
         }
 
         [TestMethod]
         public void InvalidKeyVaultSecretReferenceUsageInArrayParam()
         {
-            var (template, diags, _) = CompilationHelper.Compile(
+            var result = CompilationHelper.Compile(
                 ("main.bicep", @"
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
@@ -211,8 +214,8 @@ module secret 'secret.bicep' = {
 param testParam array
 "));
 
-            diags.Should().NotBeEmpty();
-            template!.Should().BeNull();
+            result.Should().NotGenerateATemplate();
+            result.Should().OnlyContainDiagnostic("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"any\", but the provided item was of type \"keyVaultSecretReference\".");
         }
     }
 }
