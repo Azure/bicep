@@ -272,5 +272,8 @@ namespace Bicep.Decompiler.ArmHelpers
 
             return jTokenExpression.Value.ToString();
         }
+
+        public static bool IsFunction(FunctionExpression function, string name)
+            => StringComparer.OrdinalIgnoreCase.Equals(function.Function, name);
     }
 }

@@ -62,6 +62,16 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [for
   }
 }]
 
+resource namedcopy_blah_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in range(0, storageCount): {
+  name: toLower('${i}blah${uniqueString(resourceGroup().id)}')
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'Storage'
+  properties: {}
+}]
+
 output myVar array = [for (item, i) in items: {
   name: '>${item}<'
   value: item

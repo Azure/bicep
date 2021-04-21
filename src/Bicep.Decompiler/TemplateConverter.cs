@@ -736,52 +736,10 @@ namespace Bicep.Decompiler
         public ForSyntax ProcessUnnamedCopySyntax<TToken>(TToken input, string indexIdentifier, Func<TToken, SyntaxBase> getSyntaxForInputFunc, JToken count)
             where TToken : JToken
         {
-            return PerformScopedAction(() =>
-            {
-                input = JTokenHelpers.RewriteExpressions(input, expression =>
-                {
-                    if (expression is not FunctionExpression function || !StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
-                    {
-                        return expression;
-                    }
+            // Give it a fake name for now - it'll be replaced anyway.
+            // This avoids a lot of code duplication to be able to handle the unamed copy loop.
 
-                    if (function.Parameters.Length == 0)
-                    {
-                        // copyIndex() - replace with '<index>'
-                        return new FunctionExpression(
-                            "variables",
-                            new [] { new JTokenExpression(indexIdentifier), },
-                            function.Properties);
-                    }
-                    else if (function.Parameters.Length == 1 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == null) // exclude 'named' copyIndex - it does not apply to resources.
-                    {
-                        // copyIndex(<offset>) - replace with '<index> + <offset>'
-                        var varExpression = new FunctionExpression(
-                            "variables",
-                            new [] { new JTokenExpression(indexIdentifier), },
-                            Array.Empty<LanguageExpression>());
-
-                        return new FunctionExpression(
-                            "add",
-                            new []
-                            {
-                                varExpression,
-                                function.Parameters[0],
-                            },
-                            function.Properties);
-                    }
-
-                    return expression;
-                });
-
-                var value = getSyntaxForInputFunc(input);
-                if (input is JObject inputObject)
-                {
-                    value = ProcessCondition(inputObject, value);
-                }
-
-                return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), value);
-            }, new[] { indexIdentifier });
+            return ProcessNamedCopySyntax(input, indexIdentifier, getSyntaxForInputFunc, count, "__BICEP_REPLACE");
         }
 
         /// <summary>
@@ -792,6 +750,34 @@ namespace Bicep.Decompiler
         {
             return PerformScopedAction(() =>
             {
+                // simplify things by converting unnamed -> named copyIndex expressions
+                // this avoids the scenario with a nested copy loop referring ambiguously to the outer index with copyIndex()
+                input = JTokenHelpers.RewriteExpressions(input, expression =>
+                {
+                    if (expression is FunctionExpression function && ExpressionHelpers.IsFunction(function, "copyIndex"))
+                    {
+                        if (function.Parameters.Length == 0)
+                        {
+                            // copyIndex() -> copyIndex(<name>)
+                            return new FunctionExpression(
+                                "copyIndex",
+                                new [] { new JTokenExpression(name) },
+                                function.Properties);
+                        }
+                        else if (function.Parameters.Length == 1 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == null)
+                        {
+                            // we've got a non-string param - it must be the index!
+                            // copyIndex(<index>) -> copyIndex(<name>, <index>)
+                            return new FunctionExpression(
+                                "copyIndex",
+                                new [] { new JTokenExpression(name), function.Parameters[0] },
+                                function.Properties);
+                        }
+                    }
+
+                    return expression;
+                });
+
                 input = JTokenHelpers.RewriteExpressions(input, expression =>
                 {
                     if (expression is not FunctionExpression function || !StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
@@ -839,10 +825,10 @@ namespace Bicep.Decompiler
                 return (resourceBodyFunc(resource), Enumerable.Empty<SyntaxBase>());
             }
 
-            var name = TemplateHelpers.AssertRequiredProperty(copyProperty, "name", "The copy object is missing a \"name\" property");
+            var name = TemplateHelpers.AssertRequiredProperty(copyProperty, "name", "The copy object is missing a \"name\" property").ToString();
             var count = TemplateHelpers.AssertRequiredProperty(copyProperty, "count", "The copy object is missing a \"count\" property");
 
-            var bodySyntax = ProcessUnnamedCopySyntax(resource, ResourceCopyLoopIndexVar, resource => resourceBodyFunc(resource), count);
+            var bodySyntax = ProcessNamedCopySyntax(resource, ResourceCopyLoopIndexVar, resource => resourceBodyFunc(resource), count, name);
 
             var decoratorAndNewLines = new List<SyntaxBase>();
 
@@ -1201,8 +1187,12 @@ namespace Bicep.Decompiler
                 return ParseModule(copyResourceLookup, resource, typeString, nameString);
             }
 
-            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessResourceBody(copyResourceLookup, x));
-            var value = ProcessCondition(resource, body);
+            var (value, decorators) = ProcessResourceCopy(resource, resource => 
+            {
+                var body = ProcessResourceBody(copyResourceLookup, resource);
+
+                return ProcessCondition(resource, body); 
+            });
 
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
 
