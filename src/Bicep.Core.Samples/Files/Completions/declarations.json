@@ -636,6 +636,24 @@
     }
   },
   {
+    "label": "res-virtual-wan",
+    "kind": "snippet",
+    "detail": "Virtual WAN",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource vwan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: 'virtualWanName'\n  location: resourceGroup().location\n  properties: {\n    type: 'Standard'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: 'Optimize'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-virtual-wan",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource vwan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${1:'virtualWanName'}\n  location: resourceGroup().location\n  properties: {\n    type: '${2|Standard,Basic|}'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: '${3|Optimize,OptimizeAndAllow,All,None|}'\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-vnet",
     "kind": "snippet",
     "detail": "Virtual Network",
