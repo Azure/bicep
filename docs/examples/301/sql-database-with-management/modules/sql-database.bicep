@@ -17,7 +17,7 @@ resource sqlDb 'Microsoft.Sql/servers/databases@2020-02-02-preview' = {
   properties: {
     zoneRedundant: sqlDatabase.zoneRedundant
     collation: sqlDatabase.collation
-    maxSizeBytes: sqlDatabase.dataMaxSize == 0 ? any(null) : 1024*1024*1024*sqlDatabase.dataMaxSize
+    maxSizeBytes: sqlDatabase.dataMaxSize == 0 ? any(null) : 1024 * 1024 * 1024 * sqlDatabase.dataMaxSize
     licenseType: sqlDatabase.hybridBenefit ? 'BasePrice' : 'LicenseIncluded'
     readScale: sqlDatabase.readReplicas == 0 ? 'Disabled' : 'Enabled'
     readReplicaCount: sqlDatabase.readReplicas
@@ -124,7 +124,7 @@ resource vulnerabilityAssessments 'Microsoft.Sql/servers/databases/vulnerability
       emails: sqlDatabase.azureDefender.vulnerabilityAssessments.emails
     }
     storageContainerPath: !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name) ? concat(storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob, sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.containerName) : ''
-    storageAccountAccessKey: !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name) ? listKeys(storageAccountVulnerabilityAssessments.id, storageAccountVulnerabilityAssessments.apiVersion ).keys[0].value : ''
+    storageAccountAccessKey: !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name) ? listKeys(storageAccountVulnerabilityAssessments.id, storageAccountVulnerabilityAssessments.apiVersion).keys[0].value : ''
   }
 }
 

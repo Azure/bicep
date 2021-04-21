@@ -19,5 +19,5 @@ resource auditSettings 'Microsoft.Sql/servers/databases/auditingSettings@2020-08
     storageAccountSubscriptionId: '00000000-0000-0000-0000-000000000000'
     retentionDays: 0
     isAzureMonitorTargetEnabled: sqlDatabase.diagnosticLogsAndMetrics.auditLogs
-    }
+  }
 }

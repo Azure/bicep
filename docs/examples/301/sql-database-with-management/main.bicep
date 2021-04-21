@@ -14,7 +14,7 @@ var defaultResourceGroupProperties = {
 // Deploy Resource Group
 resource sqlRg 'Microsoft.Resources/resourceGroups@2020-10-01' = if (union(defaultResourceGroupProperties, resourceGroup).deploy) {
   name: resourceGroup.name
-  location:resourceGroup.location
+  location: resourceGroup.location
   tags: union(defaultResourceGroupProperties, resourceGroup).tags
   properties: {}
 }

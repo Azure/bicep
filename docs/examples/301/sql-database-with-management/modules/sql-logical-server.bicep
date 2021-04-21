@@ -123,7 +123,7 @@ resource vulnerabilityAssessments 'Microsoft.Sql/servers/vulnerabilityAssessment
       emailSubscriptionAdmins: sqlLogicalServer.azureDefender.vulnerabilityAssessments.emailSubscriptionAdmins
       emails: sqlLogicalServer.azureDefender.vulnerabilityAssessments.emails
     }
-    storageContainerPath: !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name) ? concat(storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob , sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.containerName) : ''
+    storageContainerPath: !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name) ? concat(storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob, sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.containerName) : ''
     storageAccountAccessKey: !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name) ? listKeys(storageAccountVulnerabilityAssessments.id, storageAccountVulnerabilityAssessments.apiVersion).keys[0].value : ''
   }
 }
@@ -163,9 +163,9 @@ module sqlDatabases 'sql-database.bicep' = [for (sqlDatabase, index) in sqlLogic
   ]
   name: 'sqlDb-${uniqueString(sqlLogicalServer.name)}-${index}'
   params: {
-   sqlServerName: sqlLogicalServer.name
-   sqlDatabase: union(defaultSqlDatabaseProperties, sqlLogicalServer.databases[index])
-   tags: union(tags, union(defaultSqlDatabaseProperties, sqlLogicalServer.databases[index]).tags)
+    sqlServerName: sqlLogicalServer.name
+    sqlDatabase: union(defaultSqlDatabaseProperties, sqlLogicalServer.databases[index])
+    tags: union(tags, union(defaultSqlDatabaseProperties, sqlLogicalServer.databases[index]).tags)
   }
 }]
 
