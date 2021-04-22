@@ -6,7 +6,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01'
       {
         name: 'containerName'
         properties: {
-          image: 'UPDATEME'
+          image: 'REQUIRED'
           ports: [
             {
               port: 80

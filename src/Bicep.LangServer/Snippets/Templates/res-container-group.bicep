@@ -7,7 +7,7 @@ resource ${1:containerGroup} 'Microsoft.ContainerInstance/containerGroups@2021-0
       {
         name: ${3:'containerName'}
         properties: {
-          image: ${4:'UPDATEME'}
+          image: ${4:'REQUIRED'}
           ports: [
             {
               port: ${5:80}

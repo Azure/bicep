@@ -4,7 +4,7 @@ resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@201
   properties: {
     friendlyName: 'friendlyName'
     applicationGroupType: 'Desktop'
-    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'UPDATEME')
+    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'REQUIRED')
   }
 }
 

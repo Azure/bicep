@@ -5,6 +5,6 @@
 // $5 = 3
 // $6 = 'Standard_DS2_v2'
 // $7 = 'adminUsername'
-// $8 = 'UPDATEME'
+// $8 = 'REQUIRED'
 
 // Insert snippet here

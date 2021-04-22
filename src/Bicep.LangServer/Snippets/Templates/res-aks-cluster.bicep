@@ -23,7 +23,7 @@ resource ${1:aksCluster} 'Microsoft.ContainerService/managedClusters@2021-03-01'
       ssh: {
         publicKeys: [
           {
-            keyData: ${8:'UPDATEME'}
+            keyData: ${8:'REQUIRED'}
           }
         ]
       }

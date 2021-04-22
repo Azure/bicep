@@ -5,7 +5,7 @@ resource ${1:localNetworkGateway} 'Microsoft.Network/localNetworkGateways@2019-1
   properties: {
     localNetworkAddressSpace: {
       addressPrefixes: [
-        ${3:'UPDATEME'}
+        ${3:'REQUIRED'}
       ]
     }
     gatewayIpAddress: ${4:'gatewayIpAddress'}

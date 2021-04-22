@@ -5,6 +5,6 @@ resource ${1:applicationGroup} 'Microsoft.DesktopVirtualization/applicationgroup
   properties: {
     friendlyName: ${3:'friendlyName'}
     applicationGroupType: ${4|'Desktop','RailApplications'|}
-    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${5:'UPDATEME'})
+    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${5:'REQUIRED'})
   }
 }
