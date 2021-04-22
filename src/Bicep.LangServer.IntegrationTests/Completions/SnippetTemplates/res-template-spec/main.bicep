@@ -1,5 +1,6 @@
-﻿// $1 = 'templateSpec'
-// $2 = 'description'
-// $3 = 'displayName'
+﻿// $1 = templateSpec
+// $2 = 'name'
+// $3 = 'description'
+// $4 = 'displayName'
 
 // Insert snippet here
