@@ -40,7 +40,8 @@ resource resA 'My.Rp/resA@2020-01-01' = {
 }
 
 resource resB 'My.Rp/resA/childB@2020-01-01' = {
-  name: '${resA.name}/resB'
+  parent: resA
+  name: 'resB'
   dependsOn: [
     resA
   ]
@@ -76,7 +77,8 @@ resource resA 'My.Rp/resA@2020-01-01' = {
 }
 
 resource resB 'My.Rp/resA/childB@2020-01-01' = {
-  name: '${resA.name}/resB'
+  parent: resA
+  name: 'resB'
   dependsOn: [
     resA
   ]
@@ -107,6 +109,13 @@ resource resC 'My.Rp/resA/childB/childC@2020-01-01' = {
   dependsOn: [
     resB
   ]
+}
+
+resource resD 'My.Rp/resA/childB@2020-01-01' = {
+  name: 'a${parentName}b${parentSuffix}/abc${test}def${true}ghi'
+  dependsOn: [
+    resA
+  ]
 }";
 
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
@@ -123,16 +132,26 @@ resource resA 'My.Rp/resA@2020-01-01' = {
 }
 
 resource resB 'My.Rp/resA/childB@2020-01-01' = {
-  name: '${resA.name}/${test}'
+  parent: resA
+  name: test
   dependsOn: [
     resA
   ]
 }
 
 resource resC 'My.Rp/resA/childB/childC@2020-01-01' = {
-  name: '${resB.name}/test'
+  parent: resB
+  name: 'test'
   dependsOn: [
     resB
+  ]
+}
+
+resource resD 'My.Rp/resA/childB@2020-01-01' = {
+  parent: resA
+  name: 'abc${test}def${true}ghi'
+  dependsOn: [
+    resA
   ]
 }");
         }
@@ -214,11 +233,13 @@ resource resB 'My.Rp/parent@2020-01-01' = {
 }
 
 resource childA 'My.Rp/parent/child@2020-01-01' = {
-  name: '${resA.name}/child'
+  parent: resA
+  name: 'child'
 }
 
 resource childB 'My.Rp/parent/child@2020-01-01' = {
-  name: '${resB.name}/child'
+  parent: resB
+  name: 'child'
 }");
         }
     }
