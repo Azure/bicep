@@ -2318,6 +2318,120 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[74:75) LeftParen |(|
 //@[75:76) RightParen |)|
 //@[76:77) RightSquare |]|
-//@[77:78) NewLine |\n|
+//@[77:79) NewLine |\n\n|
+
+module anyTypeInScope 'empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:21) Identifier |anyTypeInScope|
+//@[22:35) StringComplete |'empty.bicep'|
+//@[36:37) Assignment |=|
+//@[38:39) LeftBrace |{|
+//@[39:40) NewLine |\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+    any('s')
+//@[4:7) Identifier |any|
+//@[7:8) LeftParen |(|
+//@[8:11) StringComplete |'s'|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\n\n|
+
+  scope: any(42)
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:15) Integer |42|
+//@[15:16) RightParen |)|
+//@[16:17) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[0:6) Identifier |module|
+//@[7:32) Identifier |anyTypeInScopeConditional|
+//@[33:46) StringComplete |'empty.bicep'|
+//@[47:48) Assignment |=|
+//@[49:51) Identifier |if|
+//@[51:52) LeftParen |(|
+//@[52:57) FalseKeyword |false|
+//@[57:58) RightParen |)|
+//@[59:60) LeftBrace |{|
+//@[60:61) NewLine |\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+    any('s')
+//@[4:7) Identifier |any|
+//@[7:8) LeftParen |(|
+//@[8:11) StringComplete |'s'|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\n\n|
+
+  scope: any(42)
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:15) Integer |42|
+//@[15:16) RightParen |)|
+//@[16:17) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[0:6) Identifier |module|
+//@[7:25) Identifier |anyTypeInScopeLoop|
+//@[26:39) StringComplete |'empty.bicep'|
+//@[40:41) Assignment |=|
+//@[42:43) LeftSquare |[|
+//@[43:46) Identifier |for|
+//@[47:52) Identifier |thing|
+//@[53:55) Identifier |in|
+//@[56:57) LeftSquare |[|
+//@[57:58) RightSquare |]|
+//@[58:59) Colon |:|
+//@[60:61) LeftBrace |{|
+//@[61:62) NewLine |\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+    any('s')
+//@[4:7) Identifier |any|
+//@[7:8) LeftParen |(|
+//@[8:11) StringComplete |'s'|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\n\n|
+
+  scope: any(42)
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:15) Integer |42|
+//@[15:16) RightParen |)|
+//@[16:17) NewLine |\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
 
 //@[0:0) EndOfFile ||
