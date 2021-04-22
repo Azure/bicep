@@ -144,7 +144,7 @@
       "editor/title/context": [
         {
           "command": "bicep.showVisualizer",
-          "when": "resourceLangId == markdown",
+          "when": "resourceLangId == bicep",
           "group": "1_open"
         }
       ],
