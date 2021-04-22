@@ -311,19 +311,17 @@ namespace Bicep.Decompiler
             expression = functionExpression;
 
             var values = new List<string>();
-            var stringTokens = new List<Token>();
             var expressions = new List<SyntaxBase>();
             for (var i = 0; i < functionExpression.Parameters.Length; i++)
             {
+                var isEnd = (i == functionExpression.Parameters.Length - 1);
+
                 // FlattenStringOperations will have already simplified the concat statement to the point where we know there won't be two string literals side-by-side.
                 // We can use that knowledge to simplify this logic.
 
-                var isStart = (i == 0);
-                var isEnd = (i == functionExpression.Parameters.Length - 1);
-
                 if (functionExpression.Parameters[i] is JTokenExpression jTokenExpression)
                 {
-                    stringTokens.Add(SyntaxFactory.CreateStringInterpolationToken(isStart, isEnd, jTokenExpression.Value.ToString()));
+                    values.Add(jTokenExpression.Value.ToString());
 
                     // if done, exit early
                     if (isEnd)
@@ -335,28 +333,20 @@ namespace Bicep.Decompiler
                 }
                 else
                 {
-                    //  we always need a token between expressions, even if it's empty
-                    stringTokens.Add(SyntaxFactory.CreateStringInterpolationToken(isStart, false, ""));
+                    values.Add("");
                 }
 
                 expressions.Add(ParseLanguageExpression(functionExpression.Parameters[i]));
-                isStart = (i == 0);
                 isEnd = (i == functionExpression.Parameters.Length - 1);
 
                 if (isEnd)
                 {
                     // always make sure we end with a string token
-                    stringTokens.Add(SyntaxFactory.CreateStringInterpolationToken(isStart, isEnd, ""));
+                    values.Add("");
                 }
             }
 
-            var rawSegments = Lexer.TryGetRawStringSegments(stringTokens);
-            if (rawSegments == null)
-            {
-                return null;
-            }
-
-            return new StringSyntax(stringTokens, expressions, rawSegments);
+            return SyntaxFactory.CreateString(values, expressions);
         }
 
         private bool CanInterpolate(FunctionExpression function)
