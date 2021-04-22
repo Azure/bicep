@@ -650,7 +650,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    type: '${3|Standard,Basic|}'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: '${4|Optimize,OptimizeAndAllow,All,None|}'\n  }\n}\n"
+      "newText": "resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    type: ${3|'Standard','Basic'|}\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: ${4|'Optimize','OptimizeAndAllow','All','None'|}\n  }\n}\n"
     }
   },
   {
