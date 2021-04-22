@@ -1818,3 +1818,56 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
 //@[14:42) [BCP120 (Error)] The property "location" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of existingResProperty are "apiVersion", "id", "name", "scope", "type". |existingResProperty.location|
 }
 
+resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'anyTypeInDependsOn'
+  location: resourceGroup().location
+  dependsOn: [
+    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+//@[4:70) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)|
+    's'
+//@[4:7) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'s'". |'s'|
+    any(true)
+//@[4:13) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+  ]
+}
+
+resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+//@[9:24) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParent|
+  parent: any(true)
+//@[10:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+}
+
+resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+//@[9:28) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParentLoop|
+  parent: any(true)
+//@[10:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+}]
+
+resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[9:23) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScope|
+  scope: any(invalidExistingLocationRef)
+//@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef)|
+}
+
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScopeConditional|
+  scope: any(invalidExistingLocationRef)
+//@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef)|
+}
+
+resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScope|
+  parent: any('')
+//@[10:17) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('')|
+  scope: any(false)
+//@[9:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(false)|
+}
+
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScopeLoop|
+  parent: any('')
+//@[10:17) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('')|
+  scope: any(false)
+//@[9:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(false)|
+}]
+

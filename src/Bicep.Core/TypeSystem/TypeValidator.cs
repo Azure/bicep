@@ -136,7 +136,7 @@ namespace Bicep.Core.TypeSystem
             // generic error creator if a better one was not specified.
             TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(ShouldWarn(targetType), expectedType, actualType);
 
-            return NarrowTypeInternal(typeManager, expression, targetType, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
+            return NarrowTypeInternal(typeManager, expression, targetType, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false, disallowAny: false);
         }
 
         private static TypeSymbol NarrowTypeInternal(ITypeManager typeManager,
@@ -145,25 +145,30 @@ namespace Bicep.Core.TypeSystem
             IDiagnosticWriter diagnosticWriter,
             TypeMismatchErrorFactory typeMismatchErrorFactory,
             bool skipConstantCheck,
-            bool skipTypeErrors)
+            bool skipTypeErrors,
+            bool disallowAny)
         {
+            var expressionType = typeManager.GetTypeInfo(expression);
+            if(disallowAny && expressionType is AnyType)
+            {
+                // certain properties such as scope, parent, dependsOn do not allow values of "any" type
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).AnyTypeIsNotAllowed());
+            }
+
             if (targetType is ResourceType targetResourceType)
             {
                 // When assigning a resource, we're really assigning the value of the resource body.
-                var narrowedBody = NarrowTypeInternal(typeManager, expression, targetResourceType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
+                var narrowedBody = NarrowTypeInternal(typeManager, expression, targetResourceType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors, disallowAny);
 
                 return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
             }
 
             if (targetType is ModuleType targetModuleType)
             {
-                var narrowedBody = NarrowTypeInternal(typeManager, expression, targetModuleType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
+                var narrowedBody = NarrowTypeInternal(typeManager, expression, targetModuleType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors, disallowAny);
 
                 return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
             }
-
-            // TODO: The type of this expression and all subexpressions should be cached
-            var expressionType = typeManager.GetTypeInfo(expression);
 
             // since we dynamically checked type, we need to collect the errors but only if the caller wants them
             if (skipTypeErrors == false && expressionType is ErrorType)
@@ -209,13 +214,13 @@ namespace Bicep.Core.TypeSystem
             // for-expression assignability check
             if (expression is ForSyntax @for && targetType is ArrayType loopArrayType)
             {
-                return new TypedArrayType(NarrowTypeInternal(typeManager, @for.Body, loopArrayType.Item.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors), TypeSymbolValidationFlags.Default);
+                return new TypedArrayType(NarrowTypeInternal(typeManager, @for.Body, loopArrayType.Item.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors, disallowAny), TypeSymbolValidationFlags.Default);
             }
 
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
-                return NarrowArrayAssignmentType(typeManager, arrayValue, targetArrayType, diagnosticWriter, skipConstantCheck);
+                return NarrowArrayAssignmentType(typeManager, arrayValue, targetArrayType, diagnosticWriter, skipConstantCheck, disallowAny);
             }
 
             if (targetType is UnionType targetUnionType)
@@ -226,7 +231,7 @@ namespace Bicep.Core.TypeSystem
             return targetType;
         }
 
-        private static TypeSymbol NarrowArrayAssignmentType(ITypeManager typeManager, ArraySyntax expression, ArrayType targetType, IDiagnosticWriter diagnosticWriter, bool skipConstantCheck)
+        private static TypeSymbol NarrowArrayAssignmentType(ITypeManager typeManager, ArraySyntax expression, ArrayType targetType, IDiagnosticWriter diagnosticWriter, bool skipConstantCheck, bool disallowAny)
         {
             // if we have parse errors, no need to check assignability
             // we should not return the parse errors however because they will get double collected
@@ -245,7 +250,8 @@ namespace Bicep.Core.TypeSystem
                     diagnosticWriter,
                     (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(ShouldWarn(targetType), expectedType, actualType),
                     skipConstantCheck,
-                    skipTypeErrors: true));
+                    skipTypeErrors: true,
+                    disallowAny));
             }
 
             return new TypedArrayType(UnionType.Create(arrayProperties), targetType.ValidationFlags);
@@ -386,7 +392,8 @@ namespace Bicep.Core.TypeSystem
                         diagnosticWriter,
                         GetPropertyMismatchErrorFactory(ShouldWarn(targetType), declaredProperty.Name),
                         skipConstantCheckForProperty,
-                        skipTypeErrors: true);
+                        skipTypeErrors: true,
+                        disallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny));
                         
                     narrowedProperties.Add(new TypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
                 }
@@ -471,7 +478,8 @@ namespace Bicep.Core.TypeSystem
                         diagnosticWriter,
                         typeMismatchErrorFactory,
                         skipConstantCheckForProperty,
-                        skipTypeErrors: true);
+                        skipTypeErrors: true,
+                        disallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny));
 
                     // TODO should we try and narrow the additional properties type? May be difficult
                 }

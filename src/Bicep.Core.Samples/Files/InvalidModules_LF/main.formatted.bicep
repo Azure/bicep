@@ -433,3 +433,27 @@ module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
 module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
 module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
+
+module anyTypeInScope 'empty.bicep' = {
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}
+
+module anyTypeInScopeConditional 'empty.bicep' = if (false) {
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}]
