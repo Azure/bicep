@@ -4,9 +4,9 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01'
   properties: {
     containers: [
       {
-        name: 'containerName'
+        name: 'containername'
         properties: {
-          image: 'REQUIRED'
+          image: 'mcr.microsoft.com/azuredocs/aci-helloworld:latest'
           ports: [
             {
               port: 80

@@ -5,9 +5,9 @@ resource ${1:containerGroup} 'Microsoft.ContainerInstance/containerGroups@2021-0
   properties: {
     containers: [
       {
-        name: ${3:'containerName'}
+        name: ${3:'containername'}
         properties: {
-          image: ${4:'REQUIRED'}
+          image: ${4:'mcr.microsoft.com/azuredocs/aci-helloworld:latest'}
           ports: [
             {
               port: ${5:80}
