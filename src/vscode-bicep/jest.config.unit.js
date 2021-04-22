@@ -5,6 +5,6 @@ module.exports = {
   verbose: true,
   collectCoverage: true,
   collectCoverageFrom: ["<rootDir>/out/**/*.js"],
-  coveragePathIgnorePatterns: ["/test/"],
+  coveragePathIgnorePatterns: ["/test/", "/visualizer/", "/.svg/"],
   setupFilesAfterEnv: ["<rootDir>/out/test/unit/setup.js"],
 };

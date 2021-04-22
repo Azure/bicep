@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Handlers
     [Method("textDocument/deploymentGraph", Direction.ClientToServer)]
     public record BicepDeploymentGraphParams(TextDocumentIdentifier TextDocument) : ITextDocumentIdentifierParams, IRequest<BicepDeploymentGraph?>;
 
-    public record BicepDeploymentGraph(IEnumerable<BicepDeploymentGraphNode> Nodes, IEnumerable<BicepDeploymentGraphEdge> Edges, bool HasErrors);
+    public record BicepDeploymentGraph(IEnumerable<BicepDeploymentGraphNode> Nodes, IEnumerable<BicepDeploymentGraphEdge> Edges, int ErrorCount);
 
     public record BicepDeploymentGraphNode(string Id, string Type, bool IsCollection, Range Range, bool HasChildren, bool HasError, string? FilePath);
 
@@ -65,7 +65,6 @@ namespace Bicep.LanguageServer.Handlers
         {
             var nodes = new List<BicepDeploymentGraphNode>();
             var edges = new List<BicepDeploymentGraphEdge>();
-            var hasError = false;
 
             var queue = new Queue<(SemanticModel, string, string?)>();
             var entrySemanticModel = context.Compilation.GetEntrypointSemanticModel();
@@ -81,11 +80,6 @@ namespace Bicep.LanguageServer.Handlers
                     .ToImmutableDictionary(x => x.Key, x => x.Value);
 
                 var errors = semanticModel.GetAllDiagnostics().Where(x => x.Level == DiagnosticLevel.Error).ToList();
-
-                if (errors.Count > 0)
-                {
-                    hasError = true;
-                }
 
                 // Create nodes.
                 foreach (var symbol in dependenciesBySymbol.Keys)
@@ -155,7 +149,7 @@ namespace Bicep.LanguageServer.Handlers
             return new BicepDeploymentGraph(
                 nodes.OrderBy(node => node.Id),
                 edges.OrderBy(edge => $"{edge.SourceId}>{edge.TargetId}"),
-                hasError);
+                entrySemanticModel.GetAllDiagnostics().Count(x => x.Level == DiagnosticLevel.Error));
         }
 
         private static ResourceTypeReference? TryGetTypeReference(ResourceSymbol resourceSymbol) => resourceSymbol.Type switch

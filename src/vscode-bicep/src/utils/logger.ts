@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as vscode from "vscode";
+import vscode from "vscode";
 import * as winston from "winston";
-import * as Transport from "winston-transport";
+import Transport from "winston-transport";
 import * as path from "path";
 import { MESSAGE } from "triple-beam";
 
-export interface Logger {
+export interface Logger extends vscode.Disposable {
   debug(message: string): void;
   info(message: string): void;
   warn(message: string): void;
@@ -18,7 +18,7 @@ export type LogLevel = keyof Logger;
 
 let logger: Logger | undefined;
 
-export class WinstonLogger implements Logger, vscode.Disposable {
+export class WinstonLogger implements Logger {
   private readonly logger: winston.Logger;
   private disposed = false;
 
@@ -116,6 +116,6 @@ export function getLogger(): Logger {
   return logger;
 }
 
-if (isTestEnv()) {
-  exports.resetLogger = () => (logger = undefined);
+export function resetLogger(): void {
+  logger = undefined;
 }

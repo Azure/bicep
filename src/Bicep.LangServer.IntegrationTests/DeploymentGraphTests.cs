@@ -112,7 +112,7 @@ resource res5 'Test.Rp/basicTests@2020-01-01' = {
             deploymentGraph!.Edges.Should().Equal(
                 new BicepDeploymentGraphEdge("mod2::nestedMod", "mod2::res4"),
                 new BicepDeploymentGraphEdge("res2", "mod1"));
-            deploymentGraph!.HasErrors.Should().BeTrue();
+            deploymentGraph!.ErrorCount.Should().Be(7);
         }
 
         private static TextRange CreateTextRange(int startLine, int startCharacter, int endLine, int endCharacter) =>

@@ -1,15 +1,17 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "outDir": "out",
-        "lib": ["es2016"],
-        "sourceMap": true,
-        "skipLibCheck": true,
-        "strict": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true
-    },
-    "include": ["src"]
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["dom", "dom.iterable", "es2016"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "outDir": "out",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["src"]
 }
