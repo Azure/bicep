@@ -49,6 +49,85 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
         }
 
         [TestMethod]
+        public void Parent_syntax_loops_are_not_handled()
+        {
+            var bicepFile = @"
+var parentName = 'resA'
+        
+resource resA 'My.Rp/resA@2020-01-01' = [for i in range(0, 1): {
+  name: 'resA${i}'
+}]
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = [for i in range(0, 1): {
+  name: 'resA${i}/resB'
+  dependsOn: [
+    resA[i]
+  ]
+}]";
+
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+@"var parentName = 'resA'
+
+resource resA 'My.Rp/resA@2020-01-01' = [for i in range(0, 1): {
+  name: 'resA${i}'
+}]
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = [for i in range(0, 1): {
+  name: 'resA${i}/resB'
+  dependsOn: [
+    resA[i]
+  ]
+}]");
+        }
+
+        [TestMethod]
+        public void Parent_syntax_conditions_are_handled()
+        {
+            var bicepFile = @"
+param condA bool
+param condB bool
+
+var parentName = 'resA'
+
+resource resA 'My.Rp/resA@2020-01-01' = if (condA) {
+  name: parentName
+}
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = if (condB) {
+  name: '${parentName}/resB'
+  dependsOn: [
+    resA
+  ]
+}";
+
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+@"param condA bool
+param condB bool
+
+var parentName = 'resA'
+
+resource resA 'My.Rp/resA@2020-01-01' = if (condA) {
+  name: parentName
+}
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = if (condB) {
+  parent: resA
+  name: 'resB'
+  dependsOn: [
+    resA
+  ]
+}");
+        }
+
+        [TestMethod]
         public void Parent_syntax_common_variable_reference_in_string_can_be_replaced()
         {
             var bicepFile = @"
