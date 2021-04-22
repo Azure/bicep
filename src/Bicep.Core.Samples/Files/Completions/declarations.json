@@ -168,6 +168,24 @@
     }
   },
   {
+    "label": "res-app-plan",
+    "kind": "snippet",
+    "detail": "Application Service Plan (Server Farm)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-app-plan",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:appServicePlan} 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-app-security-group",
     "kind": "snippet",
     "detail": "Application Security Group",
@@ -227,7 +245,7 @@
     "detail": "Container Group",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: 'containerName'\n        properties: {\n          image: 'REQUIRED'\n          ports: [\n            {\n              port: 80\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: 1\n              memoryInGB: 4\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: 'OnFailure'\n    osType: 'Linux'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: 'TCP'\n          port: 80\n        }\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: 'containername'\n        properties: {\n          image: 'mcr.microsoft.com/azuredocs/aci-helloworld:latest'\n          ports: [\n            {\n              port: 80\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: 1\n              memoryInGB: 4\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: 'OnFailure'\n    osType: 'Linux'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: 'TCP'\n          port: 80\n        }\n      ]\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -236,7 +254,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:containerGroup} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: ${3:'containerName'}\n        properties: {\n          image: ${4:'REQUIRED'}\n          ports: [\n            {\n              port: ${5:80}\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: ${6:1}\n              memoryInGB: ${7:4}\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: ${8|'OnFailure','Always','Never'|}\n    osType: ${9|'Linux','Windows'|}\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: ${10|'TCP','UDP'|}\n          port: ${11:80}\n        }\n      ]\n    }\n  }\n}\n"
+      "newText": "resource ${1:containerGroup} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: ${3:'containername'}\n        properties: {\n          image: ${4:'mcr.microsoft.com/azuredocs/aci-helloworld:latest'}\n          ports: [\n            {\n              port: ${5:80}\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: ${6:1}\n              memoryInGB: ${7:4}\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: ${8|'OnFailure','Always','Never'|}\n    osType: ${9|'Linux','Windows'|}\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: ${10|'TCP','UDP'|}\n          port: ${11:80}\n        }\n      ]\n    }\n  }\n}\n"
     }
   },
   {
@@ -489,24 +507,6 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:networkSecurityGroupSecurityRule} 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: ${2:'networkSecurityGroup/name'}\n  properties: {\n    description: ${3:'description'}\n    protocol: ${4|'*','Ah','Esp','Icmp','Tcp','Udb'|}\n    sourcePortRange: ${5:'sourcePortRange'}\n    destinationPortRange: ${6:'destinationPortRange'}\n    sourceAddressPrefix: ${7:'sourceAddressPrefix'}\n    destinationAddressPrefix: ${8:'destinationAddressPrefix'}\n    access: ${9|'Allow','Deny'|}\n    priority: ${10:100}\n    direction: ${11|'Inbound','Outbound'|}\n  }\n}\n"
-    }
-  },
-  {
-    "label": "res-plan",
-    "kind": "snippet",
-    "detail": "Application Service Plan (Server Farm)",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n\n```"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_res-plan",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "resource ${1:appServicePlan} 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n"
     }
   },
   {
