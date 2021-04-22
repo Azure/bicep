@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.3.255.40792",
-      "templateHash": "358706201153740767"
+      "version": "dev",
+      "templateHash": "4510101890649346043"
     }
   },
   "parameters": {
@@ -52,7 +52,7 @@
       "condition": "[parameters('sqlDatabase').longTermBackup.enabled]",
       "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
       "apiVersion": "2020-08-01-preview",
-      "name": "[format('{0}/{1}', format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), 'Default')]",
+      "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'Default')]",
       "properties": {
         "weeklyRetention": "[parameters('sqlDatabase').longTermBackup.weeklyRetention]",
         "monthlyRetention": "[parameters('sqlDatabase').longTermBackup.monthlyRetention]",
@@ -69,7 +69,7 @@
       "condition": "[and(and(parameters('sqlDatabase').azureDefender.enabled, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
       "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
       "apiVersion": "2020-08-01-preview",
-      "name": "[format('{0}/{1}', format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), 'Default')]",
+      "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'Default')]",
       "properties": {
         "recurringScans": {
           "isEnabled": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans]",
@@ -161,8 +161,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.3.255.40792",
-              "templateHash": "17127545981622889090"
+              "version": "dev",
+              "templateHash": "11452411779990848351"
             }
           },
           "parameters": {
@@ -214,8 +214,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.3.255.40792",
-              "templateHash": "11662974089594234440"
+              "version": "dev",
+              "templateHash": "15978855867572262081"
             }
           },
           "parameters": {
@@ -267,8 +267,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.3.255.40792",
-              "templateHash": "7930707696094790980"
+              "version": "dev",
+              "templateHash": "3149608550700302182"
             }
           },
           "parameters": {
@@ -323,8 +323,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.3.255.40792",
-              "templateHash": "981955417693896583"
+              "version": "dev",
+              "templateHash": "13898863446734417779"
             }
           },
           "parameters": {
