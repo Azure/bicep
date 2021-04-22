@@ -641,7 +641,7 @@
     "detail": "Virtual WAN",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource vwan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: 'virtualWanName'\n  location: resourceGroup().location\n  properties: {\n    type: 'Standard'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: 'Optimize'\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualWan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    type: 'Standard'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: 'Optimize'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -650,7 +650,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource vwan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${1:'virtualWanName'}\n  location: resourceGroup().location\n  properties: {\n    type: '${2|Standard,Basic|}'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: '${3|Optimize,OptimizeAndAllow,All,None|}'\n  }\n}\n"
+      "newText": "resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    type: '${3|Standard,Basic|}'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: '${4|Optimize,OptimizeAndAllow,All,None|}'\n  }\n}\n"
     }
   },
   {
