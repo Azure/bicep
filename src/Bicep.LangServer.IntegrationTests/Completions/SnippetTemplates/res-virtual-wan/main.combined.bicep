@@ -1,5 +1,5 @@
-resource vwan 'Microsoft.Network/virtualWans@2020-07-01' = {
-  name: 'virtualWanName'
+resource virtualWan 'Microsoft.Network/virtualWans@2020-07-01' = {
+  name: 'name'
   location: resourceGroup().location
   properties: {
     type: 'Standard'
@@ -9,4 +9,3 @@ resource vwan 'Microsoft.Network/virtualWans@2020-07-01' = {
     office365LocalBreakoutCategory: 'None'
   }
 }
-
