@@ -13,6 +13,8 @@ var items = [
   'b'
   'c'
 ]
+var itemTest = [for item in items: item]
+var indexTest = [for i in range(0, length(items)): i]
 
 resource storagePrefix_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in range(0, storageCount): {
   name: toLower(concat(i, storagePrefix, uniqueString(resourceGroup().id)))

@@ -28,6 +28,18 @@
         }
     },
     "variables": {
+        "copy": [
+            {
+                "name": "itemTest",
+                "input": "[variables('items')[copyIndex()]]",
+                "count": "[length(variables('items'))]"
+            },
+            {
+                "name": "indexTest",
+                "input": "[copyIndex()]",
+                "count": "[length(variables('items'))]"
+            }
+        ],
         "items": [
             "a",
             "b",
