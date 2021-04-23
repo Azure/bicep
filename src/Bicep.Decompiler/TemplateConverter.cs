@@ -410,10 +410,21 @@ namespace Bicep.Decompiler
                 {
                     if (expression.Parameters.Length == 1 && expression.Parameters[0] is FunctionExpression resourceIdExpression && resourceIdExpression.NameEquals("resourceid"))
                     {
-                        // resourceid directly inside a reference - check if it's a reference to a known resource
-                        var resourceName = TryLookupResource(resourceIdExpression);
-
-                        if (resourceName != null)
+                        // reference(resourceId(<...>))
+                        // check if it's a reference to a known resource
+                        if (TryLookupResource(expression.Parameters[0]) is {} resourceName)
+                        {
+                            baseSyntax = new PropertyAccessSyntax(
+                                new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
+                                SyntaxFactory.DotToken,
+                                SyntaxFactory.CreateIdentifier("properties"));
+                        }
+                    }
+                    else if (expression.Parameters.Length == 1)
+                    {
+                        // reference(<name>)
+                        // let's try looking the name up directly
+                        if (TryLookupResource(expression.Parameters[0]) is {} resourceName)
                         {
                             baseSyntax = new PropertyAccessSyntax(
                                 new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
