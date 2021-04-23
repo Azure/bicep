@@ -90,7 +90,7 @@ namespace Bicep.Decompiler
             var filesToSave = new Dictionary<Uri, string>();
             foreach (var (fileUri, syntaxTree) in workspace.GetActiveSyntaxTrees())
             {
-                filesToSave[fileUri] = PrettyPrinter.PrintProgram(syntaxTree.ProgramSyntax, new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, false));
+                filesToSave[fileUri] = PrettyPrinter.PrintProgram(syntaxTree.ProgramSyntax, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
             }
 
             return filesToSave.ToImmutableDictionary();
