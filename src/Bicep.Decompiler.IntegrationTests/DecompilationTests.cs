@@ -107,7 +107,7 @@ namespace Bicep.Core.IntegrationTests
                     var diagnostics = diagnosticsBySyntaxTree[syntaxTree];
                     var bicepOutput = filesToSave[syntaxTree.FileUri];
 
-                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, Environment.NewLine, diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, outputDirectory, diag));
+                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, outputDirectory, diag));
                     File.WriteAllText(syntaxTree.FileUri.LocalPath + ".actual", sourceTextWithDiags);
 
                     sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
