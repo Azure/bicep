@@ -1,4 +1,5 @@
-﻿// $1 = 'name'
-// $2 = 'description'
+﻿// $1 = sharedImageGallery
+// $2 = 'name'
+// $3 = 'description'
 
 // Insert snippet here
