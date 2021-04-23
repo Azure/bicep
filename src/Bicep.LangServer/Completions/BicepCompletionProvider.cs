@@ -574,12 +574,12 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var specifiedPropertyNames = context.Object.ToKnownPropertyNames();
+            var specifiedPropertyNames = context.Object.ToNamedPropertyDictionary();
 
             // exclude read-only properties as they can't be set
             // exclude properties whose name has been specified in the object already
             return GetProperties(declaredType)
-                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.Contains(p.Name) == false)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.ContainsKey(p.Name) == false)
                 .Select(p => CreatePropertyNameCompletion(p, context.ReplacementRange));
         }
 
