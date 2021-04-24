@@ -582,6 +582,24 @@
     }
   },
   {
+    "label": "res-shared-image-gallery",
+    "kind": "snippet",
+    "detail": "Create Image Gallery",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource sharedImageGallery 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    description: 'description'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-shared-image-gallery",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:sharedImageGallery} 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    description: ${3:'description'}\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-storage",
     "kind": "snippet",
     "detail": "Storage Account",
