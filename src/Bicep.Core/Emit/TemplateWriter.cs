@@ -417,9 +417,18 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("type", typeReference.FullyQualifiedType);
             emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
-            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resourceSymbol, out var scopeData) && scopeData.ResourceScopeSymbol is { } scopeResource)
+            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resourceSymbol, out var scopeData))
             {
-                emitter.EmitProperty("scope", () => emitter.EmitUnqualifiedResourceId(scopeResource, scopeData.IndexExpression, body));
+                if (scopeData.ResourceScopeSymbol is { } scopeResource)
+                {
+                    // emit the resource id of the resource being extended
+                    emitter.EmitProperty("scope", () => emitter.EmitUnqualifiedResourceId(scopeResource, scopeData.IndexExpression, body));
+                }
+                else if(scopeData.RequestedScope == ResourceScope.Tenant && context.SemanticModel.TargetScope != ResourceScope.Tenant)
+                {
+                    // emit the "/" to allow cross-scope deployment of a Tenant resource from another deployment scope
+                    emitter.EmitProperty("scope", "/");
+                }
             }
 
             emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resourceSymbol));

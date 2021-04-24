@@ -1181,6 +1181,13 @@ namespace Bicep.Decompiler
             }
 
             var scopeExpression = ExpressionHelpers.ParseExpression(scopeProperty.Value.ToString());
+            if(scopeExpression is JTokenExpression value && string.Equals(value.Value.ToString(), "/", StringComparison.OrdinalIgnoreCase))
+            {
+                // tenant scope resources can be deployed from any other scope as long as the "scope" property is set to "/"
+                // the bicep equivalent is "scope: tenant()"
+                return SyntaxFactory.CreateFunctionCall("tenant");
+            }
+
             if (TryLookupResource(scopeExpression) is string resourceName)
             {
                 return SyntaxFactory.CreateIdentifier(resourceName);

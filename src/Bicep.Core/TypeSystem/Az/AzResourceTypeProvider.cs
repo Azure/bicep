@@ -162,11 +162,17 @@ namespace Bicep.Core.TypeSystem.Az
                 scopePropertyFlags |= TypePropertyFlags.Required;
             }
 
+            // local function
+            static TypeProperty CreateScopeProperty(ResourceScope validScopes, TypePropertyFlags scopePropertyFlags)
+            {
+                var scopeReference = LanguageConstants.CreateResourceScopeReference(validScopes);
+                return new(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags);
+            }                
+
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
-                var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
-                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, CreateScopeProperty(validParentScopes, scopePropertyFlags));
 
                 if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
                 {
@@ -183,12 +189,14 @@ namespace Bicep.Core.TypeSystem.Az
                 {
                     properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
                 }
-                
-                // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
-                if (validParentScopes.HasFlag(ResourceScope.Resource))
+
+                // we only support scope in these cases:
+                // 1. extension resources (or resources where the scope is unknown and thus may be an extension resource)
+                // 2. Tenant resources
+                ResourceScope tenantOrExtensionResourceScope = validParentScopes & (ResourceScope.Resource | ResourceScope.Tenant);
+                if (tenantOrExtensionResourceScope != 0)
                 {
-                    var scopeReference = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
-                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, CreateScopeProperty(tenantOrExtensionResourceScope, scopePropertyFlags));
                 }
             }
 

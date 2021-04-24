@@ -18,16 +18,34 @@ namespace Bicep.Core.Emit
     {
         public class ScopeData
         {
+            /// <summary>
+            /// Type of scope requested by the resource.
+            /// </summary>
             public ResourceScope RequestedScope { get; set; }
 
+            /// <summary>
+            /// Expression for the name of the Management Group or null.
+            /// </summary>
             public SyntaxBase? ManagementGroupNameProperty { get; set; }
 
+            /// <summary>
+            /// Expression for the subscription ID or null.
+            /// </summary>
             public SyntaxBase? SubscriptionIdProperty { get; set; }
 
+            /// <summary>
+            /// Expression for the resource group name or null.
+            /// </summary>
             public SyntaxBase? ResourceGroupProperty { get; set; }
 
+            /// <summary>
+            /// The symbol of the resource being extended or null.
+            /// </summary>
             public ResourceSymbol? ResourceScopeSymbol { get; set; }
 
+            /// <summary>
+            /// The expression for the loop index. This is used with loops when indexing into resource collections. 
+            /// </summary>
             public SyntaxBase? IndexExpression { get; set; }
         }
 
@@ -363,6 +381,12 @@ namespace Bicep.Core.Emit
                 !scopeInfo.TryGetValue(rootResourceSymbol, out var scopeData))
             {
                 // invalid scope should have already generated errors
+                return;
+            }
+
+            if(scopeData.RequestedScope == ResourceScope.Tenant)
+            {
+                // tenant resources can be deployed cross-scope
                 return;
             }
 

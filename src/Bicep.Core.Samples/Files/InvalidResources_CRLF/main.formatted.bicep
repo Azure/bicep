@@ -1364,3 +1364,7 @@ resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01'
   parent: any('')
   scope: any(false)
 }]
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+  name: 'tenantLevelResourceBlocked'
+}
