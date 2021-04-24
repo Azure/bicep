@@ -1640,5 +1640,38 @@ output tdeId string = transparentDataEncryption.id
             evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/myTde");
             evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/myTde");
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2289
+        public void Test_Issue2289()
+        {
+            var result = CompilationHelper.Compile(@"
+
+resource p 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'sss'
+  location: ''
+}
+
+resource c 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+  parent: p
+  name: 'sss/'
+}]
+
+resource p2 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'sss2'
+  location: ''
+
+  resource c2 'CNAME' = [for thing in []: {
+    name: 'sss2/'
+  }]
+}
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
+                ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.")
+            });
+            result.Template.Should().BeNull();
+        }
     }
 }
