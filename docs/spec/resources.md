@@ -76,7 +76,7 @@ A nested resource may access properties of its parent resource. Other resources 
 
 More info on the nested child resource access operator can be found in the [expressions spec](./expressions.md#nested-resource-accessors).
 
-**Note:** Alternatively, you can use the `parent` property on child resources to declare a child resource as a top-level resource. [Read more about the "parent" property](./resource-scopes#'parent'-property-syntax)
+**Note:** Alternatively, you can use the `parent` property on child resources to declare a child resource as a top-level resource. [Read more about the "parent" property](./resource-scopes.md#'parent'-property-syntax)
 
 ## Resource dependencies
 
