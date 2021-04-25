@@ -129,8 +129,7 @@ namespace Bicep.Core.TypeSystem
                     continue;
                 }
 
-                if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
-                    propertyType.Flags.HasFlag(TypePropertyFlags.WeakDeployTimeConstant))
+                if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
                     this.withinDeployTimeConstantScope = true;
                 }
@@ -142,8 +141,7 @@ namespace Bicep.Core.TypeSystem
                     this.currentProperty = null;
                 }
 
-                if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
-                    propertyType.Flags.HasFlag(TypePropertyFlags.WeakDeployTimeConstant))
+                if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
                     this.withinDeployTimeConstantScope = false;
                 }
@@ -280,7 +278,7 @@ namespace Bicep.Core.TypeSystem
                 return;
             }
 
-            if (!propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
+            if (!propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) ||
                 DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, propertyName))
             {
                 // Set error state if the property is not a deploy-time constant, or it is a
@@ -320,7 +318,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var usableKeys = this.referencedBodyType.Properties
-                .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) && !kv.Value.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) && !kv.Value.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(kv => kv.Key);
 
             if (this.accessedSyntax is ResourceDeclarationSyntax resourceSyntax &&
@@ -384,11 +382,9 @@ namespace Bicep.Core.TypeSystem
                 return false;
             }
 
-            if (propertyName == LanguageConstants.ResourceIdPropertyName ||
-                propertyName == LanguageConstants.ResourceNamePropertyName ||
-                propertyName == LanguageConstants.ResourceTypePropertyName ||
-                propertyName == LanguageConstants.ResourceApiVersionPropertyName)
+            if (LanguageConstants.StandardizedResourcePropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer))
             {
+                // Standardized resource properties (id, name, type, and apiVersion) are always avaiable.
                 return false;
             }
 

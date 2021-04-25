@@ -206,13 +206,13 @@ namespace Bicep.Core.Emit
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
                             .GetReferenceExpression(resourceSymbol, typeReference, false);
                     default:
-                        if (LanguageConstants.OptionalDeployTimeConstantPropertyNames.Contains(propertyName) &&
-                            resourceSymbol.DeclaringResource.TryGetBody()?.SafeGetPropertyByName(propertyName) is not null)
+                        if (LanguageConstants.ReadableDeployTimeConstantResourcePropertyNames.Contains(propertyName) &&
+                            resourceSymbol.SafeGetBodyProperty(propertyName) is { } property)
                         {
-                            // Only subsitute optional deploy-time constant properties if they are declared in the resource body.
+                            // Only subsitute readable deploy-time constant properties if they are declared in the resource body.
                             return this
                                 .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
-                                .ConvertExpression(resourceSymbol.UnsafeGetBodyPropertyValue(propertyName));
+                                .ConvertExpression(property.Value);
                         }
 
                         return null;

@@ -69,22 +69,32 @@ namespace Bicep.Core.TypeSystem
         // these need to be kept synchronized.
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (syntax.BaseExpression is VariableAccessSyntax baseVariableAccess)
+            if (syntax.BaseExpression is VariableAccessSyntax baseVariableAccess && DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, baseVariableAccess) is ({ } declaredSymbol, { } referencedBodyType))
             {
-                if (DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, baseVariableAccess) is ({} declaredSymbol, {} referencedBodyType))
+                if (syntax.IndexExpression is not StringSyntax stringSyntax)
                 {
-                    if (syntax.IndexExpression is StringSyntax stringSyntax &&
-                    stringSyntax.TryGetLiteralValue() is string property &&
-                    referencedBodyType.Properties.TryGetValue(property, out var propertyType) &&
-                    !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
-                    {
-                        this.InvalidReferencedBodyType = referencedBodyType;
-                        VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
-                    }
-
-                    // Do not VisitVariableAccessSyntax on Resources or Modules
                     return;
                 }
+
+                if (stringSyntax.TryGetLiteralValue() is not string propertyName)
+                {
+                    return;
+                }
+
+                if (!referencedBodyType.Properties.TryGetValue(propertyName, out var propertyType))
+                {
+                    return;
+                }
+
+                if (!propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) ||
+                    DeployTimeConstantVisitor.DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, propertyName))
+                {
+                    this.InvalidReferencedBodyType = referencedBodyType;
+                    VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
+                }
+
+                // Do not VisitVariableAccessSyntax on Resources or Modules
+                return;
             }
             base.VisitArrayAccessSyntax(syntax);
         }
@@ -100,7 +110,7 @@ namespace Bicep.Core.TypeSystem
                             return;
                         }
 
-                        if (!propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
+                        if (!propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) ||
                             DeployTimeConstantVisitor.DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, syntax.PropertyName.IdentifierName))
                         {
                             this.InvalidReferencedBodyType = referencedBodyType;
@@ -118,7 +128,7 @@ namespace Bicep.Core.TypeSystem
                             return;
                         }
 
-                        if (!propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant) ||
+                        if (!propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) ||
                             DeployTimeConstantVisitor.DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, syntax.PropertyName.IdentifierName))
                         {
                             this.InvalidReferencedBodyType = referencedBodyType;

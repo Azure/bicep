@@ -73,12 +73,19 @@ namespace Bicep.Core
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string TypeNameString = "string";
 
+        public static readonly string[] StandardizedResourcePropertyNames = new[]
+        {
+            ResourceIdPropertyName,
+            ResourceNamePropertyName,
+            ResourceTypePropertyName,
+            ResourceApiVersionPropertyName,
+        };
 
         /*
-         * The following top-level properties are deploy-time constant string,
-         * but unlike name, apiVersion and type, they might be absent from resource bodies.
+         * The following top-level string properties only accept deploy-time constant values
+         * when declared in resource bodies. Their values can also be read at deploy-time.
          */
-        public static readonly string[] OptionalDeployTimeConstantPropertyNames = new[]
+        public static readonly string[] ReadableDeployTimeConstantResourcePropertyNames = new[]
         {
             "location",
             "kind",
@@ -88,14 +95,13 @@ namespace Bicep.Core
         };
 
         /*
-         * The following top-level properties are are deploy-time constant objects/arrays
-         * when declared in resources, because their values will get evaluated during pre-flight.
-         * However, it is not safe to reference them when setting values of other deploy-time
-         * constants due to the fact that:
+         * The following top-level properties must be set deploy-time constant objects/arrays
+         * when declared in resource bodies. However, it is not safe to read their values
+         * at deploy-time due to the fact that:
          *   - They can be changed by Policy Modify effect (e.g. tags, sku)
          *   - Some RPs are doing Put-as-Patch
          */
-        public static readonly string[] WeakDeployTimeConstantPropertyNames = new[]
+        public static readonly string[] NotReadableDeployTimeConstantPropertyNames = new[]
         {
             "extendedLocation",
             "zones",
@@ -267,7 +273,7 @@ namespace Bicep.Core
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant),
+                    new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime),
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),

@@ -28,5 +28,31 @@ namespace Bicep.Core.Emit
                 _ => throw new ArgumentException($"Resource symbol does not have a valid type (found {resourceSymbol.Type.Name})")
             };
         }
+
+        public static ResourceType? TryGetResourceType(ResourceSymbol resourceSymbol) => resourceSymbol.Type switch
+        {
+            ResourceType resourceType => resourceType,
+            ArrayType { Item: ResourceType resourceType } => resourceType,
+            _ => null,
+        };
+
+        public static ModuleType? TryGetModuleType(ModuleSymbol moduleSymbol) => moduleSymbol.Type switch
+        {
+            ModuleType moduleType => moduleType,
+            ArrayType { Item: ModuleType moduleType } => moduleType,
+            _ => null,
+        };
+
+        public static ObjectType? TryGetResourceBodyObjectType(ResourceSymbol resourceSymbol) => EmitHelpers.TryGetResourceType(resourceSymbol) switch
+        {
+            ResourceType { Body: { Type: ObjectType bodyObjectType } } => bodyObjectType,
+            _ => null,
+        };
+
+        public static ObjectType? TryGetModuleBodyObjectType(ModuleSymbol moduleSymbol) => EmitHelpers.TryGetModuleType(moduleSymbol) switch
+        {
+            ModuleType { Body: { Type: ObjectType bodyObjectType } } => bodyObjectType,
+            _ => null,
+        };
     }
 }

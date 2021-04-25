@@ -198,7 +198,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            static bool ShouldSkipInlining(ObjectType objectType, string propertyName, ResourceDeclarationSyntax? resourceSyntax = null)
+            static bool ShouldSkipInlining(ObjectType objectType, string propertyName, ResourceSymbol? resourceSymbol = null)
             {
                 if (!objectType.Properties.TryGetValue(propertyName, out var propertyType))
                 {
@@ -208,14 +208,13 @@ namespace Bicep.Core.Emit
 
                 if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
-                    if (resourceSyntax is not null &&
-                        propertyName != LanguageConstants.ResourceIdPropertyName &&
-                        propertyName != LanguageConstants.ResourceNamePropertyName &&
-                        propertyName != LanguageConstants.ResourceTypePropertyName &&
-                        propertyName != LanguageConstants.ResourceApiVersionPropertyName &&
-                        resourceSyntax.TryGetBody()?.SafeGetPropertyByName(propertyName) is null)
+                    if (resourceSymbol is not null &&
+                        !LanguageConstants.StandardizedResourcePropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer) &&
+                        resourceSymbol.SafeGetBodyProperty(propertyName) is null)
                     {
-                        // The property is not declared in the resource - we should inline it even it is a deploy-time constant.
+                        // The property is not declared in the resource - we should inline event it is a deploy-time constant.
+                        // We skip standardized properties (id, name, type, and apiVersion) since their values are always known
+                        // and emitted if there are not syntactic and semantic errors (see ConvertResourcePropertyAccess in ExpressionConverter).
                         return false;
                     }
 
@@ -230,19 +229,11 @@ namespace Bicep.Core.Emit
                 // Note - there's a limitation here that we're using the 'declared' type and not the 'assigned' type.
                 // This means that we may encounter a DiscriminatedObjectType. For now we should accept this limitation,
                 // and move to using the assigned type once https://github.com/Azure/bicep/issues/1177 is fixed.
-                case ResourceSymbol { Type: ResourceType { Body: { Type: ObjectType bodyObjectType } }, DeclaringResource: { } resourceSyntax }:
-                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSyntax));
+                case ResourceSymbol resourceSymbol when EmitHelpers.TryGetResourceBodyObjectType(resourceSymbol) is { } bodyObjectType:
+                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSymbol));
                     return;
 
-                case ResourceSymbol { Type: ArrayType { Item: { Type: ResourceType { Body: { Type: ObjectType bodyObjectType } } } }, DeclaringResource: { } resourceSyntax }:
-                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSyntax));
-                    return;
-
-                case ModuleSymbol { Type: ModuleType { Body: { Type: ObjectType bodyObjectType } } }:
-                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
-                    return;
-
-                case ModuleSymbol { Type: ArrayType { Item: { Type: ModuleType { Body: { Type: ObjectType bodyObjectType } } } } }:
+                case ModuleSymbol moduleSymbol when EmitHelpers.TryGetModuleBodyObjectType(moduleSymbol) is { } bodyObjectType:
                     SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
                     return;
             }
