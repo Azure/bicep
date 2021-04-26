@@ -116,7 +116,14 @@ namespace Bicep.Core.Emit
         {
             foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
             {
-                if (semanticModel.GetTypeInfo(resource.DeclaringSyntax) is not ResourceType resourceType)
+                var resourceType = semanticModel.GetTypeInfo(resource.DeclaringSyntax) switch
+                {
+                    ResourceType singletype => singletype,
+                    ArrayType { Item: ResourceType itemType } => itemType,
+                    _ => null
+                };
+
+                if(resourceType is null)
                 {
                     continue;
                 }
