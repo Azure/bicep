@@ -417,9 +417,9 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("type", typeReference.FullyQualifiedType);
             emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
-            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resourceSymbol, out var scopeData) && scopeData.ResourceScopeSymbol is { } scopeResource)
+            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resourceSymbol, out var scopeData))
             {
-                emitter.EmitProperty("scope", () => emitter.EmitUnqualifiedResourceId(scopeResource, scopeData.IndexExpression, body));
+                ScopeHelper.EmitResourceScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter, body);
             }
 
             emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resourceSymbol));

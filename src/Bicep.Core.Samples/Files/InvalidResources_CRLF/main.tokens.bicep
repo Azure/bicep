@@ -6865,6 +6865,22 @@ resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01'
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:35) Identifier |tenantLevelResourceBlocked|
+//@[36:86) StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
+//@[87:88) Assignment |=|
+//@[89:90) LeftBrace |{|
+//@[90:92) NewLine |\r\n|
+  name: 'tenantLevelResourceBlocked'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:36) StringComplete |'tenantLevelResourceBlocked'|
+//@[36:38) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||
