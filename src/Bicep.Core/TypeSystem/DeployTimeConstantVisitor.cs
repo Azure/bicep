@@ -21,10 +21,10 @@ namespace Bicep.Core.TypeSystem
         // Since we collect errors top down, we will collect and overwrite this variable and emit it in the end
         private SyntaxBase? errorSyntax;
         private string? currentProperty;
-        private bool withinDeployTimeConstantScope;
         private ObjectType? bodyType;
         private ObjectType? referencedBodyType;
         private Symbol? referencedSymbol;
+        private bool withinDeployTimeConstantScope;
 
         private Stack<DeclaredSymbol>? variableVisitorStack;
 
@@ -63,16 +63,9 @@ namespace Bicep.Core.TypeSystem
             // it should be possible to use 
             // model.GetSymbolInfo(syntax.Body) is ObectType
             // Currently propertyFlags are not propagated
-            var symbol = model.GetSymbolInfo(syntax);
-            switch(symbol)
+            if (model.GetSymbolInfo(syntax) is ResourceSymbol resourceSymbol)
             {
-                case ResourceSymbol { IsCollection: false, Type: ResourceType { Body: ObjectType bodyObj } }:
-                    this.bodyType = bodyObj;
-                    break;
-
-                case ResourceSymbol { IsCollection: true, Type: ArrayType { Item: ResourceType { Body: ObjectType bodyObj } } }:
-                    this.bodyType = bodyObj;
-                    break;
+                this.bodyType = resourceSymbol.TryGetBodyObjectType();
             }
 
             base.VisitResourceDeclarationSyntax(syntax);
@@ -91,16 +84,9 @@ namespace Bicep.Core.TypeSystem
             // it should be possible to use 
             // model.GetSymbolInfo(syntax.Body) is ObectType
             // Currently propertyFlags are not propagated
-            var symbol = model.GetSymbolInfo(syntax);
-            switch(symbol)
+            if (model.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol)
             {
-                case ModuleSymbol { IsCollection: false, Type: ModuleType { Body: ObjectType bodyType } }:
-                    this.bodyType = bodyType;
-                    break;
-
-                case ModuleSymbol { IsCollection: true, Type: ArrayType { Item: ModuleType { Body: ObjectType bodyType } } }:
-                    this.bodyType = bodyType;
-                    break;
+                this.bodyType = moduleSymbol.TryGetBodyObjectType();
             }
 
             base.VisitModuleDeclarationSyntax(syntax);
@@ -121,7 +107,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             // Only visit the object properties if they are required to be deploy time constant.
-            foreach (var deployTimeIdentifier in ObjectSyntaxExtensions.ToNamedPropertyDictionary(syntax))
+            foreach (var deployTimeIdentifier in syntax.ToNamedPropertyDictionary())
             {
                 if (!this.bodyType.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType))
                 {
@@ -160,25 +146,22 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            var baseSymbol = model.GetSymbolInfo(syntax);
-            switch (baseSymbol)
+            if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol)
             {
-                case VariableSymbol variableSymbol:
-                    // emit any error that has already been triggered previously in the value assignment
-                    if (this.errorSyntax != null)
-                    {
-                        this.AppendError();
-                    }
-                    var variableVisitor = new DeployTimeConstantVariableVisitor(this.model);
-                    variableVisitor.Visit(variableSymbol.DeclaringSyntax);
-                    if (variableVisitor.InvalidReferencedBodyType != null)
-                    {
-                        this.errorSyntax = syntax;
-                        this.referencedBodyType = variableVisitor.InvalidReferencedBodyType;
-                        this.variableVisitorStack = variableVisitor.VisitedStack;
-                        this.referencedSymbol = variableVisitor.VisitedStack.Peek();
-                    }
-                    break;
+                // emit any error that has already been triggered previously in the value assignment
+                if (this.errorSyntax != null)
+                {
+                    this.AppendError();
+                }
+                var variableVisitor = new DeployTimeConstantVariableVisitor(this.model);
+                variableVisitor.Visit(variableSymbol.DeclaringSyntax);
+                if (variableVisitor.InvalidReferencedBodyType != null)
+                {
+                    this.errorSyntax = syntax;
+                    this.referencedBodyType = variableVisitor.InvalidReferencedBodyType;
+                    this.variableVisitorStack = variableVisitor.VisitedStack;
+                    this.referencedSymbol = variableVisitor.VisitedStack.Peek();
+                }
             }
         }
 
@@ -310,23 +293,23 @@ namespace Bicep.Core.TypeSystem
                 throw new InvalidOperationException($"{nameof(this.referencedSymbol)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
             }
 
-            var usableKeys = this.referencedBodyType.Properties
+            var usableProperties = this.referencedBodyType.Properties
                 .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) && !kv.Value.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(kv => kv.Key);
 
             if (this.referencedSymbol is ResourceSymbol resourceSymbol &&
                 resourceSymbol.DeclaringResource.TryGetBody() is { } bodySyntax)
             {
-                var declaredTopLevelPropertyNames = bodySyntax.ToKnownPropertyNames()
-                    .Add(LanguageConstants.ResourceIdPropertyName)
-                    .Add(LanguageConstants.ResourceTypePropertyName)
-                    .Add(LanguageConstants.ResourceApiVersionPropertyName);
+                var declaredTopLevelPropertyNames = bodySyntax.ToNamedPropertyDictionary().Keys
+                    .Append(LanguageConstants.ResourceIdPropertyName)
+                    .Append(LanguageConstants.ResourceTypePropertyName)
+                    .Append(LanguageConstants.ResourceApiVersionPropertyName);
 
-                usableKeys = usableKeys.Intersect(declaredTopLevelPropertyNames);
+                usableProperties = usableProperties.Intersect(declaredTopLevelPropertyNames, LanguageConstants.IdentifierComparer);
             }
 
             var variableDependencyChain = this.variableVisitorStack?.ToArray().Reverse().Select(symbol => symbol.Name);
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys, this.referencedSymbol.Name, variableDependencyChain));
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableProperties, this.referencedSymbol.Name, variableDependencyChain));
 
             ResetState();
         }
@@ -340,32 +323,19 @@ namespace Bicep.Core.TypeSystem
         }
 
         #region Helpers
-        public static (DeclaredSymbol?, ObjectType?) ExtractResourceOrModuleSymbolAndBodyType(SemanticModel model, VariableAccessSyntax syntax)
+        public static (DeclaredSymbol?, ObjectType?) ExtractResourceOrModuleSymbolAndBodyType(SemanticModel model, VariableAccessSyntax syntax) => model.GetSymbolInfo(syntax) switch
         {
-            var baseSymbol = model.GetSymbolInfo(syntax);
-            switch (baseSymbol)
-            {
-                case ResourceSymbol { IsCollection: false }:
-                case ModuleSymbol { IsCollection: false }:
-                    var declaredSymbol = (DeclaredSymbol)baseSymbol;
-                    var unwrapped = TypeAssignmentVisitor.UnwrapType(declaredSymbol.Type);
-                    return (declaredSymbol, unwrapped as ObjectType);
-            }
-            return (null, null);
-        }
+            ResourceSymbol { IsCollection: false } resourceSymbol => (resourceSymbol, resourceSymbol.TryGetBodyObjectType()),
+            ModuleSymbol { IsCollection: false } moduleSymbol => (moduleSymbol, moduleSymbol.TryGetBodyObjectType()),
+            _ => (null, null),
+        };
 
-        public static (DeclaredSymbol?, ObjectType?) ExtractResourceOrModuleCollectionSymbolAndBodyType(SemanticModel model, VariableAccessSyntax syntax)
+        public static (DeclaredSymbol?, ObjectType?) ExtractResourceOrModuleCollectionSymbolAndBodyType(SemanticModel model, VariableAccessSyntax syntax) => model.GetSymbolInfo(syntax) switch
         {
-            var baseSymbol = model.GetSymbolInfo(syntax);
-            switch (baseSymbol)
-            {
-                case ResourceSymbol { IsCollection: true }:
-                case ModuleSymbol { IsCollection: true }:
-                    var declaredCollectionSymbol = (DeclaredSymbol)baseSymbol;
-                    return (declaredCollectionSymbol, declaredCollectionSymbol.Type is ArrayType arrayType ? TypeAssignmentVisitor.UnwrapType(arrayType.Item.Type) as ObjectType : null);
-            }
-            return (null, null);
-        }
+            ResourceSymbol { IsCollection: true } resourceSymbol => (resourceSymbol, resourceSymbol.TryGetBodyObjectType()),
+            ModuleSymbol { IsCollection: true } moduleSymbol => (moduleSymbol, moduleSymbol.TryGetBodyObjectType()),
+            _ => (null, null),
+        };
 
         public static bool ReferencedSymbolIsResourceAndPropertyIsAbsent(DeclaredSymbol referencedSymbol, string propertyName)
         {
@@ -382,6 +352,7 @@ namespace Bicep.Core.TypeSystem
 
             if (resourceSyntax.TryGetBody() is not { } bodySyntax || bodySyntax.HasParseErrors())
             {
+                // Bail if there are errors.
                 return false;
             }
 

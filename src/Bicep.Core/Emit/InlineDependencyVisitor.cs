@@ -229,11 +229,11 @@ namespace Bicep.Core.Emit
                 // Note - there's a limitation here that we're using the 'declared' type and not the 'assigned' type.
                 // This means that we may encounter a DiscriminatedObjectType. For now we should accept this limitation,
                 // and move to using the assigned type once https://github.com/Azure/bicep/issues/1177 is fixed.
-                case ResourceSymbol resourceSymbol when EmitHelpers.TryGetResourceBodyObjectType(resourceSymbol) is { } bodyObjectType:
+                case ResourceSymbol resourceSymbol when resourceSymbol.TryGetBodyObjectType() is { } bodyObjectType:
                     SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSymbol));
                     return;
 
-                case ModuleSymbol moduleSymbol when EmitHelpers.TryGetModuleBodyObjectType(moduleSymbol) is { } bodyObjectType:
+                case ModuleSymbol moduleSymbol when moduleSymbol.TryGetBodyObjectType() is { } bodyObjectType:
                     SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
                     return;
             }

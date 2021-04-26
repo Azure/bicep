@@ -28,21 +28,17 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public bool IsCollection => this.Context.TypeManager.GetTypeInfo(this.DeclaringResource) is ArrayType;
+        public bool IsCollection => this.Type is ArrayType;
 
-        public ResourceTypeReference? TryGetResourceTypeReference()
+        public ResourceType? TryGetResourceType() => this.Type switch
         {
-            if (this.Type is ResourceType resourceType)
-            {
-                return resourceType.TypeReference;
-            }
+            ResourceType resourceType => resourceType,
+            ArrayType { Item: ResourceType resourceType } => resourceType,
+            _ => null,
+        };
 
-            if (this.Type is ArrayType arrayType && arrayType.Item.Type is ResourceType itemType)
-            {
-                return itemType.TypeReference;
-            }
+        public ResourceTypeReference? TryGetResourceTypeReference() => this.TryGetResourceType()?.TypeReference;
 
-            return null;
-        }
+        public ObjectType? TryGetBodyObjectType() => this.TryGetResourceType()?.Body.Type as ObjectType;
     }
 }
