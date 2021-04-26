@@ -518,5 +518,9 @@
     {
         "filePath": "301/deployment-script-dev-environment/main.bicep",
         "description": "301/deployment-script-dev-environment"
+    },
+    {
+        "filePath": "301/sql-database-with-management/main.bicep",
+        "description": "301/sql-database-with-management"
     }
 ]
