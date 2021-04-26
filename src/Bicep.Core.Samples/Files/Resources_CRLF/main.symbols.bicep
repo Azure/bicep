@@ -459,6 +459,19 @@ resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
+resource p2_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[9:16) Resource p2_vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 227
+  location: p1_vnet.location
+  name: 'myVnet2'
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/24'
+      ]
+    }
+  }
+}
+
 resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 //@[9:19) Resource p1_subnet1. Type: Microsoft.Network/virtualNetworks/subnets@2020-06-01. Declaration start char: 0, length: 175
   parent: p1_vnet

@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Update Baselines"]
+    types:
+      - completed
 
 jobs:
   build-bicep:
@@ -350,41 +354,41 @@ jobs:
           path: ./src/playground/dist/*
           if-no-files-found: error
 
-  build-textmate:
-    name: 'Build Textmate'
+  build-grammars:
+    name: 'Build Grammars'
     runs-on: 'ubuntu-latest'
-    needs: build-bicep
 
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
-      
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v2
-        with:
-          name: bicep-release-linux-x64
-          path: ./bicep-release-linux-x64
 
-      - name: Mark Bicep CLI as executable
-        run: chmod +x ${{ github.workspace }}/bicep-release-linux-x64/bicep
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.7.2
 
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
         with:
           node-version: 14.x
       
-      - name: npm ci
-        run: npm ci
+      - name: TextMate Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm test
         working-directory: ./src/textmate
-
-      - name: Run lint
-        run: npm run lint
-        working-directory: ./src/textmate
-
-      - name: Run Tests
-        run: npm test
-        env:
-          BICEP_CLI_EXECUTABLE: ${{ github.workspace }}/bicep-release-linux-x64/bicep
-        working-directory: ./src/textmate
+      
+      - name: HighlightJs Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm test
+        working-directory: ./src/highlightjs
+      
+      - name: Monarch Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+        working-directory: ./src/monarch

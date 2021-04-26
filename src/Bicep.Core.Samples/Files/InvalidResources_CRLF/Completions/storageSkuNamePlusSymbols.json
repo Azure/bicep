@@ -143,6 +143,125 @@
     }
   },
   {
+    "label": "anyTypeInDependsOn",
+    "kind": "interface",
+    "detail": "anyTypeInDependsOn",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInDependsOn",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInDependsOn"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInExistingScope",
+    "kind": "interface",
+    "detail": "anyTypeInExistingScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInExistingScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInExistingScope"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInExistingScopeLoop",
+    "kind": "interface",
+    "detail": "anyTypeInExistingScopeLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInExistingScopeLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInExistingScopeLoop"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInParent",
+    "kind": "interface",
+    "detail": "anyTypeInParent",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInParent",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInParent"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInParentLoop",
+    "kind": "interface",
+    "detail": "anyTypeInParentLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInParentLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInParentLoop"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInScope",
+    "kind": "interface",
+    "detail": "anyTypeInScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInScope"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInScopeConditional",
+    "kind": "interface",
+    "detail": "anyTypeInScopeConditional",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInScopeConditional",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInScopeConditional"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "array",
     "kind": "function",
     "detail": "array()",
@@ -1572,17 +1691,17 @@
     }
   },
   {
-    "label": "existngResProperty",
+    "label": "existingResProperty",
     "kind": "interface",
-    "detail": "existngResProperty",
+    "detail": "existingResProperty",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_existngResProperty",
+    "sortText": "2_existingResProperty",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "existngResProperty"
+      "newText": "existingResProperty"
     },
     "commitCharacters": [
       ":"
@@ -2240,6 +2359,23 @@
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "invalidExistingLocationRef",
+    "kind": "interface",
+    "detail": "invalidExistingLocationRef",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidExistingLocationRef",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidExistingLocationRef"
     },
     "commitCharacters": [
       ":"

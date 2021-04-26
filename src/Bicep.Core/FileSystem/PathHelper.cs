@@ -12,6 +12,8 @@ namespace Bicep.Core.FileSystem
 
         private const string TemplateOutputExtension = ".json";
 
+        private const string BicepExtension = ".bicep";
+
         public static StringComparer PathComparer => IsFileSystemCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 
         public static StringComparison PathComparison => IsFileSystemCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
@@ -85,5 +87,32 @@ namespace Bicep.Core.FileSystem
 
             return uriBuilder.Uri;
         }
+
+        public static Uri ChangeExtension(Uri uri, string? newExtension)
+        {
+            var uriString = uri.ToString();
+            var finalDotIndex = uriString.LastIndexOf('.');
+
+            newExtension = newExtension is null ? "" : NormalizeExtension(newExtension);
+            uriString = (finalDotIndex >= 0 ? uriString.Substring(0, finalDotIndex) : uriString) + newExtension;
+
+            return new Uri(uriString);
+        }
+
+        public static bool HasExtension(Uri uri, string extension)
+        {
+            extension = NormalizeExtension(extension);
+
+            return uri.AbsolutePath.EndsWith(extension, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static Uri RemoveExtension(Uri uri) => ChangeExtension(uri, null);
+
+        public static Uri ChangeToBicepExtension(Uri uri) => ChangeExtension(uri, BicepExtension);
+
+        public static bool HasBicepExtension(Uri uri) => HasExtension(uri, BicepExtension);
+
+        private static string NormalizeExtension(string extension) =>
+            extension.StartsWith(".") ? extension : $".{extension}";
     }
 }

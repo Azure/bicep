@@ -278,32 +278,30 @@ module runtimeValidModule1 'empty.bicep' = {
 
 module runtimeInvalidModule1 'empty.bicep' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 }
 
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
   name: runtimeValidRes1.sku.name
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku.name|
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.sku.name|
 }
 
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku['name']|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.sku['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
-//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku']['name']|
+//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['sku']['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['sku'].name|
 }
 
 module singleModuleForRuntimeCheck 'modulea.bicep' = {
@@ -639,4 +637,37 @@ module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 //@[68:75) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'hello'|
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[68:74) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |concat|
+
+module anyTypeInScope 'empty.bicep' = {
+//@[7:21) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScope|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScopeConditional|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[7:25) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScopeLoop|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}]
 

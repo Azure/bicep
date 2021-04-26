@@ -25,7 +25,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void Create_ShouldReturnValidCompilation()
         {
-            var provider = new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver());
+            var provider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver());
 
             var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
             var syntaxTree = SyntaxTree.Create(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);

@@ -64,6 +64,11 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static string PrintWithAnnotations(SyntaxTree syntaxTree, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
         {
+            if (!annotations.Any())
+            {
+                return "";
+            }
+
             var output = new StringBuilder();
             var programLines = GetProgramTextLines(syntaxTree);
 

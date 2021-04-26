@@ -25,6 +25,8 @@ namespace Bicep.Core.Emit
     {
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
+        
+        // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2019-10-01";
 
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
@@ -228,7 +230,7 @@ namespace Bicep.Core.Emit
 
                     case ObjectSyntax modifierSyntax:
                         // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
-                        var properties = modifierSyntax.ToKnownPropertyValueDictionary();
+                        var properties = modifierSyntax.ToNamedPropertyValueDictionary();
 
                         emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, IsSecure(properties.TryGetValue("secure"))));
 

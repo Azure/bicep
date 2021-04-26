@@ -53,14 +53,8 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public static void DoWithDiagnosticAnnotations(SyntaxTree syntaxTree, IEnumerable<Diagnostic> diagnostics, Action<IEnumerable<Diagnostic>> action)
         {
-            using (var scope = new AssertionScope())
+            using (new AssertionScope().WithVisualDiagnostics(syntaxTree, diagnostics))
             {
-                scope.AddReportable("diagnostics", PrintHelper.PrintWithAnnotations(
-                    syntaxTree,
-                    diagnostics.Select(x => new PrintHelper.Annotation(x.Span, $"[{x.Code} ({x.Level})] {x.Message}")),
-                    1,
-                    true));
-
                 action(diagnostics);
             }
         }

@@ -679,6 +679,34 @@
     }
   },
   {
+    "label": "invalidDefaultWithAllowedArray",
+    "kind": "field",
+    "detail": "invalidDefaultWithAllowedArray",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidDefaultWithAllowedArray",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidDefaultWithAllowedArray"
+    }
+  },
+  {
+    "label": "invalidDefaultWithAllowedArrayDecorator",
+    "kind": "field",
+    "detail": "invalidDefaultWithAllowedArrayDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidDefaultWithAllowedArrayDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidDefaultWithAllowedArrayDecorator"
+    }
+  },
+  {
     "label": "invalidLength",
     "kind": "field",
     "detail": "invalidLength",
@@ -690,6 +718,34 @@
     "textEdit": {
       "range": {},
       "newText": "invalidLength"
+    }
+  },
+  {
+    "label": "invalidPermutation",
+    "kind": "field",
+    "detail": "invalidPermutation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidPermutation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidPermutation"
+    }
+  },
+  {
+    "label": "invalidPermutationWithDecorator",
+    "kind": "field",
+    "detail": "invalidPermutationWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidPermutationWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidPermutationWithDecorator"
     }
   },
   {

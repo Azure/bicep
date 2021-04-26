@@ -1030,31 +1030,31 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
-                    ResourceTypeProviderHelper.CreateObjectType(
+                    TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
                         ("name", LanguageConstants.String))),
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
-                    ResourceTypeProviderHelper.CreateDiscriminatedObjectType(
+                    TestTypeHelper.CreateDiscriminatedObjectType(
                         "Rp.A/parent/child@2020-10-01",
                         "name",
-                        ResourceTypeProviderHelper.CreateObjectType(
+                        TestTypeHelper.CreateObjectType(
                             "Val1Type",
                             ("name", new StringLiteralType("val1")),
-                            ("properties", ResourceTypeProviderHelper.CreateObjectType(
+                            ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnVal1", LanguageConstants.Bool)))),
-                        ResourceTypeProviderHelper.CreateObjectType(
+                        TestTypeHelper.CreateObjectType(
                             "Val2Type",
                             ("name", new StringLiteralType("val2")),
-                            ("properties", ResourceTypeProviderHelper.CreateObjectType(
+                            ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnVal2", LanguageConstants.Bool)))))),
             };
 
             var result = CompilationHelper.Compile(
-                ResourceTypeProviderHelper.CreateMockTypeProvider(customTypes),
+                TestTypeHelper.CreateProviderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1092,7 +1092,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             result.Should().NotHaveDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
-                ResourceTypeProviderHelper.CreateMockTypeProvider(customTypes),
+                TestTypeHelper.CreateProviderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1128,22 +1128,22 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
-                    ResourceTypeProviderHelper.CreateObjectType(
+                    TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
                         ("name", LanguageConstants.String))),
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
-                    ResourceTypeProviderHelper.CreateObjectType(
+                    TestTypeHelper.CreateObjectType(
                         "Rp.A/parent/child@2020-10-01",
                         ("name", UnionType.Create(new StringLiteralType("val1"), new StringLiteralType("val2"))),
-                            ("properties", ResourceTypeProviderHelper.CreateObjectType(
+                            ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnEnum", LanguageConstants.Bool))))),
             };
 
             var result = CompilationHelper.Compile(
-                ResourceTypeProviderHelper.CreateMockTypeProvider(customTypes),
+                TestTypeHelper.CreateProviderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1181,7 +1181,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             result.Should().NotHaveDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
-                ResourceTypeProviderHelper.CreateMockTypeProvider(customTypes),
+                TestTypeHelper.CreateProviderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1523,6 +1523,155 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
             evaluated.Should().HaveValueAtPath("$.outputs['providersResourceType'].value", "fakeResource");
             evaluated.Should().HaveValueAtPath("$.outputs['providersApiVersionFirst'].value", "3024-01-01");
             evaluated.Should().HaveValueAtPath("$.outputs['providersLocationFirst'].value", "Earth");
+        }
+
+        [TestMethod]
+        public void Variable_loops_should_not_cause_infinite_recursion()
+        {
+            var result = CompilationHelper.Compile(@"
+var loopInput = [
+  'one'
+  'two'
+]
+var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
+  index: i
+  name: name
+  value: 'prefix-${i}-${name}-suffix'
+}]
+");
+
+            result.Should().NotHaveDiagnostics();
+            result.Template.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/1883
+        public void Test_Issue1883()
+        {
+            var result = CompilationHelper.Compile(@"
+resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
+  name: 'myVM'
+  location: 'westus'
+  
+  resource vmExt 'extensions' = {
+    name: 'myVMExtension'
+    location: vm.location
+  }
+}
+
+output vmExtName string = vm::vmExt.name
+");
+
+            result.Should().NotHaveDiagnostics();
+            result.Template.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/1988
+        public void Test_Issue1988()
+        {
+            var result = CompilationHelper.Compile(@"
+var subnet1Name = 'foobarsubnet-blueprint'
+var virtualNetworkResourceGroup = 'alex-test-feb'
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-08-01' existing = {
+  name: 'foobarvnet-blueprint'
+  scope: resourceGroup(virtualNetworkResourceGroup)
+}
+
+resource my_subnet 'Microsoft.Network/virtualNetworks/subnets@2020-08-01' existing = {
+  name: subnet1Name
+  parent: vnet
+}
+
+resource my_interface 'Microsoft.Network/networkInterfaces@2015-05-01-preview' = {
+  name: 'nic-test01'
+  location: vnet.location // this is not valid because it requires reference() if resource is 'existing'
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: my_subnet.id
+          }
+        }
+      }
+    ]
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP120", DiagnosticLevel.Error, "The property \"location\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"scope\", \"type\"."),
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/2268
+        public void Test_Issue2268()
+        {
+            var result = CompilationHelper.Compile(@"
+param sqlServerName string = 'myServer'
+param sqlDbName string = 'myDb'
+var sqlDatabase = {
+  name: sqlDbName
+  dataEncryption: 'Enabled'
+}
+
+resource sqlDb 'Microsoft.Sql/servers/databases@2020-02-02-preview' existing = {
+  name: '${sqlServerName}/${sqlDatabase.name}'
+}
+
+resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
+  name: 'myTde'
+  parent: sqlDb
+  properties: {
+    status: sqlDatabase.dataEncryption
+  }
+}
+
+output tdeId string = transparentDataEncryption.id
+");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+
+            evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/myTde");
+            evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/myTde");
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2289
+        public void Test_Issue2289()
+        {
+            var result = CompilationHelper.Compile(@"
+
+resource p 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'sss'
+  location: ''
+}
+
+resource c 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+  parent: p
+  name: 'sss/'
+}]
+
+resource p2 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'sss2'
+  location: ''
+
+  resource c2 'CNAME' = [for thing in []: {
+    name: 'sss2/'
+  }]
+}
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
+                ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.")
+            });
+            result.Template.Should().BeNull();
         }
     }
 }

@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "variables": {
+      "outer": "hello!"
+    },
+    "resources": [
+      {
+        "apiVersion": "2020-05-01",
+        "name": "testnested",
+        "type": "Microsoft.Resources/deployments",
+        "properties": {
+          "mode": "Incremental",
+          "template": {
+            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+            "variables": {
+              "test": "[variables('outer')]",
+              "test2": "[[variables('test')]"
+            },
+            "contentVersion": "1.0.0.0",
+            "resources": []
+          }
+        }
+      }
+    ]
+  }
+  

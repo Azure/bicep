@@ -21,7 +21,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
         {
-            var typeProvider = ResourceTypeProviderHelper.CreateMockTypeProvider(definedTypes);
+            var typeProvider = TestTypeHelper.CreateProviderWithTypes(definedTypes);
 
             var compilation = new Compilation(typeProvider, SyntaxTreeGroupingFactory.CreateFromText(programText));
             return compilation.GetEntrypointSemanticModel();
@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests
         public void Type_validation_runs_on_compilation_successfully(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
             var customTypes = new [] {
-                ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags),
+                TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags),
             };
             var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
@@ -52,7 +52,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
         public void Type_validation_runs_on_compilation_common_failures(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
             var customTypes = new [] {
-                ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
+                TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly),
                     new TypeProperty("requiredProp", LanguageConstants.String, TypePropertyFlags.Required),
@@ -125,12 +125,12 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
         public void Type_validation_narrowing_on_union_types(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
             var customTypes = new [] {
-                ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
+                TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("stringOrInt", UnionType.Create(LanguageConstants.String, LanguageConstants.Int)),
                     new TypeProperty("unspecifiedStringOrInt", UnionType.Create(LanguageConstants.String, LanguageConstants.Int)),
                     new TypeProperty("abcOrDef", UnionType.Create(new StringLiteralType("abc"), new StringLiteralType("def"))),
                     new TypeProperty("unspecifiedAbcOrDef", UnionType.Create(new StringLiteralType("abc"), new StringLiteralType("def")))),
-                ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/myDependentType", "2020-01-01", validationFlags,
+                TestTypeHelper.CreateCustomResourceType("My.Rp/myDependentType", "2020-01-01", validationFlags,
                     new TypeProperty("stringOnly", LanguageConstants.String),
                     new TypeProperty("abcOnly", new StringLiteralType("abc")),
                     new TypeProperty("abcOnlyUnNarrowed", new StringLiteralType("abc")),
@@ -170,7 +170,7 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
         public void Type_validation_narrowing_on_discriminated_object_types(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
             var customTypes = new [] {
-                ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
+                TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", validationFlags, "discKey", new [] {
                             new ObjectType("choiceA", validationFlags, new [] {
                                 new TypeProperty("discKey", new StringLiteralType("choiceA"), TypePropertyFlags.Required),

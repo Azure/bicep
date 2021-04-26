@@ -88,6 +88,15 @@ namespace Bicep.LanguageServer.Handlers
                     // but this simplifies the checks
                     return GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel());
 
+                case PropertySymbol property:
+                    var markdown =  $"```bicep\n{property.Name}: {property.Type}\n```\n";
+                    if (property.Description is not null)
+                    {
+                        markdown += $"{property.Description}\n";
+                    }
+
+                    return markdown;
+
                 case FunctionSymbol function when result.Origin is InstanceFunctionCallSyntax functionCall:
                     return GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel());
 

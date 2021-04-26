@@ -1,0 +1,2 @@
+@secure()
+param testParam string

@@ -22,6 +22,9 @@ namespace Bicep.Core.Syntax
         public static IdentifierSyntax CreateIdentifier(string text)
             => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
 
+        public static VariableAccessSyntax CreateVariableAccess(string text)
+            => new VariableAccessSyntax(CreateIdentifier(text));
+
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token AtToken => CreateToken(TokenType.At, "@");
         public static Token LeftBraceToken => CreateToken(TokenType.LeftBrace, "{");
@@ -139,8 +142,28 @@ namespace Bicep.Core.Syntax
             new IntegerLiteralSyntax(CreateToken(TokenType.Integer, value.ToString()), value);
 
         public static StringSyntax CreateStringLiteral(string value)
+            => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
+
+        public static StringSyntax CreateString(IEnumerable<string> values, IEnumerable<SyntaxBase> expressions)
         {
-            return new StringSyntax(CreateStringLiteralToken(value).AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
+            var valuesArray = values.ToArray();
+            var expressionsArray = expressions.ToArray();
+            
+            if (valuesArray.Length != expressionsArray.Length + 1)
+            {
+                throw new ArgumentException($"The number of values must be 1 greater than the number of expressions");
+            }
+
+            var stringTokens = new List<Token>();
+            for (var i = 0; i < valuesArray.Length; i++)
+            {
+                var isStart = (i == 0);
+                var isEnd = (i == valuesArray.Length - 1);
+
+                stringTokens.Add(CreateStringInterpolationToken(isStart, isEnd, valuesArray[i]));
+            }
+
+            return new StringSyntax(stringTokens, expressionsArray, valuesArray);
         }
 
         public static StringSyntax CreateStringLiteralWithComment(string value, string comment)
@@ -169,17 +192,12 @@ namespace Bicep.Core.Syntax
 
         public static Token CreateStringInterpolationToken(bool isStart, bool isEnd, string value)
         {
-            if (isStart)
-            {
-                return CreateToken(TokenType.StringLeftPiece, $"'{EscapeBicepString(value)}${{");
-            }
-
-            if (isEnd)
-            {
-                return CreateToken(TokenType.StringRightPiece, $"}}{EscapeBicepString(value)}'");
-            }
-
-            return CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{");
+            return (isStart, isEnd) switch {
+                (true, true) => CreateToken(TokenType.StringComplete, $"'{EscapeBicepString(value)}'"),
+                (true, false) => CreateToken(TokenType.StringLeftPiece, $"'{EscapeBicepString(value)}${{"),
+                (false, false) => CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{"),
+                (false, true) => CreateToken(TokenType.StringRightPiece, $"}}{EscapeBicepString(value)}'"),
+            };
         }
 
         public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
