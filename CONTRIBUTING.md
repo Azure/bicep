@@ -50,12 +50,12 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 1. If any baseline changes are detected, the action will create a commit with the diffs, and push it to your branch.
 1. Because of [this limitation](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token), you will need to manually re-run the CI action once the commit has been made:
     1. Under your fork of the repo, navigate to "Actions" -> "Build".
-    1. Press "Run workflow", and select your branch name under the "Use work flow from" dropdown.
+    1. Press "Run workflow", and select your branch name under the "Use workflow from" dropdown.
 
 ### Creating new integration tests dataset
 
 * To Add new integration tests dataset you need to:
-  1. Add a entry to src/Bicep.Core.Samples/DataSets.cs
+  1. Add an entry to `src/Bicep.Core.Samples/DataSets.cs`
      * prefix with Invalid if the expectation is that it doesn't compile.
      * The suffix should match the type of newline the file uses, so just pick one (_LF or _CRLF) - that's just to ensure we have support for both.
      * The name of the entry should match the name of the folder you create (same casing), and there should be a main.bicep file in that folder.
@@ -129,8 +129,9 @@ If you'd like to contribute to the collection of snippets:
   * E.g. [`res-aks-cluster.bicep`](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep) results in the following label and description:
  ![](./docs/images/snippet-template.png)
   * Add the Bicep resource declaration.
-  * Add placeholders for tab stops with values using `${1:foo}`. The placeholder text will be inserted and selected such that it can be easily changed.
+  * Add placeholders for tab stops with values using `${1:foo}`. The placeholder text will be inserted and selected such that it can be easily changed. The symbolic name should be the first tab stop.
   * To add a multi-choice placeholder, the syntax is a comma separated enumeration of values, enclosed with the pipe-character, for example `${1|one,two,three|}`. When the snippet is inserted and the placeholder selected, choices will prompt the user to pick one of the values. [More info on snippet syntax](https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax)
+  * Property placeholder values should correspond to their property names (e.g. dnsPrefix: 'dnsPrefix'), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep#L26)
 
 * Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates)
   * The folder name should match the snippet label/prefix.

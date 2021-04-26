@@ -638,3 +638,36 @@ module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[68:74) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |concat|
 
+module anyTypeInScope 'empty.bicep' = {
+//@[7:21) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScope|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScopeConditional|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[7:25) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScopeLoop|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}]
+

@@ -997,6 +997,11 @@ namespace Bicep.Core.Diagnostics
                     "BCP175",
                     $"The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}");
             }
+
+            public ErrorDiagnostic AnyTypeIsNotAllowed() => new(
+                TextSpan,
+                "BCP176",
+                $"Values of the \"any\" type are not allowed here.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

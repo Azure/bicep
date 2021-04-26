@@ -261,7 +261,7 @@ namespace Bicep.Core
 
             var outputsType = new ObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
 
-            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny;
             if (moduleScope != containingScope)
             {
                 // If the module scope matches the parent scope, we can safely omit the scope property
@@ -277,7 +277,7 @@ namespace Bicep.Core
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
-                    new TypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly),
+                    new TypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny),
                 },
                 null);
 
@@ -330,7 +330,7 @@ namespace Bicep.Core
             yield return new TypeProperty("properties", Object);
 
             var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly);
+            yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny);
         }
     }
 }

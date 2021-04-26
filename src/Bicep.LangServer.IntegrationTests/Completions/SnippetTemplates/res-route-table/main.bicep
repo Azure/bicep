@@ -1,8 +1,9 @@
-﻿// $1 = 'testRouteTable'
-// $2 = 'testRoute'
-// $3 = 'testDestinationCIDR'
-// $4 = VirtualNetworkGateway
-// $5 = '0.11.26.162'
-// $6 = true
+﻿// $1 = routeTable
+// $2 = 'name'
+// $3 = 'name'
+// $4 = 'destinationCIDR'
+// $5 = 'VirtualNetworkGateway'
+// $6 = '0.11.26.162'
+// $7 = true
 
 // Insert snippet here

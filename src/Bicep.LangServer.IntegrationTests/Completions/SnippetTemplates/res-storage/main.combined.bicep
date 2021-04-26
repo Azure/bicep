@@ -1,5 +1,5 @@
 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: 'testStorageaccount'
+  name: 'name'
   location: resourceGroup().location
   kind: 'StorageV2'
   sku: {

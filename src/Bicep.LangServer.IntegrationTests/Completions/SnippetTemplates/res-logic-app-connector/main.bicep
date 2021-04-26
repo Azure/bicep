@@ -1,5 +1,6 @@
-﻿// $1 = 'testLogicAppConnector'
-// $2 = 'testLogicAppConnector'
-// $3 = 'testLogicAppConnectorApi'
+﻿// $1 = logicAppConnector
+// $2 = 'name'
+// $3 = 'name'
+// $4 = 'logicAppConnectorApi'
 
 // Insert snippet here

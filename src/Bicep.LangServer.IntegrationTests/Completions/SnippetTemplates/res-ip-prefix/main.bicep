@@ -1,4 +1,5 @@
-﻿// $1 = 'testPublicIPPrefix'
-// $2 = 28
+﻿// $1 = publicIPPrefix
+// $2 = 'name'
+// $3 = 28
 
 // Insert snippet here

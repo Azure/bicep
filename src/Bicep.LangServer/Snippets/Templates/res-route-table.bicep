@@ -1,18 +1,18 @@
 ﻿// Route Table
-resource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
-  name: ${1:'routeTable'}
+resource ${1:routeTable} 'Microsoft.Network/routeTables@2019-11-01' = {
+  name: ${2:'name'}
   location: resourceGroup().location
   properties: {
     routes: [
       {
-        name: ${2:'route'}
+        name: ${3:'name'}
         properties: {
-          addressPrefix: ${3:'destinationCIDR'}
-          nextHopType: '${4|VirtualNetworkGateway,VnetLocal,Internet,VirtualAppliance,None|}'
-          nextHopIpAddress: ${5:'nextHopIp'}
+          addressPrefix: ${4:'destinationCIDR'}
+          nextHopType: ${5|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}
+          nextHopIpAddress: ${6:'nextHopIp'}
         }
       }
     ]
-    disableBgpRoutePropagation: ${6|true,false|}
+    disableBgpRoutePropagation: ${7|true,false|}
   }
 }
