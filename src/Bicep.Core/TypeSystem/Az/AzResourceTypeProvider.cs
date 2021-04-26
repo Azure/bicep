@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
 using System.Collections.Immutable;
+using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -162,17 +163,10 @@ namespace Bicep.Core.TypeSystem.Az
                 scopePropertyFlags |= TypePropertyFlags.Required;
             }
 
-            // local function
-            static TypeProperty CreateScopeProperty(ResourceScope validScopes, TypePropertyFlags scopePropertyFlags)
-            {
-                var scopeReference = LanguageConstants.CreateResourceScopeReference(validScopes);
-                return new(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags);
-            }                
-
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
-                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, CreateScopeProperty(validParentScopes, scopePropertyFlags));
+                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, ScopeHelper.CreateExistingResourceScopeProperty(validParentScopes, scopePropertyFlags));
 
                 if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
                 {
@@ -190,13 +184,9 @@ namespace Bicep.Core.TypeSystem.Az
                     properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
                 }
 
-                // we only support scope in these cases:
-                // 1. extension resources (or resources where the scope is unknown and thus may be an extension resource)
-                // 2. Tenant resources
-                ResourceScope tenantOrExtensionResourceScope = validParentScopes & (ResourceScope.Resource | ResourceScope.Tenant);
-                if (tenantOrExtensionResourceScope != 0)
+                if(ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
                 {
-                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, CreateScopeProperty(tenantOrExtensionResourceScope, scopePropertyFlags));
+                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
                 }
             }
 

@@ -308,6 +308,20 @@ namespace Bicep.Core.Emit
             }
         }
 
+        public static void EmitResourceScopeProperties(ResourceScope targetScope, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
+        {
+            if (scopeData.ResourceScopeSymbol is { } scopeResource)
+            {
+                // emit the resource id of the resource being extended
+                expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, scopeData.IndexExpression, newContext));
+            }
+            else if (scopeData.RequestedScope == ResourceScope.Tenant && targetScope != ResourceScope.Tenant)
+            {
+                // emit the "/" to allow cross-scope deployment of a Tenant resource from another deployment scope
+                expressionEmitter.EmitProperty("scope", "/");
+            }
+        }
+
         public static void EmitModuleScopeProperties(ResourceScope targetScope, ScopeData scopeData, ExpressionEmitter expressionEmitter)
         {
             switch (scopeData.RequestedScope)
@@ -346,6 +360,26 @@ namespace Bicep.Core.Emit
                 default:
                     throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
             }
+        }
+
+        public static TypeProperty CreateExistingResourceScopeProperty(ResourceScope validScopes, TypePropertyFlags propertyFlags) =>
+            CreateResourceScopePropertyInternal(validScopes, propertyFlags);
+
+        public static TypeProperty? TryCreateNonExistingResourceScopeProperty(ResourceScope validScopes, TypePropertyFlags propertyFlags)
+        {
+            // we only support scope in these cases:
+            // 1. extension resources (or resources where the scope is unknown and thus may be an extension resource)
+            // 2. Tenant resources
+            ResourceScope effectiveScopes = validScopes & (ResourceScope.Resource | ResourceScope.Tenant);
+            return effectiveScopes != 0
+                ? CreateResourceScopePropertyInternal(effectiveScopes, propertyFlags)
+                : null;
+        }
+
+        private static TypeProperty CreateResourceScopePropertyInternal(ResourceScope validScopes, TypePropertyFlags scopePropertyFlags)
+        {
+            var scopeReference = LanguageConstants.CreateResourceScopeReference(validScopes);
+            return new(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags);
         }
 
         private static ResourceSymbol? GetRootResourceSymbol(IReadOnlyDictionary<ResourceSymbol, ScopeData> scopeInfo, ResourceSymbol resourceSymbol)
