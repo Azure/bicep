@@ -20,13 +20,13 @@ param subscriptionDisplayName string
 param subscriptionWorkload string = 'Production'
 
 resource subscriptionAlias_resource 'Microsoft.Subscription/aliases@2020-09-01' = {
+  scope: tenant()
   name: subscriptionAlias
   properties: {
     workload: subscriptionWorkload
     displayName: subscriptionDisplayName
     billingScope: tenantResourceId('Microsoft.Billing/billingAccounts/enrollmentAccounts', billingAccount, enrollmentAccount)
   }
-  scope: tenant()
 }
 
 output subscriptionId string = subscriptionAlias_resource.properties.subscriptionId

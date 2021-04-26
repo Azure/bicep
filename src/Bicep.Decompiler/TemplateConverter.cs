@@ -1269,6 +1269,12 @@ namespace Bicep.Decompiler
             }, StringComparer.OrdinalIgnoreCase);
 
             var topLevelProperties = new List<ObjectPropertySyntax>();
+            var scope = TryGetResourceScopeProperty(resource);
+            if (scope is not null)
+            {
+                topLevelProperties.Add(SyntaxFactory.CreateObjectProperty("scope", scope));
+            }
+
             foreach (var prop in resource.Properties())
             {
                 if (resourcePropsToOmit.Contains(prop.Name))
@@ -1288,12 +1294,6 @@ namespace Bicep.Decompiler
                 }
 
                 topLevelProperties.Add(SyntaxFactory.CreateObjectProperty(prop.Name, valueSyntax));
-            }
-
-            var scope = TryGetResourceScopeProperty(resource);
-            if (scope is not null)
-            {
-                topLevelProperties.Add(SyntaxFactory.CreateObjectProperty("scope", scope));
             }
 
             var dependsOn = ProcessDependsOn(copyResourceLookup, resource);
