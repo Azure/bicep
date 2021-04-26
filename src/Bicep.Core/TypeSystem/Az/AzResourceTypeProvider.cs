@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
 using System.Collections.Immutable;
+using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -165,8 +166,7 @@ namespace Bicep.Core.TypeSystem.Az
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
-                var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
-                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, ScopeHelper.CreateExistingResourceScopeProperty(validParentScopes, scopePropertyFlags));
 
                 if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
                 {
@@ -183,12 +183,10 @@ namespace Bicep.Core.TypeSystem.Az
                 {
                     properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
                 }
-                
-                // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
-                if (validParentScopes.HasFlag(ResourceScope.Resource))
+
+                if(ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
                 {
-                    var scopeReference = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
-                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
                 }
             }
 
