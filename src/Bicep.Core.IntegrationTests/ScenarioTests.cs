@@ -1695,6 +1695,55 @@ resource vwan 'Microsoft.Network/virtualWans@2020-05-01' = {
   }
   tags: tags.outputs.tagsoutput
 }
+
+resource vwan2 'Microsoft.Network/virtualWans@2020-05-01' = {
+  location: 'westus'
+  name: 'vwan2'
+  properties: {
+    disableVpnEncryption: false
+    allowBranchToBranchTraffic: true
+    allowVnetToVnetTraffic: true
+    type: 'foo'
+  }
+  tags: {
+    // Should run deploy-time constant checking for tag1.
+    myTag1: tags.outputs.tagsoutput.tag1
+  }
+}
+
+resource nsgs 'Microsoft.Network/networkSecurityGroups@2019-04-01' = [for i in range(0, 2): {
+  name: 'nsg-${i}'
+  location: 'westus'
+  properties: {}
+  tags: tags.outputs.tagsoutput
+}]
+
+resource nsgs2 'Microsoft.Network/networkSecurityGroups@2019-04-01' = [for i in range(0, 2): {
+  name: 'nsg2-${i}'
+  location: 'westus'
+  properties: {}
+  tags: {
+    // Should run deploy-time constant checking for tag1.
+    myTag1: tags.outputs.tagsoutput.tag1
+  }
+}]
+
+resource publicIP 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
+  name: 'publicIP'
+  location: 'westus'
+  zones: [
+    // Should run deploy-time constant checking inside zones.
+    vwan.properties.type
+  ]
+  sku: {
+    name: 'Basic'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    dnsSettings: {
+    }
+  }
+}
 "),
                 ("tags.bicep", @"
 output tagsoutput object = {
@@ -1704,6 +1753,10 @@ output tagsoutput object = {
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"location\", \"name\", \"type\"."),
             });
         }
     }

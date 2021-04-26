@@ -24,7 +24,7 @@ namespace Bicep.Core.TypeSystem
         private ObjectType? bodyType;
         private ObjectType? referencedBodyType;
         private Symbol? referencedSymbol;
-        private bool withinDeployTimeConstantScope;
+        private bool inDeployTimeConstantScope;
 
         private Stack<DeclaredSymbol>? variableVisitorStack;
 
@@ -109,26 +109,24 @@ namespace Bicep.Core.TypeSystem
             // Only visit the object properties if they are required to be deploy time constant.
             foreach (var deployTimeIdentifier in syntax.ToNamedPropertyDictionary())
             {
-                if (!this.bodyType.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType))
+                if (this.bodyType.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType) &&
+                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
-                    continue;
+                    // Set inDeployTimeConstantScope for nested deploy-time constant properties such as "tags.*".
+                    this.inDeployTimeConstantScope = true;
                 }
 
-                if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
-                {
-                    this.withinDeployTimeConstantScope = true;
-                }
-
-                if (this.withinDeployTimeConstantScope)
+                if (this.inDeployTimeConstantScope)
                 {
                     this.currentProperty = deployTimeIdentifier.Key;
                     this.VisitObjectPropertySyntax(deployTimeIdentifier.Value);
                     this.currentProperty = null;
                 }
 
-                if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                if (propertyType is not null &&
+                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
-                    this.withinDeployTimeConstantScope = false;
+                    this.inDeployTimeConstantScope = false;
                 }
             }
         }
