@@ -39,8 +39,7 @@ Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or u
 
 If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](./docs/decompiling.md).
 
-There's some deployment scenarios within [Docs](./docs) 
-and the [Examples](./docs/examples) are also helpful! 
+Full details of how the bicep language works can be found in the [Bicep documentation](https://github.com/Azure/bicep/tree/main/docs) and there is a rich library of [examples](https://github.com/Azure/bicep/tree/main/docs/examples) to help you get a jumpstart.
 
 ## How does Bicep work?
 
