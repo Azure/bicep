@@ -112,7 +112,7 @@
   },
   "devDependencies": {
     "@types/copy-webpack-plugin": "^8.0.0",
-    "@types/jest": "^26.0.22",
+    "@types/jest": "^26.0.23",
     "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.39",
     "@types/semver": "^7.3.5",
