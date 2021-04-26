@@ -189,9 +189,9 @@ module modAUnspecifiedInputs './modulea.bicep' = {
     stringParamB: ''
     objParam: {}
     objArray: []
-//@[4:12) [BCP038 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
+//@[4:12) [BCP037 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
     unspecifiedInput: ''
-//@[4:20) [BCP038 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
+//@[4:20) [BCP037 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
   }
 }
 
@@ -520,7 +520,7 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". |notAThing|
   }
 }]
 module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if(true) {
@@ -532,7 +532,7 @@ module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". |notAThing|
   }
 }]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
@@ -545,7 +545,7 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". |notAThing|
   }
 }]
 
@@ -625,7 +625,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
     objParam: {}
     stringParamB: ''
     dependsOn: [
-//@[4:13) [BCP038 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
+//@[4:13) [BCP037 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
       nonexistentArrays
 //@[6:23) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     ]

@@ -9,6 +9,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -205,10 +206,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(@object);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), @object, LanguageConstants.Object, diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, @object, LanguageConstants.Object);
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [DataTestMethod]
@@ -218,11 +218,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(@object);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), @object, LanguageConstants.Int, diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, @object, LanguageConstants.Int);
 
-            diagnosticWriter.GetDiagnostics().Should().HaveCount(1);
-            diagnosticWriter.GetDiagnostics().Single().Message.Should().Be("Expected a value of type \"int\" but the provided value is of type \"object\".");
+            diagnostics.Should().HaveCount(1);
+            diagnostics.Single().Message.Should().Be("Expected a value of type \"int\" but the provided value is of type \"object\".");
         }
 
         [TestMethod]
@@ -233,10 +232,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int));
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -251,15 +249,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String));
 
-            diagnosticWriter.GetDiagnostics()
-                .Select(e => e.Message)
-                .Should()
-                .Equal(
-                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\". Permissible properties include \"allowed\", \"default\", \"maxLength\", \"metadata\", \"minLength\", \"secure\".",
-                    "The property \"extra2\" is not allowed on objects of type \"ParameterModifier<string>\". Permissible properties include \"allowed\", \"default\", \"maxLength\", \"metadata\", \"minLength\", \"secure\".");
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new [] {
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\". Permissible properties include \"allowed\", \"default\", \"maxLength\", \"metadata\", \"minLength\", \"secure\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra2\" is not allowed on objects of type \"ParameterModifier<string>\". Permissible properties include \"allowed\", \"default\", \"maxLength\", \"metadata\", \"minLength\", \"secure\"."),
+            });
         }
 
         [TestMethod]
@@ -273,10 +268,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
+            var (_, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -295,9 +289,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -321,15 +314,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
-            diagnosticWriter.GetDiagnostics()
-                .Select(d => d.Message)
-                .Should().BeEquivalentTo(
-                    "The enclosing array expected an item of type \"string\", but the provided item was of type \"bool\".",
-                    "The property \"managedByExtended\" expected a value of type \"string[]\" but the provided value is of type \"'not an array'\".",
-                    "The enclosing array expected an item of type \"string\", but the provided item was of type \"int\".");
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new [] {
+                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"bool\"."),
+                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"int\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"managedByExtended\" expected a value of type \"string[]\" but the provided value is of type \"'not an array'\"."),
+            });
         }
 
         [TestMethod]
@@ -340,11 +331,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
-            diagnosticWriter.GetDiagnostics().Should().HaveCount(1);
-            diagnosticWriter.GetDiagnostics().Single().Message.Should().Be("The specified \"object\" declaration is missing the following required properties: \"name\".");
+            diagnostics.Should().HaveCount(1);
+            diagnostics.Single().Message.Should().Be("The specified \"object\" declaration is missing the following required properties: \"name\".");
         }
 
         [TestMethod]
@@ -359,10 +349,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -381,15 +370,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
-            diagnosticWriter.GetDiagnostics()
-                .Select(d => d.Message)
-                .Should()
-                .BeEquivalentTo(
-                    "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"bool\".",
-                    "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"int\".");
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new [] {
+                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"bool\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"int\"."),
+            });
         }
 
         [TestMethod]
@@ -408,10 +394,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
             
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -442,10 +427,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object));
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -479,10 +463,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnosticWriter);
+            var (_, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType));
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -504,10 +487,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType));
 
-            diagnosticWriter.GetDiagnostics()
+            diagnostics
                 .Should().SatisfyRespectively(
                     x => x.Message.Should().Be("The property \"default\" expected a value of type \"'One' | 'Two'\" but the provided value is of type \"'Three'\"."));
         }
@@ -539,10 +521,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int));
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -569,10 +550,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool));
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -605,10 +585,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array));
 
-            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -626,8 +605,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("allowed", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
 
                 // not ints
-                //TestSyntaxFactory.CreateProperty("minValue", TestSyntaxFactory.CreateBool(true)),
-                //TestSyntaxFactory.CreateProperty("maxValue", TestSyntaxFactory.CreateString("11")),
                 TestSyntaxFactory.CreateProperty("minLength", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
                 TestSyntaxFactory.CreateProperty("maxLength", TestSyntaxFactory.CreateBool(false)),
 
@@ -644,21 +621,16 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnosticWriter);
-
-            diagnosticWriter.GetDiagnostics()
-                .Select(d => d.Message)
-                .Should().BeEquivalentTo(
-                    "The property \"default\" expected a value of type \"string\" but the provided value is of type \"bool\".",
-                    "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\".",
-                    //"The property \"minValue\" expected a value of type \"int\" but the provided value is of type \"bool\".",
-                    //"The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"string\".",
-                    "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\".",
-                    "The property \"allowed\" expected a value of type \"string[]\" but the provided value is of type \"object\".",
-                    "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<string>\".",
-                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".");
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String));
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new [] {
+                ("BCP036", DiagnosticLevel.Error, "The property \"allowed\" expected a value of type \"string[]\" but the provided value is of type \"object\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"string\" but the provided value is of type \"bool\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\"."),
+            });
         }
 
         [TestMethod]
@@ -694,21 +666,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int));
 
-            diagnosticWriter.GetDiagnostics()
-                .Select(d => d.Message)
-                .Should().BeEquivalentTo(
-                    "The property \"allowed\" expected a value of type \"int[]\" but the provided value is of type \"object\".",
-                    "The property \"minValue\" expected a value of type \"int\" but the provided value is of type \"bool\".",
-                    "The property \"default\" expected a value of type \"int\" but the provided value is of type \"bool\".",
-                    "The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"'11'\".",
-                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<int>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<int>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<int>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<int>\".");
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new [] {
+                ("BCP036", DiagnosticLevel.Error, "The property \"allowed\" expected a value of type \"int[]\" but the provided value is of type \"object\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"int\" but the provided value is of type \"bool\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<int>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<int>\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"'11'\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<int>\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"minValue\" expected a value of type \"int\" but the provided value is of type \"bool\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<int>\"."),
+            });
         }
 
         [TestMethod]
@@ -747,21 +717,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool));
 
-            diagnosticWriter.GetDiagnostics()
-                .Select(d => d.Message)
-                .Should().BeEquivalentTo(
-                    "The property \"default\" expected a value of type \"bool\" but the provided value is of type \"int\".",
-                    "The enclosing array expected an item of type \"bool\", but the provided item was of type \"int\".",
-                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".");
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new [] {
+                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"bool\", but the provided item was of type \"int\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"bool\" but the provided value is of type \"int\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
+            });
         }
 
         [TestMethod]
@@ -797,22 +765,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object));
 
-            diagnosticWriter.GetDiagnostics()
-                .Select(d => d.Message)
-                .Should()
-                .BeEquivalentTo(
-                    "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\".",
-                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
-                    "The property \"allowed\" expected a value of type \"object[]\" but the provided value is of type \"object\".",
-                    "The property \"default\" expected a value of type \"object\" but the provided value is of type \"bool\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".");
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new [] {
+                ("BCP036", DiagnosticLevel.Error, "The property \"allowed\" expected a value of type \"object[]\" but the provided value is of type \"object\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"object\" but the provided value is of type \"bool\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<object>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<object>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<object>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<object>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<object>\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\"."),
+            });
         }
 
         [TestMethod]
@@ -848,22 +813,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnosticWriter);
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array));
 
-            diagnosticWriter.GetDiagnostics()
-                .Select(d => d.Message)
-                .Should()
-                .BeEquivalentTo(
-                    "The property \"default\" expected a value of type \"array\" but the provided value is of type \"bool\".",
-                    "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\".",
-                    "The property \"allowed\" expected a value of type \"array[]\" but the provided value is of type \"object\".",
-                    "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\".",
-                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<array>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<array>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<array>\".",
-                    "No other properties are allowed on objects of type \"ParameterModifier<array>\".");
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new [] {
+                ("BCP036", DiagnosticLevel.Error, "The property \"allowed\" expected a value of type \"array[]\" but the provided value is of type \"object\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"array\" but the provided value is of type \"bool\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<array>\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<array>\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<array>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<array>\"."),
+            });
         }
 
         [TestMethod]
@@ -897,10 +859,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
-                diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
+                diagnostics.Should().SatisfyRespectively(
                     x => {
                         x.Message.Should().Be("The property \"myDiscriminator\" requires a value of type \"'valA' | 'valB'\", but none was supplied.");
                     });
@@ -918,10 +879,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
-                diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
+                diagnostics.Should().SatisfyRespectively(
                     x => {
                         x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"object\".");
                     });
@@ -938,10 +898,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
-                diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
+                diagnostics.Should().SatisfyRespectively(
                     x => {
                         x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"'valC'\". Did you mean \"'valA'\"?");
                     });
@@ -958,10 +917,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
-                diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
+                diagnostics.Should().SatisfyRespectively(
                     x => {
                         x.Message.Should().Be("The specified \"object\" declaration is missing the following required properties: \"fieldB\".");
                     });
@@ -986,10 +944,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
-                diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+                diagnostics.Should().BeEmpty();
                 narrowedType.Should().BeOfType<ObjectType>();
 
                 // we have the discriminator key, so we should have picked the correct object, rather than returning the discriminator
@@ -1015,10 +972,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // pick a valid path (int) - we should narrow the union type to just int
                 var intSyntax = TestSyntaxFactory.CreateInt(1234);
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), intSyntax, unionType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, intSyntax, unionType);
                 
-                diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+                diagnostics.Should().BeEmpty();
                 narrowedType.Should().Be(LanguageConstants.Int);
             }
 
@@ -1026,20 +982,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // pick an invalid path (object) - we should get diagnosticWriter
                 var objectSyntax = TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
                 hierarchy.AddRoot(objectSyntax);
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), objectSyntax, unionType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, objectSyntax, unionType);
                 
-                diagnosticWriter.GetDiagnostics().Should().Contain(x => x.Message == "Expected a value of type \"bool | int | string\" but the provided value is of type \"object\".");
+                diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"bool | int | string\" but the provided value is of type \"object\".");
                 narrowedType.Should().Be(unionType);
             }
 
             {
                 // try narrowing with a string
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("abc");
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, unionType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, stringLiteralSyntax, unionType);
                 
-                diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+                diagnostics.Should().BeEmpty();
                 narrowedType.Should().Be(LanguageConstants.String);
             }
 
@@ -1050,10 +1004,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // union of string literals with matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("nora");
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, stringLiteralUnionType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, stringLiteralSyntax, stringLiteralUnionType);
                 
-                diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+                diagnostics.Should().BeEmpty();
                 narrowedType.Should().BeOfType<StringLiteralType>();
                 (narrowedType as StringLiteralType)!.Name.Should().Be("'nora'");
             }
@@ -1061,10 +1014,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // union of string literals with non-matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("zona");
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, stringLiteralUnionType, diagnosticWriter);
+                var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, stringLiteralSyntax, stringLiteralUnionType);
                 
-                diagnosticWriter.GetDiagnostics().Should().Contain(x => x.Message == "Expected a value of type \"'dave' | 'nora'\" but the provided value is of type \"'zona'\".");
+                diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"'dave' | 'nora'\" but the provided value is of type \"'zona'\".");
                 narrowedType.Should().Be(stringLiteralUnionType);
             }
         }
@@ -1115,13 +1067,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return typeProvider.GetType(typeReference, ResourceTypeGenerationFlags.None);
         }
 
-        private static TypeManager CreateTypeManager(SyntaxHierarchy hierarchy) 
+        private static (TypeSymbol result, IReadOnlyList<Diagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(SyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)
         {
             var binderMock = new Mock<IBinder>();
             binderMock.Setup(x => x.GetParent(It.IsAny<SyntaxBase>()))
                 .Returns<SyntaxBase>(x => hierarchy.GetParent(x));
 
-            return new TypeManager(TestTypeHelper.CreateEmptyProvider(), binderMock.Object);
+            var typeManager = new TypeManager(TestTypeHelper.CreateEmptyProvider(), binderMock.Object);
+
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, diagnosticWriter, expression, targetType);
+
+            return (result, diagnosticWriter.GetDiagnostics().ToList());
         }
     }
 }
