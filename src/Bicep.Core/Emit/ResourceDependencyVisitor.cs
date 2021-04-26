@@ -14,7 +14,6 @@ namespace Bicep.Core.Emit
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
         private readonly SemanticModel model;
-        private readonly bool faultTolerant;
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
@@ -24,9 +23,9 @@ namespace Bicep.Core.Emit
         /// <param name="model">The semantic model.</param>
         /// <param name="faultTolerant">Whether to suppress errors like unbounded declartions. This is only set to true when calling from BicepDeploymentGraphHandler.</param>
         /// <returns>The resource dependencies dictionary.</returns>
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(SemanticModel model, bool faultTolerant = false)
+        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(SemanticModel model)
         {
-            var visitor = new ResourceDependencyVisitor(model, faultTolerant);
+            var visitor = new ResourceDependencyVisitor(model);
             visitor.Visit(model.Root.Syntax);
 
             var output = new Dictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
@@ -48,10 +47,9 @@ namespace Bicep.Core.Emit
                     : @group)
                 .ToImmutableHashSet();
 
-        private ResourceDependencyVisitor(SemanticModel model, bool faultTolerant)
+        private ResourceDependencyVisitor(SemanticModel model)
         {
             this.model = model;
-            this.faultTolerant = faultTolerant;
             this.resourceDependencies = new Dictionary<DeclaredSymbol, HashSet<ResourceDependency>>();
             this.currentDeclaration = null;
         }
@@ -60,11 +58,7 @@ namespace Bicep.Core.Emit
         {
             if (this.model.GetSymbolInfo(syntax) is not ResourceSymbol resourceSymbol)
             {
-                if (!this.faultTolerant)
-                {
-                    throw new InvalidOperationException("Unbound declaration");
-                }
-
+                // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
                 return;
             }
 
@@ -86,11 +80,6 @@ namespace Bicep.Core.Emit
         {
             if (this.model.GetSymbolInfo(syntax) is not ModuleSymbol moduleSymbol)
             {
-                if (!this.faultTolerant)
-                {
-                    throw new InvalidOperationException("Unbound declaration");
-                }
-
                 return;
             }
 
@@ -109,11 +98,6 @@ namespace Bicep.Core.Emit
         {
             if (this.model.GetSymbolInfo(syntax) is not VariableSymbol variableSymbol)
             {
-                if (!this.faultTolerant)
-                {
-                    throw new InvalidOperationException("Unbound declaration");
-                }
-
                 return;
             }
 
