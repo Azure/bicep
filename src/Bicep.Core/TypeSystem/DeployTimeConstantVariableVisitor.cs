@@ -17,26 +17,27 @@ namespace Bicep.Core.TypeSystem
         public DeployTimeConstantVariableVisitor(SemanticModel model)
         {
             this.model = model;
-            this.VisitedStack = new Stack<(string, SyntaxBase)>();
+            this.VisitedStack = new Stack<DeclaredSymbol>();
         }
 
-        public Stack<(string, SyntaxBase)> VisitedStack { get; }
+        public Stack<DeclaredSymbol> VisitedStack { get; }
 
         public ObjectType? InvalidReferencedBodyType { get; private set; }
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            VisitedStack.Push((syntax.Name.IdentifierName, syntax));
+            var variableSymbol = this.model.GetSymbolInfo(syntax) as VariableSymbol ?? throw new InvalidOperationException($"{nameof(syntax)} must be bond to a VariableSymbol.");
+            VisitedStack.Push(variableSymbol);
+
             base.VisitVariableDeclarationSyntax(syntax);
             if (this.InvalidReferencedBodyType != null)
             {
                 return;
             }
             // This variable declaration was deployment time constant
-            if (VisitedStack.Pop() is var (popped, _) &&
-                popped != syntax.Name.IdentifierName)
+            if (VisitedStack.Pop() is var popped && popped != variableSymbol)
             {
-                throw new InvalidOperationException($"{this.GetType().Name} performed an invalid Stack push/pop: expected popped element to be {syntax.Name.IdentifierName} but got {popped}");
+                throw new InvalidOperationException($"{this.GetType().Name} performed an invalid Stack push/pop: expected popped element to be {variableSymbol.Name} but got {popped?.Name}");
             }
         }
         
@@ -54,10 +55,10 @@ namespace Bicep.Core.TypeSystem
         // properties which are assigned entire resource/modules, or to recurse through a chain of variable references.
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            if (DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, syntax) is ({} declaredSymbol, {} referencedBodyType))
+            if (DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, syntax) is ({} referencedSymbol, {} referencedBodyType))
             {
                 this.InvalidReferencedBodyType = referencedBodyType;
-                VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
+                VisitedStack.Push(referencedSymbol);
             }
             else if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol)
             {
@@ -69,7 +70,7 @@ namespace Bicep.Core.TypeSystem
         // these need to be kept synchronized.
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (syntax.BaseExpression is VariableAccessSyntax baseVariableAccess && DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, baseVariableAccess) is ({ } declaredSymbol, { } referencedBodyType))
+            if (syntax.BaseExpression is VariableAccessSyntax baseVariableAccess && DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, baseVariableAccess) is ({ } referencedSymbol, { } referencedBodyType))
             {
                 if (syntax.IndexExpression is not StringSyntax stringSyntax)
                 {
@@ -87,10 +88,10 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 if (!propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) ||
-                    DeployTimeConstantVisitor.DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, propertyName))
+                    DeployTimeConstantVisitor.ReferencedSymbolIsResourceAndPropertyIsAbsent(referencedSymbol, propertyName))
                 {
                     this.InvalidReferencedBodyType = referencedBodyType;
-                    VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
+                    VisitedStack.Push(referencedSymbol);
                 }
 
                 // Do not VisitVariableAccessSyntax on Resources or Modules
@@ -103,7 +104,7 @@ namespace Bicep.Core.TypeSystem
         {
             switch (syntax.BaseExpression)
             {
-                case VariableAccessSyntax baseVariableAccess when DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, baseVariableAccess) is ({ } declaredSymbol, { } referencedBodyType):
+                case VariableAccessSyntax baseVariableAccess when DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyType(this.model, baseVariableAccess) is ({ } referencedSymbol, { } referencedBodyType):
                     {
                         if (!referencedBodyType.Properties.TryGetValue(syntax.PropertyName.IdentifierName, out var propertyType))
                         {
@@ -111,10 +112,10 @@ namespace Bicep.Core.TypeSystem
                         }
 
                         if (!propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) ||
-                            DeployTimeConstantVisitor.DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, syntax.PropertyName.IdentifierName))
+                            DeployTimeConstantVisitor.ReferencedSymbolIsResourceAndPropertyIsAbsent(referencedSymbol, syntax.PropertyName.IdentifierName))
                         {
                             this.InvalidReferencedBodyType = referencedBodyType;
-                            VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
+                            VisitedStack.Push(referencedSymbol);
                         }
 
                         // Do not VisitVariableAccessSyntax on Resources or Modules
@@ -129,10 +130,10 @@ namespace Bicep.Core.TypeSystem
                         }
 
                         if (!propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) ||
-                            DeployTimeConstantVisitor.DeclaredSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, syntax.PropertyName.IdentifierName))
+                            DeployTimeConstantVisitor.ReferencedSymbolIsResourceAndPropertyIsAbsent(declaredSymbol, syntax.PropertyName.IdentifierName))
                         {
                             this.InvalidReferencedBodyType = referencedBodyType;
-                            VisitedStack.Push((declaredSymbol.Name, declaredSymbol.DeclaringSyntax));
+                            VisitedStack.Push(declaredSymbol);
                         }
 
                         // Do not VisitVariableAccessSyntax on Resources or Modules
