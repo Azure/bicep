@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 var (semanticModel, filePath, parentId) = queue.Dequeue();
                 var nodesBySymbol = new Dictionary<DeclaredSymbol, BicepDeploymentGraphNode>();
-                var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(semanticModel, true)
+                var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(semanticModel)
                     .Where(x => x.Key.Name != LanguageConstants.MissingName && x.Key.Name != LanguageConstants.ErrorName)
                     .ToImmutableDictionary(x => x.Key, x => x.Value);
 
