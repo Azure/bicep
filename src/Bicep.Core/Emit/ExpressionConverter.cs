@@ -175,12 +175,12 @@ namespace Bicep.Core.Emit
             LanguageExpression? ConvertResourcePropertyAccess(ResourceSymbol resourceSymbol, SyntaxBase? indexExpression)
             {
                 var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
-                var propertyName = propertyAccess.PropertyName.IdentifierName;
+                
 
                 // special cases for certain resource property access. if we recurse normally, we'll end up
                 // generating statements like reference(resourceId(...)).id which are not accepted by ARM
 
-                switch (propertyName)
+                switch (propertyAccess.PropertyName.IdentifierName)
                 {
                     case "id":
                         // the ID is dependent on the name expression which could involve locals in case of a resource collection
@@ -206,15 +206,6 @@ namespace Bicep.Core.Emit
                             .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
                             .GetReferenceExpression(resourceSymbol, typeReference, false);
                     default:
-                        if (LanguageConstants.ReadableDeployTimeConstantResourcePropertyNames.Contains(propertyName) &&
-                            resourceSymbol.SafeGetBodyProperty(propertyName) is { } property)
-                        {
-                            // Only subsitute readable deploy-time constant properties if they are declared in the resource body.
-                            return this
-                                .CreateConverterForIndexReplacement(GetResourceNameSyntax(resourceSymbol), indexExpression, propertyAccess)
-                                .ConvertExpression(property.Value);
-                        }
-
                         return null;
                 }
             }

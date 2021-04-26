@@ -82,27 +82,20 @@ namespace Bicep.Core
         };
 
         /*
-         * The following top-level string properties only accept deploy-time constant values
-         * when declared in resource bodies. Their values can also be read at deploy-time.
+         * The following top-level properties must be set deploy-time constant values
+         * when declared in resource bodies. However, it is not safe to read their values
+         * at deploy-time due to the fact that:
+         *   - They can be changed by Policy Modify effect (e.g. tags, sku)
+         *   - Their values may be normalized by RPs
+         *   - Some RPs are doing Put-as-Patch
          */
-        public static readonly string[] ReadableDeployTimeConstantResourcePropertyNames = new[]
+        public static readonly string[] NotReadableDeployTimeConstantPropertyNames = new[]
         {
             "location",
             "kind",
             "subscriptionId",
             "resourceGroup",
             "managedBy",
-        };
-
-        /*
-         * The following top-level properties must be set deploy-time constant objects/arrays
-         * when declared in resource bodies. However, it is not safe to read their values
-         * at deploy-time due to the fact that:
-         *   - They can be changed by Policy Modify effect (e.g. tags, sku)
-         *   - Some RPs are doing Put-as-Patch
-         */
-        public static readonly string[] NotReadableDeployTimeConstantPropertyNames = new[]
-        {
             "extendedLocation",
             "zones",
             "plan",

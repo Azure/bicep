@@ -184,16 +184,6 @@ namespace Bicep.Core.TypeSystem.Az
                 }
 
                 // TODO: move this to the type library.
-                foreach (var propertyName in LanguageConstants.ReadableDeployTimeConstantResourcePropertyNames)
-                {
-                    if (properties.TryGetValue(propertyName, out var typeProperty))
-                    {
-                        // Update tags for deploy-time constant properties that are also readable at deploy-time.
-                        properties = properties.SetItem(propertyName, UpdateFlags(typeProperty, typeProperty.Flags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime));
-                    }
-                }
-
-                // TODO: move this to the type library.
                 foreach (var propertyName in LanguageConstants.NotReadableDeployTimeConstantPropertyNames)
                 {
                     if (properties.TryGetValue(propertyName, out var typeProperty))
