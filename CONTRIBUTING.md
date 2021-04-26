@@ -55,7 +55,7 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 ### Creating new integration tests dataset
 
 * To Add new integration tests dataset you need to:
-  1. Add a entry to `src/Bicep.Core.Samples/DataSets.cs`
+  1. Add an entry to `src/Bicep.Core.Samples/DataSets.cs`
      * prefix with Invalid if the expectation is that it doesn't compile.
      * The suffix should match the type of newline the file uses, so just pick one (_LF or _CRLF) - that's just to ensure we have support for both.
      * The name of the entry should match the name of the folder you create (same casing), and there should be a main.bicep file in that folder.
