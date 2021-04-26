@@ -36,5 +36,10 @@ namespace Bicep.Core.TypeSystem
         /// This property's value known at the start of the deployment, and does not require inlining.
         /// </summary>
         DeployTimeConstant = 1 << 4,
+
+        /// <summary>
+        /// Blocks assignment of the "any" type to the property having this flag.
+        /// </summary>
+        DisallowAny = 1 << 5
     }
 }

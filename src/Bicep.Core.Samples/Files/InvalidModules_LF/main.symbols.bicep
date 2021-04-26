@@ -648,3 +648,31 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[58:59) Local i. Type: int. Declaration start char: 58, length: 1
 //@[7:27) Module nonObjectModuleBody4. Type: module[]. Declaration start char: 0, length: 77
 
+module anyTypeInScope 'empty.bicep' = {
+//@[7:21) Module anyTypeInScope. Type: module. Declaration start char: 0, length: 91
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[7:32) Module anyTypeInScopeConditional. Type: module. Declaration start char: 0, length: 112
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[47:52) Local thing. Type: any. Declaration start char: 47, length: 5
+//@[7:25) Module anyTypeInScopeLoop. Type: module[]. Declaration start char: 0, length: 114
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}]
+

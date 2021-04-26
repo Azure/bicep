@@ -95,11 +95,11 @@ namespace Bicep.Decompiler
                 }
             }
 
-            foreach (var variable in variables)
+            foreach (var (name, value, _) in GetVariables(variables))
             {
-                if (nameResolver.TryRequestName(NameType.Variable, variable.Name) == null)
+                if (nameResolver.TryRequestName(NameType.Variable, name) == null)
                 {
-                    throw new ConversionFailedException($"Unable to pick unique name for variable {variable.Name}", variable);
+                    throw new ConversionFailedException($"Unable to pick unique name for variable {name}", value);
                 }
             }
         }
@@ -311,19 +311,17 @@ namespace Bicep.Decompiler
             expression = functionExpression;
 
             var values = new List<string>();
-            var stringTokens = new List<Token>();
             var expressions = new List<SyntaxBase>();
             for (var i = 0; i < functionExpression.Parameters.Length; i++)
             {
+                var isEnd = (i == functionExpression.Parameters.Length - 1);
+
                 // FlattenStringOperations will have already simplified the concat statement to the point where we know there won't be two string literals side-by-side.
                 // We can use that knowledge to simplify this logic.
 
-                var isStart = (i == 0);
-                var isEnd = (i == functionExpression.Parameters.Length - 1);
-
                 if (functionExpression.Parameters[i] is JTokenExpression jTokenExpression)
                 {
-                    stringTokens.Add(SyntaxFactory.CreateStringInterpolationToken(isStart, isEnd, jTokenExpression.Value.ToString()));
+                    values.Add(jTokenExpression.Value.ToString());
 
                     // if done, exit early
                     if (isEnd)
@@ -335,28 +333,20 @@ namespace Bicep.Decompiler
                 }
                 else
                 {
-                    //  we always need a token between expressions, even if it's empty
-                    stringTokens.Add(SyntaxFactory.CreateStringInterpolationToken(isStart, false, ""));
+                    values.Add("");
                 }
 
                 expressions.Add(ParseLanguageExpression(functionExpression.Parameters[i]));
-                isStart = (i == 0);
                 isEnd = (i == functionExpression.Parameters.Length - 1);
 
                 if (isEnd)
                 {
                     // always make sure we end with a string token
-                    stringTokens.Add(SyntaxFactory.CreateStringInterpolationToken(isStart, isEnd, ""));
+                    values.Add("");
                 }
             }
 
-            var rawSegments = Lexer.TryGetRawStringSegments(stringTokens);
-            if (rawSegments == null)
-            {
-                return null;
-            }
-
-            return new StringSyntax(stringTokens, expressions, rawSegments);
+            return SyntaxFactory.CreateString(values, expressions);
         }
 
         private bool CanInterpolate(FunctionExpression function)
@@ -420,10 +410,21 @@ namespace Bicep.Decompiler
                 {
                     if (expression.Parameters.Length == 1 && expression.Parameters[0] is FunctionExpression resourceIdExpression && resourceIdExpression.NameEquals("resourceid"))
                     {
-                        // resourceid directly inside a reference - check if it's a reference to a known resource
-                        var resourceName = TryLookupResource(resourceIdExpression);
-
-                        if (resourceName != null)
+                        // reference(resourceId(<...>))
+                        // check if it's a reference to a known resource
+                        if (TryLookupResource(expression.Parameters[0]) is {} resourceName)
+                        {
+                            baseSyntax = new PropertyAccessSyntax(
+                                new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
+                                SyntaxFactory.DotToken,
+                                SyntaxFactory.CreateIdentifier("properties"));
+                        }
+                    }
+                    else if (expression.Parameters.Length == 1)
+                    {
+                        // reference(<name>)
+                        // let's try looking the name up directly
+                        if (TryLookupResource(expression.Parameters[0]) is {} resourceName)
                         {
                             baseSyntax = new PropertyAccessSyntax(
                                 new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
@@ -682,15 +683,33 @@ namespace Bicep.Decompiler
                 modifier);
         }
 
-        public VariableDeclarationSyntax ParseVariable(JProperty value)
+        public VariableDeclarationSyntax ParseVariable(string name, JToken value, bool isCopyVariable)
         {
-            var identifier = nameResolver.TryLookupName(NameType.Variable, value.Name) ?? throw new ConversionFailedException($"Unable to find variable {value.Name}", value);
+            var identifier = nameResolver.TryLookupName(NameType.Variable, name) ?? throw new ConversionFailedException($"Unable to find variable {name}", value);
+
+            SyntaxBase variableValue;
+            if (isCopyVariable)
+            {
+                if (value is not JObject copyProperty)
+                {
+                    throw new ConversionFailedException($"Expected a copy object", value);
+                }
+
+                var count = TemplateHelpers.AssertRequiredProperty(copyProperty, "count", "The copy object is missing a \"count\" property");
+                var input = TemplateHelpers.AssertRequiredProperty(copyProperty, "input", "The copy object is missing a \"input\" property");
+
+                variableValue = ProcessNamedCopySyntax(input, ResourceCopyLoopIndexVar, input => ParseJToken(input), count, name);
+            }
+            else
+            {
+                variableValue = ParseJToken(value);
+            }
 
             return new VariableDeclarationSyntax(
                 SyntaxFactory.CreateToken(TokenType.Identifier, "var"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 SyntaxFactory.AssignmentToken,
-                ParseJToken(value.Value));
+                variableValue);
         }
 
         private (SyntaxBase moduleFilePathStringLiteral, Uri? jsonTemplateUri) GetModuleFilePath(string templateLink)
@@ -1369,6 +1388,28 @@ namespace Bicep.Decompiler
             }
         }
 
+        private static IEnumerable<(string name, JToken value, bool isCopyVariable)> GetVariables(IEnumerable<JProperty> variables)
+        {
+            var nonCopyVariables = variables.Where(x => !StringComparer.OrdinalIgnoreCase.Equals(x.Name, "copy"));
+            foreach (var nonCopyVariable in nonCopyVariables)
+            {
+                yield return (nonCopyVariable.Name, nonCopyVariable.Value, false);
+            }
+
+            var copyVariables = variables.FirstOrDefault(x => StringComparer.OrdinalIgnoreCase.Equals(x.Name, "copy"))?.Value as JArray;
+            foreach (var copyVariable in copyVariables ?? Enumerable.Empty<JToken>())
+            {
+                if (copyVariable is not JObject variableObject)
+                {
+                    throw new ConversionFailedException($"Expected a copy object", copyVariable);
+                }
+
+                var name = TemplateHelpers.AssertRequiredProperty(variableObject, "name", "The copy object is missing a \"name\" property").ToString();
+
+                yield return (name, variableObject, true);
+            }
+        }
+
         private ProgramSyntax Parse()
         {
             var statements = new List<SyntaxBase>();
@@ -1413,7 +1454,7 @@ namespace Bicep.Decompiler
             }
 
             AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
-            AddSyntaxBlock(statements, variables.Select(ParseVariable), false);
+            AddSyntaxBlock(statements, GetVariables(variables).Select(x => ParseVariable(x.name, x.value, x.isCopyVariable)), false);
             AddSyntaxBlock(statements, flattenedResources.Select(resource => ParseResource(copyResourceLookup, resource)), true);
             AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
