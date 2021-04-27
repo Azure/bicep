@@ -34,7 +34,7 @@ The resource declaration has four components:
 
 In most cases, I want to expose the resource name and the resource location via parameters, so I can add the following:
 
-```
+```bicep
 param location string = 'eastus'
 param storageAccountName string = 'uniquestorage001' // must be globally unique
 
@@ -66,7 +66,7 @@ param storageAccountName string = 'uniquestorage001' // must be globally unique
 
 I can also add `variables` for storing values or complex expressions, and emit `outputs` to be passed to a script or another Bicep file:
 
-```
+```bicep
 param location string = 'eastus'
 
 @minLength(3)

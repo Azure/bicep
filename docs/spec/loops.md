@@ -46,7 +46,6 @@ resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' 
 To write a simple index-based loop you can use the `range()` function so that your iterator conceptually represents the index of the current iteration. This is most similar to ARM Template JSON loops with the `copyIndex()` function. For example, we can modify the above example to be index-based:
 
 ```bicep
-
 resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in range(0,3): {
   name: 'storageName${i}'
   location: resourceGroup().location
