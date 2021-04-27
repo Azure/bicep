@@ -1828,3 +1828,8 @@ resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01'
   scope: any(false)
 }]
 
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[9:35) Resource tenantLevelResourceBlocked. Type: Microsoft.Management/managementGroups@2020-05-01. Declaration start char: 0, length: 131
+  name: 'tenantLevelResourceBlocked'
+}
+

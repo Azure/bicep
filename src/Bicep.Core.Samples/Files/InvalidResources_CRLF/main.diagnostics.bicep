@@ -1239,7 +1239,7 @@ resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
 //@[22:53) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. |'My.Rp/mockResource@2020-12-01'|
   name: 'invalidScope'
   scope: notAResource
-//@[9:21) [BCP036 (Error)] The property "scope" expected a value of type "resource" but the provided value is of type "object". |notAResource|
+//@[9:21) [BCP036 (Error)] The property "scope" expected a value of type "resource | tenant" but the provided value is of type "object". |notAResource|
 }
 
 resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
@@ -1877,4 +1877,9 @@ resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01'
   scope: any(false)
 //@[9:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(false)|
 }]
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[89:131) [BCP135 (Error)] Scope "resourceGroup" is not valid for this resource type. Permitted scopes: "tenant". |{\r\n  name: 'tenantLevelResourceBlocked'\r\n}|
+  name: 'tenantLevelResourceBlocked'
+}
 

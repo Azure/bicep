@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
 using System.Collections.Immutable;
+using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -169,18 +170,16 @@ namespace Bicep.Core.TypeSystem.Az
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
-                var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
-                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, ScopeHelper.CreateExistingResourceScopeProperty(validParentScopes, scopePropertyFlags));
             }
             else
             {
                 // TODO: remove 'dependsOn' from the type library
                 properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
-                // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
-                if (validParentScopes.HasFlag(ResourceScope.Resource))
+
+                if(ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
                 {
-                    var scopeReference = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
-                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
                 }
 
                 // TODO: move this to the type library.
@@ -188,7 +187,7 @@ namespace Bicep.Core.TypeSystem.Az
                 {
                     if (properties.TryGetValue(propertyName, out var typeProperty))
                     {
-                        // Update tags for deploy-time constant properties that are also readable at deploy-time.
+                        // Update tags for deploy-time constant properties that are not readable at deploy-time.
                         properties = properties.SetItem(propertyName, UpdateFlags(typeProperty, typeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
                     }
                 }

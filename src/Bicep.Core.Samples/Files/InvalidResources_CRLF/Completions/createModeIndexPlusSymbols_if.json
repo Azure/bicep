@@ -4835,6 +4835,23 @@
     }
   },
   {
+    "label": "tenantLevelResourceBlocked",
+    "kind": "interface",
+    "detail": "tenantLevelResourceBlocked",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_tenantLevelResourceBlocked",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "tenantLevelResourceBlocked"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "tenantResourceId",
     "kind": "function",
     "detail": "tenantResourceId()",
