@@ -17,6 +17,7 @@ namespace Bicep.Core.UnitTests.Assertions
         private static readonly string RepoRoot = GetRepoRoot();
 
         private const string SetBaseLineSettingName = "SetBaseLine";
+        public const string BaselineTestCategory = "Baseline";
 
         public static bool ShouldSetBaseline(TestContext testContext) =>
             testContext.Properties.Contains(SetBaseLineSettingName) && string.Equals(testContext.Properties[SetBaseLineSettingName] as string, bool.TrueString, StringComparison.OrdinalIgnoreCase);
