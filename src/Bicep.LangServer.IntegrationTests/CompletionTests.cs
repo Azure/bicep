@@ -69,6 +69,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
             string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
