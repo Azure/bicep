@@ -48,6 +48,15 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public bool IsCollection => this.Context.TypeManager.GetTypeInfo(this.DeclaringModule) is ArrayType;
+        public bool IsCollection => this.Type is ArrayType;
+
+        public ModuleType? TryGetModuleType() => this.Type switch
+        {
+            ModuleType moduleType => moduleType,
+            ArrayType { Item: ModuleType moduleType } => moduleType,
+            _ => null,
+        };
+
+        public ObjectType? TryGetBodyObjectType() => this.TryGetModuleType()?.Body.Type as ObjectType;
     }
 }

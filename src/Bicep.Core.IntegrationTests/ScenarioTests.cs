@@ -521,7 +521,7 @@ resource redis 'Microsoft.Cache/Redis@2019-07-01' = {
 
             result.Template.Should().NotHaveValue();
             result.Should().HaveDiagnostics(new[] {
-                ("BCP120", DiagnosticLevel.Error, "The property \"scope\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"appResGrp\" -> \"rg\"). Accessible properties of rg are \"name\", \"scope\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"scope\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"appResGrp\" -> \"rg\"). Accessible properties of rg are \"name\"."),
             });
         }
 
@@ -1555,7 +1555,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
   
   resource vmExt 'extensions' = {
     name: 'myVMExtension'
-    location: vm.location
+    location: 'westus'
   }
 }
 
@@ -1604,7 +1604,7 @@ resource my_interface 'Microsoft.Network/networkInterfaces@2015-05-01-preview' =
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP120", DiagnosticLevel.Error, "The property \"location\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"scope\", \"type\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"location\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
 
@@ -1672,6 +1672,92 @@ resource p2 'Microsoft.Network/dnsZones@2018-05-01' = {
                 ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.")
             });
             result.Template.Should().BeNull();
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/1809
+        public void Test_Issue1809()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module tags './tags.bicep' = {
+  name: 'tags'
+}
+
+resource vwan 'Microsoft.Network/virtualWans@2020-05-01' = {
+  location: 'westus'
+  name: 'vwan'
+  properties: {
+    disableVpnEncryption: false
+    allowBranchToBranchTraffic: true
+    allowVnetToVnetTraffic: true
+    type: 'foo'
+  }
+  tags: tags.outputs.tagsoutput
+}
+
+resource vwan2 'Microsoft.Network/virtualWans@2020-05-01' = {
+  location: 'westus'
+  name: 'vwan2'
+  properties: {
+    disableVpnEncryption: false
+    allowBranchToBranchTraffic: true
+    allowVnetToVnetTraffic: true
+    type: 'foo'
+  }
+  tags: {
+    // Should run deploy-time constant checking for tag1.
+    myTag1: tags.outputs.tagsoutput.tag1
+  }
+}
+
+resource nsgs 'Microsoft.Network/networkSecurityGroups@2019-04-01' = [for i in range(0, 2): {
+  name: 'nsg-${i}'
+  location: 'westus'
+  properties: {}
+  tags: tags.outputs.tagsoutput
+}]
+
+resource nsgs2 'Microsoft.Network/networkSecurityGroups@2019-04-01' = [for i in range(0, 2): {
+  name: 'nsg2-${i}'
+  location: 'westus'
+  properties: {}
+  tags: {
+    // Should run deploy-time constant checking for tag1.
+    myTag1: tags.outputs.tagsoutput.tag1
+  }
+}]
+
+resource publicIP 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
+  name: 'publicIP'
+  location: 'westus'
+  zones: [
+    // Should run deploy-time constant checking inside zones.
+    vwan.properties.type
+  ]
+  sku: {
+    name: 'Basic'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    dnsSettings: {
+    }
+  }
+}
+"),
+                ("tags.bicep", @"
+output tagsoutput object = {
+  tag1: 'tag1Value'
+}
+"));
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"name\", \"type\"."),
+            });
         }
     }
 }
