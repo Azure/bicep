@@ -17,7 +17,7 @@ In the following example, at the time of this writing, the API definition for Az
 
 You can see this example live in the [Bicep playground](https://aka.ms/bicepdemo#eJyNVFtvmzAUfudX+I32IUDSbV2RNi1dtq5S17ISdQ/TVDnGSSzhS3wJjab899kQE0IUtfCAOed8F1vHR0AJKVCaS7jAY4S4YfoeUmxDkrAF+AQMIyuD8/r3TGLFjUT4RnIjzs4jUpwHoqEgGh8Cj0mDXS3d5Ksyg0pVXBYe8C8AQGFkJE6BlgYHW19ecgQ14WxP3bfhK4Ig8ClQiTEiIKQESa74XEeIMw0Jw/KWKQ0ZwnEbqXnUl1EyvBoMR4NkGFoRZ4hZ1ykInU9hmdWghZAdSWirvHzarmxQSC6w1ASrtKYCoMXayJ86AnYZ9/SlwjZzzNQ8hNrj7ULSd9HVAAqIljjs1AkudUeyL9yKaI54afmmX7Own7UUKfiYHIS3nb+/nTVmayI5o5jpJygJnJX4Vfnd7n8/PE6yx295/jy5fv7xkE/7RtawNK5wOLqMEvsO04uL5EN40tfblLJxnrtAX63px6dG87Br4xigJWQLXAC9JArMJacgrO3Z5vkMwg72tL3usa15aSj+6S7Lq8dFXVUG9dLuJF5DGVdVFS81Lfs76HfVnJRvtOMvUq/pXMLOA6WP4rbBhbFaSfS+74JiyuXmlt1c1/nL0w72a79qvo0zIsZFUXd6q33U3F1Tp5v6qKG9nD8CvRHu4DIzKwnyyIIpN8fu4AxbTj/ygj2eq2mDuyPMvDjY1s0xbrQwugZ8/zW53w+yekhF+wsetTuM5quC/Qf9MoIp)
 
-```
+```bicep
 resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
   name: 'wordpress-containerinstance'
   location: location
@@ -42,7 +42,7 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
 
 In order to get rid of these warnings, simply wrap the relevant property value(s) in the `any()` function like so:
 
-```
+```bicep
 resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
   name: 'wordpress-containerinstance'
   location: location
