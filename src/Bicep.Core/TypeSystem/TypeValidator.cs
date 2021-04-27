@@ -266,17 +266,9 @@ namespace Bicep.Core.TypeSystem
                 return NarrowArrayAssignmentType(config, arrayValue, targetArrayType);
             }
 
-            if (expression is VariableAccessSyntax variableAccess &&
-                binder.GetSymbolInfo(variableAccess) is VariableSymbol variableSymbol)
+            if (expression is VariableAccessSyntax variableAccess)
             {
-                var newConfig = new TypeValidatorConfig(
-                    skipConstantCheck: config.SkipConstantCheck,
-                    skipTypeErrors: config.SkipTypeErrors,
-                    disallowAny: config.DisallowAny,
-                    originSyntax: variableAccess,
-                    onTypeMismatch: config.OnTypeMismatch);
-
-                 return NarrowType(newConfig, variableSymbol.DeclaringVariable.Value, targetType);
+                return NarrowVariableAccessType(config, variableAccess, targetType);
             }
 
             if (targetType is UnionType targetUnionType)
@@ -312,6 +304,25 @@ namespace Bicep.Core.TypeSystem
             }
 
             return new TypedArrayType(UnionType.Create(arrayProperties), targetType.ValidationFlags);
+        }
+
+        private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
+        {
+            var newConfig = new TypeValidatorConfig(
+                skipConstantCheck: config.SkipConstantCheck,
+                skipTypeErrors: config.SkipTypeErrors,
+                disallowAny: config.DisallowAny,
+                originSyntax: variableAccess,
+                onTypeMismatch: config.OnTypeMismatch);
+
+            // TODO: Implement for non-variable variable access (resource, module, param)
+            switch (binder.GetSymbolInfo(variableAccess))
+            {
+                case VariableSymbol variableSymbol:
+                    return NarrowType(newConfig, variableSymbol.DeclaringVariable.Value, targetType);
+            }
+
+            return targetType;
         }
 
         private TypeSymbol NarrowDiscriminatedObjectType(TypeValidatorConfig config, ObjectSyntax expression, DiscriminatedObjectType targetType)
