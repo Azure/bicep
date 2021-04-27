@@ -248,8 +248,8 @@ resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10
 var resrefvar = bar.name
 
 param resrefpar string = foo.id
-//@[25:28) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
 //@[25:28) [BCP062 (Error)] The referenced declaration with name "foo" is not valid. |foo|
+//@[25:28) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
 
 output resrefout bool = bar.id
 //@[24:30) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "string". |bar.id|
@@ -1660,8 +1660,8 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
   location: 'eastus'
   properties: {
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
-//@[4:61) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type "ZoneProperties". Permissible properties include "registrationVirtualNetworks", "resolutionVirtualNetworks", "zoneType". |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
 //@[4:61) [BCP143 (Error)] For-expressions cannot be used with properties whose names are also expressions. |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
+//@[4:61) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type "ZoneProperties". Permissible properties include "registrationVirtualNetworks", "resolutionVirtualNetworks", "zoneType". |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
   }
 }
 

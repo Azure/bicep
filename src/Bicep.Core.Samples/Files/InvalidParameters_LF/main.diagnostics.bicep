@@ -414,8 +414,8 @@ param paramAccessingVar2 string {
 }
 
 param paramAccessingResource string = sampleResource
-//@[38:52) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
 //@[38:52) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "Microsoft.Foo/foos@2020-02-02". |sampleResource|
+//@[38:52) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
 param paramAccessingResource2 string {
 //@[37:89) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: base64(sampleResource.properties.foo)\n}|
   default: base64(sampleResource.properties.foo)
