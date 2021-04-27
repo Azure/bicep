@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
@@ -36,6 +37,9 @@ namespace Bicep.Core.Semantics
             ArrayType { Item: ResourceType resourceType } => resourceType,
             _ => null,
         };
+
+        public ResourceTypeReference GetResourceTypeReference() =>
+            this.TryGetResourceTypeReference() ??  throw new ArgumentException($"Resource symbol does not have a valid type (found {this.Type.Name})");
 
         public ResourceTypeReference? TryGetResourceTypeReference() => this.TryGetResourceType()?.TypeReference;
 

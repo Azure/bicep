@@ -26,7 +26,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            var variableSymbol = this.model.GetSymbolInfo(syntax) as VariableSymbol ?? throw new InvalidOperationException($"{nameof(syntax)} must be bond to a VariableSymbol.");
+            var variableSymbol = this.model.GetSymbolInfo(syntax) as VariableSymbol ?? throw new InvalidOperationException($"{nameof(syntax)} must be bound to a VariableSymbol.");
             VisitedStack.Push(variableSymbol);
 
             base.VisitVariableDeclarationSyntax(syntax);

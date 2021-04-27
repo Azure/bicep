@@ -334,7 +334,7 @@ namespace Bicep.Core.Emit
         {
             jsonWriter.WriteStartObject();
 
-            var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+            var typeReference = resourceSymbol.GetResourceTypeReference();
 
             // Note: conditions STACK with nesting.
             //

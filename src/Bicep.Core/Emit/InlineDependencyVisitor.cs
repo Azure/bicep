@@ -209,7 +209,7 @@ namespace Bicep.Core.Emit
                 if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
                     if (resourceSymbol is not null &&
-                        !LanguageConstants.StandardizedResourcePropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer) &&
+                        !LanguageConstants.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer) &&
                         resourceSymbol.SafeGetBodyProperty(propertyName) is null)
                     {
                         // The property is not declared in the resource - we should inline event it is a deploy-time constant.

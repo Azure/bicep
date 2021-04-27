@@ -256,10 +256,10 @@ namespace Bicep.Core.Emit
                 case ResourceScope.Resource:
                     if (scopeData.ResourceScopeSymbol is null)
                     {
-                        throw new InvalidOperationException($"Cannot format resourceId with non-null resource scope symbol");
+                        throw new InvalidOperationException("Cannot format resourceId with non-null resource scope symbol");
                     }
 
-                    var parentTypeReference = EmitHelpers.GetTypeReference(scopeData.ResourceScopeSymbol);
+                    var parentTypeReference = scopeData.ResourceScopeSymbol.GetResourceTypeReference();
                     var parentResourceId = FormatFullyQualifiedResourceId(
                         context,
                         converter,
@@ -288,10 +288,10 @@ namespace Bicep.Core.Emit
                 case ResourceScope.Resource:
                     if (scopeData.ResourceScopeSymbol is null)
                     {
-                        throw new InvalidOperationException($"Cannot format resourceId with non-null resource scope symbol");
+                        throw new InvalidOperationException("Cannot format resourceId with non-null resource scope symbol");
                     }
 
-                    var parentTypeReference = EmitHelpers.GetTypeReference(scopeData.ResourceScopeSymbol);
+                    var parentTypeReference = scopeData.ResourceScopeSymbol.GetResourceTypeReference();
                     var parentResourceId = FormatUnqualifiedResourceId(
                         context,
                         converter,

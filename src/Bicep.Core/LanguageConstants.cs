@@ -73,7 +73,11 @@ namespace Bicep.Core
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string TypeNameString = "string";
 
-        public static readonly string[] StandardizedResourcePropertyNames = new[]
+        /*
+         * The following top-level properties must be set deploy-time constant values,
+         * and it is safe to read them at deploy-time because their values cannot be changed.
+         */
+        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
         {
             ResourceIdPropertyName,
             ResourceNamePropertyName,
@@ -89,7 +93,7 @@ namespace Bicep.Core
          *   - Their values may be normalized by RPs
          *   - Some RPs are doing Put-as-Patch
          */
-        public static readonly string[] NotReadableDeployTimeConstantPropertyNames = new[]
+        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames = new[]
         {
             "location",
             "kind",
@@ -123,7 +127,7 @@ namespace Bicep.Core
 
         // the type of the dependsOn property in module and resource bodies
         public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
-        
+
         public static readonly TypeSymbol String = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment);
@@ -237,7 +241,7 @@ namespace Bicep.Core
             {
                 yield return "resourceGroup";
             }
-        }        
+        }
 
         public static ResourceScopeType CreateResourceScopeReference(ResourceScope resourceScope)
         {

@@ -174,7 +174,7 @@ namespace Bicep.Core.Emit
             // local function
             LanguageExpression? ConvertResourcePropertyAccess(ResourceSymbol resourceSymbol, SyntaxBase? indexExpression)
             {
-                var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+                var typeReference = resourceSymbol.GetResourceTypeReference();
                 
 
                 // special cases for certain resource property access. if we recurse normally, we'll end up
@@ -361,7 +361,7 @@ namespace Bicep.Core.Emit
             //
             // args.Length = 1 (format string) + N (ancestor names) + 1 (resource name)
 
-            var nameSegments = GetResourceNameSegments(resourceSymbol, EmitHelpers.GetTypeReference(resourceSymbol));
+            var nameSegments = GetResourceNameSegments(resourceSymbol, resourceSymbol.GetResourceTypeReference());
             // {0}/{1}/{2}....
             var formatString = string.Join("/", nameSegments.Select((_, i) => $"{{{i}}}"));
 
@@ -388,7 +388,7 @@ namespace Bicep.Core.Emit
 
         public LanguageExpression GetUnqualifiedResourceId(ResourceSymbol resourceSymbol)
         {
-            var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+            var typeReference = resourceSymbol.GetResourceTypeReference();
 
             return ScopeHelper.FormatUnqualifiedResourceId(
                 context,
@@ -400,7 +400,7 @@ namespace Bicep.Core.Emit
 
         public LanguageExpression GetFullyQualifiedResourceId(ResourceSymbol resourceSymbol)
         {
-            var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+            var typeReference = resourceSymbol.GetResourceTypeReference();
 
             return ScopeHelper.FormatFullyQualifiedResourceId(
                 context,
@@ -558,7 +558,7 @@ namespace Bicep.Core.Emit
                     return CreateFunction("variables", new JTokenExpression(name));
 
                 case ResourceSymbol resourceSymbol:
-                    var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+                    var typeReference = resourceSymbol.GetResourceTypeReference();
                     return GetReferenceExpression(resourceSymbol, typeReference, true);
 
                 case ModuleSymbol moduleSymbol:
@@ -580,7 +580,7 @@ namespace Bicep.Core.Emit
             var symbol = context.SemanticModel.GetSymbolInfo(resourceAccessSyntax);
             if (symbol is ResourceSymbol resourceSymbol)
             {
-                var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+                var typeReference = resourceSymbol.GetResourceTypeReference();
                 return GetReferenceExpression(resourceSymbol, typeReference, true);
             }
 

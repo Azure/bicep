@@ -342,9 +342,9 @@ namespace Bicep.Core.TypeSystem
                 return false;
             }
 
-            if (LanguageConstants.StandardizedResourcePropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer))
+            if (LanguageConstants.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer))
             {
-                // Standardized resource properties (id, name, type, and apiVersion) are always avaiable.
+                // Read-write deploy-time constant properties (id, name, type, and apiVersion) are always avaiable.
                 return false;
             }
 

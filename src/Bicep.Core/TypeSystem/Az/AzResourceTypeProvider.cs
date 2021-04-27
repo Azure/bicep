@@ -183,7 +183,7 @@ namespace Bicep.Core.TypeSystem.Az
                 }
 
                 // TODO: move this to the type library.
-                foreach (var propertyName in LanguageConstants.NotReadableDeployTimeConstantPropertyNames)
+                foreach (var propertyName in LanguageConstants.WriteOnlyDeployTimeConstantPropertyNames)
                 {
                     if (properties.TryGetValue(propertyName, out var typeProperty))
                     {
@@ -194,7 +194,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // TODO: move this to the type library.
-            foreach (var propertyName in LanguageConstants.StandardizedResourcePropertyNames)
+            foreach (var propertyName in LanguageConstants.ReadWriteDeployTimeConstantPropertyNames)
             {
                 if (properties.TryGetValue(propertyName, out var typeProperty))
                 {
