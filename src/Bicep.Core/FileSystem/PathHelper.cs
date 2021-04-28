@@ -46,7 +46,7 @@ namespace Bicep.Core.FileSystem
             return Path.GetFullPath(resolvedPath);
         }
 
-        public static string GetDefaultOutputPath(string path)
+        public static string GetDefaultBuildOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), TemplateOutputExtension, PathComparison))
             {
@@ -55,6 +55,22 @@ namespace Bicep.Core.FileSystem
             }
 
             return Path.ChangeExtension(path, TemplateOutputExtension);
+        }
+
+        /// <summary>
+        /// Returns a normalized absolute path. Relative paths are converted to absolute paths relative to current directory prior to normalization.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="baseDirectory">The base directory to use when resolving relative paths. Set to null to use CWD.</param>
+        public static string GetDefaultDecompileOutputPath(string path)
+        {
+            if (string.Equals(Path.GetExtension(path), BicepExtension, PathComparison))
+            {
+                // throwing because this could lead to us destroying the input file if extensions get mixed up.
+                throw new ArgumentException($"The specified file already already has the '{BicepExtension}' extension.");
+            }
+
+            return Path.ChangeExtension(path, BicepExtension);
         }
 
         /// <summary>

@@ -2,30 +2,29 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
-using System.Linq;
 using Bicep.Cli.CommandLine.Arguments;
 
 namespace Bicep.Cli.CommandLine
 {
     public static class ArgumentParser
     {
-        public static ArgumentsBase? TryParse(string[] args)
+        public static (string?, ArgumentsBase?) TryParse(string[] args)
         {
             if (args.Length < 1)
             {
-                return null;
+                return (null, null);
             }
 
             // parse verb
             return (args[0].ToLowerInvariant()) switch
             {
-                CliConstants.CommandBuild => new BuildArguments(args[1..]),
-                CliConstants.CommandDecompile => new DecompileArguments(args[1..]),
-                CliConstants.ArgumentHelp => new HelpArguments(),
-                CliConstants.ArgumentHelpShort => new HelpArguments(),
-                CliConstants.ArgumentVersion => new VersionArguments(),
-                CliConstants.ArgumentVersionShort => new VersionArguments(),
-                _ => null,
+                CliConstants.CommandBuild => (CliConstants.CommandBuild, new BuildOrDecompileArguments(args[1..])),
+                CliConstants.CommandDecompile => (CliConstants.CommandDecompile, new BuildOrDecompileArguments(args[1..])),
+                CliConstants.ArgumentHelp => (CliConstants.ArgumentHelp, new HelpArguments()),
+                CliConstants.ArgumentHelpShort => (CliConstants.ArgumentHelpShort, new HelpArguments()),
+                CliConstants.ArgumentVersion => (CliConstants.ArgumentVersion, new VersionArguments()),
+                CliConstants.ArgumentVersionShort => (CliConstants.ArgumentVersionShort, new VersionArguments()),
+                _ => (null, null),
             };
         }
 
@@ -77,6 +76,17 @@ Usage:
 
     Arguments:
       <file>        The input file.
+
+    Options:
+      --outdir <dir>    Saves the output at the specified directory.
+      --outfile <file>  Saves the output as the specified file path.
+      --stdout          Prints the output to stdout.
+
+    Examples:
+      bicep decompile file.json
+      bicep decompile file.json --stdout
+      bicep decompile file.json --outdir dir1
+      bicep decompile file.json --outfile file.bicep
 
   {exeName} [options]
     Options:
