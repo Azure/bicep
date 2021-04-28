@@ -125,7 +125,8 @@ This feature is limited to the same scoping constraints that exist within ARM De
 ## Example Usages
 
 If you have a symbolic reference to a scope, you can use that as a value of the `scope` property. 
-⚠️ As of release v0.3 symbolic referencing only works with the `resourceGroup` scope,  not `subscription` or `managementGroup` scope types
+
+⚠️ As of release v0.3 symbolic referencing only works with the `resourceGroup` scope,  not `subscription` or `managementGroup` scope types (tracked with [#1883](https://github.com/Azure/bicep/issues?q=is%3Aissue+is%3Aopen+mg+scope))
 
 ```bicep
 // set the target scope for this file
@@ -144,5 +145,6 @@ module myMod './path/to/module.bicep' = {
 }
 ```
 
-⮴📖 [resourceGroup properties] https://docs.microsoft.com/en-us/azure/templates/microsoft.resources/resourcegroups?tabs=bicep
-⮴📖 [arm-scopes]: https://docs.microsoft.com/azure/azure-resource-manager/management/overview#understand-scope
+[resourceGroup properties](https://docs.microsoft.com/azure/templates/microsoft.resources/resourcegroups?tabs=bicep)
+
+[arm-scopes]: https://docs.microsoft.com/azure/azure-resource-manager/management/overview#understand-scope
