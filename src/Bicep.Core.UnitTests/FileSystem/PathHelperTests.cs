@@ -26,10 +26,18 @@ namespace Bicep.Core.UnitTests.FileSystem
 
         [DataTestMethod]
         [DataRow("foo.json")]
-        public void GetOutputPath_ShouldThrowOnJsonExtensions_Linux(string path)
+        public void GetBuildOutputPath_ShouldThrowOnJsonExtensions_Linux(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultOutputPath(path);
+            Action badExtension = () => PathHelper.GetDefaultBuildOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.json' extension.");
+        }
+
+        [DataTestMethod]
+        [DataRow("foo.bicep")]
+        public void GetDecompileOutputPath_ShouldThrowOnBicepExtensions_Linux(string path)
+        {
+            Action badExtension = () => PathHelper.GetDefaultDecompileOutputPath(path);
+            badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.bicep' extension.");
         }
 #else
         [TestMethod]
@@ -43,10 +51,20 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("foo.json")]
         [DataRow("foo.JSON")]
         [DataRow("foo.JsOn")]
-        public void GetOutputPath_ShouldThrowOnJsonExtensions_WindowsAndMac(string path)
+        public void GetBuildOutputPath_ShouldThrowOnJsonExtensions_WindowsAndMac(string path)
         {
             Action badExtension = () => PathHelper.GetDefaultBuildOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.json' extension.");
+        }
+
+        [DataTestMethod]
+        [DataRow("foo.bicep")]
+        [DataRow("foo.BICEP")]
+        [DataRow("foo.BiCeP")]
+        public void GetDecompileOutputPath_ShouldThrowOnBicepExtensions_WindowsAndMac(string path)
+        {
+            Action badExtension = () => PathHelper.GetDefaultDecompileOutputPath(path);
+            badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.bicep' extension.");
         }
 #endif
 
