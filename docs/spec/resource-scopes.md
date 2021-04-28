@@ -124,17 +124,18 @@ This feature is limited to the same scoping constraints that exist within ARM De
 
 ## Example Usages
 
-If you have a symbolic reference to a scope, you can use that as a value of the `scope` property. Currently this only works with the `resourceGroup` scope, it does not yet support `subscription` or `managementGroup` scope types.
+If you have a symbolic reference to a scope, you can use that as a value of the `scope` property. 
+
+⚠️ As of release v0.3 symbolic referencing only works with the `resourceGroup` scope,  not `subscription` or `managementGroup` scope types (tracked with [#1883](https://github.com/Azure/bicep/issues?q=is%3Aissue+is%3Aopen+mg+scope))
 
 ```bicep
 // set the target scope for this file
 targetScope = 'subscription'
 
 // deploy a resource group to the subscription scope
-resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
+resource myRg 'Microsoft.Resources/resourceGroups@2020-10-01' = {
   name: 'myRg'
   location: 'West US'
-  scope: subscription()
 }
 
 // deploy a module to that newly-created resource group
@@ -143,5 +144,7 @@ module myMod './path/to/module.bicep' = {
   scope: myRg
 }
 ```
+
+[resourceGroup properties](https://docs.microsoft.com/azure/templates/microsoft.resources/resourcegroups?tabs=bicep)
 
 [arm-scopes]: https://docs.microsoft.com/azure/azure-resource-manager/management/overview#understand-scope
