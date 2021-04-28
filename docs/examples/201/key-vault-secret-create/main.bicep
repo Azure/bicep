@@ -47,11 +47,11 @@ param skuName string = 'standard'
 @description('Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object.')
 param secretsObject object = {
   secrets: [
-  // either edit this section with your secrets, or add them as parameters you can define. 
-   {
-     secretName: 'yourSecret'
-     secretValue: 'yourValue'
-   }
+    // either edit this section with your secrets, or add them as parameters you can define. 
+    {
+      secretName: 'yourSecret'
+      secretValue: 'yourValue'
+    }
   ]
 }
 
