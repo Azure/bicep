@@ -28,7 +28,7 @@ namespace Bicep.LangServer.IntegrationTests
     {
         public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {
-            resourceTypeProvider ??= TestResourceTypeProvider.Create();
+            resourceTypeProvider ??= TestTypeHelper.CreateEmptyProvider();
             fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string>());
 
             var clientPipe = new Pipe();

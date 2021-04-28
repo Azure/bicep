@@ -30,7 +30,7 @@ namespace Bicep.Cli.IntegrationTests
 
         private static Program CreateProgram(TextWriter outputWriter, TextWriter errorWriter)
         {
-            return new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, BicepTestConstants.DevAssemblyFileVersion);
+            return new Program(TestTypeHelper.CreateEmptyProvider(), outputWriter, errorWriter, BicepTestConstants.DevAssemblyFileVersion);
         }
 
         [TestMethod]
@@ -337,7 +337,7 @@ output myOutput string = 'hello!'
         private static IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
         {
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), syntaxTreeGrouping);
 
             var output = new List<string>();
             foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())

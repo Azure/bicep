@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Helpers;
+using Azure.Deployments.Core.Utilities;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
@@ -15,6 +16,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler.ArmHelpers
 {
+
     public static class ExpressionHelpers
     {
         public static LanguageExpression ParseExpression(string value)
@@ -256,40 +258,6 @@ namespace Bicep.Decompiler.ArmHelpers
             return output.Trim('/');
         }
 
-        public static TToken ReplaceFunctionExpressions<TToken>(TToken token, Action<FunctionExpression> onFunctionExpression)
-            where TToken : JToken
-        {
-            var expressionRewriter = new LanguageExpressionVisitor
-            {
-                OnFunctionExpression = onFunctionExpression,
-            };
-
-            string RewriteStringValue(string value)
-            {
-                if (!ExpressionsEngine.IsLanguageExpression(value))
-                {
-                    return value;
-                }
-
-                var expression = ExpressionsEngine.ParseLanguageExpression(value);
-                expression.Accept(expressionRewriter);
-
-                return ExpressionsEngine.SerializeExpression(expression);
-            }
-
-            if (token is JValue && token.Type == JTokenType.String)
-            {
-                var rewritten = RewriteStringValue(token.ToString());
-
-                return (new JValue(rewritten) as TToken)!;
-            }
-
-            // transform in-place
-            JTokenHelper.TransformJsonStringValues(token, (key, value) => RewriteStringValue(value));
-
-            return token;
-        }
-
         public static string? TryGetStringValue(LanguageExpression expression)
         {
             if (expression is not JTokenExpression jTokenExpression)
@@ -303,6 +271,21 @@ namespace Bicep.Decompiler.ArmHelpers
             }
 
             return jTokenExpression.Value.ToString();
+        }
+
+        public static FunctionExpression? TryGetNamedFunction(LanguageExpression expression, string name)
+        {
+            if (expression is not FunctionExpression function)
+            {
+                return null;
+            }
+
+            if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, name))
+            {
+                return null;
+            }
+
+            return function;
         }
     }
 }

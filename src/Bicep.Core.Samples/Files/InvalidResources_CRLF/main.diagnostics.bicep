@@ -420,7 +420,7 @@ resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@202
 
 resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: validModule.params['name']
-//@[8:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name", "scope". |validModule.params['name']|
+//@[8:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule.params['name']|
 //@[20:26) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
 }
 
@@ -429,7 +429,7 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[15:40) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 //@[42:70) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
 //@[72:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3['properties'].azCliVersion|
-//@[119:142) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name", "scope". |validModule.params.name|
+//@[119:142) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule.params.name|
 //@[131:137) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
 }
 
@@ -438,7 +438,7 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
 //@[11:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 //@[39:67) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
 //@[70:115) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3.properties['azCliVersion']|
-//@[118:144) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name", "scope". |validModule['params'].name|
+//@[118:144) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule['params'].name|
 //@[130:138) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |'params'|
 }
 
@@ -1239,7 +1239,7 @@ resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
 //@[22:53) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. |'My.Rp/mockResource@2020-12-01'|
   name: 'invalidScope'
   scope: notAResource
-//@[9:21) [BCP036 (Error)] The property "scope" expected a value of type "resource" but the provided value is of type "object". |notAResource|
+//@[9:21) [BCP036 (Error)] The property "scope" expected a value of type "resource | tenant" but the provided value is of type "object". |notAResource|
 }
 
 resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
@@ -1810,11 +1810,76 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" characters. The number of name segments must match the number of segments in the resource type. |'res1/res2'|
 }
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-  name: 'existngResProperty'
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+  name: 'existingResProperty'
   location: 'westeurope'
 //@[2:10) [BCP173 (Error)] The property "location" cannot be used in an existing resource declaration. |location|
   properties: {}
 //@[2:12) [BCP173 (Error)] The property "properties" cannot be used in an existing resource declaration. |properties|
+}
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+    parent: existingResProperty
+    name: 'myExt'
+    location: existingResProperty.location
+//@[14:42) [BCP120 (Error)] The property "location" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of existingResProperty are "apiVersion", "id", "name", "type". |existingResProperty.location|
+}
+
+resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'anyTypeInDependsOn'
+  location: resourceGroup().location
+  dependsOn: [
+    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+//@[4:70) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)|
+    's'
+//@[4:7) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'s'". |'s'|
+    any(true)
+//@[4:13) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+  ]
+}
+
+resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+//@[9:24) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParent|
+  parent: any(true)
+//@[10:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+}
+
+resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+//@[9:28) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParentLoop|
+  parent: any(true)
+//@[10:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+}]
+
+resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[9:23) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScope|
+  scope: any(invalidExistingLocationRef)
+//@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef)|
+}
+
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScopeConditional|
+  scope: any(invalidExistingLocationRef)
+//@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef)|
+}
+
+resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScope|
+  parent: any('')
+//@[10:17) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('')|
+  scope: any(false)
+//@[9:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(false)|
+}
+
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScopeLoop|
+  parent: any('')
+//@[10:17) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('')|
+  scope: any(false)
+//@[9:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(false)|
+}]
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[89:131) [BCP135 (Error)] Scope "resourceGroup" is not valid for this resource type. Permitted scopes: "tenant". |{\r\n  name: 'tenantLevelResourceBlocked'\r\n}|
+  name: 'tenantLevelResourceBlocked'
 }
 

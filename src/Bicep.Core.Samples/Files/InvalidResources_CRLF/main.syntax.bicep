@@ -10219,26 +10219,26 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-//@[0:164) ResourceDeclarationSyntax
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+//@[0:166) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |existngResProperty|
-//@[28:74)  StringSyntax
-//@[28:74)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[75:83)  Identifier |existing|
-//@[84:85)  Assignment |=|
-//@[86:164)  ObjectSyntax
-//@[86:87)   LeftBrace |{|
-//@[87:89)   NewLine |\r\n|
-  name: 'existngResProperty'
-//@[2:28)   ObjectPropertySyntax
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |existingResProperty|
+//@[29:75)  StringSyntax
+//@[29:75)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[76:84)  Identifier |existing|
+//@[85:86)  Assignment |=|
+//@[87:166)  ObjectSyntax
+//@[87:88)   LeftBrace |{|
+//@[88:90)   NewLine |\r\n|
+  name: 'existingResProperty'
+//@[2:29)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
-//@[8:28)    StringSyntax
-//@[8:28)     StringComplete |'existngResProperty'|
-//@[28:30)   NewLine |\r\n|
+//@[8:29)    StringSyntax
+//@[8:29)     StringComplete |'existingResProperty'|
+//@[29:31)   NewLine |\r\n|
   location: 'westeurope'
 //@[2:24)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
@@ -10256,6 +10256,396 @@ resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' exist
 //@[14:15)     LeftBrace |{|
 //@[15:16)     RightBrace |}|
 //@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[0:196) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |invalidExistingLocationRef|
+//@[36:93)  StringSyntax
+//@[36:93)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[94:95)  Assignment |=|
+//@[96:196)  ObjectSyntax
+//@[96:97)   LeftBrace |{|
+//@[97:99)   NewLine |\r\n|
+    parent: existingResProperty
+//@[4:31)   ObjectPropertySyntax
+//@[4:10)    IdentifierSyntax
+//@[4:10)     Identifier |parent|
+//@[10:11)    Colon |:|
+//@[12:31)    VariableAccessSyntax
+//@[12:31)     IdentifierSyntax
+//@[12:31)      Identifier |existingResProperty|
+//@[31:33)   NewLine |\r\n|
+    name: 'myExt'
+//@[4:17)   ObjectPropertySyntax
+//@[4:8)    IdentifierSyntax
+//@[4:8)     Identifier |name|
+//@[8:9)    Colon |:|
+//@[10:17)    StringSyntax
+//@[10:17)     StringComplete |'myExt'|
+//@[17:19)   NewLine |\r\n|
+    location: existingResProperty.location
+//@[4:42)   ObjectPropertySyntax
+//@[4:12)    IdentifierSyntax
+//@[4:12)     Identifier |location|
+//@[12:13)    Colon |:|
+//@[14:42)    PropertyAccessSyntax
+//@[14:33)     VariableAccessSyntax
+//@[14:33)      IdentifierSyntax
+//@[14:33)       Identifier |existingResProperty|
+//@[33:34)     Dot |.|
+//@[34:42)     IdentifierSyntax
+//@[34:42)      Identifier |location|
+//@[42:44)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[0:259) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |anyTypeInDependsOn|
+//@[28:67)  StringSyntax
+//@[28:67)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[68:69)  Assignment |=|
+//@[70:259)  ObjectSyntax
+//@[70:71)   LeftBrace |{|
+//@[71:73)   NewLine |\r\n|
+  name: 'anyTypeInDependsOn'
+//@[2:28)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:28)    StringSyntax
+//@[8:28)     StringComplete |'anyTypeInDependsOn'|
+//@[28:30)   NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:36)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:36)    PropertyAccessSyntax
+//@[12:27)     FunctionCallSyntax
+//@[12:25)      IdentifierSyntax
+//@[12:25)       Identifier |resourceGroup|
+//@[25:26)      LeftParen |(|
+//@[26:27)      RightParen |)|
+//@[27:28)     Dot |.|
+//@[28:36)     IdentifierSyntax
+//@[28:36)      Identifier |location|
+//@[36:38)   NewLine |\r\n|
+  dependsOn: [
+//@[2:115)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:115)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:16)     NewLine |\r\n|
+    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+//@[4:70)     ArrayItemSyntax
+//@[4:70)      FunctionCallSyntax
+//@[4:7)       IdentifierSyntax
+//@[4:7)        Identifier |any|
+//@[7:8)       LeftParen |(|
+//@[8:69)       FunctionArgumentSyntax
+//@[8:69)        PropertyAccessSyntax
+//@[8:45)         PropertyAccessSyntax
+//@[8:34)          VariableAccessSyntax
+//@[8:34)           IdentifierSyntax
+//@[8:34)            Identifier |invalidExistingLocationRef|
+//@[34:35)          Dot |.|
+//@[35:45)          IdentifierSyntax
+//@[35:45)           Identifier |properties|
+//@[45:46)         Dot |.|
+//@[46:69)         IdentifierSyntax
+//@[46:69)          Identifier |autoUpgradeMinorVersion|
+//@[69:70)       RightParen |)|
+//@[70:72)     NewLine |\r\n|
+    's'
+//@[4:7)     ArrayItemSyntax
+//@[4:7)      StringSyntax
+//@[4:7)       StringComplete |'s'|
+//@[7:9)     NewLine |\r\n|
+    any(true)
+//@[4:13)     ArrayItemSyntax
+//@[4:13)      FunctionCallSyntax
+//@[4:7)       IdentifierSyntax
+//@[4:7)        Identifier |any|
+//@[7:8)       LeftParen |(|
+//@[8:12)       FunctionArgumentSyntax
+//@[8:12)        BooleanLiteralSyntax
+//@[8:12)         TrueKeyword |true|
+//@[12:13)       RightParen |)|
+//@[13:15)     NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+//@[0:98) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:24)  IdentifierSyntax
+//@[9:24)   Identifier |anyTypeInParent|
+//@[25:70)  StringSyntax
+//@[25:70)   StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
+//@[71:72)  Assignment |=|
+//@[73:98)  ObjectSyntax
+//@[73:74)   LeftBrace |{|
+//@[74:76)   NewLine |\r\n|
+  parent: any(true)
+//@[2:19)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:19)    FunctionCallSyntax
+//@[10:13)     IdentifierSyntax
+//@[10:13)      Identifier |any|
+//@[13:14)     LeftParen |(|
+//@[14:18)     FunctionArgumentSyntax
+//@[14:18)      BooleanLiteralSyntax
+//@[14:18)       TrueKeyword |true|
+//@[18:19)     RightParen |)|
+//@[19:21)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+//@[0:121) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |anyTypeInParentLoop|
+//@[29:74)  StringSyntax
+//@[29:74)   StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
+//@[75:76)  Assignment |=|
+//@[77:121)  ForSyntax
+//@[77:78)   LeftSquare |[|
+//@[78:81)   Identifier |for|
+//@[82:87)   LocalVariableSyntax
+//@[82:87)    IdentifierSyntax
+//@[82:87)     Identifier |thing|
+//@[88:90)   Identifier |in|
+//@[91:93)   ArraySyntax
+//@[91:92)    LeftSquare |[|
+//@[92:93)    RightSquare |]|
+//@[93:94)   Colon |:|
+//@[95:120)   ObjectSyntax
+//@[95:96)    LeftBrace |{|
+//@[96:98)    NewLine |\r\n|
+  parent: any(true)
+//@[2:19)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |parent|
+//@[8:9)     Colon |:|
+//@[10:19)     FunctionCallSyntax
+//@[10:13)      IdentifierSyntax
+//@[10:13)       Identifier |any|
+//@[13:14)      LeftParen |(|
+//@[14:18)      FunctionArgumentSyntax
+//@[14:18)       BooleanLiteralSyntax
+//@[14:18)        TrueKeyword |true|
+//@[18:19)      RightParen |)|
+//@[19:21)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[0:115) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:23)  IdentifierSyntax
+//@[9:23)   Identifier |anyTypeInScope|
+//@[24:66)  StringSyntax
+//@[24:66)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[67:68)  Assignment |=|
+//@[69:115)  ObjectSyntax
+//@[69:70)   LeftBrace |{|
+//@[70:72)   NewLine |\r\n|
+  scope: any(invalidExistingLocationRef)
+//@[2:40)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:40)    FunctionCallSyntax
+//@[9:12)     IdentifierSyntax
+//@[9:12)      Identifier |any|
+//@[12:13)     LeftParen |(|
+//@[13:39)     FunctionArgumentSyntax
+//@[13:39)      VariableAccessSyntax
+//@[13:39)       IdentifierSyntax
+//@[13:39)        Identifier |invalidExistingLocationRef|
+//@[39:40)     RightParen |)|
+//@[40:42)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
+//@[0:135) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:34)  IdentifierSyntax
+//@[9:34)   Identifier |anyTypeInScopeConditional|
+//@[35:77)  StringSyntax
+//@[35:77)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[78:79)  Assignment |=|
+//@[80:135)  IfConditionSyntax
+//@[80:82)   Identifier |if|
+//@[82:88)   ParenthesizedExpressionSyntax
+//@[82:83)    LeftParen |(|
+//@[83:87)    BooleanLiteralSyntax
+//@[83:87)     TrueKeyword |true|
+//@[87:88)    RightParen |)|
+//@[89:135)   ObjectSyntax
+//@[89:90)    LeftBrace |{|
+//@[90:92)    NewLine |\r\n|
+  scope: any(invalidExistingLocationRef)
+//@[2:40)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:40)     FunctionCallSyntax
+//@[9:12)      IdentifierSyntax
+//@[9:12)       Identifier |any|
+//@[12:13)      LeftParen |(|
+//@[13:39)      FunctionArgumentSyntax
+//@[13:39)       VariableAccessSyntax
+//@[13:39)        IdentifierSyntax
+//@[13:39)         Identifier |invalidExistingLocationRef|
+//@[39:40)      RightParen |)|
+//@[40:42)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
+//@[0:132) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:31)  IdentifierSyntax
+//@[9:31)   Identifier |anyTypeInExistingScope|
+//@[32:76)  StringSyntax
+//@[32:76)   StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
+//@[77:85)  Identifier |existing|
+//@[86:87)  Assignment |=|
+//@[88:132)  ObjectSyntax
+//@[88:89)   LeftBrace |{|
+//@[89:91)   NewLine |\r\n|
+  parent: any('')
+//@[2:17)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:17)    FunctionCallSyntax
+//@[10:13)     IdentifierSyntax
+//@[10:13)      Identifier |any|
+//@[13:14)     LeftParen |(|
+//@[14:16)     FunctionArgumentSyntax
+//@[14:16)      StringSyntax
+//@[14:16)       StringComplete |''|
+//@[16:17)     RightParen |)|
+//@[17:19)   NewLine |\r\n|
+  scope: any(false)
+//@[2:19)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:19)    FunctionCallSyntax
+//@[9:12)     IdentifierSyntax
+//@[9:12)      Identifier |any|
+//@[12:13)     LeftParen |(|
+//@[13:18)     FunctionArgumentSyntax
+//@[13:18)      BooleanLiteralSyntax
+//@[13:18)       FalseKeyword |false|
+//@[18:19)     RightParen |)|
+//@[19:21)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
+//@[0:155) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |anyTypeInExistingScopeLoop|
+//@[36:80)  StringSyntax
+//@[36:80)   StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
+//@[81:89)  Identifier |existing|
+//@[90:91)  Assignment |=|
+//@[92:155)  ForSyntax
+//@[92:93)   LeftSquare |[|
+//@[93:96)   Identifier |for|
+//@[97:102)   LocalVariableSyntax
+//@[97:102)    IdentifierSyntax
+//@[97:102)     Identifier |thing|
+//@[103:105)   Identifier |in|
+//@[106:108)   ArraySyntax
+//@[106:107)    LeftSquare |[|
+//@[107:108)    RightSquare |]|
+//@[108:109)   Colon |:|
+//@[110:154)   ObjectSyntax
+//@[110:111)    LeftBrace |{|
+//@[111:113)    NewLine |\r\n|
+  parent: any('')
+//@[2:17)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |parent|
+//@[8:9)     Colon |:|
+//@[10:17)     FunctionCallSyntax
+//@[10:13)      IdentifierSyntax
+//@[10:13)       Identifier |any|
+//@[13:14)      LeftParen |(|
+//@[14:16)      FunctionArgumentSyntax
+//@[14:16)       StringSyntax
+//@[14:16)        StringComplete |''|
+//@[16:17)      RightParen |)|
+//@[17:19)    NewLine |\r\n|
+  scope: any(false)
+//@[2:19)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:19)     FunctionCallSyntax
+//@[9:12)      IdentifierSyntax
+//@[9:12)       Identifier |any|
+//@[12:13)      LeftParen |(|
+//@[13:18)      FunctionArgumentSyntax
+//@[13:18)       BooleanLiteralSyntax
+//@[13:18)        FalseKeyword |false|
+//@[18:19)      RightParen |)|
+//@[19:21)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[0:131) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:35)  IdentifierSyntax
+//@[9:35)   Identifier |tenantLevelResourceBlocked|
+//@[36:86)  StringSyntax
+//@[36:86)   StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
+//@[87:88)  Assignment |=|
+//@[89:131)  ObjectSyntax
+//@[89:90)   LeftBrace |{|
+//@[90:92)   NewLine |\r\n|
+  name: 'tenantLevelResourceBlocked'
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:36)    StringSyntax
+//@[8:36)     StringComplete |'tenantLevelResourceBlocked'|
+//@[36:38)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\r\n|

@@ -20,20 +20,17 @@ namespace Bicep.LanguageServer.Utils
         public static int GetOffset(ImmutableArray<int> lineStarts, Position position) => TextCoordinateConverter.GetOffset(lineStarts, position.Line, position.Character);
 
         public static Range GetNameRange(ImmutableArray<int> lineStarts, SyntaxBase syntax)
-        {
-            if (syntax is INamedDeclarationSyntax declarationSyntax)
-            {
-                return declarationSyntax.Name.ToRange(lineStarts);
-            }
+            => GetNameSyntax(syntax).ToRange(lineStarts);
 
-            if (syntax is ISymbolReference symbolRef)
-            {
-                return symbolRef.Name.ToRange(lineStarts);
-            }
-
-            // it's something else - fallback to syntax node's span
-            return syntax.ToRange(lineStarts);
-        }
+        public static SyntaxBase GetNameSyntax(SyntaxBase syntax)
+            => syntax switch {
+                INamedDeclarationSyntax x => x.Name,
+                ISymbolReference x => x.Name,
+                PropertyAccessSyntax x => x.PropertyName,
+                ObjectPropertySyntax x => x.Key,
+                // it's something else - fallback to syntax node's span
+                _ => syntax,
+            };
     }
 }
 

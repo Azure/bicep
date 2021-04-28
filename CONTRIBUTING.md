@@ -30,32 +30,38 @@ The Bicep solution is comprised of the following main components:
   * `dotnet test`
 
 ### Updating test baselines
-Many of the bicep integration tests rely on baseline test assertion files that are checked into the repo. Code changes in some areas will require updates to the baseline assertions. 
+
+Many of the bicep integration tests rely on baseline test assertion files that are checked into the repo. Code changes in some areas will require updates to the baseline assertions.
 
 #### Manually
+
 * If you see a test failure with a message containing Windows and *nix copy commands, you have encountered such a test. You have the following options to fix the test:
   1. Manually execute the provided command in a shell. This makes sense for a single test, but is extremely tedious otherwise.
-  1. Run the `SetBaseline.ps1` script at the repo root to execute the tests in `SetBaseLine` mode, which causes the baselines to be automatically updated in bulk for failing tests. You should see baseline file modifications in Git pending changes. (Make sure your Git pending changes are empty before doing so - your changes could get overwritten!).
+  1. Run [`./scripts/SetBaseline.ps1`](./scripts/SetBaseline.ps1) (Windows) or [`./scripts/SetBaseline.sh`](./scripts/SetBaseline.sh) (Linux/OSX) to execute the tests in `SetBaseLine` mode. This automatically updates the baselines in bulk for failing tests.
+  1. You should see baseline file modifications in Git pending changes. (Make sure your Git pending changes are empty before doing so - your changes could get overwritten!).
 * Inspect the baseline assertion diffs to ensure changes are expected and match the code changes you have made. (If a pull request contains changes to baseline files that can't be explained, it will not be merged.)
 
 #### Via GitHub Action
+
 If you have an active branch pushed to your GitHub fork, you can use the "Update Baselines" GitHub action to automatically update any broken baselines:
+
 1. Under your fork of the repo, navigate to "Actions" -> "Update Baselines".
 1. Press "Run workflow", and select your branch name under the "Use work flow from" dropdown.
 1. If any baseline changes are detected, the action will create a commit with the diffs, and push it to your branch.
 1. Because of [this limitation](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token), you will need to manually re-run the CI action once the commit has been made:
     1. Under your fork of the repo, navigate to "Actions" -> "Build".
-    1. Press "Run workflow", and select your branch name under the "Use work flow from" dropdown.
+    1. Press "Run workflow", and select your branch name under the "Use workflow from" dropdown.
 
 ### Creating new integration tests dataset
+
 * To Add new integration tests dataset you need to:
-  1. Add a entry to src/Bicep.Core.Samples/DataSets.cs
+  1. Add an entry to `src/Bicep.Core.Samples/DataSets.cs`
      * prefix with Invalid if the expectation is that it doesn't compile.
      * The suffix should match the type of newline the file uses, so just pick one (_LF or _CRLF) - that's just to ensure we have support for both.
      * The name of the entry should match the name of the folder you create (same casing), and there should be a main.bicep file in that folder.
-  1.  Make changes to main.bicep.
+  1. Make changes to main.bicep.
   1. Create empty `main.<suffix>.bicep` assertion files in the folder. You need to create following suffixes: `diagnostics`, `formatted`, `symbols`, `syntax`, `tokens`
-  1. Run `SetBaseline.ps1` to fill out the assertion files.
+  1. Follow [Updating test baselines](#updating-test-baselines) to generate baseline files.
 * The naming and file structure is important here as it's used by the test runner to assert e.g. whether the example should compile, and the end-of-line characters.
 * For tests that deal with module, you may see some unexpected behavior because the test could be using a mock file resolver instead of the standard one. Similarly, some tests may be using a mock resource type provider instead of the standard ones - usually that explains why some types aren't recognized in tests.
 
@@ -111,6 +117,35 @@ If you'd like to contribute example `.bicep` files that showcase abilities of th
 * While everything will *not necessarily be applicable*, read through the Azure QuickStart Templates [Best Practices Guide](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#best-practices) and follow it where appropriate (i.e. [parameter guidance](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#parameters), [resource property order](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#sort-order-of-properties), etc.)
 
 **Note:** If you have never submitted a Pull Request or used git before, reading through the [Git tutorial](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/git-tutorial.md) in the azure-quickstart-template repo is a good place to start.
+
+### Snippets
+
+If you'd like to contribute to the collection of snippets:  
+
+* A snippet should be a single, generic resource. Ensure your snippet meets this criteria.
+* Add a Bicep file to [`./src/Bicep.LangServer/Snippets/Templates`](./src/Bicep.LangServer/Snippets/Templates) using the naming convention res-RESOURCENAME.bicep
+  * The file name without extension will be used as the label.
+  * A single line comment at the top of the file will be used as the description.
+  * E.g. [`res-aks-cluster.bicep`](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep) results in the following label and description:
+ ![](./docs/images/snippet-template.png)
+  * Add the Bicep resource declaration.
+  * Add placeholders for tab stops with values using `${1:foo}`. The placeholder text will be inserted and selected such that it can be easily changed. The symbolic name should be the first tab stop.
+  * To add a multi-choice placeholder, the syntax is a comma separated enumeration of values, enclosed with the pipe-character, for example `${1|one,two,three|}`. When the snippet is inserted and the placeholder selected, choices will prompt the user to pick one of the values. [More info on snippet syntax](https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax)
+  * Property placeholder values should correspond to their property names (e.g. dnsPrefix: 'dnsPrefix'), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep#L26)
+
+* Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates)
+  * The folder name should match the snippet label/prefix.
+
+* Add a file named main.bicep
+  * The test will read this input file for snippet completions. It will take the replacement values listed in this file, replace them with their corresponding placeholder, then ensure Bicep reports no warnings or errors.
+    * E.g. [`res-aks-cluster/main.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.bicep)
+
+* Add a file named main.combined.bicep that contains the template combined with placeholder values. See [Updating test baselines](#updating-test-baselines) for information on how to automatically generate this file to match the format expected by the tests.
+  * E.g. [`res-aks-cluster/main.combined.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.combined.bicep)
+
+* See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR.
+
+* Submit a PR for review
 
 ## Feature Suggestions
 

@@ -16,7 +16,11 @@
     <array>
       <dict>
         <key>include</key>
-        <string>#statement</string>
+        <string>#expression</string>
+      </dict>
+      <dict>
+        <key>include</key>
+        <string>#comments</string>
       </dict>
     </array>
     <key>repository</key>
@@ -26,30 +30,18 @@
         <key>name</key>
         <string>meta.array-literal.bicep</string>
         <key>begin</key>
-        <string>\[(?:\s|/\*.*\*/)*(?!\bfor\b)</string>
+        <string>\[(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\bfor\b)</string>
         <key>end</key>
         <string>]</string>
         <key>patterns</key>
         <array>
           <dict>
             <key>include</key>
-            <string>#array-property</string>
+            <string>#expression</string>
           </dict>
-        </array>
-      </dict>
-      <key>array-property</key>
-      <dict>
-        <key>name</key>
-        <string>meta.array-property.bicep</string>
-        <key>begin</key>
-        <string>^(?!(?:\s|/\*.*\*/)*])</string>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
           <dict>
             <key>include</key>
-            <string>#expression</string>
+            <string>#comments</string>
           </dict>
         </array>
       </dict>
@@ -81,14 +73,18 @@
         <key>name</key>
         <string>meta.decorator.bicep</string>
         <key>begin</key>
-        <string>@</string>
+        <string>@(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*(?=\b[_$[:alpha:]][_$[:alnum:]]*\b)</string>
         <key>end</key>
-        <string>$</string>
+        <string/>
         <key>patterns</key>
         <array>
           <dict>
             <key>include</key>
             <string>#expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
           </dict>
         </array>
       </dict>
@@ -103,18 +99,6 @@
       <dict>
         <key>patterns</key>
         <array>
-          <dict>
-            <key>include</key>
-            <string>#identifier</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#for-expression</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#if-expression</string>
-          </dict>
           <dict>
             <key>include</key>
             <string>#string-literal</string>
@@ -141,111 +125,19 @@
           </dict>
           <dict>
             <key>include</key>
+            <string>#keyword</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#identifier</string>
+          </dict>
+          <dict>
+            <key>include</key>
             <string>#function-call</string>
           </dict>
-        </array>
-      </dict>
-      <key>for-expression</key>
-      <dict>
-        <key>name</key>
-        <string>meta.for-expression.bicep</string>
-        <key>begin</key>
-        <string>\[(?:\s|/\*.*\*/)*(\bfor\b)</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>]</string>
-        <key>patterns</key>
-        <array>
           <dict>
             <key>include</key>
-            <string>#for-expression-in</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#for-expression-end</string>
-          </dict>
-        </array>
-      </dict>
-      <key>for-expression-end</key>
-      <dict>
-        <key>name</key>
-        <string>meta.for-expression-end.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=:)(?:\s|/\*.*\*/)*</string>
-        <key>end</key>
-        <string>(?:\s|/\*.*\*/)*(?=])</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
-      </dict>
-      <key>for-expression-in</key>
-      <dict>
-        <key>name</key>
-        <string>meta.for-expression-in.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=\bfor\b)</string>
-        <key>end</key>
-        <string>:</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#for-expression-in-start</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#for-expression-in-end</string>
-          </dict>
-        </array>
-      </dict>
-      <key>for-expression-in-end</key>
-      <dict>
-        <key>name</key>
-        <string>meta.for-expression-in-end.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=\bin\b)(?:\s|/\*.*\*/)*</string>
-        <key>end</key>
-        <string>(?=:)</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
-      </dict>
-      <key>for-expression-in-start</key>
-      <dict>
-        <key>name</key>
-        <string>meta.for-expression-in-start.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=\bfor\b)(?:\s|/\*.*\*/)*</string>
-        <key>end</key>
-        <string>(\bin\b)</string>
-        <key>endCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-        </dict>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
+            <string>#decorator</string>
           </dict>
         </array>
       </dict>
@@ -254,7 +146,7 @@
         <key>name</key>
         <string>meta.function-call.bicep</string>
         <key>begin</key>
-        <string>(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:\s|/\*.*\*/)*\(</string>
+        <string>(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\(</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
@@ -271,6 +163,10 @@
             <key>include</key>
             <string>#expression</string>
           </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
+          </dict>
         </array>
       </dict>
       <key>identifier</key>
@@ -278,131 +174,21 @@
         <key>name</key>
         <string>variable.other.readwrite.bicep</string>
         <key>match</key>
-        <string>\b[_$[:alpha:]][_$[:alnum:]]*\b(?!(?:\s|/\*.*\*/)*\()</string>
+        <string>\b[_$[:alpha:]][_$[:alnum:]]*\b(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\()</string>
       </dict>
-      <key>if-expression</key>
+      <key>keyword</key>
       <dict>
         <key>name</key>
-        <string>meta.if-expression.bicep</string>
-        <key>begin</key>
-        <string>(\bif\b)</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>(?&lt;=})</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#if-expression-start</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#if-expression-end</string>
-          </dict>
-        </array>
-      </dict>
-      <key>if-expression-end</key>
-      <dict>
-        <key>name</key>
-        <string>meta.if-expression-end.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=\))(?:\s|/\*.*\*/)*(?={)</string>
-        <key>end</key>
-        <string>(?&lt;=})</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#object-literal</string>
-          </dict>
-        </array>
-      </dict>
-      <key>if-expression-start</key>
-      <dict>
-        <key>name</key>
-        <string>meta.if-expression-start.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=\bif\b)(?:\s|/\*.*\*/)*\(</string>
-        <key>end</key>
-        <string>\)</string>
-        <key>endCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-        </dict>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
+        <string>keyword.control.declaration.bicep</string>
+        <key>match</key>
+        <string>\b(targetScope|resource|module|param|var|output|for|in|if|existing)\b</string>
       </dict>
       <key>line-comment</key>
       <dict>
         <key>name</key>
         <string>comment.line.double-slash.bicep</string>
         <key>match</key>
-        <string>//.*$</string>
-      </dict>
-      <key>module-statement</key>
-      <dict>
-        <key>name</key>
-        <string>meta.module-statement.bicep</string>
-        <key>begin</key>
-        <string>(\bmodule\b)(?:\s|/\*.*\*/)*(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:\s|/\*.*\*/)*(?=')</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-          <key>2</key>
-          <dict>
-            <key>name</key>
-            <string>variable.name.bicep</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#string-literal</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#module-statement-end</string>
-          </dict>
-        </array>
-      </dict>
-      <key>module-statement-end</key>
-      <dict>
-        <key>name</key>
-        <string>meta.module-statement-end.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=')(?:\s|/\*.*\*/)*=(?:\s|/\*.*\*/)*</string>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
+        <string>//.*(?=$)</string>
       </dict>
       <key>named-literal</key>
       <dict>
@@ -432,6 +218,10 @@
             <key>include</key>
             <string>#object-property</string>
           </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
+          </dict>
         </array>
       </dict>
       <key>object-property</key>
@@ -439,18 +229,26 @@
         <key>name</key>
         <string>meta.object-property.bicep</string>
         <key>begin</key>
-        <string>^(?!(?:\s|/\*.*\*/)*})</string>
+        <string>(?&lt;=^)(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*})</string>
         <key>end</key>
-        <string>$</string>
+        <string>(?=$)</string>
         <key>patterns</key>
         <array>
           <dict>
             <key>include</key>
-            <string>#object-property-start</string>
+            <string>#object-property-key-identifier</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#string-literal</string>
           </dict>
           <dict>
             <key>include</key>
             <string>#object-property-end</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
           </dict>
         </array>
       </dict>
@@ -459,14 +257,35 @@
         <key>name</key>
         <string>meta.object-property-end.bicep</string>
         <key>begin</key>
-        <string>(?&lt;=:)(?:\s|/\*.*\*/)*</string>
+        <string>:((?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#line-comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#block-comment</string>
+              </dict>
+            </array>
+          </dict>
+        </dict>
         <key>end</key>
-        <string>(?:\s|/\*.*\*/)*$</string>
+        <string>(?=(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*$)</string>
         <key>patterns</key>
         <array>
           <dict>
             <key>include</key>
             <string>#expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
           </dict>
         </array>
       </dict>
@@ -484,181 +303,6 @@
             <string>variable.other.property.bicep</string>
           </dict>
         </dict>
-      </dict>
-      <key>object-property-start</key>
-      <dict>
-        <key>name</key>
-        <string>meta.object-property-start.bicep</string>
-        <key>begin</key>
-        <string>^(?:\s|/\*.*\*/)*</string>
-        <key>end</key>
-        <string>(?:\s|/\*.*\*/)*:</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#string-literal</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#object-property-key-identifier</string>
-          </dict>
-        </array>
-      </dict>
-      <key>output-statement</key>
-      <dict>
-        <key>name</key>
-        <string>meta.output-statement.bicep</string>
-        <key>begin</key>
-        <string>(\boutput\b)(?:\s|/\*.*\*/)*(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:\s|/\*.*\*/)*(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:\s|/\*.*\*/)*=(?:\s|/\*.*\*/)*</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-          <key>2</key>
-          <dict>
-            <key>name</key>
-            <string>variable.name.bicep</string>
-          </dict>
-          <key>3</key>
-          <dict>
-            <key>name</key>
-            <string>variable.name.bicep</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
-      </dict>
-      <key>param-statement</key>
-      <dict>
-        <key>name</key>
-        <string>meta.param-statement.bicep</string>
-        <key>begin</key>
-        <string>(\bparam\b)(?:\s|/\*.*\*/)*(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:\s|/\*.*\*/)*(\b[_$[:alpha:]][_$[:alnum:]]*\b)</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-          <key>2</key>
-          <dict>
-            <key>name</key>
-            <string>variable.name.bicep</string>
-          </dict>
-          <key>3</key>
-          <dict>
-            <key>name</key>
-            <string>variable.name.bicep</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
-      </dict>
-      <key>resource-statement</key>
-      <dict>
-        <key>name</key>
-        <string>meta.resource-statement.bicep</string>
-        <key>begin</key>
-        <string>(\bresource\b)(?:\s|/\*.*\*/)*(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:\s|/\*.*\*/)*(?=')</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-          <key>2</key>
-          <dict>
-            <key>name</key>
-            <string>variable.name.bicep</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#string-literal</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#resource-statement-end</string>
-          </dict>
-        </array>
-      </dict>
-      <key>resource-statement-end</key>
-      <dict>
-        <key>name</key>
-        <string>meta.resource-statement-end.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=')(?:\s|/\*.*\*/)*=(?:\s|/\*.*\*/)*</string>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
-      </dict>
-      <key>statement</key>
-      <dict>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#comments</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#decorator</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#targetscope-statement</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#param-statement</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#resource-statement</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#module-statement</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#var-statement</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#output-statement</string>
-          </dict>
-        </array>
       </dict>
       <key>string-literal</key>
       <dict>
@@ -710,6 +354,10 @@
             <key>include</key>
             <string>#expression</string>
           </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
+          </dict>
         </array>
       </dict>
       <key>string-verbatim</key>
@@ -722,59 +370,6 @@
         <string>'''</string>
         <key>patterns</key>
         <array/>
-      </dict>
-      <key>targetscope-statement</key>
-      <dict>
-        <key>name</key>
-        <string>meta.targetscope-statement.bicep</string>
-        <key>begin</key>
-        <string>(\btargetScope\b)(?:\s|/\*.*\*/)*=(?:\s|/\*.*\*/)*</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
-      </dict>
-      <key>var-statement</key>
-      <dict>
-        <key>name</key>
-        <string>meta.var-statement.bicep</string>
-        <key>begin</key>
-        <string>(\bvar\b)(?:\s|/\*.*\*/)*(\b[_$[:alpha:]][_$[:alnum:]]*\b)(?:\s|/\*.*\*/)*=(?:\s|/\*.*\*/)*</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.control.declaration.bicep</string>
-          </dict>
-          <key>2</key>
-          <dict>
-            <key>name</key>
-            <string>variable.name.bicep</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>$</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#expression</string>
-          </dict>
-        </array>
       </dict>
     </dict>
   </dict>

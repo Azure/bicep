@@ -39,7 +39,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         private TypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectProperty input)
         {
-            return new TypeProperty(name, GetTypeReference(input.Type), GetTypePropertyFlags(input));
+            return new TypeProperty(name, GetTypeReference(input.Type), GetTypePropertyFlags(input), input.Description);
         }
 
         private static TypePropertyFlags GetTypePropertyFlags(Azure.Bicep.Types.Concrete.ObjectProperty input)

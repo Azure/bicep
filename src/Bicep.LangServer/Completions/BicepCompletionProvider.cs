@@ -27,19 +27,19 @@ namespace Bicep.LanguageServer.Completions
     {
         private const string MarkdownNewLine = "  \n";
 
-        private static readonly Container<string> PropertyCommitChars = new Container<string>(":");
+        private static readonly Container<string> PropertyCommitChars = new(":");
 
-        private static readonly Container<string> ResourceSymbolCommitChars = new Container<string>(":");
+        private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
-        private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
+        private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
         private IFileResolver FileResolver;
-        private readonly IResourceSnippetsProvider ResourceSnippetsProvider;
+        private readonly ISnippetsProvider SnippetsProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, IResourceSnippetsProvider resourceSnippetsProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider)
         {
             this.FileResolver = fileResolver;
-            this.ResourceSnippetsProvider = resourceSnippetsProvider;
+            this.SnippetsProvider = snippetsProvider;
         }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
@@ -56,6 +56,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
+                .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetModulePathCompletions(model, context))
                 .Concat(GetResourceOrModuleBodyCompletions(context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
@@ -69,62 +70,24 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.TopLevelDeclarationStart))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration", "param ${1:Identifier} ${2:Type}", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default value", "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default and allowed values", @"param ${1:Identifier} ${2:Type} {
-  default: $3
-  allowed: [
-    $4
-  ]
-}", context.ReplacementRange);
-
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Secure string parameter", @"@secure()
-param ${1:Identifier} string", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.VariableKeyword, "Variable keyword", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.VariableKeyword, "Variable declaration", "var ${1:Identifier} = $0", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange, priority: CompletionPriority.High);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Resource with defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
-  name: $5
-  location: $6
-  properties: {
-    $0
-  }
-}", context.ReplacementRange, priority: CompletionPriority.High);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource with defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {
-  name: $6
-  properties: {
-    $0
-  }
-}", context.ReplacementRange, priority: CompletionPriority.High);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Resource without defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
-  name: $5
-  $0
-}
-", context.ReplacementRange, priority: CompletionPriority.High);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource without defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {
-  name: $6
-  $0
-}", context.ReplacementRange, priority: CompletionPriority.High);
 
                 yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.OutputKeyword, "Output declaration", "output ${1:Identifier} ${2:Type} = $0", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ModuleKeyword, "Module declaration", @"module ${1:Identifier} '${2:Path}' = {
-  name: $3
-  $0
-}", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
 
-                foreach (ResourceSnippet resourceSnippet in ResourceSnippetsProvider.GetResourceSnippets())
+                foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
-                    yield return CreateContextualSnippetCompletion(resourceSnippet.Name,
+                    yield return CreateContextualSnippetCompletion(resourceSnippet.Prefix,
                                                                    resourceSnippet.Detail,
                                                                    resourceSnippet.Text,
-                                                                   context.ReplacementRange);
+                                                                   context.ReplacementRange,
+                                                                   resourceSnippet.CompletionPriority);
                 }
             }
 
@@ -247,6 +210,15 @@ param ${1:Identifier} string", context.ReplacementRange);
                 .ToList();
         }
 
+        private IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
+            {
+                const string existing = "existing";
+                yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
+            }
+        }
+
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
@@ -273,7 +245,7 @@ param ${1:Identifier} string", context.ReplacementRange);
             var dirs = Enumerable.Empty<Uri>();
 
 
-            // technically bicep files do not have to follow the bicep extension, so 
+            // technically bicep files do not have to follow the bicep extension, so
             // we are not enforcing *.bicep get files command
             if (FileResolver.TryDirExists(query))
             {
@@ -602,12 +574,12 @@ param ${1:Identifier} string", context.ReplacementRange);
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var specifiedPropertyNames = context.Object.ToKnownPropertyNames();
+            var specifiedPropertyNames = context.Object.ToNamedPropertyDictionary();
 
             // exclude read-only properties as they can't be set
             // exclude properties whose name has been specified in the object already
             return GetProperties(declaredType)
-                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.Contains(p.Name) == false)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.ContainsKey(p.Name) == false)
                 .Select(p => CreatePropertyNameCompletion(p, context.ReplacementRange));
         }
 
@@ -1009,6 +981,11 @@ param ${1:Identifier} string", context.ReplacementRange);
             if (property.Flags.HasFlag(TypePropertyFlags.Constant))
             {
                 buffer.Append($"Requires a compile-time constant value.{MarkdownNewLine}");
+            }
+
+            if (property.Description is not null)
+            {
+                buffer.Append($"{property.Description}{MarkdownNewLine}");
             }
 
             return buffer.ToString();

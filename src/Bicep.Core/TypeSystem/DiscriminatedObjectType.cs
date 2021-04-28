@@ -51,5 +51,23 @@ namespace Bicep.Core.TypeSystem
         public string DiscriminatorKey => this.DiscriminatorProperty.Name;
 
         public TypeSymbol DiscriminatorKeysUnionType { get; }
+
+        /// <summary>
+        /// Returns the discriminator property if the given property key matches the discriminator key.
+        /// </summary>
+        public TypeProperty? TryGetDiscriminatorProperty(string? propertyKey)
+        {
+            if (propertyKey is null)
+            {
+                return null;
+            }
+
+            if (LanguageConstants.IdentifierComparer.Equals(propertyKey, DiscriminatorKey))
+            {
+                return DiscriminatorProperty;
+            }
+
+            return null;
+        }
     }
 }

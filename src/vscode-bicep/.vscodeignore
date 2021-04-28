@@ -7,6 +7,8 @@
 !bicepLanguageServer/**/*
 !icons/**/*
 !language-configuration.json
+!codeblock.json
+!bicep.tmlanguage
 !package.json
 !README.md
 !CHANGELOG.md

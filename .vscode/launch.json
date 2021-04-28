@@ -51,10 +51,17 @@
             "runtimeArgs": [
                 "test"
             ],
-            "env": {
-                "BICEP_CLI_EXECUTABLE": "${workspaceRoot}/src/Bicep.Cli/bin/Debug/net5.0/bicep"
-            },
             "cwd": "${workspaceFolder}/src/textmate"
+        },
+        {
+            "name": "HighlightJs Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "test"
+            ],
+            "cwd": "${workspaceFolder}/src/highlightjs"
         },
         {
             "name": "Attach",
