@@ -1,14 +1,8 @@
-// 
-// v0.3 Bicep Known issue & work-around related to "secretsObject"
-// not possible to use this file (as is) on the `az cli` passing in secretsObject
-// https://github.com/Azure/bicep/issues/2135
-// https://github.com/Azure/bicep/issues/1754
-
 // Also: 
-// * KeyVaults secrets CANNOT BE EXPORTED into AMR/Bicep format. 
-// * documentation: 
+// * KeyVaults secrets CANNOT BE EXPORTED into ARM/Bicep format via the Template Export capability. 
+// * documentation on key vault secret resource types: 
 //   https://docs.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults/secrets?tabs=json
-// * 201/key-vault-secret=create in pre-decompiled AMR format
+// * 201/key-vault-secret=create in pre-decompiled ARM format
 //   https://github.com/Azure/azure-quickstart-templates/tree/master/201-key-vault-secret-create
 
 @description('Specifies the name of the key vault.')
@@ -54,10 +48,10 @@ param skuName string = 'standard'
 param secretsObject object = {
   secrets: [
   // either edit this section with your secrets, or add them as parameters you can define. 
-  //  {
-  //    secretName: 'yourSecret'
-  //    secretValue: 'yourValue'
-  //  }
+   {
+     secretName: 'yourSecret'
+     secretValue: 'yourValue'
+   }
   ]
 }
 
