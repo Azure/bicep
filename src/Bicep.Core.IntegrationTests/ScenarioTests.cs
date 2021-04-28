@@ -1706,7 +1706,7 @@ resource vwan2 'Microsoft.Network/virtualWans@2020-05-01' = {
     type: 'foo'
   }
   tags: {
-    // Should run deploy-time constant checking for tag1.
+    // Should run deploy-time constant checking for myTag1.
     myTag1: tags.outputs.tagsoutput.tag1
   }
 }
@@ -1723,7 +1723,7 @@ resource nsgs2 'Microsoft.Network/networkSecurityGroups@2019-04-01' = [for i in 
   location: 'westus'
   properties: {}
   tags: {
-    // Should run deploy-time constant checking for tag1.
+    // Should run deploy-time constant checking for myTag1.
     myTag1: tags.outputs.tagsoutput.tag1
   }
 }]
@@ -1757,6 +1757,32 @@ output tagsoutput object = {
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"name\", \"type\"."),
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2391
+        public void Test_Issue2391()
+        {
+            var result = CompilationHelper.Compile(@"
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: 'myVM'
+  location: 'westus'
+  
+  resource vmExts 'extensions' = [for vmExtName in []: {
+    name: vmExtName
+    location: 'westus'
+  }]
+}
+
+output vmExtNames array = [for vmExtName in vm::vmExts: {
+  name: vmExtName
+}]
+
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.")
             });
         }
     }
