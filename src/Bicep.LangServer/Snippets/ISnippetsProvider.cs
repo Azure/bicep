@@ -10,6 +10,6 @@ namespace Bicep.LanguageServer.Snippets
     {
         IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets();
 
-        Snippet GetResourceBodyCompletionSnippet(TypeSymbol typeSymbol);
+        IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol);
     }
 }

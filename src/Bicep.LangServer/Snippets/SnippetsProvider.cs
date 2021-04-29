@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -22,9 +23,11 @@ namespace Bicep.LanguageServer.Snippets
     public class SnippetsProvider : ISnippetsProvider
     {
         // Used to cache resource declarations. Maps resource type to body text
-        private Dictionary<string, string> resourceTypeToBodyMap = new Dictionary<string, string>();
+        private ConcurrentDictionary<string, string> resourceTypeToBodyMap = new ConcurrentDictionary<string, string>();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
-        private Dictionary<string, string> resourceTypeToDependentsMap = new Dictionary<string, string>();
+        private ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new ConcurrentDictionary<string, string>();
+        // Used to cache resource body snippets
+        private ConcurrentDictionary<string, IEnumerable<Snippet>> resourceBodySnippetsCache = new ConcurrentDictionary<string, IEnumerable<Snippet>>();
         // Used to cache top level declarations
         private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
 
@@ -119,7 +122,7 @@ namespace Bicep.LanguageServer.Snippets
                 TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
                 string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
 
-                resourceTypeToBodyMap.Add(type, bodyText);
+                resourceTypeToBodyMap.TryAdd(type, bodyText);
             }
         }
 
@@ -134,7 +137,7 @@ namespace Bicep.LanguageServer.Snippets
                     sb.AppendLine(template.Substring(span.Position, span.Length));
                 }
 
-                resourceTypeToDependentsMap.Add(resourceType, sb.ToString());
+                resourceTypeToDependentsMap.TryAdd(resourceType, sb.ToString());
             }
         }
 
@@ -160,9 +163,39 @@ namespace Bicep.LanguageServer.Snippets
             return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
         }
 
-        public Snippet GetResourceBodyCompletionSnippet(TypeSymbol typeSymbol)
+        public IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol)
         {
-            string label = "{}";
+            if (resourceBodySnippetsCache.TryGetValue(typeSymbol.Name, out IEnumerable<Snippet>? cachedSnippets) && cachedSnippets.Any())
+            {
+                return cachedSnippets;
+            }
+
+            List<Snippet> snippets = new List<Snippet>();
+
+            snippets.Add(GetEmptySnippet());
+
+            Snippet? snippetFromExistingTemplate = GetResourceBodyCompletionSnippetFromTemplate(typeSymbol);
+            if (snippetFromExistingTemplate is not null)
+            {
+                snippets.Add(snippetFromExistingTemplate);
+            }
+
+            Snippet? snippetFromAzTypes = GetResourceBodyCompletionSnippetFromAzTypes(typeSymbol);
+            if (snippetFromAzTypes is not null)
+            {
+                snippets.Add(snippetFromAzTypes);
+            }
+
+            // Add to cache
+            resourceBodySnippetsCache.TryAdd(typeSymbol.Name, snippets);
+
+            return snippets;
+        }
+
+        private Snippet? GetResourceBodyCompletionSnippetFromTemplate(TypeSymbol typeSymbol)
+        {
+            string label = "insert-snippet";
+            string description = "Snippet";
             string type = typeSymbol.Name;
 
             StringBuilder sb = new StringBuilder();
@@ -177,70 +210,85 @@ namespace Bicep.LanguageServer.Snippets
                     sb.Append(resourceDependencies);
                 }
 
-                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, label);
+                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, description);
             }
 
-            // Get resource body completion snippet from swagger spec
-            return GetResourceBodyCompletionSnippetFromSwaggerSpec(typeSymbol, label);
+            return null;
         }
 
-        private Snippet GetResourceBodyCompletionSnippetFromSwaggerSpec(TypeSymbol typeSymbol, string label)
+        private Snippet? GetResourceBodyCompletionSnippetFromAzTypes(TypeSymbol typeSymbol)
         {
+            string label = "insert-required";
+            string description = "Required properties";
+
             if (typeSymbol is ResourceType resourceType && resourceType.Body is ObjectType objectType)
             {
                 int index = 1;
-                string? snippetText = null;
+                StringBuilder sb = new StringBuilder();
 
                 foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
                 {
-                    snippetText = GetSnippetText(kvp.Value, snippetText, ref index);
+                    string? snippetText = GetSnippetText(kvp.Value, ref index);
+
+                    if (snippetText is not null)
+                    {
+                        sb.Append(snippetText);
+                    }
                 }
 
-                if (snippetText is not null)
+                if (sb.Length > 0)
                 {
-                    // Define final tab stop
-                    snippetText += "\t$0\n}";
+                    // Insert open curly at the beginning
+                    sb.Insert(0, "{\n");
 
-                    // Add to cache
-                    resourceTypeToBodyMap.Add(typeSymbol.Name, snippetText);
+                    // Append final tab stop
+                    sb.Append("\t$0\n}");
 
-                    return new Snippet(snippetText, CompletionPriority.Medium, label, label);
+                    return new Snippet(sb.ToString(), CompletionPriority.Medium, label, description);
                 }
             }
 
-            return new Snippet("{\n\t$0\n}", CompletionPriority.Medium, label, label);
+            return null;
         }
 
-        private string? GetSnippetText(TypeProperty typeProperty, string? snippetText, ref int index)
+        private string? GetSnippetText(TypeProperty typeProperty, ref int index)
         {
             if (typeProperty.Flags.HasFlag(TypePropertyFlags.Required))
             {
-                if (snippetText is null)
-                {
-                    snippetText = "{\n";
-                }
+                StringBuilder sb = new StringBuilder();
 
                 if (typeProperty.TypeReference.Type is ObjectType objectType)
                 {
-                    snippetText += "\t" + typeProperty.Name + ": {\n";
+                    sb.AppendLine("\t" + typeProperty.Name + ": {");
 
                     foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
                     {
-                        snippetText = GetSnippetText(kvp.Value, snippetText, ref index);
+                        string? snippetText = GetSnippetText(kvp.Value, ref index);
+                        if (snippetText is not null)
+                        {
+                            sb.Append(snippetText);
+                        }
                     }
 
-                    snippetText += "\t}\n";
+                    sb.AppendLine("\t}");
                 }
                 else
                 {
-                    snippetText += "\t" + typeProperty.Name + ": $" + (index).ToString() + "\n";
+                    sb.AppendLine("\t" + typeProperty.Name + ": $" + (index).ToString());
                     index++;
                 }
 
-                return snippetText;
+                return sb.ToString();
             }
 
-            return snippetText;
+            return null;
+        }
+
+        private Snippet GetEmptySnippet()
+        {
+            string label = "{}";
+
+            return new Snippet("{\n\t$0\n}", CompletionPriority.Medium, label, label);
         }
     }
 }

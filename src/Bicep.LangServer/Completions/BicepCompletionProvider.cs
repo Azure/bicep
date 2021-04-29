@@ -353,7 +353,10 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody))
             {
-                yield return CreateResourceBodyCompletion(model, context);
+                foreach (CompletionItem completionItem in CreateResourceBodyCompletions(model, context))
+                {
+                    yield return completionItem;
+                }
 
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
@@ -365,22 +368,24 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private CompletionItem CreateResourceBodyCompletion(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> CreateResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
                 TypeSymbol typeSymbol = resourceDeclarationSyntax.GetDeclaredType(model.Binder, AzResourceTypeProvider.CreateWithAzTypes());
 
-                Snippet snippet = SnippetsProvider.GetResourceBodyCompletionSnippet(typeSymbol);
-                return CreateContextualSnippetCompletion(snippet.Prefix,
-                    snippet.Detail,
-                    snippet.Text,
-                    context.ReplacementRange,
-                    snippet.CompletionPriority,
-                    preselect: true);
-            }
+                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol);
 
-            return CreateObjectBodyCompletion(context.ReplacementRange);
+                foreach (Snippet snippet in snippets)
+                {
+                    yield return CreateContextualSnippetCompletion(snippet!.Prefix,
+                        snippet.Detail,
+                        snippet.Text,
+                        context.ReplacementRange,
+                        snippet.CompletionPriority,
+                        preselect: true);
+                }
+            }
         }
 
         private IEnumerable<CompletionItem> GetModuleBodyCompletions(BicepCompletionContext context)

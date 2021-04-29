@@ -68,12 +68,48 @@
     }
   },
   {
+    "label": "insert-required",
+    "kind": "snippet",
+    "detail": "Required properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n\tlocation: \n\tname: \n\t\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_insert-required",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "{\n\tlocation: $1\n\tname: $2\n\t$0\n}"
+    }
+  },
+  {
+    "label": "insert-snippet",
+    "kind": "snippet",
+    "detail": "Snippet",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n  name: 'name'\n  location: 'global'\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_insert-snippet",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "{\n  name: ${2:'name'}\n  location: 'global'\n}\n"
+    }
+  },
+  {
     "label": "{}",
     "kind": "snippet",
     "detail": "{}",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n  name: 'dnsZone'\n  location: 'global'\n}\n\n```"
+      "value": "```bicep\n{\n\t\n}\n```"
     },
     "deprecated": false,
     "preselect": true,
@@ -82,7 +118,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n  name: ${1:'dnsZone'}\n  location: 'global'\n}\n"
+      "newText": "{\n\t$0\n}"
     }
   }
 ]

@@ -211,65 +211,6 @@ hel|lo
         }
 
         [TestMethod]
-        public async Task VerifyResourceBodyCompletionSnippetSourcedFromSwaggerSpecHasAllRequiredProperties()
-        {
-            string text = "resource Identifier 'Microsoft.Storage/storageAccounts@2019-06-01' =";
-
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-
-            var completions = await client.RequestCompletion(new CompletionParams
-            {
-                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
-            });
-
-            completions.Should().NotBeEmpty();
-
-            var completion = completions.Where(x => x.Label == "{}").First();
-
-            completion.Detail.Should().Be("{}");
-            completion.Preselect.Should().BeTrue();
-            completion.TextEdit!.NewText.Should().BeEquivalentToIgnoringNewlines(@"{
-	kind: $1
-	location: $2
-	name: $3
-	sku: {
-	name: $4
-	}
-	$0
-}
-");
-        }
-
-        [TestMethod]
-        public async Task VerifyResourceBodyCompletionSnippetSourcedFromStaticTemplateFile()
-        {
-            string text = "resource Identifier 'Microsoft.Network/dnsZones@2018-05-01' =";
-
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-
-            var completions = await client.RequestCompletion(new CompletionParams
-            {
-                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
-            });
-
-            completions.Should().NotBeEmpty();
-
-            var completion = completions.Where(x => x.Label == "{}").First();
-
-            completion.Detail.Should().Be("{}");
-            completion.Preselect.Should().BeTrue();
-            completion.TextEdit!.NewText.Should().BeEquivalentToIgnoringNewlines(@"{
-  name: ${1:'dnsZone'}
-  location: 'global'
-}
-");
-        }
-
-        [TestMethod]
         public async Task Completions_are_offered_immediately_before_and_after_comments()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
