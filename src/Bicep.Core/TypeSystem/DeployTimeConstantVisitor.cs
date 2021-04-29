@@ -357,7 +357,7 @@ namespace Bicep.Core.TypeSystem
                 IfConditionSyntax =>
                     diagnosticBuilder.RuntimePropertyNotAllowedInIfConditionExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
                 ForSyntax =>
-                    diagnosticBuilder.RuntimePropertyNotAllowedInForLoopExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
+                    diagnosticBuilder.RuntimePropertyNotAllowedInForExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
                 _ =>
                     throw new ArgumentOutOfRangeException($"Expected {nameof(this.deployTimeConstantScopeSyntax)} to be ObjectPropertySyntax with a propertyName, IfConditionSyntax, or ForSyntax."),
             });
