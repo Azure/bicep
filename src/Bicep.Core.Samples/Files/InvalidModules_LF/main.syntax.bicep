@@ -3621,6 +3621,181 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[76:77)   RightSquare |]|
 //@[77:79) NewLine |\n\n|
 
+module anyTypeInScope 'empty.bicep' = {
+//@[0:91) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |anyTypeInScope|
+//@[22:35)  StringSyntax
+//@[22:35)   StringComplete |'empty.bicep'|
+//@[36:37)  Assignment |=|
+//@[38:91)  ObjectSyntax
+//@[38:39)   LeftBrace |{|
+//@[39:40)   NewLine |\n|
+  dependsOn: [
+//@[2:31)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:31)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:15)     NewLine |\n|
+    any('s')
+//@[4:12)     ArrayItemSyntax
+//@[4:12)      FunctionCallSyntax
+//@[4:7)       IdentifierSyntax
+//@[4:7)        Identifier |any|
+//@[7:8)       LeftParen |(|
+//@[8:11)       FunctionArgumentSyntax
+//@[8:11)        StringSyntax
+//@[8:11)         StringComplete |'s'|
+//@[11:12)       RightParen |)|
+//@[12:13)     NewLine |\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)   NewLine |\n\n|
+
+  scope: any(42)
+//@[2:16)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:16)    FunctionCallSyntax
+//@[9:12)     IdentifierSyntax
+//@[9:12)      Identifier |any|
+//@[12:13)     LeftParen |(|
+//@[13:15)     FunctionArgumentSyntax
+//@[13:15)      IntegerLiteralSyntax
+//@[13:15)       Integer |42|
+//@[15:16)     RightParen |)|
+//@[16:17)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[0:112) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:32)  IdentifierSyntax
+//@[7:32)   Identifier |anyTypeInScopeConditional|
+//@[33:46)  StringSyntax
+//@[33:46)   StringComplete |'empty.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:112)  IfConditionSyntax
+//@[49:51)   Identifier |if|
+//@[51:58)   ParenthesizedExpressionSyntax
+//@[51:52)    LeftParen |(|
+//@[52:57)    BooleanLiteralSyntax
+//@[52:57)     FalseKeyword |false|
+//@[57:58)    RightParen |)|
+//@[59:112)   ObjectSyntax
+//@[59:60)    LeftBrace |{|
+//@[60:61)    NewLine |\n|
+  dependsOn: [
+//@[2:31)    ObjectPropertySyntax
+//@[2:11)     IdentifierSyntax
+//@[2:11)      Identifier |dependsOn|
+//@[11:12)     Colon |:|
+//@[13:31)     ArraySyntax
+//@[13:14)      LeftSquare |[|
+//@[14:15)      NewLine |\n|
+    any('s')
+//@[4:12)      ArrayItemSyntax
+//@[4:12)       FunctionCallSyntax
+//@[4:7)        IdentifierSyntax
+//@[4:7)         Identifier |any|
+//@[7:8)        LeftParen |(|
+//@[8:11)        FunctionArgumentSyntax
+//@[8:11)         StringSyntax
+//@[8:11)          StringComplete |'s'|
+//@[11:12)        RightParen |)|
+//@[12:13)      NewLine |\n|
+  ]
+//@[2:3)      RightSquare |]|
+//@[3:5)    NewLine |\n\n|
+
+  scope: any(42)
+//@[2:16)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:16)     FunctionCallSyntax
+//@[9:12)      IdentifierSyntax
+//@[9:12)       Identifier |any|
+//@[12:13)      LeftParen |(|
+//@[13:15)      FunctionArgumentSyntax
+//@[13:15)       IntegerLiteralSyntax
+//@[13:15)        Integer |42|
+//@[15:16)      RightParen |)|
+//@[16:17)    NewLine |\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[0:114) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:25)  IdentifierSyntax
+//@[7:25)   Identifier |anyTypeInScopeLoop|
+//@[26:39)  StringSyntax
+//@[26:39)   StringComplete |'empty.bicep'|
+//@[40:41)  Assignment |=|
+//@[42:114)  ForSyntax
+//@[42:43)   LeftSquare |[|
+//@[43:46)   Identifier |for|
+//@[47:52)   LocalVariableSyntax
+//@[47:52)    IdentifierSyntax
+//@[47:52)     Identifier |thing|
+//@[53:55)   Identifier |in|
+//@[56:58)   ArraySyntax
+//@[56:57)    LeftSquare |[|
+//@[57:58)    RightSquare |]|
+//@[58:59)   Colon |:|
+//@[60:113)   ObjectSyntax
+//@[60:61)    LeftBrace |{|
+//@[61:62)    NewLine |\n|
+  dependsOn: [
+//@[2:31)    ObjectPropertySyntax
+//@[2:11)     IdentifierSyntax
+//@[2:11)      Identifier |dependsOn|
+//@[11:12)     Colon |:|
+//@[13:31)     ArraySyntax
+//@[13:14)      LeftSquare |[|
+//@[14:15)      NewLine |\n|
+    any('s')
+//@[4:12)      ArrayItemSyntax
+//@[4:12)       FunctionCallSyntax
+//@[4:7)        IdentifierSyntax
+//@[4:7)         Identifier |any|
+//@[7:8)        LeftParen |(|
+//@[8:11)        FunctionArgumentSyntax
+//@[8:11)         StringSyntax
+//@[8:11)          StringComplete |'s'|
+//@[11:12)        RightParen |)|
+//@[12:13)      NewLine |\n|
+  ]
+//@[2:3)      RightSquare |]|
+//@[3:5)    NewLine |\n\n|
+
+  scope: any(42)
+//@[2:16)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:16)     FunctionCallSyntax
+//@[9:12)      IdentifierSyntax
+//@[9:12)       Identifier |any|
+//@[12:13)      LeftParen |(|
+//@[13:15)      FunctionArgumentSyntax
+//@[13:15)       IntegerLiteralSyntax
+//@[13:15)        Integer |42|
+//@[15:16)      RightParen |)|
+//@[16:17)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
 // Key Vault Secret Reference
 //@[29:31) NewLine |\n\n|
 

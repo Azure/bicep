@@ -1,5 +1,5 @@
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
-  name: 'testLocalNetworkGateway'
+  name: 'name'
   location: resourceGroup().location
   properties: {
     addressSpace: {
@@ -23,3 +23,4 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
     ]
   }
 }
+

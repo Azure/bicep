@@ -28,6 +28,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [DataTestMethod]
         [DynamicData(nameof(GetNamespaces), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void FunctionsShouldHaveExpectedSignatures(NamespaceSymbol @namespace)
         {
             var knownOverloads = @namespace.Type.MethodResolver.GetKnownFunctions().Values

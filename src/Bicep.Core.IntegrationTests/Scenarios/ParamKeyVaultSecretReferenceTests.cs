@@ -98,7 +98,7 @@ output exposed string = kv.getSecret('mySecret','secretversionguid')
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP176", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when assigning a value to a module parameter.");
+            result.Should().OnlyContainDiagnostic("BCP177", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when assigning a value to a module parameter.");
         }
 
         [TestMethod]
@@ -114,7 +114,7 @@ var secret = kv.getSecret('mySecret','secretversionguid')
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP176", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when assigning a value to a module parameter.");
+            result.Should().OnlyContainDiagnostic("BCP177", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when assigning a value to a module parameter.");
         }
 
 
@@ -164,7 +164,7 @@ param testParam string
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP177", DiagnosticLevel.Error, "Type \"keyVaultSecretReference\" cannot be used inside string interpolation.");
+            result.Should().OnlyContainDiagnostic("BCP178", DiagnosticLevel.Error, "Type \"keyVaultSecretReference\" cannot be used inside string interpolation.");
         }
 
         [TestMethod]

@@ -1,3 +1,4 @@
-﻿// $1 = 'testLogicApp'
+﻿// $1 = logicApp
+// $2 = 'name'
 
 // Insert snippet here

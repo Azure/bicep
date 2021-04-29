@@ -74,6 +74,42 @@ namespace Bicep.Core
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string TypeNameString = "string";
 
+        /*
+         * The following top-level properties must be set deploy-time constant values,
+         * and it is safe to read them at deploy-time because their values cannot be changed.
+         */
+        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
+        {
+            ResourceIdPropertyName,
+            ResourceNamePropertyName,
+            ResourceTypePropertyName,
+            ResourceApiVersionPropertyName,
+        };
+
+        /*
+         * The following top-level properties must be set deploy-time constant values
+         * when declared in resource bodies. However, it is not safe to read their values
+         * at deploy-time due to the fact that:
+         *   - They can be changed by Policy Modify effect (e.g. tags, sku)
+         *   - Their values may be normalized by RPs
+         *   - Some RPs are doing Put-as-Patch
+         */
+        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames = new[]
+        {
+            "location",
+            "kind",
+            "subscriptionId",
+            "resourceGroup",
+            "managedBy",
+            "extendedLocation",
+            "zones",
+            "plan",
+            "sku",
+            "identity",
+            "managedByExtended",
+            "tags",
+        };
+
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 
@@ -225,7 +261,7 @@ namespace Bicep.Core
 
             var outputsType = new ObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
 
-            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny;
             if (moduleScope != containingScope)
             {
                 // If the module scope matches the parent scope, we can safely omit the scope property
@@ -237,11 +273,11 @@ namespace Bicep.Core
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant),
+                    new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime),
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
-                    new TypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly),
+                    new TypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny),
                 },
                 null);
 
@@ -294,7 +330,7 @@ namespace Bicep.Core
             yield return new TypeProperty("properties", Object);
 
             var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly);
+            yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny);
         }
     }
 }

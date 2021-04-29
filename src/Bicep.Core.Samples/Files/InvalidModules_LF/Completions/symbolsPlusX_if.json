@@ -17,6 +17,48 @@
     }
   },
   {
+    "label": "anyTypeInScope",
+    "kind": "module",
+    "detail": "anyTypeInScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInScope"
+    }
+  },
+  {
+    "label": "anyTypeInScopeConditional",
+    "kind": "module",
+    "detail": "anyTypeInScopeConditional",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInScopeConditional",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInScopeConditional"
+    }
+  },
+  {
+    "label": "anyTypeInScopeLoop",
+    "kind": "module",
+    "detail": "anyTypeInScopeLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInScopeLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInScopeLoop"
+    }
+  },
+  {
     "label": "array",
     "kind": "function",
     "detail": "array()",

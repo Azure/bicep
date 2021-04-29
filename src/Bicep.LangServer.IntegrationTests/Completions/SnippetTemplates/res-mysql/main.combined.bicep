@@ -1,9 +1,10 @@
-resource MySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {
-  name: 'testMySQLdb'
+resource mySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {
+  name: 'name'
   location: resourceGroup().location
   properties: {
-    administratorLogin: 'testUsername'
-    administratorLoginPassword: 'testPassword'
+    administratorLogin: 'administratorLogin'
+    administratorLoginPassword: 'administratorLoginPassword'
     createMode: 'Default'
   }
 }
+

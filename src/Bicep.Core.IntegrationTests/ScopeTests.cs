@@ -311,5 +311,45 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
                 template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[format('My.Rp/myResource/{0}', 'resourceA')]");
             }
         }
+
+        [DataRow("resourceGroup", true)]
+        [DataRow("subscription", true)]
+        [DataRow("managementGroup", true)]
+        [DataRow("tenant", false)]
+        [DataTestMethod]
+        public void Tenant_scope_resources_can_be_deployed_from_anywhere(string targetScope, bool tenantScopeExpected)
+        {
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeProvider = TestTypeHelper.CreateProviderWithTypes(new[] {
+                new ResourceType(typeReference, ResourceScope.Tenant, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                }, null))
+            });
+
+            var (template, diags, _) = CompilationHelper.Compile(typeProvider, ("main.bicep", @"
+targetScope = 'TARGET_SCOPE'
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+  scope: tenant()
+}
+".Replace("TARGET_SCOPE", targetScope)));
+
+            using (new AssertionScope())
+            {
+                diags.Should().BeEmpty();
+                template.Should().NotBeNull();
+
+                const string path = "$.resources[?(@.name == 'resourceA')].scope";
+                if (tenantScopeExpected)
+                {
+                    
+                    template.Should().HaveValueAtPath(path, "/");
+                }
+                else
+                {
+                    template.Should().NotHaveValueAtPath(path);
+                }
+            }
+        }
     }
 }

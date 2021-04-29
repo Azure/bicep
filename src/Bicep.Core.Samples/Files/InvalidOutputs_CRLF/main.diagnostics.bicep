@@ -227,7 +227,7 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 }
 
 output keyVaultOutput string = kv.getSecret('mySecret')
-//@[34:43) [BCP176 (Error)] Function "getSecret" is not valid at this location. It can only be used when assigning a value to a module parameter. |getSecret|
+//@[34:43) [BCP177 (Error)] Function "getSecret" is not valid at this location. It can only be used when assigning a value to a module parameter. |getSecret|
 
 
 // WARNING!!!!! dangling decorators

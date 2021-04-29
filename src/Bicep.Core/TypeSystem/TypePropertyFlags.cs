@@ -33,8 +33,18 @@ namespace Bicep.Core.TypeSystem
         WriteOnly = 1 << 3,
 
         /// <summary>
-        /// This property's value known at the start of the deployment, and does not require inlining.
+        /// The property only accepts deploy-time constants whose values must be known at the start of the deployment, and do not require inlining.
         /// </summary>
         DeployTimeConstant = 1 << 4,
+
+        /// <summary>
+        /// Blocks assignment of the "any" type to the property having this flag.
+        /// </summary>
+        DisallowAny = 1 << 5,
+
+        /// <summary>
+        /// The property's value is readable at deploy-time (e.g., id, name, type, and apiVersion).
+        /// </summary>
+        ReadableAtDeployTime = 1 << 6,
     }
 }

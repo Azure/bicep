@@ -278,30 +278,32 @@ module runtimeValidModule1 'empty.bicep' = {
 
 module runtimeInvalidModule1 'empty.bicep' = {
   name: runtimeValidRes1.location
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 }
 
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
   name: runtimeValidRes1.sku.name
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.sku.name|
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku.name|
 }
 
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.sku['name']|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
-//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['sku']['name']|
+//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku']['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['sku'].name|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
 }
 
 module singleModuleForRuntimeCheck 'modulea.bicep' = {
@@ -315,7 +317,7 @@ var moduleRuntimeCheck2 = moduleRuntimeCheck
 module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
 //@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck|
   name: moduleRuntimeCheck2
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Accessible properties of singleModuleForRuntimeCheck are "name", "scope". |moduleRuntimeCheck2|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Accessible properties of singleModuleForRuntimeCheck are "name". |moduleRuntimeCheck2|
 }]
 
 var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
@@ -323,14 +325,14 @@ var moduleRuntimeCheck4 = moduleRuntimeCheck3
 module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
 //@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck2|
   name: moduleRuntimeCheck4
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleRuntimeCheck4|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleRuntimeCheck4|
 }]
 
 module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
 //@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck3|
   name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
-//@[15:65) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleLoopForRuntimeCheck[1].outputs.stringOutputB|
-//@[67:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleLoopForRuntimeCheck[1].outputs.stringOutputA|
+//@[15:65) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleLoopForRuntimeCheck[1].outputs.stringOutputB|
+//@[67:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleLoopForRuntimeCheck[1].outputs.stringOutputA|
 }]
 
 module moduleWithDuplicateName1 './empty.bicep' = {
@@ -638,6 +640,39 @@ module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[68:74) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |concat|
 
+module anyTypeInScope 'empty.bicep' = {
+//@[7:21) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScope|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScopeConditional|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[7:25) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScopeLoop|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}]
+
 // Key Vault Secret Reference
 
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
@@ -650,13 +685,13 @@ module secureModule1 'modulea.bicep' = {
     stringParamA: kv.getSecret('mySecret')
 //@[18:42) [BCP036 (Error)] The property "stringParamA" expected a value of type "string" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
-//@[21:45) [BCP177 (Error)] Type "keyVaultSecretReference" cannot be used inside string interpolation. |kv.getSecret('mySecret')|
+//@[21:45) [BCP178 (Error)] Type "keyVaultSecretReference" cannot be used inside string interpolation. |kv.getSecret('mySecret')|
     objParam: kv.getSecret('mySecret')
 //@[14:38) [BCP036 (Error)] The property "objParam" expected a value of type "object" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     arrayParam: kv.getSecret('mySecret')
 //@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
-//@[26:50) [BCP177 (Error)] Type "keyVaultSecretReference" cannot be used inside string interpolation. |kv.getSecret('mySecret')|
+//@[26:50) [BCP178 (Error)] Type "keyVaultSecretReference" cannot be used inside string interpolation. |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
 //@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "keyVaultSecretReference". |kv.getSecret('mySecret')|
   }

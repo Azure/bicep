@@ -998,14 +998,19 @@ namespace Bicep.Core.Diagnostics
                     $"The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}");
             }
 
-            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+            public ErrorDiagnostic AnyTypeIsNotAllowed() => new(
                 TextSpan,
                 "BCP176",
+                $"Values of the \"any\" type are not allowed here.");
+
+            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+                TextSpan,
+                "BCP177",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used when assigning a value to a module parameter.");
 
             public ErrorDiagnostic TypeNotValidInStringInterpolation(TypeSymbol type) => new(
                 TextSpan,
-                "BCP177",
+                "BCP178",
                 $"Type \"{type.Name}\" cannot be used inside string interpolation.");
         }
 

@@ -25,6 +25,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void PrintProgram_AnyProgram_ShouldProduceExpectedOutput(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);

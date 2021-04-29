@@ -1,8 +1,8 @@
 // WVD Workspace
-resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
-  name: ${1:'workspaceName'}
+resource ${1:workSpace} 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
+  name: ${2:'name'}
   location: resourceGroup().location
   properties: {
-    friendlyName: ${2:'workspaceFriendlyName'}
+    friendlyName: ${3:'friendlyName'}
   }
 }

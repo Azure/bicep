@@ -28,12 +28,12 @@ resource siteName 'Microsoft.Web/sites@2020-06-01' = {
 }
 
 resource siteLock 'Microsoft.Authorization/locks@2016-09-01' = {
+  scope: siteName
   name: 'siteLock'
   properties: {
     level: 'CanNotDelete'
     notes: 'Site should not be deleted.'
   }
-  scope: siteName
   dependsOn: [
     siteName
   ]

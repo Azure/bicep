@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using System.Collections.Immutable;
+using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -153,10 +154,14 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
+            // Local function.
+            static TypeProperty UpdateFlags(TypeProperty typeProperty, TypePropertyFlags flags) =>
+                new(typeProperty.Name, typeProperty.TypeReference, flags, typeProperty.Description);
+
             var properties = objectType.Properties;
             var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
 
-            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny;
             if (validParentScopes == ResourceScope.Resource)
             {
                 // resource can only be deployed as an extension resource - scope should be required
@@ -166,30 +171,36 @@ namespace Bicep.Core.TypeSystem.Az
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
-                var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
-                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
-
-                if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
-                {
-                    // An existing resource's location is not a deployment-time constant, because it requires runtime evaluation get the value.
-                    properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags & ~TypePropertyFlags.DeployTimeConstant));
-                }
+                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, ScopeHelper.CreateExistingResourceScopeProperty(validParentScopes, scopePropertyFlags));
             }
             else
             {
                 // TODO: remove 'dependsOn' from the type library
-                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly));
+                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
 
-                if (properties.TryGetValue(LanguageConstants.ResourceLocationPropertyName, out var locationTypeProperty))
+                if(ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
                 {
-                    properties = properties.SetItem(LanguageConstants.ResourceLocationPropertyName, new TypeProperty(LanguageConstants.ResourceLocationPropertyName, locationTypeProperty.TypeReference, locationTypeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
+                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
                 }
-                
-                // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
-                if (validParentScopes.HasFlag(ResourceScope.Resource))
+
+                // TODO: move this to the type library.
+                foreach (var propertyName in LanguageConstants.WriteOnlyDeployTimeConstantPropertyNames)
                 {
-                    var scopeReference = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
-                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+                    if (properties.TryGetValue(propertyName, out var typeProperty))
+                    {
+                        // Update tags for deploy-time constant properties that are not readable at deploy-time.
+                        properties = properties.SetItem(propertyName, UpdateFlags(typeProperty, typeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
+                    }
+                }
+            }
+
+            // TODO: move this to the type library.
+            foreach (var propertyName in LanguageConstants.ReadWriteDeployTimeConstantPropertyNames)
+            {
+                if (properties.TryGetValue(propertyName, out var typeProperty))
+                {
+                    // Update tags for standardized resource properties that are always readable at deploy-time.
+                    properties = properties.SetItem(propertyName, UpdateFlags(typeProperty, typeProperty.Flags | TypePropertyFlags.ReadableAtDeployTime));
                 }
             }
 
@@ -197,7 +208,7 @@ namespace Bicep.Core.TypeSystem.Az
             if (!typeReference.IsRootType)
             {
                 var parentType = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
-                var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
+                var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny;
 
                 properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new TypeProperty(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));
             }

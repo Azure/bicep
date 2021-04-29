@@ -16,6 +16,7 @@ using Azure.Bicep.Types.Az;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
@@ -49,6 +50,26 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                 catch (Exception exception)
                 {
                     throw new InvalidOperationException($"Deserializing type {availableType.FormatName()} failed", exception);
+                }
+
+                bool IsSymbolicProperty(TypeProperty property)
+                {
+                    var type = property.TypeReference.Type;
+                    return type is IScopeReference || type == LanguageConstants.ResourceOrResourceCollectionRefItem || type == LanguageConstants.ResourceOrResourceCollectionRefArray;
+                }
+
+                /*
+                   This test is the most expensive one because it deserializes all the types.
+                   Creating a separate test to add a bit of extra validation would basically double the runtime of the Az provider tests.
+                 */
+                {
+                    // some types include a top-level scope property that is different than our own scope property
+                    // so we need to filter by type
+                    var topLevelProperties = GetTopLevelProperties(resourceType);
+                    var symbolicProperties = topLevelProperties.Where(property => IsSymbolicProperty(property));
+                    symbolicProperties.Should().NotBeEmpty();
+
+                    symbolicProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.DisallowAny));
                 }
             }
         }
@@ -150,6 +171,19 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             LanguageConstants.Array,
             LanguageConstants.ResourceRef,
         }.ToImmutableHashSet();
+
+        private static IEnumerable<TypeProperty> GetTopLevelProperties(TypeSymbol type) => type switch
+        {
+            ResourceType resourceType => GetTopLevelProperties(resourceType.Body.Type),
+            ObjectType objectType => objectType.Properties.Values,
+            UnionType union => union.Members
+                .SelectMany(member => GetTopLevelProperties(member.Type)),
+            DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty
+                .AsEnumerable()
+                .Concat(discriminated.UnionMembersByKey.Values.SelectMany(member => GetTopLevelProperties(member))),
+
+            _ => Enumerable.Empty<TypeProperty>()
+        };
 
         private static void VisitAllReachableTypes(TypeSymbol typeSymbol, HashSet<TypeSymbol> visited)
         {

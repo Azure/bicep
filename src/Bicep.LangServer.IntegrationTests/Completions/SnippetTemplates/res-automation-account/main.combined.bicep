@@ -1,5 +1,5 @@
 resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
-  name: 'testAutomationAccount'
+  name: 'name'
   location: resourceGroup().location
   properties: {
     sku: {

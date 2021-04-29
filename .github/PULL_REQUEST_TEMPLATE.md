@@ -18,3 +18,19 @@ If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). 
 * [ ] I have opened a new issue for the proposal, or commented on an existing one, and ensured that the Bicep maintainers are good with the design of the feature being implemented
 * [ ] I have included "Fixes #{issue_number}" in the PR description, so GitHub can link to the issue and close it when the PR is merged
 * [ ] I have appropriate test coverage of my new feature
+
+## Contributing a snippet
+
+* [ ] I have only a single resource in my snippet
+* [ ] I have checked that there is not an equivalent snippet already submitted
+* [ ] I have used camelCasing unless I have a justification to use another casing style
+* [ ] I have placeholders values that correspond to their property names (e.g. `dnsPrefix: 'dnsPrefix'`), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, I use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep#L26)
+* [ ] I have my symbolic name as the first tab stop ($1) in the snippet. e.g. [res-aks-cluster.bicep](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep)
+* [ ] I have a resource name property equal to "name"
+
+  e.g.
+
+  ```bicep
+  resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
+    name: 'name'
+  ```
