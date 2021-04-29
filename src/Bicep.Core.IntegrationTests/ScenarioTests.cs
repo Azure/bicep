@@ -1706,7 +1706,7 @@ resource vwan2 'Microsoft.Network/virtualWans@2020-05-01' = {
     type: 'foo'
   }
   tags: {
-    // Should run deploy-time constant checking for tag1.
+    // Should run deploy-time constant checking for myTag1.
     myTag1: tags.outputs.tagsoutput.tag1
   }
 }
@@ -1723,7 +1723,7 @@ resource nsgs2 'Microsoft.Network/networkSecurityGroups@2019-04-01' = [for i in 
   location: 'westus'
   properties: {}
   tags: {
-    // Should run deploy-time constant checking for tag1.
+    // Should run deploy-time constant checking for myTag1.
     myTag1: tags.outputs.tagsoutput.tag1
   }
 }]
@@ -1757,6 +1757,87 @@ output tagsoutput object = {
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"name\", \"type\"."),
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2391
+        public void Test_Issue2391()
+        {
+            var result = CompilationHelper.Compile(@"
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: 'myVM'
+  location: 'westus'
+  
+  resource vmExts 'extensions' = [for vmExtName in []: {
+    name: vmExtName
+    location: 'westus'
+  }]
+}
+
+output vmExtNames array = [for vmExtName in vm::vmExts: {
+  name: vmExtName
+}]
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.")
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2090
+        public void Test_Issue2090()
+        {
+            var result = CompilationHelper.Compile(@"
+resource vnet 'Microsoft.Network/virtualNetworks@2020-11-01' = {
+  name: 'myVnet'
+}
+
+output snetIds array = [for subnet in vnet.properties.subnets: {
+  subName: subnet.name
+  subId: subnet.id
+}]
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"type\".")
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/1699
+        public void Test_Issue1699()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource rg 'Microsoft.Resources/resourceGroups@2020-10-01' = {
+  name: 'rg'
+  location: 'West US'
+}
+
+var test = [
+  {
+    name: 'test'
+    value: rg.properties.provisioningState
+  }
+]
+
+resource rg2 'Microsoft.Resources/resourceGroups@2020-10-01' = [for item in test: {
+  name: 'rg2'
+  location: 'West US'
+}]
+
+resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.foo == 'bar') {
+  name: 'rg3'
+  location: 'West US'
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"test\" -> \"rg\"). Accessible properties of rg are \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of rg2 are \"apiVersion\", \"id\", \"name\", \"type\".")
             });
         }
     }
