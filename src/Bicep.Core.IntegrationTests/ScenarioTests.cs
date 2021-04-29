@@ -1778,11 +1778,66 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 output vmExtNames array = [for vmExtName in vm::vmExts: {
   name: vmExtName
 }]
-
 ");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.")
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2090
+        public void Test_Issue2090()
+        {
+            var result = CompilationHelper.Compile(@"
+resource vnet 'Microsoft.Network/virtualNetworks@2020-11-01' = {
+  name: 'myVnet'
+}
+
+output snetIds array = [for subnet in vnet.properties.subnets: {
+  subName: subnet.name
+  subId: subnet.id
+}]
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP178", DiagnosticLevel.Error, "The for-loop expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"type\".")
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/1699
+        public void Test_Issue1699()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource rg 'Microsoft.Resources/resourceGroups@2020-10-01' = {
+  name: 'rg'
+  location: 'West US'
+}
+
+var test = [
+  {
+    name: 'test'
+    value: rg.properties.provisioningState
+  }
+]
+
+resource rg2 'Microsoft.Resources/resourceGroups@2020-10-01' = [for item in test: {
+  name: 'rg2'
+  location: 'West US'
+}]
+
+resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.foo == 'bar') {
+  name: 'rg3'
+  location: 'West US'
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP178", DiagnosticLevel.Error, "The for-loop expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"test\" -> \"rg\"). Accessible properties of rg are \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of rg2 are \"apiVersion\", \"id\", \"name\", \"type\".")
             });
         }
     }
