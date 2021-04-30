@@ -67,7 +67,7 @@ module secret 'secret.bicep' = {
 }
 "),
                 ("secret.bicep", @"
-@sys.secure()
+@secure()
 param mySecret string = 'defaultSecret'
 
 output exposed string = mySecret
@@ -217,5 +217,87 @@ param testParam array
             result.Should().NotGenerateATemplate();
             result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
         }
+
+
+        [TestMethod]
+        public void ValidKeyVaultSecretReferenceInLoopedModule()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+var secrets = [
+{
+  name: 'secret01'
+  version: 'versionA'
+}
+{
+  name: 'secret02'
+  version: 'versionB'
+}
+]
+module secret 'secret.bicep' = [for (secret, i) in secrets : {
+  name: 'secret'
+  params: {
+    mySecret: kv.getSecret('super-${secret.name}', secret.version)
+  }
+}]
+"),
+                ("secret.bicep", @"
+@secure()
+param mySecret string = 'defaultSecret'
+
+output exposed string = mySecret
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            var parameterToken = template!.SelectToken("$.resources[?(@.name == 'secret')].properties.parameters.mySecret")!;
+            using (new AssertionScope())
+            {
+                parameterToken.SelectToken("$.value")!.Should().BeNull();
+                parameterToken.SelectToken("$.reference.keyVault.id")!.Should().DeepEqual("[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]");
+                parameterToken.SelectToken("$.reference.secretName")!.Should().DeepEqual("[format('super-{0}', variables('secrets')[copyIndex()].name)]");
+                parameterToken.SelectToken("$.reference.secretVersion")!.Should().DeepEqual("[variables('secrets')[copyIndex()].version]");
+            }
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReferenceInLoopedModule()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+var secrets = [
+{
+  name: 'secret01'
+  version: 'versionA'
+}
+{
+  name: 'secret02'
+  version: 'versionB'
+}
+]
+module secret 'secret.bicep' = [for (secret, i) in secrets : {
+  name: 'secret-{i}'
+  params: {
+    mySecret: '${kv.getSecret(secret.name, secret.version)}'
+  }
+}]
+"),
+                ("secret.bicep", @"
+@secure()
+param mySecret string = 'defaultSecret'
+
+output exposed string = mySecret
+"));
+
+            result.Should().NotGenerateATemplate();
+            result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+        }
     }
 }
+

@@ -23,34 +23,30 @@ namespace Bicep.Core.Emit
         private readonly SemanticModel semanticModel;
         private readonly IDiagnosticWriter diagnosticWriter;
 
-        private readonly Stack<Symbol> visitedSymbolsStack = new();
+        private readonly Stack<(SyntaxBase syntax, Symbol? symbol)> visitedSymbolsStack = new();
         private readonly Stack<VisitedElement> visitedElementsStack = new();
 
         private class VisitorSymbolScope : IDisposable
         {
             private readonly FunctionPlacementValidatorVisitor visitor;
-            private readonly Symbol? symbol;
+            private readonly (SyntaxBase syntax, Symbol? symbol) element;
 
-            public VisitorSymbolScope(FunctionPlacementValidatorVisitor visitor, Symbol? symbol)
+            public VisitorSymbolScope(FunctionPlacementValidatorVisitor visitor, SyntaxBase syntax, Symbol? symbol)
             {
                 this.visitor = visitor;
-                if (symbol is not null)
-                {
-                    this.visitor.visitedSymbolsStack.Push(symbol);
-                    this.symbol = symbol;
-                }
+                this.element = (syntax, symbol);
+                this.visitor.visitedSymbolsStack.Push(this.element);
             }
             public void Dispose()
             {
-                if (symbol is not null)
+
+                var popped = visitor.visitedSymbolsStack.Pop();
+                if (popped != element)
                 {
-                    var popped = visitor.visitedSymbolsStack.Pop();
-                    if (popped != symbol)
-                    {
-                        //this error is thrown only if we forgot to implement pop in the visitor or we implement it wrong
-                        throw new InvalidOperationException($"Unexpected element on visited stack. Expecting symbol {symbol.Name}, got {popped.Name}");
-                    }
+                    //this error is thrown only if we forgot to implement pop in the visitor or we implement it wrong
+                    throw new InvalidOperationException($"Unexpected element on visited stack. Expecting syntax {element.syntax} with symbol {element.symbol?.Name}, got {popped.syntax} with symbol {popped.symbol?.Name}");
                 }
+
             }
         }
 
@@ -93,7 +89,7 @@ namespace Bicep.Core.Emit
 
         protected override void VisitInternal(SyntaxBase node)
         {
-            using var _ = new VisitorSymbolScope(this, semanticModel.GetSymbolInfo(node));
+            using var _ = new VisitorSymbolScope(this, node, semanticModel.GetSymbolInfo(node));
             base.VisitInternal(node);
         }
 
@@ -136,7 +132,7 @@ namespace Bicep.Core.Emit
                 var functionOverload = semanticModel.TypeManager.GetMatchedFunctionOverload(functionSymbol);
                 if (functionOverload is not null && functionOverload.PlacementFlags.HasFlag(FunctionPlacementFlags.ModuleSecureParameterOnly))
                 { // we can check placement only for funtions that were matched and has a proper placement flag
-                    var levelUpSymbol = this.visitedSymbolsStack.Skip(1).FirstOrDefault();
+                    var (_, levelUpSymbol) = this.visitedSymbolsStack.Skip(1).FirstOrDefault();
                     if (!(visitedElementsStack.TryPeek(out var head) && head == VisitedElement.ModuleParams)
                         || levelUpSymbol is not PropertySymbol propertySymbol
                         || !propertySymbol.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
