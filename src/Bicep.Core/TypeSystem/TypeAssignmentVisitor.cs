@@ -356,7 +356,7 @@ namespace Bicep.Core.TypeSystem
                     if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol functionSymbol)
                     {
                         var argumentTypes = this.GetRecoveredArgumentTypes(decoratorSyntax.Arguments).ToArray();
-                        Decorator? decorator = this.binder.FileSymbol.ImportedNamespaces["sys"].Type.DecoratorResolver
+                        var decorator = this.binder.FileSymbol.ImportedNamespaces["sys"].Type.DecoratorResolver
                             .GetMatches(functionSymbol, argumentTypes)
                             .SingleOrDefault();
 

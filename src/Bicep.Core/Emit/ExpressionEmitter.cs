@@ -230,7 +230,7 @@ namespace Bicep.Core.Emit
                 {
                     this.EmitPropertyWithTransform("input", input, expression =>
                     {
-                        if(!CanEmitAsInputDirectly(input))
+                        if (!CanEmitAsInputDirectly(input))
                         {
                             expression = ExpressionConverter.ToFunctionExpression(expression);
                         }
@@ -316,10 +316,11 @@ namespace Bicep.Core.Emit
 
         public void EmitModuleParameterValue(SyntaxBase syntax)
         {
-            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", StringComparison.Ordinal))
+            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison))
             {
                 var objectSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
-                if (objectSymbol is ResourceSymbol resource)
+                if (objectSymbol is ResourceSymbol resource
+                    && string.Equals(resource.GetResourceTypeReference().FullyQualifiedType, "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
                 {
                     writer.WritePropertyName("reference");
                     writer.WriteStartObject();
