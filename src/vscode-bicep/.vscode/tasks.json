@@ -86,6 +86,18 @@
       "group": "build"
     },
     {
+      "label": "build:e2e",
+      "type": "typescript",
+      "tsconfig": "tsconfig.e2e.json",
+      "problemMatcher": "$tsc",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "dependsOn": ["build:prod"],
+      "dependsOrder": "sequence"
+    },
+    {
       "label": "watch",
       "type": "npm",
       "script": "watch",
@@ -127,15 +139,13 @@
       "group": "build"
     },
     {
-      // TODO: remove this and update CI job definitions once we update the e2e tests to test against the bundled files.
-      "label": "compile",
+      "label": "clean",
       "type": "npm",
-      "script": "compile",
-      "problemMatcher": "$tsc",
+      "script": "clean",
+      "group": "build",
       "presentation": {
         "reveal": "silent"
-      },
-      "group": "build"
-    }
+      }
+    },
   ]
 }

@@ -264,12 +264,12 @@ jobs:
         run: npm ci
         working-directory: ./src/vscode-bicep
         
-      - name: Compile
-        run: npm run compile
-        working-directory: ./src/vscode-bicep
-
       - name: Run lint
         run: npm run lint
+        working-directory: ./src/vscode-bicep
+          
+      - name: Run unit tests
+        run: npm run test:unit
         working-directory: ./src/vscode-bicep
 
       - name: Download Language Server
@@ -277,9 +277,13 @@ jobs:
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
-          
-      - name: Run unit tests
-        run: npm run test:unit
+
+      - name: Build prod
+        run: npm run build:prod
+        working-directory: ./src/vscode-bicep
+        
+      - name: Build E2E tests
+        run: npm run build:e2e
         working-directory: ./src/vscode-bicep
 
       - name: Run E2E tests

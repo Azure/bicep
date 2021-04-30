@@ -63,10 +63,10 @@
         "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
       ],
       "outFiles": ["${workspaceRoot}/out/test/e2e/**/*.js"],
-      "preLaunchTask": "compile",
+      "preLaunchTask": "build:e2e",
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll",
-        "NODE_ENV": "test"
+        "TEST_MODE": "e2e"
       }
     }
   ]

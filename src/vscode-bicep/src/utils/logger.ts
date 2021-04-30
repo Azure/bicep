@@ -36,10 +36,10 @@ export class WinstonLogger implements Logger {
       ),
       transports: [
         new outputChannelTransport(outputChannel),
-        ...(isTestEnv()
+        ...(process.env.TEST_MODE === "e2e"
           ? [
               new winston.transports.File({
-                dirname: path.resolve(__dirname, "../.."),
+                dirname: path.resolve(__dirname, ".."),
                 filename: "bicep.log",
                 options: { flags: "w" },
               }),
@@ -83,10 +83,6 @@ class outputChannelTransport extends Transport {
     setImmediate(() => this.outputChannel.appendLine(entry[MESSAGE]));
     next();
   }
-}
-
-function isTestEnv() {
-  return process.env.NODE_ENV === "test";
 }
 
 export function createLogger(

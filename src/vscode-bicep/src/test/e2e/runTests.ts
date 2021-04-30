@@ -60,7 +60,7 @@ async function go() {
         vscodeExecutablePath,
         extensionDevelopmentPath: path.resolve(__dirname, "../../.."),
         extensionTestsPath: path.resolve(__dirname, "index"),
-        extensionTestsEnv: { NODE_ENV: "test" },
+        extensionTestsEnv: { TEST_MODE: "e2e" },
         launchArgs: ["--enable-proposed-api", ...userDataArguments],
       });
     }
