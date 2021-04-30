@@ -13,7 +13,6 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.FileSystem;
-using System;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -130,6 +129,19 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public void Decompilation_with_zero_files_should_produce_expected_error()
+        {
+            var (output, error, result) = ExecuteProgram("decompile");
+
+            using (new AssertionScope())
+            {
+                output.Should().BeEmpty();
+                error.Should().Contain($"The input file path was not specified");
+                result.Should().Be(1);
+            }
+        }
+
+        [TestMethod]
         public void Decompilation_of_file_with_errors()
         {
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
@@ -141,7 +153,11 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 output.Should().BeEmpty();
-                string.Join(string.Empty, error).Should().Contain("Error BCP079: This expression is referencing its own declaration, which is not allowed.");
+                error.Should().Contain(
+                    "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
+                    "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
+                string.Join(string.Empty, error).Should().Contain("(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed.");
                 result.Should().Be(1);
             }
 
@@ -189,7 +205,11 @@ namespace Bicep.Cli.IntegrationTests
                     "    cyclicDependency: resName.properties",
                     "  }",
                     "}");
-                string.Join(string.Empty, error).Should().Contain("Error BCP079: This expression is referencing its own declaration, which is not allowed.");
+                error.Should().Contain(
+                    "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
+                    "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
+                string.Join(string.Empty, error).Should().Contain("(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed.");
                 result.Should().Be(1);
             }
         }
@@ -299,7 +319,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error, result) = ExecuteProgram("decompile", badPath);
             var expectedErrorBadPath = Path.GetFullPath(badPath);
-            var expectedErrorBadUri = new Uri(expectedErrorBadPath);
+            var expectedErrorBadUri = PathHelper.FilePathToFileUrl(expectedErrorBadPath);
 
             using (new AssertionScope())
             {
@@ -320,7 +340,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error, result) = ExecuteProgram("decompile", "--stdout", badPath);
             var expectedErrorBadPath = Path.GetFullPath(badPath);
-            var expectedErrorBadUri = new Uri(expectedErrorBadPath);
+            var expectedErrorBadUri = PathHelper.FilePathToFileUrl(expectedErrorBadPath);
             
             using (new AssertionScope())
             {
@@ -335,7 +355,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void LockedOutputFileShouldProduceExpectedError()
+        public void Locked_output_file_Should_produce_expected_error()
         {
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "Empty.json", string.Empty);
             var outputFile = PathHelper.GetDefaultDecompileOutputPath(inputFile);
