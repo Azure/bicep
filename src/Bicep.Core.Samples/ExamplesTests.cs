@@ -109,6 +109,7 @@ namespace Bicep.Core.Samples
 
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ExampleIsValid(ExampleData example)
         {
             // save all the files in the containing directory to disk so that we can test module resolution

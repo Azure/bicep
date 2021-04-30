@@ -20,11 +20,10 @@ namespace Bicep.Core.TypeSystem
 
         // Since we collect errors top down, we will collect and overwrite this variable and emit it in the end
         private SyntaxBase? errorSyntax;
-        private string? currentProperty;
+        private SyntaxBase? deployTimeConstantScopeSyntax;
         private ObjectType? bodyType;
         private ObjectType? referencedBodyType;
         private Symbol? referencedSymbol;
-        private bool inDeployTimeConstantScope;
 
         private Stack<DeclaredSymbol>? variableVisitorStack;
 
@@ -45,6 +44,10 @@ namespace Bicep.Core.TypeSystem
             foreach (var declaredSymbol in model.Root.ModuleDeclarations)
             {
                 deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
+            }
+            foreach (var outputSymbol in model.Root.OutputDeclarations)
+            {
+                deploymentTimeConstantVisitor.Visit(outputSymbol.DeclaringSyntax);
             }
         }
 
@@ -92,7 +95,50 @@ namespace Bicep.Core.TypeSystem
             base.VisitModuleDeclarationSyntax(syntax);
             this.bodyType = null;
         }
+
+        public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
+        {
+            if (syntax.Value is ForSyntax)
+            {
+                this.Visit(syntax.Value);
+            }
+        }
         #endregion
+
+        public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            this.deployTimeConstantScopeSyntax = syntax;
+            this.Visit(syntax.ConditionExpression);
+
+            if (this.errorSyntax != null)
+            {
+                this.AppendError();
+            }
+
+            this.deployTimeConstantScopeSyntax = null;
+            this.Visit(syntax.Body);
+        }
+
+        public override void VisitForSyntax(ForSyntax syntax)
+        {
+            this.Visit(syntax.OpenSquare);
+            this.Visit(syntax.ForKeyword);
+            this.Visit(syntax.VariableSection);
+            this.Visit(syntax.InKeyword);
+            this.deployTimeConstantScopeSyntax = syntax;
+            this.Visit(syntax.Expression);
+
+            if (this.errorSyntax != null)
+            {
+                this.AppendError();
+            }
+
+            this.deployTimeConstantScopeSyntax = null;
+            this.Visit(syntax.Colon);
+            this.Visit(syntax.Body);
+            this.Visit(syntax.CloseSquare);
+        }
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
         {
@@ -107,26 +153,25 @@ namespace Bicep.Core.TypeSystem
             }
 
             // Only visit the object properties if they are required to be deploy time constant.
-            foreach (var deployTimeIdentifier in syntax.ToNamedPropertyDictionary())
+            foreach (var (propertyName, propertySyntax) in syntax.ToNamedPropertyDictionary())
             {
-                if (this.bodyType.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType) &&
+                if (this.bodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                     propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
-                    // Set inDeployTimeConstantScope for nested deploy-time constant properties such as "tags.*".
-                    this.inDeployTimeConstantScope = true;
+                    this.deployTimeConstantScopeSyntax = propertySyntax;
                 }
 
-                if (this.inDeployTimeConstantScope)
+                if (this.deployTimeConstantScopeSyntax is not null)
                 {
-                    this.currentProperty = deployTimeIdentifier.Key;
-                    this.VisitObjectPropertySyntax(deployTimeIdentifier.Value);
-                    this.currentProperty = null;
+                    // Reset deployTimeConstantScopeSyntax for nested deploy-time constant properties such as "tags.*".
+                    this.deployTimeConstantScopeSyntax = propertySyntax;
+                    this.VisitObjectPropertySyntax(propertySyntax);
                 }
 
                 if (propertyType is not null &&
                     propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
-                    this.inDeployTimeConstantScope = false;
+                    this.deployTimeConstantScopeSyntax = null;
                 }
             }
         }
@@ -274,13 +319,9 @@ namespace Bicep.Core.TypeSystem
             {
                 throw new InvalidOperationException($"{nameof(this.errorSyntax)} is null in {this.GetType().Name}");
             }
-            if (this.currentProperty == null)
+            if (this.deployTimeConstantScopeSyntax == null)
             {
-                throw new InvalidOperationException($"{nameof(this.currentProperty)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
-            }
-            if (this.bodyType == null)
-            {
-                throw new InvalidOperationException($"{nameof(this.bodyType)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
+                throw new InvalidOperationException($"{nameof(this.deployTimeConstantScopeSyntax)} is null in {this.GetType().Name} for syntax {this.errorSyntax}");
             }
             if (this.referencedBodyType == null)
             {
@@ -307,7 +348,19 @@ namespace Bicep.Core.TypeSystem
             }
 
             var variableDependencyChain = this.variableVisitorStack?.ToArray().Reverse().Select(symbol => symbol.Name);
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableProperties, this.referencedSymbol.Name, variableDependencyChain));
+            var diagnosticBuilder = DiagnosticBuilder.ForPosition(this.errorSyntax);
+
+            diagnosticWriter.Write(this.deployTimeConstantScopeSyntax switch
+            {
+                ObjectPropertySyntax propertySyntax when propertySyntax.TryGetKeyText() is { } propertyName =>
+                    diagnosticBuilder.RuntimePropertyNotAllowedInProperty(propertyName, usableProperties, this.referencedSymbol.Name, variableDependencyChain),
+                IfConditionSyntax =>
+                    diagnosticBuilder.RuntimePropertyNotAllowedInIfConditionExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
+                ForSyntax =>
+                    diagnosticBuilder.RuntimePropertyNotAllowedInForExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
+                _ =>
+                    throw new ArgumentOutOfRangeException($"Expected {nameof(this.deployTimeConstantScopeSyntax)} to be ObjectPropertySyntax with a propertyName, IfConditionSyntax, or ForSyntax."),
+            });
 
             ResetState();
         }
