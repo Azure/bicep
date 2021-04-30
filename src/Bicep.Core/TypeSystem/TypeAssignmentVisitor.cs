@@ -39,8 +39,7 @@ namespace Bicep.Core.TypeSystem
         private readonly TypeManager typeManager;
         private readonly IBinder binder;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
-        private FunctionFlags allowedFunctionFlags = FunctionFlags.Default;
-        private bool visitingModule;
+        private readonly IDictionary<FunctionSymbol, FunctionOverload> matchedFunctions;
 
         public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, TypeManager typeManager, IBinder binder)
         {
@@ -48,6 +47,7 @@ namespace Bicep.Core.TypeSystem
             this.typeManager = typeManager;
             this.binder = binder;
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
+            this.matchedFunctions = new Dictionary<FunctionSymbol, FunctionOverload>();
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -61,6 +61,9 @@ namespace Bicep.Core.TypeSystem
 
             return typeAssignment;
         }
+
+        internal FunctionOverload? GetMatchedFunctionOverload(FunctionSymbol function)
+            => matchedFunctions.TryGetValue(function, out var result) ? result : null;
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
             => GetTypeAssignment(syntax).Reference.Type;
@@ -247,7 +250,7 @@ namespace Bicep.Core.TypeSystem
                     var typeSegments = resourceType.TypeReference.Types;
 
                     if (typeSegments.Length > 2 &&
-                        typeSegments.Where((type, i) => i > 0 && i < (typeSegments.Length - 1) &&  StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                        typeSegments.Where((type, i) => i > 0 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
                     {
                         // Special check for (<type>/)+providers(/<type>)+
                         // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
@@ -288,9 +291,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }
-                visitingModule = true;
                 var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
-                visitingModule = false;
                 return result;
             });
 
@@ -318,32 +319,18 @@ namespace Bicep.Core.TypeSystem
                     return declaredType;
                 }
 
-                /*
-                 * Calling FirstOrDefault here because when there are duplicate decorators,
-                 * the top most one takes precedence.
-                 */
-                var allowedDecoratorSyntax = syntax.Decorators.FirstOrDefault(decoratorSyntax =>
-                {
-                    if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol functionSymbol)
-                    {
-                        var argumentTypes = this.GetRecoveredArgumentTypes(decoratorSyntax.Arguments).ToArray();
-                        Decorator? decorator = this.binder.FileSymbol.ImportedNamespaces["sys"].Type.DecoratorResolver
-                            .GetMatches(functionSymbol, argumentTypes)
-                            .SingleOrDefault();
 
-                        if (decorator?.Overload.Name == "allowed")
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                });
-
+                var allowedDecoratorSyntax = GetDecorator(LanguageConstants.ParameterAllowedPropertyName);
 
                 var assignedType = allowedDecoratorSyntax?.Arguments.Single().Expression is ArraySyntax allowedValuesSyntax
                     ? syntax.GetAssignedType(this.typeManager, allowedValuesSyntax)
                     : syntax.GetAssignedType(this.typeManager, null);
+
+                if (ReferenceEquals(assignedType, LanguageConstants.LooseString)
+                    && GetDecorator(LanguageConstants.ParameterSecurePropertyName) is not null)
+                {
+                    assignedType = LanguageConstants.SecureString;
+                }
 
                 switch (syntax.Modifier)
                 {
@@ -359,6 +346,29 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 return assignedType;
+
+                /*
+                 * Calling FirstOrDefault here because when there are duplicate decorators,
+                 * the top most one takes precedence.
+                 */
+                DecoratorSyntax? GetDecorator(string decoratorName) => syntax.Decorators.FirstOrDefault(decoratorSyntax =>
+                {
+                    if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol functionSymbol)
+                    {
+                        var argumentTypes = this.GetRecoveredArgumentTypes(decoratorSyntax.Arguments).ToArray();
+                        Decorator? decorator = this.binder.FileSymbol.ImportedNamespaces["sys"].Type.DecoratorResolver
+                            .GetMatches(functionSymbol, argumentTypes)
+                            .SingleOrDefault();
+
+                        if (decorator is not null && string.Equals(decorator.Overload.Name, decoratorName, LanguageConstants.IdentifierComparison))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+
             });
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
@@ -450,7 +460,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = syntax.GetDeclaredType();
-                
+
                 this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
 
                 var currentDiagnostics = GetOutputDeclarationDiagnostics(declaredType, syntax);
@@ -479,11 +489,6 @@ namespace Bicep.Core.TypeSystem
                 {
                     var expressionType = typeManager.GetTypeInfo(interpolatedExpression);
                     CollectErrors(errors, expressionType);
-                    if (expressionType.TypeKind != TypeKind.Error && !TypeValidator.AreTypesAssignable(expressionType, LanguageConstants.Any))
-                    {
-                        //checking if we're able to assign expression type to 'any' type
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(interpolatedExpression).TypeNotValidInStringInterpolation(expressionType));                        
-                    }
                     expressionTypes.Add(expressionType);
                 }
 
@@ -534,7 +539,7 @@ namespace Bicep.Core.TypeSystem
                 // type results are cached
                 var namedProperties = syntax.Properties
                     .GroupByExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer)
-                    .Select(group => 
+                    .Select(group =>
                     {
                         var resolvedType = UnionType.Create(group.Select(p => typeManager.GetTypeInfo(p)));
 
@@ -574,19 +579,7 @@ namespace Bicep.Core.TypeSystem
                     types.Add(keyType);
                 }
 
-                var vistingModuleParams = visitingModule
-                    && !allowedFunctionFlags.HasFlag(FunctionFlags.ModuleParamsAssignmentOnly)
-                    && syntax.Key is IdentifierSyntax identifierSyntax
-                    && string.Equals(identifierSyntax.IdentifierName, "params", StringComparison.OrdinalIgnoreCase);
-                if (vistingModuleParams)
-                {
-                    allowedFunctionFlags |= FunctionFlags.ModuleParamsAssignmentOnly;
-                }
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
-                if (vistingModuleParams)
-                {
-                    allowedFunctionFlags &= ~FunctionFlags.ModuleParamsAssignmentOnly;
-                }
 
                 CollectErrors(errors, valueType);
 
@@ -945,7 +938,7 @@ namespace Bicep.Core.TypeSystem
 
         private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)
         {
-            if (binder.GetSymbolInfo(decorator.Expression) is {} symbol)
+            if (binder.GetSymbolInfo(decorator.Expression) is { } symbol)
             {
                 return symbol;
             }
@@ -1025,7 +1018,7 @@ namespace Bicep.Core.TypeSystem
                 else
                 {
                     var resolvedSymbol = objectType.MethodResolver.TryGetSymbol(syntax.Name);
-                    foundSymbol = SymbolValidator.ResolveObjectQualifiedFunction(allowedFunctionFlags, resolvedSymbol, syntax.Name, objectType);
+                    foundSymbol = SymbolValidator.ResolveObjectQualifiedFunction(FunctionFlags.Default, resolvedSymbol, syntax.Name, objectType);
                 }
 
                 switch (foundSymbol)
@@ -1082,7 +1075,7 @@ namespace Bicep.Core.TypeSystem
             // There must exist at least one decorator for MissingDeclarationSyntax.
             var lastDecoratorSyntax = syntax.Decorators.Last();
 
-            diagnostics.Write(lastDecoratorSyntax, builder => 
+            diagnostics.Write(lastDecoratorSyntax, builder =>
             {
                 var functionSymbol = this.GetSymbolForDecorator(lastDecoratorSyntax) as FunctionSymbol;
 
@@ -1215,8 +1208,11 @@ namespace Bicep.Core.TypeSystem
             if (matches.Count == 1)
             {
                 // we have an exact match or a single ambiguous match
-                // return its type
-                return matches.Single().ReturnTypeBuilder(argumentSyntaxes);
+                var matchedOverload = matches.Single();
+                // record which function was used to get the type                
+                matchedFunctions.TryAdd(function, matchedOverload);
+                // and return its type
+                return matchedOverload.ReturnTypeBuilder(argumentSyntaxes);
             }
 
             // function arguments are ambiguous (due to "any" type)

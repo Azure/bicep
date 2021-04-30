@@ -1003,15 +1003,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP176",
                 $"Values of the \"any\" type are not allowed here.");
 
-            public ErrorDiagnostic FunctionOnlyValidInModuleParameterAssignment(string functionName) => new(
+            public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
                 TextSpan,
                 "BCP177",
-                $"Function \"{functionName}\" is not valid at this location. It can only be used when assigning a value to a module parameter.");
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
 
-            public ErrorDiagnostic TypeNotValidInStringInterpolation(TypeSymbol type) => new(
-                TextSpan,
-                "BCP178",
-                $"Type \"{type.Name}\" cannot be used inside string interpolation.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

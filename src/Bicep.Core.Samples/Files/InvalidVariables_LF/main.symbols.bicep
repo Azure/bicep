@@ -322,5 +322,5 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 }
 
 var keyVaultSecretVar = kv.getSecret('mySecret')
-//@[4:21) Variable keyVaultSecretVar. Type: error. Declaration start char: 0, length: 48
+//@[4:21) Variable keyVaultSecretVar. Type: string. Declaration start char: 0, length: 48
 

@@ -20,7 +20,7 @@ namespace Bicep.Core.TypeSystem
 
         private readonly ITypeManager typeManager;
         private readonly IDiagnosticWriter diagnosticWriter;
-        
+
         private class TypeValidatorConfig
         {
             public TypeValidatorConfig(bool skipTypeErrors, bool skipConstantCheck, bool disallowAny, TypeMismatchErrorFactory onTypeMismatch)
@@ -72,19 +72,12 @@ namespace Bicep.Core.TypeSystem
                 return false;
             }
 
-            if (sourceType is KeyVaultSecretReferenceType)
-            {
-                // key vault reference type can be assigned only to string type parameters with secure decorator
-                // other usages of this type is forbidden
-                return targetType is PrimitiveType && targetType.Name == LanguageConstants.TypeNameString && targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowKeyVaultSecretReferenceAssignment);
-            }
-
             if (sourceType is AnyType)
             {
                 // "any" type is assignable to all types
                 return true;
             }
-            
+
             switch (targetType)
             {
                 case AnyType _:
@@ -199,24 +192,24 @@ namespace Bicep.Core.TypeSystem
             switch (targetType)
             {
                 case ResourceType targetResourceType:
-                {
-                    var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
+                    {
+                        var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
 
-                    return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);                    
-                }
+                        return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
+                    }
                 case ModuleType targetModuleType:
-                {
-                    var narrowedBody = NarrowType(config, expression, targetModuleType.Body.Type);
+                    {
+                        var narrowedBody = NarrowType(config, expression, targetModuleType.Body.Type);
 
-                    return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
-                }
+                        return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
+                    }
                 case ArrayType loopArrayType when expression is ForSyntax @for:
-                {
-                    // for-expression assignability check
-                    var narrowedBody = NarrowType(config, @for.Body, loopArrayType.Item.Type);
+                    {
+                        // for-expression assignability check
+                        var narrowedBody = NarrowType(config, @for.Body, loopArrayType.Item.Type);
 
-                    return new TypedArrayType(narrowedBody, TypeSymbolValidationFlags.Default);
-                }
+                        return new TypedArrayType(narrowedBody, TypeSymbolValidationFlags.Default);
+                    }
             }
 
             // basic assignability check
@@ -420,7 +413,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     var newConfig = new TypeValidatorConfig(
-                        skipConstantCheck: skipConstantCheckForProperty, 
+                        skipConstantCheck: skipConstantCheckForProperty,
                         skipTypeErrors: true,
                         disallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny),
                         onTypeMismatch: GetPropertyMismatchErrorFactory(ShouldWarn(targetType), declaredProperty.Name));
@@ -504,7 +497,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     var newConfig = new TypeValidatorConfig(
-                        skipConstantCheck: skipConstantCheckForProperty, 
+                        skipConstantCheck: skipConstantCheckForProperty,
                         skipTypeErrors: true,
                         disallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny),
                         onTypeMismatch: typeMismatchErrorFactory);

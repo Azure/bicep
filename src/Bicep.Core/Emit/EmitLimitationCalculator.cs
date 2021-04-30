@@ -22,6 +22,9 @@ namespace Bicep.Core.Emit
             DeployTimeConstantVisitor.ValidateDeployTimeConstants(model, diagnosticWriter);
 
             ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
+
+            FunctionPlacementValidatorVisitor.Validate(model, diagnosticWriter);
+
             DetectDuplicateNames(model, diagnosticWriter, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnosticWriter);
 

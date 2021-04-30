@@ -31,7 +31,8 @@ namespace Bicep.Core.Semantics
                         ? knowFunctionNames.Concat(namespaceType.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
                         : knowFunctionNames;
                 },
-                getMissingNameError: (builder, suggestedName) => suggestedName switch {
+                getMissingNameError: (builder, suggestedName) => suggestedName switch
+                {
                     null => builder.FunctionDoesNotExistInNamespace(namespaceType, identifierSyntax.IdentifierName),
                     _ => builder.FunctionDoesNotExistInNamespaceWithSuggestion(namespaceType, identifierSyntax.IdentifierName, suggestedName),
                 });
@@ -115,11 +116,6 @@ namespace Bicep.Core.Semantics
             if (functionFlags.HasFlag(FunctionFlags.RequiresInlining) && !allowedFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
-            }
-
-            if (functionFlags.HasFlag(FunctionFlags.ModuleParamsAssignmentOnly) && !allowedFlags.HasFlag(FunctionFlags.ModuleParamsAssignmentOnly))
-            {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInModuleParameterAssignment(functionSymbol.Name));
             }
 
             if (functionFlags.HasAnyDecoratorFlag() && allowedFlags.HasAllDecoratorFlags())

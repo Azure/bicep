@@ -33,6 +33,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Allows assigning a secret reference
         /// </summary>
-        AllowKeyVaultSecretReferenceAssignment = 1 << 3,
+        IsSecure = 1 << 3,
     }
 }

@@ -448,7 +448,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
             }
 
-            yield return new DecoratorBuilder(LanguageConstants.ParameterModifierSecureName)
+            yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Object))
@@ -468,7 +468,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .Build();
 
-            yield return new DecoratorBuilder("allowed")
+            yield return new DecoratorBuilder(LanguageConstants.ParameterAllowedPropertyName)
                 .WithDescription("Defines the allowed values of the parameter.")
                 .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
@@ -486,11 +486,11 @@ namespace Bicep.Core.Semantics.Namespaces
                         return;
                     }
 
-                     TypeValidator.NarrowTypeAndCollectDiagnostics(
-                            typeManager,
-                        SingleArgumentSelector(decoratorSyntax),
-                        new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
-                        diagnosticWriter);
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(
+                           typeManager,
+                       SingleArgumentSelector(decoratorSyntax),
+                       new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
+                       diagnosticWriter);
                 })
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();
