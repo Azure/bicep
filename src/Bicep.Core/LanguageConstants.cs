@@ -73,6 +73,42 @@ namespace Bicep.Core
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string TypeNameString = "string";
 
+        /*
+         * The following top-level properties must be set deploy-time constant values,
+         * and it is safe to read them at deploy-time because their values cannot be changed.
+         */
+        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
+        {
+            ResourceIdPropertyName,
+            ResourceNamePropertyName,
+            ResourceTypePropertyName,
+            ResourceApiVersionPropertyName,
+        };
+
+        /*
+         * The following top-level properties must be set deploy-time constant values
+         * when declared in resource bodies. However, it is not safe to read their values
+         * at deploy-time due to the fact that:
+         *   - They can be changed by Policy Modify effect (e.g. tags, sku)
+         *   - Their values may be normalized by RPs
+         *   - Some RPs are doing Put-as-Patch
+         */
+        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames = new[]
+        {
+            "location",
+            "kind",
+            "subscriptionId",
+            "resourceGroup",
+            "managedBy",
+            "extendedLocation",
+            "zones",
+            "plan",
+            "sku",
+            "identity",
+            "managedByExtended",
+            "tags",
+        };
+
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 
@@ -91,7 +127,7 @@ namespace Bicep.Core
 
         // the type of the dependsOn property in module and resource bodies
         public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
-        
+
         public static readonly TypeSymbol String = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment);
@@ -169,7 +205,7 @@ namespace Bicep.Core
         public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {
             yield return new TypeProperty(ResourceIdPropertyName, String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty(ResourceNamePropertyName, String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant);
+            yield return new TypeProperty(ResourceNamePropertyName, String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant);
             yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
             yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
         }
@@ -205,7 +241,7 @@ namespace Bicep.Core
             {
                 yield return "resourceGroup";
             }
-        }        
+        }
 
         public static ResourceScopeType CreateResourceScopeReference(ResourceScope resourceScope)
         {
@@ -222,7 +258,7 @@ namespace Bicep.Core
 
             var outputsType = new ObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
 
-            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
             if (moduleScope != containingScope)
             {
                 // If the module scope matches the parent scope, we can safely omit the scope property
@@ -234,7 +270,7 @@ namespace Bicep.Core
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant),
+                    new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),

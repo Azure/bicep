@@ -148,7 +148,7 @@ for (const filePath of baselineFiles) {
 
         // NOTE - if stderr or status are null, this indicates we were unable to invoke the exe (missing file, or hasn't had 'chmod +x' run)
         expect(result.error).toBeUndefined();
-        expect(result.stderr).toBe('');
+        expect(result.stderr).not.toContain(') : Error ')
         expect(result.status).toBe(0);
       });
     }

@@ -188,7 +188,7 @@
         <key>name</key>
         <string>comment.line.double-slash.bicep</string>
         <key>match</key>
-        <string>//.*$</string>
+        <string>//.*(?=$)</string>
       </dict>
       <key>named-literal</key>
       <dict>
@@ -229,14 +229,18 @@
         <key>name</key>
         <string>meta.object-property.bicep</string>
         <key>begin</key>
-        <string>^(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*})</string>
+        <string>(?&lt;=^)(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*})</string>
         <key>end</key>
-        <string>$</string>
+        <string>(?=$)</string>
         <key>patterns</key>
         <array>
           <dict>
             <key>include</key>
-            <string>#object-property-start</string>
+            <string>#object-property-key-identifier</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#string-literal</string>
           </dict>
           <dict>
             <key>include</key>
@@ -299,47 +303,6 @@
             <string>variable.other.property.bicep</string>
           </dict>
         </dict>
-      </dict>
-      <key>object-property-start</key>
-      <dict>
-        <key>name</key>
-        <string>meta.object-property-start.bicep</string>
-        <key>begin</key>
-        <string>^((?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*)</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>patterns</key>
-            <array>
-              <dict>
-                <key>include</key>
-                <string>#line-comment</string>
-              </dict>
-              <dict>
-                <key>include</key>
-                <string>#block-comment</string>
-              </dict>
-            </array>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>(?=(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*:)</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#string-literal</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#object-property-key-identifier</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#comments</string>
-          </dict>
-        </array>
       </dict>
       <key>string-literal</key>
       <dict>

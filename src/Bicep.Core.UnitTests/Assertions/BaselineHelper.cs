@@ -17,6 +17,7 @@ namespace Bicep.Core.UnitTests.Assertions
         private static readonly string RepoRoot = GetRepoRoot();
 
         private const string SetBaseLineSettingName = "SetBaseLine";
+        public const string BaselineTestCategory = "Baseline";
 
         public static bool ShouldSetBaseline(TestContext testContext) =>
             testContext.Properties.Contains(SetBaseLineSettingName) && string.Equals(testContext.Properties[SetBaseLineSettingName] as string, bool.TrueString, StringComparison.OrdinalIgnoreCase);
@@ -78,7 +79,7 @@ Overwrite the single baseline:
     xcopy /yq {1} {2}
 
 Overwrite all baselines:
-    dotnet test -- 'TestRunParameters.Parameter(name=\""SetBaseLine\"", value=\""true\"")'
+    dotnet test --filter ""TestCategory=Baseline"" -- 'TestRunParameters.Parameter(name=\""SetBaseLine\"", value=\""true\"")'
 ");
                 }
                 else
@@ -88,7 +89,7 @@ Overwrite the single baseline:
     cp {1} {2}
 
 Overwrite all baselines:
-    dotnet test -- 'TestRunParameters.Parameter(name=""SetBaseLine"", value=""true"")'
+    dotnet test --filter ""TestCategory=Baseline"" -- 'TestRunParameters.Parameter(name=""SetBaseLine"", value=""true"")'
 ");
                 }
             }

@@ -26,7 +26,7 @@ const registry = new Registry({
   loadGrammar: async scopeName => {
     const grammar = await readFile(grammarPath, { encoding: 'utf-8' });
 
-    return parseRawGrammar(grammar);    
+    return parseRawGrammar(grammar);
   }
 });
 
@@ -184,16 +184,16 @@ for (const filePath of baselineFiles) {
 
       it('can be compiled', async () => {
         const cliCsproj = `${__dirname}/../../Bicep.Cli/Bicep.Cli.csproj`;
-  
+
         if (!existsSync(cliCsproj)) {
           fail(`Unable to find '${cliCsproj}'`);
           return;
         }
-  
+
         const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], { encoding: 'utf-8' });
-  
+
         expect(result.error).toBeUndefined();
-        expect(result.stderr).toBe('');
+        expect(result.stderr).not.toContain(') : Error ')
         expect(result.status).toBe(0);
       });
     }

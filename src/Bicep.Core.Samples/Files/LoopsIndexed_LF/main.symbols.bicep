@@ -338,8 +338,8 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i)
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
 //@[83:87) Local zone. Type: any. Declaration start char: 83, length: 4
 //@[88:89) Local i. Type: int. Declaration start char: 88, length: 1
-//@[9:34) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 196
-  name: 'no loop variable'
+//@[9:34) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 198
+  name: 'no loop variable 2'
   location: 'eastus'
   dependsOn: [
     duplicatedNames[index]

@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -24,6 +25,8 @@ namespace Bicep.Core.Emit
             ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
             DetectDuplicateNames(model, diagnosticWriter, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnosticWriter);
+            DetectUnexpectedResourceLoopInvariantProperties(model, diagnosticWriter);
+            DetectUnexpectedModuleLoopInvariantProperties(model, diagnosticWriter);
 
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -102,7 +105,14 @@ namespace Bicep.Core.Emit
                     scopeSymbol = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
-                if (resource.Type is not ResourceType resourceType || resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
+                var resourceType = resource.Type switch
+                {
+                    ResourceType singleType => singleType,
+                    ArrayType { Item: ResourceType itemType } => itemType,
+                    _ => null
+                };
+
+                if (resourceType is null || resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
                 {
                     //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
                     continue;
@@ -116,7 +126,14 @@ namespace Bicep.Core.Emit
         {
             foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
             {
-                if (semanticModel.GetTypeInfo(resource.DeclaringSyntax) is not ResourceType resourceType)
+                var resourceType = semanticModel.GetTypeInfo(resource.DeclaringSyntax) switch
+                {
+                    ResourceType singletype => singletype,
+                    ArrayType { Item: ResourceType itemType } => itemType,
+                    _ => null
+                };
+
+                if(resourceType is null)
                 {
                     continue;
                 }
@@ -155,6 +172,118 @@ namespace Bicep.Core.Emit
                     }
                 }
             }
+        }
+
+        public static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
+            {
+                if(resource.DeclaringResource.IsExistingResource())
+                {
+                    // existing resource syntax doesn't result in deployment but instead is
+                    // used as a convenient way of constructing a symbolic name
+                    // as such, invariant names aren't really a concern here
+                    // (and may even be desirable)
+                    continue;
+                }
+
+                if(resource.DeclaringResource.Value is not ForSyntax @for || @for.ItemVariable is not { } itemVariable)
+                {
+                    // invariant identifiers are only a concern for resource loops
+                    // this is not a resource loop OR the item variable is malformed
+                    continue;
+                }
+
+                if(resource.TryGetBodyObjectType() is not { } bodyType)
+                {
+                    // unable to get the object type
+                    continue;
+                }
+
+                // collect the values of the expected variant properties
+                // provided that they exist on the type
+                var expectedVariantPropertiesForType = bodyType.Properties.Values
+                    .Where(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant))
+                    .OrderBy(property => property.Name, LanguageConstants.IdentifierComparer);
+
+                var propertyMap = expectedVariantPropertiesForType
+                    .Select(property => (property, value: resource.SafeGetBodyPropertyValue(property.Name)))
+                    // exclude missing or malformed property values
+                    .Where(pair => pair.value is not null and not SkippedTriviaSyntax)
+                    .ToImmutableDictionary(pair => pair.property, pair => pair.value!);
+
+                if (!propertyMap.Any(pair=>pair.Key.Flags.HasFlag(TypePropertyFlags.Required)))
+                {
+                    // required loop-variant properties have not been set yet
+                    // do not overwarn the user because they have other errors to deal with
+                    continue;
+                }
+
+                var indexVariable = @for.IndexVariable;
+                if (propertyMap.All(pair => IsInvariant(semanticModel, itemVariable, indexVariable, pair.Value)))
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(resource.NameSyntax).ForExpressionContainsLoopInvariants(itemVariable.Name.IdentifierName, indexVariable?.Name.IdentifierName, expectedVariantPropertiesForType.Select(p => p.Name)));
+                }
+            }
+        }
+
+        public static void DetectUnexpectedModuleLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            foreach (var module in semanticModel.Root.ModuleDeclarations)
+            {
+                if (module.DeclaringModule.Value is not ForSyntax @for || @for.ItemVariable is not { } itemVariable)
+                {
+                    // invariant identifiers are only a concern for module loops
+                    // this is not a module loop OR the item variable is malformed
+                    continue;
+                }
+
+                if (module.TryGetBodyObjectType() is not { } bodyType)
+                {
+                    // unable to get the object type
+                    continue;
+                }
+
+                // collect the values of the expected variant properties
+                // provided that they exist on the type
+                var expectedVariantPropertiesForType = bodyType.Properties.Values
+                    .Where(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant))
+                    .OrderBy(property => property.Name, LanguageConstants.IdentifierComparer);
+
+                var propertyMap = expectedVariantPropertiesForType
+                    .Select(property => (property, value: module.SafeGetBodyPropertyValue(property.Name)))
+                    // exclude missing or malformed property values
+                    .Where(pair => pair.value is not null && pair.value is not SkippedTriviaSyntax)
+                    .ToImmutableDictionary(pair => pair.property, pair => pair.value!);
+
+                if (!propertyMap.Any(pair => pair.Key.Flags.HasFlag(TypePropertyFlags.Required)))
+                {
+                    // required loop-variant properties have not been set yet
+                    // do not overwarn the user because they have other errors to deal with
+                    continue;
+                }
+
+                var indexVariable = @for.IndexVariable;
+                if (propertyMap.All(pair => IsInvariant(semanticModel, itemVariable, indexVariable, pair.Value)))
+                {
+                    // all the expected variant properties are loop invariant
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(module.NameSyntax).ForExpressionContainsLoopInvariants(itemVariable.Name.IdentifierName, indexVariable?.Name.IdentifierName, expectedVariantPropertiesForType.Select(p => p.Name)));
+                }
+            }
+        }
+
+        private static bool IsInvariant(SemanticModel semanticModel, LocalVariableSyntax itemVariable, LocalVariableSyntax? indexVariable, SyntaxBase expression)
+        {
+            var referencedLocals = LocalSymbolDependencyVisitor.GetLocalSymbolDependencies(semanticModel, expression);
+
+            bool IsLocalInvariant(LocalVariableSyntax? local) =>
+                local is { } &&
+                semanticModel.GetSymbolInfo(local) is LocalVariableSymbol localSymbol &&
+                !referencedLocals.Contains(localSymbol);
+
+            return indexVariable is null
+                ? IsLocalInvariant(itemVariable)
+                : IsLocalInvariant(itemVariable) && IsLocalInvariant(indexVariable);
         }
     }
 }
