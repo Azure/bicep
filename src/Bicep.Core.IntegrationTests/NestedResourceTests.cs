@@ -3,6 +3,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
@@ -15,6 +16,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -501,8 +503,10 @@ resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP179", DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\""),
+                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression.")
                 });
             }
         }
@@ -532,7 +536,10 @@ output loopy string = parent::child[0].name
 
             using (new AssertionScope())
             {
-                diags.ExcludingMissingTypes().Should().BeEmpty();
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP179",DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"parent\", \"scope\"")
+                });
                 template.Should().NotBeNull();
             }
         }

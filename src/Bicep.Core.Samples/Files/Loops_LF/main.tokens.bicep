@@ -1516,11 +1516,11 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 //@[92:93) Colon |:|
 //@[94:95) LeftBrace |{|
 //@[95:96) NewLine |\n|
-  name: 'no loop variable'
+  name: 'no loop variable 2'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
-//@[8:26) StringComplete |'no loop variable'|
-//@[26:27) NewLine |\n|
+//@[8:28) StringComplete |'no loop variable 2'|
+//@[28:29) NewLine |\n|
   location: 'eastus'
 //@[2:10) Identifier |location|
 //@[10:11) Colon |:|

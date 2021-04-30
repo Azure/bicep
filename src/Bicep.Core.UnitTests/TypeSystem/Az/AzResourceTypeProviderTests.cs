@@ -5,17 +5,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Azure.Bicep.Types;
-using Azure.Bicep.Types.Az;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Bicep.Core.Extensions;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
@@ -23,6 +19,13 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
+        private static readonly ImmutableHashSet<string> ExpectedLoopVariantProperties = new[]
+        {
+            LanguageConstants.ResourceNamePropertyName,
+            LanguageConstants.ResourceScopePropertyName,
+            LanguageConstants.ResourceParentPropertyName
+        }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
+
         [DataTestMethod]
         [DataRow(ResourceTypeGenerationFlags.None)]
         [DataRow(ResourceTypeGenerationFlags.ExistingResource)]
@@ -68,8 +71,13 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                     var topLevelProperties = GetTopLevelProperties(resourceType);
                     var symbolicProperties = topLevelProperties.Where(property => IsSymbolicProperty(property));
                     symbolicProperties.Should().NotBeEmpty();
+                    symbolicProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.DisallowAny), $"because all symbolic properties in type '{availableType.FullyQualifiedType}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.DisallowAny)} flag.");
 
-                    symbolicProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.DisallowAny));
+                    var loopVariantProperties = topLevelProperties.Where(property =>
+                        ExpectedLoopVariantProperties.Contains(property.Name) &&
+                        (!string.Equals(property.Name, LanguageConstants.ResourceScopePropertyName, LanguageConstants.IdentifierComparison) || IsSymbolicProperty(property)));
+                    loopVariantProperties.Should().NotBeEmpty();
+                    loopVariantProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant), $"because all loop variant properties in type '{availableType.FullyQualifiedType}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.LoopVariant)} flag.");
                 }
             }
         }
