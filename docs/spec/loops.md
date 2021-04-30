@@ -154,7 +154,7 @@ In the example below we are implementing the same loop as in the previous exampl
 
 
 ```bicep
-parameter subnetsDefinitions array = [
+param subnetsDefinitions array = [
   {
     name: 'api'
     subnetPrefix: '10.144.0.0/24'
