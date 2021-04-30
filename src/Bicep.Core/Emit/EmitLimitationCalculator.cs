@@ -209,7 +209,7 @@ namespace Bicep.Core.Emit
                 var propertyMap = expectedVariantPropertiesForType
                     .Select(property => (property, value: resource.SafeGetBodyPropertyValue(property.Name)))
                     // exclude missing or malformed property values
-                    .Where(pair => pair.value is not null && pair.value is not SkippedTriviaSyntax)
+                    .Where(pair => pair.value is not null and not SkippedTriviaSyntax)
                     .ToImmutableDictionary(pair => pair.property, pair => pair.value!);
 
                 if (!propertyMap.Any(pair=>pair.Key.Flags.HasFlag(TypePropertyFlags.Required)))
