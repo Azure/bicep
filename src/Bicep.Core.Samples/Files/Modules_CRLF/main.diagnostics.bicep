@@ -236,6 +236,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
+//@[7:55) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |propertyLoopInsideParameterValueInsideModuleLoop|
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
     objParam: {

@@ -270,7 +270,7 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i
 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in []: {
-  name: 'no loop variable'
+  name: 'no loop variable 2'
   location: 'eastus'
   dependsOn: [
     duplicatedNames[index]
