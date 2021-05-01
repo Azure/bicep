@@ -12,13 +12,18 @@ export class ShowSourceCommand implements Command {
     private readonly viewManager: BicepVisualizerViewManager
   ) {}
 
-  public execute(): void {
+  public async execute(): Promise<vscode.TextEditor | undefined> {
     if (this.viewManager.activeDocumentUri) {
-      vscode.workspace
-        .openTextDocument(this.viewManager.activeDocumentUri)
-        .then((document) =>
-          vscode.window.showTextDocument(document, vscode.ViewColumn.One)
-        );
+      const document = await vscode.workspace.openTextDocument(
+        this.viewManager.activeDocumentUri
+      );
+
+      return await vscode.window.showTextDocument(
+        document,
+        vscode.ViewColumn.One
+      );
     }
+
+    return undefined;
   }
 }

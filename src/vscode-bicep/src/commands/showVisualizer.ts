@@ -5,7 +5,7 @@ import vscode from "vscode";
 import { BicepVisualizerViewManager } from "../visualizer";
 import { Command } from "./types";
 
-async function showVisualizer(
+function showVisualizer(
   viewManager: BicepVisualizerViewManager,
   documentUri: vscode.Uri | undefined,
   sideBySide = false
@@ -21,6 +21,8 @@ async function showVisualizer(
     : vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.One;
 
   viewManager.openView(documentUri, viewColumn);
+
+  return viewColumn;
 }
 
 export class ShowVisualizerCommand implements Command {
@@ -30,8 +32,10 @@ export class ShowVisualizerCommand implements Command {
     private readonly viewManager: BicepVisualizerViewManager
   ) {}
 
-  public execute(documentUri?: vscode.Uri | undefined): void {
-    showVisualizer(this.viewManager, documentUri);
+  public execute(
+    documentUri?: vscode.Uri | undefined
+  ): vscode.ViewColumn | undefined {
+    return showVisualizer(this.viewManager, documentUri);
   }
 }
 
@@ -42,7 +46,9 @@ export class ShowVisualizerToSideCommand implements Command {
     private readonly viewManager: BicepVisualizerViewManager
   ) {}
 
-  public execute(documentUri?: vscode.Uri | undefined): void {
-    showVisualizer(this.viewManager, documentUri, true);
+  public execute(
+    documentUri?: vscode.Uri | undefined
+  ): vscode.ViewColumn | undefined {
+    return showVisualizer(this.viewManager, documentUri, true);
   }
 }

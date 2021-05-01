@@ -7,7 +7,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 
 import { createDeploymentGraphMessage, Message } from "./messages";
 import { deploymentGraphRequestType } from "../language";
-import { Disposable, debounce } from "../utils";
+import { Disposable, debounce, getLogger } from "../utils";
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
@@ -15,7 +15,7 @@ export class BicepVisualizerView extends Disposable {
   private readonly onDidDisposeEmitter: vscode.EventEmitter<void>;
   private readonly onDidChangeViewStateEmitter: vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>;
 
-  private readyForRender = false;
+  private readyToRender = false;
 
   private constructor(
     private readonly languageClient: LanguageClient,
@@ -114,7 +114,7 @@ export class BicepVisualizerView extends Disposable {
   public render = debounce(() => this.doRender());
 
   private async doRender() {
-    if (this.isDisposed || !this.readyForRender) {
+    if (this.isDisposed || !this.readyToRender) {
       return;
     }
 
@@ -150,7 +150,9 @@ export class BicepVisualizerView extends Disposable {
 
   private handleDidReceiveMessage(message: Message): void {
     if (message.kind === "READY") {
-      this.readyForRender = true;
+      getLogger().debug(`Visualizer for ${this.documentUri.fsPath} is ready.`);
+
+      this.readyToRender = true;
       this.render();
     }
   }
