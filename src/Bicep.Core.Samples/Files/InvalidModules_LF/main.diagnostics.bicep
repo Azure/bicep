@@ -689,19 +689,20 @@ module secureModule1 'modulea.bicep' = {
   name: 'secureModule1'
   params: {       
     stringParamA: kv.getSecret('mySecret')
-//@[18:42) [BCP179 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[18:42) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
-//@[21:45) [BCP179 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[21:45) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     objParam: kv.getSecret('mySecret')
 //@[14:38) [BCP036 (Error)] The property "objParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
-//@[14:38) [BCP179 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[14:38) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     arrayParam: kv.getSecret('mySecret')
 //@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "string". |kv.getSecret('mySecret')|
-//@[16:40) [BCP179 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[16:40) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
+//@[26:50) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
 //@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
-//@[23:47) [BCP179 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[23:47) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
   }
 }
 

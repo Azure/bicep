@@ -98,7 +98,7 @@ output exposed string = kv.getSecret('mySecret','secretversionguid')
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+            result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
         }
 
         [TestMethod]
@@ -114,7 +114,7 @@ var secret = kv.getSecret('mySecret','secretversionguid')
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+            result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
         }
 
 
@@ -139,7 +139,7 @@ param notSecret string
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+            result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
         }
 
         [TestMethod]
@@ -164,7 +164,7 @@ param testParam string
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+            result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
         }
 
         [TestMethod]
@@ -189,7 +189,7 @@ param testParam object
 
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+            result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
         }
 
         [TestMethod]
@@ -215,7 +215,7 @@ param testParam array
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+            result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
         }
 
 
@@ -239,6 +239,7 @@ var secrets = [
 ]
 module secret 'secret.bicep' = [for (secret, i) in secrets : {
   name: 'secret'
+  scope: resourceGroup('secret-${i}-rg')
   params: {
     mySecret: kv.getSecret('super-${secret.name}', secret.version)
   }
@@ -296,7 +297,7 @@ output exposed string = mySecret
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().OnlyContainDiagnostic("BCP179", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+            result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
         }
     }
 }
