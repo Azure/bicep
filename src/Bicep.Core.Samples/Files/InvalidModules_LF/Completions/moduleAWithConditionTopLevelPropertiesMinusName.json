@@ -14,7 +14,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "dependsOn"
+      "newText": "dependsOn:"
     },
     "commitCharacters": [
       ":"
@@ -35,7 +35,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "params"
+      "newText": "params:"
     },
     "commitCharacters": [
       ":"
@@ -56,7 +56,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "scope"
+      "newText": "scope:"
     },
     "commitCharacters": [
       ":"
