@@ -52,7 +52,9 @@
       "group": {
         "kind": "build",
         "isDefault": true
-      }
+      },
+      "dependsOn": ["clean"],
+      "dependsOrder": "sequence"
     },
     {
       "label": "build:prod",
@@ -83,7 +85,9 @@
           }
         ]
       },
-      "group": "build"
+      "group": "build",
+      "dependsOn": ["clean"],
+      "dependsOrder": "sequence"
     },
     {
       "label": "build:e2e",
@@ -136,7 +140,9 @@
       "presentation": {
         "reveal": "silent"
       },
-      "group": "build"
+      "group": "build",
+      "dependsOn": ["clean"],
+      "dependsOrder": "sequence"
     },
     {
       "label": "clean",
@@ -146,6 +152,6 @@
       "presentation": {
         "reveal": "silent"
       }
-    },
+    }
   ]
 }

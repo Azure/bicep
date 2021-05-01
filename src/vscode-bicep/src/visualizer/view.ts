@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 import vscode from "vscode";
 import path from "path";
+import crypto from "crypto";
 import { LanguageClient } from "vscode-languageclient/node";
 
 import { createDeploymentGraphMessage, Message } from "./messages";
@@ -156,7 +157,7 @@ export class BicepVisualizerView extends Disposable {
 
   private createWebviewHtml() {
     const { cspSource } = this.webviewPanel.webview;
-    const nonce = BicepVisualizerView.getNonce();
+    const nonce = crypto.randomBytes(16).toString("hex");
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
       vscode.Uri.joinPath(this.extensionUri, "out", "visualizer.js")
     );
@@ -194,15 +195,5 @@ export class BicepVisualizerView extends Disposable {
         <div class="vscode-body">${documentName} not found. It might be deleted or renamed.</div>
       </body>
       </html>`;
-  }
-
-  private static getNonce() {
-    let text = "";
-    const possible =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 32; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
   }
 }
