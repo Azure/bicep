@@ -351,12 +351,12 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 // basic nested loop
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[68:69) Local i. Type: int. Declaration start char: 68, length: 1
-//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 279
+//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 328
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
 //@[18:19) Local j. Type: int. Declaration start char: 18, length: 1
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
+      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
   }
@@ -561,3 +561,4 @@ output p4_res1childtype string = p4_child1.type
 //@[7:23) Output p4_res1childtype. Type: string. Declaration start char: 0, length: 47
 output p4_res1childid string = p4_child1.id
 //@[7:21) Output p4_res1childid. Type: string. Declaration start char: 0, length: 43
+

@@ -306,7 +306,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
+      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
   }

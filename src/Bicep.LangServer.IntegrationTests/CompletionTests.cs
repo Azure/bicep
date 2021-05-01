@@ -343,6 +343,60 @@ resource testRes5 'Test.Rp/readWriteTests@2020-01-01' |= {
                 x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)));
         }
 
+        [TestMethod]
+        public async Task PropertyNameCompletionsShouldIncludeTrailingColonIfColonIsMissing()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
+  |
+}
+
+resource testRes2 'Test.Rp/readWriteTests@2020-01-01' = {
+  n|
+}
+");
+            static void AssertPropertyNameCompletionsWithColons(CompletionList list)
+            {
+                list.Where(i => i.Kind == CompletionItemKind.Property)
+                    .Should()
+                    .OnlyContain(x => string.Equals(x.TextEdit!.NewText, x.Label + ':'));
+            }
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var completions = await RequestCompletions(client, syntaxTree, cursors);
+            completions.Should().SatisfyRespectively(
+                l => AssertPropertyNameCompletionsWithColons(l!),
+                l => AssertPropertyNameCompletionsWithColons(l!));
+        }
+
+        [TestMethod]
+        public async Task PropertyNameCompletionsShouldNotIncludeTrailingColonIfItIsPresent()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes2 'Test.Rp/readWriteTests@2020-01-01' = {
+  n|:
+}
+
+resource testRes3 'Test.Rp/readWriteTests@2020-01-01' = {
+  n| :
+}
+");
+            static void AssertPropertyNameCompletionsWithColons(CompletionList list)
+            {
+                list.Where(i => i.Kind == CompletionItemKind.Property)
+                    .Should()
+                    .OnlyContain(x => string.Equals(x.TextEdit!.NewText, x.Label));
+            }
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var completions = await RequestCompletions(client, syntaxTree, cursors);
+            completions.Should().SatisfyRespectively(
+                l => AssertPropertyNameCompletionsWithColons(l!),
+                l => AssertPropertyNameCompletionsWithColons(l!));
+        }
+
         private void ValidateCompletions(DataSet dataSet, string setName, List<(Position position, JToken actual)> intermediate)
         {
             // if the test author asserts on the wrong completion set in their tests
