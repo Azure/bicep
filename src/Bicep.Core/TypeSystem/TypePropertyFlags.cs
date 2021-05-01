@@ -46,5 +46,11 @@ namespace Bicep.Core.TypeSystem
         /// The property's value is readable at deploy-time (e.g., id, name, type, and apiVersion).
         /// </summary>
         ReadableAtDeployTime = 1 << 6,
+
+        /// <summary>
+        /// The property must be loop-variant. In other words, the value of the property must change
+        /// based on the value of the loop item or index variables. This flag has no effect outside of top-level properties.
+        /// </summary>
+        LoopVariant = 1 << 7
     }
 }

@@ -13,6 +13,10 @@ namespace Bicep.Core.TypeSystem
         {
             var unionMembersByKey = new Dictionary<string, ObjectType>();
             var unionKeyTypes = new List<StringLiteralType>();
+
+            // start with required and we will aggregate in everything else
+            var discriminatorPropertyFlags = TypePropertyFlags.Required;
+
             foreach (var member in unionMembers)
             {
                 if (member.Type is not ObjectType objectType)
@@ -24,6 +28,8 @@ namespace Bicep.Core.TypeSystem
                 {
                     throw new ArgumentException("Missing discriminator field on member");
                 }
+
+                discriminatorPropertyFlags |= discriminatorProp.Flags;
 
                 if (discriminatorProp.TypeReference.Type is not StringLiteralType stringLiteral)
                 {
@@ -37,7 +43,7 @@ namespace Bicep.Core.TypeSystem
             this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
             this.ValidationFlags = validationFlags;
             this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes);
-            this.DiscriminatorProperty = new TypeProperty(discriminatorKey, this.DiscriminatorKeysUnionType, TypePropertyFlags.Required);
+            this.DiscriminatorProperty = new TypeProperty(discriminatorKey, this.DiscriminatorKeysUnionType, discriminatorPropertyFlags);
         }
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
