@@ -486,7 +486,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
   
 }
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
+// #completionTest(24,25,26,49,65,69,70) -> resourceTypesWithVersion
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[9:23) Resource unfinishedVnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 468
   name: 'v'
@@ -1832,4 +1832,28 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 //@[9:35) Resource tenantLevelResourceBlocked. Type: Microsoft.Management/managementGroups@2020-05-01. Declaration start char: 0, length: 131
   name: 'tenantLevelResourceBlocked'
 }
+
+// #completionTest(15, 36, 37) -> resourceTypes
+resource comp1 'Microsoft.Resources/'
+//@[9:14) Resource comp1. Type: error. Declaration start char: 0, length: 37
+
+// #completionTest(15,16, 17) -> resourceTypes
+resource comp2 ''
+//@[9:14) Resource comp2. Type: error. Declaration start char: 0, length: 17
+
+// #completionTest(38) -> resourceTypesWithVersion
+resource comp3 'Microsoft.Resources/t'
+//@[9:14) Resource comp3. Type: error. Declaration start char: 0, length: 38
+
+// #completionTest(40) -> resourceTypesWithVersion
+resource comp4 'Microsoft.Resources/t/v'
+//@[9:14) Resource comp4. Type: error. Declaration start char: 0, length: 40
+
+// #completionTest(53) -> resourceTypesWithVersion
+resource comp5 'Microsoft.Resources/templateSpecs@20'
+//@[9:14) Resource comp5. Type: error. Declaration start char: 0, length: 53
+
+// #completionTest(51,52) -> resourceTypesWithVersion
+resource comp6 'Microsoft.Resources/deploymentScripts@2020-10-01'
+//@[9:14) Resource comp6. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 65
 

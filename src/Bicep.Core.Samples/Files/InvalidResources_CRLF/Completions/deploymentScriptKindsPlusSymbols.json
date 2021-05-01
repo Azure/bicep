@@ -467,6 +467,108 @@
     }
   },
   {
+    "label": "comp1",
+    "kind": "interface",
+    "detail": "comp1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp2",
+    "kind": "interface",
+    "detail": "comp2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp3",
+    "kind": "interface",
+    "detail": "comp3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp4",
+    "kind": "interface",
+    "detail": "comp4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp4"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp5",
+    "kind": "interface",
+    "detail": "comp5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp5"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp6",
+    "kind": "interface",
+    "detail": "comp6",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp6",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp6"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "concat",
     "kind": "function",
     "detail": "concat()",

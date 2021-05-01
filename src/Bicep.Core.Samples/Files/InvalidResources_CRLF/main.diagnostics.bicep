@@ -559,7 +559,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
   
 }
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
+// #completionTest(24,25,26,49,65,69,70) -> resourceTypesWithVersion
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'v'
   location: 'eastus'
@@ -1882,4 +1882,33 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 //@[89:131) [BCP135 (Error)] Scope "resourceGroup" is not valid for this resource type. Permitted scopes: "tenant". |{\r\n  name: 'tenantLevelResourceBlocked'\r\n}|
   name: 'tenantLevelResourceBlocked'
 }
+
+// #completionTest(15, 36, 37) -> resourceTypes
+resource comp1 'Microsoft.Resources/'
+//@[15:37) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/'|
+//@[37:37) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(15,16, 17) -> resourceTypes
+resource comp2 ''
+//@[15:17) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |''|
+//@[17:17) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(38) -> resourceTypesWithVersion
+resource comp3 'Microsoft.Resources/t'
+//@[15:38) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/t'|
+//@[38:38) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(40) -> resourceTypesWithVersion
+resource comp4 'Microsoft.Resources/t/v'
+//@[15:40) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/t/v'|
+//@[40:40) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(53) -> resourceTypesWithVersion
+resource comp5 'Microsoft.Resources/templateSpecs@20'
+//@[15:53) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/templateSpecs@20'|
+//@[53:53) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(51,52) -> resourceTypesWithVersion
+resource comp6 'Microsoft.Resources/deploymentScripts@2020-10-01'
+//@[65:65) [BCP018 (Error)] Expected the "=" character at this location. ||
 

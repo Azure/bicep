@@ -393,7 +393,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
   
 }
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
+// #completionTest(24,25,26,49,65,69,70) -> resourceTypesWithVersion
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'v'
   location: 'eastus'
@@ -1428,3 +1428,21 @@ resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01'
 resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
   name: 'tenantLevelResourceBlocked'
 }
+
+// #completionTest(15, 36, 37) -> resourceTypes
+resource comp1 'Microsoft.Resources/'
+
+// #completionTest(15,16, 17) -> resourceTypes
+resource comp2 ''
+
+// #completionTest(38) -> resourceTypesWithVersion
+resource comp3 'Microsoft.Resources/t'
+
+// #completionTest(40) -> resourceTypesWithVersion
+resource comp4 'Microsoft.Resources/t/v'
+
+// #completionTest(53) -> resourceTypesWithVersion
+resource comp5 'Microsoft.Resources/templateSpecs@20'
+
+// #completionTest(51,52) -> resourceTypesWithVersion
+resource comp6 'Microsoft.Resources/deploymentScripts@2020-10-01'

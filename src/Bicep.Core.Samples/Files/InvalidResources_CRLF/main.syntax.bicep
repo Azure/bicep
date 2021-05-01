@@ -2960,8 +2960,8 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
-//@[51:53) NewLine |\r\n|
+// #completionTest(24,25,26,49,65,69,70) -> resourceTypesWithVersion
+//@[68:70) NewLine |\r\n|
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[0:468) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
@@ -10648,6 +10648,84 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 //@[36:38)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
+
+// #completionTest(15, 36, 37) -> resourceTypes
+//@[47:49) NewLine |\r\n|
+resource comp1 'Microsoft.Resources/'
+//@[0:37) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp1|
+//@[15:37)  StringSyntax
+//@[15:37)   StringComplete |'Microsoft.Resources/'|
+//@[37:37)  SkippedTriviaSyntax
+//@[37:37)  SkippedTriviaSyntax
+//@[37:41) NewLine |\r\n\r\n|
+
+// #completionTest(15,16, 17) -> resourceTypes
+//@[46:48) NewLine |\r\n|
+resource comp2 ''
+//@[0:17) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp2|
+//@[15:17)  StringSyntax
+//@[15:17)   StringComplete |''|
+//@[17:17)  SkippedTriviaSyntax
+//@[17:17)  SkippedTriviaSyntax
+//@[17:21) NewLine |\r\n\r\n|
+
+// #completionTest(38) -> resourceTypesWithVersion
+//@[50:52) NewLine |\r\n|
+resource comp3 'Microsoft.Resources/t'
+//@[0:38) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp3|
+//@[15:38)  StringSyntax
+//@[15:38)   StringComplete |'Microsoft.Resources/t'|
+//@[38:38)  SkippedTriviaSyntax
+//@[38:38)  SkippedTriviaSyntax
+//@[38:42) NewLine |\r\n\r\n|
+
+// #completionTest(40) -> resourceTypesWithVersion
+//@[50:52) NewLine |\r\n|
+resource comp4 'Microsoft.Resources/t/v'
+//@[0:40) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp4|
+//@[15:40)  StringSyntax
+//@[15:40)   StringComplete |'Microsoft.Resources/t/v'|
+//@[40:40)  SkippedTriviaSyntax
+//@[40:40)  SkippedTriviaSyntax
+//@[40:44) NewLine |\r\n\r\n|
+
+// #completionTest(53) -> resourceTypesWithVersion
+//@[50:52) NewLine |\r\n|
+resource comp5 'Microsoft.Resources/templateSpecs@20'
+//@[0:53) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp5|
+//@[15:53)  StringSyntax
+//@[15:53)   StringComplete |'Microsoft.Resources/templateSpecs@20'|
+//@[53:53)  SkippedTriviaSyntax
+//@[53:53)  SkippedTriviaSyntax
+//@[53:57) NewLine |\r\n\r\n|
+
+// #completionTest(51,52) -> resourceTypesWithVersion
+//@[53:55) NewLine |\r\n|
+resource comp6 'Microsoft.Resources/deploymentScripts@2020-10-01'
+//@[0:65) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp6|
+//@[15:65)  StringSyntax
+//@[15:65)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[65:65)  SkippedTriviaSyntax
+//@[65:65)  SkippedTriviaSyntax
+//@[65:67) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||
