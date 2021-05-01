@@ -13,11 +13,13 @@ import {
 
 import { DeploymentGraphMessage, Message, READY_MESSAGE } from "../../messages";
 
-declare const vscode: {
+declare function acquireVsCodeApi(): {
   postMessage(message: unknown): void;
   setState(state: unknown): void;
   getState<T>(): T;
 };
+
+const vscode = acquireVsCodeApi();
 
 async function mapToElements(
   graph: DeploymentGraphMessage["deploymentGraph"]

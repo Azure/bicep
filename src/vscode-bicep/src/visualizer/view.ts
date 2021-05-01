@@ -167,18 +167,15 @@ export class BicepVisualizerView extends Disposable {
       <head>
         <meta charset="UTF-8">
         <!--
-        Use a content security policy to only allow loading images from https or from our extension directory,
+        Use a content security policy to only allow loading images from our extension directory,
         and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} https: data:; script-src 'nonce-${nonce}' vscode-webview-resource:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:;">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cat Scratch</title>
       </head>
       <body>
         <div id="root"></div>
-        <script nonce="${nonce}">const vscode = acquireVsCodeApi();</script>
         <script nonce="${nonce}" src="${scriptUri}" />
-
       </body>
       </html>`;
   }

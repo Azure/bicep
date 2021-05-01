@@ -214,6 +214,10 @@ stages:
     - script: npm run test:unit
       displayName: Run unit tests
       workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+
+    - script: npm run test:snapshot
+      displayName: Run snapshot tests
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
     
     # downloads to $(Pipeline.Workspace)/{artifact}
     - download: current
