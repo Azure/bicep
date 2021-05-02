@@ -594,9 +594,10 @@ namespace Bicep.LanguageServer.Completions
 
             // exclude read-only properties as they can't be set
             // exclude properties whose name has been specified in the object already
+            var includeColon = !context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyColonExists);
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.ContainsKey(p.Name) == false)
-                .Select(p => CreatePropertyNameCompletion(p, context.ReplacementRange));
+                .Select(p => CreatePropertyNameCompletion(p, includeColon, context.ReplacementRange));
         }
 
         private static IEnumerable<TypeProperty> GetProperties(TypeSymbol? type)
@@ -764,15 +765,19 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Property)
+        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        {
+            var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
+            var suffix = includeColon ? ":" : string.Empty;
+            return CompletionItemBuilder.Create(CompletionItemKind.Property)
                 .WithLabel(property.Name)
-                // property names containg spaces need to be escaped
-                .WithPlainTextEdit(replacementRange, IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name)
+                // property names that much Bicep keywords or containing non-identifier chars need to be escaped
+                .WithPlainTextEdit(replacementRange, $"{escapedPropertyName}{suffix}")
                 .WithCommitCharacters(PropertyCommitChars)
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
                 .WithSortText(GetSortText(property.Name, priority));
+        }
 
         private static CompletionItem CreatePropertyIndexCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {

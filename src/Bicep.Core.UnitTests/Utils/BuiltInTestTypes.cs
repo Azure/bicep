@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Utils
         private static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {
             yield return new TypeProperty(LanguageConstants.ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "id property");
-            yield return new TypeProperty(LanguageConstants.ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant, "name property");
+            yield return new TypeProperty(LanguageConstants.ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "name property");
             yield return new TypeProperty(LanguageConstants.ResourceTypePropertyName, new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "type property");
             yield return new TypeProperty(LanguageConstants.ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "apiVersion property");
         }

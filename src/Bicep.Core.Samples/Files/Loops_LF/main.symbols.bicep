@@ -325,8 +325,8 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
 //@[82:86) Local zone. Type: any. Declaration start char: 82, length: 4
-//@[9:34) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 192
-  name: 'no loop variable'
+//@[9:34) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 194
+  name: 'no loop variable 2'
   location: 'eastus'
   dependsOn: [
     duplicatedNames[index]

@@ -2930,18 +2930,18 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 //@[1:5) NewLine |\r\n\r\n|
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:304) ResourceDeclarationSyntax
+//@[0:358) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:44)  IdentifierSyntax
 //@[9:44)   Identifier |missingTopLevelPropertiesExceptName|
 //@[45:99)  StringSyntax
 //@[45:99)   StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
 //@[100:101)  Assignment |=|
-//@[102:304)  ObjectSyntax
+//@[102:358)  ObjectSyntax
 //@[102:103)   LeftBrace |{|
 //@[103:105)   NewLine |\r\n|
-  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
-//@[60:62)   NewLine |\r\n|
+  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+//@[114:116)   NewLine |\r\n|
   name: 'me'
 //@[2:12)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax

@@ -1875,8 +1875,8 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[100:101) Assignment |=|
 //@[102:103) LeftBrace |{|
 //@[103:105) NewLine |\r\n|
-  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
-//@[60:62) NewLine |\r\n|
+  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+//@[114:116) NewLine |\r\n|
   name: 'me'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|

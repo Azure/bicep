@@ -1465,8 +1465,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[34:35) Colon |:|
 //@[36:37) LeftBrace |{|
 //@[37:39) NewLine |\r\n|
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
-//@[64:66) NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties #completionTest(6) -> subnetIdAndPropertiesNoColon
+//@[113:115) NewLine |\r\n|
       name: 'subnet-${i}-${j}'
 //@[6:10) Identifier |name|
 //@[10:11) Colon |:|
@@ -2331,4 +2331,6 @@ output p4_res1childid string = p4_child1.id
 //@[31:40) Identifier |p4_child1|
 //@[40:41) Dot |.|
 //@[41:43) Identifier |id|
-//@[43:43) EndOfFile ||
+//@[43:45) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

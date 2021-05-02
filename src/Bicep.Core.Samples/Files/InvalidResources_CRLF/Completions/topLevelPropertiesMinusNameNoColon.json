@@ -1,0 +1,220 @@
+[
+  {
+    "label": "dependsOn",
+    "kind": "property",
+    "detail": "dependsOn",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `(module[] | (resource | module) | resource[])[]`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dependsOn",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dependsOn"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "extendedLocation",
+    "kind": "property",
+    "detail": "extendedLocation",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ExtendedLocation`  \nThe complex type of the extended location.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_extendedLocation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "extendedLocation"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "identity",
+    "kind": "property",
+    "detail": "identity",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Identity`  \nIdentity for the resource.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_identity",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "identity"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "kind",
+    "kind": "property",
+    "detail": "kind (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2'`  \nRequired. Indicates the type of storage account.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_kind",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "kind"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "location",
+    "kind": "property",
+    "detail": "location (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRequired. Gets or sets the location of the resource. This will be one of the supported and registered Azure Geo Regions (e.g. West US, East US, Southeast Asia, etc.). The geo region of a resource cannot be changed once it is created, but if an identical geo region is specified on update, the request will succeed.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_location",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "location"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "properties",
+    "kind": "property",
+    "detail": "properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `StorageAccountPropertiesCreateParameters`  \nThe parameters used to create the storage account.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_properties",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "properties"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "resource",
+    "kind": "keyword",
+    "detail": "Resource keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resource",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource"
+    }
+  },
+  {
+    "label": "resource",
+    "kind": "snippet",
+    "detail": "Nested resource with defaults",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resource",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
+    }
+  },
+  {
+    "label": "resource",
+    "kind": "snippet",
+    "detail": "Nested resource without defaults",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  \n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resource",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  $0\n}\n"
+    }
+  },
+  {
+    "label": "sku",
+    "kind": "property",
+    "detail": "sku (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Sku`  \nThe SKU of the storage account.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sku",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sku"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "tags",
+    "kind": "property",
+    "detail": "tags",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Dictionary<string,String>`  \nGets or sets a list of key value pairs that describe the resource. These tags can be used for viewing and grouping this resource (across resource groups). A maximum of 15 tags can be provided for a resource. Each tag must have a key with a length no greater than 128 characters and a value with a length no greater than 256 characters.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_tags",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "tags"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]
