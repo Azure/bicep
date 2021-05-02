@@ -9,13 +9,25 @@ const examplesRoot = path.resolve(
   "../../../../src/test/e2e/examples"
 );
 
+export function resolveExamplePath(
+  exampleCategory: string,
+  exampleFolder: string,
+  exampleFile = "main.bicep"
+): string {
+  return path.resolve(
+    examplesRoot,
+    exampleCategory,
+    exampleFolder,
+    exampleFile
+  );
+}
+
 export function readExampleFile(
   exampleCategory: string,
   exampleFolder: string,
   exampleFile = "main.bicep"
 ): string {
-  const exampleFilePath = path.resolve(
-    examplesRoot,
+  const exampleFilePath = resolveExamplePath(
     exampleCategory,
     exampleFolder,
     exampleFile

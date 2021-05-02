@@ -44,10 +44,10 @@ export class BicepVisualizerViewManager
     return this.activeUri;
   }
 
-  public openView(
+  public async openView(
     documentUri: vscode.Uri,
     viewColumn: vscode.ViewColumn
-  ): void {
+  ): Promise<void> {
     const existingView = this.viewsByPath.get(documentUri.fsPath);
 
     if (existingView) {
@@ -65,7 +65,7 @@ export class BicepVisualizerViewManager
       )
     );
 
-    this.setVisualizerActiveContext(true);
+    await this.setVisualizerActiveContext(true);
     this.activeUri = documentUri;
   }
 
@@ -127,8 +127,8 @@ export class BicepVisualizerViewManager
     return view;
   }
 
-  private setVisualizerActiveContext(value: boolean) {
-    vscode.commands.executeCommand(
+  private async setVisualizerActiveContext(value: boolean) {
+    await vscode.commands.executeCommand(
       "setContext",
       BicepVisualizerViewManager.visualizerActiveContextKey,
       value

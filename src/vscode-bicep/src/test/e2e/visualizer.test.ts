@@ -4,7 +4,7 @@ import vscode from "vscode";
 import path from "path";
 import fs from "fs";
 
-import { readExampleFile } from "./examples";
+import { resolveExamplePath } from "./examples";
 import {
   executeShowSourceCommand,
   executeShowVisualizerCommand,
@@ -16,76 +16,65 @@ import { expectDefined } from "../utils/assert";
 const extensionLogPath = path.join(__dirname, "../../../bicep.log");
 
 describe("visualizer", (): void => {
-  let document: vscode.TextDocument;
-  let content: string;
-  let readyMessage: string;
-  let sourceColumn: vscode.ViewColumn;
-
-  beforeEach(async () => {
-    content = readExampleFile("201", "sql");
-    // Open the document once to warm up the language server.
-    document = await vscode.workspace.openTextDocument({
-      language: "bicep",
-      content,
-    });
-    readyMessage = `Visualizer for ${document.uri.fsPath} is ready.`;
-
-    const editor = await vscode.window.showTextDocument(document);
-    expectDefined(editor.viewColumn);
-    sourceColumn = editor.viewColumn;
-
-    // Give the language server sometime to finish compilation.
-    await sleep(2000);
-  });
-
   afterEach(async () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
   });
 
   it("should open visualizer webview", async () => {
+    const examplePath = resolveExamplePath("101", "vm-simple-linux");
+    const document = await vscode.workspace.openTextDocument(examplePath);
+    const editor = await vscode.window.showTextDocument(document);
+
+    // Give the language server sometime to finish compilation.
+    await sleep(2000);
+
     const viewColumn = await retryWhile(
       async () => await executeShowVisualizerCommand(document.uri),
-      () => !exsitsInExtensionLog(readyMessage)
+      () => !visualizerIsReady(document.uri)
     );
 
-    expect(exsitsInExtensionLog(readyMessage)).toBeTruthy();
+    expect(visualizerIsReady(document.uri)).toBeTruthy();
     expectDefined(viewColumn);
-    expect(viewColumn).toBe(sourceColumn);
+    expect(viewColumn).toBe(editor.viewColumn);
   });
 
   it("should open visualizer webview to side", async () => {
+    const examplePath = resolveExamplePath("201", "sql");
+    const document = await vscode.workspace.openTextDocument(examplePath);
+    await vscode.window.showTextDocument(document);
+
+    // Give the language server sometime to finish compilation.
+    await sleep(2000);
+
     const viewColumn = await retryWhile(
       async () => await executeShowVisualizerToSideCommand(document.uri),
-      () => !exsitsInExtensionLog(readyMessage)
+      () => !visualizerIsReady(document.uri)
     );
 
-    expect(exsitsInExtensionLog(readyMessage)).toBeTruthy();
+    expect(visualizerIsReady(document.uri)).toBeTruthy();
     expectDefined(viewColumn);
     expect(viewColumn).toBe(vscode.ViewColumn.Beside);
   });
 
   it("should open source", async () => {
-    await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
     expect(vscode.window.activeTextEditor).toBeUndefined();
 
-    await retryWhile(
-      async () => await executeShowVisualizerCommand(document.uri),
-      () => !exsitsInExtensionLog(readyMessage)
-    );
+    const examplePath = resolveExamplePath("201", "sql");
+    const textDocument = await vscode.workspace.openTextDocument(examplePath);
 
-    expect(exsitsInExtensionLog(readyMessage)).toBeTruthy();
-
+    await executeShowVisualizerCommand(textDocument.uri);
     const sourceEditor = await executeShowSourceCommand();
 
     expectDefined(sourceEditor);
     expect(sourceEditor).toBe(vscode.window.activeTextEditor);
   });
 
-  function exsitsInExtensionLog(text: string): boolean {
+  function visualizerIsReady(documentUri: vscode.Uri): boolean {
     if (!fs.existsSync(extensionLogPath)) {
       return false;
     }
 
-    return fs.readFileSync(extensionLogPath).indexOf(text) >= 0;
+    const readyMessage = `Visualizer for ${documentUri.fsPath} is ready.`;
+    return fs.readFileSync(extensionLogPath).indexOf(readyMessage) >= 0;
   }
 });
