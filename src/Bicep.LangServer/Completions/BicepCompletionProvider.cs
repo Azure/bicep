@@ -219,7 +219,9 @@ namespace Bicep.LanguageServer.Completions
             
             // if we do not have the namespace and type notation, we only return uniquie resource types without their api-versions
             // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
+            // we still order by apiVersion first to have consistent indexes
             return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+                .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
                 .GroupBy(rt => rt.FullyQualifiedType)
                 .Select(rt => rt.First())
                 .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
