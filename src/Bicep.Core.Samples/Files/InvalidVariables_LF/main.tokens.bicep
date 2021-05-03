@@ -54,7 +54,7 @@ var 2
 //@[6:7) NewLine |\n|
 var $ = 23
 //@[0:3) Identifier |var|
-//@[4:5) Unrecognized |$|
+//@[4:5) Dollar |$|
 //@[6:7) Assignment |=|
 //@[8:10) Integer |23|
 //@[10:11) NewLine |\n|

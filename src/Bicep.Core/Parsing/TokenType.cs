@@ -14,6 +14,7 @@ namespace Bicep.Core.Parsing
         RightSquare,
         Comma,
         Dot,
+        Dollar,
         Question,
         Colon,
         Semicolon,

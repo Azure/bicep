@@ -2465,7 +2465,7 @@ var partialObject = {
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |b|
 //@[4:5)    SkippedTriviaSyntax
-//@[4:5)     Unrecognized |$|
+//@[4:5)     Dollar |$|
 //@[5:5)    SkippedTriviaSyntax
 //@[5:6)   NewLine |\n|
   a # 22

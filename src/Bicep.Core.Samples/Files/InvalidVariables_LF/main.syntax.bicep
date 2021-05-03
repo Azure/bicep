@@ -82,7 +82,7 @@ var $ = 23
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   SkippedTriviaSyntax
-//@[4:5)    Unrecognized |$|
+//@[4:5)    Dollar |$|
 //@[6:7)  Assignment |=|
 //@[8:10)  IntegerLiteralSyntax
 //@[8:10)   Integer |23|

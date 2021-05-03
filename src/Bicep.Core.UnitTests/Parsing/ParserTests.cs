@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Text;
@@ -341,6 +341,20 @@ namespace Bicep.Core.UnitTests.Parsing
         public void CoalesceShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [TestMethod]
+        public void ResourceDeclarationSyntaxName_WithSnippetPlaceholderInSymbolicName_ShouldBeValid()
+        {
+            string text = @"resource ${1:dnsZone} 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: ${2:'name'}
+  location: 'global'
+}";
+
+            ProgramSyntax programSyntax = ParserHelper.Parse(text);
+            ResourceDeclarationSyntax? resourceDeclarationSyntax = programSyntax.Children[0] as ResourceDeclarationSyntax;
+
+            Assert.AreEqual("${1:dnsZone}", resourceDeclarationSyntax!.Name.IdentifierName);
         }
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)

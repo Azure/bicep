@@ -735,6 +735,8 @@ namespace Bicep.Core.Parsing
                     return TokenType.Comma;
                 case '.':
                     return TokenType.Dot;
+                case '$':
+                    return TokenType.Dollar;
                 case '?':
                     if (!textWindow.IsAtEnd())
                     {

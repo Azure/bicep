@@ -34,7 +34,6 @@ var 2
 //@[6:6) [BCP018 (Error)] Expected the "=" character at this location. ||
 var $ = 23
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |$|
-//@[4:5) [BCP001 (Error)] The following token is not recognized: "$". |$|
 var # 33 = 43
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |#|
 //@[4:5) [BCP001 (Error)] The following token is not recognized: "#". |#|

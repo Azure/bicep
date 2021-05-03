@@ -443,7 +443,6 @@ var partialObject = {
 //@[3:3) [BCP018 (Error)] Expected the ":" character at this location. ||
   b $
 //@[4:5) [BCP018 (Error)] Expected the ":" character at this location. |$|
-//@[4:5) [BCP001 (Error)] The following token is not recognized: "$". |$|
 //@[5:5) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
   a # 22
 //@[2:3) [BCP025 (Error)] The property "a" is declared multiple times in this object. Remove or rename the duplicate properties. |a|

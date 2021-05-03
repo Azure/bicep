@@ -1537,7 +1537,7 @@ var partialObject = {
 //@[3:4) NewLine |\n|
   b $
 //@[2:3) Identifier |b|
-//@[4:5) Unrecognized |$|
+//@[4:5) Dollar |$|
 //@[5:6) NewLine |\n|
   a # 22
 //@[2:3) Identifier |a|
