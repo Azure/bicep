@@ -286,10 +286,10 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
 	location: $3
 	name: $4
 	sku: {
-	name: $5
-	properties: {
-	loadBalancerType: $6
-	}
+		name: $5
+		properties: {
+			loadBalancerType: $6
+		}
 	}
 	$0
 }");

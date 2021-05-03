@@ -228,7 +228,7 @@ namespace Bicep.LanguageServer.Snippets
 
                 foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
                 {
-                    string? snippetText = GetSnippetText(kvp.Value, ref index);
+                    string? snippetText = GetSnippetText(kvp.Value, indentLevel: 1, ref index);
 
                     if (snippetText is not null)
                     {
@@ -251,7 +251,7 @@ namespace Bicep.LanguageServer.Snippets
             return null;
         }
 
-        private string? GetSnippetText(TypeProperty typeProperty, ref int index)
+        private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index)
         {
             if (typeProperty.Flags.HasFlag(TypePropertyFlags.Required))
             {
@@ -259,22 +259,25 @@ namespace Bicep.LanguageServer.Snippets
 
                 if (typeProperty.TypeReference.Type is ObjectType objectType)
                 {
-                    sb.AppendLine("\t" + typeProperty.Name + ": {");
+                    sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + ": {");
+
+                    indentLevel++;
 
                     foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
                     {
-                        string? snippetText = GetSnippetText(kvp.Value, ref index);
+                        string? snippetText = GetSnippetText(kvp.Value, indentLevel, ref index);
                         if (snippetText is not null)
                         {
                             sb.Append(snippetText);
                         }
                     }
 
-                    sb.AppendLine("\t}");
+                    indentLevel--;
+                    sb.AppendLine(GetIndentString(indentLevel) + "}");
                 }
                 else
                 {
-                    sb.AppendLine("\t" + typeProperty.Name + ": $" + (index).ToString());
+                    sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + ": $" + (index).ToString());
                     index++;
                 }
 
@@ -282,6 +285,11 @@ namespace Bicep.LanguageServer.Snippets
             }
 
             return null;
+        }
+
+        private string GetIndentString(int indentLevel)
+        {
+            return new string('\t', indentLevel);
         }
 
         private Snippet GetEmptySnippet()
