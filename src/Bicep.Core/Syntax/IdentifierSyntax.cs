@@ -84,7 +84,6 @@ namespace Bicep.Core.Syntax
                 }
 
                 string text = sb.ToString();
-
                 if (SnippetPlaceholderPattern.IsMatch(text))
                 {
                     return text;

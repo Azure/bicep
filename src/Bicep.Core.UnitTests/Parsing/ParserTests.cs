@@ -350,7 +350,6 @@ namespace Bicep.Core.UnitTests.Parsing
   name: ${2:'name'}
   location: 'global'
 }";
-
             ProgramSyntax programSyntax = ParserHelper.Parse(text);
             ResourceDeclarationSyntax? resourceDeclarationSyntax = programSyntax.Children[0] as ResourceDeclarationSyntax;
 
