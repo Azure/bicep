@@ -309,9 +309,10 @@ namespace Bicep.Core.TypeSystem
                 // do a reverse lookup to check if there's any misspelled discriminator key
                 var misspelledDiscriminatorKey = SpellChecker.GetSpellingSuggestion(targetType.DiscriminatorKey, propertyKeys);
 
-                if (misspelledDiscriminatorKey != null)
+                if (misspelledDiscriminatorKey is not null)
                 {
-                    diagnosticWriter.Write(expression, x => x.DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
+                    var misspelledDiscriminatorProperty = expression.Properties.First(x => string.Equals(x.TryGetKeyText(), misspelledDiscriminatorKey));
+                    diagnosticWriter.Write(misspelledDiscriminatorProperty.Key, x => x.DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
                 }
 
                 return LanguageConstants.Any;
