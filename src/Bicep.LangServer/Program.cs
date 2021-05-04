@@ -20,7 +20,7 @@ namespace Bicep.LanguageServer
                     Console.OpenStandardOutput(),
                     new Server.CreationOptions
                     {
-                        ResourceTypeProvider = new AzResourceTypeProvider(),
+                        ResourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes(),
                         FileResolver = new FileResolver(),
                     });
 

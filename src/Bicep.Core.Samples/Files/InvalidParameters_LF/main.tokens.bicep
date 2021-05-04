@@ -1796,7 +1796,205 @@ param invalidLength string
 //@[0:5) Identifier |param|
 //@[6:19) Identifier |invalidLength|
 //@[20:26) Identifier |string|
-//@[26:28) NewLine |\n\n|
+//@[26:29) NewLine |\n\n\n|
+
+
+param invalidPermutation array {
+//@[0:5) Identifier |param|
+//@[6:24) Identifier |invalidPermutation|
+//@[25:30) Identifier |array|
+//@[31:32) LeftBrace |{|
+//@[32:33) NewLine |\n|
+    default: [
+//@[4:11) Identifier |default|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+		'foobar'
+//@[2:10) StringComplete |'foobar'|
+//@[10:11) NewLine |\n|
+		true
+//@[2:6) TrueKeyword |true|
+//@[6:7) NewLine |\n|
+        100
+//@[8:11) Integer |100|
+//@[11:12) NewLine |\n|
+	]
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+    allowed: [
+//@[4:11) Identifier |allowed|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39) NewLine |\n|
+		'Microsoft.ApiManagement/service'
+//@[2:35) StringComplete |'Microsoft.ApiManagement/service'|
+//@[35:36) NewLine |\n|
+		'Microsoft.Network/applicationGateways'
+//@[2:41) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[41:42) NewLine |\n|
+		'Microsoft.Automation/automationAccounts'
+//@[2:43) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[43:44) NewLine |\n|
+		'Microsoft.ContainerInstance/containerGroups'
+//@[2:47) StringComplete |'Microsoft.ContainerInstance/containerGroups'|
+//@[47:48) NewLine |\n|
+		'Microsoft.ContainerRegistry/registries'
+//@[2:42) StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[42:43) NewLine |\n|
+		'Microsoft.ContainerService/managedClusters'
+//@[2:46) StringComplete |'Microsoft.ContainerService/managedClusters'|
+//@[46:47) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+@allowed([
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+	'Microsoft.AnalysisServices/servers'
+//@[1:37) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[37:38) NewLine |\n|
+	'Microsoft.ApiManagement/service'
+//@[1:34) StringComplete |'Microsoft.ApiManagement/service'|
+//@[34:35) NewLine |\n|
+	'Microsoft.Network/applicationGateways'
+//@[1:40) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[40:41) NewLine |\n|
+	'Microsoft.Automation/automationAccounts'
+//@[1:42) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[42:43) NewLine |\n|
+	'Microsoft.ContainerInstance/containerGroups'
+//@[1:46) StringComplete |'Microsoft.ContainerInstance/containerGroups'|
+//@[46:47) NewLine |\n|
+	'Microsoft.ContainerRegistry/registries'
+//@[1:41) StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[41:42) NewLine |\n|
+	'Microsoft.ContainerService/managedClusters'
+//@[1:45) StringComplete |'Microsoft.ContainerService/managedClusters'|
+//@[45:46) NewLine |\n|
+])
+//@[0:1) RightSquare |]|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+param invalidPermutationWithDecorator array = [
+//@[0:5) Identifier |param|
+//@[6:37) Identifier |invalidPermutationWithDecorator|
+//@[38:43) Identifier |array|
+//@[44:45) Assignment |=|
+//@[46:47) LeftSquare |[|
+//@[47:48) NewLine |\n|
+	'foobar'
+//@[1:9) StringComplete |'foobar'|
+//@[9:10) NewLine |\n|
+	true
+//@[1:5) TrueKeyword |true|
+//@[5:6) NewLine |\n|
+    100
+//@[4:7) Integer |100|
+//@[7:8) NewLine |\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:3) NewLine |\n\n|
+
+param invalidDefaultWithAllowedArray array {
+//@[0:5) Identifier |param|
+//@[6:36) Identifier |invalidDefaultWithAllowedArray|
+//@[37:42) Identifier |array|
+//@[43:44) LeftBrace |{|
+//@[44:45) NewLine |\n|
+    default: true
+//@[4:11) Identifier |default|
+//@[11:12) Colon |:|
+//@[13:17) TrueKeyword |true|
+//@[17:18) NewLine |\n|
+    allowed: [
+//@[4:11) Identifier |allowed|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+		[
+//@[2:3) LeftSquare |[|
+//@[3:4) NewLine |\n|
+			'Microsoft.AnalysisServices/servers'
+//@[3:39) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[39:40) NewLine |\n|
+			'Microsoft.ApiManagement/service'
+//@[3:36) StringComplete |'Microsoft.ApiManagement/service'|
+//@[36:37) NewLine |\n|
+		]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+		[
+//@[2:3) LeftSquare |[|
+//@[3:4) NewLine |\n|
+			'Microsoft.Network/applicationGateways'
+//@[3:42) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[42:43) NewLine |\n|
+			'Microsoft.Automation/automationAccounts'
+//@[3:44) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[44:45) NewLine |\n|
+		]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:4) NewLine |\n\n\n|
+
+
+@allowed([
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+	[
+//@[1:2) LeftSquare |[|
+//@[2:3) NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39) NewLine |\n|
+		'Microsoft.ApiManagement/service'
+//@[2:35) StringComplete |'Microsoft.ApiManagement/service'|
+//@[35:36) NewLine |\n|
+	]
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+	[
+//@[1:2) LeftSquare |[|
+//@[2:3) NewLine |\n|
+		'Microsoft.Network/applicationGateways'
+//@[2:41) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[41:42) NewLine |\n|
+		'Microsoft.Automation/automationAccounts'
+//@[2:43) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[43:44) NewLine |\n|
+	]
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+])
+//@[0:1) RightSquare |]|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+param invalidDefaultWithAllowedArrayDecorator array = true
+//@[0:5) Identifier |param|
+//@[6:45) Identifier |invalidDefaultWithAllowedArrayDecorator|
+//@[46:51) Identifier |array|
+//@[52:53) Assignment |=|
+//@[54:58) TrueKeyword |true|
+//@[58:60) NewLine |\n\n|
 
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|

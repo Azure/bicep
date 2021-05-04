@@ -1109,7 +1109,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private TypeSymbol CreateDummyResourceType()
         {
-            var typeProvider = new TestResourceTypeProvider();
+            var typeProvider = TestTypeHelper.CreateEmptyProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
             return typeProvider.GetType(typeReference, ResourceTypeGenerationFlags.None);
@@ -1121,7 +1121,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             binderMock.Setup(x => x.GetParent(It.IsAny<SyntaxBase>()))
                 .Returns<SyntaxBase>(x => hierarchy.GetParent(x));
 
-            return new TypeManager(TestResourceTypeProvider.Create(), binderMock.Object);
+            return new TypeManager(TestTypeHelper.CreateEmptyProvider(), binderMock.Object);
         }
     }
 }

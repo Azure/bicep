@@ -36,3 +36,19 @@ resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = 
   ]
 }]
 
+resource single_mg 'Microsoft.Management/managementGroups@2020-05-01' = {
+  scope: tenant()
+  name: 'one-mg'
+}
+
+// Blueprints are read-only at tenant Scope, but it's a convenient example to use to validate this.
+resource tenant_blueprint 'Microsoft.Blueprint/blueprints@2018-11-01-preview' = {
+  name: 'tenant-blueprint'
+  properties: {}
+  scope: tenant()
+}
+
+resource mg_blueprint 'Microsoft.Blueprint/blueprints@2018-11-01-preview' = {
+  name: 'mg-blueprint'
+  properties: {}
+}

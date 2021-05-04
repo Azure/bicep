@@ -3,7 +3,7 @@
 
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
-import { generateGrammar, grammarPath } from "../src/grammar";
+import { generateGrammar, grammarPath } from "../src/bicep";
 
 describe('grammar tests', () => {
   it('should exist', () => {

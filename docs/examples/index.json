@@ -1,5 +1,9 @@
 [
     {
+        "filePath": "000/01-hello-world/main.bicep",
+        "description": "000/01-hello-world"
+    },
+    {
         "filePath": "101/1vm-2nics-2subnets-1vnet/main.bicep",
         "description": "101/1vm-2nics-2subnets-1vnet"
     },
@@ -26,6 +30,10 @@
     {
         "filePath": "101/api-management-create-with-msi/main.bicep",
         "description": "101/api-management-create-with-msi"
+    },
+    {
+        "filePath": "101/api-management-modular/main.bicep",
+        "description": "101/api-management-modular"
     },
     {
         "filePath": "101/app-config/main.bicep",
@@ -248,6 +256,10 @@
         "description": "101/templatespec-create"
     },
     {
+        "filePath": "101/template-spec-deploy/main.bicep",
+        "description": "101/template-spec-deploy"
+    },
+    {
         "filePath": "101/vm-simple-linux/main.bicep",
         "description": "101/vm-simple-linux"
     },
@@ -360,6 +372,10 @@
         "description": "201/portal-dashboard-with-appinsights"
     },
     {
+        "filePath": "201/private-aks-cluster/main.bicep",
+        "description": "201/private-aks-cluster"
+    },
+    {
         "filePath": "201/policy-with-initiative-definition-and-assignment/main.bicep",
         "description": "201/policy-with-initiative-definition-and-assignment"
     },
@@ -464,6 +480,10 @@
         "description": "201/shared-image-gallery-with-image-defintition-and-role-assignment"
     },
     {
+        "filePath": "201/policy-azmonitor-agent-and-dcr-association/main.bicep",
+        "description": "201/policy-azmonitor-agent-and-dcr-association"
+    },
+    {
         "filePath": "301/expressroute-circuit-vnet-connection/main.bicep",
         "description": "301/expressroute-circuit-vnet-connection"
     },
@@ -484,6 +504,10 @@
         "description": "301/nested-vms-in-virtual-network"
     },
     {
+        "filePath": "301/publish-api-to-apim-opendocs/main.bicep",
+        "description": "301/publish-api-to-apim-opendocs"
+    },
+    {
         "filePath": "301/servicebus-namespace-vnet/main.bicep",
         "description": "301/servicebus-namespace-vnet"
     },
@@ -498,5 +522,9 @@
     {
         "filePath": "301/deployment-script-dev-environment/main.bicep",
         "description": "301/deployment-script-dev-environment"
+    },
+    {
+        "filePath": "301/sql-database-with-management/main.bicep",
+        "description": "301/sql-database-with-management"
     }
 ]

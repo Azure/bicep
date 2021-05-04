@@ -224,41 +224,6 @@ namespace Bicep.Core.Semantics
             this.bindings.Add(syntax, symbol);
         }
 
-        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
-        {
-            FunctionFlags currentFlags = allowedFlags;
-            this.Visit(syntax.BaseExpression);
-            this.Visit(syntax.Dot);
-            this.Visit(syntax.Name);
-            this.Visit(syntax.OpenParen);
-            allowedFlags = allowedFlags.HasAnyDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
-            this.VisitNodes(syntax.Arguments);
-            this.Visit(syntax.CloseParen);
-            allowedFlags = currentFlags;
-
-            if (!syntax.Name.IsValid)
-            {
-                // the parser produced an instance function calls with an invalid name
-                // all instance function calls must be bound to a symbol, so let's
-                // bind to a symbol without any errors (there's already a parse error)
-                this.bindings.Add(syntax, new ErrorSymbol());
-                return;
-            }
-
-            if (bindings.TryGetValue(syntax.BaseExpression, out var baseSymbol) && baseSymbol is NamespaceSymbol namespaceSymbol)
-            {
-                var functionSymbol = allowedFlags.HasAnyDecoratorFlag()
-                    // Decorator functions are only valid when HasDecoratorFlag() is true which means
-                    // the instance function call is the top level expression of a DecoratorSyntax node.
-                    ? namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name) ?? namespaceSymbol.Type.DecoratorResolver.TryGetSymbol(syntax.Name)
-                    : namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name);
-
-                var foundSymbol = SymbolValidator.ResolveNamespaceQualifiedFunction(allowedFlags, functionSymbol, syntax.Name, namespaceSymbol);
-                
-                this.bindings.Add(syntax, foundSymbol);
-            }
-        }
-
         protected override void VisitInternal(SyntaxBase syntax)
         {
             // any node can be a binding scope

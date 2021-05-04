@@ -1,0 +1,101 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroup": {
+            "value": {
+                "name": "<REPLACE ME>",
+                "location": "West Europe",
+                //"tags": {
+                //    "env": "DEV"
+                //},
+                "sqlLogicalServers": [
+                    {
+                        "name": "<REPLACE ME>",
+                        "systemManagedIdentity": true,
+                        "userName": "<REPLACE ME>",
+                        "passwordFromKeyVault": {
+                            "resourceGroupName": "<REPLACE ME>",
+                            "name": "<REPLACE ME>",
+                            "secretName": "<REPLACE ME>"
+                        },
+                        //"azureActiveDirectoryAdministrator": {
+                        //    "name": "<REPLACE ME>"",
+                        //    "objectId": "<REPLACE ME>""
+                        //},
+                        "firewallRules": [
+                            {
+                                "name": "allAzure",
+                                "startIpAddress": "0.0.0.0",
+                                "endIpAddress": "0.0.0.0"
+                            }
+                        ],
+                        //"diagnosticLogsAndMetrics": {
+                        //    "name": "<REPLACE ME>"",
+                        //    "resourceGroupName": "<REPLACE ME>",
+                        //    "logs": [
+                        //        "SQLInsights",
+                        //        "AutomaticTuning",
+                        //        "QueryStoreRuntimeStatistics",
+                        //        "QueryStoreWaitStatistics",
+                        //        "Errors",
+                        //        "DatabaseWaitStatistics",
+                        //        "Timeouts",
+                        //        "Blocks",
+                        //        "Deadlocks"
+                        //    ],
+                        //    "metrics": [
+                        //        "Basic"
+                        //    ],
+                        //    "auditLogs": true,
+                        //    "microsoftSupportOperationsAuditLogs": true
+                        //},
+                        "databases": [
+                            {
+                                "name": "<REPLACE ME>",
+                                "skuName": "GP_Gen5_2",
+                                "tier": "GeneralPurpose",
+                                "shortTermBackupRetention": 14,
+                                "longTermBackup": {
+                                    "enabled": true,
+                                    "weeklyRetention": "P1W",
+                                    "monthlyRetention": "P4W",
+                                    "yearlyRetention": "P52W",
+                                    "weekOfYear": 1
+                                },
+                                "diagnosticLogsAndMetrics": {
+                                    "name": "<REPLACE ME>",
+                                    "resourceGroupName": "<REPLACE ME>",
+                                    "logs": [
+                                        "SQLInsights",
+                                        "AutomaticTuning",
+                                        "QueryStoreRuntimeStatistics",
+                                        "QueryStoreWaitStatistics",
+                                        "Errors",
+                                        "DatabaseWaitStatistics",
+                                        "Timeouts",
+                                        "Blocks",
+                                        "Deadlocks"
+                                    ],
+                                    "metrics": [
+                                        "Basic"
+                                    ],
+                                    "auditLogs": true,
+                                    "microsoftSupportOperationsAuditLogs": true
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "password": {
+            "reference": {
+                "keyVault": {
+                    "id": "<REPLACE ME>"
+                },
+                "secretName": "<REPLACE ME>"
+            }
+        }
+    }
+}

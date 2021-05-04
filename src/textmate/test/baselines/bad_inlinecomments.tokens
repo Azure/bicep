@@ -1,6 +1,0 @@
-  var test = {
-//~~~                           keyword.control.declaration.bicep
-//    ~~~~                      variable.name.bicep
-    /* this doesn't work :( */
-  }
-  

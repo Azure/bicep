@@ -19,7 +19,7 @@
     "detail": "Module declaration",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmodule Identifier 'Path' = {\n  name: \n  \n}\n```"
+      "value": "```bicep\nmodule Identifier Path = {\n  name: \n  \n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -28,7 +28,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "module ${1:Identifier} '${2:Path}' = {\n  name: $3\n  $0\n}"
+      "newText": "module ${1:Identifier} ${2:Path} = {\n  name: $3\n  $0\n}"
     }
   },
   {
@@ -96,7 +96,7 @@
     }
   },
   {
-    "label": "param",
+    "label": "param-defaults",
     "kind": "snippet",
     "detail": "Parameter declaration with default value",
     "documentation": {
@@ -105,7 +105,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_param",
+    "sortText": "2_param-defaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -114,25 +114,25 @@
     }
   },
   {
-    "label": "param",
+    "label": "param-defaults-allowed-values",
     "kind": "snippet",
     "detail": "Parameter declaration with default and allowed values",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nparam Identifier Type {\n  default: \n  allowed: [\n    \n  ]\n}\n```"
+      "value": "```bicep\n@allowed([\n  \n])\nparam Identifier Type = \n```"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_param",
+    "sortText": "2_param-defaults-allowed-values",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "param ${1:Identifier} ${2:Type} {\n  default: $3\n  allowed: [\n    $4\n  ]\n}"
+      "newText": "@allowed([\n  $3\n])\nparam ${1:Identifier} ${2:Type} = $4"
     }
   },
   {
-    "label": "param",
+    "label": "param-secure-string",
     "kind": "snippet",
     "detail": "Secure string parameter",
     "documentation": {
@@ -141,7 +141,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_param",
+    "sortText": "2_param-secure-string",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -155,7 +155,7 @@
     "detail": "Kubernetes Service Cluster",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {\n  name: 'aksCluster'\n  location: resourceGroup().location\n  properties: {\n    kubernetesVersion: '1.15.7'\n    dnsPrefix: 'dnsprefix'\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: 2\n        vmSize: 'Standard_A1'\n        osType: 'Linux'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: 'adminUserName'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: 'keyData'\n          }\n        ]\n      }\n    }\n    servicePrincipalProfile: {\n      clientId: 'servicePrincipalAppId'\n      secret: 'servicePrincipalAppPassword'\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    kubernetesVersion: '1.19.7'\n    dnsPrefix: 'dnsprefix'\n    enableRBAC: true\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: 3\n        vmSize: 'Standard_DS2_v2'\n        osType: 'Linux'\n        mode: 'System'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: 'adminUserName'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: 'REQUIRED'\n          }\n        ]\n      }\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -164,7 +164,25 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource aksCluster 'Microsoft.ContainerService/managedClusters@2020-02-01' = {\n  name: '${1:aksCluster}'\n  location: resourceGroup().location\n  properties: {\n    kubernetesVersion: '${2|1.15.7,1.15.5,1.14.8|}'\n    dnsPrefix: '${3:dnsprefix}'\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: ${4:2}\n        vmSize: '${5:Standard_A1}'\n        osType: 'Linux'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: '${6:adminUserName}'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: '${7:keyData}'\n          }\n        ]\n      }\n    }\n    servicePrincipalProfile: {\n      clientId: '${8:servicePrincipalAppId}'\n      secret: '${9:servicePrincipalAppPassword}'\n    }\n  }\n}"
+      "newText": "resource ${1:aksCluster} 'Microsoft.ContainerService/managedClusters@2021-03-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    kubernetesVersion: '${3|1.19.7,1.19.6,1.18.14,1.18.10,1.17.16,1.17.13|}'\n    dnsPrefix: ${4:'dnsprefix'}\n    enableRBAC: true\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: ${5:3}\n        vmSize: ${6:'Standard_DS2_v2'}\n        osType: 'Linux'\n        mode: 'System'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: ${7:'adminUserName'}\n      ssh: {\n        publicKeys: [\n          {\n            keyData: ${8:'REQUIRED'}\n          }\n        ]\n      }\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-app-plan",
+    "kind": "snippet",
+    "detail": "Application Service Plan (Server Farm)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-app-plan",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:appServicePlan} 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n"
     }
   },
   {
@@ -173,7 +191,7 @@
     "detail": "Application Security Group",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2019-11-01' = {\n  name: 'applicationSecurityGroup'\n  location: resourceGroup().location\n}\n```"
+      "value": "```bicep\nresource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -182,7 +200,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2019-11-01' = {\n  name: '${1:applicationSecurityGroup}'\n  location: resourceGroup().location\n}"
+      "newText": "resource ${1:applicationSecurityGroup} 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n}\n"
     }
   },
   {
@@ -191,7 +209,7 @@
     "detail": "Automation Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: 'automationAccount'\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: 'Free'\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: 'Free'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -200,7 +218,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: '${1:automationAccount}'\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: '${2|Free,Basic|}'\n    }\n  }\n}"
+      "newText": "resource ${1:automationAccount} 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: ${3|'Free','Basic'|}\n    }\n  }\n}\n"
     }
   },
   {
@@ -209,7 +227,7 @@
     "detail": "Availability Set",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = {\n  name: 'availabilitySet'\n  location: resourceGroup().location\n}\n```"
+      "value": "```bicep\nresource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -218,7 +236,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = {\n  name: '${1:availabilitySet}'\n  location: resourceGroup().location\n}"
+      "newText": "resource ${1:availabilitySet} 'Microsoft.Compute/availabilitySets@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n}\n"
     }
   },
   {
@@ -227,7 +245,7 @@
     "detail": "Container Group",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource containerGroup 'Microsoft.ContainerInstance/containerGroups@2018-10-01' = {\n  name: 'containerGroup'\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: 'containerName'\n        properties: {\n          image: 'containerImage'\n          ports: [\n            {\n              port: '80'\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: '1'\n              memoryInGB: '4'\n            }\n          }\n        }\n      }\n    ]\n    osType: 'Linux'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: 'TCP'\n          port: '80'\n        }\n      ]\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: 'containername'\n        properties: {\n          image: 'mcr.microsoft.com/azuredocs/aci-helloworld:latest'\n          ports: [\n            {\n              port: 80\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: 1\n              memoryInGB: 4\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: 'OnFailure'\n    osType: 'Linux'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: 'TCP'\n          port: 80\n        }\n      ]\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -236,7 +254,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2018-10-01' = {\n  name: '${1:containerGroup}'\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: '${2:containerName}'\n        properties: {\n          image: '${3:containerImage}'\n          ports: [\n            {\n              port: '${4:80}'\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: '${5:1}'\n              memoryInGB: '${6:4}'\n            }\n          }\n        }\n      }\n    ]\n    osType: '${7|Linux,Windows|}'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: '${8|TCP,UDP|}'\n          port: '${9:80}'\n        }\n      ]\n    }\n  }\n}"
+      "newText": "resource ${1:containerGroup} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: ${3:'containername'}\n        properties: {\n          image: ${4:'mcr.microsoft.com/azuredocs/aci-helloworld:latest'}\n          ports: [\n            {\n              port: ${5:80}\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: ${6:1}\n              memoryInGB: ${7:4}\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: ${8|'OnFailure','Always','Never'|}\n    osType: ${9|'Linux','Windows'|}\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: ${10|'TCP','UDP'|}\n          port: ${11:80}\n        }\n      ]\n    }\n  }\n}\n"
     }
   },
   {
@@ -245,7 +263,7 @@
     "detail": "Container Registry",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: 'containerRegistry'\n  location: resourceGroup().location\n  sku: {\n    name: 'Classic'\n  }\n  properties: {\n    adminUserEnabled: 'true'\n  }\n}\n```"
+      "value": "```bicep\nresource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'Classic'\n  }\n  properties: {\n    adminUserEnabled: true\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -254,7 +272,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: '${1:containerRegistry}'\n  location: resourceGroup().location\n  sku: {\n    name: '${2|Classic,Basic,Standard,Premium|}'\n  }\n  properties: {\n    adminUserEnabled: '${3|true,false|}'\n  }\n}"
+      "newText": "resource ${1:containerRegistry} 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3|'Classic','Basic','Standard','Premium'|}\n  }\n  properties: {\n    adminUserEnabled: ${4|true,false|}\n  }\n}\n"
     }
   },
   {
@@ -263,7 +281,7 @@
     "detail": "Cosmos DB Database Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {\n  name: 'cosmosDbAccount'\n  location: resourceGroup().location\n  kind: 'GlobalDocumentDB'\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: 'Eventual'\n      maxStalenessPrefix: '1'\n      maxIntervalInSeconds: '5'\n    }\n    locations: [\n      {\n        locationName: 'location1'\n        failoverPriority: '0'\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    ipRangeFilter: 'ipRangeFilter'\n    enableAutomaticFailover: 'true'\n    capabilities: [\n      {\n        name: 'EnableTable'\n      }\n    ]\n  }\n}\n```"
+      "value": "```bicep\nresource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: 'name'\n  location: resourceGroup().location\n  kind: 'GlobalDocumentDB'\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: 'Eventual'\n      maxStalenessPrefix: 1\n      maxIntervalInSeconds: 5\n    }\n    locations: [\n      {\n        locationName: 'location'\n        failoverPriority: 0\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: true\n    capabilities: [\n      {\n        name: 'EnableTable'\n      }\n    ]\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -272,7 +290,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2019-12-12' = {\n  name: '${1:cosmosDbAccount}'\n  location: resourceGroup().location\n  kind: '${2|GlobalDocumentDB,MongoDB,Parse|}'\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: '${3|Eventual,Session,BoundedStaleness,Strong,ConsistentPrefix|}'\n      maxStalenessPrefix: '${4:1}'\n      maxIntervalInSeconds: '${5:5}'\n    }\n    locations: [\n      {\n        locationName: '${6:location1}'\n        failoverPriority: '${7:0}'\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    ipRangeFilter: '${8:ipRangeFilter}'\n    enableAutomaticFailover: '${9|true,false|}'\n    capabilities: [\n      {\n        name: '${10|EnableTable,EnableGremlin|}'\n      }\n    ]\n  }\n}"
+      "newText": "resource ${1:cosmosDbAccount} 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: ${3|'GlobalDocumentDB','MongoDB','Parse'|}\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: ${4|'Eventual','Session','BoundedStaleness','Strong','ConsistentPrefix'|}\n      maxStalenessPrefix: ${5:1}\n      maxIntervalInSeconds: ${6:5}\n    }\n    locations: [\n      {\n        locationName: ${7:'location'}\n        failoverPriority: ${8:0}\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: ${9|true,false|}\n    capabilities: [\n      {\n        name: ${10|'EnableTable','EnableGremlin'|}\n      }\n    ]\n  }\n}\n"
     }
   },
   {
@@ -281,7 +299,7 @@
     "detail": "Data Lake Store Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: 'dataLakeStore'\n  location: resourceGroup().location\n  properties: {\n    newTier: 'Consumption'\n    encryptionState: 'Enabled'\n  }\n}\n```"
+      "value": "```bicep\nresource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    newTier: 'Consumption'\n    encryptionState: 'Enabled'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -290,7 +308,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: '${1:dataLakeStore}'\n  location: resourceGroup().location\n  properties: {\n    newTier: '${2|Consumption,Commitment_1TB,Commitment_10TB,Commitment_100TB,Commitment_500TB,Commitment_1PB,Commitment_5PB|}'\n    encryptionState: '${3|Enabled,Disabled|}'\n  }\n}"
+      "newText": "resource ${1:dataLakeStore} 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    newTier: ${3|'Consumption','Commitment_1TB','Commitment_10TB','Commitment_100TB','Commitment_500TB','Commitment_1PB','Commitment_5PB'|}\n    encryptionState: ${4|'Enabled','Disabled'|}\n  }\n}\n"
     }
   },
   {
@@ -299,7 +317,7 @@
     "detail": "DNS Zone",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: 'dnsZone'\n  location: 'global'\n}\n```"
+      "value": "```bicep\nresource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: 'name'\n  location: 'global'\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -308,7 +326,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: '${1:dnsZone}'\n  location: 'global'\n}"
+      "newText": "resource ${1:dnsZone} 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: ${2:'name'}\n  location: 'global'\n}\n"
     }
   },
   {
@@ -317,7 +335,7 @@
     "detail": "Public IP Address",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {\n  name: 'publicIPAddress'\n  location: resourceGroup().location\n  properties: {\n    publicIPAllocationMethod: 'Dynamic'\n    dnsSettings: {\n      domainNameLabel: 'dnsname'\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    publicIPAllocationMethod: 'Dynamic'\n    dnsSettings: {\n      domainNameLabel: 'dnsname'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -326,7 +344,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {\n  name: '${1:publicIPAddress}'\n  location: resourceGroup().location\n  properties: {\n    publicIPAllocationMethod: 'Dynamic'\n    dnsSettings: {\n      domainNameLabel: '${2:dnsname}'\n    }\n  }\n}"
+      "newText": "resource ${1:publicIPAddress} 'Microsoft.Network/publicIPAddresses@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    publicIPAllocationMethod: 'Dynamic'\n    dnsSettings: {\n      domainNameLabel: ${3:'dnsname'}\n    }\n  }\n}\n"
     }
   },
   {
@@ -335,7 +353,7 @@
     "detail": "Public IP Prefix",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {\n  name: 'publicIPPrefix'\n  location: resourceGroup().location\n  sku: {\n    name: 'Standard'\n  }\n  properties: {\n    publicIPAddressVersion: 'IPv4'\n    prefixLength: '28'\n  }\n}\n```"
+      "value": "```bicep\nresource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'Standard'\n  }\n  properties: {\n    publicIPAddressVersion: 'IPv4'\n    prefixLength: 28\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -344,7 +362,421 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {\n  name: '${1:publicIPPrefix}'\n  location: resourceGroup().location\n  sku: {\n    name: 'Standard'\n  }\n  properties: {\n    publicIPAddressVersion: 'IPv4'\n    prefixLength: '${2:28}'\n  }\n}"
+      "newText": "resource ${1:publicIPPrefix} 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: 'Standard'\n  }\n  properties: {\n    publicIPAddressVersion: 'IPv4'\n    prefixLength: ${3:28}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-keyvault-secret",
+    "kind": "snippet",
+    "detail": "Key Vault Secret",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: 'keyVaultName/name'\n  properties: {\n    value: 'value'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-keyvault-secret",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:keyVaultSecret} 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: ${2:'keyVaultName/name'}\n  properties: {\n    value: ${3:'value'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-log-analytics-workspace",
+    "kind": "snippet",
+    "detail": "Log Analytics Workspace",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: 'Free'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-log-analytics-workspace",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:logAnalyticsWorkspace} 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: ${3|'Free','Standard','Premium','Unlimited','PerNode','PerGB2018','Standalone'|}\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-logic-app",
+    "kind": "snippet",
+    "detail": "Logic App",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource logicApp 'Microsoft.Logic/integrationAccounts@2016-06-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-logic-app",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:logicApp} 'Microsoft.Logic/integrationAccounts@2016-06-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-logic-app-connector",
+    "kind": "snippet",
+    "detail": "Logic App Connector",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    name: 'name'\n    apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'logicAppConnectorApi')\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-logic-app-connector",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:logicAppConnector} 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    name: ${3:'name'}\n    apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, ${4:'logicAppConnectorApi'})\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-managed-identity",
+    "kind": "snippet",
+    "detail": "Managed Identity (User Assigned)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-managed-identity",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:managedIdentity} 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n}\n"
+    }
+  },
+  {
+    "label": "res-mysql",
+    "kind": "snippet",
+    "detail": "MySQL Database",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource mySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    createMode: 'Default'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-mysql",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:mySQLdb} 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: ${3:'administratorLogin'}\n    administratorLoginPassword: ${4:'administratorLoginPassword'}\n    createMode: ${5|'Default','GeoRestore','PointInTimeRestore','Replica'|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-nsg",
+    "kind": "snippet",
+    "detail": "Network Security Group",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    securityRules: [\n      {\n        name: 'nsgRule'\n        properties: {\n          description: 'description'\n          protocol: 'Tcp'\n          sourcePortRange: '*'\n          destinationPortRange: '*'\n          sourceAddressPrefix: '*'\n          destinationAddressPrefix: '*'\n          access: 'Allow'\n          priority: 100\n          direction: 'Inbound'\n        }\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-nsg",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:networkSecurityGroup} 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    securityRules: [\n      {\n        name: ${3:'nsgRule'}\n        properties: {\n          description: ${4:'description'}\n          protocol: ${5|'Tcp','Udp','*'|}\n          sourcePortRange: ${6:'*'}\n          destinationPortRange: ${7:'*'}\n          sourceAddressPrefix: ${8:'*'}\n          destinationAddressPrefix: ${9:'*'}\n          access: ${10|'Allow','Deny'|}\n          priority: ${11:100}\n          direction: ${12|'Inbound','Outbound'|}\n        }\n      }\n    ]\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-nsgrule",
+    "kind": "snippet",
+    "detail": "Network Security Group Rule",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: 'networkSecurityGroup/name'\n  properties: {\n    description: 'description'\n    protocol: '*'\n    sourcePortRange: 'sourcePortRange'\n    destinationPortRange: 'destinationPortRange'\n    sourceAddressPrefix: 'sourceAddressPrefix'\n    destinationAddressPrefix: 'destinationAddressPrefix'\n    access: 'Allow'\n    priority: 100\n    direction: 'Inbound'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-nsgrule",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:networkSecurityGroupSecurityRule} 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: ${2:'networkSecurityGroup/name'}\n  properties: {\n    description: ${3:'description'}\n    protocol: ${4|'*','Ah','Esp','Icmp','Tcp','Udb'|}\n    sourcePortRange: ${5:'sourcePortRange'}\n    destinationPortRange: ${6:'destinationPortRange'}\n    sourceAddressPrefix: ${7:'sourceAddressPrefix'}\n    destinationAddressPrefix: ${8:'destinationAddressPrefix'}\n    access: ${9|'Allow','Deny'|}\n    priority: ${10:100}\n    direction: ${11|'Inbound','Outbound'|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-recovery-service-vault",
+    "kind": "snippet",
+    "detail": "Recovery Service Vault",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'RS0'\n    tier: 'Standard'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-recovery-service-vault",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:recoveryServiceVault} 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3|'RS0','Standard'|}\n    tier: ${4:'Standard'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-redis",
+    "kind": "snippet",
+    "detail": "Redis Cache",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource redisCache 'Microsoft.Cache/Redis@2019-07-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: 'Basic'\n      family: 'C'\n      capacity: 0\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-redis",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:redisCache} 'Microsoft.Cache/Redis@2019-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: 'Basic'\n      family: 'C'\n      capacity: 0\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-route-table",
+    "kind": "snippet",
+    "detail": "Route Table",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    routes: [\n      {\n        name: 'name'\n        properties: {\n          addressPrefix: 'destinationCIDR'\n          nextHopType: 'VirtualNetworkGateway'\n          nextHopIpAddress: 'nextHopIp'\n        }\n      }\n    ]\n    disableBgpRoutePropagation: true\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-route-table",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:routeTable} 'Microsoft.Network/routeTables@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    routes: [\n      {\n        name: ${3:'name'}\n        properties: {\n          addressPrefix: ${4:'destinationCIDR'}\n          nextHopType: ${5|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}\n          nextHopIpAddress: ${6:'nextHopIp'}\n        }\n      }\n    ]\n    disableBgpRoutePropagation: ${7|true,false|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-route-table-route",
+    "kind": "snippet",
+    "detail": "Azure Route Table Route",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: 'routeTableName/name'\n  properties: {\n    addressPrefix: 'addressPrefix'\n    nextHopType: 'VirtualNetworkGateway'\n    nextHopIpAddress: 'nextHopIp'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-route-table-route",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:routeTableRoute} 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: ${2:'routeTableName/name'}\n  properties: {\n    addressPrefix: ${3:'addressPrefix'}\n    nextHopType: ${4|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}\n    nextHopIpAddress: ${5:'nextHopIp'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-shared-image-gallery",
+    "kind": "snippet",
+    "detail": "Create Image Gallery",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource sharedImageGallery 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    description: 'description'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-shared-image-gallery",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:sharedImageGallery} 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    description: ${3:'description'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-storage",
+    "kind": "snippet",
+    "detail": "Storage Account",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  kind: 'StorageV2'\n  sku: {\n    name: 'Premium_LRS'\n    tier: 'Premium'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-storage",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:storageaccount} 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: ${3|'StorageV2','Storage','BlobStorage','BlockBlobStorage','FileStorage'|}\n  sku: {\n    name: ${4:'Premium_LRS'}\n    tier: ${5|'Premium','Standard'|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-template-spec",
+    "kind": "snippet",
+    "detail": "Template spec",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    description: 'description'\n    displayName: 'displayName'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-template-spec",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:templateSpec} 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    description: ${3:'description'}\n    displayName: ${4:'displayName'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-traffic-manager",
+    "kind": "snippet",
+    "detail": "Traffic Manager Profile",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {\n  name: 'name'\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: 'Performance'\n    dnsConfig: {\n      relativeName: 'dnsConfigRelativeName'\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: 'HTTP'\n      port: 80\n      path: 'path'\n      intervalInSeconds: 30\n      timeoutInSeconds: 5\n      toleratedNumberOfFailures: 3\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: 'targetResourceId'\n          endpointStatus: 'Enabled'\n          weight: 100\n          priority: 1\n        }\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-traffic-manager",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:trafficManagerProfile} 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {\n  name: ${2:'name'}\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: ${3|'Performance','Priority','Weighted','Geographic'|}\n    dnsConfig: {\n      relativeName: ${4:'dnsConfigRelativeName'}\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: ${5|'HTTP','HTTPS','TCP'|}\n      port: ${6:80}\n      path: ${7:'path'}\n      intervalInSeconds: ${8:30}\n      timeoutInSeconds: ${9:5}\n      toleratedNumberOfFailures: ${10:3}\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: ${11:'targetResourceId'}\n          endpointStatus: ${12|'Enabled','Disabled'|}\n          weight: ${13:100}\n          priority: ${14:1}\n        }\n      }\n    ]\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-virtual-wan",
+    "kind": "snippet",
+    "detail": "Virtual WAN",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualWan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    type: 'Standard'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: 'Optimize'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-virtual-wan",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    type: ${3|'Standard','Basic'|}\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: ${4|'Optimize','OptimizeAndAllow','All','None'|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-vnet",
+    "kind": "snippet",
+    "detail": "Virtual Network",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    addressSpace: {\n      addressPrefixes: [\n        '10.0.0.0/16'\n      ]\n    }\n    subnets: [\n      {\n        name: 'Subnet-1'\n        properties: {\n          addressPrefix: '10.0.0.0/24'\n        }\n      }\n      {\n        name: 'Subnet-2'\n        properties: {\n          addressPrefix: '10.0.1.0/24'\n        }\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vnet",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:virtualNetwork} 'Microsoft.Network/virtualNetworks@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    addressSpace: {\n      addressPrefixes: [\n        '10.0.0.0/16'\n      ]\n    }\n    subnets: [\n      {\n        name: 'Subnet-1'\n        properties: {\n          addressPrefix: '10.0.0.0/24'\n        }\n      }\n      {\n        name: 'Subnet-2'\n        properties: {\n          addressPrefix: '10.0.1.0/24'\n        }\n      }\n    ]\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-vnet-peering",
+    "kind": "snippet",
+    "detail": "Virtual Network Peering",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: 'virtualNetwork/name'\n  properties: {\n    allowVirtualNetworkAccess: true\n    allowForwardedTraffic: true\n    allowGatewayTransit: true\n    useRemoteGateways: true\n    remoteVirtualNetwork: {\n      id: resourceId('Microsoft.Network/virtualNetworks', 'REQUIRED')\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vnet-peering",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:peering} 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: ${2:'virtualNetwork/name'}\n  properties: {\n    allowVirtualNetworkAccess: ${3|true,false|}\n    allowForwardedTraffic: ${4|true,false|}\n    allowGatewayTransit: ${5|true,false|}\n    useRemoteGateways: ${6|true,false|}\n    remoteVirtualNetwork: {\n      id: resourceId('Microsoft.Network/virtualNetworks', ${7:'REQUIRED'})\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-vpn-local-gateway",
+    "kind": "snippet",
+    "detail": "VPN Local Network Gateway",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        'REQUIRED'\n      ]\n    }\n    gatewayIpAddress: 'gatewayIpAddress'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vpn-local-gateway",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:localNetworkGateway} 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        ${3:'REQUIRED'}\n      ]\n    }\n    gatewayIpAddress: ${4:'gatewayIpAddress'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-wvd-appgroup",
+    "kind": "snippet",
+    "detail": "WVD AppGroup",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'friendlyName'\n    applicationGroupType: 'Desktop'\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'REQUIRED')\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-wvd-appgroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:applicationGroup} 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'friendlyName'}\n    applicationGroupType: ${4|'Desktop','RailApplications'|}\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${5:'REQUIRED'})\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-wvd-hostpool",
+    "kind": "snippet",
+    "detail": "WVD Host Pool",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource hostPool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'hostpoolFriendlyName'\n    hostPoolType: 'Personal'\n    loadBalancerType: 'BreadthFirst'\n    preferredAppGroupType: 'Desktop'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-wvd-hostpool",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:hostPool} 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'hostpoolFriendlyName'}\n    hostPoolType: ${4|'Personal','Pooled'|}\n    loadBalancerType: ${5|'BreadthFirst','DepthFirst','Persistent'|}\n    preferredAppGroupType: ${6|'Desktop','RailApplications','None'|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-wvd-workspace",
+    "kind": "snippet",
+    "detail": "WVD Workspace",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource workSpace 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'friendlyName'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-wvd-workspace",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:workSpace} 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'friendlyName'}\n  }\n}\n"
     }
   },
   {
@@ -362,75 +794,75 @@
     }
   },
   {
-    "label": "resource",
-    "kind": "snippet",
-    "detail": "Resource with defaults",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_resource",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}"
-    }
-  },
-  {
-    "label": "resource",
+    "label": "resource-child-defaults",
     "kind": "snippet",
     "detail": "Child Resource with defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_resource",
+    "sortText": "1_resource-child-defaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}"
+      "newText": "resource ${1:Identifier} '${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
     }
   },
   {
-    "label": "resource",
-    "kind": "snippet",
-    "detail": "Resource without defaults",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  \n}\n\n```"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_resource",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}\n"
-    }
-  },
-  {
-    "label": "resource",
+    "label": "resource-child-without-defaults",
     "kind": "snippet",
     "detail": "Child Resource without defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_resource",
+    "sortText": "1_resource-child-without-defaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}"
+      "newText": "resource ${1:Identifier} '${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  $0\n}"
+    }
+  },
+  {
+    "label": "resource-defaults",
+    "kind": "snippet",
+    "detail": "Resource with defaults",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_resource-defaults",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} '${2:Provider/Type@Version}' = {\n  name: $3\n  location: $4\n  properties: {\n    $0\n  }\n}"
+    }
+  },
+  {
+    "label": "resource-without-defaults",
+    "kind": "snippet",
+    "detail": "Resource without defaults",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Provider/Type@Version' = {\n  name: \n  \n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_resource-without-defaults",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} '${2:Provider/Type@Version}' = {\n  name: $3\n  $0\n}"
     }
   },
   {

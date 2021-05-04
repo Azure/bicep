@@ -5,7 +5,7 @@
     "detail": "name (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe name of the environment variable.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -14,7 +14,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "name"
+      "newText": "name:"
     },
     "commitCharacters": [
       ":"
@@ -26,7 +26,7 @@
     "detail": "secureValue",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe value of the secure environment variable.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -35,7 +35,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "secureValue"
+      "newText": "secureValue:"
     },
     "commitCharacters": [
       ":"
@@ -47,7 +47,7 @@
     "detail": "value",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe value of the environment variable.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -56,7 +56,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "value"
+      "newText": "value:"
     },
     "commitCharacters": [
       ":"

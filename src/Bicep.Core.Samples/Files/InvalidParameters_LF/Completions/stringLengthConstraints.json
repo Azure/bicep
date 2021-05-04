@@ -14,7 +14,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "maxLength"
+      "newText": "maxLength:"
     },
     "commitCharacters": [
       ":"
@@ -35,7 +35,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "minLength"
+      "newText": "minLength:"
     },
     "commitCharacters": [
       ":"

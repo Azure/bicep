@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Extensions;
@@ -14,15 +16,16 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -36,26 +39,12 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static IAssertionScope CreateAssertionScopeWithContext(SyntaxTree syntaxTree, Hover? hover, IPositionable requestedPosition)
-        {
-            var assertionScope = new AssertionScope();
-
-            // TODO: figure out how to set this only on failure, rather than always calculating it
-            assertionScope.AddReportable(
-                "hover context",
-                PrintHelper.PrintWithAnnotations(syntaxTree, new [] { 
-                    new PrintHelper.Annotation(requestedPosition.Span, "cursor position"),
-                }, 1, true));
-
-            return assertionScope;
-        }
-
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: new AzResourceTypeProvider(new TypeLoader()));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes());
 
             // construct a parallel compilation
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
@@ -77,26 +66,36 @@ namespace Bicep.LangServer.IntegrationTests
                 },
                 accumulated => accumulated);
 
-            foreach (SyntaxBase symbolReference in symbolReferences)
+            foreach (var symbolReference in symbolReferences)
             {
+                // by default, request a hover on the first character of the syntax, but for certain syntaxes, this doesn't make sense.
+                // for example on an instance function call 'az.resourceGroup()', it only makes sense to request a hover on the 3rd character.
                 var nodeForHover = symbolReference switch
                 {
                     ITopLevelDeclarationSyntax d => d.Keyword,
                     ResourceAccessSyntax r => r.ResourceName,
+                    FunctionCallSyntaxBase f => f.Name,
                     _ => symbolReference,
                 };
 
                 var hover = await client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, nodeForHover.Span.Position)
+                    Position = TextCoordinateConverter.GetPosition(lineStarts, nodeForHover.Span.Position)
                 });
 
                 // fancy method to give us some annotated source code to look at if any assertions fail :)
-                using (CreateAssertionScopeWithContext(compilation.SyntaxTreeGrouping.EntryPoint, hover, nodeForHover.Span.ToZeroLengthSpan()))
+                using (new AssertionScope().WithVisualCursor(compilation.SyntaxTreeGrouping.EntryPoint, nodeForHover.Span.ToZeroLengthSpan()))
                 {
-                    if (symbolTable.TryGetValue(symbolReference, out var symbol) == false)
+                    if (!symbolTable.TryGetValue(symbolReference, out var symbol))
                     {
+                        if (symbolReference is InstanceFunctionCallSyntax &&
+                            compilation.GetEntrypointSemanticModel().GetSymbolInfo(symbolReference) is FunctionSymbol ifcSymbol)
+                        {
+                            ValidateHover(hover, ifcSymbol);
+                            break;
+                        }
+
                         // symbol ref not bound to a symbol
                         hover.Should().BeNull();
                         continue;
@@ -107,15 +106,6 @@ namespace Bicep.LangServer.IntegrationTests
                         case SymbolKind.Function when symbolReference is VariableAccessSyntax:
                             // variable got bound to a function
                             hover.Should().BeNull();
-                            break;
-
-                        // when a namespace value is found and there was an error with the function call or
-                        // is a valid function call or namespace access, all these cases will have a hover range
-                        // with some text
-                        case SymbolKind.Error when symbolReference is InstanceFunctionCallSyntax:
-                        case SymbolKind.Function when symbolReference is InstanceFunctionCallSyntax:
-                        case SymbolKind.Namespace:
-                            ValidateInstanceFunctionCallHover(hover);
                             break;
 
                         case SymbolKind.Error:
@@ -171,15 +161,125 @@ namespace Bicep.LangServer.IntegrationTests
                 var hover = await client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, node.Span.Position)
+                    Position = TextCoordinateConverter.GetPosition(lineStarts, node.Span.Position)
                 });
 
                 // fancy method to give us some annotated source code to look at if any assertions fail :)
-                using (CreateAssertionScopeWithContext(compilation.SyntaxTreeGrouping.EntryPoint, hover, node.Span.ToZeroLengthSpan()))
+                using (new AssertionScope().WithVisualCursor(compilation.SyntaxTreeGrouping.EntryPoint, node.Span.ToZeroLengthSpan()))
                 {
                     hover.Should().BeNull();
                 }
             }
+        }
+
+
+        [DataTestMethod]
+        public async Task PropertyHovers_are_displayed_on_properties()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
+  n|ame: 'testRes'
+  prop|erties: {
+    readwri|te: 'abc'
+    write|only: 'def'
+    requ|ired: 'ghi'
+  }
+}
+
+output string test = testRes.prop|erties.rea|donly
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, syntaxTree, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
+        }
+
+
+        [DataTestMethod]
+        public async Task PropertyHovers_are_displayed_on_properties_with_loops()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = [for i in range(0, 10): {
+  n|ame: 'testRes${i}'
+  prop|erties: {
+    readwri|te: 'abc'
+    write|only: 'def'
+    requ|ired: 'ghi'
+  }
+}]
+
+output string test = testRes[3].prop|erties.rea|donly
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, syntaxTree, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
+        }
+
+
+        [DataTestMethod]
+        public async Task PropertyHovers_are_displayed_on_properties_with_conditions()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = if (true) {
+  n|ame: 'testRes'
+  prop|erties: {
+    readwri|te: 'abc'
+    write|only: 'def'
+    requ|ired: 'ghi'
+  }
+}
+
+output string test = testRes.prop|erties.rea|donly
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, syntaxTree, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
+        }
+
+        [DataTestMethod]
+        public async Task PropertyHovers_are_displayed_on_partial_discriminator_objects()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
+  ki|nd
+}
+");
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, syntaxTree, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
         }
 
         private static void ValidateHover(Hover? hover, Symbol symbol)
@@ -229,30 +329,35 @@ namespace Bicep.LangServer.IntegrationTests
                     hover.Contents.MarkupContent.Value.Should().Contain($"{local.Name}: {local.Type}");
                     break;
 
+                case NamespaceSymbol @namespace:
+                    hover.Contents.MarkupContent.Value.Should().Contain($"{@namespace.Name} namespace");
+                    break;
+
                 default:
                     throw new AssertFailedException($"Unexpected symbol type '{symbol.GetType().Name}'");
             }
         }
 
-        private static void ValidateInstanceFunctionCallHover(Hover? hover)
-        {
-            hover.Should().NotBeNull();
-            hover!.Range!.Should().NotBeNull();
-            hover.Contents.Should().NotBeNull();
-
-            hover.Contents.HasMarkedStrings.Should().BeFalse();
-            hover.Contents.HasMarkupContent.Should().BeTrue();
-            hover.Contents.MarkedStrings.Should().BeNull();
-            hover.Contents.MarkupContent.Should().NotBeNull();
-
-            hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
-            hover.Contents.MarkupContent.Value.Should().StartWith("```bicep\n");
-            hover.Contents.MarkupContent.Value.Should().EndWith("```");
-        }
-
         private static IEnumerable<object[]> GetData()
         {
             return DataSets.NonStressDataSets.ToDynamicTestData();
+        }
+
+        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
+        {
+            var hovers = new List<Hover?>();
+            foreach (var cursor in cursors)
+            {
+                var hover = await client.RequestHover(new HoverParams
+                {
+                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                });
+
+                hovers.Add(hover);
+            }
+
+            return hovers;
         }
     }
 }

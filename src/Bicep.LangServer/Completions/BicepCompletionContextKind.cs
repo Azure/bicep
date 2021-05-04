@@ -116,6 +116,17 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is not a valid scope where we can offer completions.
         /// </summary>
         /// <remarks>This is used to prevent fallback to Expression kind</remarks>
-        NotValid = 1 << 20
+        NotValid = 1 << 20,
+
+        /// <summary>
+        /// The current location is after the resource type.
+        /// </summary>
+        ResourceTypeFollower = 1 << 21,
+
+        /// <summary>
+        /// This is used in conjunction with ObjectPropertyName and indicates that the colon token
+        /// is present in the ObjectPropertySyntax and does not need to be included in the completion.
+        /// </summary>
+        ObjectPropertyColonExists = 1 << 22
     }
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
+using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -28,13 +30,19 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult(new LocationContainer());
             }
 
+            if (result.Symbol is PropertySymbol)
+            {
+                // TODO: Implement for PropertySymbol
+                return Task.FromResult(new LocationContainer());
+            }
+
             var references = result.Context.Compilation.GetEntrypointSemanticModel()
                 .FindReferences(result.Symbol)
                 .Where(referenceSyntax => request.Context.IncludeDeclaration || !(referenceSyntax is INamedDeclarationSyntax))
                 .Select(referenceSyntax => new Location
                 {
                     Uri = request.TextDocument.Uri,
-                    Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax)
+                    Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax),
                 });
 
             return Task.FromResult(new LocationContainer(references));

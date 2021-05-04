@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "skipLibCheck": true,
+      "alwaysStrict": true,
+      "forceConsistentCasingInFileNames": false,
+      "module": "commonjs",
+      "noEmitOnError": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "sourceMap": true,
+      "declarationMap": true,
+      "strict": true,
+      "declaration": true,
+      "stripInternal": true,
+      "noEmitHelpers": false,
+      "target": "es2019",
+      "types": ["node", "jest"],
+      "esModuleInterop": true,
+      "lib": ["es2020"],
+      "newLine": "LF",
+      "outDir": "dist",
+      "rootDir": "."
+    },
+    "exclude": ["dist", "node_modules", "**/*.d.ts"]
+  }
