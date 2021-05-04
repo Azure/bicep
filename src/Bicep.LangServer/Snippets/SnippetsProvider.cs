@@ -22,8 +22,8 @@ namespace Bicep.LanguageServer.Snippets
 {
     public class SnippetsProvider : ISnippetsProvider
     {
-        // Used to cache resource declarations. Maps resource type to body text
-        private ConcurrentDictionary<string, string> resourceTypeToBodyMap = new ConcurrentDictionary<string, string>();
+        // Used to cache resource declarations. Maps resource type to body text and description
+        private ConcurrentDictionary<string, (string, string)> resourceTypeToBodyMap = new ConcurrentDictionary<string, (string, string)>();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
         private ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new ConcurrentDictionary<string, string>();
         // Used to cache resource body snippets
@@ -88,7 +88,7 @@ namespace Bicep.LanguageServer.Snippets
                         description = syntaxTrivia.Text.Substring("// ".Length);
                     }
 
-                    CacheResourceDeclarationAndDependencies(template, manifestResourceName);
+                    CacheResourceDeclarationAndDependencies(template, manifestResourceName, description);
                 }
             }
 
@@ -97,7 +97,7 @@ namespace Bicep.LanguageServer.Snippets
 
         public IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets() => topLevelNamedDeclarationSnippets;
 
-        private void CacheResourceDeclarationAndDependencies(string template, string manifestResourceName)
+        private void CacheResourceDeclarationAndDependencies(string template, string manifestResourceName, string description)
         {
             ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> dependencies = GetResourceDependencies(template, manifestResourceName);
 
@@ -109,20 +109,20 @@ namespace Bicep.LanguageServer.Snippets
                 {
                     string type = declaredSymbol.Type.Name;
 
-                    CacheResourceDeclaration(resourceDeclarationSyntax, type, template);
+                    CacheResourceDeclaration(resourceDeclarationSyntax, type, template, description);
                     CacheResourceDependencies(kvp.Value, template, type);
                 }
             }
         }
 
-        private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclarationSyntax, string type, string template)
+        private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclarationSyntax, string type, string template, string description)
         {
             if (!resourceTypeToBodyMap.ContainsKey(type))
             {
                 TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
                 string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
 
-                resourceTypeToBodyMap.TryAdd(type, bodyText);
+                resourceTypeToBodyMap.TryAdd(type, (bodyText, description));
             }
         }
 
@@ -195,22 +195,21 @@ namespace Bicep.LanguageServer.Snippets
         private Snippet? GetResourceBodyCompletionSnippetFromTemplate(TypeSymbol typeSymbol)
         {
             string label = "insert-snippet";
-            string description = "Snippet";
             string type = typeSymbol.Name;
 
             StringBuilder sb = new StringBuilder();
 
             // Get resource body completion snippet from checked in static template file, if available
-            if (resourceTypeToBodyMap.TryGetValue(type, out string? resourceBody))
+            if (resourceTypeToBodyMap.TryGetValue(type, out (string, string) resourceBodyWithDescription))
             {
-                sb.AppendLine(resourceBody);
+                sb.AppendLine(resourceBodyWithDescription.Item1);
 
                 if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
                 {
                     sb.Append(resourceDependencies);
                 }
 
-                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, description);
+                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, resourceBodyWithDescription.Item2);
             }
 
             return null;

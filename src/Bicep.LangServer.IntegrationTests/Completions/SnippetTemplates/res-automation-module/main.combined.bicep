@@ -1,5 +1,6 @@
 resource automationAccountVariable 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {
-  name: '${automationAccount.name}/name'
+  parent: automationAccount
+  name: 'name'
   properties: {
     contentLink: {
       uri: 'https://test-content-url.nupkg'

@@ -88,7 +88,7 @@
   {
     "label": "insert-snippet",
     "kind": "snippet",
-    "detail": "Snippet",
+    "detail": "DNS Zone",
     "documentation": {
       "kind": "markdown",
       "value": "```bicep\n{\n  name: 'name'\n  location: 'global'\n}\n\n```"

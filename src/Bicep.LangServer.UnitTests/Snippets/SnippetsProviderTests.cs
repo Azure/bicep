@@ -170,7 +170,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 x =>
                 {
                     x.Prefix.Should().Be("insert-snippet");
-                    x.Detail.Should().Be("Snippet");
+                    x.Detail.Should().Be("DNS Zone");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
   name: ${2:'name'}
@@ -215,10 +215,11 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 x =>
                 {
                     x.Prefix.Should().Be("insert-snippet");
-                    x.Detail.Should().Be("Snippet");
+                    x.Detail.Should().Be("Automation Module");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
-  name: '${automationAccount.name}/${2:name}'
+  parent: automationAccount
+  name: ${2:'name'}
   properties: {
     contentLink: {
       uri: ${3:'https://content-url.nupkg'}
