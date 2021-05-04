@@ -184,8 +184,8 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
-	location: $1
-	name: $2
+	name: $1
+	location: $2
 	$0
 }");
                 });
@@ -237,8 +237,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
-	location: $1
-	name: $2
+	name: $1
+	location: $2
 	$0
 }");
                 });
@@ -258,12 +258,12 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     ("id", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     ("hostPoolType", LanguageConstants.String, TypePropertyFlags.Required),
                     ("sku", CreateObjectType("applicationGroup",
-                            ("name", LanguageConstants.String, TypePropertyFlags.Required),
                             ("friendlyName", LanguageConstants.String, TypePropertyFlags.None),
                             ("properties", CreateObjectType("properties",
                                            ("loadBalancerType", LanguageConstants.String, TypePropertyFlags.Required),
                                            ("preferredAppGroupType", LanguageConstants.String, TypePropertyFlags.WriteOnly)),
-                                           TypePropertyFlags.Required)),
+                                           TypePropertyFlags.Required),
+                            ("name", LanguageConstants.String, TypePropertyFlags.Required)),
                             TypePropertyFlags.Required)));
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol);
@@ -282,16 +282,16 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
-	hostPoolType: $1
-	kind: $2
-	location: $3
-	name: $4
+	name: $1
+	location: $2
 	sku: {
-		name: $5
+		name: $3
 		properties: {
-			loadBalancerType: $6
+			loadBalancerType: $4
 		}
 	}
+	kind: $5
+	hostPoolType: $6
 	$0
 }");
                 });

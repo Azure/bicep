@@ -30,6 +30,29 @@ namespace Bicep.LanguageServer.Snippets
         private ConcurrentDictionary<string, IEnumerable<Snippet>> resourceBodySnippetsCache = new ConcurrentDictionary<string, IEnumerable<Snippet>>();
         // Used to cache top level declarations
         private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
+        // The common properties should be authored consistently to provide for understandability and consumption of the code.
+        // See https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#resources
+        // for more information
+        private List<string> propertiesSortPreferenceList = new List<string>
+        {
+            "comments",
+            "condition",
+            "scope",
+            "type",
+            "apiVersion",
+            "name",
+            "location",
+            "zones",
+            "sku",
+            "kind",
+            "scale",
+            "plan",
+            "identity",
+            "copy",
+            "dependsOn",
+            "tags",
+            "properties"
+        };
 
         public SnippetsProvider()
         {
@@ -225,7 +248,11 @@ namespace Bicep.LanguageServer.Snippets
                 int index = 1;
                 StringBuilder sb = new StringBuilder();
 
-                foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
+                IOrderedEnumerable<KeyValuePair<string, TypeProperty>> sortedProperties = objectType.Properties.OrderBy(x => propertiesSortPreferenceList.Exists(y => y == x.Key) ?
+                                                                                                  propertiesSortPreferenceList.FindIndex(y => y == x.Key) :
+                                                                                                  propertiesSortPreferenceList.Count - 1);
+
+                foreach (KeyValuePair<string, TypeProperty> kvp in sortedProperties)
                 {
                     string? snippetText = GetSnippetText(kvp.Value, indentLevel: 1, ref index);
 
