@@ -1,0 +1,20 @@
+[
+  {
+    "label": "2019-06-01-preview",
+    "kind": "class",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Namespace: `Microsoft.Resources`  \nType: `templateSpecs`  \nAPI Version: `2019-06-01-preview`"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "00000000",
+    "filterText": "'Microsoft.Resources/templateSpecs@2019-06-01-preview'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'Microsoft.Resources/templateSpecs@2019-06-01-preview'"
+    }
+  }
+]

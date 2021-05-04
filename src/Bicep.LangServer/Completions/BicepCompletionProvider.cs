@@ -210,7 +210,9 @@ namespace Bicep.LanguageServer.Completions
                 && ResourceTypeReference.IsNamespaceAndTypeSegment(entered))
             {
                 // newest api versions should be shown first
+                // strict filtering on type so that we show api versions for only the selected type
                 return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FullyQualifiedType))
                     .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
                     .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
                     .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
@@ -847,7 +849,8 @@ namespace Bicep.LanguageServer.Completions
             {
                 var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}@{resourceType.ApiVersion}");
                 return CompletionItemBuilder.Create(CompletionItemKind.Class)
-                    .WithLabel(insertText)
+                    .WithLabel(resourceType.ApiVersion)
+                    .WithFilterText(insertText)
                     .WithPlainTextEdit(replacementRange, insertText)
                     .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
                     // 8 hex digits is probably overkill :)
@@ -858,7 +861,7 @@ namespace Bicep.LanguageServer.Completions
                 var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}");
                 return CompletionItemBuilder.Create(CompletionItemKind.Class)
                     .WithLabel(insertText)
-                    .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}$0'")
+                    .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
                     .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}`")
                     .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
                     // 8 hex digits is probably overkill :)

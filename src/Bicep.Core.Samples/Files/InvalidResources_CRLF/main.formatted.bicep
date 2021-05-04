@@ -382,7 +382,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
 }
 
-// #completionTest(24,25,26,49,65,69,70) -> resourceTypesWithVersion
+// #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'v'
   location: 'eastus'
@@ -1369,20 +1369,26 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
   name: 'tenantLevelResourceBlocked'
 }
 
-// #completionTest(15, 36, 37) -> resourceTypes
+// #completionTest(15,36,37) -> resourceTypes
 resource comp1 'Microsoft.Resources/'
 
-// #completionTest(15,16, 17) -> resourceTypes
+// #completionTest(15,16,17) -> resourceTypes
 resource comp2 ''
 
-// #completionTest(38) -> resourceTypesWithVersion
+// #completionTest(38) -> resourceTypes
 resource comp3 'Microsoft.Resources/t'
 
-// #completionTest(40) -> resourceTypesWithVersion
+// #completionTest(40) -> resourceTypes
 resource comp4 'Microsoft.Resources/t/v'
 
-// #completionTest(53) -> resourceTypesWithVersion
-resource comp5 'Microsoft.Resources/templateSpecs@20'
+// #completionTest(49) -> resourceTypes
+resource comp5 'Microsoft.Storage/storageAccounts'
 
-// #completionTest(51,52) -> resourceTypesWithVersion
-resource comp6 'Microsoft.Resources/deploymentScripts@2020-10-01'
+// #completionTest(50) -> storageAccountsResourceTypes
+resource comp6 'Microsoft.Storage/storageAccounts@'
+
+// #completionTest(52) -> templateSpecsResourceTypes
+resource comp7 'Microsoft.Resources/templateSpecs@20'
+
+// #completionTest(60,61) -> virtualNetworksResourceTypes
+resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'

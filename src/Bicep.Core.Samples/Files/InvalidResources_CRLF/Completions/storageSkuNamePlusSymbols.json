@@ -667,6 +667,40 @@
     ]
   },
   {
+    "label": "comp7",
+    "kind": "interface",
+    "detail": "comp7",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp7",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp7"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp8",
+    "kind": "interface",
+    "detail": "comp8",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp8",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp8"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "concat",
     "kind": "function",
     "detail": "concat()",
