@@ -73,7 +73,7 @@
     "detail": "Required properties",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n\tlocation: \n\tname: \n\t\n}\n```"
+      "value": "```bicep\n{\n\tname: \n\tlocation: \n\t\n}\n```"
     },
     "deprecated": false,
     "preselect": true,
@@ -82,7 +82,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n\tlocation: $1\n\tname: $2\n\t$0\n}"
+      "newText": "{\n\tname: $1\n\tlocation: $2\n\t$0\n}"
     }
   },
   {
