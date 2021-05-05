@@ -11,7 +11,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
