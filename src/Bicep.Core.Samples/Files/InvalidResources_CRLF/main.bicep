@@ -11,7 +11,7 @@ resource foo 'ddd'
 // #completionTest(23) -> resourceTypes
 resource trailingSpace  
 
-// #completionTest(19,20) -> object
+// #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
 
 // wrong resource type

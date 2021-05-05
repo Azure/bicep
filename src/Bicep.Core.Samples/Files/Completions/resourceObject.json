@@ -68,42 +68,6 @@
     }
   },
   {
-    "label": "insert-required",
-    "kind": "snippet",
-    "detail": "Required properties",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\n{\n\tname: \n\tlocation: \n\t\n}\n```"
-    },
-    "deprecated": false,
-    "preselect": true,
-    "sortText": "2_insert-required",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "{\n\tname: $1\n\tlocation: $2\n\t$0\n}"
-    }
-  },
-  {
-    "label": "insert-snippet",
-    "kind": "snippet",
-    "detail": "DNS Zone",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\n{\n  name: 'name'\n  location: 'global'\n}\n\n```"
-    },
-    "deprecated": false,
-    "preselect": true,
-    "sortText": "2_insert-snippet",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "{\n  name: ${2:'name'}\n  location: 'global'\n}\n"
-    }
-  },
-  {
     "label": "{}",
     "kind": "snippet",
     "detail": "{}",

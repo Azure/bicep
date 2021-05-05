@@ -2,21 +2,57 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.LanguageServer.Completions;
 
 namespace Bicep.LanguageServer.Snippets
 {
     public class SnippetsProvider : ISnippetsProvider
     {
+        // Used to cache resource declarations. Maps resource type to body text and description
+        private ConcurrentDictionary<string, (string, string)> resourceTypeToBodyMap = new ConcurrentDictionary<string, (string, string)>();
+        // Used to cache resource dependencies. Maps resource type to it's dependencies
+        private ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new ConcurrentDictionary<string, string>();
+        // Used to cache resource body snippets
+        private ConcurrentDictionary<string, IEnumerable<Snippet>> resourceBodySnippetsCache = new ConcurrentDictionary<string, IEnumerable<Snippet>>();
+        // Used to cache top level declarations
         private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
+        // The common properties should be authored consistently to provide for understandability and consumption of the code.
+        // See https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#resources
+        // for more information
+        private List<string> propertiesSortPreferenceList = new List<string>
+        {
+            "comments",
+            "condition",
+            "scope",
+            "type",
+            "apiVersion",
+            "name",
+            "location",
+            "zones",
+            "sku",
+            "kind",
+            "scale",
+            "plan",
+            "identity",
+            "copy",
+            "dependsOn",
+            "tags",
+            "properties"
+        };
 
         public SnippetsProvider()
         {
@@ -34,7 +70,7 @@ namespace Bicep.LanguageServer.Snippets
                 Stream? stream = assembly.GetManifestResourceStream(manifestResourceName);
                 StreamReader streamReader = new StreamReader(stream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
 
-                (string description, string snippetText) = GetDescriptionAndText(streamReader.ReadToEnd());
+                (string description, string snippetText) = GetDescriptionAndText(streamReader.ReadToEnd(), manifestResourceName);
                 string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
                 CompletionPriority completionPriority = CompletionPriority.Medium;
 
@@ -49,7 +85,7 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        public (string, string) GetDescriptionAndText(string? template)
+        public (string, string) GetDescriptionAndText(string? template, string manifestResourceName)
         {
             string description = string.Empty;
             string text = string.Empty;
@@ -74,6 +110,8 @@ namespace Bicep.LanguageServer.Snippets
                     {
                         description = syntaxTrivia.Text.Substring("// ".Length);
                     }
+
+                    CacheResourceDeclarationAndDependencies(template, manifestResourceName, description);
                 }
             }
 
@@ -81,5 +119,210 @@ namespace Bicep.LanguageServer.Snippets
         }
 
         public IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets() => topLevelNamedDeclarationSnippets;
+
+        private void CacheResourceDeclarationAndDependencies(string template, string manifestResourceName, string description)
+        {
+            ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> dependencies = GetResourceDependencies(template, manifestResourceName);
+
+            foreach (KeyValuePair<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> kvp in dependencies)
+            {
+                DeclaredSymbol declaredSymbol = kvp.Key;
+
+                if (declaredSymbol.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax)
+                {
+                    string type = declaredSymbol.Type.Name;
+
+                    CacheResourceDeclaration(resourceDeclarationSyntax, type, template, description);
+                    CacheResourceDependencies(kvp.Value, template, type);
+                }
+            }
+        }
+
+        private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclarationSyntax, string type, string template, string description)
+        {
+            if (!resourceTypeToBodyMap.ContainsKey(type))
+            {
+                TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
+                string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
+
+                resourceTypeToBodyMap.TryAdd(type, (bodyText, description));
+            }
+        }
+
+        private void CacheResourceDependencies(ImmutableHashSet<ResourceDependency> resourceDependencies, string template, string resourceType)
+        {
+            if (resourceDependencies.Any())
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (ResourceDependency resourceDependency in resourceDependencies)
+                {
+                    TextSpan span = resourceDependency.Resource.DeclaringSyntax.Span;
+                    sb.AppendLine(template.Substring(span.Position, span.Length));
+                }
+
+                resourceTypeToDependentsMap.TryAdd(resourceType, sb.ToString());
+            }
+        }
+
+        private ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(string template, string manifestResourceName)
+        {
+            // Snippets with prefix resource will not have valid type, so there can't be any dependencies
+            if (manifestResourceName.Contains("resource"))
+            {
+                return ImmutableDictionary.Create<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
+            }
+
+            string path = Path.GetFullPath(manifestResourceName);
+            SyntaxTree syntaxTree = SyntaxTree.Create(new Uri(path), template);
+            SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
+                syntaxTree,
+                ImmutableHashSet.Create(syntaxTree),
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, SyntaxTree>(),
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>());
+
+            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
+            SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
+
+            return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
+        }
+
+        public IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol)
+        {
+            if (resourceBodySnippetsCache.TryGetValue(typeSymbol.Name, out IEnumerable<Snippet>? cachedSnippets) && cachedSnippets.Any())
+            {
+                return cachedSnippets;
+            }
+
+            List<Snippet> snippets = new List<Snippet>();
+
+            snippets.Add(GetEmptySnippet());
+
+            Snippet? snippetFromExistingTemplate = GetResourceBodyCompletionSnippetFromTemplate(typeSymbol);
+            if (snippetFromExistingTemplate is not null)
+            {
+                snippets.Add(snippetFromExistingTemplate);
+            }
+
+            Snippet? snippetFromAzTypes = GetResourceBodyCompletionSnippetFromAzTypes(typeSymbol);
+            if (snippetFromAzTypes is not null)
+            {
+                snippets.Add(snippetFromAzTypes);
+            }
+
+            // Add to cache
+            resourceBodySnippetsCache.TryAdd(typeSymbol.Name, snippets);
+
+            return snippets;
+        }
+
+        private Snippet? GetResourceBodyCompletionSnippetFromTemplate(TypeSymbol typeSymbol)
+        {
+            string label = "insert-snippet";
+            string type = typeSymbol.Name;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Get resource body completion snippet from checked in static template file, if available
+            if (resourceTypeToBodyMap.TryGetValue(type, out (string, string) resourceBodyWithDescription))
+            {
+                sb.AppendLine(resourceBodyWithDescription.Item1);
+
+                if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
+                {
+                    sb.Append(resourceDependencies);
+                }
+
+                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, resourceBodyWithDescription.Item2);
+            }
+
+            return null;
+        }
+
+        private Snippet? GetResourceBodyCompletionSnippetFromAzTypes(TypeSymbol typeSymbol)
+        {
+            string label = "insert-required";
+            string description = "Required properties";
+
+            if (typeSymbol is ResourceType resourceType && resourceType.Body is ObjectType objectType)
+            {
+                int index = 1;
+                StringBuilder sb = new StringBuilder();
+
+                IOrderedEnumerable<KeyValuePair<string, TypeProperty>> sortedProperties = objectType.Properties.OrderBy(x => propertiesSortPreferenceList.Exists(y => y == x.Key) ?
+                                                                                                  propertiesSortPreferenceList.FindIndex(y => y == x.Key) :
+                                                                                                  propertiesSortPreferenceList.Count - 1);
+
+                foreach (KeyValuePair<string, TypeProperty> kvp in sortedProperties)
+                {
+                    string? snippetText = GetSnippetText(kvp.Value, indentLevel: 1, ref index);
+
+                    if (snippetText is not null)
+                    {
+                        sb.Append(snippetText);
+                    }
+                }
+
+                if (sb.Length > 0)
+                {
+                    // Insert open curly at the beginning
+                    sb.Insert(0, "{\n");
+
+                    // Append final tab stop
+                    sb.Append("\t$0\n}");
+
+                    return new Snippet(sb.ToString(), CompletionPriority.Medium, label, description);
+                }
+            }
+
+            return null;
+        }
+
+        private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index)
+        {
+            if (typeProperty.Flags.HasFlag(TypePropertyFlags.Required))
+            {
+                StringBuilder sb = new StringBuilder();
+
+                if (typeProperty.TypeReference.Type is ObjectType objectType)
+                {
+                    sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + ": {");
+
+                    indentLevel++;
+
+                    foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
+                    {
+                        string? snippetText = GetSnippetText(kvp.Value, indentLevel, ref index);
+                        if (snippetText is not null)
+                        {
+                            sb.Append(snippetText);
+                        }
+                    }
+
+                    indentLevel--;
+                    sb.AppendLine(GetIndentString(indentLevel) + "}");
+                }
+                else
+                {
+                    sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + ": $" + (index).ToString());
+                    index++;
+                }
+
+                return sb.ToString();
+            }
+
+            return null;
+        }
+
+        private string GetIndentString(int indentLevel)
+        {
+            return new string('\t', indentLevel);
+        }
+
+        private Snippet GetEmptySnippet()
+        {
+            string label = "{}";
+
+            return new Snippet("{\n\t$0\n}", CompletionPriority.Medium, label, label);
+        }
     }
 }

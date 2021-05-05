@@ -61,8 +61,8 @@ resource trailingSpace
 //@[24:24)  SkippedTriviaSyntax
 //@[24:28) NewLine |\r\n\r\n|
 
-// #completionTest(19,20) -> object
-//@[35:37) NewLine |\r\n|
+// #completionTest(19,20) -> resourceObject
+//@[43:45) NewLine |\r\n|
 resource foo 'ddd'= 
 //@[0:20) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
