@@ -1,8 +1,8 @@
-resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {
+resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'
 }
 
-resource automationRunbook 'Microsoft.Automation/automationAccounts/runbooks@2018-06-30' = {
+resource automationRunbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {
   parent: automationAccount
   name: 'name'
   location: resourceGroup().location

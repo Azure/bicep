@@ -1,9 +1,9 @@
 ﻿// Automation Credential
-resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {
+resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: ${1:'name'}
 }
 
-resource ${2:automationCredential} 'Microsoft.Automation/automationAccounts/credentials@2015-10-31' = {
+resource ${2:automationCredential} 'Microsoft.Automation/automationAccounts/credentials@2019-06-01' = {
   parent: automationAccount
   name: ${3:'name'}
   properties: {
