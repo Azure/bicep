@@ -17,12 +17,6 @@ namespace Bicep.Core.Emit
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
-        /// <summary>
-        /// Get resource dependencies from the given semantic model.
-        /// </summary>
-        /// <param name="model">The semantic model.</param>
-        /// <param name="faultTolerant">Whether to suppress errors like unbounded declartions. This is only set to true when calling from BicepDeploymentGraphHandler.</param>
-        /// <returns>The resource dependencies dictionary.</returns>
         public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(SemanticModel model)
         {
             var visitor = new ResourceDependencyVisitor(model);
