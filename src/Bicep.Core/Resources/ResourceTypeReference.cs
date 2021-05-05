@@ -12,9 +12,12 @@ namespace Bicep.Core.Resources
 {
     public class ResourceTypeReference
     {
-        private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+@(?<version>(\d{4}-\d{2}-\d{2})(-(preview|alpha|beta|rc|privatepreview))?$)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
+        private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+@(?<version>[a-z0-9\-])*?", PatternRegexOptions);
 
-        private static readonly Regex SingleTypePattern = new Regex(@"^(?<type>[a-z0-9\-]+)(@(?<version>(\d{4}-\d{2}-\d{2})(-(preview|alpha|beta|rc|privatepreview))?))?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex VersionedResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+@(?<version>(\d{4}-\d{2}-\d{2})(-(preview|alpha|beta|rc|privatepreview))?$)", PatternRegexOptions);
+
+        private static readonly Regex SingleTypePattern = new Regex(@"^(?<type>[a-z0-9\-]+)(@(?<version>(\d{4}-\d{2}-\d{2})(-(preview|alpha|beta|rc|privatepreview))?))?$", PatternRegexOptions);
 
         public ResourceTypeReference(string @namespace, IEnumerable<string> types, string apiVersion)
         {
@@ -88,7 +91,7 @@ namespace Bicep.Core.Resources
 
         public static ResourceTypeReference? TryParse(string resourceType)
         {
-            var match = ResourceTypePattern.Match(resourceType);
+            var match = VersionedResourceTypePattern.Match(resourceType);
             if (match.Success == false)
             {
                 return null;
@@ -122,6 +125,11 @@ namespace Bicep.Core.Resources
             }
             
             return true;
+        }
+
+        public static bool IsNamespaceAndTypeSegment(string segment)
+        {
+            return ResourceTypePattern.Match(segment).Success;
         }
     }
 }

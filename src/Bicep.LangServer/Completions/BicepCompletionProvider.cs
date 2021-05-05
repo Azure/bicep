@@ -201,12 +201,33 @@ namespace Bicep.LanguageServer.Completions
 
                 return items;
             }
-            // we need to ensure that Microsoft.Compute/virtualMachines@whatever comes before Microsoft.Compute/virtualMachines/extensions@whatever
-            // similarly, newest api versions should be shown first
+
+            // ResourceType completions are divided into 2 parts.
+            // If the current value passes the namespace and type notation ("<Namespace>/<type>") format, we return the fully qualified resource types
+            if (context.EnclosingDeclaration is ResourceDeclarationSyntax declarationSyntax
+                && declarationSyntax.Type is StringSyntax stringSyntax
+                && stringSyntax.TryGetLiteralValue() is string entered
+                && ResourceTypeReference.IsNamespaceAndTypeSegment(entered))
+            {
+                // newest api versions should be shown first
+                // strict filtering on type so that we show api versions for only the selected type
+                return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FullyQualifiedType))
+                    .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
+                    .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                    .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
+                    .ToList();
+            }
+            
+            // if we do not have the namespace and type notation, we only return uniquie resource types without their api-versions
+            // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
+            // we still order by apiVersion first to have consistent indexes
             return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+                .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                .GroupBy(rt => rt.FullyQualifiedType)
+                .Select(rt => rt.First())
                 .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
-                .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
-                .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange))
+                .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false))
                 .ToList();
         }
 
@@ -243,7 +264,6 @@ namespace Bicep.LanguageServer.Completions
 
             var files = Enumerable.Empty<Uri>();
             var dirs = Enumerable.Empty<Uri>();
-
 
             // technically bicep files do not have to follow the bicep extension, so
             // we are not enforcing *.bicep get files command
@@ -326,7 +346,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetVariableValueCompletions(BicepCompletionContext context)
         {
-            if(!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -743,7 +763,7 @@ namespace Bicep.LanguageServer.Completions
             yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, CompletionPriority.High);
             yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, CompletionPriority.High);
 
-            if(filtersAllowed && assignableToObject && !assignableToArray)
+            if (filtersAllowed && assignableToObject && !assignableToArray)
             {
                 yield return CreateContextualSnippetCompletion(filteredLabel, filteredLabel, "[for (${2:item}, ${3:index}) in ${1:list}: if (${4:condition}) {\n\t$0\n}]", replacementRange, CompletionPriority.High);
             }
@@ -822,15 +842,31 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(type.Name)
                 .WithSortText(GetSortText(type.Name, priority));
 
-        private static CompletionItem CreateResourceTypeCompletion(ResourceTypeReference resourceType, int index, Range replacementRange)
+        private static CompletionItem CreateResourceTypeCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool showApiVersion)
         {
-            var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}@{resourceType.ApiVersion}");
-            return CompletionItemBuilder.Create(CompletionItemKind.Class)
-                .WithLabel(insertText)
-                .WithPlainTextEdit(replacementRange, insertText)
-                .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
-                // 8 hex digits is probably overkill :)
-                .WithSortText(index.ToString("x8"));
+            // Splitting ResourceType Completion in to two pieces, one for the 'Namespace/type', the second for '@<api-version>'
+            if (showApiVersion)
+            {
+                var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}@{resourceType.ApiVersion}");
+                return CompletionItemBuilder.Create(CompletionItemKind.Class)
+                    .WithLabel(resourceType.ApiVersion)
+                    .WithFilterText(insertText)
+                    .WithPlainTextEdit(replacementRange, insertText)
+                    .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
+                    // 8 hex digits is probably overkill :)
+                    .WithSortText(index.ToString("x8"));
+            }
+            else
+            {
+                var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}");
+                return CompletionItemBuilder.Create(CompletionItemKind.Class)
+                    .WithLabel(insertText)
+                    .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
+                    .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}`")
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    // 8 hex digits is probably overkill :)
+                    .WithSortText(index.ToString("x8"));
+            }
         }
 
         private static CompletionItem CreateResourceTypeSegmentCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool includeApiVersion, string displayApiVersion)
