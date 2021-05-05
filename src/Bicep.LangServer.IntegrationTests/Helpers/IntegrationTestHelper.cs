@@ -19,14 +19,16 @@ using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Utils;
 using System.Collections.Generic;
 using Bicep.Core.FileSystem;
-using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.Navigation;
+using Bicep.LanguageServer.Snippets;
 
 namespace Bicep.LangServer.IntegrationTests
 {
     public static class IntegrationTestHelper
     {
-        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider();
+
+        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null, ISnippetsProvider? snippetsProvider = null)
         {
             resourceTypeProvider ??= TestTypeHelper.CreateEmptyProvider();
             fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string>());
@@ -41,6 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     ResourceTypeProvider = resourceTypeProvider,
                     FileResolver = fileResolver,
+                    SnippetsProvider = snippetsProvider
                 });
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
@@ -98,7 +101,8 @@ namespace Bicep.LangServer.IntegrationTests
                     options.OnPublishDiagnostics(p => diagnosticsPublished.SetResult(p));
                 },
                 resourceTypeProvider: resourceTypeProvider,
-                fileResolver: fileResolver);
+                fileResolver: fileResolver,
+                snippetsProvider: SnippetsProvider);
 
             // send open document notification
             client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, text, 0));
