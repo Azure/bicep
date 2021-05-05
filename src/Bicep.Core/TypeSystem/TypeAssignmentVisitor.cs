@@ -36,11 +36,11 @@ namespace Bicep.Core.TypeSystem
         }
 
         private readonly IResourceTypeProvider resourceTypeProvider;
-        private readonly TypeManager typeManager;
+        private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
 
-        public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, TypeManager typeManager, IBinder binder)
+        public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, ITypeManager typeManager, IBinder binder)
         {
             this.resourceTypeProvider = resourceTypeProvider;
             this.typeManager = typeManager;
@@ -257,7 +257,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, singleOrCollectionDeclaredType);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -285,7 +285,7 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, singleOrCollectionDeclaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, singleOrCollectionDeclaredType);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -361,7 +361,7 @@ namespace Bicep.Core.TypeSystem
                     case ObjectSyntax modifierSyntax:
                         var modifierType = LanguageConstants.CreateParameterModifierType(declaredType, assignedType);
                         // we don't need to actually use the narrowed type; just need to use this to collect assignment diagnostics
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, modifierSyntax, modifierType, diagnostics);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, modifierSyntax, modifierType);
                         break;
                 }
 
@@ -416,7 +416,7 @@ namespace Bicep.Core.TypeSystem
                             decoratorSyntaxesByMatchingDecorator[decorator] = new List<DecoratorSyntax> { decoratorSyntax };
                         }
 
-                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
+                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, this.binder, diagnostics);
                     }
                 }
             }
@@ -1037,7 +1037,7 @@ namespace Bicep.Core.TypeSystem
 
                 TypeValidator.GetCompileTimeConstantViolation(syntax.Value, diagnostics);
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, declaredType);
             });
 
         public override void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -1332,7 +1332,7 @@ namespace Bicep.Core.TypeSystem
             {
                 var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-                TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, defaultValueSyntax.DefaultValue, assignedType, diagnosticWriter);
+                TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType);
 
                 return diagnosticWriter.GetDiagnostics();
             }

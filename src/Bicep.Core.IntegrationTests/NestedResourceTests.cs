@@ -93,7 +93,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 
             // The property "resource" is not allowed ...
             model.GetAllDiagnostics().Should().HaveCount(1);
-            model.GetAllDiagnostics().Single().Should().HaveCodeAndSeverity("BCP038", DiagnosticLevel.Error);
+            model.GetAllDiagnostics().Single().Should().HaveCodeAndSeverity("BCP037", DiagnosticLevel.Error);
 
             var expected = new []
             {

@@ -16,7 +16,5 @@ namespace Bicep.Core.Semantics
         DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax);
 
         IEnumerable<Diagnostic> GetAllDiagnostics();
-
-        SyntaxBase? GetParent(SyntaxBase syntax);
     }
 }

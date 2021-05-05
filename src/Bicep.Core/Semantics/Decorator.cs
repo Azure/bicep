@@ -11,6 +11,7 @@ namespace Bicep.Core.Semantics
         DecoratorSyntax decoratorSyntax,
         TypeSymbol targetType,
         ITypeManager typeManager,
+        IBinder binder,
         IDiagnosticWriter diagnosticWriter);
 
     public delegate ObjectSyntax? DecoratorEvaluator(
@@ -38,7 +39,7 @@ namespace Bicep.Core.Semantics
 
         public bool CanAttachTo(TypeSymbol targetType) => TypeValidator.AreTypesAssignable(targetType, attachableType);
 
-        public void Validate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
+        public void Validate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
         {
             if (targetType is ErrorType)
             {
@@ -53,7 +54,7 @@ namespace Bicep.Core.Semantics
             // Custom validator provided.
             if (this.validator != null)
             {
-                this.validator.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, diagnosticWriter);
+                this.validator.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
 
                 return;
             }
