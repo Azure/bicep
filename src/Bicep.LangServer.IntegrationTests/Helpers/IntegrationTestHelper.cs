@@ -28,7 +28,7 @@ namespace Bicep.LangServer.IntegrationTests
     {
         public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider();
 
-        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null, ISnippetsProvider? snippetsProvider = null)
+        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {
             resourceTypeProvider ??= TestTypeHelper.CreateEmptyProvider();
             fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string>());
@@ -43,7 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     ResourceTypeProvider = resourceTypeProvider,
                     FileResolver = fileResolver,
-                    SnippetsProvider = snippetsProvider
+                    SnippetsProvider = SnippetsProvider
                 });
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
@@ -101,8 +101,7 @@ namespace Bicep.LangServer.IntegrationTests
                     options.OnPublishDiagnostics(p => diagnosticsPublished.SetResult(p));
                 },
                 resourceTypeProvider: resourceTypeProvider,
-                fileResolver: fileResolver,
-                snippetsProvider: SnippetsProvider);
+                fileResolver: fileResolver);
 
             // send open document notification
             client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, text, 0));
