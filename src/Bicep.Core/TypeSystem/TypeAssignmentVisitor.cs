@@ -317,6 +317,20 @@ namespace Bicep.Core.TypeSystem
                  */
                 var allowedDecoratorSyntax = syntax.Decorators.FirstOrDefault(decoratorSyntax =>
                 {
+                    if (decoratorSyntax.Expression is InstanceFunctionCallSyntax { BaseExpression: VariableAccessSyntax namespaceSyntax, Name: IdentifierSyntax nameSyntax } &&
+                        namespaceSyntax.Name.IdentifierName == "sys" &&
+                        nameSyntax.IdentifierName == "allowed")
+                    {
+                        /*
+                         * This is a workaround to unambiguously get the syntax for "@sys.allowed(...)".
+                         * We cannot get it by resolving the function symbol, since currently the binder
+                         * does not bind an InstanceFunctionCallSyntax to a symbol. This does not affect
+                         * decorator emitting though, because in the emitter we call SemanticModel.GetSymbolInfo()
+                         * which adds special handling for InstanceFunctionCallSyntax.
+                         */
+                        return true;
+                    }
+
                     if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol functionSymbol)
                     {
                         var argumentTypes = this.GetRecoveredArgumentTypes(decoratorSyntax.Arguments).ToArray();
