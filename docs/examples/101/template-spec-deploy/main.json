@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17948249486504242483"
+    }
+  },
+  "parameters": {
+    "templateSpecSub": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]"
+    },
+    "templateSpecRg": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "templateSpecName": {
+      "type": "string"
+    },
+    "templateSpecVersion": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-01-01",
+      "name": "deployTs",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('templateSpecSub'), parameters('templateSpecRg')), 'Microsoft.Resources/templateSpecs/versions', parameters('templateSpecName'), parameters('templateSpecVersion'))]"
+        },
+        "parameters": {}
+      }
+    }
+  ]
+}
