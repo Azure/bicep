@@ -222,6 +222,24 @@
     }
   },
   {
+    "label": "res-automation-module",
+    "kind": "snippet",
+    "detail": "Automation Module",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: 'name'\n}\n\nresource automationAccountVariable 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    contentLink: {\n      uri: 'https://content-url.nupkg'\n    }\n  }\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-automation-module",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationAccountVariable} 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    contentLink: {\n      uri: ${4:'https://content-url.nupkg'}\n    }\n  }\n}"
+    }
+  },
+  {
     "label": "res-availability-set",
     "kind": "snippet",
     "detail": "Availability Set",
@@ -687,6 +705,24 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:virtualNetwork} 'Microsoft.Network/virtualNetworks@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    addressSpace: {\n      addressPrefixes: [\n        '10.0.0.0/16'\n      ]\n    }\n    subnets: [\n      {\n        name: 'Subnet-1'\n        properties: {\n          addressPrefix: '10.0.0.0/24'\n        }\n      }\n      {\n        name: 'Subnet-2'\n        properties: {\n          addressPrefix: '10.0.1.0/24'\n        }\n      }\n    ]\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-vnet-peering",
+    "kind": "snippet",
+    "detail": "Virtual Network Peering",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: 'virtualNetwork/name'\n  properties: {\n    allowVirtualNetworkAccess: true\n    allowForwardedTraffic: true\n    allowGatewayTransit: true\n    useRemoteGateways: true\n    remoteVirtualNetwork: {\n      id: resourceId('Microsoft.Network/virtualNetworks', 'REQUIRED')\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vnet-peering",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:peering} 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: ${2:'virtualNetwork/name'}\n  properties: {\n    allowVirtualNetworkAccess: ${3|true,false|}\n    allowForwardedTraffic: ${4|true,false|}\n    allowGatewayTransit: ${5|true,false|}\n    useRemoteGateways: ${6|true,false|}\n    remoteVirtualNetwork: {\n      id: resourceId('Microsoft.Network/virtualNetworks', ${7:'REQUIRED'})\n    }\n  }\n}\n"
     }
   },
   {

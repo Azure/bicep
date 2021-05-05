@@ -214,9 +214,9 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 
 // Issue 486
 var myFloat = 3.14
+//@[16:16) [BCP055 (Error)] Cannot access properties of type "int". An "object" type is required. ||
 //@[16:16) [BCP020 (Error)] Expected a function or property name at this location. ||
 //@[16:18) [BCP019 (Error)] Expected a new line character at this location. |14|
-//@[16:16) [BCP055 (Error)] Cannot access properties of type "int". An "object" type is required. ||
 
 // secure cannot be used as a varaible decorator
 @sys.secure()

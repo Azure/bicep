@@ -61,8 +61,8 @@ resource trailingSpace
 //@[24:24)  SkippedTriviaSyntax
 //@[24:28) NewLine |\r\n\r\n|
 
-// #completionTest(19,20) -> object
-//@[35:37) NewLine |\r\n|
+// #completionTest(19,20) -> resourceObject
+//@[43:45) NewLine |\r\n|
 resource foo 'ddd'= 
 //@[0:20) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
@@ -2930,18 +2930,18 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 //@[1:5) NewLine |\r\n\r\n|
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:304) ResourceDeclarationSyntax
+//@[0:358) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:44)  IdentifierSyntax
 //@[9:44)   Identifier |missingTopLevelPropertiesExceptName|
 //@[45:99)  StringSyntax
 //@[45:99)   StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
 //@[100:101)  Assignment |=|
-//@[102:304)  ObjectSyntax
+//@[102:358)  ObjectSyntax
 //@[102:103)   LeftBrace |{|
 //@[103:105)   NewLine |\r\n|
-  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
-//@[60:62)   NewLine |\r\n|
+  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+//@[114:116)   NewLine |\r\n|
   name: 'me'
 //@[2:12)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
@@ -2960,8 +2960,8 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
-//@[51:53) NewLine |\r\n|
+// #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
+//@[72:74) NewLine |\r\n|
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[0:468) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
@@ -10648,6 +10648,110 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 //@[36:38)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
+
+// #completionTest(15,36,37) -> resourceTypes
+//@[45:47) NewLine |\r\n|
+resource comp1 'Microsoft.Resources/'
+//@[0:37) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp1|
+//@[15:37)  StringSyntax
+//@[15:37)   StringComplete |'Microsoft.Resources/'|
+//@[37:37)  SkippedTriviaSyntax
+//@[37:37)  SkippedTriviaSyntax
+//@[37:41) NewLine |\r\n\r\n|
+
+// #completionTest(15,16,17) -> resourceTypes
+//@[45:47) NewLine |\r\n|
+resource comp2 ''
+//@[0:17) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp2|
+//@[15:17)  StringSyntax
+//@[15:17)   StringComplete |''|
+//@[17:17)  SkippedTriviaSyntax
+//@[17:17)  SkippedTriviaSyntax
+//@[17:21) NewLine |\r\n\r\n|
+
+// #completionTest(38) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource comp3 'Microsoft.Resources/t'
+//@[0:38) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp3|
+//@[15:38)  StringSyntax
+//@[15:38)   StringComplete |'Microsoft.Resources/t'|
+//@[38:38)  SkippedTriviaSyntax
+//@[38:38)  SkippedTriviaSyntax
+//@[38:42) NewLine |\r\n\r\n|
+
+// #completionTest(40) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource comp4 'Microsoft.Resources/t/v'
+//@[0:40) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp4|
+//@[15:40)  StringSyntax
+//@[15:40)   StringComplete |'Microsoft.Resources/t/v'|
+//@[40:40)  SkippedTriviaSyntax
+//@[40:40)  SkippedTriviaSyntax
+//@[40:44) NewLine |\r\n\r\n|
+
+// #completionTest(49) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource comp5 'Microsoft.Storage/storageAccounts'
+//@[0:50) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp5|
+//@[15:50)  StringSyntax
+//@[15:50)   StringComplete |'Microsoft.Storage/storageAccounts'|
+//@[50:50)  SkippedTriviaSyntax
+//@[50:50)  SkippedTriviaSyntax
+//@[50:54) NewLine |\r\n\r\n|
+
+// #completionTest(50) -> storageAccountsResourceTypes
+//@[54:56) NewLine |\r\n|
+resource comp6 'Microsoft.Storage/storageAccounts@'
+//@[0:51) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp6|
+//@[15:51)  StringSyntax
+//@[15:51)   StringComplete |'Microsoft.Storage/storageAccounts@'|
+//@[51:51)  SkippedTriviaSyntax
+//@[51:51)  SkippedTriviaSyntax
+//@[51:55) NewLine |\r\n\r\n|
+
+// #completionTest(52) -> templateSpecsResourceTypes
+//@[52:54) NewLine |\r\n|
+resource comp7 'Microsoft.Resources/templateSpecs@20'
+//@[0:53) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp7|
+//@[15:53)  StringSyntax
+//@[15:53)   StringComplete |'Microsoft.Resources/templateSpecs@20'|
+//@[53:53)  SkippedTriviaSyntax
+//@[53:53)  SkippedTriviaSyntax
+//@[53:57) NewLine |\r\n\r\n|
+
+// #completionTest(60,61) -> virtualNetworksResourceTypes
+//@[57:59) NewLine |\r\n|
+resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
+//@[0:61) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:14)  IdentifierSyntax
+//@[9:14)   Identifier |comp8|
+//@[15:61)  StringSyntax
+//@[15:61)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[61:61)  SkippedTriviaSyntax
+//@[61:61)  SkippedTriviaSyntax
+//@[61:63) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

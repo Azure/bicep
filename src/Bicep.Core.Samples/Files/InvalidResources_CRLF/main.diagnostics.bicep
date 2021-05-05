@@ -25,7 +25,7 @@ resource trailingSpace
 //@[24:24) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||
 //@[24:24) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||
 
-// #completionTest(19,20) -> object
+// #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
@@ -248,8 +248,8 @@ resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10
 var resrefvar = bar.name
 
 param resrefpar string = foo.id
-//@[25:28) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
 //@[25:28) [BCP062 (Error)] The referenced declaration with name "foo" is not valid. |foo|
+//@[25:28) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
 
 output resrefout bool = bar.id
 //@[24:30) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "string". |bar.id|
@@ -556,14 +556,14 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:44) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "sku". |missingTopLevelPropertiesExceptName|
-  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
   
 }
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
+// #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'v'
   location: 'eastus'
@@ -1457,7 +1457,7 @@ resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-
   location: 'eastus42'
   properties: {
     wrong: 'test'
-//@[4:9) [BCP038 (Warning)] The property "wrong" is not allowed on objects of type "StorageAccountPropertiesCreateParameters". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "encryption", "isHnsEnabled", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "routingPreference", "supportsHttpsTrafficOnly". |wrong|
+//@[4:9) [BCP037 (Warning)] The property "wrong" is not allowed on objects of type "StorageAccountPropertiesCreateParameters". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "encryption", "isHnsEnabled", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "routingPreference", "supportsHttpsTrafficOnly". |wrong|
   }
 }]
 
@@ -1467,7 +1467,7 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
   properties: {
     subnets: [for j in range(0, 4): {
       doesNotExist: 'test'
-//@[6:18) [BCP038 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
+//@[6:18) [BCP037 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
       name: 'subnet-${i}-${j}'
     }]
   }
@@ -1477,7 +1477,7 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
   properties: {
     subnets: [for j in range(0, 4): {
       doesNotExist: 'test'
-//@[6:18) [BCP038 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
+//@[6:18) [BCP037 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
       name: 'subnet-${i}-${j}-${k}'
     }]
   }
@@ -1644,7 +1644,7 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
     subnets: premiumStorages
 //@[13:28) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
     dependsOn: [
-//@[4:13) [BCP038 (Warning)] The property "dependsOn" is not allowed on objects of type "VirtualNetworkPropertiesFormat". Permissible properties include "addressSpace", "bgpCommunities", "ddosProtectionPlan", "dhcpOptions", "enableDdosProtection", "enableVmProtection", "ipAllocations", "virtualNetworkPeerings". |dependsOn|
+//@[4:13) [BCP037 (Warning)] The property "dependsOn" is not allowed on objects of type "VirtualNetworkPropertiesFormat". Permissible properties include "addressSpace", "bgpCommunities", "ddosProtectionPlan", "dhcpOptions", "enableDdosProtection", "enableVmProtection", "ipAllocations", "virtualNetworkPeerings". |dependsOn|
       premiumStorages
 //@[6:21) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
     ]
@@ -1660,8 +1660,8 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
   location: 'eastus'
   properties: {
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
-//@[4:61) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type "ZoneProperties". Permissible properties include "registrationVirtualNetworks", "resolutionVirtualNetworks", "zoneType". |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
 //@[4:61) [BCP143 (Error)] For-expressions cannot be used with properties whose names are also expressions. |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
+//@[4:61) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type "ZoneProperties". Permissible properties include "registrationVirtualNetworks", "resolutionVirtualNetworks", "zoneType". |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
   }
 }
 
@@ -1895,4 +1895,43 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 //@[89:131) [BCP135 (Error)] Scope "resourceGroup" is not valid for this resource type. Permitted scopes: "tenant". |{\r\n  name: 'tenantLevelResourceBlocked'\r\n}|
   name: 'tenantLevelResourceBlocked'
 }
+
+// #completionTest(15,36,37) -> resourceTypes
+resource comp1 'Microsoft.Resources/'
+//@[15:37) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/'|
+//@[37:37) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(15,16,17) -> resourceTypes
+resource comp2 ''
+//@[15:17) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |''|
+//@[17:17) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(38) -> resourceTypes
+resource comp3 'Microsoft.Resources/t'
+//@[15:38) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/t'|
+//@[38:38) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(40) -> resourceTypes
+resource comp4 'Microsoft.Resources/t/v'
+//@[15:40) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/t/v'|
+//@[40:40) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(49) -> resourceTypes
+resource comp5 'Microsoft.Storage/storageAccounts'
+//@[15:50) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Storage/storageAccounts'|
+//@[50:50) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(50) -> storageAccountsResourceTypes
+resource comp6 'Microsoft.Storage/storageAccounts@'
+//@[15:51) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Storage/storageAccounts@'|
+//@[51:51) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(52) -> templateSpecsResourceTypes
+resource comp7 'Microsoft.Resources/templateSpecs@20'
+//@[15:53) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/templateSpecs@20'|
+//@[53:53) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(60,61) -> virtualNetworksResourceTypes
+resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
+//@[61:61) [BCP018 (Error)] Expected the "=" character at this location. ||
 

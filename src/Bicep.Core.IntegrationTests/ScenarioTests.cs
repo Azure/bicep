@@ -8,7 +8,10 @@ using Bicep.Core.UnitTests.Utils;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
-using System.Xml.Linq;
+using System.Text.RegularExpressions;
+using System.Collections;
+using System.Linq;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -1568,6 +1571,30 @@ output vmExtName string = vm::vmExt.name
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/691
+        public void Test_Issue691()
+        {
+            var result = CompilationHelper.Compile(@"
+var vmNotWorkingProps = {
+  valThatDoesNotExist: ''
+}
+
+resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'notWorking'
+  location: 'west us'
+  // no diagnostics raised here even though the type is invalid!
+  properties: vmNotWorkingProps
+//@           ~~~~~~~~~~~~~~~~~ $0
+}
+");
+
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP037", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" from source declaration \"vmNotWorkingProps\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\"."),
+            });
+        }
+
+        [TestMethod]
         // https://github.com/azure/bicep/issues/1988
         public void Test_Issue1988()
         {
@@ -1844,5 +1871,55 @@ resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.f
                 ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of rg2 are \"apiVersion\", \"id\", \"name\", \"type\".")
             });
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2262
+        public void Test_Issue2262()
+        {
+            // Wrong discriminated key: PartitionScheme.
+            var result = CompilationHelper.Compile(@"
+resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12-01-preview' = {
+  name: 'myCluster/myApp/myService'
+  properties: {
+    serviceKind: 'Stateful'
+    partitionDescription: {
+      PartitionScheme: 'Named'
+      names: [
+        'foo'
+      ]
+      count: 1
     }
+  }
 }
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP078", DiagnosticLevel.Warning, "The property \"partitionScheme\" requires a value of type \"'Named' | 'Singleton' | 'UniformInt64Range'\", but none was supplied."),
+                ("BCP089", DiagnosticLevel.Warning, "The property \"PartitionScheme\" is not allowed on objects of type \"'Named' | 'Singleton' | 'UniformInt64Range'\". Did you mean \"partitionScheme\"?"),
+            });
+
+            var diagnosticWithCodeFix = result.Diagnostics.OfType<FixableDiagnostic>().Single();
+            var codeFix = diagnosticWithCodeFix.Fixes.Single();
+            var codeReplacement = codeFix.Replacements.Single();
+
+            codeReplacement.Span.Should().Be(new TextSpan(212, 15));
+            codeReplacement.Text.Should().Be("partitionScheme");
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2484
+        public void Test_Issue2484()
+        {
+            var result = CompilationHelper.Compile(@"
+@sys.allowed([
+  'apple'
+  'banana'
+]) 
+param foo string = 'peach'
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
+            });
+        }
+    } }

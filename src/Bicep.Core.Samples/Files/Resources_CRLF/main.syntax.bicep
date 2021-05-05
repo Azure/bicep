@@ -2216,14 +2216,14 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 // basic nested loop
 //@[20:22) NewLine |\r\n|
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:279) ResourceDeclarationSyntax
+//@[0:328) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |vnet|
 //@[14:60)  StringSyntax
 //@[14:60)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
 //@[61:62)  Assignment |=|
-//@[63:279)  ForSyntax
+//@[63:328)  ForSyntax
 //@[63:64)   LeftSquare |[|
 //@[64:67)   Identifier |for|
 //@[68:69)   LocalVariableSyntax
@@ -2243,7 +2243,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[82:83)      Integer |3|
 //@[83:84)    RightParen |)|
 //@[84:85)   Colon |:|
-//@[86:278)   ObjectSyntax
+//@[86:327)   ObjectSyntax
 //@[86:87)    LeftBrace |{|
 //@[87:89)    NewLine |\r\n|
   name: 'vnet-${i}'
@@ -2259,19 +2259,19 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[17:19)      StringRightPiece |}'|
 //@[19:21)    NewLine |\r\n|
   properties: {
-//@[2:165)    ObjectPropertySyntax
+//@[2:214)    ObjectPropertySyntax
 //@[2:12)     IdentifierSyntax
 //@[2:12)      Identifier |properties|
 //@[12:13)     Colon |:|
-//@[14:165)     ObjectSyntax
+//@[14:214)     ObjectSyntax
 //@[14:15)      LeftBrace |{|
 //@[15:17)      NewLine |\r\n|
     subnets: [for j in range(0, 4): {
-//@[4:143)      ObjectPropertySyntax
+//@[4:192)      ObjectPropertySyntax
 //@[4:11)       IdentifierSyntax
 //@[4:11)        Identifier |subnets|
 //@[11:12)       Colon |:|
-//@[13:143)       ForSyntax
+//@[13:192)       ForSyntax
 //@[13:14)        LeftSquare |[|
 //@[14:17)        Identifier |for|
 //@[18:19)        LocalVariableSyntax
@@ -2291,11 +2291,11 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[32:33)           Integer |4|
 //@[33:34)         RightParen |)|
 //@[34:35)        Colon |:|
-//@[36:142)        ObjectSyntax
+//@[36:191)        ObjectSyntax
 //@[36:37)         LeftBrace |{|
 //@[37:39)         NewLine |\r\n|
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
-//@[64:66)         NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties #completionTest(6) -> subnetIdAndPropertiesNoColon
+//@[113:115)         NewLine |\r\n|
       name: 'subnet-${i}-${j}'
 //@[6:30)         ObjectPropertySyntax
 //@[6:10)          IdentifierSyntax
@@ -3654,4 +3654,6 @@ output p4_res1childid string = p4_child1.id
 //@[40:41)   Dot |.|
 //@[41:43)   IdentifierSyntax
 //@[41:43)    Identifier |id|
-//@[43:43) EndOfFile ||
+//@[43:45) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

@@ -55,8 +55,8 @@ module
 //@[0:6) Identifier |module|
 //@[7:9) NewLine |\n\n|
 
-// #completionTest(24,25) -> object
-//@[35:36) NewLine |\n|
+// #completionTest(24,25) -> moduleObject
+//@[41:42) NewLine |\n|
 module missingValue '' = 
 //@[0:6) Identifier |module|
 //@[7:19) Identifier |missingValue|

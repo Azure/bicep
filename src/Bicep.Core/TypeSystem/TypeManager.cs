@@ -13,7 +13,6 @@ namespace Bicep.Core.TypeSystem
         // stores results of type checks
         private readonly TypeAssignmentVisitor typeAssignmentVisitor;
         private readonly DeclaredTypeManager declaredTypeManager;
-        private readonly IBinder binder;
 
         public TypeManager(IResourceTypeProvider resourceTypeProvider, IBinder binder)
         {
@@ -23,7 +22,6 @@ namespace Bicep.Core.TypeSystem
             this.typeAssignmentVisitor = new TypeAssignmentVisitor(resourceTypeProvider, this, binder);
 
             this.declaredTypeManager = new DeclaredTypeManager(resourceTypeProvider, this, binder);
-            this.binder = binder;
         }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
@@ -37,9 +35,6 @@ namespace Bicep.Core.TypeSystem
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => typeAssignmentVisitor.GetAllDiagnostics();
-
-        public SyntaxBase? GetParent(SyntaxBase syntax)
-            => binder.GetParent(syntax);
 
         /// <summary>
         /// Returns Function Overload used to return type for given Function Symbol

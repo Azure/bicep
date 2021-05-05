@@ -72,11 +72,11 @@ module module1Deploy 'nested/module1.bicep' = if ((1 + 2) == 3) {
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". |params|
     location: location
-//@[4:12) [BCP038 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |location|
+//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |location|
     objectParam: objectVar
-//@[4:15) [BCP038 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |objectParam|
+//@[4:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |objectParam|
     arrayParam: arrayVar
-//@[4:14) [BCP038 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |arrayParam|
+//@[4:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |arrayParam|
   }
 }
 
@@ -85,7 +85,7 @@ module module2Deploy 'nested/module2.bicep' = if ((1 + 2) == 3) {
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". |params|
     location: location
-//@[4:12) [BCP038 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". |location|
+//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". |location|
     objectParam: objectVar
     arrayParam: arrayVar
   }

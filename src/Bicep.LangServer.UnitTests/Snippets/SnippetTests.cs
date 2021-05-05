@@ -120,6 +120,25 @@ namespace Bicep.LangServer.UnitTests.Snippets
         }
 
         [TestMethod]
+        public void SnippetPlaceholderTextWithUrlShouldParseCorrectly()
+        {
+            string text = @"var testIdentifier = '${1:http://test-content-url.nupkg}'";
+
+            var snippet = new Snippet(text);
+            snippet.Text.Should().Be(text);
+
+            snippet.Placeholders.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Index.Should().Be(1);
+                    x.Name.Should().Be("http://test-content-url.nupkg");
+                    x.Span.ToString().Should().Be("[22:56]");
+                });
+
+            snippet.FormatDocumentation().Should().Be("var testIdentifier = 'http://test-content-url.nupkg'");
+        }
+
+        [TestMethod]
         public void SnippetPlaceholderTextWithMultipleChoicesShouldReturnFirstOneByDefault()
         {
            string text = @"var testIdentifier = '${1|Enabled,Disabled|}'";
