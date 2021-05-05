@@ -9,7 +9,7 @@ resource ${2:automationCertificate} 'Microsoft.Automation/automationAccounts/cer
   properties: {
     base64Value: ${4:'base64Value'}
     description: ${5:'description'}
-    thumbprint: ${6:'thumbprint'}'
-    isExportable: '${7|true,false|}'
+    thumbprint: ${6:'thumbprint'}
+    isExportable: ${7|true,false|}
   }
 }

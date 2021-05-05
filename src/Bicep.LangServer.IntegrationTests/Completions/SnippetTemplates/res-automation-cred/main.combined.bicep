@@ -2,14 +2,13 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
   name: 'name'
 }
 
-resource automationCertificate 'Microsoft.Automation/automationAccounts/certificates@2015-10-31' = {
+resource automationCredential 'Microsoft.Automation/automationAccounts/credentials@2015-10-31' = {
   parent: automationAccount
   name: 'name'
   properties: {
-    base64Value: 'base64Value'
+    userName: 'userName'
+    password: 'password'
     description: 'description'
-    thumbprint: 'thumbprint'
-    isExportable: true
   }
 }
 
