@@ -8,23 +8,23 @@ namespace Bicep.Cli.CommandLine
 {
     public static class ArgumentParser
     {
-        public static (string?, ArgumentsBase?) TryParse(string[] args)
+        public static ArgumentsBase? TryParse(string[] args)
         {
             if (args.Length < 1)
             {
-                return (null, null);
+                return null;
             }
 
             // parse verb
             return (args[0].ToLowerInvariant()) switch
             {
-                CliConstants.CommandBuild => (CliConstants.CommandBuild, new BuildOrDecompileArguments(args[1..])),
-                CliConstants.CommandDecompile => (CliConstants.CommandDecompile, new BuildOrDecompileArguments(args[1..])),
-                CliConstants.ArgumentHelp => (CliConstants.ArgumentHelp, new HelpArguments()),
-                CliConstants.ArgumentHelpShort => (CliConstants.ArgumentHelpShort, new HelpArguments()),
-                CliConstants.ArgumentVersion => (CliConstants.ArgumentVersion, new VersionArguments()),
-                CliConstants.ArgumentVersionShort => (CliConstants.ArgumentVersionShort, new VersionArguments()),
-                _ => (null, null),
+                CliConstants.CommandBuild => new BuildOrDecompileArguments(args[1..], CliConstants.CommandBuild),
+                CliConstants.CommandDecompile => new BuildOrDecompileArguments(args[1..], CliConstants.CommandDecompile),
+                CliConstants.ArgumentHelp => new HelpArguments(),
+                CliConstants.ArgumentHelpShort => new HelpArguments(),
+                CliConstants.ArgumentVersion => new VersionArguments(),
+                CliConstants.ArgumentVersionShort => new VersionArguments(),
+                _ => null,
             };
         }
 

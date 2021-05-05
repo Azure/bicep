@@ -56,14 +56,14 @@ namespace Bicep.Cli
                 {
                     switch (ArgumentParser.TryParse(args))
                     {
-                        case (CliConstants.CommandBuild, BuildOrDecompileArguments buildArguments): // build
+                        case BuildOrDecompileArguments buildArguments when buildArguments.CommandName == CliConstants.CommandBuild: // build
                             return Build(logger, buildArguments);
-                        case (CliConstants.CommandDecompile, BuildOrDecompileArguments decompileArguments): // decompile
+                        case BuildOrDecompileArguments decompileArguments when decompileArguments.CommandName == CliConstants.CommandDecompile: // decompile
                             return Decompile(logger, decompileArguments);
-                        case (_, VersionArguments _): // --version
+                        case VersionArguments _: // --version
                             ArgumentParser.PrintVersion(this.outputWriter);
                             return 0;
-                        case (_, HelpArguments _): // --help
+                        case HelpArguments _: // --help
                             ArgumentParser.PrintUsage(this.outputWriter);
                             return 0;
                         default:
