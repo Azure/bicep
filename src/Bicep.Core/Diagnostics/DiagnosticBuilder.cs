@@ -207,62 +207,62 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, IEnumerable<string> properties, string blockName)
             {
-                var sourceDeclarationClause = sourceDeclaration is not null ?
-                    $" From source declaration \"{sourceDeclaration.Name}\"." :
-                    string.Empty;
+                var sourceDeclarationClause = sourceDeclaration is not null
+                    ? $" from source declaration \"{sourceDeclaration.Name}\""
+                    : string.Empty;
 
                 return new(
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP035",
-                    $"The specified \"{blockName}\" declaration is missing the following required properties: {ToQuotedString(properties)}.{sourceDeclarationClause}");
+                    $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.");
             }
 
             public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol expectedType, TypeSymbol actualType)
             {
-                var sourceDeclarationClause = sourceDeclaration is not null ?
-                    $" From source declaration \"{sourceDeclaration.Name}\"." :
-                    string.Empty;
+                var sourceDeclarationClause = sourceDeclaration is not null
+                    ? $" in source declaration \"{sourceDeclaration.Name}\""
+                    : string.Empty;
 
                 return new(
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP036",
-                    $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".{sourceDeclarationClause}");
+                    $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value{sourceDeclarationClause} is of type \"{actualType}\".");
             }
 
             public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
             {
-                var permissiblePropertiesClause = validUnspecifiedProperties.Any() ?
-                    $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}." :
-                    string.Empty;
+                var permissiblePropertiesClause = validUnspecifiedProperties.Any()
+                    ? $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}."
+                    : $" No other properties are allowed.";
 
-                var sourceDeclarationClause = sourceDeclaration is not null ?
-                    $" From source declaration \"{sourceDeclaration.Name}\"." :
-                    string.Empty;
+                var sourceDeclarationClause = sourceDeclaration is not null
+                    ? $" from source declaration \"{sourceDeclaration.Name}\""
+                    : string.Empty;
 
                 return new(
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP037",
-                    $"The property \"{property}\" is not allowed on objects of type \"{type}\".{sourceDeclarationClause}{permissiblePropertiesClause}");
+                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}");
             }
 
             public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
             {
-                var permissiblePropertiesClause = validUnspecifiedProperties.Any() ?
-                    $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}." :
-                    string.Empty;
+                var permissiblePropertiesClause = validUnspecifiedProperties.Any()
+                    ? $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}."
+                    : $" No other properties are allowed.";
 
-                var sourceDeclarationClause = sourceDeclaration is not null ?
-                    $" From source declaration \"{sourceDeclaration.Name}\"." :
-                    string.Empty;
+                var sourceDeclarationClause = sourceDeclaration is not null
+                    ? $" in source declaration \"{sourceDeclaration.Name}\""
+                    : string.Empty;
 
                 return new(
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP040",
-                    $"String interpolation is not supported for keys on objects of type \"{type}\".{sourceDeclarationClause}{permissiblePropertiesClause}");
+                    $"String interpolation is not supported for keys on objects of type \"{type}\"{sourceDeclarationClause}.{permissiblePropertiesClause}");
             }
 
             public ErrorDiagnostic VariableTypeAssignmentDisallowed(TypeSymbol valueType) => new(

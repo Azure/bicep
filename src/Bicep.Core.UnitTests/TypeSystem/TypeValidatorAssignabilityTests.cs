@@ -626,7 +626,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 ("BCP036", DiagnosticLevel.Error, "The property \"allowed\" expected a value of type \"string[]\" but the provided value is of type \"object\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"string\" but the provided value is of type \"bool\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\". No other properties are allowed."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\"."),
@@ -672,12 +672,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 ("BCP036", DiagnosticLevel.Error, "The property \"allowed\" expected a value of type \"int[]\" but the provided value is of type \"object\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"int\" but the provided value is of type \"bool\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<int>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<int>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<int>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<int>\". No other properties are allowed."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"'11'\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<int>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<int>\". No other properties are allowed."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"minValue\" expected a value of type \"int\" but the provided value is of type \"bool\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<int>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<int>\". No other properties are allowed."),
             });
         }
 
@@ -723,12 +723,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"bool\", but the provided item was of type \"int\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"bool\" but the provided value is of type \"int\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<bool>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<bool>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<bool>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<bool>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<bool>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<bool>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<bool>\". No other properties are allowed."),
             });
         }
 
@@ -771,11 +771,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 ("BCP036", DiagnosticLevel.Error, "The property \"allowed\" expected a value of type \"object[]\" but the provided value is of type \"object\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"object\" but the provided value is of type \"bool\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<object>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<object>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<object>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<object>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<object>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<object>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<object>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<object>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<object>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<object>\". No other properties are allowed."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\"."),
             });
         }
@@ -819,12 +819,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 ("BCP036", DiagnosticLevel.Error, "The property \"allowed\" expected a value of type \"array[]\" but the provided value is of type \"object\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"default\" expected a value of type \"array\" but the provided value is of type \"bool\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<array>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"extra\" is not allowed on objects of type \"ParameterModifier<array>\". No other properties are allowed."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<array>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<array>\". No other properties are allowed."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<array>\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<array>\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<array>\". No other properties are allowed."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"secure\" is not allowed on objects of type \"ParameterModifier<array>\". No other properties are allowed."),
             });
         }
 

@@ -10,7 +10,7 @@ resource name1_resource 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   location: 'West US'
   properties: {
     val1: name1_var
-//@[4:8) [BCP037 (Warning)] The property "val1" is not allowed on objects of type "ResourceGroupProperties". |val1|
+//@[4:8) [BCP037 (Warning)] The property "val1" is not allowed on objects of type "ResourceGroupProperties". No other properties are allowed. |val1|
   }
 }
 
@@ -19,7 +19,7 @@ resource naME2_resource 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   location: 'West US'
   properties: {
     val2: NamE2_var
-//@[4:8) [BCP037 (Warning)] The property "val2" is not allowed on objects of type "ResourceGroupProperties". |val2|
+//@[4:8) [BCP037 (Warning)] The property "val2" is not allowed on objects of type "ResourceGroupProperties". No other properties are allowed. |val2|
   }
 }
 

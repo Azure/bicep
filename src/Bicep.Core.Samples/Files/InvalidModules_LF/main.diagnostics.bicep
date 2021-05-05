@@ -520,7 +520,7 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if(true) {
@@ -532,7 +532,7 @@ module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
@@ -545,7 +545,7 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 
