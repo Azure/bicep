@@ -1880,4 +1880,21 @@ resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12
             codeReplacement.Span.Should().Be(new TextSpan(212, 15));
             codeReplacement.Text.Should().Be("partitionScheme");
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2484
+        public void Test_Issue2484()
+        {
+            var result = CompilationHelper.Compile(@"
+@sys.allowed([
+  'apple'
+  'banana'
+]) 
+param foo string = 'peach'
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
+            });
+        }
     } }
