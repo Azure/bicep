@@ -169,7 +169,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-snippet");
+                    x.Prefix.Should().Be("snippet");
                     x.Detail.Should().Be("DNS Zone");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -180,7 +180,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-required");
+                    x.Prefix.Should().Be("required-properties");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -214,7 +214,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-snippet");
+                    x.Prefix.Should().Be("snippet");
                     x.Detail.Should().Be("Automation Module");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -233,7 +233,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-required");
+                    x.Prefix.Should().Be("required-properties");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -278,7 +278,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-required");
+                    x.Prefix.Should().Be("required-properties");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
