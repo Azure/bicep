@@ -32,7 +32,7 @@ resource ${4:cosmosDBGremlinGraph} 'Microsoft.DocumentDb/databaseAccounts/apis/d
               {
                 kind: '${11|Hash,Range,Spatial|}'
                 dataType: '${12|String,Number,Point,Polygon,LineString,MultiPolygon|}'
-                precision: ${13:'-1'}
+                precision: ${13:-1}
               }
             ]
           }
