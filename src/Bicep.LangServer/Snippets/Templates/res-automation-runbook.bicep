@@ -12,7 +12,7 @@ resource ${2:automationRunbook} 'Microsoft.Automation/automationAccounts/runbook
     logProgress: ${5|true,false|}
     runbookType: '${6|Script,Graph,PowerShellWorkflow,PowerShell,GraphPowerShellWorkflow,GraphPowerShell|}'
     publishContentLink: {
-      uri: ${7:'REQUIRED'}
+      uri: ${7:'uri'}
       version: ${8:'1.0.0.0'}
     }
     description: ${9:'description'}
