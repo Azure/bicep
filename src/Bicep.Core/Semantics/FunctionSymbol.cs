@@ -21,6 +21,14 @@ namespace Bicep.Core.Semantics
                 // we should catch this as early as possible
                 throw new ArgumentException("Inconsistent function flags found on overloads");
             }
+
+            PlacementFlags = Overloads.First().PlacementFlags;
+
+            if (Overloads.Skip(1).Any(fo => fo.PlacementFlags != PlacementFlags))
+            {
+                // we should catch this as early as possible
+                throw new ArgumentException("Inconsistent placement flags found on overloads");
+            }
         }
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitFunctionSymbol(this);
@@ -30,5 +38,7 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<FunctionOverload> Overloads { get; }
 
         public FunctionFlags FunctionFlags { get; }
+        public FunctionPlacementFlags PlacementFlags { get; }
+
     }
 }

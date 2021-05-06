@@ -39,7 +39,6 @@ namespace Bicep.Core.TypeSystem
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
-        private readonly IDictionary<FunctionSymbol, FunctionOverload> matchedFunctions;
 
         public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, ITypeManager typeManager, IBinder binder)
         {
@@ -47,7 +46,6 @@ namespace Bicep.Core.TypeSystem
             this.typeManager = typeManager;
             this.binder = binder;
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
-            this.matchedFunctions = new Dictionary<FunctionSymbol, FunctionOverload>();
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -61,9 +59,6 @@ namespace Bicep.Core.TypeSystem
 
             return typeAssignment;
         }
-
-        internal FunctionOverload? GetMatchedFunctionOverload(FunctionSymbol function)
-            => matchedFunctions.TryGetValue(function, out var result) ? result : null;
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
             => GetTypeAssignment(syntax).Reference.Type;
@@ -1229,8 +1224,6 @@ namespace Bicep.Core.TypeSystem
             {
                 // we have an exact match or a single ambiguous match
                 var matchedOverload = matches.Single();
-                // record which function was used to get the type                
-                matchedFunctions.TryAdd(function, matchedOverload);
                 // and return its type
                 return matchedOverload.ReturnTypeBuilder(argumentSyntaxes);
             }

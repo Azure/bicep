@@ -36,14 +36,5 @@ namespace Bicep.Core.TypeSystem
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => typeAssignmentVisitor.GetAllDiagnostics();
 
-        /// <summary>
-        /// Returns Function Overload used to return type for given Function Symbol
-        /// Function will return null if there were no attempt to get type for given symbol or function match was ambigous
-        /// </summary>
-        /// <param name="function"></param>
-        /// <returns></returns>
-        public FunctionOverload? GetMatchedFunctionOverload(FunctionSymbol function)
-            => typeAssignmentVisitor.GetMatchedFunctionOverload(function);
-
     }
 }
