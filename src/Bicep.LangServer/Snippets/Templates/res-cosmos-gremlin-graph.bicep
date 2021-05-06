@@ -1,6 +1,6 @@
 ﻿// Cosmos DB Gremlin Graph
 resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
-  name: ${1:'accountName/gremlin/databaseName'}
+  name: ${1:'name'}
   properties: {
     resource: {
       id: ${2:'id'}
