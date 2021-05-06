@@ -40,7 +40,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "bootstrap": "^4.6.0",
+    "bootstrap": "^5.0.0",
     "monaco-editor": "^0.23.0",
     "pako": "^2.0.3",
     "react": "^17.0.2",
