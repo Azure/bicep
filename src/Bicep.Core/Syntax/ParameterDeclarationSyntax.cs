@@ -86,7 +86,6 @@ namespace Bicep.Core.Syntax
                 }
                 else if (Modifier is ObjectSyntax modifierSyntax && IsBooleanTrue(modifierSyntax.SafeGetPropertyByName(LanguageConstants.ParameterSecurePropertyName)?.Value))
                 {
-                    //parameter can accept either LooseString (see below) or reference to key vault secret
                     assignedType = LanguageConstants.SecureString;
                 }
                 else
@@ -94,6 +93,14 @@ namespace Bicep.Core.Syntax
                     // In order to support assignment for a generic string to enum-typed properties (which generally is forbidden),
                     // we need to relax the validation for string parameters without 'allowed' values specified.
                     assignedType = LanguageConstants.LooseString;
+                }
+            }
+
+            if (ReferenceEquals(assignedType, LanguageConstants.Object))
+            {
+                if (Modifier is ObjectSyntax modifierSyntax && IsBooleanTrue(modifierSyntax.SafeGetPropertyByName(LanguageConstants.ParameterSecurePropertyName)?.Value))
+                {                    
+                    assignedType = LanguageConstants.SecureObject;
                 }
             }
 

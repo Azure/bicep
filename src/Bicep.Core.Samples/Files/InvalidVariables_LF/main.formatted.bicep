@@ -228,3 +228,13 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 }
 
 var keyVaultSecretVar = kv.getSecret('mySecret')
+var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
+var keyVaultSecretObjectVar = {
+  secret: kv.getSecret('mySecret')
+}
+var keyVaultSecretArrayVar = [
+  kv.getSecret('mySecret')
+]
+var keyVaultSecretArrayInterpolatedVar = [
+  '${kv.getSecret('mySecret')}'
+]

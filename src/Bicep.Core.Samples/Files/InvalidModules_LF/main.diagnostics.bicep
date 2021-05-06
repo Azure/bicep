@@ -189,9 +189,9 @@ module modAUnspecifiedInputs './modulea.bicep' = {
     stringParamB: ''
     objParam: {}
     objArray: []
-//@[4:12) [BCP037 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "secureObjectParam", "secureStringParam", "stringParamA". |objArray|
+//@[4:12) [BCP037 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
     unspecifiedInput: ''
-//@[4:20) [BCP037 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "secureObjectParam", "secureStringParam", "stringParamA". |unspecifiedInput|
+//@[4:20) [BCP037 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
   }
 }
 
@@ -520,7 +520,7 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if(true) {
@@ -532,7 +532,7 @@ module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
@@ -545,7 +545,7 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 
@@ -625,7 +625,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
     objParam: {}
     stringParamB: ''
     dependsOn: [
-//@[4:13) [BCP037 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "secureObjectParam", "secureStringParam", "stringParamA". |dependsOn|
+//@[4:13) [BCP037 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
       nonexistentArrays
 //@[6:23) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     ]
@@ -685,24 +685,27 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
 }
 
-module secureModule1 'modulea.bicep' = {
+module secureModule1 'moduleb.bicep' = {
   name: 'secureModule1'
   params: {       
     stringParamA: kv.getSecret('mySecret')
-//@[18:42) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[18:42) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
-//@[21:45) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[21:45) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     objParam: kv.getSecret('mySecret')
-//@[14:38) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[14:38) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
 //@[14:38) [BCP036 (Error)] The property "objParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
     arrayParam: kv.getSecret('mySecret')
-//@[16:40) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[16:40) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
 //@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "string". |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
-//@[26:50) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[26:50) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
-//@[23:47) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
 //@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+//@[27:51) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    secureObjectParam2: kv.getSecret('mySecret')
+//@[24:48) [BCP036 (Error)] The property "secureObjectParam2" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
   }
 }
 

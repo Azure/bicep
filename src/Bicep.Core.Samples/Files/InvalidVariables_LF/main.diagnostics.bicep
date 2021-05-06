@@ -328,5 +328,19 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 }
 
 var keyVaultSecretVar = kv.getSecret('mySecret')
-//@[24:48) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[24:48) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
+//@[39:63) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+var keyVaultSecretObjectVar = {
+  secret: kv.getSecret('mySecret')
+//@[10:34) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+}
+var keyVaultSecretArrayVar = [
+  kv.getSecret('mySecret')
+//@[2:26) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+]
+var keyVaultSecretArrayInterpolatedVar = [
+  '${kv.getSecret('mySecret')}'
+//@[5:29) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+]
 

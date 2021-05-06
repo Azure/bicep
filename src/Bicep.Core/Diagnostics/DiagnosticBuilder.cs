@@ -1060,7 +1060,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
                 TextSpan,
                 "BCP180",
-                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning a value to a module parameter with a secure decorator.");
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

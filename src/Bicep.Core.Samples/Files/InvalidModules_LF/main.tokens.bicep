@@ -2454,10 +2454,10 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-module secureModule1 'modulea.bicep' = {
+module secureModule1 'moduleb.bicep' = {
 //@[0:6) Identifier |module|
 //@[7:20) Identifier |secureModule1|
-//@[21:36) StringComplete |'modulea.bicep'|
+//@[21:36) StringComplete |'moduleb.bicep'|
 //@[37:38) Assignment |=|
 //@[39:40) LeftBrace |{|
 //@[40:41) NewLine |\n|
@@ -2535,6 +2535,28 @@ module secureModule1 'modulea.bicep' = {
 //@[36:46) StringComplete |'mySecret'|
 //@[46:47) RightParen |)|
 //@[47:48) NewLine |\n|
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+//@[4:22) Identifier |secureStringParam2|
+//@[22:23) Colon |:|
+//@[24:27) StringLeftPiece |'${|
+//@[27:29) Identifier |kv|
+//@[29:30) Dot |.|
+//@[30:39) Identifier |getSecret|
+//@[39:40) LeftParen |(|
+//@[40:50) StringComplete |'mySecret'|
+//@[50:51) RightParen |)|
+//@[51:53) StringRightPiece |}'|
+//@[53:54) NewLine |\n|
+    secureObjectParam2: kv.getSecret('mySecret')
+//@[4:22) Identifier |secureObjectParam2|
+//@[22:23) Colon |:|
+//@[24:26) Identifier |kv|
+//@[26:27) Dot |.|
+//@[27:36) Identifier |getSecret|
+//@[36:37) LeftParen |(|
+//@[37:47) StringComplete |'mySecret'|
+//@[47:48) RightParen |)|
+//@[48:49) NewLine |\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:4) NewLine |\n|

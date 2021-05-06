@@ -326,10 +326,16 @@ namespace Bicep.Core.TypeSystem
                     ? syntax.GetAssignedType(this.typeManager, allowedValuesSyntax)
                     : syntax.GetAssignedType(this.typeManager, null);
 
-                if (ReferenceEquals(assignedType, LanguageConstants.LooseString)
-                    && GetDecorator(LanguageConstants.ParameterSecurePropertyName) is not null)
+                if (GetDecorator(LanguageConstants.ParameterSecurePropertyName) is not null)
                 {
-                    assignedType = LanguageConstants.SecureString;
+                    if (ReferenceEquals(assignedType, LanguageConstants.LooseString))
+                    {
+                        assignedType = LanguageConstants.SecureString;
+                    }
+                    else if (ReferenceEquals(assignedType, LanguageConstants.Object))
+                    {
+                        assignedType = LanguageConstants.SecureObject;
+                    }
                 }
 
                 switch (syntax.Modifier)

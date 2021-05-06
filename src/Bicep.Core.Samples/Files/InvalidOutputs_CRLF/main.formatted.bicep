@@ -126,7 +126,17 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
 }
 
-output keyVaultOutput string = kv.getSecret('mySecret')
+output keyVaultSecretOutput string = kv.getSecret('mySecret')
+output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
+output keyVaultSecretObjectOutput object = {
+  secret: kv.getSecret('mySecret')
+}
+output keyVaultSecretArrayOutput array = [
+  kv.getSecret('mySecret')
+]
+output keyVaultSecretArrayInterpolatedOutput array = [
+  '${kv.getSecret('mySecret')}'
+]
 
 // WARNING!!!!! dangling decorators
 

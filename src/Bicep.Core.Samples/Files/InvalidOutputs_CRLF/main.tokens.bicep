@@ -594,19 +594,90 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-output keyVaultOutput string = kv.getSecret('mySecret')
+output keyVaultSecretOutput string = kv.getSecret('mySecret')
 //@[0:6) Identifier |output|
-//@[7:21) Identifier |keyVaultOutput|
-//@[22:28) Identifier |string|
-//@[29:30) Assignment |=|
-//@[31:33) Identifier |kv|
-//@[33:34) Dot |.|
-//@[34:43) Identifier |getSecret|
-//@[43:44) LeftParen |(|
-//@[44:54) StringComplete |'mySecret'|
-//@[54:55) RightParen |)|
-//@[55:61) NewLine |\r\n\r\n\r\n|
-
+//@[7:27) Identifier |keyVaultSecretOutput|
+//@[28:34) Identifier |string|
+//@[35:36) Assignment |=|
+//@[37:39) Identifier |kv|
+//@[39:40) Dot |.|
+//@[40:49) Identifier |getSecret|
+//@[49:50) LeftParen |(|
+//@[50:60) StringComplete |'mySecret'|
+//@[60:61) RightParen |)|
+//@[61:63) NewLine |\r\n|
+output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
+//@[0:6) Identifier |output|
+//@[7:39) Identifier |keyVaultSecretInterpolatedOutput|
+//@[40:46) Identifier |string|
+//@[47:48) Assignment |=|
+//@[49:52) StringLeftPiece |'${|
+//@[52:54) Identifier |kv|
+//@[54:55) Dot |.|
+//@[55:64) Identifier |getSecret|
+//@[64:65) LeftParen |(|
+//@[65:75) StringComplete |'mySecret'|
+//@[75:76) RightParen |)|
+//@[76:78) StringRightPiece |}'|
+//@[78:80) NewLine |\r\n|
+output keyVaultSecretObjectOutput object = {
+//@[0:6) Identifier |output|
+//@[7:33) Identifier |keyVaultSecretObjectOutput|
+//@[34:40) Identifier |object|
+//@[41:42) Assignment |=|
+//@[43:44) LeftBrace |{|
+//@[44:46) NewLine |\r\n|
+  secret: kv.getSecret('mySecret')
+//@[2:8) Identifier |secret|
+//@[8:9) Colon |:|
+//@[10:12) Identifier |kv|
+//@[12:13) Dot |.|
+//@[13:22) Identifier |getSecret|
+//@[22:23) LeftParen |(|
+//@[23:33) StringComplete |'mySecret'|
+//@[33:34) RightParen |)|
+//@[34:36) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+output keyVaultSecretArrayOutput array = [
+//@[0:6) Identifier |output|
+//@[7:32) Identifier |keyVaultSecretArrayOutput|
+//@[33:38) Identifier |array|
+//@[39:40) Assignment |=|
+//@[41:42) LeftSquare |[|
+//@[42:44) NewLine |\r\n|
+  kv.getSecret('mySecret')
+//@[2:4) Identifier |kv|
+//@[4:5) Dot |.|
+//@[5:14) Identifier |getSecret|
+//@[14:15) LeftParen |(|
+//@[15:25) StringComplete |'mySecret'|
+//@[25:26) RightParen |)|
+//@[26:28) NewLine |\r\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:3) NewLine |\r\n|
+output keyVaultSecretArrayInterpolatedOutput array = [
+//@[0:6) Identifier |output|
+//@[7:44) Identifier |keyVaultSecretArrayInterpolatedOutput|
+//@[45:50) Identifier |array|
+//@[51:52) Assignment |=|
+//@[53:54) LeftSquare |[|
+//@[54:56) NewLine |\r\n|
+  '${kv.getSecret('mySecret')}'
+//@[2:5) StringLeftPiece |'${|
+//@[5:7) Identifier |kv|
+//@[7:8) Dot |.|
+//@[8:17) Identifier |getSecret|
+//@[17:18) LeftParen |(|
+//@[18:28) StringComplete |'mySecret'|
+//@[28:29) RightParen |)|
+//@[29:31) StringRightPiece |}'|
+//@[31:33) NewLine |\r\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:5) NewLine |\r\n\r\n|
 
 // WARNING!!!!! dangling decorators
 //@[35:39) NewLine |\r\n\r\n|

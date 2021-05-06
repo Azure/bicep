@@ -1114,5 +1114,73 @@ var keyVaultSecretVar = kv.getSecret('mySecret')
 //@[37:47) StringComplete |'mySecret'|
 //@[47:48) RightParen |)|
 //@[48:49) NewLine |\n|
+var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
+//@[0:3) Identifier |var|
+//@[4:33) Identifier |keyVaultSecretInterpolatedVar|
+//@[34:35) Assignment |=|
+//@[36:39) StringLeftPiece |'${|
+//@[39:41) Identifier |kv|
+//@[41:42) Dot |.|
+//@[42:51) Identifier |getSecret|
+//@[51:52) LeftParen |(|
+//@[52:62) StringComplete |'mySecret'|
+//@[62:63) RightParen |)|
+//@[63:65) StringRightPiece |}'|
+//@[65:66) NewLine |\n|
+var keyVaultSecretObjectVar = {
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |keyVaultSecretObjectVar|
+//@[28:29) Assignment |=|
+//@[30:31) LeftBrace |{|
+//@[31:32) NewLine |\n|
+  secret: kv.getSecret('mySecret')
+//@[2:8) Identifier |secret|
+//@[8:9) Colon |:|
+//@[10:12) Identifier |kv|
+//@[12:13) Dot |.|
+//@[13:22) Identifier |getSecret|
+//@[22:23) LeftParen |(|
+//@[23:33) StringComplete |'mySecret'|
+//@[33:34) RightParen |)|
+//@[34:35) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:2) NewLine |\n|
+var keyVaultSecretArrayVar = [
+//@[0:3) Identifier |var|
+//@[4:26) Identifier |keyVaultSecretArrayVar|
+//@[27:28) Assignment |=|
+//@[29:30) LeftSquare |[|
+//@[30:31) NewLine |\n|
+  kv.getSecret('mySecret')
+//@[2:4) Identifier |kv|
+//@[4:5) Dot |.|
+//@[5:14) Identifier |getSecret|
+//@[14:15) LeftParen |(|
+//@[15:25) StringComplete |'mySecret'|
+//@[25:26) RightParen |)|
+//@[26:27) NewLine |\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:2) NewLine |\n|
+var keyVaultSecretArrayInterpolatedVar = [
+//@[0:3) Identifier |var|
+//@[4:38) Identifier |keyVaultSecretArrayInterpolatedVar|
+//@[39:40) Assignment |=|
+//@[41:42) LeftSquare |[|
+//@[42:43) NewLine |\n|
+  '${kv.getSecret('mySecret')}'
+//@[2:5) StringLeftPiece |'${|
+//@[5:7) Identifier |kv|
+//@[7:8) Dot |.|
+//@[8:17) Identifier |getSecret|
+//@[17:18) LeftParen |(|
+//@[18:28) StringComplete |'mySecret'|
+//@[28:29) RightParen |)|
+//@[29:31) StringRightPiece |}'|
+//@[31:32) NewLine |\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:2) NewLine |\n|
 
 //@[0:0) EndOfFile ||

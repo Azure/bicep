@@ -464,7 +464,7 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
 }
 
-module secureModule1 'modulea.bicep' = {
+module secureModule1 'moduleb.bicep' = {
   name: 'secureModule1'
   params: {
     stringParamA: kv.getSecret('mySecret')
@@ -473,5 +473,7 @@ module secureModule1 'modulea.bicep' = {
     arrayParam: kv.getSecret('mySecret')
     secureStringParam: '${kv.getSecret('mySecret')}'
     secureObjectParam: kv.getSecret('mySecret')
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+    secureObjectParam2: kv.getSecret('mySecret')
   }
 }

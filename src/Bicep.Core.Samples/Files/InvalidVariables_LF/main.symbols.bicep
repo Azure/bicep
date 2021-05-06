@@ -323,4 +323,18 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 var keyVaultSecretVar = kv.getSecret('mySecret')
 //@[4:21) Variable keyVaultSecretVar. Type: string. Declaration start char: 0, length: 48
+var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
+//@[4:33) Variable keyVaultSecretInterpolatedVar. Type: string. Declaration start char: 0, length: 65
+var keyVaultSecretObjectVar = {
+//@[4:27) Variable keyVaultSecretObjectVar. Type: object. Declaration start char: 0, length: 68
+  secret: kv.getSecret('mySecret')
+}
+var keyVaultSecretArrayVar = [
+//@[4:26) Variable keyVaultSecretArrayVar. Type: string[]. Declaration start char: 0, length: 59
+  kv.getSecret('mySecret')
+]
+var keyVaultSecretArrayInterpolatedVar = [
+//@[4:38) Variable keyVaultSecretArrayInterpolatedVar. Type: string[]. Declaration start char: 0, length: 76
+  '${kv.getSecret('mySecret')}'
+]
 

@@ -226,7 +226,7 @@ namespace Bicep.Core.TypeSystem.Az
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
 
-            var functions = GetTypeBicepFunctions(typeReference);
+            var functions = GetBicepMethods(typeReference);
 
             return new ObjectType(
                 objectType.Name,
@@ -237,7 +237,7 @@ namespace Bicep.Core.TypeSystem.Az
                 functions);
         }
 
-        private static IEnumerable<FunctionOverload> GetTypeBicepFunctions(ResourceTypeReference resourceType)
+        private static IEnumerable<FunctionOverload> GetBicepMethods(ResourceTypeReference resourceType)
         {
             switch (resourceType.FullyQualifiedType.ToLowerInvariant())
             {
