@@ -122,7 +122,7 @@ If you'd like to contribute example `.bicep` files that showcase abilities of th
 
 If you'd like to contribute to the collection of snippets:  
 
-* A snippet should be a single, generic resource. Ensure your snippet meets this criteria.
+* A snippet should either be a single, generic resource or follow [parent-child syntax](https://github.com/Azure/bicep/blob/a22b9c80ba4f8b977f5d948f8bd8c54155ff6870/docs/spec/resource-scopes.md#parent-child-syntax). Ensure your snippet meets this criteria.
 * Add a Bicep file to [`./src/Bicep.LangServer/Snippets/Templates`](./src/Bicep.LangServer/Snippets/Templates) using the naming convention res-RESOURCENAME.bicep
   * The file name without extension will be used as the label.
   * A single line comment at the top of the file will be used as the description.
@@ -132,7 +132,7 @@ If you'd like to contribute to the collection of snippets:
   * Add placeholders for tab stops with values using `${1:foo}`. The placeholder text will be inserted and selected such that it can be easily changed. The symbolic name should be the first tab stop.
   * To add a multi-choice placeholder, the syntax is a comma separated enumeration of values, enclosed with the pipe-character, for example `${1|one,two,three|}`. When the snippet is inserted and the placeholder selected, choices will prompt the user to pick one of the values. [More info on snippet syntax](https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax)
   * Property placeholder values should correspond to their property names (e.g. dnsPrefix: 'dnsPrefix'), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep#L26)
-
+  * Snippet with parent-child syntax, should have have parent resource declared first. Do not add placeholder for parent resource symbolic name.
 * Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates)
   * The folder name should match the snippet label/prefix.
 
