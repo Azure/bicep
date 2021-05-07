@@ -178,6 +178,7 @@
     "test:e2e": "node ./out/test/e2e/runTests.js",
     "test:unit": "jest --config jest.config.unit.js",
     "test:snapshot": "jest --config jest.config.snapshot.js",
+    "test:update-snapshot": "jest --config jest.config.snapshot.js --updateSnapshot",
     "clean": "rimraf ./out ./coverage",
     "package": "npm run clean && nbgv-setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset"
   },
@@ -207,6 +208,7 @@
     "eslint-plugin-react": "^7.23.1",
     "fork-ts-checker-webpack-plugin": "^6.2.6",
     "jest": "^26.6.2",
+    "jest-styled-components": "^7.0.4",
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.4.194",
     "prettier": "^2.2.1",
