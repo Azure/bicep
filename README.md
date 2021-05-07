@@ -7,7 +7,7 @@
 
 ## What is Bicep?
 
-Bicep is a Domain Specific Language (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax, improved type safety, and better support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, which means anything that can be done in an ARM Template can be done in Bicep (outside of temporary [known limitations](#known-limitations)). All resource `types`, `apiVersions`, and `properties` that are valid in an ARM template are equally valid in Bicep on day one.
+Bicep is a Domain Specific Language (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax, improved type safety, and better support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, which means anything that can be done in an ARM Template can be done in Bicep (outside of temporary [known limitations](#known-limitations)). All resource `types`, `apiVersions` and `properties` that are valid in an ARM template are equally valid in Bicep on day one.
 
 Bicep code is transpiled to standard ARM Template JSON files, which effectively treats the ARM Template as an Intermediate Language (IL).
 
@@ -34,7 +34,7 @@ To get going with Bicep:
 1. **Start by [installing the tooling](./docs/installing.md).**
 1. **Complete the [Bicep tutorial](./docs/tutorial/01-simple-template.md)**
 
-Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VSCode Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
+Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VS Code Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
 
 If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](./docs/decompiling.md).
 
@@ -44,7 +44,7 @@ Full details of how the bicep language works can be found in the [Bicep document
 
 First, author your Bicep code using the Bicep language service as part of the [Bicep VS Code extension](./docs/installing.md#bicep-vs-code-extension)
 
-Both [Az CLI](https://docs.microsoft.com/cli/azure/install-azure-cli) (2.20.0+) and the [PowerShell Az module](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-5.5.0) (v5.6.0+) have Bicep support built-in. This means you can use the standard deployment commands with your `*.bicep` files and the tooling will transpile the code and send it to ARM on your behalf. For example, to deploy `main.bicep` to a resource group `my-rg`, we can use the CLI command we are already used to:
+Both [Az CLI](https://docs.microsoft.com/cli/azure/install-azure-cli) (2.20.0+) and the [PowerShell Az module](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps) (v5.6.0+) have Bicep support built-in. This means you can use the standard deployment commands with your `*.bicep` files and the tooling will transpile the code and send it to ARM on your behalf. For example, to deploy `main.bicep` to a resource group `my-rg`, we can use the CLI command we are already used to:
 
 ```bash
 az deployment group create -f ./main.bicep -g my-rg
@@ -66,7 +66,7 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 1. Day 0 resource provider support. Any Azure resource — whether in private or public preview or GA — can be provisioned using Bicep.
 2. Much simpler syntax [compared to equivalent ARM Template JSON](./docs/arm2bicep.md)
 3. No state or state files to manage. All state is stored in Azure, so makes it easy to collaborate and make changes to resources confidently. 
-4. Tooling is the cornerstone to any great experience with a programming language. Our VSCode extension for Bicep makes it extremely easy to author and get started with advanced type validation based on all Azure resource type [API definitions](https://github.com/Azure/azure-rest-api-specs/tree/master/specification).
+4. Tooling is the cornerstone to any great experience with a programming language. Our VS Code extension for Bicep makes it extremely easy to author and get started with advanced type validation based on all Azure resource type [API definitions](https://github.com/Azure/azure-rest-api-specs/tree/master/specification).
 5. Easily break apart your code with native [modules](./docs/spec/modules.md) 
 6. Supported by Microsoft support and 100% free to use.
 
@@ -74,7 +74,7 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 
 Bicep is more of a revision to the existing ARM template language rather than an entirely new language. While most of the syntax has been changed, the core functionality of ARM templates and the runtime remains the same. You have the same template functions, same resource declarations, etc. Part of the complexity with ARM Templates is due to the "DSL" being embedded inside of JSON. With Bicep, we are revising the syntax of this DSL and moving it into its own `.bicep` file format. Before going down this path, we closely evaluated using an existing high-level programming language, but ultimately determined that Bicep would be easier to learn for our target audience. We are open to other implementations of Bicep in other languages.
 
-We spent a lot of time researching various different options and even prototyped a TypeScript based approach. We did over 120 customer calls, Microsoft Valued Professionals (MVP) conversations and collected quantitative data. We learned that in majority of organizations, it was the cloud enablement teams that were responsible for provisioning the Azure infra. These folks were not familiar with programming languages and did not like that approach as it had a steep learning curve. These users were our target users. In addition, authoring ARM template code in a higher level programming language would require you to reconcile two uneven runtimes, which ends up being confusing to manage. At the end of the day, we simply want customers to be successful on Azure. In the future if we hear more feedback asking us to support a programming language approach, we are open to that as well. If you'd like to use a high-level programming language to deploy Azure Infra we recommend [Farmer](https://compositionalit.github.io/farmer/) or [Pulumi](https://www.pulumi.com/).
+We spent a lot of time researching various different options and even prototyped a TypeScript based approach. We did over 120 customer calls, Microsoft Most Valuable Professional (MVP) conversations and collected quantitative data. We learned that in majority of organizations, it was the cloud enablement teams that were responsible for provisioning the Azure infra. These folks were not familiar with programming languages and did not like that approach as it had a steep learning curve. These users were our target users. In addition, authoring ARM template code in a higher level programming language would require you to reconcile two uneven runtimes, which ends up being confusing to manage. At the end of the day, we simply want customers to be successful on Azure. In the future if we hear more feedback asking us to support a programming language approach, we are open to that as well. If you'd like to use a high-level programming language to deploy Azure Infra we recommend [Farmer](https://compositionalit.github.io/farmer/) or [Pulumi](https://www.pulumi.com/).
 
 **Why not focus your energy on Terraform or other third-party IaC offerings?**
 
@@ -103,7 +103,6 @@ We are here to help you be successful with Bicep, please do not hesitate to reac
 
 * If you need help or have a generic question such as ‘where can I find an example for…’ or ‘I need help converting my ARM Template to Bicep’ you can [open a discussion]( https://github.com/Azure/bicep/discussions)
 * If you have a bug to report or a new feature request for Bicep please [open an issue]( https://github.com/Azure/bicep/issues)
-
 
 ## Reference
 
