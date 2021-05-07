@@ -17,17 +17,19 @@ namespace Bicep.Core.Analyzers.Linter
         public static string AnalyzerName => "Bicep Internal Linter";
         public static readonly bool IsCliInvoked;
 
-        private static readonly IEnumerable<Type> RuleTypes;
+        private static readonly ImmutableArray<Type> RuleTypes;
         private static readonly ImmutableArray<IBicepAnalyzerRule> RuleSet;
 
         static LinterAnalyzer()
         {
             var entryAssembly = Assembly.GetEntryAssembly();
             IsCliInvoked = entryAssembly.Location.EndsWith("bicep.dll", true, CultureInfo.CurrentCulture);
-            
+
             RuleTypes = Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(t => t.IsSubclassOf(typeof(LinterRule)));
+                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
+                            && !t.IsInterface && !t.IsAbstract) // exlude the interface and the base class
+                .ToImmutableArray();
 
             RuleSet = CreateLinterRules().ToImmutableArray();
         }
@@ -47,7 +49,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel)
             => RuleSet.Where(rule => (IsCliInvoked && rule.EnabledForCLI) || (!IsCliInvoked && rule.EnabledForEditing))
-                .SelectMany(r => r.Analyze(semanticModel));
-
+                .SelectMany(r => r.Analyze(semanticModel))
+                .ToArray();
     }
 }
