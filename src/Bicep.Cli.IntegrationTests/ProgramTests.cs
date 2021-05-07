@@ -315,7 +315,7 @@ output myOutput string = 'hello!'
         public void LockedOutputFileShouldProduceExpectedError()
         {
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "Empty.bicep", DataSets.Empty.Bicep);
-            var outputFile = PathHelper.GetDefaultOutputPath(inputFile);
+            var outputFile = PathHelper.GetDefaultBuildOutputPath(inputFile);
 
             // ReSharper disable once ConvertToUsingDeclaration
             using (new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None))

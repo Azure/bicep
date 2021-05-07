@@ -56,9 +56,9 @@ namespace Bicep.Cli
                 {
                     switch (ArgumentParser.TryParse(args))
                     {
-                        case BuildArguments buildArguments: // build
+                        case BuildOrDecompileArguments buildArguments when buildArguments.CommandName == CliConstants.CommandBuild: // build
                             return Build(logger, buildArguments);
-                        case DecompileArguments decompileArguments:
+                        case BuildOrDecompileArguments decompileArguments when decompileArguments.CommandName == CliConstants.CommandDecompile: // decompile
                             return Decompile(logger, decompileArguments);
                         case VersionArguments _: // --version
                             ArgumentParser.PrintVersion(this.outputWriter);
@@ -100,7 +100,7 @@ namespace Bicep.Cli
             });
         }
 
-        private int Build(ILogger logger, BuildArguments arguments)
+        private int Build(ILogger logger, BuildOrDecompileArguments arguments)
         {
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
             var bicepPath = PathHelper.ResolvePath(arguments.InputFile);
@@ -119,7 +119,7 @@ namespace Bicep.Cli
 
                 var outputPath = Path.Combine(outputDir, Path.GetFileName(bicepPath));
 
-                BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultOutputPath(outputPath));
+                BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultBuildOutputPath(outputPath));
             }
             else if (arguments.OutputFile is not null)
             {
@@ -127,7 +127,7 @@ namespace Bicep.Cli
             }
             else
             {
-                BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultOutputPath(bicepPath));
+                BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultBuildOutputPath(bicepPath));
             }
 
             // return non-zero exit code on errors
@@ -183,6 +183,59 @@ namespace Bicep.Cli
             }
         }
 
+        private int DecompileToFile(IDiagnosticLogger logger, string jsonPath, string outputPath)
+        {
+            try
+            {
+                var (_, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
+                foreach (var (_, bicepOutput) in filesToSave)
+                {
+                    File.WriteAllText(outputPath, bicepOutput);
+                }
+
+                var outputPathToCheck = Path.GetFullPath(outputPath);
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(outputPathToCheck));
+                var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+
+                return LogDiagnosticsAndCheckSuccess(logger, compilation) ? 0 : 1;
+            }
+            catch (Exception exception)
+            {
+                this.errorWriter.WriteLine($"{jsonPath}: Decompilation failed with fatal error \"{exception.Message}\"");
+                return 1;
+            }
+        }
+
+        private int DecompileToStdout(IDiagnosticLogger logger, string jsonPath)
+        {
+            var tempOutputPath = Path.ChangeExtension(Path.GetTempFileName(), "bicep");
+            try
+            {
+                var (_, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
+                foreach (var (_, bicepOutput) in filesToSave)
+                {
+                    this.outputWriter.Write(bicepOutput);
+                    File.WriteAllText(tempOutputPath, bicepOutput);
+                }
+
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(tempOutputPath));
+                var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+
+                return LogDiagnosticsAndCheckSuccess(logger, compilation) ? 0 : 1;
+            }
+            catch (Exception exception)
+            {
+                this.errorWriter.WriteLine($"{jsonPath}: Decompilation failed with fatal error \"{exception.Message}\"");
+                return 1;
+            } finally
+            {
+                if (File.Exists(tempOutputPath))
+                {
+                    File.Delete(tempOutputPath);
+                }
+            }
+        }
+
         private static FileStream CreateFileStream(string path)
         {
             try
@@ -195,7 +248,7 @@ namespace Bicep.Cli
             }
         }
 
-        public int Decompile(ILogger logger, DecompileArguments arguments)
+        public int Decompile(ILogger logger, BuildOrDecompileArguments arguments)
         {
             logger.LogWarning(
                 "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.\n" +
@@ -205,23 +258,29 @@ namespace Bicep.Cli
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
             var jsonPath = PathHelper.ResolvePath(arguments.InputFile);
 
-            try
+            if (arguments.OutputToStdOut)
             {
-                var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
-                foreach (var (fileUri, bicepOutput) in filesToSave)
+                return DecompileToStdout(diagnosticLogger, jsonPath);
+            }
+            else if (arguments.OutputDir is not null)
+            {
+                var outputDir = PathHelper.ResolvePath(arguments.OutputDir);
+                if (!Directory.Exists(outputDir))
                 {
-                    File.WriteAllText(fileUri.LocalPath, bicepOutput);
+                    throw new CommandLineException($"The specified output directory \"{outputDir}\" does not exist.");
                 }
 
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepUri);
-                var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+                var outputPath = Path.Combine(outputDir, Path.GetFileName(jsonPath));
 
-                return LogDiagnosticsAndCheckSuccess(diagnosticLogger, compilation) ? 0 : 1;
+                return DecompileToFile(diagnosticLogger, jsonPath, PathHelper.GetDefaultDecompileOutputPath(outputPath));
             }
-            catch (Exception exception)
+            else if (arguments.OutputFile is not null)
             {
-                this.errorWriter.WriteLine($"{jsonPath}: Decompilation failed with fatal error \"{exception.Message}\"");
-                return 1;
+                return DecompileToFile(diagnosticLogger, jsonPath, arguments.OutputFile);
+            }
+            else
+            {
+                return DecompileToFile(diagnosticLogger, jsonPath, PathHelper.GetDefaultDecompileOutputPath(jsonPath));
             }
         }
     }

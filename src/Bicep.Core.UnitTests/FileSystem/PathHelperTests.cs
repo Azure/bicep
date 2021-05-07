@@ -26,10 +26,18 @@ namespace Bicep.Core.UnitTests.FileSystem
 
         [DataTestMethod]
         [DataRow("foo.json")]
-        public void GetOutputPath_ShouldThrowOnJsonExtensions_Linux(string path)
+        public void GetBuildOutputPath_ShouldThrowOnJsonExtensions_Linux(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultOutputPath(path);
+            Action badExtension = () => PathHelper.GetDefaultBuildOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.json' extension.");
+        }
+
+        [DataTestMethod]
+        [DataRow("foo.bicep")]
+        public void GetDecompileOutputPath_ShouldThrowOnBicepExtensions_Linux(string path)
+        {
+            Action badExtension = () => PathHelper.GetDefaultDecompileOutputPath(path);
+            badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.bicep' extension.");
         }
 #else
         [TestMethod]
@@ -43,10 +51,20 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("foo.json")]
         [DataRow("foo.JSON")]
         [DataRow("foo.JsOn")]
-        public void GetOutputPath_ShouldThrowOnJsonExtensions_WindowsAndMac(string path)
+        public void GetBuildOutputPath_ShouldThrowOnJsonExtensions_WindowsAndMac(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultOutputPath(path);
+            Action badExtension = () => PathHelper.GetDefaultBuildOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.json' extension.");
+        }
+
+        [DataTestMethod]
+        [DataRow("foo.bicep")]
+        [DataRow("foo.BICEP")]
+        [DataRow("foo.BiCeP")]
+        public void GetDecompileOutputPath_ShouldThrowOnBicepExtensions_WindowsAndMac(string path)
+        {
+            Action badExtension = () => PathHelper.GetDefaultDecompileOutputPath(path);
+            badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.bicep' extension.");
         }
 #endif
 
@@ -58,10 +76,17 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetOutputPathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        public void GetOutputPath_ShouldChangeExtensionCorrectly(string path, string expectedPath)
+        [DynamicData(nameof(GetBuildOutputPathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        public void GetDefaultBuildOutputPath_ShouldChangeExtensionCorrectly(string path, string expectedPath)
         {
-            PathHelper.GetDefaultOutputPath(path).Should().Be(expectedPath);
+            PathHelper.GetDefaultBuildOutputPath(path).Should().Be(expectedPath);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetDecompileOutputPathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        public void GetDefaultDecompileOutputPath_ShouldChangeExtensionCorrectly(string path, string expectedPath)
+        {
+            PathHelper.GetDefaultDecompileOutputPath(path).Should().Be(expectedPath);
         }
 
         public static string GetDisplayName(MethodInfo info, object[] row)
@@ -106,7 +131,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 #endif
         }
 
-        private static IEnumerable<object[]> GetOutputPathData()
+        private static IEnumerable<object[]> GetBuildOutputPathData()
         {
             yield return CreateRow(@"foo.bicep", @"foo.json");
 
@@ -121,6 +146,24 @@ namespace Bicep.Core.UnitTests.FileSystem
             yield return CreateRow(@"D:\a\b\c\foo.bicep", @"D:\a\b\c\foo.json");
 
             yield return CreateRow(@"/foo.bicep", @"/foo.json");
+#endif
+        }
+
+        private static IEnumerable<object[]> GetDecompileOutputPathData()
+        {
+            yield return CreateRow(@"foo.json", @"foo.bicep");
+
+#if LINUX_BUILD
+            yield return CreateRow(@"/lib/bar/foo.json", @"/lib/bar/foo.bicep");
+
+            // these will throw on Windows
+            yield return CreateRow(@"/lib/bar/foo.BICEP", @"/lib/bar/foo.bicep");
+            yield return CreateRow(@"/bar/foo.bIcEp", @"/bar/foo.bicep");
+#else
+            yield return CreateRow(@"C:\foo.json", @"C:\foo.bicep");
+            yield return CreateRow(@"D:\a\b\c\foo.json", @"D:\a\b\c\foo.bicep");
+
+            yield return CreateRow(@"/foo.json", @"/foo.bicep");
 #endif
         }
 
