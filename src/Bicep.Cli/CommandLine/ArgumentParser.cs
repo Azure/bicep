@@ -20,10 +20,10 @@ namespace Bicep.Cli.CommandLine
             {
                 CliConstants.CommandBuild => new BuildOrDecompileArguments(args[1..], CliConstants.CommandBuild),
                 CliConstants.CommandDecompile => new BuildOrDecompileArguments(args[1..], CliConstants.CommandDecompile),
-                CliConstants.ArgumentHelp => new HelpArguments(),
-                CliConstants.ArgumentHelpShort => new HelpArguments(),
-                CliConstants.ArgumentVersion => new VersionArguments(),
-                CliConstants.ArgumentVersionShort => new VersionArguments(),
+                CliConstants.ArgumentHelp => new HelpArguments(CliConstants.ArgumentHelp),
+                CliConstants.ArgumentHelpShort => new HelpArguments(CliConstants.ArgumentHelpShort),
+                CliConstants.ArgumentVersion => new VersionArguments(CliConstants.ArgumentVersion),
+                CliConstants.ArgumentVersionShort => new VersionArguments(CliConstants.ArgumentVersionShort),
                 _ => null,
             };
         }

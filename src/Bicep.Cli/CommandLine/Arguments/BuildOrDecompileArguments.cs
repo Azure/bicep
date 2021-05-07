@@ -5,9 +5,8 @@ namespace Bicep.Cli.CommandLine.Arguments
 {
     public class BuildOrDecompileArguments : ArgumentsBase
     {
-        public BuildOrDecompileArguments(string[] args, string commandName)
+        public BuildOrDecompileArguments(string[] args, string commandName) : base(commandName)
         {
-            CommandName = commandName;
             for (var i = 0; i < args.Length; i++)
             {
                 switch (args[i].ToLowerInvariant()) {
