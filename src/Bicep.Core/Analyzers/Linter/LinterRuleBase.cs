@@ -13,9 +13,9 @@ using System.Diagnostics;
 
 namespace Bicep.Core.Analyzers.Linter
 {
-    public abstract class LinterRule : IBicepAnalyzerRule
+    public abstract class LinterRuleBase : IBicepAnalyzerRule
     {
-        public LinterRule(string code, string ruleName, string description, string docUri,
+        public LinterRuleBase(string code, string ruleName, string description, string docUri,
                           bool enableForEdit = true,
                           bool enableForCLI = true,
                           DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning)

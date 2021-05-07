@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class BCPL1030 : LinterRule
+    public sealed class BCPL1030 : LinterRuleBase
     {
         public BCPL1030() : base(
             code: "BCPL1030",
