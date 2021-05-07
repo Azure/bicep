@@ -7,7 +7,7 @@ import moduleSvg from "../../assets/icons/graph/module.svg";
 const backgroundColor = "#333333";
 const backgroundColorSecondary = "#3f3f3f";
 const foregroundColor = "#ffffff";
-const foregroundColorSecondary = "#9c9c9c";
+const foregroundColorSecondary = "#c1c1c1";
 const errorColor = "red";
 
 function escapeXml(text: string) {
