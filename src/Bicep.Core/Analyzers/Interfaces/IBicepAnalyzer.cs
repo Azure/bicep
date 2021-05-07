@@ -8,7 +8,7 @@ namespace Bicep.Core.Analyzers.Interfaces
 {
     public interface IBicepAnalyzer
     {
-        public IEnumerable<IBicepAnalyzerRule> GetRuleSet();
-        public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model);
+        IEnumerable<IBicepAnalyzerRule> GetRuleSet();
+        IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model);
     }
 }

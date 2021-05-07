@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
@@ -14,14 +15,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void IsCLIInvoked()
         {
-            Assert.IsFalse(LinterAnalyzer.IsCliInvoked);
+            LinterAnalyzer.IsCliInvoked.Should().BeFalse();
         }
 
         [TestMethod]
         public void HasBuiltInRules()
         {
             var linter = new LinterAnalyzer();
-            Assert.IsTrue(linter.GetRuleSet().Count() > 0);
+            linter.GetRuleSet().Should().NotBeEmpty();
         }
 
         [DataTestMethod]
@@ -37,7 +38,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void BuiltInRulesExist(string ruleCode)
         {
             var linter = new LinterAnalyzer();
-            Assert.IsTrue(linter.GetRuleSet().Any(r => r.Code == ruleCode));
+            linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);
         }
 
         [TestMethod]
@@ -46,13 +47,13 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var ruleSet = LinterAnalyzer.CreateLinterRules().ToArray();
 
             var codeSet = ruleSet.Select(r => r.Code).ToHashSet();
-            Assert.AreEqual(ruleSet.Length, codeSet.Count);
+            codeSet.Should().HaveSameCount(ruleSet);
 
             var descSet = ruleSet.Select(r => r.Description).ToHashSet();
-            Assert.AreEqual(ruleSet.Length, descSet.Count);
+            descSet.Should().HaveSameCount(ruleSet);
 
             var nameSet = ruleSet.Select(r => r.RuleName).ToHashSet();
-            Assert.AreEqual(ruleSet.Length, nameSet.Count);
+            nameSet.Should().HaveSameCount(ruleSet);
         }
 
         [TestMethod]
@@ -60,17 +61,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
 
             var ruleSet = LinterAnalyzer.CreateLinterRules().ToArray();
-            Assert.IsTrue(ruleSet.All(r => r.EnabledForCLI || r.EnabledForEditing));
+            ruleSet.Should().OnlyContain( r => r.EnabledForCLI || r.EnabledForEditing);
         }
 
         [TestMethod]
         public void AllRulesHaveDescription()
         {
             var ruleSet = LinterAnalyzer.CreateLinterRules();
-            foreach (var rule in ruleSet)
-            {
-                Assert.IsTrue(rule.Description.Length > 0);
-            }
+            ruleSet.Should().OnlyContain(r => r.Description.Length > 0);
         }
 
     }

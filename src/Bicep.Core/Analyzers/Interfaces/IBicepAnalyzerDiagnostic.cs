@@ -8,6 +8,6 @@ namespace Bicep.Core.Analyzers.Interfaces
 {
     public interface IBicepAnalyzerDiagnostic : IDiagnostic
     {
-        public string AnalyzerName { get; }
+        string AnalyzerName { get; }
     }
 }

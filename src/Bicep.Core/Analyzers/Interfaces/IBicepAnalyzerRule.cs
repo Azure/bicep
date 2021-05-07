@@ -7,6 +7,12 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers.Interfaces
 {
+/// <summary>
+/// Implementing IBicepAnalyzer Rule requires
+/// the implementing class to have a parameterless
+/// constructor which can be discoverd through
+/// reflection
+/// </summary>
     public interface IBicepAnalyzerRule
     {
         string AnalyzerName { get; }
