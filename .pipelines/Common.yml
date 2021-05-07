@@ -207,12 +207,16 @@ stages:
       displayName: npm ci
       workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
     
-    - script: npm run compile
-      displayName: Compile
-      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
-    
     - script: npm run lint
       displayName: Run lint
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+
+    - script: npm run test:unit
+      displayName: Run unit tests
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+
+    - script: npm run test:snapshot
+      displayName: Run snapshot tests
       workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
     
     # downloads to $(Pipeline.Workspace)/{artifact}
@@ -227,10 +231,14 @@ stages:
         contents: '**'
         targetFolder: '$(Build.SourcesDirectory)/src/vscode-bicep/bicepLanguageServer'
     
-    - script: npm run test:unit
-      displayName: Run unit tests
+    - script: npm run build:prod
+      displayName: Build prod
       workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
 
+    - script: npm run build:e2e
+      displayName: Build E2E tests
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+    
     - script: /usr/bin/Xvfb :99 -screen 0 1024x768x24 & sleep 2
       displayName: Start Xvfb
     

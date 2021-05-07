@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 module.exports = {
-  testMatch: ["<rootDir>/out/test/unit/**/*.test.js"],
+  testMatch: ["<rootDir>/src/test/unit/**/*.test.ts"],
+  transform: {
+    "^.+\\.tsx?$": "ts-jest",
+  },
   verbose: true,
   collectCoverage: true,
-  collectCoverageFrom: ["<rootDir>/out/**/*.js"],
-  coveragePathIgnorePatterns: ["/test/"],
-  setupFilesAfterEnv: ["<rootDir>/out/test/unit/setup.js"],
+  collectCoverageFrom: ["<rootDir>/src/**/*.ts"],
+  coveragePathIgnorePatterns: ["/test/", "/visualizer/", "/.svg/"],
+  setupFilesAfterEnv: ["<rootDir>/src/test/unit/setup.ts"],
 };

@@ -24,7 +24,7 @@ async function captureWriteStreams<T>(
       return true;
     };
     writeStreams.forEach((ws) => (ws.write = write));
-    return [await fn(), outputs.join()];
+    return [await fn(), outputs.join("")];
   } finally {
     writeStreams.forEach((ws, i) => (ws.write = originalWrites[i]));
   }
