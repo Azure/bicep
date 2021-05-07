@@ -68,7 +68,7 @@
     }
   },
   {
-    "label": "insert-required",
+    "label": "required-properties",
     "kind": "snippet",
     "detail": "Required properties",
     "documentation": {
@@ -77,7 +77,7 @@
     },
     "deprecated": false,
     "preselect": true,
-    "sortText": "2_insert-required",
+    "sortText": "2_required-properties",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -86,7 +86,7 @@
     }
   },
   {
-    "label": "insert-snippet",
+    "label": "snippet",
     "kind": "snippet",
     "detail": "DNS Zone",
     "documentation": {
@@ -95,7 +95,7 @@
     },
     "deprecated": false,
     "preselect": true,
-    "sortText": "2_insert-snippet",
+    "sortText": "2_snippet",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

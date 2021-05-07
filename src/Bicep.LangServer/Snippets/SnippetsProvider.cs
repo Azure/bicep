@@ -217,7 +217,7 @@ namespace Bicep.LanguageServer.Snippets
 
         private Snippet? GetResourceBodyCompletionSnippetFromTemplate(TypeSymbol typeSymbol)
         {
-            string label = "insert-snippet";
+            string label = "snippet";
             string type = typeSymbol.Name;
 
             StringBuilder sb = new StringBuilder();
@@ -240,7 +240,7 @@ namespace Bicep.LanguageServer.Snippets
 
         private Snippet? GetResourceBodyCompletionSnippetFromAzTypes(TypeSymbol typeSymbol)
         {
-            string label = "insert-required";
+            string label = "required-properties";
             string description = "Required properties";
 
             if (typeSymbol is ResourceType resourceType && resourceType.Body is ObjectType objectType)
