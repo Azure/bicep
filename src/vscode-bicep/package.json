@@ -205,7 +205,7 @@
     "eslint-plugin-jest": "^24.3.6",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.23.1",
-    "fork-ts-checker-webpack-plugin": "^6.2.1",
+    "fork-ts-checker-webpack-plugin": "^6.2.6",
     "jest": "^26.6.2",
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.4.194",
