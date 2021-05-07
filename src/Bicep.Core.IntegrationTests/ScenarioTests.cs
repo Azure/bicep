@@ -8,7 +8,8 @@ using Bicep.Core.UnitTests.Utils;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
-using System.Xml.Linq;
+using System.Text.RegularExpressions;
+using System.Collections;
 using System.Linq;
 using Bicep.Core.Parsing;
 
@@ -1570,6 +1571,30 @@ output vmExtName string = vm::vmExt.name
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/691
+        public void Test_Issue691()
+        {
+            var result = CompilationHelper.Compile(@"
+var vmNotWorkingProps = {
+  valThatDoesNotExist: ''
+}
+
+resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'notWorking'
+  location: 'west us'
+  // no diagnostics raised here even though the type is invalid!
+  properties: vmNotWorkingProps
+//@           ~~~~~~~~~~~~~~~~~ $0
+}
+");
+
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP037", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" from source declaration \"vmNotWorkingProps\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\"."),
+            });
+        }
+
+        [TestMethod]
         // https://github.com/azure/bicep/issues/1988
         public void Test_Issue1988()
         {
@@ -1879,5 +1904,22 @@ resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12
 
             codeReplacement.Span.Should().Be(new TextSpan(212, 15));
             codeReplacement.Text.Should().Be("partitionScheme");
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2484
+        public void Test_Issue2484()
+        {
+            var result = CompilationHelper.Compile(@"
+@sys.allowed([
+  'apple'
+  'banana'
+]) 
+param foo string = 'peach'
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
+            });
         }
     } }

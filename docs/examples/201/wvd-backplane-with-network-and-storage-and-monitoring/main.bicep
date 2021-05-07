@@ -93,3 +93,16 @@ module wvdFileServices './wvd-fileservices-module.bicep' = {
     fileshareFolderName: fileshareFolderName
   }
 }
+
+//Create Private Endpoint for file storage
+module pep './wvd-fileservices-privateendpoint-module.bicep' = {
+  name: 'privateEndpoint'
+  scope: rgnetw
+  params: {
+    location: vnetLocation
+    privateEndpointName: 'pep-sto'
+    storageAccountId: wvdFileServices.outputs.storageAccountId
+    vnetId: wvdnetwork.outputs.vnetId
+    subnetId: wvdnetwork.outputs.subnetId
+  }
+}

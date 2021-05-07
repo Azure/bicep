@@ -36,7 +36,13 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory);
             var model = compilation.GetEntrypointSemanticModel();
             
-            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), diag => OutputHelper.GetDiagLoggingString(dataSet.Bicep, outputDirectory, diag));
+            // use a deterministic order
+            var diagnostics = model.GetAllDiagnostics()
+                .OrderBy(x => x.Span.Position)
+                .ThenBy(x => x.Span.Length)
+                .ThenBy(x => x.Message, StringComparer.Ordinal);
+
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, diagnostics, diag => OutputHelper.GetDiagLoggingString(dataSet.Bicep, outputDirectory, diag));
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 

@@ -19,7 +19,7 @@ module moduleWithoutPath = {
 // missing identifier #completionTest(7) -> empty
 module 
 
-// #completionTest(24,25) -> object
+// #completionTest(24,25) -> moduleObject
 module missingValue '' = 
 
 var interp = 'hello'

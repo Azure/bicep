@@ -82,7 +82,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
   properties: {
     name: hostingPlanName // just hostingPlanName results in an error
-//@[4:8) [BCP038 (Warning)] The property "name" is not allowed on objects of type "schemas:6_properties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". |name|
+//@[4:8) [BCP037 (Warning)] The property "name" is not allowed on objects of type "schemas:6_properties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". |name|
   }
 }
 

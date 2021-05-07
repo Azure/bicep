@@ -138,7 +138,7 @@ resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new [] {
-                ("BCP038", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Test.Rp/readWriteTests@2020-01-01\". Permissible properties include \"dependsOn\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Test.Rp/readWriteTests@2020-01-01\". Permissible properties include \"dependsOn\"."),
             });
 
             // Missing non top-level properties - should be a warning
@@ -164,7 +164,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new [] {
-                ("BCP038", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\"."),
             });
         }
 

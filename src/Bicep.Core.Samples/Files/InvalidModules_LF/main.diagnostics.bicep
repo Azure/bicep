@@ -28,7 +28,7 @@ module
 //@[7:7) [BCP096 (Error)] Expected a module identifier at this location. ||
 //@[7:7) [BCP090 (Error)] This module declaration is missing a file path reference. ||
 
-// #completionTest(24,25) -> object
+// #completionTest(24,25) -> moduleObject
 module missingValue '' = 
 //@[20:22) [BCP050 (Error)] The specified module path is empty. |''|
 //@[25:25) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
@@ -189,9 +189,9 @@ module modAUnspecifiedInputs './modulea.bicep' = {
     stringParamB: ''
     objParam: {}
     objArray: []
-//@[4:12) [BCP038 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
+//@[4:12) [BCP037 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
     unspecifiedInput: ''
-//@[4:20) [BCP038 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
+//@[4:20) [BCP037 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
   }
 }
 
@@ -315,8 +315,8 @@ var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
 var moduleRuntimeCheck2 = moduleRuntimeCheck
 
 module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
-//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck|
 //@[7:32) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |moduleLoopForRuntimeCheck|
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck|
   name: moduleRuntimeCheck2
 //@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Accessible properties of singleModuleForRuntimeCheck are "name". |moduleRuntimeCheck2|
 }]
@@ -324,15 +324,15 @@ module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
 var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
 var moduleRuntimeCheck4 = moduleRuntimeCheck3
 module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
-//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck2|
 //@[7:33) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |moduleLoopForRuntimeCheck2|
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck2|
   name: moduleRuntimeCheck4
 //@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleRuntimeCheck4|
 }]
 
 module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
-//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck3|
 //@[7:33) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |moduleLoopForRuntimeCheck3|
+//@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck3|
   name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
 //@[15:65) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleLoopForRuntimeCheck[1].outputs.stringOutputB|
 //@[67:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleLoopForRuntimeCheck[1].outputs.stringOutputA|
@@ -520,7 +520,7 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if(true) {
@@ -532,7 +532,7 @@ module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
@@ -545,7 +545,7 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 
@@ -625,7 +625,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
     objParam: {}
     stringParamB: ''
     dependsOn: [
-//@[4:13) [BCP038 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
+//@[4:13) [BCP037 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
       nonexistentArrays
 //@[6:23) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     ]
