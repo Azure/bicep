@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Snippets
         // Used to cache resource dependencies. Maps resource type to it's dependencies
         private ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new ConcurrentDictionary<string, string>();
         // Used to cache resource body snippets
-        private ConcurrentDictionary<string, IEnumerable<Snippet>> resourceBodySnippetsCache = new ConcurrentDictionary<string, IEnumerable<Snippet>>();
+        private ConcurrentDictionary<(string, bool), IEnumerable<Snippet>> resourceBodySnippetsCache = new ConcurrentDictionary<(string, bool), IEnumerable<Snippet>>();
         // Used to cache top level declarations
         private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
         // The common properties should be authored consistently to provide for understandability and consumption of the code.
@@ -186,9 +186,9 @@ namespace Bicep.LanguageServer.Snippets
             return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
         }
 
-        public IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol)
+        public IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol, bool isExistingResource)
         {
-            if (resourceBodySnippetsCache.TryGetValue(typeSymbol.Name, out IEnumerable<Snippet>? cachedSnippets) && cachedSnippets.Any())
+            if (resourceBodySnippetsCache.TryGetValue((typeSymbol.Name, isExistingResource), out IEnumerable<Snippet>? cachedSnippets) && cachedSnippets.Any())
             {
                 return cachedSnippets;
             }
@@ -197,10 +197,15 @@ namespace Bicep.LanguageServer.Snippets
 
             snippets.Add(GetEmptySnippet());
 
-            Snippet? snippetFromExistingTemplate = GetResourceBodyCompletionSnippetFromTemplate(typeSymbol);
-            if (snippetFromExistingTemplate is not null)
+            // We will not show custom snippets for resources with 'existing' keyword
+            // as they are not applicable in that scenario.
+            if (!isExistingResource)
             {
-                snippets.Add(snippetFromExistingTemplate);
+                Snippet? snippetFromExistingTemplate = GetResourceBodyCompletionSnippetFromTemplate(typeSymbol);
+                if (snippetFromExistingTemplate is not null)
+                {
+                    snippets.Add(snippetFromExistingTemplate);
+                }
             }
 
             Snippet? snippetFromAzTypes = GetResourceBodyCompletionSnippetFromAzTypes(typeSymbol);
@@ -210,7 +215,10 @@ namespace Bicep.LanguageServer.Snippets
             }
 
             // Add to cache
-            resourceBodySnippetsCache.TryAdd(typeSymbol.Name, snippets);
+            // Note: Properties information obtained from TypeSystem may vary for resources with/without 'existing' keyword.
+            // TypeName obtained from TypeSymbol might be same in both the scenarios. In order to differentiate, we'll always
+            // cache combination of typeName and existingResource information.
+            resourceBodySnippetsCache.TryAdd((typeSymbol.Name, isExistingResource), snippets);
 
             return snippets;
         }
