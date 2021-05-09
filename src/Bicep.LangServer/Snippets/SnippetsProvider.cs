@@ -197,8 +197,7 @@ namespace Bicep.LanguageServer.Snippets
 
             snippets.Add(GetEmptySnippet());
 
-            // We will not show custom snippets for resources with 'existing' keyword
-            // as they are not applicable in that scenario.
+            // We will not show custom snippets for resources with 'existing' keyword as they are not applicable in that scenario.
             if (!isExistingResource)
             {
                 Snippet? snippetFromExistingTemplate = GetResourceBodyCompletionSnippetFromTemplate(typeSymbol);
@@ -216,8 +215,8 @@ namespace Bicep.LanguageServer.Snippets
 
             // Add to cache
             // Note: Properties information obtained from TypeSystem may vary for resources with/without 'existing' keyword.
-            // TypeName obtained from TypeSymbol might be same in both the scenarios. In order to differentiate, we'll always
-            // cache combination of typeName and existingResource information.
+            // TypeName obtained from TypeSymbol might be same in both the cases. In order to differentiate, we'll always
+            // cache combination of typeSymbol.Name + isExistingResource.
             resourceBodySnippetsCache.TryAdd((typeSymbol.Name, isExistingResource), snippets);
 
             return snippets;
