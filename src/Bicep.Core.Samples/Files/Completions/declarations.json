@@ -722,7 +722,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:applicationGroup} 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'friendlyName'}\n    applicationGroupType: ${4|'Desktop','RailApplications'|}\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${5:'REQUIRED'})\n  }\n}\n"
+      "newText": "resource ${1:applicationGroup} 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'friendlyName'}\n    applicationGroupType: ${4|'Desktop','RemoteApp'|}\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${5:'REQUIRED'})\n  }\n}\n"
     }
   },
   {
