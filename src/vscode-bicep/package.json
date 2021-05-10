@@ -211,7 +211,7 @@
     "jest-styled-components": "^7.0.4",
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.4.194",
-    "prettier": "^2.2.1",
+    "prettier": "^2.3.0",
     "react-test-renderer": "^17.0.2",
     "rimraf": "^3.0.2",
     "semver": "^7.3.5",
