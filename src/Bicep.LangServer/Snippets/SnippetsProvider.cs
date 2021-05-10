@@ -23,17 +23,17 @@ namespace Bicep.LanguageServer.Snippets
     public class SnippetsProvider : ISnippetsProvider
     {
         // Used to cache resource declarations. Maps resource type to body text and description
-        private ConcurrentDictionary<string, (string, string)> resourceTypeToBodyMap = new ConcurrentDictionary<string, (string, string)>();
+        private readonly ConcurrentDictionary<string, (string text, string description)> resourceTypeToBodyMap = new();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
-        private ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new ConcurrentDictionary<string, string>();
+        private readonly ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new();
         // Used to cache resource body snippets
-        private ConcurrentDictionary<(string, bool), IEnumerable<Snippet>> resourceBodySnippetsCache = new ConcurrentDictionary<(string, bool), IEnumerable<Snippet>>();
+        private readonly ConcurrentDictionary<(string typeName, bool isExistingResource), IEnumerable<Snippet>> resourceBodySnippetsCache = new();
         // Used to cache top level declarations
-        private HashSet<Snippet> topLevelNamedDeclarationSnippets = new HashSet<Snippet>();
+        private readonly HashSet<Snippet> topLevelNamedDeclarationSnippets = new();
         // The common properties should be authored consistently to provide for understandability and consumption of the code.
         // See https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#resources
         // for more information
-        private List<string> propertiesSortPreferenceList = new List<string>
+        private readonly List<string> propertiesSortPreferenceList = new()
         {
             "comments",
             "condition",
@@ -230,16 +230,16 @@ namespace Bicep.LanguageServer.Snippets
             StringBuilder sb = new StringBuilder();
 
             // Get resource body completion snippet from checked in static template file, if available
-            if (resourceTypeToBodyMap.TryGetValue(type, out (string, string) resourceBodyWithDescription))
+            if (resourceTypeToBodyMap.TryGetValue(type, out (string text, string description) resourceBodyWithDescription))
             {
-                sb.AppendLine(resourceBodyWithDescription.Item1);
+                sb.AppendLine(resourceBodyWithDescription.text);
 
                 if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
                 {
                     sb.Append(resourceDependencies);
                 }
 
-                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, resourceBodyWithDescription.Item2);
+                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, resourceBodyWithDescription.description);
             }
 
             return null;
