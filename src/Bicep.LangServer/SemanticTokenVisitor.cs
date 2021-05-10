@@ -141,6 +141,13 @@ namespace Bicep.LanguageServer
             base.VisitPropertyAccessSyntax(syntax);
         }
 
+        public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
+        {
+            AddTokenType(syntax.OpenSquare, SemanticTokenType.Operator);
+            AddTokenType(syntax.CloseSquare, SemanticTokenType.Operator);
+            base.VisitArrayAccessSyntax(syntax);
+        }
+
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
             AddTokenType(syntax.ResourceName, SemanticTokenType.Property);
