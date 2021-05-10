@@ -133,9 +133,10 @@ export class BicepVisualizerView extends Disposable {
     const deploymentGraph = await this.languageClient.sendRequest(
       deploymentGraphRequestType,
       {
-        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(
-          document
-        ),
+        textDocument:
+          this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(
+            document
+          ),
       }
     );
 

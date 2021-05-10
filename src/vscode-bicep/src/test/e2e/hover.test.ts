@@ -126,13 +126,8 @@ describe("hover", (): void => {
     expectDefined(hovers);
     expect(hovers).toHaveLength(expectedHovers.length);
     hovers.forEach((hover, hoverIndex) => {
-      const {
-        startLine,
-        startCharacter,
-        endLine,
-        endCharacter,
-        contents,
-      } = expectedHovers[hoverIndex];
+      const { startLine, startCharacter, endLine, endCharacter, contents } =
+        expectedHovers[hoverIndex];
 
       expectDefined(hover.range);
       expectRange(

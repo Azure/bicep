@@ -8,7 +8,8 @@ import { Disposable } from "../utils";
 
 export class BicepVisualizerViewManager
   extends Disposable
-  implements vscode.WebviewPanelSerializer {
+  implements vscode.WebviewPanelSerializer
+{
   private static readonly visualizerActiveContextKey = "bicepVisualizerFocus";
 
   private readonly viewsByPath = new Map<string, BicepVisualizerView>();
