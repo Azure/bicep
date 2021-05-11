@@ -197,7 +197,7 @@
     "@types/vscode": "^1.52.0",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^4.22.1",
-    "@typescript-eslint/parser": "^4.22.1",
+    "@typescript-eslint/parser": "^4.23.0",
     "copy-webpack-plugin": "^8.1.1",
     "esbuild-loader": "^2.13.0",
     "eslint": "^7.26.0",
