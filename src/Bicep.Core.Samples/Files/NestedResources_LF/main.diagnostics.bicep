@@ -87,7 +87,7 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
   name: 'loopParent'
 
   resource loopChild 'childType' = [for item in items: {
-//@[11:20) [BCP179 (Warning)] The loop item variable "item" must be referenced in at least one of the value expressions of the following properties: "name", "parent", "scope" |loopChild|
+//@[11:20) [BCP179 (Warning)] The loop item variable "item" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |loopChild|
 //@[21:32) [BCP081 (Warning)] Resource type "My.Rp/parentType/childType@2020-12-01" does not have types available. |'childType'|
     name: 'loopChild'
   }]

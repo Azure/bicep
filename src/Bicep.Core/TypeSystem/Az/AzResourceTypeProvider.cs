@@ -209,8 +209,8 @@ namespace Bicep.Core.TypeSystem.Az
                 properties = properties.SetItem(LanguageConstants.ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
             }
 
-            // add the 'parent' property for child resource types
-            if (!typeReference.IsRootType)
+            // add the 'parent' property for child resource types that are not nested inside a parent resource
+            if (!typeReference.IsRootType && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
             {
                 var parentType = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
                 var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;

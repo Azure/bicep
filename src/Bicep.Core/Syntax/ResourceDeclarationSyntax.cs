@@ -81,7 +81,8 @@ namespace Bicep.Core.Syntax
             ResourceTypeReference? typeReference;
             var hasParentDeclaration = false;
             var nestedParents = binder.GetAllAncestors<ResourceDeclarationSyntax>(this);
-            if (nestedParents.Length == 0)
+            bool isTopLevelResourceDeclaration = nestedParents.Length == 0;
+            if (isTopLevelResourceDeclaration)
             {
                 // This is a top level resource - the type is a fully-qualified type.
                 typeReference = ResourceTypeReference.TryParse(stringContent);
@@ -180,6 +181,12 @@ namespace Bicep.Core.Syntax
             {
                 flags |= ResourceTypeGenerationFlags.ExistingResource;
             }
+
+            if(!isTopLevelResourceDeclaration)
+            {
+                flags |= ResourceTypeGenerationFlags.NestedResource;
+            }
+
             if (typeReference.IsRootType || hasParentDeclaration)
             {
                 flags |= ResourceTypeGenerationFlags.PermitLiteralNameProperty;
