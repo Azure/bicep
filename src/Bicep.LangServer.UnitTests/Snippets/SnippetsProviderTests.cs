@@ -397,14 +397,21 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Prefix.Should().Be("required-properties-keyA");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
-                    x.Text.Should().Be("{\n\tname: $1\r\n\tlocation: $2\r\n\t$0\n}");
+                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	location: $2
+	$0
+}");
                 },
                 x =>
                 {
                     x.Prefix.Should().Be("required-properties-keyB");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
-                    x.Text.Should().Be("{\n\tname: $1\r\n\t$0\n}");
+                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	$0
+}");
                 });
         }
 
