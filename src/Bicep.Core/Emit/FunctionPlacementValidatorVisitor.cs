@@ -76,7 +76,7 @@ namespace Bicep.Core.Emit
 
         private void VerifyModuleSecureParameterFunctionPlacement(FunctionCallSyntaxBase syntax)
         {
-            if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol && functionSymbol.PlacementFlags.HasFlag(FunctionPlacementFlags.ModuleSecureParameterOnly))
+            if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ModuleSecureParameterOnly))
             {
                 // we can check placement only for funtions that were matched and has a proper placement flag
                 var (_, levelUpSymbol) = syntaxRecorder.Skip(1).FirstOrDefault();

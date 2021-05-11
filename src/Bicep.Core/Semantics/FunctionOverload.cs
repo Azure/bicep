@@ -14,7 +14,7 @@ namespace Bicep.Core.Semantics
     {
         public delegate TypeSymbol ReturnTypeBuilderDelegate(IEnumerable<FunctionArgumentSyntax> arguments);
 
-        public FunctionOverload(string name, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol returnType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, FunctionFlags flags = FunctionFlags.Default, FunctionPlacementFlags placementFlags = FunctionPlacementFlags.Default)
+        public FunctionOverload(string name, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol returnType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, FunctionFlags flags = FunctionFlags.Default)
         {
             this.Name = name;
             this.Description = description;
@@ -22,7 +22,6 @@ namespace Bicep.Core.Semantics
             this.FixedParameters = fixedParameters.ToImmutableArray();
             this.VariableParameter = variableParameter;
             this.Flags = flags;
-            this.PlacementFlags = placementFlags;
 
             this.MinimumArgumentCount = this.FixedParameters.Count(fp => fp.Required) + (this.VariableParameter?.MinimumCount ?? 0);
             this.MaximumArgumentCount = this.VariableParameter == null ? this.FixedParameters.Length : (int?)null;
@@ -45,8 +44,6 @@ namespace Bicep.Core.Semantics
         public ReturnTypeBuilderDelegate ReturnTypeBuilder { get; }
 
         public FunctionFlags Flags { get; }
-
-        public FunctionPlacementFlags PlacementFlags { get; }
 
         public string TypeSignature { get; }
 

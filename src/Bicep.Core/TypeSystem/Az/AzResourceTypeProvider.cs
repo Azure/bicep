@@ -247,7 +247,7 @@ namespace Bicep.Core.TypeSystem.Az
                         .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
                         .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")
                         .WithOptionalParameter("secretVersion", LanguageConstants.String, "Secret Version")
-                        .WithPlacementFlags(FunctionPlacementFlags.ModuleSecureParameterOnly)
+                        .WithFlags(FunctionFlags.ModuleSecureParameterOnly)
                         .Build();
                     break;
             }

@@ -36,8 +36,6 @@ namespace Bicep.Core.Semantics
 
         protected FunctionFlags Flags { get; private set; }
 
-        public FunctionPlacementFlags PlacementFlags { get; private set; }
-
         public FunctionOverload Build()
         {
             this.Validate();
@@ -52,8 +50,7 @@ namespace Bicep.Core.Semantics
                 this.ReturnType,
                 this.FixedParameters.ToImmutable(),
                 this.VariableParameter,
-                this.Flags,
-                this.PlacementFlags);
+                this.Flags);
 
         public FunctionOverloadBuilder WithDescription(string description)
         {
@@ -99,13 +96,6 @@ namespace Bicep.Core.Semantics
         public FunctionOverloadBuilder WithFlags(FunctionFlags flags)
         {
             this.Flags = flags;
-
-            return this;
-        }
-
-        public FunctionOverloadBuilder WithPlacementFlags(FunctionPlacementFlags flags)
-        {
-            this.PlacementFlags = flags;
 
             return this;
         }
