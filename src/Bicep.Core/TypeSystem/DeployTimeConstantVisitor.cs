@@ -151,7 +151,23 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
+            var currentDeployTimeConstantScopeSyntax = this.deployTimeConstantScopeSyntax;
+
+            if (this.model.Binder.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            {
+                this.deployTimeConstantScopeSyntax = syntax;
+            }
+
             base.VisitInstanceFunctionCallSyntax(syntax);
+
+            if (this.errorSyntax is not null)
+            {
+                this.AppendError();
+            }
+
+            
+            this.deployTimeConstantScopeSyntax = currentDeployTimeConstantScopeSyntax;
         }
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
@@ -386,6 +402,8 @@ namespace Bicep.Core.TypeSystem
                     diagnosticBuilder.RuntimePropertyNotAllowedInForExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
                 FunctionCallSyntax functionCallSyntax =>
                     diagnosticBuilder.RuntimePropertyNotAllowedInRunTimeFunctionArguments(functionCallSyntax.Name.IdentifierName, usableProperties, this.referencedSymbol.Name, variableDependencyChain),
+                InstanceFunctionCallSyntax instanceFunctionCallSyntax =>
+                    diagnosticBuilder.RuntimePropertyNotAllowedInRunTimeFunctionArguments(instanceFunctionCallSyntax.Name.IdentifierName, usableProperties, this.referencedSymbol.Name, variableDependencyChain),
                 _ =>
                     throw new ArgumentOutOfRangeException($"Expected {nameof(this.deployTimeConstantScopeSyntax)} to be ObjectPropertySyntax with a propertyName, IfConditionSyntax, or ForSyntax."),
             });
