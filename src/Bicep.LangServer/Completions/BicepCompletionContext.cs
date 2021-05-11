@@ -133,7 +133,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 // previous processing hasn't identified a completion context kind
                 // check if we're inside an expression
-                kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes), BicepCompletionContextKind.Expression);
+                kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
             }
 
             return new BicepCompletionContext(
@@ -605,9 +605,14 @@ namespace Bicep.LanguageServer.Completions
         /// Determines if we are inside an expression. Will not produce a correct result if context kind is set is already set to something.
         /// </summary>
         /// <param name="matchingNodes">The matching nodes</param>
-        private static bool IsInnerExpressionContext(List<SyntaxBase> matchingNodes)
+        private static bool IsInnerExpressionContext(List<SyntaxBase> matchingNodes, int offset)
         {
-            var isInStringSegment = SyntaxMatcher.IsTailMatch<StringSyntax, Token>(matchingNodes, (_, token) => token.Type switch {
+            var isInStringSegment = SyntaxMatcher.IsTailMatch<StringSyntax, Token>(matchingNodes, (_, token) => token.Type switch
+            {
+                // The cursor is immediately after the { character: '...${|...}...'.
+                TokenType.StringLeftPiece when IsOffsetImmediatlyAfterNode(offset, token)=> false,
+                TokenType.StringMiddlePiece when IsOffsetImmediatlyAfterNode(offset, token) => false,
+                // In other cases, we are in a string segment.
                 TokenType.StringComplete => true,
                 TokenType.StringLeftPiece => true,
                 TokenType.StringMiddlePiece => true,
@@ -621,8 +626,23 @@ namespace Bicep.LanguageServer.Completions
                 return false;
             }
 
+            // var foo = {|
+            // resource res '...' = {|
+            var isImmediatelyAfterOpenBrace = SyntaxMatcher.IsTailMatch<Token>(matchingNodes, token => token.Type switch
+            {
+                TokenType.LeftBrace when IsOffsetImmediatlyAfterNode(offset, token) => true,
+                _ => false,
+            });
+
+            if (isImmediatelyAfterOpenBrace)
+            {
+                return false;
+            }
+
             return matchingNodes.OfType<ExpressionSyntax>().Any();
         }
+        
+        static bool IsOffsetImmediatlyAfterNode(int offset, SyntaxBase node) => node.Span.Position + node.Span.Length == offset;
 
         private static Range GetReplacementRange(SyntaxTree syntaxTree, SyntaxBase innermostMatchingNode, int offset)
         {
