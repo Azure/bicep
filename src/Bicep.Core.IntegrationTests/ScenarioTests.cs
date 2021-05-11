@@ -1698,7 +1698,7 @@ resource p2 'Microsoft.Network/dnsZones@2018-05-01' = {
             {
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"parent\""),
                 ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
-                ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing2\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"parent\""),
+                ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing2\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
                 ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.")
             });
             result.Template.Should().BeNull();
