@@ -663,7 +663,7 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
                 ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
             });
         }
-        
+
         [TestMethod]
         // https://github.com/azure/bicep/issues/1364
         public void Test_Issue1364()
@@ -685,7 +685,7 @@ targetScope = 'blablah'
             var result = CompilationHelper.Compile(@"
 param myparam string
 var myvar = 'hello'
-        
+
 output myparam string = myparam
 output myvar string = myvar
 ");
@@ -791,8 +791,8 @@ var secrets = [
     name: 'CosmosDb-PrimaryKey'
     value: global_resources.outputs.cosmosDbKey
   }
-] 
- 
+]
+
 module stamp_0_secrets './kevault-secrets.bicep' = [for secret in secrets: {
   name: 'stamp_0_secrets-${deploymentId}'
   scope: resourceGroup(rg_stamps[0].name)

@@ -59,6 +59,7 @@ namespace Bicep.Core
 
         public const string ParameterAllowedPropertyName = "allowed";
         public const string ParameterDefaultPropertyName = "default";
+        public const string ParameterSecurePropertyName = "secure";
 
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
@@ -131,7 +132,10 @@ namespace Bicep.Core
         public static readonly TypeSymbol String = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment);
+        // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
+        public static readonly TypeSymbol SecureString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment | TypeSymbolValidationFlags.IsSecure);
         public static readonly TypeSymbol Object = new ObjectType("object", TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol SecureObject = new ObjectType("object", TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
         public static readonly TypeSymbol Int = new PrimitiveType("int", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
@@ -170,7 +174,7 @@ namespace Bicep.Core
             if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object) || ReferenceEquals(primitiveType, Any))
             {
                 // only string and object types have secure equivalents
-                yield return new TypeProperty("secure", Bool, TypePropertyFlags.Constant);
+                yield return new TypeProperty(ParameterSecurePropertyName, Bool, TypePropertyFlags.Constant);
             }
 
             // default value is allowed to have expressions

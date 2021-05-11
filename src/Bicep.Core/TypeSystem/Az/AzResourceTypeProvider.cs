@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using Bicep.Core.Emit;
 
@@ -26,7 +27,7 @@ namespace Bicep.Core.TypeSystem.Az
                     = new KeyComparer();
 
                 public bool Equals((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x, (ResourceTypeGenerationFlags flags, ResourceTypeReference type) y)
-                    => x.flags == y.flags && 
+                    => x.flags == y.flags &&
                         ResourceTypeReferenceComparer.Instance.Equals(x.type, y.type);
 
                 public int GetHashCode((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x)
@@ -34,7 +35,7 @@ namespace Bicep.Core.TypeSystem.Az
                         ResourceTypeReferenceComparer.Instance.GetHashCode(x.type);
             }
 
-            private readonly IDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType> cache 
+            private readonly IDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType> cache
                 = new Dictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType>(KeyComparer.Instance);
 
             public ResourceType GetOrAdd(ResourceTypeGenerationFlags flags, ResourceTypeReference typeReference, Func<ResourceType> buildFunc)
@@ -58,7 +59,7 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ResourceTypeCache loadedTypeCache;
         private readonly bool warnOnMissingType;
 
-        private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new []
+        private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new[]
         {
             LanguageConstants.ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
@@ -100,7 +101,7 @@ namespace Bicep.Core.TypeSystem.Az
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    if (bodyObjectType.Properties.TryGetValue(LanguageConstants.ResourceNamePropertyName, out var nameProperty) && 
+                    if (bodyObjectType.Properties.TryGetValue(LanguageConstants.ResourceNamePropertyName, out var nameProperty) &&
                         nameProperty.TypeReference.Type is not PrimitiveType { Name: LanguageConstants.TypeNameString } &&
                         !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
                     {
@@ -122,7 +123,7 @@ namespace Bicep.Core.TypeSystem.Az
                     bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:
-                    if (bodyDiscriminatedType.TryGetDiscriminatorProperty(LanguageConstants.ResourceNamePropertyName) is not null && 
+                    if (bodyDiscriminatedType.TryGetDiscriminatorProperty(LanguageConstants.ResourceNamePropertyName) is not null &&
                         !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
@@ -177,7 +178,7 @@ namespace Bicep.Core.TypeSystem.Az
                 // TODO: remove 'dependsOn' from the type library
                 properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
 
-                if(ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
+                if (ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
                 {
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
                 }
@@ -225,12 +226,31 @@ namespace Bicep.Core.TypeSystem.Az
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
 
+            var functions = GetBicepMethods(typeReference);
+
             return new ObjectType(
                 objectType.Name,
                 objectType.ValidationFlags,
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
                 objectType.AdditionalPropertiesType,
-                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags);
+                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
+                functions);
+        }
+
+        private static IEnumerable<FunctionOverload> GetBicepMethods(ResourceTypeReference resourceType)
+        {
+            switch (resourceType.FullyQualifiedType.ToLowerInvariant())
+            {
+                case "microsoft.keyvault/vaults":
+                    yield return new FunctionOverloadBuilder("getSecret")
+                        .WithReturnType(LanguageConstants.SecureString)
+                        .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
+                        .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")
+                        .WithOptionalParameter("secretVersion", LanguageConstants.String, "Secret Version")
+                        .WithFlags(FunctionFlags.ModuleSecureParameterOnly)
+                        .Build();
+                    break;
+            }
         }
 
         private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)

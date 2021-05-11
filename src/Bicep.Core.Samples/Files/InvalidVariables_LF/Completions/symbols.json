@@ -707,6 +707,76 @@
     }
   },
   {
+    "label": "keyVaultSecretArrayInterpolatedVar",
+    "kind": "variable",
+    "detail": "keyVaultSecretArrayInterpolatedVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_keyVaultSecretArrayInterpolatedVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "keyVaultSecretArrayInterpolatedVar"
+    }
+  },
+  {
+    "label": "keyVaultSecretArrayVar",
+    "kind": "variable",
+    "detail": "keyVaultSecretArrayVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_keyVaultSecretArrayVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "keyVaultSecretArrayVar"
+    }
+  },
+  {
+    "label": "keyVaultSecretInterpolatedVar",
+    "kind": "variable",
+    "detail": "keyVaultSecretInterpolatedVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_keyVaultSecretInterpolatedVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "keyVaultSecretInterpolatedVar"
+    }
+  },
+  {
+    "label": "keyVaultSecretObjectVar",
+    "kind": "variable",
+    "detail": "keyVaultSecretObjectVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_keyVaultSecretObjectVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "keyVaultSecretObjectVar"
+    }
+  },
+  {
+    "label": "keyVaultSecretVar",
+    "kind": "variable",
+    "detail": "keyVaultSecretVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_keyVaultSecretVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "keyVaultSecretVar"
+    }
+  },
+  {
     "label": "keys",
     "kind": "variable",
     "detail": "keys",
@@ -719,6 +789,23 @@
       "range": {},
       "newText": "keys"
     }
+  },
+  {
+    "label": "kv",
+    "kind": "interface",
+    "detail": "kv",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_kv",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "kv"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "last",

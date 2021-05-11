@@ -29,5 +29,10 @@ namespace Bicep.Core.TypeSystem
         /// Prevents all assignment of this type.
         /// </summary>
         PreventAssignment = 1 << 2,
+
+        /// <summary>
+        /// Allows assigning a secret reference
+        /// </summary>
+        IsSecure = 1 << 3,
     }
 }

@@ -679,3 +679,33 @@ module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
 //@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
 }]
 
+// Key Vault Secret Reference
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module secureModule1 'moduleb.bicep' = {
+  name: 'secureModule1'
+  params: {       
+    stringParamA: kv.getSecret('mySecret')
+//@[18:42) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    stringParamB: '${kv.getSecret('mySecret')}'
+//@[21:45) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    objParam: kv.getSecret('mySecret')
+//@[14:38) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[14:38) [BCP036 (Error)] The property "objParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
+    arrayParam: kv.getSecret('mySecret')
+//@[16:40) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "string". |kv.getSecret('mySecret')|
+    secureStringParam: '${kv.getSecret('mySecret')}'
+//@[26:50) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    secureObjectParam: kv.getSecret('mySecret')
+//@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+//@[27:51) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    secureObjectParam2: kv.getSecret('mySecret')
+//@[24:48) [BCP036 (Error)] The property "secureObjectParam2" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
+  }
+}
+

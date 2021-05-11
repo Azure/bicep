@@ -35,5 +35,6 @@ namespace Bicep.Core.TypeSystem
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => typeAssignmentVisitor.GetAllDiagnostics();
+
     }
 }
