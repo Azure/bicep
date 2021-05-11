@@ -36,19 +36,7 @@ namespace Bicep.Core.TypeSystem
         // entry point for this visitor. We only iterate through modules and resources
         public static void ValidateDeployTimeConstants(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
-            var deploymentTimeConstantVisitor = new DeployTimeConstantVisitor(model, diagnosticWriter);
-            foreach (var declaredSymbol in model.Root.GetAllResourceDeclarations())
-            {
-                deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
-            }
-            foreach (var declaredSymbol in model.Root.ModuleDeclarations)
-            {
-                deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
-            }
-            foreach (var outputSymbol in model.Root.OutputDeclarations)
-            {
-                deploymentTimeConstantVisitor.Visit(outputSymbol.DeclaringSyntax);
-            }
+            new DeployTimeConstantVisitor(model, diagnosticWriter).Visit(model.Root.Syntax);
         }
 
         #region DeclarationSyntax
@@ -142,11 +130,6 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
         {
-            if (this.bodyType == null)
-            {
-                return;
-            }
-
             if (syntax.HasParseErrors())
             {
                 return;
@@ -155,21 +138,28 @@ namespace Bicep.Core.TypeSystem
             // Only visit the object properties if they are required to be deploy time constant.
             foreach (var (propertyName, propertySyntax) in syntax.ToNamedPropertyDictionary())
             {
-                if (this.bodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
-                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                var isTopLevelDeployTimeConstantProperty =
+                    this.bodyType is not null &&
+                    this.bodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
+                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant);
+
+                if (isTopLevelDeployTimeConstantProperty || this.deployTimeConstantScopeSyntax is not null)
                 {
+                    // Also need to reset deployTimeConstantScopeSyntax for nested deploy-time constant properties such as "tags.*".
                     this.deployTimeConstantScopeSyntax = propertySyntax;
                 }
 
-                if (this.deployTimeConstantScopeSyntax is not null)
-                {
-                    // Reset deployTimeConstantScopeSyntax for nested deploy-time constant properties such as "tags.*".
-                    this.deployTimeConstantScopeSyntax = propertySyntax;
-                    this.VisitObjectPropertySyntax(propertySyntax);
-                }
+                // In case there's a nested property whose name matches a deployment constant property name,
+                // for example, "properties.replicaSets[0].location", set bodyType to null to avoid flagging that property.
+                var currentBodyType = this.bodyType;
+                this.bodyType = null;
 
-                if (propertyType is not null &&
-                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                this.VisitObjectPropertySyntax(propertySyntax);
+
+                // Restore bodyType for the current level.
+                this.bodyType = currentBodyType;
+
+                if (isTopLevelDeployTimeConstantProperty)
                 {
                     this.deployTimeConstantScopeSyntax = null;
                 }
@@ -189,6 +179,11 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
+            if (this.deployTimeConstantScopeSyntax is null)
+            {
+                return;
+            }
+
             if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol)
             {
                 // emit any error that has already been triggered previously in the value assignment
@@ -212,6 +207,11 @@ namespace Bicep.Core.TypeSystem
         // these need to be kept synchronized.
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
+            if (this.deployTimeConstantScopeSyntax is null)
+            {
+                return;
+            }
+
             base.VisitArrayAccessSyntax(syntax);
             if (this.errorSyntax != null && TextSpan.AreOverlapping(this.errorSyntax, syntax))
             {
@@ -249,6 +249,11 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
+            if (this.deployTimeConstantScopeSyntax is null)
+            {
+                return;
+            }
+
             base.VisitPropertyAccessSyntax(syntax);
             if (this.errorSyntax != null && TextSpan.AreOverlapping(this.errorSyntax, syntax))
             {
@@ -298,6 +303,11 @@ namespace Bicep.Core.TypeSystem
         private void SetState(SyntaxBase syntax, DeclaredSymbol referencedSymbol, ObjectType referencedBodyType, string propertyName)
         {
             if (!referencedBodyType.Properties.TryGetValue(propertyName, out var propertyType))
+            {
+                return;
+            }
+
+            if (this.deployTimeConstantScopeSyntax is null)
             {
                 return;
             }

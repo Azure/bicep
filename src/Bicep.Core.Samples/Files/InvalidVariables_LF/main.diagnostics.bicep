@@ -297,6 +297,7 @@ var runtimeLoop3 = [for (zone, i) in zoneInput: {
 
 var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
 //@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. |for|
+//@[37:84) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of zones are "apiVersion", "id", "name", "type". |zones[0].properties.registrationVirtualNetworks|
   a: 0
 }]
 
