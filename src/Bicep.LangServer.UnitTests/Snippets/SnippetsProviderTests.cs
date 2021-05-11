@@ -157,7 +157,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     ("name", LanguageConstants.String, TypePropertyFlags.Required),
                     ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -169,7 +169,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-snippet");
+                    x.Prefix.Should().Be("snippet");
                     x.Detail.Should().Be("DNS Zone");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -180,7 +180,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-required");
+                    x.Prefix.Should().Be("required-properties");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -202,7 +202,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     ("name", LanguageConstants.String, TypePropertyFlags.Required),
                     ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -214,7 +214,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-snippet");
+                    x.Prefix.Should().Be("snippet");
                     x.Detail.Should().Be("Automation Module");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -233,7 +233,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-required");
+                    x.Prefix.Should().Be("required-properties");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -266,7 +266,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                             ("name", LanguageConstants.String, TypePropertyFlags.Required)),
                             TypePropertyFlags.Required)));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -278,7 +278,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 },
                 x =>
                 {
-                    x.Prefix.Should().Be("insert-required");
+                    x.Prefix.Should().Be("required-properties");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -306,7 +306,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     ResourceScope.ResourceGroup,
                     CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>

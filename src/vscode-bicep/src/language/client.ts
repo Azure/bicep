@@ -19,8 +19,8 @@ const extensionId = "ms-azuretools.vscode-bicep";
 export async function launchLanguageServiceWithProgressReport(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
-): Promise<void> {
-  await vscode.window.withProgress(
+): Promise<lsp.LanguageClient> {
+  return await vscode.window.withProgress(
     {
       title: "Launching Bicep language service...",
       location: vscode.ProgressLocation.Notification,
@@ -32,7 +32,7 @@ export async function launchLanguageServiceWithProgressReport(
 async function launchLanguageService(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
-): Promise<void> {
+): Promise<lsp.LanguageClient> {
   getLogger().info("Launching Bicep language service...");
 
   const dotnetCommandPath = await ensureDotnetRuntimeInstalled();
@@ -99,6 +99,8 @@ async function launchLanguageService(
   await client.onReady();
 
   getLogger().info("Bicep language service ready.");
+
+  return client;
 }
 
 async function ensureDotnetRuntimeInstalled(): Promise<string> {

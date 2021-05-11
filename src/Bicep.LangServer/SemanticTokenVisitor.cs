@@ -76,13 +76,21 @@ namespace Bicep.LanguageServer
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
+            // We need to set token types for OpenParen and CloseParen in case the function call
+            // is inside a string interpolation. Our current textmate grammar will tag them as
+            // string if they are not overrode by the semantic tokens.
             AddTokenType(syntax.Name, SemanticTokenType.Function);
+            AddTokenType(syntax.OpenParen, SemanticTokenType.Operator);
+            AddTokenType(syntax.CloseParen, SemanticTokenType.Operator);
             base.VisitFunctionCallSyntax(syntax);
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
+            AddTokenType(syntax.Dot, SemanticTokenType.Operator);
             AddTokenType(syntax.Name, SemanticTokenType.Function);
+            AddTokenType(syntax.OpenParen, SemanticTokenType.Operator);
+            AddTokenType(syntax.CloseParen, SemanticTokenType.Operator);
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
@@ -128,8 +136,16 @@ namespace Bicep.LanguageServer
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
+            AddTokenType(syntax.Dot, SemanticTokenType.Operator);
             AddTokenType(syntax.PropertyName, SemanticTokenType.Property);
             base.VisitPropertyAccessSyntax(syntax);
+        }
+
+        public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
+        {
+            AddTokenType(syntax.OpenSquare, SemanticTokenType.Operator);
+            AddTokenType(syntax.CloseSquare, SemanticTokenType.Operator);
+            base.VisitArrayAccessSyntax(syntax);
         }
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)

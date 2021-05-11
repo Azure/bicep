@@ -11,27 +11,147 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "build",
       "type": "npm",
-      "script": "compile",
-      "problemMatcher": "$tsc-watch",
-      "isBackground": true,
+      "script": "build",
       "presentation": {
-        "reveal": "never"
+        "reveal": "silent"
       },
+      "problemMatcher": {
+        "owner": "webpack",
+        "source": "ts",
+        "applyTo": "allDocuments",
+        "fileLocation": ["relative", "${cwd}"],
+        "severity": "error",
+        "pattern": [
+          {
+            "kind": "location",
+            "regexp": "(ERROR|WARNING) in (.*?):(\\d+):(\\d+)",
+            "severity": 1,
+            "file": 2,
+            "line": 3,
+            "column": 4
+          },
+          {
+            "regexp": "\\s*TS(\\d+):\\s*(.*)$",
+            "code": 1,
+            "message": 2
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "Compiling.*?|Compilation .*?starting"
+          },
+          "endsPattern": {
+            "regexp": "[Cc]ompiled (.*?successfully|with .*?error)|[Cc]ompilation .*?finished"
+          }
+        }
+      },
+      "isBackground": true,
       "group": {
         "kind": "build",
         "isDefault": true
-      }
+      },
+      "dependsOn": ["clean"],
+      "dependsOrder": "sequence"
     },
     {
+      "label": "build:prod",
+      "type": "npm",
+      "script": "build:prod",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": {
+        "owner": "webpack",
+        "source": "ts",
+        "applyTo": "allDocuments",
+        "fileLocation": ["relative", "${cwd}"],
+        "severity": "error",
+        "pattern": [
+          {
+            "kind": "location",
+            "regexp": "(ERROR|WARNING) in (.*?):(\\d+):(\\d+)",
+            "severity": 1,
+            "file": 2,
+            "line": 3,
+            "column": 4
+          },
+          {
+            "regexp": "\\s*TS(\\d+):\\s*(.*)$",
+            "code": 1,
+            "message": 2
+          }
+        ]
+      },
+      "group": "build",
+      "dependsOn": ["clean"],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "build:e2e",
+      "type": "typescript",
+      "tsconfig": "tsconfig.e2e.json",
+      "problemMatcher": "$tsc",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "dependsOn": ["build:prod"],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "watch",
       "type": "npm",
       "script": "watch",
-      "problemMatcher": "$tsc-watch",
+      "problemMatcher": {
+        "owner": "webpack",
+        "source": "ts",
+        "applyTo": "allDocuments",
+        "fileLocation": ["relative", "${cwd}"],
+        "severity": "error",
+        "pattern": [
+          {
+            "kind": "location",
+            "regexp": "(ERROR|WARNING) in (.*?):(\\d+):(\\d+)",
+            "severity": 1,
+            "file": 2,
+            "line": 3,
+            "column": 4
+          },
+          {
+            "regexp": "\\s*TS(\\d+):\\s*(.*)$",
+            "code": 1,
+            "message": 2
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "Compiling.*?|Compilation .*?starting"
+          },
+          "endsPattern": {
+            "regexp": "[Cc]ompiled (.*?successfully|with .*?error)|[Cc]ompilation .*?finished"
+          }
+        }
+      },
       "isBackground": true,
       "presentation": {
-        "reveal": "never"
+        "reveal": "silent"
       },
-      "group": "build"
+      "group": "build",
+      "dependsOn": ["clean"],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "clean",
+      "type": "npm",
+      "script": "clean",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      }
     }
   ]
 }

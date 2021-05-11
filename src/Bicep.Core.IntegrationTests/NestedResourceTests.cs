@@ -538,7 +538,7 @@ output loopy string = parent::child[0].name
             {
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[]
                 {
-                    ("BCP179",DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"parent\", \"scope\"")
+                    ("BCP179",DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\"")
                 });
                 template.Should().NotBeNull();
             }

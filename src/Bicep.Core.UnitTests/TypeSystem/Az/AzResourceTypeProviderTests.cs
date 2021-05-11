@@ -30,6 +30,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         [DataRow(ResourceTypeGenerationFlags.None)]
         [DataRow(ResourceTypeGenerationFlags.ExistingResource)]
         [DataRow(ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
+        [DataRow(ResourceTypeGenerationFlags.NestedResource)]
         [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
         {
@@ -78,6 +79,12 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                         (!string.Equals(property.Name, LanguageConstants.ResourceScopePropertyName, LanguageConstants.IdentifierComparison) || IsSymbolicProperty(property)));
                     loopVariantProperties.Should().NotBeEmpty();
                     loopVariantProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant), $"because all loop variant properties in type '{availableType.FullyQualifiedType}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.LoopVariant)} flag.");
+
+                    if(flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
+                    {
+                        // syntactically nested resources should not have the parent property
+                        topLevelProperties.Should().NotContain(property => string.Equals(property.Name, LanguageConstants.ResourceParentPropertyName, LanguageConstants.IdentifierComparison));
+                    }
                 }
             }
         }
