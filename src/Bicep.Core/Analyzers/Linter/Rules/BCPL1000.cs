@@ -17,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             description: "A valid template must be parameterized.",
             enableForCLI: true,
             enableForEdit: true,
-            diagnosticLevel: Diagnostics.DiagnosticLevel.Error,
+            diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://bicep/linter/rules/BCPL1000") //TODO: set up online documentation location
         {
         }
@@ -29,7 +29,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (!parametersExist)
             {
                 //TODO: what span is appropriate for a document level diagnostic
-                var span = new TextSpan(0, 1);
+                var span = new TextSpan(0, 0);
                 yield return new AnalyzerDiagnostic(
                                     this.AnalyzerName,
                                     span,
