@@ -27,8 +27,7 @@ namespace Bicep.Core.TypeSystem
         PermitLiteralNameProperty = 1 << 1,
 
         /// <summary>
-        /// Generating a definition for a resource that is nested inside another resource declaration. Do not use this flag for resources
-        /// using the "parent" property.
+        /// Generating a definition for a syntactically nested resource. Do not use this flag for resources that need the "parent" property.
         /// </summary>
         NestedResource = 1 << 2
     }
