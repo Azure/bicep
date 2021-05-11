@@ -331,6 +331,74 @@ var test2 = /|* block c|omment *|/
         }
 
         [TestMethod]
+        public async Task VerifyResourceBodyCompletionWithDiscriminatedObjectTypeContainsRequiredPropertiesSnippet()
+        {
+            string text = @"resource deploymentScripts 'Microsoft.Resources/deploymentScripts@2020-10-01'=";
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.Label.Should().Be("required-properties-AzureCLI");
+                    c.Detail.Should().Be("Required properties");
+                    c.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	location: $2
+	kind: $3
+	properties: {
+		azCliVersion: $4
+		retentionInterval: $5
+	}
+	$0
+}");
+                },
+                c =>
+                {
+
+                    c.Label.Should().Be("required-properties-AzurePowerShell");
+                    c.Detail.Should().Be("Required properties");
+                    c.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	location: $2
+	kind: $3
+	properties: {
+		azPowerShellVersion: $4
+		retentionInterval: $5
+	}
+	$0
+}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("if");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-indexed");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-filtered");
+                });
+        }
+
+        [TestMethod]
         public async Task Property_completions_include_descriptions()
         {
             var fileWithCursors = @"
