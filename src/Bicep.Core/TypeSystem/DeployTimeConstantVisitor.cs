@@ -128,6 +128,32 @@ namespace Bicep.Core.TypeSystem
             this.Visit(syntax.CloseSquare);
         }
 
+        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            var currentDeployTimeConstantScopeSyntax = this.deployTimeConstantScopeSyntax;
+
+            if (this.model.Binder.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            {
+                this.deployTimeConstantScopeSyntax = syntax;
+            }
+
+            base.VisitFunctionCallSyntax(syntax);
+
+            if (this.errorSyntax is not null)
+            {
+                this.AppendError();
+            }
+
+            
+            this.deployTimeConstantScopeSyntax = currentDeployTimeConstantScopeSyntax;
+        }
+
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            base.VisitInstanceFunctionCallSyntax(syntax);
+        }
+
         public override void VisitObjectSyntax(ObjectSyntax syntax)
         {
             if (syntax.HasParseErrors())
@@ -207,11 +233,6 @@ namespace Bicep.Core.TypeSystem
         // these need to be kept synchronized.
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (this.deployTimeConstantScopeSyntax is null)
-            {
-                return;
-            }
-
             base.VisitArrayAccessSyntax(syntax);
             if (this.errorSyntax != null && TextSpan.AreOverlapping(this.errorSyntax, syntax))
             {
@@ -249,11 +270,6 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.deployTimeConstantScopeSyntax is null)
-            {
-                return;
-            }
-
             base.VisitPropertyAccessSyntax(syntax);
             if (this.errorSyntax != null && TextSpan.AreOverlapping(this.errorSyntax, syntax))
             {
@@ -300,7 +316,7 @@ namespace Bicep.Core.TypeSystem
         }
         #endregion
 
-        private void SetState(SyntaxBase syntax, DeclaredSymbol referencedSymbol, ObjectType referencedBodyType, string propertyName)
+        private void SetState(SyntaxBase errorSyntax, DeclaredSymbol referencedSymbol, ObjectType referencedBodyType, string propertyName)
         {
             if (!referencedBodyType.Properties.TryGetValue(propertyName, out var propertyType))
             {
@@ -317,7 +333,7 @@ namespace Bicep.Core.TypeSystem
             {
                 // Set error state if the property is not a deploy-time constant, or it is a
                 // deploy-time constant of a resource, but it does not exist in the resource body.
-                this.errorSyntax = syntax;
+                this.errorSyntax = errorSyntax;
                 this.referencedSymbol = referencedSymbol;
                 this.referencedBodyType = referencedBodyType;
             }
@@ -368,6 +384,8 @@ namespace Bicep.Core.TypeSystem
                     diagnosticBuilder.RuntimePropertyNotAllowedInIfConditionExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
                 ForSyntax =>
                     diagnosticBuilder.RuntimePropertyNotAllowedInForExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
+                FunctionCallSyntax functionCallSyntax =>
+                    diagnosticBuilder.RuntimePropertyNotAllowedInRunTimeFunctionArguments(functionCallSyntax.Name.IdentifierName, usableProperties, this.referencedSymbol.Name, variableDependencyChain),
                 _ =>
                     throw new ArgumentOutOfRangeException($"Expected {nameof(this.deployTimeConstantScopeSyntax)} to be ObjectPropertySyntax with a propertyName, IfConditionSyntax, or ForSyntax."),
             });

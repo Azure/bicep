@@ -1922,4 +1922,38 @@ param foo string = 'peach'
                 ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
             });
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2547
+        public void Test_Issue2547()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module stgModule './stg.bicep' = {
+  name: 'stgModule'
+}
+
+var keyValue = listKeys(stgModule.outputs.storageAccount.id, stgModule.outputs.storageAccount.apiVersion).keys[0].value
+"),
+                ("stg.bicep", @"
+resource stg 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: 'mystorage1234567'
+  location: 'westus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+output storageAccount object = {
+  id: stg.id
+  apiVersion: stg.apiVersion
+}
+"));
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP180", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
+                ("BCP180", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
+            });
+        }
     } }
