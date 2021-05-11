@@ -1933,7 +1933,16 @@ module stgModule './stg.bicep' = {
   name: 'stgModule'
 }
 
-var keyValue = listKeys(stgModule.outputs.storageAccount.id, stgModule.outputs.storageAccount.apiVersion).keys[0].value
+resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
+  name: 'pubIP'
+  location: resourceGroup().location
+  properties: {
+    publicIPAllocationMethod: az.listSecrets(stgModule.outputs.storageAccount.id, stgModule.outputs.storageAccount.apiVersion).keys[0].value
+    dnsSettings: {
+      domainNameLabel: listKeys(stgModule.outputs.storageAccount.id, stgModule.outputs.storageAccount.apiVersion).keys[0].value
+    }
+  }
+}
 "),
                 ("stg.bicep", @"
 resource stg 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -1952,6 +1961,8 @@ output storageAccount object = {
 "));
 
             result.Should().HaveDiagnostics(new[] {
+                // TODO: change the first diagnostic once https://github.com/Azure/bicep/issues/2624 is fixed.
+                ("BCP066", DiagnosticLevel.Error, "Function \"listSecrets\" is not valid at this location. It can only be used in resource declarations."),
                 ("BCP180", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
                 ("BCP180", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
             });
