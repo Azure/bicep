@@ -352,7 +352,6 @@ var test2 = /|* block c|omment *|/
         public async Task VerifyResourceBodyCompletionWithDiscriminatedObjectTypeContainsRequiredPropertiesSnippet()
         {
             string text = @"resource deploymentScripts 'Microsoft.Resources/deploymentScripts@2020-10-01'=";
-
             var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
 
@@ -385,7 +384,7 @@ var test2 = /|* block c|omment *|/
                 },
                 c =>
                 {
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+
                     c.Label.Should().Be("required-properties-AzurePowerShell");
                     c.Detail.Should().Be("Required properties");
                     c.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
