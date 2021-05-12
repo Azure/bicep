@@ -11,10 +11,10 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class BCPL1080 : LinterRuleBase
+    public sealed class SimplifyInterpolationRule : LinterRuleBase
     {
-        public BCPL1080() : base(
-            code: "BCPL1080",
+        public SimplifyInterpolationRule() : base(
+            code: "Simplify interpolation",
             ruleName: "String interpolation can be simplified.",
             description: "String interpolation can be simplified. String variables can be directly assigned to string properties and variables.",
             docUri: "https://bicep/linter/rules/BCPL1080") // TODO: setup up doc pages

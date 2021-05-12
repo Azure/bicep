@@ -15,10 +15,10 @@ using System.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class BCPL1060 : LinterRuleBase
+    public sealed class InterpolateNotConcatRule : LinterRuleBase
     {
-        public BCPL1060() : base(
-            code: "BCPL1060",
+        public InterpolateNotConcatRule() : base(
+            code: "Interpolate preferred",
             ruleName: "Dynamic variable used concat",
             description: "Dynamic variable should not use concat - string interpolation should be used.",
             docUri: "https://bicep/linter/rules/BCPL1060") // TODO: setup up doc pages
