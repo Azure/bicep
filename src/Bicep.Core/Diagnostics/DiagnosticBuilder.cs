@@ -1053,13 +1053,18 @@ namespace Bicep.Core.Diagnostics
                     ? $"The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
                     : $"The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
+            public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
+                TextSpan,
+                "BCP180",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+
             public ErrorDiagnostic RuntimePropertyNotAllowedInRunTimeFunctionArguments(string functionName, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
 
                 return new ErrorDiagnostic(
                     TextSpan,
-                    "BCP180",
+                    "BCP181",
                     $"The arguments of function \"{functionName}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}.");
             }
 
@@ -1067,10 +1072,6 @@ namespace Bicep.Core.Diagnostics
                 ? $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). "
                 : string.Empty;
 
-            public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
-                TextSpan,
-                "BCP180",
-                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
