@@ -18,7 +18,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: "BCPL1070",
             ruleName: "Unecessary dependsOn",
             description: "Best Practice: remove unnecessary dependsOn.",
-            docUri: "https://bicep/linter/rules/BCPL1070") // TODO: setup up doc pages
+            docUri: "https://bicep/linter/rules/BCPL1070", // TODO: setup up doc pages
+            diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)

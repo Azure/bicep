@@ -15,7 +15,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: "BCPL1010",
             ruleName: "Parameters must be used",
             description: "Declared parameter must be referenced within the document scope.",
-            docUri: "https://bicep/linter/rules/BCPL1010") // TODO: setup up doc pages
+            docUri: "https://bicep/linter/rules/BCPL1010", // TODO: setup up doc pages
+            diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)

@@ -13,9 +13,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public BCPL1050() : base(
             code: "BCPL1050",
-            ruleName: "Declared variable not used",
+            ruleName: "Declared variable not used", // TODO: param not used?
             description: "Declared variable encountered that is not used within scope.",
-            docUri: "https://bicep/linter/rules/BCPL1050")// TODO: setup up doc pages
+            docUri: "https://bicep/linter/rules/BCPL1050", // TODO: setup up doc pages
+            diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
@@ -24,7 +25,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var unreferencedVariables = model.Root.Declarations.OfType<VariableSymbol>()
                                     .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
 
-            foreach(var sym in unreferencedVariables)
+            foreach (var sym in unreferencedVariables)
             {
                 yield return CreateDiagnosticForSpan(sym.NameSyntax.Span);
             }
