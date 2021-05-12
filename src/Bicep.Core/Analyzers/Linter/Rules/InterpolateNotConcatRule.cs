@@ -20,7 +20,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public InterpolateNotConcatRule() : base(
             code: "Interpolate preferred",
             ruleName: "Dynamic variable used concat",
-            description: "Dynamic variable should not use concat - string interpolation should be used.",
+            description: CoreResources.InterpolateNotConcatRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1060") // TODO: setup up doc pages
         { }
 

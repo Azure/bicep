@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SimplifyInterpolationRule() : base(
             code: "Simplify interpolation",
             ruleName: "String interpolation can be simplified.",
-            description: "String interpolation can be simplified. String variables can be directly assigned to string properties and variables.",
+            description: CoreResources.SimplifyInterpolationRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1080") // TODO: setup up doc pages
         { }
 

@@ -117,11 +117,35 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="LinterRuleExceptionCode" xml:space="preserve">
-    <value>Linter Rule Error</value>
+  <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
+    <value>Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current.</value>
+  </data>
+  <data name="InterpolateNotConcatRuleDescription" xml:space="preserve">
+    <value>Dynamic variable should not use concat - string interpolation should be used.</value>
   </data>
   <data name="LinterRuleExceptionMessageFormat" xml:space="preserve">
     <value>Linter rule encountered an unexpected exception: {0}</value>
     <comment>string format to display error exception thrown in Linter Rule</comment>
+  </data>
+  <data name="LocationSetByParameterRuleDescription" xml:space="preserve">
+    <value>Best practice dictates that Location be set via parameter.</value>
+  </data>
+  <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
+    <value>Declared parameter must be referenced within the document scope.</value>
+  </data>
+  <data name="ParameterRequiredRuleDescription" xml:space="preserve">
+    <value>A valid template must be parameterized.</value>
+  </data>
+  <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
+    <value>Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.</value>
+  </data>
+  <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
+    <value>String interpolation can be simplified. String variables can be directly assigned to string properties and variables.</value>
+  </data>
+  <data name="UnnecessaryDependsOnRuleDescription" xml:space="preserve">
+    <value>Best Practice: remove unnecessary dependsOn.</value>
+  </data>
+  <data name="UnusedVariableRuleDescription" xml:space="preserve">
+    <value>Declared variable encountered that is not used within scope.</value>
   </data>
 </root>

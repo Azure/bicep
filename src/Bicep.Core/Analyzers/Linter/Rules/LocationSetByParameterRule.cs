@@ -15,7 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public LocationSetByParameterRule() : base(
             code: "Location set by parameter",
             ruleName: "Location set by parameter",
-            description: "Best practice dictates that Location be set via parameter.",
+            description: CoreResources.LocationSetByParameterRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1040")// TODO: setup up doc pages
         { }
 

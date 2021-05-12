@@ -21,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public EnvironmentUrlHardcodedRule() : base(
             code: "Environment URL hardcoded",
             ruleName: "Environment URL hardcoded",
-            description: "Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current.",
+            description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://bicep/linter/rules/BCPL1020")// TODO: setup up doc pages
         {
