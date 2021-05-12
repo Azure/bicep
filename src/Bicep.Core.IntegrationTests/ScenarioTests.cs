@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests.Assertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using Bicep.Core.UnitTests.Utils;
-using Newtonsoft.Json.Linq;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Resources;
-using System.Text.RegularExpressions;
-using System.Collections;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -1961,8 +1959,8 @@ output storageAccount object = {
 "));
 
             result.Should().HaveDiagnostics(new[] {
-                // TODO: change the first diagnostic once https://github.com/Azure/bicep/issues/2624 is fixed.
-                ("BCP066", DiagnosticLevel.Error, "Function \"listSecrets\" is not valid at this location. It can only be used in resource declarations."),
+                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listSecrets\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
+                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listSecrets\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
                 ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
                 ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
             });
@@ -1991,5 +1989,16 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
             });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2624
+        public void Test_Issue2624()
+        {
+            var result = CompilationHelper.Compile(@"
+var foo = az.listKeys('foo', '2012-02-01')[0].value 
+");
+
+            result.Should().NotHaveAnyDiagnostics();
         }
     } }
