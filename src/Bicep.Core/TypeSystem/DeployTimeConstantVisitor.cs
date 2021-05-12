@@ -36,19 +36,7 @@ namespace Bicep.Core.TypeSystem
         // entry point for this visitor. We only iterate through modules and resources
         public static void ValidateDeployTimeConstants(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
-            var deploymentTimeConstantVisitor = new DeployTimeConstantVisitor(model, diagnosticWriter);
-            foreach (var declaredSymbol in model.Root.GetAllResourceDeclarations())
-            {
-                deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
-            }
-            foreach (var declaredSymbol in model.Root.ModuleDeclarations)
-            {
-                deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
-            }
-            foreach (var outputSymbol in model.Root.OutputDeclarations)
-            {
-                deploymentTimeConstantVisitor.Visit(outputSymbol.DeclaringSyntax);
-            }
+            new DeployTimeConstantVisitor(model, diagnosticWriter).Visit(model.Root.Syntax);
         }
 
         #region DeclarationSyntax
@@ -140,13 +128,50 @@ namespace Bicep.Core.TypeSystem
             this.Visit(syntax.CloseSquare);
         }
 
-        public override void VisitObjectSyntax(ObjectSyntax syntax)
+        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            if (this.bodyType == null)
+            var currentDeployTimeConstantScopeSyntax = this.deployTimeConstantScopeSyntax;
+
+            if (this.model.Binder.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                return;
+                this.deployTimeConstantScopeSyntax = syntax;
             }
 
+            base.VisitFunctionCallSyntax(syntax);
+
+            if (this.errorSyntax is not null)
+            {
+                this.AppendError();
+            }
+
+            
+            this.deployTimeConstantScopeSyntax = currentDeployTimeConstantScopeSyntax;
+        }
+
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            var currentDeployTimeConstantScopeSyntax = this.deployTimeConstantScopeSyntax;
+
+            if (this.model.Binder.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            {
+                this.deployTimeConstantScopeSyntax = syntax;
+            }
+
+            base.VisitInstanceFunctionCallSyntax(syntax);
+
+            if (this.errorSyntax is not null)
+            {
+                this.AppendError();
+            }
+
+            
+            this.deployTimeConstantScopeSyntax = currentDeployTimeConstantScopeSyntax;
+        }
+
+        public override void VisitObjectSyntax(ObjectSyntax syntax)
+        {
             if (syntax.HasParseErrors())
             {
                 return;
@@ -155,21 +180,28 @@ namespace Bicep.Core.TypeSystem
             // Only visit the object properties if they are required to be deploy time constant.
             foreach (var (propertyName, propertySyntax) in syntax.ToNamedPropertyDictionary())
             {
-                if (this.bodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
-                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                var isTopLevelDeployTimeConstantProperty =
+                    this.bodyType is not null &&
+                    this.bodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
+                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant);
+
+                if (isTopLevelDeployTimeConstantProperty || this.deployTimeConstantScopeSyntax is not null)
                 {
+                    // Also need to reset deployTimeConstantScopeSyntax for nested deploy-time constant properties such as "tags.*".
                     this.deployTimeConstantScopeSyntax = propertySyntax;
                 }
 
-                if (this.deployTimeConstantScopeSyntax is not null)
-                {
-                    // Reset deployTimeConstantScopeSyntax for nested deploy-time constant properties such as "tags.*".
-                    this.deployTimeConstantScopeSyntax = propertySyntax;
-                    this.VisitObjectPropertySyntax(propertySyntax);
-                }
+                // In case there's a nested property whose name matches a deployment constant property name,
+                // for example, "properties.replicaSets[0].location", set bodyType to null to avoid flagging that property.
+                var currentBodyType = this.bodyType;
+                this.bodyType = null;
 
-                if (propertyType is not null &&
-                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                this.VisitObjectPropertySyntax(propertySyntax);
+
+                // Restore bodyType for the current level.
+                this.bodyType = currentBodyType;
+
+                if (isTopLevelDeployTimeConstantProperty)
                 {
                     this.deployTimeConstantScopeSyntax = null;
                 }
@@ -189,7 +221,13 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol)
+            if (this.deployTimeConstantScopeSyntax is null)
+            {
+                return;
+            }
+
+            if (this.model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol &&
+                this.model.Binder.TryGetCycle(variableSymbol) is null)
             {
                 // emit any error that has already been triggered previously in the value assignment
                 if (this.errorSyntax != null)
@@ -295,9 +333,14 @@ namespace Bicep.Core.TypeSystem
         }
         #endregion
 
-        private void SetState(SyntaxBase syntax, DeclaredSymbol referencedSymbol, ObjectType referencedBodyType, string propertyName)
+        private void SetState(SyntaxBase errorSyntax, DeclaredSymbol referencedSymbol, ObjectType referencedBodyType, string propertyName)
         {
             if (!referencedBodyType.Properties.TryGetValue(propertyName, out var propertyType))
+            {
+                return;
+            }
+
+            if (this.deployTimeConstantScopeSyntax is null)
             {
                 return;
             }
@@ -307,7 +350,7 @@ namespace Bicep.Core.TypeSystem
             {
                 // Set error state if the property is not a deploy-time constant, or it is a
                 // deploy-time constant of a resource, but it does not exist in the resource body.
-                this.errorSyntax = syntax;
+                this.errorSyntax = errorSyntax;
                 this.referencedSymbol = referencedSymbol;
                 this.referencedBodyType = referencedBodyType;
             }
@@ -358,6 +401,10 @@ namespace Bicep.Core.TypeSystem
                     diagnosticBuilder.RuntimePropertyNotAllowedInIfConditionExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
                 ForSyntax =>
                     diagnosticBuilder.RuntimePropertyNotAllowedInForExpression(usableProperties, this.referencedSymbol.Name, variableDependencyChain),
+                FunctionCallSyntax functionCallSyntax =>
+                    diagnosticBuilder.RuntimePropertyNotAllowedInRunTimeFunctionArguments(functionCallSyntax.Name.IdentifierName, usableProperties, this.referencedSymbol.Name, variableDependencyChain),
+                InstanceFunctionCallSyntax instanceFunctionCallSyntax =>
+                    diagnosticBuilder.RuntimePropertyNotAllowedInRunTimeFunctionArguments(instanceFunctionCallSyntax.Name.IdentifierName, usableProperties, this.referencedSymbol.Name, variableDependencyChain),
                 _ =>
                     throw new ArgumentOutOfRangeException($"Expected {nameof(this.deployTimeConstantScopeSyntax)} to be ObjectPropertySyntax with a propertyName, IfConditionSyntax, or ForSyntax."),
             });

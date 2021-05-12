@@ -5,13 +5,16 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5865072368896120516"
+      "templateHash": "13083872675549460609"
     }
   },
   "parameters": {
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]"
+    },
+    "cacheAccountName": {
+      "type": "string"
     }
   },
   "functions": [],
@@ -19,7 +22,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
-      "name": "[format('cached{0}', uniqueString(resourceGroup().id))]",
+      "name": "[parameters('cacheAccountName')]",
       "location": "[parameters('location')]",
       "tags": {
         "displayName": "Storage Account"
@@ -61,11 +64,11 @@
     },
     "cacheAccountName": {
       "type": "string",
-      "value": "[format('cached{0}', uniqueString(resourceGroup().id))]"
+      "value": "[parameters('cacheAccountName')]"
     },
     "cacheAccountId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('cached{0}', uniqueString(resourceGroup().id)))]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('cacheAccountName'))]"
     }
   }
 }
