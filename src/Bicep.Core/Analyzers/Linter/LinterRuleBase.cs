@@ -88,6 +88,7 @@ namespace Bicep.Core.Analyzers.Linter
             try
             {
                 // Expand the iteration immediately or the try/catch won't catch exceptions occuring during the rule analysis
+                // TODO: We need exception handling further up the tree in order to handle external linters.
                 return AnalyzeInternal(model).ToArray();
             }
             catch (Exception ex)
