@@ -16,11 +16,8 @@ namespace Bicep.Core.Analyzers.Linter
     public abstract class LinterRuleBase : IBicepAnalyzerRule
     {
         public LinterRuleBase(string code, string ruleName, string description, string docUri,
-                          bool enableForEdit = true,
-                          bool enableForCLI = true,
                           DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning)
         {
-
             this.ConfigHelper = new ConfigHelper();
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
@@ -28,8 +25,6 @@ namespace Bicep.Core.Analyzers.Linter
             this.Description = description;
             this.DocumentationUri = docUri;
 
-            this.EnabledForCLI = enableForCLI;
-            this.EnabledForEditing = enableForEdit;
             this.DiagnosticLevel = diagnosticLevel;
 
             LoadConfiguration();
@@ -48,17 +43,13 @@ namespace Bicep.Core.Analyzers.Linter
         //  2. set severity of diagnostic
         //  3. when fix is present what about auto application
 
-        public bool EnabledForEditing { get; private set; }
-        public bool EnabledForCLI { get; private set; }
+        public bool Enabled => this.DiagnosticLevel != DiagnosticLevel.Off;
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
         public string DocumentationUri { get; }
 
         private void LoadConfiguration()
         {
-            this.EnabledForCLI = GetConfiguration(nameof(this.EnabledForCLI), this.EnabledForCLI);
-            this.EnabledForEditing = GetConfiguration(nameof(this.EnabledForEditing), this.EnabledForEditing);
-
             var configDiagLevel = GetConfiguration(nameof(this.DiagnosticLevel), this.DiagnosticLevel.ToString());
             if(DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl)){
                 this.DiagnosticLevel = lvl;
@@ -88,10 +79,8 @@ namespace Bicep.Core.Analyzers.Linter
 
         public abstract IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model);
 
-        public void ConfigureRule(bool enabledOnChange, bool enabledForDocument, DiagnosticLevel level)
+        public void ConfigureRule(DiagnosticLevel level)
         {
-            this.EnabledForEditing = enabledOnChange;
-            this.EnabledForCLI = enabledForDocument;
             this.DiagnosticLevel = level;
         }
 

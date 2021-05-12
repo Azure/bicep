@@ -11,13 +11,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class LinterAnalyzerTests
     {
-
-        [TestMethod]
-        public void IsCLIInvoked()
-        {
-            LinterAnalyzer.IsCliInvoked.Should().BeFalse();
-        }
-
         [TestMethod]
         public void HasBuiltInRules()
         {
@@ -44,7 +37,8 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllRulesHaveUniqueDetails()
         {
-            var ruleSet = LinterAnalyzer.CreateLinterRules().ToArray();
+            var analyzer = new LinterAnalyzer();
+            var ruleSet = analyzer.GetRuleSet();
 
             var codeSet = ruleSet.Select(r => r.Code).ToHashSet();
             codeSet.Should().HaveSameCount(ruleSet);
@@ -59,15 +53,16 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllRulesEnabledByDefault()
         {
-
-            var ruleSet = LinterAnalyzer.CreateLinterRules().ToArray();
-            ruleSet.Should().OnlyContain( r => r.EnabledForCLI || r.EnabledForEditing);
+            var analyzer = new LinterAnalyzer();
+            var ruleSet = analyzer.GetRuleSet();
+            ruleSet.Should().OnlyContain( r => r.Enabled);
         }
 
         [TestMethod]
         public void AllRulesHaveDescription()
         {
-            var ruleSet = LinterAnalyzer.CreateLinterRules();
+            var analyzer = new LinterAnalyzer();
+            var ruleSet = analyzer.GetRuleSet();
             ruleSet.Should().OnlyContain(r => r.Description.Length > 0);
         }
 

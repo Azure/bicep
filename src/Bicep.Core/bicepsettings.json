@@ -2,12 +2,9 @@
   "Linter": {
     "Rules": {
       "BCPL1010": {
-        "EnabledForEditing": true,
-        "EnabledForCLI": true
+        "DiagnosticLevel":  "Warning"
       },
       "BCPL1020": {
-        "EnabledForEditing": true,
-        "EnabledForCLI": true,
         "DiagnosticLevel": "Warning",
         "DisallowedHosts": [
           "management.core.windows.net",
