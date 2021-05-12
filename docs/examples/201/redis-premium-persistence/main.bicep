@@ -21,12 +21,15 @@ module prereqs './prereqs.bicep' = {
   scope: resourceGroup(storageRgName)
   name: 'prereqs'
   params: {
+    cacheAccountName: 'cached${uniqueString(resourceGroup().id)}'
     location: location
   }
 }
 
-var cacheAccountKey = listKeys(prereqs.outputs.cacheAccountId, '2019-06-01').keys[0].value
-var cacheAccountName = prereqs.outputs.cacheAccountName
+// Due to an IL limitation, this is not allowed today:
+// var cacheAccountKey = listKeys(prereqs.outputs.cacheAccountId, '2019-06-01').keys[0].value
+var cacheAccountKey = listKeys(resourceId('Microsoft.Storage/storageAccounts', cacheAccountName), '2019-06-01').keys[0].value
+var cacheAccountName = 'cached${uniqueString(resourceGroup().id)}'
 
 resource cache 'Microsoft.Cache/redis@2019-07-01' = {
   name: redisCacheName

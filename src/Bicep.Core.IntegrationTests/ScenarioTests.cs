@@ -1922,4 +1922,74 @@ param foo string = 'peach'
                 ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
             });
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2547
+        public void Test_Issue2547()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module stgModule './stg.bicep' = {
+  name: 'stgModule'
+}
+
+resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
+  name: 'pubIP'
+  location: resourceGroup().location
+  properties: {
+    publicIPAllocationMethod: az.listSecrets(stgModule.outputs.storageAccount.id, stgModule.outputs.storageAccount.apiVersion).keys[0].value
+    dnsSettings: {
+      domainNameLabel: listKeys(stgModule.outputs.storageAccount.id, stgModule.outputs.storageAccount.apiVersion).keys[0].value
+    }
+  }
+}
+"),
+                ("stg.bicep", @"
+resource stg 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: 'mystorage1234567'
+  location: 'westus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+output storageAccount object = {
+  id: stg.id
+  apiVersion: stg.apiVersion
+}
+"));
+
+            result.Should().HaveDiagnostics(new[] {
+                // TODO: change the first diagnostic once https://github.com/Azure/bicep/issues/2624 is fixed.
+                ("BCP066", DiagnosticLevel.Error, "Function \"listSecrets\" is not valid at this location. It can only be used in resource declarations."),
+                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
+                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2494
+        public void Test_Issue2494()
+        {
+            var result = CompilationHelper.Compile(@"
+var name = nameCopy
+var nameCopy = name
+
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
+  name: name
+  location: resourceGroup().location
+  sku: {
+    name: 'F1'
+    capacity: 1
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"nameCopy\" -> \"name\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
+            });
+        }
     } }

@@ -1,8 +1,9 @@
 // Location for all resources.
 param location string = resourceGroup().location
+param cacheAccountName string
 
 resource cacheAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: 'cached${uniqueString(resourceGroup().id)}'
+  name: cacheAccountName
   location: location
   tags: {
     displayName: 'Storage Account'
