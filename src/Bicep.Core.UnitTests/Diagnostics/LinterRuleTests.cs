@@ -137,7 +137,7 @@ output sub int = sum
         [DataTestMethod]
         public void SecureParametersNoDefaults_BCPL1030(int diagnosticCount, string text)
         {
-            CompileAndTestForCode(new BCPL1020().Code, text, diagnosticCount);
+            CompileAndTestForCode(new BCPL1030().Code, text, diagnosticCount);
         }
 
 
