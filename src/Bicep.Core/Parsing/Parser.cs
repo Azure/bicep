@@ -378,9 +378,31 @@ namespace Bicep.Core.Parsing
             if (this.Check(TokenType.Question))
             {
                 var question = this.reader.Read();
-                var trueExpression = this.Expression(expressionFlags);
-                var colon = this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
-                var falseExpression = this.Expression(expressionFlags);
+                var trueExpression = this.WithRecovery(
+                    () => this.Expression(expressionFlags),
+                    RecoveryFlags.None,
+                    TokenType.Colon,
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
+                var colon = this.WithRecovery(
+                    () => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")),
+                    GetSuppressionFlag(trueExpression),
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
+                var falseExpression = this.WithRecovery(
+                    () => this.Expression(expressionFlags),
+                    GetSuppressionFlag(colon),
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
 
                 return new TernaryOperationSyntax(candidate, question, trueExpression, colon, falseExpression);
             }
@@ -407,7 +429,15 @@ namespace Bicep.Core.Parsing
 
                 this.reader.Read();
 
-                SyntaxBase rightExpression = this.BinaryExpression(expressionFlags, operatorPrecedence);
+                SyntaxBase rightExpression = this.WithRecovery(
+                    () => this.BinaryExpression(expressionFlags, operatorPrecedence),
+                    RecoveryFlags.None,
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
+
                 current = new BinaryOperationSyntax(current, candidateOperatorToken, rightExpression);
             }
 
@@ -547,8 +577,21 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ParenthesizedExpression(ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
-            var expression = this.WithRecovery(() => this.Expression(expressionFlags), RecoveryFlags.None, TokenType.RightParen, TokenType.NewLine);
-            var closeParen = this.WithRecovery(() => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")), GetSuppressionFlag(expression), TokenType.NewLine);
+            var expression = this.WithRecovery(
+                () => this.Expression(expressionFlags),
+                RecoveryFlags.None,
+                TokenType.StringRightPiece,
+                TokenType.RightBrace,
+                TokenType.RightParen,
+                TokenType.RightSquare,
+                TokenType.NewLine);
+            var closeParen = this.WithRecovery(
+                () => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")),
+                GetSuppressionFlag(expression),
+                TokenType.StringRightPiece,
+                TokenType.RightBrace,
+                TokenType.RightSquare,
+                TokenType.NewLine);
 
             return new ParenthesizedExpressionSyntax(openParen, expression, closeParen);
         }

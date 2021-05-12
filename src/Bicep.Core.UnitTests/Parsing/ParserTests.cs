@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Text;
@@ -105,7 +105,6 @@ namespace Bicep.Core.UnitTests.Parsing
 
         [DataTestMethod]
         [DataRow("'${>}def'")]
-        [DataRow("'${b+}def'")]
         [DataRow("'${concat(}def'")]
         [DataRow("'${concat)}def'")]
         [DataRow("'${'nest\\ed'}def'")]
@@ -118,7 +117,20 @@ namespace Bicep.Core.UnitTests.Parsing
         public void Interpolation_with_bad_expressions_should_parse_successfully(string text)
         {
             var expression = ParseAndVerifyType<StringSyntax>(text);
-            expression.Expressions.Should().Contain(x => x is SkippedTriviaSyntax);
+            expression.Expressions.Should().Contain(x => x is SkippedTriviaSyntax || x is BinaryOperationSyntax);
+        }
+
+        [DataTestMethod]
+        [DataRow("'${b+}def'")]
+        [DataRow("'${b + (d /}def'")]
+        [DataRow("'${true ? }def'")]
+        [DataRow("'${true ? false }def'")]
+        [DataRow("'${true ? : }def'")]
+        [DataRow("'${true ? : null}def'")]
+        public void Interpolation_with_incomplete_expressions_should_parse_successfully(string text)
+        {
+            var expression = ParseAndVerifyType<StringSyntax>(text);
+            expression.Expressions.Should().Contain(x => x is BinaryOperationSyntax || x is TernaryOperationSyntax);
         }
 
         [DataTestMethod]

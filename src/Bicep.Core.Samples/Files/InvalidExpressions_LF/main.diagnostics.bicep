@@ -5,6 +5,7 @@
 // bad expressions
 var bad = a+
 //@[4:7) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. |bad|
+//@[10:11) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 //@[12:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 var bad = *
 //@[4:7) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. |bad|
@@ -33,9 +34,11 @@ var bad = (null) ?
 var bad = (null) ? :
 //@[4:7) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. |bad|
 //@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |:|
+//@[20:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 var bad = (null) ? !
 //@[4:7) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. |bad|
 //@[20:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+//@[20:20) [BCP018 (Error)] Expected the ":" character at this location. ||
 var bad = (null)!
 //@[4:7) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. |bad|
 //@[16:17) [BCP019 (Error)] Expected a new line character at this location. |!|
