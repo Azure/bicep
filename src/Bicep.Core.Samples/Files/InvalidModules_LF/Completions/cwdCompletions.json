@@ -160,6 +160,20 @@
     }
   },
   {
+    "label": "moduleb.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_moduleb.bicep",
+    "filterText": "'moduleb.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'moduleb.bicep'"
+    }
+  },
+  {
     "label": "subscription_empty.bicep",
     "kind": "file",
     "deprecated": false,

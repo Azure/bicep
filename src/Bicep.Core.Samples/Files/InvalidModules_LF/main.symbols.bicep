@@ -676,3 +676,25 @@ module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
   scope: any(42)
 }]
 
+// Key Vault Secret Reference
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[9:11) Resource kv. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 88
+  name: 'testkeyvault'
+}
+
+module secureModule1 'moduleb.bicep' = {
+//@[7:20) Module secureModule1. Type: module. Declaration start char: 0, length: 464
+  name: 'secureModule1'
+  params: {       
+    stringParamA: kv.getSecret('mySecret')
+    stringParamB: '${kv.getSecret('mySecret')}'
+    objParam: kv.getSecret('mySecret')
+    arrayParam: kv.getSecret('mySecret')
+    secureStringParam: '${kv.getSecret('mySecret')}'
+    secureObjectParam: kv.getSecret('mySecret')
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+    secureObjectParam2: kv.getSecret('mySecret')
+  }
+}
+

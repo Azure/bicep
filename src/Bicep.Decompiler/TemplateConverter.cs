@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -383,86 +384,86 @@ namespace Bicep.Decompiler
             switch (expression.Function.ToLowerInvariant())
             {
                 case "parameters":
-                {
-                    if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
                     {
-                        throw new NotImplementedException($"Unable to process parameter with non-constant name {ExpressionsEngine.SerializeExpression(expression)}");
-                    }
-
-                    var stringVal = jTokenExpression.Value.Value<string>()!;
-                    var resolved = nameResolver.TryLookupName(NameType.Parameter, stringVal) ?? throw new ArgumentException($"Unable to find parameter {stringVal}");
-                    baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
-                    break;
-                }
-                case "variables":
-                {
-                    if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
-                    {
-                        throw new NotImplementedException($"Unable to process variable with non-constant name {ExpressionsEngine.SerializeExpression(expression)}");
-                    }
-
-                    var stringVal = jTokenExpression.Value.Value<string>()!;
-                    var resolved = nameResolver.TryLookupName(NameType.Variable, stringVal) ?? throw new ArgumentException($"Unable to find variable {stringVal}");
-                    baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
-                    break;
-                }
-                case "reference":
-                {
-                    if (expression.Parameters.Length == 1 && expression.Parameters[0] is FunctionExpression resourceIdExpression && resourceIdExpression.NameEquals("resourceid"))
-                    {
-                        // reference(resourceId(<...>))
-                        // check if it's a reference to a known resource
-                        if (TryLookupResource(expression.Parameters[0]) is {} resourceName)
+                        if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
                         {
-                            baseSyntax = new PropertyAccessSyntax(
-                                new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
-                                SyntaxFactory.DotToken,
-                                SyntaxFactory.CreateIdentifier("properties"));
+                            throw new NotImplementedException($"Unable to process parameter with non-constant name {ExpressionsEngine.SerializeExpression(expression)}");
                         }
-                    }
-                    else if (expression.Parameters.Length == 1)
-                    {
-                        // reference(<name>)
-                        // let's try looking the name up directly
-                        if (TryLookupResource(expression.Parameters[0]) is {} resourceName)
-                        {
-                            baseSyntax = new PropertyAccessSyntax(
-                                new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
-                                SyntaxFactory.DotToken,
-                                SyntaxFactory.CreateIdentifier("properties"));
-                        }
-                    }
-                    break;
-                }
-                case "resourceid":
-                {
-                    var resourceName = TryLookupResource(expression);
 
-                    if (resourceName != null)
-                    {
-                        baseSyntax = new PropertyAccessSyntax(
-                            new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
-                            SyntaxFactory.DotToken,
-                            SyntaxFactory.CreateIdentifier("id"));
-                    }
-                    break;
-                }
-                case "format":
-                {
-                    baseSyntax = TryParseStringExpression(expression);
-                    break;
-                }
-                case "concat":
-                {
-                    if (!CanInterpolate(expression))
-                    {
-                        // we might be dealing with an array
+                        var stringVal = jTokenExpression.Value.Value<string>()!;
+                        var resolved = nameResolver.TryLookupName(NameType.Parameter, stringVal) ?? throw new ArgumentException($"Unable to find parameter {stringVal}");
+                        baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
                         break;
                     }
+                case "variables":
+                    {
+                        if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
+                        {
+                            throw new NotImplementedException($"Unable to process variable with non-constant name {ExpressionsEngine.SerializeExpression(expression)}");
+                        }
 
-                    baseSyntax = TryParseStringExpression(expression);
-                    break;
-                }
+                        var stringVal = jTokenExpression.Value.Value<string>()!;
+                        var resolved = nameResolver.TryLookupName(NameType.Variable, stringVal) ?? throw new ArgumentException($"Unable to find variable {stringVal}");
+                        baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
+                        break;
+                    }
+                case "reference":
+                    {
+                        if (expression.Parameters.Length == 1 && expression.Parameters[0] is FunctionExpression resourceIdExpression && resourceIdExpression.NameEquals("resourceid"))
+                        {
+                            // reference(resourceId(<...>))
+                            // check if it's a reference to a known resource
+                            if (TryLookupResource(expression.Parameters[0]) is { } resourceName)
+                            {
+                                baseSyntax = new PropertyAccessSyntax(
+                                    new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
+                                    SyntaxFactory.DotToken,
+                                    SyntaxFactory.CreateIdentifier("properties"));
+                            }
+                        }
+                        else if (expression.Parameters.Length == 1)
+                        {
+                            // reference(<name>)
+                            // let's try looking the name up directly
+                            if (TryLookupResource(expression.Parameters[0]) is { } resourceName)
+                            {
+                                baseSyntax = new PropertyAccessSyntax(
+                                    new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
+                                    SyntaxFactory.DotToken,
+                                    SyntaxFactory.CreateIdentifier("properties"));
+                            }
+                        }
+                        break;
+                    }
+                case "resourceid":
+                    {
+                        var resourceName = TryLookupResource(expression);
+
+                        if (resourceName != null)
+                        {
+                            baseSyntax = new PropertyAccessSyntax(
+                                new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
+                                SyntaxFactory.DotToken,
+                                SyntaxFactory.CreateIdentifier("id"));
+                        }
+                        break;
+                    }
+                case "format":
+                    {
+                        baseSyntax = TryParseStringExpression(expression);
+                        break;
+                    }
+                case "concat":
+                    {
+                        if (!CanInterpolate(expression))
+                        {
+                            // we might be dealing with an array
+                            break;
+                        }
+
+                        baseSyntax = TryParseStringExpression(expression);
+                        break;
+                    }
                 default:
                     if (TryReplaceBannedFunction(expression, out var replacedBannedSyntax))
                     {
@@ -625,7 +626,7 @@ namespace Bicep.Decompiler
             {
                 if (TryParseJToken(value.Value?[parameterPropertyName]) is SyntaxBase expression)
                 {
-                    var functionName = parameterPropertyName == "allowedValues" ? "allowed" : parameterPropertyName;
+                    var functionName = parameterPropertyName == "allowedValues" ? LanguageConstants.ParameterAllowedPropertyName : parameterPropertyName;
 
                     if (parameterPropertyName == "metadata" &&
                         expression is ObjectSyntax metadataObject &&
@@ -650,12 +651,12 @@ namespace Bicep.Decompiler
             {
                 case "securestring":
                     typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string"));
-                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure"));
+                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
                 case "secureobject":
                     typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "object"));
-                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure"));
+                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
                 case "__bicep_replace":
@@ -773,14 +774,14 @@ namespace Bicep.Decompiler
                 // this avoids the scenario with a nested copy loop referring ambiguously to the outer index with copyIndex()
                 input = JTokenHelpers.RewriteExpressions(input, expression =>
                 {
-                    if (ExpressionHelpers.TryGetNamedFunction(expression, "copyIndex") is {} function)
+                    if (ExpressionHelpers.TryGetNamedFunction(expression, "copyIndex") is { } function)
                     {
                         if (function.Parameters.Length == 0)
                         {
                             // copyIndex() -> copyIndex(<name>)
                             return new FunctionExpression(
                                 "copyIndex",
-                                new [] { new JTokenExpression(name) },
+                                new[] { new JTokenExpression(name) },
                                 function.Properties);
                         }
                         else if (function.Parameters.Length == 1 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == null)
@@ -789,7 +790,7 @@ namespace Bicep.Decompiler
                             // copyIndex(<index>) -> copyIndex(<name>, <index>)
                             return new FunctionExpression(
                                 "copyIndex",
-                                new [] { new JTokenExpression(name), function.Parameters[0] },
+                                new[] { new JTokenExpression(name), function.Parameters[0] },
                                 function.Properties);
                         }
                     }
@@ -809,7 +810,7 @@ namespace Bicep.Decompiler
                         // copyIndex(<name>) - replace with '<index>'
                         return new FunctionExpression(
                             "variables",
-                            new [] { new JTokenExpression(indexIdentifier) },
+                            new[] { new JTokenExpression(indexIdentifier) },
                             function.Properties);
                     }
                     else if (function.Parameters.Length == 2 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == name)
@@ -817,12 +818,12 @@ namespace Bicep.Decompiler
                         // copyIndex(<name>, <offset>) - replace with '<index> + <offset>'
                         var varExpression = new FunctionExpression(
                             "variables",
-                            new [] { new JTokenExpression(indexIdentifier), },
+                            new[] { new JTokenExpression(indexIdentifier), },
                             Array.Empty<LanguageExpression>());
 
                         return new FunctionExpression(
                             "add",
-                            new []
+                            new[]
                             {
                                 varExpression,
                                 function.Parameters[1],
@@ -910,7 +911,7 @@ namespace Bicep.Decompiler
 
         private SyntaxBase ProcessCondition(JObject resource, SyntaxBase body)
         {
-            if(body is ForSyntax)
+            if (body is ForSyntax)
             {
                 // condition within the loop has already been processed
                 return body;
@@ -1048,7 +1049,7 @@ namespace Bicep.Decompiler
                 var expressionEvaluationScope = TemplateHelpers.GetNestedProperty(resource, "properties", "expressionEvaluationOptions", "scope")?.ToString();
                 if (!StringComparer.OrdinalIgnoreCase.Equals(expressionEvaluationScope, "inner"))
                 {
-                    if (TemplateHelpers.GetNestedProperty(nestedTemplateObject, "parameters") is {} existingParameters &&
+                    if (TemplateHelpers.GetNestedProperty(nestedTemplateObject, "parameters") is { } existingParameters &&
                         existingParameters.Children().Any())
                     {
                         throw new ConversionFailedException($"Outer-scoped nested templates cannot contain parameters", existingParameters);
@@ -1064,7 +1065,7 @@ namespace Bicep.Decompiler
 
                     foreach (var parameter in parameters.Keys)
                     {
-                        if (TemplateHelpers.GetNestedProperty(template, "parameters", parameter) is {} parentTemplateParam && 
+                        if (TemplateHelpers.GetNestedProperty(template, "parameters", parameter) is { } parentTemplateParam &&
                             parentTemplateParam.DeepClone() is JObject nestedParam)
                         {
                             rewrittenParameters[parameter] = nestedParam;
@@ -1083,8 +1084,9 @@ namespace Bicep.Decompiler
                     nestedProperties["template"] = rewrittenTemplate;
                     nestedProperties["parameters"] = new JObject(parameters.Select(x => new JProperty(
                         x.Key,
-                        new JObject{
-                            ["value"] = ExpressionsEngine.SerializeExpression(x.Value.expression), 
+                        new JObject
+                        {
+                            ["value"] = ExpressionsEngine.SerializeExpression(x.Value.expression),
                         })));
                 }
 
@@ -1181,7 +1183,7 @@ namespace Bicep.Decompiler
             }
 
             var scopeExpression = ExpressionHelpers.ParseExpression(scopeProperty.Value.ToString());
-            if(scopeExpression is JTokenExpression value && string.Equals(value.Value.ToString(), "/", StringComparison.OrdinalIgnoreCase))
+            if (scopeExpression is JTokenExpression value && string.Equals(value.Value.ToString(), "/", StringComparison.OrdinalIgnoreCase))
             {
                 // tenant scope resources can be deployed from any other scope as long as the "scope" property is set to "/"
                 // the bicep equivalent is "scope: tenant()"
@@ -1213,11 +1215,11 @@ namespace Bicep.Decompiler
                 return ParseModule(copyResourceLookup, resource, typeString, nameString);
             }
 
-            var (value, decorators) = ProcessResourceCopy(resource, resource => 
+            var (value, decorators) = ProcessResourceCopy(resource, resource =>
             {
                 var body = ProcessResourceBody(copyResourceLookup, resource);
 
-                return ProcessCondition(resource, body); 
+                return ProcessCondition(resource, body);
             });
 
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
@@ -1454,7 +1456,7 @@ namespace Bicep.Decompiler
                 }
 
                 var (typeString, nameString, _) = TemplateHelpers.ParseResource(resource);
-                if (nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) is {} resourceRef)
+                if (nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) is { } resourceRef)
                 {
                     copyResourceLookup[loopName] = resourceRef;
                 }

@@ -222,3 +222,21 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 
 @batchSize(1)
 var batchSizeMakesNoSenseHere = false
+
+
+//KeyVault Secret Reference
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+var keyVaultSecretVar = kv.getSecret('mySecret')
+var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
+var keyVaultSecretObjectVar = {
+  secret: kv.getSecret('mySecret')
+}
+var keyVaultSecretArrayVar = [
+  kv.getSecret('mySecret')
+]
+var keyVaultSecretArrayInterpolatedVar = [
+  '${kv.getSecret('mySecret')}'
+]

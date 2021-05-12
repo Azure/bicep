@@ -3794,6 +3794,220 @@ module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
 }]
 //@[0:1)    RightBrace |}|
 //@[1:2)   RightSquare |]|
-//@[2:3) NewLine |\n|
+//@[2:4) NewLine |\n\n|
+
+// Key Vault Secret Reference
+//@[29:31) NewLine |\n\n|
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[0:88) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:11)  IdentifierSyntax
+//@[9:11)   Identifier |kv|
+//@[12:50)  StringSyntax
+//@[12:50)   StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[51:59)  Identifier |existing|
+//@[60:61)  Assignment |=|
+//@[62:88)  ObjectSyntax
+//@[62:63)   LeftBrace |{|
+//@[63:64)   NewLine |\n|
+  name: 'testkeyvault'
+//@[2:22)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:22)    StringSyntax
+//@[8:22)     StringComplete |'testkeyvault'|
+//@[22:23)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module secureModule1 'moduleb.bicep' = {
+//@[0:464) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:20)  IdentifierSyntax
+//@[7:20)   Identifier |secureModule1|
+//@[21:36)  StringSyntax
+//@[21:36)   StringComplete |'moduleb.bicep'|
+//@[37:38)  Assignment |=|
+//@[39:464)  ObjectSyntax
+//@[39:40)   LeftBrace |{|
+//@[40:41)   NewLine |\n|
+  name: 'secureModule1'
+//@[2:23)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:23)    StringSyntax
+//@[8:23)     StringComplete |'secureModule1'|
+//@[23:24)   NewLine |\n|
+  params: {       
+//@[2:397)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:397)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[18:19)     NewLine |\n|
+    stringParamA: kv.getSecret('mySecret')
+//@[4:42)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |stringParamA|
+//@[16:17)      Colon |:|
+//@[18:42)      InstanceFunctionCallSyntax
+//@[18:20)       VariableAccessSyntax
+//@[18:20)        IdentifierSyntax
+//@[18:20)         Identifier |kv|
+//@[20:21)       Dot |.|
+//@[21:30)       IdentifierSyntax
+//@[21:30)        Identifier |getSecret|
+//@[30:31)       LeftParen |(|
+//@[31:41)       FunctionArgumentSyntax
+//@[31:41)        StringSyntax
+//@[31:41)         StringComplete |'mySecret'|
+//@[41:42)       RightParen |)|
+//@[42:43)     NewLine |\n|
+    stringParamB: '${kv.getSecret('mySecret')}'
+//@[4:47)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |stringParamB|
+//@[16:17)      Colon |:|
+//@[18:47)      StringSyntax
+//@[18:21)       StringLeftPiece |'${|
+//@[21:45)       InstanceFunctionCallSyntax
+//@[21:23)        VariableAccessSyntax
+//@[21:23)         IdentifierSyntax
+//@[21:23)          Identifier |kv|
+//@[23:24)        Dot |.|
+//@[24:33)        IdentifierSyntax
+//@[24:33)         Identifier |getSecret|
+//@[33:34)        LeftParen |(|
+//@[34:44)        FunctionArgumentSyntax
+//@[34:44)         StringSyntax
+//@[34:44)          StringComplete |'mySecret'|
+//@[44:45)        RightParen |)|
+//@[45:47)       StringRightPiece |}'|
+//@[47:48)     NewLine |\n|
+    objParam: kv.getSecret('mySecret')
+//@[4:38)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |objParam|
+//@[12:13)      Colon |:|
+//@[14:38)      InstanceFunctionCallSyntax
+//@[14:16)       VariableAccessSyntax
+//@[14:16)        IdentifierSyntax
+//@[14:16)         Identifier |kv|
+//@[16:17)       Dot |.|
+//@[17:26)       IdentifierSyntax
+//@[17:26)        Identifier |getSecret|
+//@[26:27)       LeftParen |(|
+//@[27:37)       FunctionArgumentSyntax
+//@[27:37)        StringSyntax
+//@[27:37)         StringComplete |'mySecret'|
+//@[37:38)       RightParen |)|
+//@[38:39)     NewLine |\n|
+    arrayParam: kv.getSecret('mySecret')
+//@[4:40)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |arrayParam|
+//@[14:15)      Colon |:|
+//@[16:40)      InstanceFunctionCallSyntax
+//@[16:18)       VariableAccessSyntax
+//@[16:18)        IdentifierSyntax
+//@[16:18)         Identifier |kv|
+//@[18:19)       Dot |.|
+//@[19:28)       IdentifierSyntax
+//@[19:28)        Identifier |getSecret|
+//@[28:29)       LeftParen |(|
+//@[29:39)       FunctionArgumentSyntax
+//@[29:39)        StringSyntax
+//@[29:39)         StringComplete |'mySecret'|
+//@[39:40)       RightParen |)|
+//@[40:41)     NewLine |\n|
+    secureStringParam: '${kv.getSecret('mySecret')}'
+//@[4:52)     ObjectPropertySyntax
+//@[4:21)      IdentifierSyntax
+//@[4:21)       Identifier |secureStringParam|
+//@[21:22)      Colon |:|
+//@[23:52)      StringSyntax
+//@[23:26)       StringLeftPiece |'${|
+//@[26:50)       InstanceFunctionCallSyntax
+//@[26:28)        VariableAccessSyntax
+//@[26:28)         IdentifierSyntax
+//@[26:28)          Identifier |kv|
+//@[28:29)        Dot |.|
+//@[29:38)        IdentifierSyntax
+//@[29:38)         Identifier |getSecret|
+//@[38:39)        LeftParen |(|
+//@[39:49)        FunctionArgumentSyntax
+//@[39:49)         StringSyntax
+//@[39:49)          StringComplete |'mySecret'|
+//@[49:50)        RightParen |)|
+//@[50:52)       StringRightPiece |}'|
+//@[52:53)     NewLine |\n|
+    secureObjectParam: kv.getSecret('mySecret')
+//@[4:47)     ObjectPropertySyntax
+//@[4:21)      IdentifierSyntax
+//@[4:21)       Identifier |secureObjectParam|
+//@[21:22)      Colon |:|
+//@[23:47)      InstanceFunctionCallSyntax
+//@[23:25)       VariableAccessSyntax
+//@[23:25)        IdentifierSyntax
+//@[23:25)         Identifier |kv|
+//@[25:26)       Dot |.|
+//@[26:35)       IdentifierSyntax
+//@[26:35)        Identifier |getSecret|
+//@[35:36)       LeftParen |(|
+//@[36:46)       FunctionArgumentSyntax
+//@[36:46)        StringSyntax
+//@[36:46)         StringComplete |'mySecret'|
+//@[46:47)       RightParen |)|
+//@[47:48)     NewLine |\n|
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+//@[4:53)     ObjectPropertySyntax
+//@[4:22)      IdentifierSyntax
+//@[4:22)       Identifier |secureStringParam2|
+//@[22:23)      Colon |:|
+//@[24:53)      StringSyntax
+//@[24:27)       StringLeftPiece |'${|
+//@[27:51)       InstanceFunctionCallSyntax
+//@[27:29)        VariableAccessSyntax
+//@[27:29)         IdentifierSyntax
+//@[27:29)          Identifier |kv|
+//@[29:30)        Dot |.|
+//@[30:39)        IdentifierSyntax
+//@[30:39)         Identifier |getSecret|
+//@[39:40)        LeftParen |(|
+//@[40:50)        FunctionArgumentSyntax
+//@[40:50)         StringSyntax
+//@[40:50)          StringComplete |'mySecret'|
+//@[50:51)        RightParen |)|
+//@[51:53)       StringRightPiece |}'|
+//@[53:54)     NewLine |\n|
+    secureObjectParam2: kv.getSecret('mySecret')
+//@[4:48)     ObjectPropertySyntax
+//@[4:22)      IdentifierSyntax
+//@[4:22)       Identifier |secureObjectParam2|
+//@[22:23)      Colon |:|
+//@[24:48)      InstanceFunctionCallSyntax
+//@[24:26)       VariableAccessSyntax
+//@[24:26)        IdentifierSyntax
+//@[24:26)         Identifier |kv|
+//@[26:27)       Dot |.|
+//@[27:36)       IdentifierSyntax
+//@[27:36)        Identifier |getSecret|
+//@[36:37)       LeftParen |(|
+//@[37:47)       FunctionArgumentSyntax
+//@[37:47)        StringSyntax
+//@[37:47)         StringComplete |'mySecret'|
+//@[47:48)       RightParen |)|
+//@[48:49)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:2) NewLine |\n|
 
 //@[0:0) EndOfFile ||

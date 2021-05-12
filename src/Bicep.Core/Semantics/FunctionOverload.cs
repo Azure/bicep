@@ -25,7 +25,7 @@ namespace Bicep.Core.Semantics
 
             this.MinimumArgumentCount = this.FixedParameters.Count(fp => fp.Required) + (this.VariableParameter?.MinimumCount ?? 0);
             this.MaximumArgumentCount = this.VariableParameter == null ? this.FixedParameters.Length : (int?)null;
-            
+
             this.TypeSignature = $"({string.Join(", ", this.ParameterTypeSignatures)}): {returnType}";
         }
 

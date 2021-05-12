@@ -21,7 +21,7 @@ namespace Bicep.Core.TypeSystem
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IDiagnosticWriter diagnosticWriter;
-        
+
         private class TypeValidatorConfig
         {
             public TypeValidatorConfig(bool skipTypeErrors, bool skipConstantCheck, bool disallowAny, SyntaxBase? originSyntax, TypeMismatchDiagnosticWriter? onTypeMismatch)
@@ -94,7 +94,7 @@ namespace Bicep.Core.TypeSystem
                     return sourceType is IScopeReference;
 
                 case UnionType union when ReferenceEquals(union, LanguageConstants.ResourceOrResourceCollectionRefItem):
-                    return sourceType is IScopeReference || sourceType is ArrayType {Item: IScopeReference};
+                    return sourceType is IScopeReference || sourceType is ArrayType { Item: IScopeReference };
 
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
                     // When assigning a resource, we're really assigning the value of the resource body.
@@ -143,14 +143,14 @@ namespace Bicep.Core.TypeSystem
 
                 case TypeSymbol _ when sourceType is UnionType sourceUnion:
                     // union types are guaranteed to be flat
-                    
+
                     // TODO: Replace with some sort of set intersection
                     // are all source type members assignable to the target type?
                     return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember.Type, targetType) == true);
 
                 case UnionType targetUnion:
                     // the source type should be a singleton type
-                    Debug.Assert(!(sourceType is UnionType),"!(sourceType is UnionType)");
+                    Debug.Assert(!(sourceType is UnionType), "!(sourceType is UnionType)");
 
                     // can source type be assigned to any union member types
                     return targetUnion.Members.Any(targetMember => AreTypesAssignable(sourceType, targetMember.Type) == true);
@@ -198,24 +198,24 @@ namespace Bicep.Core.TypeSystem
             switch (targetType)
             {
                 case ResourceType targetResourceType:
-                {
-                    var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
+                    {
+                        var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
 
-                    return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);                    
-                }
+                        return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
+                    }
                 case ModuleType targetModuleType:
-                {
-                    var narrowedBody = NarrowType(config, expression, targetModuleType.Body.Type);
+                    {
+                        var narrowedBody = NarrowType(config, expression, targetModuleType.Body.Type);
 
-                    return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
-                }
+                        return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
+                    }
                 case ArrayType loopArrayType when expression is ForSyntax @for:
-                {
-                    // for-expression assignability check
-                    var narrowedBody = NarrowType(config, @for.Body, loopArrayType.Item.Type);
+                    {
+                        // for-expression assignability check
+                        var narrowedBody = NarrowType(config, @for.Body, loopArrayType.Item.Type);
 
-                    return new TypedArrayType(narrowedBody, TypeSymbolValidationFlags.Default);
-                }
+                        return new TypedArrayType(narrowedBody, TypeSymbolValidationFlags.Default);
+                    }
             }
 
             // basic assignability check
@@ -464,7 +464,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     var newConfig = new TypeValidatorConfig(
-                        skipConstantCheck: skipConstantCheckForProperty, 
+                        skipConstantCheck: skipConstantCheckForProperty,
                         skipTypeErrors: true,
                         disallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny),
                         originSyntax: config.OriginSyntax,
@@ -538,7 +538,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     var newConfig = new TypeValidatorConfig(
-                        skipConstantCheck: skipConstantCheckForProperty, 
+                        skipConstantCheck: skipConstantCheckForProperty,
                         skipTypeErrors: true,
                         disallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny),
                         originSyntax: config.OriginSyntax,
@@ -551,13 +551,13 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags);
+            return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver);
         }
 
         private (IPositionable positionable, string blockName) GetMissingPropertyContext(SyntaxBase expression)
         {
             var parent = binder.GetParent(expression);
-            
+
             // determine where to place the missing property error
             return parent switch
             {
@@ -566,7 +566,7 @@ namespace Bicep.Core.TypeSystem
 
                 // for declaration bodies, put it on the declaration identifier
                 ITopLevelNamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),
-                
+
                 // for conditionals, put it on the parent declaration identifier
                 // (the parent of a conditional can only be a resource or module declaration)
                 IfConditionSyntax ifCondition => GetMissingPropertyContext(ifCondition),

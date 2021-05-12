@@ -142,8 +142,14 @@ namespace Bicep.Core.Semantics
             {
                 case InstanceFunctionCallSyntax ifc:
                 {
-                    var baseType = GetTypeInfo(ifc.BaseExpression);
-                    switch (baseType)
+                    var baseType = GetDeclaredType(ifc.BaseExpression);
+
+                    if (baseType is null)
+                    {
+                        return null;
+                    }
+
+                    switch (TypeAssignmentVisitor.UnwrapType(baseType))
                     {
                         case NamespaceType namespaceType when SyntaxTree.Hierarchy.GetParent(ifc) is DecoratorSyntax:
                             return namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name);

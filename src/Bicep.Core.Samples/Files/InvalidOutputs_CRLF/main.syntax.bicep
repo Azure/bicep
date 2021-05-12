@@ -886,10 +886,178 @@ output noInnerLoopsInOutputs2 object = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+//KeyVault Secret Reference
+//@[27:29) NewLine |\r\n|
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[0:90) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:11)  IdentifierSyntax
+//@[9:11)   Identifier |kv|
+//@[12:50)  StringSyntax
+//@[12:50)   StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[51:59)  Identifier |existing|
+//@[60:61)  Assignment |=|
+//@[62:90)  ObjectSyntax
+//@[62:63)   LeftBrace |{|
+//@[63:65)   NewLine |\r\n|
+  name: 'testkeyvault'
+//@[2:22)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:22)    StringSyntax
+//@[8:22)     StringComplete |'testkeyvault'|
+//@[22:24)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+output keyVaultSecretOutput string = kv.getSecret('mySecret')
+//@[0:61) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:27)  IdentifierSyntax
+//@[7:27)   Identifier |keyVaultSecretOutput|
+//@[28:34)  TypeSyntax
+//@[28:34)   Identifier |string|
+//@[35:36)  Assignment |=|
+//@[37:61)  InstanceFunctionCallSyntax
+//@[37:39)   VariableAccessSyntax
+//@[37:39)    IdentifierSyntax
+//@[37:39)     Identifier |kv|
+//@[39:40)   Dot |.|
+//@[40:49)   IdentifierSyntax
+//@[40:49)    Identifier |getSecret|
+//@[49:50)   LeftParen |(|
+//@[50:60)   FunctionArgumentSyntax
+//@[50:60)    StringSyntax
+//@[50:60)     StringComplete |'mySecret'|
+//@[60:61)   RightParen |)|
+//@[61:63) NewLine |\r\n|
+output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
+//@[0:78) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:39)  IdentifierSyntax
+//@[7:39)   Identifier |keyVaultSecretInterpolatedOutput|
+//@[40:46)  TypeSyntax
+//@[40:46)   Identifier |string|
+//@[47:48)  Assignment |=|
+//@[49:78)  StringSyntax
+//@[49:52)   StringLeftPiece |'${|
+//@[52:76)   InstanceFunctionCallSyntax
+//@[52:54)    VariableAccessSyntax
+//@[52:54)     IdentifierSyntax
+//@[52:54)      Identifier |kv|
+//@[54:55)    Dot |.|
+//@[55:64)    IdentifierSyntax
+//@[55:64)     Identifier |getSecret|
+//@[64:65)    LeftParen |(|
+//@[65:75)    FunctionArgumentSyntax
+//@[65:75)     StringSyntax
+//@[65:75)      StringComplete |'mySecret'|
+//@[75:76)    RightParen |)|
+//@[76:78)   StringRightPiece |}'|
+//@[78:80) NewLine |\r\n|
+output keyVaultSecretObjectOutput object = {
+//@[0:83) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:33)  IdentifierSyntax
+//@[7:33)   Identifier |keyVaultSecretObjectOutput|
+//@[34:40)  TypeSyntax
+//@[34:40)   Identifier |object|
+//@[41:42)  Assignment |=|
+//@[43:83)  ObjectSyntax
+//@[43:44)   LeftBrace |{|
+//@[44:46)   NewLine |\r\n|
+  secret: kv.getSecret('mySecret')
+//@[2:34)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |secret|
+//@[8:9)    Colon |:|
+//@[10:34)    InstanceFunctionCallSyntax
+//@[10:12)     VariableAccessSyntax
+//@[10:12)      IdentifierSyntax
+//@[10:12)       Identifier |kv|
+//@[12:13)     Dot |.|
+//@[13:22)     IdentifierSyntax
+//@[13:22)      Identifier |getSecret|
+//@[22:23)     LeftParen |(|
+//@[23:33)     FunctionArgumentSyntax
+//@[23:33)      StringSyntax
+//@[23:33)       StringComplete |'mySecret'|
+//@[33:34)     RightParen |)|
+//@[34:36)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+output keyVaultSecretArrayOutput array = [
+//@[0:73) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:32)  IdentifierSyntax
+//@[7:32)   Identifier |keyVaultSecretArrayOutput|
+//@[33:38)  TypeSyntax
+//@[33:38)   Identifier |array|
+//@[39:40)  Assignment |=|
+//@[41:73)  ArraySyntax
+//@[41:42)   LeftSquare |[|
+//@[42:44)   NewLine |\r\n|
+  kv.getSecret('mySecret')
+//@[2:26)   ArrayItemSyntax
+//@[2:26)    InstanceFunctionCallSyntax
+//@[2:4)     VariableAccessSyntax
+//@[2:4)      IdentifierSyntax
+//@[2:4)       Identifier |kv|
+//@[4:5)     Dot |.|
+//@[5:14)     IdentifierSyntax
+//@[5:14)      Identifier |getSecret|
+//@[14:15)     LeftParen |(|
+//@[15:25)     FunctionArgumentSyntax
+//@[15:25)      StringSyntax
+//@[15:25)       StringComplete |'mySecret'|
+//@[25:26)     RightParen |)|
+//@[26:28)   NewLine |\r\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:3) NewLine |\r\n|
+output keyVaultSecretArrayInterpolatedOutput array = [
+//@[0:90) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:44)  IdentifierSyntax
+//@[7:44)   Identifier |keyVaultSecretArrayInterpolatedOutput|
+//@[45:50)  TypeSyntax
+//@[45:50)   Identifier |array|
+//@[51:52)  Assignment |=|
+//@[53:90)  ArraySyntax
+//@[53:54)   LeftSquare |[|
+//@[54:56)   NewLine |\r\n|
+  '${kv.getSecret('mySecret')}'
+//@[2:31)   ArrayItemSyntax
+//@[2:31)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:29)     InstanceFunctionCallSyntax
+//@[5:7)      VariableAccessSyntax
+//@[5:7)       IdentifierSyntax
+//@[5:7)        Identifier |kv|
+//@[7:8)      Dot |.|
+//@[8:17)      IdentifierSyntax
+//@[8:17)       Identifier |getSecret|
+//@[17:18)      LeftParen |(|
+//@[18:28)      FunctionArgumentSyntax
+//@[18:28)       StringSyntax
+//@[18:28)        StringComplete |'mySecret'|
+//@[28:29)      RightParen |)|
+//@[29:31)     StringRightPiece |}'|
+//@[31:33)   NewLine |\r\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:5) NewLine |\r\n\r\n|
+
+// WARNING!!!!! dangling decorators
+//@[35:39) NewLine |\r\n\r\n|
+
 // #completionTest(1) -> decoratorsPlusNamespace
 //@[48:50) NewLine |\r\n|
 @
-//@[0:47) MissingDeclarationSyntax
+//@[0:49) MissingDeclarationSyntax
 //@[0:1)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:1)   SkippedTriviaSyntax
@@ -906,6 +1074,7 @@ output noInnerLoopsInOutputs2 object = {
 //@[4:5)    Dot |.|
 //@[5:5)    IdentifierSyntax
 //@[5:5)     SkippedTriviaSyntax
-//@[5:7)  NewLine |\r\n|
+//@[5:9)  NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
+//@[110:110) EndOfFile ||

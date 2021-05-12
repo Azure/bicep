@@ -207,10 +207,10 @@ namespace Bicep.LanguageServer.Snippets
                 }
             }
 
-            Snippet? snippetFromAzTypes = GetResourceBodyCompletionSnippetFromAzTypes(typeSymbol);
-            if (snippetFromAzTypes is not null)
+            IEnumerable<Snippet> snippetsFromAzTypes = GetResourceBodyCompletionSnippetFromAzTypes(typeSymbol);
+            if (snippetsFromAzTypes.Any())
             {
-                snippets.Add(snippetFromAzTypes);
+                snippets.AddRange(snippetsFromAzTypes);
             }
 
             // Add to cache
@@ -245,40 +245,69 @@ namespace Bicep.LanguageServer.Snippets
             return null;
         }
 
-        private Snippet? GetResourceBodyCompletionSnippetFromAzTypes(TypeSymbol typeSymbol)
+        private IEnumerable<Snippet> GetResourceBodyCompletionSnippetFromAzTypes(TypeSymbol typeSymbol)
         {
-            string label = "required-properties";
             string description = "Required properties";
+            List<Snippet> snippets = new List<Snippet>();
 
-            if (typeSymbol is ResourceType resourceType && resourceType.Body is ObjectType objectType)
+            if (typeSymbol is ResourceType resourceType)
             {
-                int index = 1;
-                StringBuilder sb = new StringBuilder();
-
-                IOrderedEnumerable<KeyValuePair<string, TypeProperty>> sortedProperties = objectType.Properties.OrderBy(x => propertiesSortPreferenceList.Exists(y => y == x.Key) ?
-                                                                                                  propertiesSortPreferenceList.FindIndex(y => y == x.Key) :
-                                                                                                  propertiesSortPreferenceList.Count - 1);
-
-                foreach (KeyValuePair<string, TypeProperty> kvp in sortedProperties)
+                if (resourceType.Body is ObjectType objectType)
                 {
-                    string? snippetText = GetSnippetText(kvp.Value, indentLevel: 1, ref index);
+                    string label = "required-properties";
+                    Snippet? snippet = GetResourceBodySnippet(objectType, label, description);
 
-                    if (snippetText is not null)
+                    if (snippet is not null)
                     {
-                        sb.Append(snippetText);
+                        snippets.Add(snippet);
                     }
                 }
-
-                if (sb.Length > 0)
+                else if (resourceType.Body is DiscriminatedObjectType discriminatedObjectType)
                 {
-                    // Insert open curly at the beginning
-                    sb.Insert(0, "{\n");
+                    foreach (KeyValuePair<string, ObjectType> kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
+                    {
+                        string label = "required-properties-" + kvp.Key.Trim(new char[] { '\'' });
+                        Snippet? snippet = GetResourceBodySnippet(kvp.Value, label, description);
 
-                    // Append final tab stop
-                    sb.Append("\t$0\n}");
-
-                    return new Snippet(sb.ToString(), CompletionPriority.Medium, label, description);
+                        if (snippet is not null)
+                        {
+                            snippets.Add(snippet);
+                        }
+                    }
                 }
+            }
+
+            return snippets;
+        }
+
+        private Snippet? GetResourceBodySnippet(ObjectType objectType, string label, string description)
+        {
+            int index = 1;
+            StringBuilder sb = new StringBuilder();
+
+            IOrderedEnumerable<KeyValuePair<string, TypeProperty>> sortedProperties = objectType.Properties.OrderBy(x => propertiesSortPreferenceList.Exists(y => y == x.Key) ?
+                                                                                                 propertiesSortPreferenceList.FindIndex(y => y == x.Key) :
+                                                                                                 propertiesSortPreferenceList.Count - 1);
+
+            foreach (KeyValuePair<string, TypeProperty> kvp in sortedProperties)
+            {
+                string? snippetText = GetSnippetText(kvp.Value, indentLevel: 1, ref index);
+
+                if (snippetText is not null)
+                {
+                    sb.Append(snippetText);
+                }
+            }
+
+            if (sb.Length > 0)
+            {
+                // Insert open curly at the beginning
+                sb.Insert(0, "{\n");
+
+                // Append final tab stop
+                sb.Append("\t$0\n}");
+
+                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, description);
             }
 
             return null;

@@ -1066,6 +1066,11 @@ namespace Bicep.Core.Diagnostics
             private static string BuildVariableDependencyChainClause(IEnumerable<string>? variableDependencyChain) => variableDependencyChain != null
                 ? $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). "
                 : string.Empty;
+
+            public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
+                TextSpan,
+                "BCP180",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

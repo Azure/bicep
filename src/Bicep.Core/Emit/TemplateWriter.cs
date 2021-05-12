@@ -39,14 +39,14 @@ namespace Bicep.Core.Emit
             "metadata"
         }.ToImmutableArray();
 
-        private static readonly ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
+        private static readonly ImmutableHashSet<string> ResourcePropertiesToOmit = new[] {
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
             LanguageConstants.ResourceNamePropertyName,
         }.ToImmutableHashSet();
 
-        private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new [] {
+        private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new[] {
             LanguageConstants.ModuleParamsPropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
@@ -391,7 +391,7 @@ namespace Bicep.Core.Emit
             else if (conditions.Count > 1)
             {
                 var @operator = new BinaryOperationSyntax(
-                    conditions[0], 
+                    conditions[0],
                     SyntaxFactory.CreateToken(TokenType.LogicalAnd),
                     conditions[1]);
                 for (var i = 2; i < conditions.Count; i++)
@@ -470,7 +470,7 @@ namespace Bicep.Core.Emit
                 else
                 {
                     // the value is not a for-expression - can emit normally
-                    emitter.EmitProperty("value", propertySyntax.Value);
+                    emitter.EmitModuleParameterValue(propertySyntax.Value);
                 }
 
                 jsonWriter.WriteEndObject();
@@ -619,9 +619,9 @@ namespace Bicep.Core.Emit
 
                             break;
                         }
-                        
+
                         emitter.EmitResourceIdReference(moduleDependency, dependency.IndexExpression, newContext);
-                        
+
                         break;
                     default:
                         throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");

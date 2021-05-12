@@ -51,6 +51,11 @@ namespace Bicep.Core.TypeSystem
         OutputDecorator = 1 << 6,
 
         /// <summary>
+        /// The function can be used in direct assignment to a module parameter with @secure decorator
+        /// </summary>
+        ModuleSecureParameterOnly = 1 << 7,
+
+        /// <summary>
         /// The function can be used a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,

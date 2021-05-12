@@ -19,7 +19,7 @@ namespace Bicep.Core.Syntax
             var dictionary = new Dictionary<string, ObjectPropertySyntax>(LanguageConstants.IdentifierComparer);
             foreach (var property in syntax.Properties)
             {
-                if (property.TryGetKeyText() is {} key && !dictionary.ContainsKey(key))
+                if (property.TryGetKeyText() is { } key && !dictionary.ContainsKey(key))
                 {
                     dictionary[key] = property;
                 }
@@ -120,5 +120,6 @@ namespace Bicep.Core.Syntax
                     ? mergedObject.MergeProperty(propertyName, property.Value)
                     : mergedObject);
         }
+
     }
 }
