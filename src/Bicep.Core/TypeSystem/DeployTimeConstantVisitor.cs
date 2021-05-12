@@ -226,7 +226,8 @@ namespace Bicep.Core.TypeSystem
                 return;
             }
 
-            if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol)
+            if (this.model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol &&
+                this.model.Binder.TryGetCycle(variableSymbol) is null)
             {
                 // emit any error that has already been triggered previously in the value assignment
                 if (this.errorSyntax != null)

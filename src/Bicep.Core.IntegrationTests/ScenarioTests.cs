@@ -1967,4 +1967,29 @@ output storageAccount object = {
                 ("BCP180", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
             });
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2494
+        public void Test_Issue2494()
+        {
+            var result = CompilationHelper.Compile(@"
+var name = nameCopy
+var nameCopy = name
+
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
+  name: name
+  location: resourceGroup().location
+  sku: {
+    name: 'F1'
+    capacity: 1
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"nameCopy\" -> \"name\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
+            });
+        }
     } }
