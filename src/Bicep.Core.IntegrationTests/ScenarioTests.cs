@@ -1959,8 +1959,8 @@ output storageAccount object = {
 "));
 
             result.Should().HaveDiagnostics(new[] {
-                // TODO: change the first diagnostic once https://github.com/Azure/bicep/issues/2624 is fixed.
-                ("BCP066", DiagnosticLevel.Error, "Function \"listSecrets\" is not valid at this location. It can only be used in resource declarations."),
+                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listSecrets\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
+                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listSecrets\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
                 ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
                 ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
             });

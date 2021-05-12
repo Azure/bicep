@@ -39,7 +39,7 @@ namespace Bicep.Core.Semantics
 
         public static Symbol ResolveObjectQualifiedFunctionWithoutValidatingFlags(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)
         {
-            // The method is only used in TypeAssignmentVisitor, where we should not perform validations for FunctionFlags.
+            // The method is not used during binding, so we should not perform validations for FunctionFlags.
             var allowedFlags = foundSymbol is FunctionSymbol functionSymbol ? functionSymbol.FunctionFlags : FunctionFlags.Default;
 
             if (objectType is NamespaceType namespaceType)

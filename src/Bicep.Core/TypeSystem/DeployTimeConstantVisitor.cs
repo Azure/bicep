@@ -151,10 +151,31 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
+            if (this.model.Binder.GetParent(syntax) is DecoratorSyntax)
+            {
+                return;
+            }
+
+            var baseType = this.model.TypeManager.GetTypeInfo(syntax.BaseExpression);
+
+            if (TypeAssignmentVisitor.UnwrapType(baseType) is not ObjectType objectType)
+            {
+                return;
+            }
+
+            var symbol = SymbolValidator.ResolveObjectQualifiedFunctionWithoutValidatingFlags(
+                objectType.MethodResolver.TryGetSymbol(syntax.Name),
+                syntax.Name,
+                objectType);
+
+            if (symbol is not FunctionSymbol functionSymbol)
+            {
+                return;
+            }
+
             var currentDeployTimeConstantScopeSyntax = this.deployTimeConstantScopeSyntax;
 
-            if (this.model.Binder.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
-                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 this.deployTimeConstantScopeSyntax = syntax;
             }
