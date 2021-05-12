@@ -16,7 +16,8 @@ namespace Bicep.Core.Analyzers.Linter
     public abstract class LinterRuleBase : IBicepAnalyzerRule
     {
         public LinterRuleBase(string code, string ruleName, string description, string docUri,
-                          DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning)
+                          DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
+                          DiagnosticLabel? diagnosticLabel = null)
         {
             this.ConfigHelper = new ConfigHelper();
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
@@ -26,6 +27,7 @@ namespace Bicep.Core.Analyzers.Linter
             this.DocumentationUri = docUri;
 
             this.DiagnosticLevel = diagnosticLevel;
+            this.DiagnosticLabel = diagnosticLabel;
 
             LoadConfiguration();
         }
@@ -45,13 +47,16 @@ namespace Bicep.Core.Analyzers.Linter
 
         public bool Enabled => this.DiagnosticLevel != DiagnosticLevel.Off;
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
+
         public string Description { get; }
         public string DocumentationUri { get; }
+        public Diagnostics.DiagnosticLabel? DiagnosticLabel { get; }
 
         private void LoadConfiguration()
         {
             var configDiagLevel = GetConfiguration(nameof(this.DiagnosticLevel), this.DiagnosticLevel.ToString());
-            if(DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl)){
+            if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl))
+            {
                 this.DiagnosticLevel = lvl;
             }
         }
@@ -122,7 +127,8 @@ namespace Bicep.Core.Analyzers.Linter
                 span: span,
                 level: this.DiagnosticLevel,
                 code: this.Code,
-                message: this.GetMessage());
+                message: this.GetMessage(),
+                label: this.DiagnosticLabel);
 
         /// <summary>
         /// Create a diagnostic message for a span that has a customized string
@@ -136,7 +142,8 @@ namespace Bicep.Core.Analyzers.Linter
                 span: span,
                 level: this.DiagnosticLevel,
                 code: this.Code,
-                message: this.GetFormattedMessage(values));
+                message: this.GetFormattedMessage(values),
+                label: this.DiagnosticLabel);
 
         internal virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
             new(analyzerName: this.AnalyzerName,
@@ -145,7 +152,7 @@ namespace Bicep.Core.Analyzers.Linter
                 code: this.Code,
                 message: this.GetMessage(),
                 codeFixes: new[] { fix },
-                label: null);
+                label: this.DiagnosticLabel);
 
     }
 }
