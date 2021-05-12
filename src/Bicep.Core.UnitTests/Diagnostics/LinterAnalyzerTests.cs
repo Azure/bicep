@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -60,7 +62,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             var analyzer = new LinterAnalyzer();
             var ruleSet = analyzer.GetRuleSet();
-            ruleSet.Should().OnlyContain( r => r.Enabled);
+            ruleSet.Should().OnlyContain(r => r.Enabled);
         }
 
         [TestMethod]
@@ -75,8 +77,18 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             public LinterThrowsTestRule() : base("ThrowsRule", "NotImplementedRule", "Throws an exception when used", "http:\\none", DiagnosticLevel.Warning) { }
 
-            override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model) =>
+            override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+            {
+                // Have a yield return to force this method to return an iterator like the real rules
+                yield return new AnalyzerDiagnostic(this.AnalyzerName,
+                                                    new TextSpan(0, 0),
+                                                    DiagnosticLevel.Warning,
+                                                    "fakeRule",
+                                                    "Fake Rule");
+
+                // Now throw an exception
                 throw new System.NotImplementedException();
+            }
         }
 
         [TestMethod]

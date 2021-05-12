@@ -10,6 +10,7 @@ using Bicep.Core.Semantics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -86,7 +87,8 @@ namespace Bicep.Core.Analyzers.Linter
         {
             try
             {
-                return AnalyzeInternal(model);
+                // Expand the iteration immediately or the try/catch won't catch exceptions occuring during the rule analysis
+                return AnalyzeInternal(model).ToArray();
             }
             catch (Exception ex)
             {
