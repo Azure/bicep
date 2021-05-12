@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests.Assertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using Bicep.Core.UnitTests.Utils;
-using Newtonsoft.Json.Linq;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Resources;
-using System.Text.RegularExpressions;
-using System.Collections;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -1921,5 +1919,16 @@ param foo string = 'peach'
             result.Should().HaveDiagnostics(new[] {
                 ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
             });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2624
+        public void Test_Issue2624()
+        {
+            var result = CompilationHelper.Compile(@"
+var foo = az.listKeys('foo', '2012-02-01')[0].value 
+");
+
+            result.Should().NotHaveAnyDiagnostics();
         }
     } }

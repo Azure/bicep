@@ -1033,7 +1033,7 @@ namespace Bicep.Core.TypeSystem
                 else
                 {
                     var resolvedSymbol = objectType.MethodResolver.TryGetSymbol(syntax.Name);
-                    foundSymbol = SymbolValidator.ResolveObjectQualifiedFunction(FunctionFlags.Default, resolvedSymbol, syntax.Name, objectType);
+                    foundSymbol = SymbolValidator.ResolveObjectQualifiedFunctionWithoutValidatingFlags(resolvedSymbol, syntax.Name, objectType);
                 }
 
                 switch (foundSymbol)

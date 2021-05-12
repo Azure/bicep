@@ -37,11 +37,14 @@ namespace Bicep.Core.Semantics
                     _ => builder.FunctionDoesNotExistInNamespaceWithSuggestion(namespaceType, identifierSyntax.IdentifierName, suggestedName),
                 });
 
-        public static Symbol ResolveObjectQualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)
+        public static Symbol ResolveObjectQualifiedFunctionWithoutValidatingFlags(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)
         {
+            // The method is only used in TypeAssignmentVisitor, where we should not perform validations for FunctionFlags.
+            var allowedFlags = foundSymbol is FunctionSymbol functionSymbol ? functionSymbol.FunctionFlags : FunctionFlags.Default;
+
             if (objectType is NamespaceType namespaceType)
             {
-                return ResolveNamespaceQualifiedFunction(FunctionFlags.Default, foundSymbol, identifierSyntax, namespaceType);
+                return ResolveNamespaceQualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaceType);
             }
 
             return ResolveSymbolInternal(
