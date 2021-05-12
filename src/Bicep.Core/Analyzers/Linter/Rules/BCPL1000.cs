@@ -4,6 +4,7 @@
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,13 +21,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
         }
 
-        override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             bool parametersExist = model.Root.ParameterDeclarations.Any();
 
             if (!parametersExist)
             {
-                //TODO: what span is appropriate for a document level diagnostic
+                //Document level diagnostic set to position 0 for length of 0
                 var span = new TextSpan(0, 0);
                 yield return new AnalyzerDiagnostic(
                                     this.AnalyzerName,

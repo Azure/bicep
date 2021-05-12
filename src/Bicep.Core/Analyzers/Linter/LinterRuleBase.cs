@@ -77,7 +77,25 @@ namespace Bicep.Core.Analyzers.Linter
             return this.Description;
         }
 
-        public abstract IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model);
+        public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        {
+            try
+            {
+                return AnalyzeInternal(model);
+            }
+            catch (Exception ex)
+            {
+                return new[]{ new AnalyzerDiagnostic(this.AnalyzerName,
+                                                    new TextSpan(0, 0),
+                                                    DiagnosticLevel.Warning,
+                                                    CoreResources.LinterRuleExceptionCode,
+                                                    string.Format(CoreResources.LinterRuleExceptionMessageFormat, ex.Message),
+                                                    null)
+                };
+            }
+        }
+
+        internal abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
 
         public void ConfigureRule(DiagnosticLevel level)
         {

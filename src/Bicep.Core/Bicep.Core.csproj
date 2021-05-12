@@ -27,4 +27,17 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="Bicep.Core.UnitTests" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="CoreResources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>CoreResources.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Update="CoreResources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	</ItemGroup>
 </Project>

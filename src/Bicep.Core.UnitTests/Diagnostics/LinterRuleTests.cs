@@ -1,10 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics
@@ -16,7 +22,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         private void CompileAndTestForCode(string code, string text, int diagnosticCount)
         {
             var compilationResult = CompilationHelper.Compile(text);
-            Assert.AreEqual(diagnosticCount, compilationResult.Diagnostics.Count(d => d.Code == code));
+            compilationResult.Diagnostics.Where(d => d.Code == code).Should().HaveCount(diagnosticCount);
         }
 
         [DataRow(1, @"
@@ -140,7 +146,5 @@ output sub int = sum
             CompileAndTestForCode(new BCPL1030().Code, text, diagnosticCount);
         }
 
-
     }
-
 }

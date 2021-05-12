@@ -22,7 +22,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://bicep/linter/rules/BCPL1030") // TODO: setup up doc pages
         { }
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var defaultValueSyntaxes = model.Root.ParameterDeclarations.Where(p => p.IsSecure())
                 .Select(p => p.Modifier as ParameterDefaultValueSyntax)

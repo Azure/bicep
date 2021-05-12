@@ -21,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://bicep/linter/rules/BCPL1070") // TODO: setup up doc pages
         { }
 
-        override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var spanDiagnostics = new List<TextSpan>();
             var visitor = new BCPL1070Visitor(model, spanDiagnostics);

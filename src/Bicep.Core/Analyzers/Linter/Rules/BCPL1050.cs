@@ -18,7 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://bicep/linter/rules/BCPL1050")// TODO: setup up doc pages
         { }
 
-        override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             // variables must have a reference of type VariableAccessSyntax
             var unreferencedVariables = model.Root.Declarations.OfType<VariableSymbol>()

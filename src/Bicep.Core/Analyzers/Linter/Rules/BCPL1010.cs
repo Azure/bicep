@@ -18,7 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://bicep/linter/rules/BCPL1010") // TODO: setup up doc pages
         { }
 
-        override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             // parameters must have at least two references
             //  1) One reference will be the the paramater syntax declaration

@@ -33,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         protected override string GetFormattedMessage(params object[] values)
             => string.Format("{0} -- Found: [{1}]", this.Description, values.First());
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var spansToMark = new Dictionary<TextSpan, List<string>>();
             var visitor = new BCPL1020Visitor(spansToMark, this.DisallowedHosts);

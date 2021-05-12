@@ -27,7 +27,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private CodeReplacement GetCodeReplacement(TextSpan span)
             => new CodeReplacement(span, "BCPL1060 - this is the new code");
 
-        override public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var funcSymbols = model.Root.Declarations.OfType<VariableSymbol>()
                                     .Select(sym => sym.Value)
