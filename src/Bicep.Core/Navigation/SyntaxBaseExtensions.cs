@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Text;
+using Bicep.Core.PrettyPrint;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Navigation
@@ -60,6 +62,21 @@ namespace Bicep.Core.Navigation
             private bool CheckNodeContainsOffset(SyntaxBase node) => this.inclusive
                     ? node.Span.ContainsInclusive(offset)
                     : node.Span.Contains(offset);
+        }
+
+        /// <summary>
+        /// Generate a string that represents this Syntax element
+        /// </summary>
+        /// <param name="syntax"></param>
+        /// <param name="indent"></param>
+        /// <returns></returns>
+        public static string ToText(this SyntaxBase syntax, string indent="")
+        {
+            var sb = new StringBuilder();
+            var documentBuildVisitor = new DocumentBuildVisitor();
+            var document = documentBuildVisitor.BuildDocument(syntax);
+            document.Layout(sb, indent, System.Environment.NewLine);
+            return sb.ToString();
         }
     }
 }
