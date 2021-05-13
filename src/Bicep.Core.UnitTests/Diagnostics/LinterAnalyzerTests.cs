@@ -109,7 +109,7 @@ param param1 string = 'val'";
             diag.Should().NotBeNull();
 
             diag.Code.Should().NotBeNull();
-            diag.Code.Should().Match(CoreResources.LinterRuleExceptionCode);
+            diag.Code.Should().Match(LinterRuleBase.FailedRuleCode);
 
             diag.Span.Should().NotBeNull();
             diag.Span.Position.Should().Equals(0);

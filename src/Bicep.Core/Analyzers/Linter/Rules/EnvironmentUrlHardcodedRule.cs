@@ -14,14 +14,14 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class BCPL1020 : LinterRuleBase
+    public sealed class EnvironmentUrlHardcodedRule : LinterRuleBase
     {
         private readonly ImmutableHashSet<string> DisallowedHosts;
 
-        public BCPL1020() : base(
-            code: "BCPL1020",
+        public EnvironmentUrlHardcodedRule() : base(
+            code: "Environment URL hardcoded",
             ruleName: "Environment URL hardcoded",
-            description: "Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current.",
+            description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://bicep/linter/rules/BCPL1020")// TODO: setup up doc pages
         {

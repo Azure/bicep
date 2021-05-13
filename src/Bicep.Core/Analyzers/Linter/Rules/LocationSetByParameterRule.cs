@@ -10,12 +10,12 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class BCPL1040 : LinterRuleBase
+    public sealed class LocationSetByParameterRule : LinterRuleBase
     {
-        public BCPL1040() : base(
-            code: "BCPL1040",
+        public LocationSetByParameterRule() : base(
+            code: "Location set by parameter",
             ruleName: "Location set by parameter",
-            description: "Best practice dictates that Location be set via parameter.",
+            description: CoreResources.LocationSetByParameterRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1040")// TODO: setup up doc pages
         { }
 

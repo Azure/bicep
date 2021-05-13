@@ -12,12 +12,12 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class BCPL1070 : LinterRuleBase
+    public sealed class UnnecessaryDependsOnRule : LinterRuleBase
     {
-        public BCPL1070() : base(
-            code: "BCPL1070",
-            ruleName: "Unecessary dependsOn",
-            description: "Best Practice: remove unnecessary dependsOn.",
+        public UnnecessaryDependsOnRule() : base(
+            code: "Unnecessary dependsOn",
+            ruleName: "Unnecessary dependsOn",
+            description: CoreResources.UnnecessaryDependsOnRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1070", // TODO: setup up doc pages
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }

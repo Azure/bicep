@@ -13,12 +13,12 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class BCPL1030 : LinterRuleBase
+    public sealed class SecureParameterDefaultRule : LinterRuleBase
     {
-        public BCPL1030() : base(
-            code: "BCPL1030",
+        public SecureParameterDefaultRule() : base(
+            code: "Secure paramenter default",
             ruleName: "Secure parameter default not allowed",
-            description: "Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.",
+            description: CoreResources.SecureParameterDefaultRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1030") // TODO: setup up doc pages
         { }
 

@@ -26,19 +26,20 @@ namespace Bicep.Core.Analyzers.Linter
             this.RuleName = ruleName;
             this.Description = description;
             this.DocumentationUri = docUri;
-
             this.DiagnosticLevel = diagnosticLevel;
             this.DiagnosticLabel = diagnosticLabel;
 
             LoadConfiguration();
         }
 
+        internal const string FailedRuleCode = "Linter Rule Error";
+
         private readonly ConfigHelper ConfigHelper;
         public string AnalyzerName { get; }
         public string Code { get; }
         public string RuleName { get; }
 
-        public const string RuleConfigSection = "Linter:Rules";
+        public const string RuleConfigSection = "Linter:Core:Rules";
 
         // TODO: Decide how we want to manage configuration
         // Variants:
@@ -96,7 +97,7 @@ namespace Bicep.Core.Analyzers.Linter
                 return new[]{ new AnalyzerDiagnostic(this.AnalyzerName,
                                                     new TextSpan(0, 0),
                                                     DiagnosticLevel.Warning,
-                                                    CoreResources.LinterRuleExceptionCode,
+                                                    FailedRuleCode,
                                                     string.Format(CoreResources.LinterRuleExceptionMessageFormat, ex.Message),
                                                     null)
                 };

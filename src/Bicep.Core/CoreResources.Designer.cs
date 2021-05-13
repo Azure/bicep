@@ -61,11 +61,20 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Linter Rule Error.
+        ///   Looks up a localized string similar to Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current..
         /// </summary>
-        internal static string LinterRuleExceptionCode {
+        internal static string EnvironmentUrlHardcodedRuleDescription {
             get {
-                return ResourceManager.GetString("LinterRuleExceptionCode", resourceCulture);
+                return ResourceManager.GetString("EnvironmentUrlHardcodedRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dynamic variable should not use concat - string interpolation should be used..
+        /// </summary>
+        internal static string InterpolateNotConcatRuleDescription {
+            get {
+                return ResourceManager.GetString("InterpolateNotConcatRuleDescription", resourceCulture);
             }
         }
         
@@ -75,6 +84,69 @@ namespace Bicep.Core {
         internal static string LinterRuleExceptionMessageFormat {
             get {
                 return ResourceManager.GetString("LinterRuleExceptionMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Best practice dictates that Location be set via parameter..
+        /// </summary>
+        internal static string LocationSetByParameterRuleDescription {
+            get {
+                return ResourceManager.GetString("LocationSetByParameterRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Declared parameter must be referenced within the document scope..
+        /// </summary>
+        internal static string ParameterMustBeUsedRuleDescription {
+            get {
+                return ResourceManager.GetString("ParameterMustBeUsedRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A valid template must be parameterized..
+        /// </summary>
+        internal static string ParameterRequiredRuleDescription {
+            get {
+                return ResourceManager.GetString("ParameterRequiredRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Secure parameters can&apos;t have hardcoded default. This prevents storage of sensitive data in the Bicep declaration..
+        /// </summary>
+        internal static string SecureParameterDefaultRuleDescription {
+            get {
+                return ResourceManager.GetString("SecureParameterDefaultRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to String interpolation can be simplified. String variables can be directly assigned to string properties and variables..
+        /// </summary>
+        internal static string SimplifyInterpolationRuleDescription {
+            get {
+                return ResourceManager.GetString("SimplifyInterpolationRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Best Practice: remove unnecessary dependsOn..
+        /// </summary>
+        internal static string UnnecessaryDependsOnRuleDescription {
+            get {
+                return ResourceManager.GetString("UnnecessaryDependsOnRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Declared variable encountered that is not used within scope..
+        /// </summary>
+        internal static string UnusedVariableRuleDescription {
+            get {
+                return ResourceManager.GetString("UnusedVariableRuleDescription", resourceCulture);
             }
         }
     }

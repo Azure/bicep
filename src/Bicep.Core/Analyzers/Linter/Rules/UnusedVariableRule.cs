@@ -9,12 +9,12 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class BCPL1050 : LinterRuleBase
+    public sealed class UnusedVariableRule : LinterRuleBase
     {
-        public BCPL1050() : base(
-            code: "BCPL1050",
-            ruleName: "Declared variable not used", // TODO: param not used?
-            description: "Declared variable encountered that is not used within scope.",
+        public UnusedVariableRule() : base(
+            code: "Unused variable",
+            ruleName: "Declared variable not used", 
+            description: CoreResources.UnusedVariableRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1050", // TODO: setup up doc pages
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
