@@ -38,7 +38,7 @@ jobs:
       # Transpile bicep file into ARM template
       - name: Build ARM Template from bicep file
         run: |
-          az bicep build --files ./main.bicep
+          az bicep build --file ./main.bicep
       
       # Stop here if you only want to do "CI" which just generates the 
       # build artifact (ARM Template JSON)
@@ -103,7 +103,7 @@ stages:
           scriptLocation: inlineScript
           inlineScript: |
             az --version
-            az bicep build --files ./main.bicep
+            az bicep build --file ./main.bicep
 
       - task: AzureResourceManagerTemplateDeployment@3
         displayName: 'Validate APIM Templates'
