@@ -245,6 +245,53 @@ var test2 = /|* block c|omment *|/
         }
 
         [TestMethod]
+        public async Task VerifyModuleBodyCompletionReturnsRequiredPropertiesSnippet()
+        {
+            string text = @"module m 'Completions/SnippetTemplates/res-automation-variable/main.combined.bicep' = ";
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("required-properties");
+                    c.Detail.Should().Be("Required properties");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	$0
+}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("if");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-indexed");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-filtered");
+                });
+        }
+
+        [TestMethod]
         public async Task VerifyResourceBodyCompletionWithExistingKeywordDoesNotIncludeCustomSnippet()
         {
             string text = @"resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' existing = ";

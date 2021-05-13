@@ -68,12 +68,34 @@
     }
   },
   {
-    "label": "{}",
-    "kind": "value",
-    "detail": "{}",
+    "label": "required-properties",
+    "kind": "snippet",
+    "detail": "Required properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n\tname: \n\t\n}\n```"
+    },
     "deprecated": false,
     "preselect": true,
-    "sortText": "1_{}",
+    "sortText": "2_required-properties",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "{\n\tname: $1\n\t$0\n}"
+    }
+  },
+  {
+    "label": "{}",
+    "kind": "snippet",
+    "detail": "{}",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n\t\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_{}",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
