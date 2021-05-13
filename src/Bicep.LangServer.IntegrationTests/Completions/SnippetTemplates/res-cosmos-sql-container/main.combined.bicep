@@ -1,3 +1,13 @@
+resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
+  name: 'accountName/sql/databaseName'
+  properties: {
+    resource: {
+      id: 'id'
+    }
+    options: {}
+  }
+}
+
 resource sqlContainerName 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {
   parent: databaseAccount 
   name: 'name'
@@ -30,16 +40,6 @@ resource sqlContainerName 'Microsoft.DocumentDb/databaseAccounts/apis/databases/
           }
         ]
       }
-    }
-    options: {}
-  }
-}
-
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
-  name: 'accountName/sql/databaseName'
-  properties: {
-    resource: {
-      id: 'id'
     }
     options: {}
   }
