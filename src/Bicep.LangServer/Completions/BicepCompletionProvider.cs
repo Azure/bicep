@@ -413,7 +413,6 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is ModuleDeclarationSyntax moduleDeclarationSyntax)
             {
                 TypeSymbol typeSymbol = moduleDeclarationSyntax.GetDeclaredType(model.Binder.TargetScope, model);
-
                 IEnumerable<Snippet> snippets = SnippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol);
 
                 foreach (Snippet snippet in snippets)
