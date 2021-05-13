@@ -1,5 +1,5 @@
 ﻿// Cosmos DB Cassandra Table
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {
+resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {
   name: ${1:'name'}
   properties: {
     resource: {
@@ -10,7 +10,7 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2
 }
 
 resource ${3:cassandraKeyspaceTable} 'Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables@2016-03-31' = {
-  parent: databaseAccount
+  parent: cassandraKeyspace
   name: ${4:'name'}
   properties: {
     resource: {
