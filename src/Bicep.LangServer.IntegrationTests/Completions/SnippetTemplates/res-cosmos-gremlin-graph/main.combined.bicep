@@ -10,7 +10,7 @@ resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03
   }
 }
 
-resource cosmosDbGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {
+resource cosmosDBGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {
   parent: gremlinDb
   name: 'name'
   properties: {

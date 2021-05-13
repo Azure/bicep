@@ -420,21 +420,21 @@
     }
   },
   {
-    "label": "res-cosmos-cassandra-namespace",
+    "label": "res-cosmos-cassandra-keyspace",
     "kind": "snippet",
     "detail": "Cosmos DB Cassandra Namespace",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_res-cosmos-cassandra-namespace",
+    "sortText": "2_res-cosmos-cassandra-keyspace",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource ${1:cassandraKeyspace} 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     }
   },
   {
@@ -443,7 +443,7 @@
     "detail": "Cosmos DB Cassandra Table",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource cassandraKeyspaceTable 'Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables@2016-03-31' = {\n  parent: databaseAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource cassandraKeyspaceTable 'Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables@2016-03-31' = {\n  parent: cassandraKeyspace\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -452,7 +452,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:cassandraKeyspaceTable} 'Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables@2016-03-31' = {\n  parent: databaseAccount\n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n    }\n    options: {}\n  }\n}\n"
+      "newText": "resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:cassandraKeyspaceTable} 'Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables@2016-03-31' = {\n  parent: cassandraKeyspace\n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n    }\n    options: {}\n  }\n}\n"
     }
   },
   {
@@ -461,7 +461,7 @@
     "detail": "Cosmos DB Gremlin Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -470,7 +470,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource ${1:gremlinDb} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     }
   },
   {
@@ -479,7 +479,7 @@
     "detail": "Cosmos DB Gremlin Graph",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\nresource cosmosDBGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {\n  parent: databaseAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'Consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: -1\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\nresource cosmosDbGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {\n  parent: gremlinDb\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'Consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: -1\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -488,7 +488,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {\n      throughput: ${3:'throughput'}\n    }\n  }\n}\n\nresource ${4:cosmosDBGremlinGraph} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {\n  parent: databaseAccount\n  name: ${5:'name'}\n  properties: {\n    resource: {\n      id: ${6:'id'}\n      partitionKey: {\n        paths: [\n          ${7:'paths'}\n        ]\n        kind: '${8|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${9|Consistent,Lazy,None|}'\n        includedPaths: [\n          {\n            path: ${10:'path'}\n            indexes: [\n              {\n                kind: '${11|Hash,Range,Spatial|}'\n                dataType: '${12|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${13:-1}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${14:'path'}\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: ${15:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {\n      throughput: ${3:'throughput'}\n    }\n  }\n}\n\nresource ${4:cosmosDbGremlinGraph} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {\n  parent: gremlinDb\n  name: ${5:'name'}\n  properties: {\n    resource: {\n      id: ${6:'id'}\n      partitionKey: {\n        paths: [\n          ${7:'paths'}\n        ]\n        kind: '${8|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${9|Consistent,Lazy,None|}'\n        includedPaths: [\n          {\n            path: ${10:'path'}\n            indexes: [\n              {\n                kind: '${11|Hash,Range,Spatial|}'\n                dataType: '${12|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${13:-1}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${14:'path'}\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: ${15:'throughput'}\n    }\n  }\n}\n"
     }
   },
   {
@@ -497,7 +497,7 @@
     "detail": "Cosmos DB Mongo Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource mongoDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -506,7 +506,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n"
+      "newText": "resource ${1:mongoDb} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n"
     }
   },
   {
@@ -515,7 +515,7 @@
     "detail": "Cosmos DB SQL Container",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource sqlContainerName 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {\n  parent: databaseAccount \n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'Consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: 'precision'\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource sqlContainerName 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {\n  parent: sqlDb \n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'Consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: 'precision'\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -524,7 +524,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:sqlContainerName} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {\n  parent: databaseAccount \n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n      partitionKey: {\n        paths: [\n          ${6:'paths'}\n        ]\n        kind: '${7|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${8|Consistent,Lazy,None|}'\n        includedPaths: [\n          {\n            path: ${9:'path'}\n            indexes: [\n              {\n                kind: '${10|Hash,Range,Spatial|}'\n                dataType: '${11|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${12:'precision'}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${13:'path'}\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n"
+      "newText": "resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:sqlContainerName} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {\n  parent: sqlDb \n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n      partitionKey: {\n        paths: [\n          ${6:'paths'}\n        ]\n        kind: '${7|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${8|Consistent,Lazy,None|}'\n        includedPaths: [\n          {\n            path: ${9:'path'}\n            indexes: [\n              {\n                kind: '${10|Hash,Range,Spatial|}'\n                dataType: '${11|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${12:'precision'}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${13:'path'}\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n"
     }
   },
   {
@@ -533,7 +533,7 @@
     "detail": "Cosmos DB SQL Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -542,7 +542,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource ${1:sqlDb} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     }
   },
   {
@@ -551,7 +551,7 @@
     "detail": "Cosmos Table Storage",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -560,7 +560,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource ${1:cosmosTable} 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     }
   },
   {
@@ -929,7 +929,7 @@
     "detail": "SQL Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlServer 'Microsoft.Sql/servers@2020-11-01-preview' ={\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    collation: 'collation'\n    edition: 'Basic'\n    maxSizeBytes: 'maxSizeBytes'\n    requestedServiceObjectiveName: 'Basic'\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlServer 'Microsoft.Sql/servers@2014-04-01' ={\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    collation: 'collation'\n    edition: 'Basic'\n    maxSizeBytes: 'maxSizeBytes'\n    requestedServiceObjectiveName: 'Basic'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -938,7 +938,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource sqlServer 'Microsoft.Sql/servers@2020-11-01-preview' ={\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:sqlServerDatabase} 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    collation: ${4:'collation'}\n    edition: '${5|Basic,Business,BusinessCritical,DataWarehouse,Free,GeneralPurpose,Hyperscale,Premium,PremiumRS,Standard,Stretch,System,System2,Web|}'\n    maxSizeBytes: ${6:'maxSizeBytes'}\n    requestedServiceObjectiveName: '${7|Basic,DS100,DS1000,DS1200,DS1500,DS200,DS2000,DS300,DS400,DS500,DS600,DW100,DW1000,DW10000c,DW1000c,DW1200,DW1500,DW15000c,DW1500c,DW200,DW2000,DW2000c,DW2500c,DW300,DW3000,DW30000c,DW3000c,DW400,DW500,DW5000c,DW600,DW6000,DW6000c,DW7500c,ElasticPool,Free,P1,P11,P15,P2,P3,P4,P6,PRS1,PRS2,PRS4,PRS6,S0,S1,S12,S2,S3,S4,S6,S7,S9,System,System0,System1,System2,System2L,System3,System3L,System4,System4L|}'\n  }\n}\n"
+      "newText": "resource sqlServer 'Microsoft.Sql/servers@2014-04-01' ={\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:sqlServerDatabase} 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    collation: ${4:'collation'}\n    edition: '${5|Basic,Business,BusinessCritical,DataWarehouse,Free,GeneralPurpose,Hyperscale,Premium,PremiumRS,Standard,Stretch,System,System2,Web|}'\n    maxSizeBytes: ${6:'maxSizeBytes'}\n    requestedServiceObjectiveName: '${7|Basic,DS100,DS1000,DS1200,DS1500,DS200,DS2000,DS300,DS400,DS500,DS600,DW100,DW1000,DW10000c,DW1000c,DW1200,DW1500,DW15000c,DW1500c,DW200,DW2000,DW2000c,DW2500c,DW300,DW3000,DW30000c,DW3000c,DW400,DW500,DW5000c,DW600,DW6000,DW6000c,DW7500c,ElasticPool,Free,P1,P11,P15,P2,P3,P4,P6,PRS1,PRS2,PRS4,PRS6,S0,S1,S12,S2,S3,S4,S6,S7,S9,System,System0,System1,System2,System2L,System3,System3L,System4,System4L|}'\n  }\n}\n"
     }
   },
   {
