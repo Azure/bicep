@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "maxLength:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "minLength",
@@ -36,9 +33,6 @@
     "textEdit": {
       "range": {},
       "newText": "minLength:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

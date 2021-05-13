@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "allowed:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "default",
@@ -36,10 +33,7 @@
     "textEdit": {
       "range": {},
       "newText": "default:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "maxValue",
@@ -57,10 +51,7 @@
     "textEdit": {
       "range": {},
       "newText": "maxValue:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "metadata",
@@ -78,10 +69,7 @@
     "textEdit": {
       "range": {},
       "newText": "metadata:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "minValue",
@@ -99,9 +87,6 @@
     "textEdit": {
       "range": {},
       "newText": "minValue:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

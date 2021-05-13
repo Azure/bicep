@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "arrayParam:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "objParam",
@@ -36,10 +33,7 @@
     "textEdit": {
       "range": {},
       "newText": "objParam:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "stringParamA",
@@ -57,10 +51,7 @@
     "textEdit": {
       "range": {},
       "newText": "stringParamA:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "stringParamB",
@@ -78,9 +69,6 @@
     "textEdit": {
       "range": {},
       "newText": "stringParamB:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

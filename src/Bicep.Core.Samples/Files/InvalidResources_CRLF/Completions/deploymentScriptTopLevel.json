@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "dependsOn:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "identity",
@@ -36,10 +33,7 @@
     "textEdit": {
       "range": {},
       "newText": "identity:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "location",
@@ -57,10 +51,7 @@
     "textEdit": {
       "range": {},
       "newText": "location:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "name",
@@ -78,10 +69,7 @@
     "textEdit": {
       "range": {},
       "newText": "name:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "resource",
@@ -149,9 +137,6 @@
     "textEdit": {
       "range": {},
       "newText": "tags:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

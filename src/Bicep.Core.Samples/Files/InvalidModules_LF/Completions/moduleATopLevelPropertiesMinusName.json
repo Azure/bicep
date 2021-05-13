@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "dependsOn:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "params",
@@ -36,10 +33,7 @@
     "textEdit": {
       "range": {},
       "newText": "params:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "scope",
@@ -57,9 +51,6 @@
     "textEdit": {
       "range": {},
       "newText": "scope:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

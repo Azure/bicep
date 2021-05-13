@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "id"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "properties",
@@ -36,9 +33,6 @@
     "textEdit": {
       "range": {},
       "newText": "properties"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "arguments:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "containerSettings",
@@ -36,10 +33,7 @@
     "textEdit": {
       "range": {},
       "newText": "containerSettings:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "forceUpdateTag",
@@ -57,10 +51,7 @@
     "textEdit": {
       "range": {},
       "newText": "forceUpdateTag:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "primaryScriptUri",
@@ -78,10 +69,7 @@
     "textEdit": {
       "range": {},
       "newText": "primaryScriptUri:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "scriptContent",
@@ -99,10 +87,7 @@
     "textEdit": {
       "range": {},
       "newText": "scriptContent:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "timeout",
@@ -120,9 +105,6 @@
     "textEdit": {
       "range": {},
       "newText": "timeout:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]
