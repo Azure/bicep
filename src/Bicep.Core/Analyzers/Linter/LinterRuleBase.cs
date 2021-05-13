@@ -39,7 +39,7 @@ namespace Bicep.Core.Analyzers.Linter
         public string Code { get; }
         public string RuleName { get; }
 
-        public const string RuleConfigSection = "Linter:Rules";
+        public const string RuleConfigSection = "Linter:Core:Rules";
 
         // TODO: Decide how we want to manage configuration
         // Variants:
