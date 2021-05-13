@@ -32,6 +32,9 @@ namespace Bicep.Core.Syntax
             => propertySyntax.Key is IdentifierSyntax idSyntax
                 && StringComparer.OrdinalIgnoreCase.Equals(idSyntax.IdentifierName, compareTo);
 
+        public static bool PropertyNameEquals(this PropertyAccessSyntax propAccessSyntax, string compareTo)
+                   => StringComparer.OrdinalIgnoreCase.Equals(propAccessSyntax.PropertyName.IdentifierName, compareTo);
+
         public static bool IsStringLiteral(this StringSyntax stringSyntax)
             => stringSyntax.SegmentValues.Length == 1;
     }

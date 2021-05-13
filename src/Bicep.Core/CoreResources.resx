@@ -128,7 +128,7 @@
     <comment>string format to display error exception thrown in Linter Rule</comment>
   </data>
   <data name="LocationSetByParameterRuleDescription" xml:space="preserve">
-    <value>Best practice dictates that Location be set via parameter.</value>
+    <value>Best practice dictates that location be set via parameter. That parameter may default to 'global' or resourceGroup().location.</value>
   </data>
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>Declared parameter must be referenced within the document scope.</value>
