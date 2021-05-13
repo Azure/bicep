@@ -63,10 +63,11 @@ var bad = --33
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:14)  SkippedTriviaSyntax
+//@[10:14)  UnaryOperationSyntax
 //@[10:11)   Minus |-|
-//@[11:12)   Minus |-|
-//@[12:14)   Integer |33|
+//@[11:14)   SkippedTriviaSyntax
+//@[11:12)    Minus |-|
+//@[12:14)    Integer |33|
 //@[14:15) NewLine |\n|
 var bad = 3 * 4 /
 //@[0:17) VariableDeclarationSyntax
@@ -142,8 +143,9 @@ var bad = (null) ? !
 //@[11:15)     NullKeyword |null|
 //@[15:16)    RightParen |)|
 //@[17:18)   Question |?|
-//@[19:20)   SkippedTriviaSyntax
+//@[19:20)   UnaryOperationSyntax
 //@[19:20)    Exclamation |!|
+//@[20:20)    SkippedTriviaSyntax
 //@[20:20)   SkippedTriviaSyntax
 //@[20:20)   SkippedTriviaSyntax
 //@[20:21) NewLine |\n|
@@ -287,15 +289,16 @@ var not = !!!!!!!true
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |not|
 //@[8:9)  Assignment |=|
-//@[10:21)  SkippedTriviaSyntax
+//@[10:21)  UnaryOperationSyntax
 //@[10:11)   Exclamation |!|
-//@[11:12)   Exclamation |!|
-//@[12:13)   Exclamation |!|
-//@[13:14)   Exclamation |!|
-//@[14:15)   Exclamation |!|
-//@[15:16)   Exclamation |!|
-//@[16:17)   Exclamation |!|
-//@[17:21)   TrueKeyword |true|
+//@[11:21)   SkippedTriviaSyntax
+//@[11:12)    Exclamation |!|
+//@[12:13)    Exclamation |!|
+//@[13:14)    Exclamation |!|
+//@[14:15)    Exclamation |!|
+//@[15:16)    Exclamation |!|
+//@[16:17)    Exclamation |!|
+//@[17:21)    TrueKeyword |true|
 //@[21:23) NewLine |\n\n|
 
 // unary minus chaining will not be supported (to reserve -- in case we need it)
@@ -306,14 +309,15 @@ var minus = ------12
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |minus|
 //@[10:11)  Assignment |=|
-//@[12:20)  SkippedTriviaSyntax
+//@[12:20)  UnaryOperationSyntax
 //@[12:13)   Minus |-|
-//@[13:14)   Minus |-|
-//@[14:15)   Minus |-|
-//@[15:16)   Minus |-|
-//@[16:17)   Minus |-|
-//@[17:18)   Minus |-|
-//@[18:20)   Integer |12|
+//@[13:20)   SkippedTriviaSyntax
+//@[13:14)    Minus |-|
+//@[14:15)    Minus |-|
+//@[15:16)    Minus |-|
+//@[16:17)    Minus |-|
+//@[17:18)    Minus |-|
+//@[18:20)    Integer |12|
 //@[20:22) NewLine |\n\n|
 
 // unary minus
