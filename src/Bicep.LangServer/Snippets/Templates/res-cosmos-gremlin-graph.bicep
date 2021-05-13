@@ -1,5 +1,5 @@
 ﻿// Cosmos DB Gremlin Graph
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
+resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
   name: ${1:'name'}
   properties: {
     resource: {
@@ -11,8 +11,8 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2
   }
 }
 
-resource ${4:cosmosDBGremlinGraph} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {
-  parent: databaseAccount
+resource ${4:cosmosDbGremlinGraph} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {
+  parent: gremlinDb
   name: ${5:'name'}
   properties: {
     resource: {

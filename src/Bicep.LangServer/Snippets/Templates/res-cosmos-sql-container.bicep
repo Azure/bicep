@@ -1,5 +1,5 @@
 ﻿// Cosmos DB SQL Container
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
+resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
   name: ${1:'name'}
   properties: {
     resource: {
@@ -10,7 +10,7 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2
 }
 
 resource ${3:sqlContainerName} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {
-  parent: databaseAccount 
+  parent: sqlDb 
   name: ${4:'name'}
   properties: {
     resource: {

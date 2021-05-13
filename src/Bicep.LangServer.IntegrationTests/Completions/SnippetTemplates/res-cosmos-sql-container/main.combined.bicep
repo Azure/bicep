@@ -1,4 +1,4 @@
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
+resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
   name: 'accountName/sql/databaseName'
   properties: {
     resource: {
@@ -9,7 +9,7 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2
 }
 
 resource sqlContainerName 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {
-  parent: databaseAccount 
+  parent: sqlDb 
   name: 'name'
   properties: {
     resource: {

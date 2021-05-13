@@ -1,5 +1,5 @@
 ﻿// Cosmos Table Storage
-resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {
+resource ${1:cosmosTable} 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {
   name: ${2:'name'}
   properties: {
     resource: {
