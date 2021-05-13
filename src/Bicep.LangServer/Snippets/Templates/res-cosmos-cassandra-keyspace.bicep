@@ -1,5 +1,5 @@
-﻿// Cosmos DB Gremlin Database
-resource ${1:gremlinDb} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
+﻿// Cosmos DB Cassandra Namespace
+resource ${1:cassandraKeyspace} 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {
   name: ${2:'name'}
   properties: {
     resource: {
