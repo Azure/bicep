@@ -35,7 +35,7 @@ var sum = 1 + 3
 output sub int = sum
 ")]
         [DataTestMethod]
-        public void ParametersAreRequired_BCPL1000(int diagnosticCount, string text)
+        public void ParametersRequiredRule(int diagnosticCount, string text)
         {
             CompileAndTestForCode(new ParametersRequiredRule().Code, text, diagnosticCount);
         }
@@ -69,7 +69,7 @@ var sum = 1 + 3
 output sub int = sum
 ")]
         [DataTestMethod]
-        public void ParametersAreReferenced_BCPL1010(int diagnosticCount, string text)
+        public void ParametersMustBeUsedRule(int diagnosticCount, string text)
         {
             CompileAndTestForCode(new ParametersMustBeUsedRule().Code, text, diagnosticCount);
         }
@@ -90,7 +90,7 @@ var location = 'management.core.windows.net'
 output sub int = sum
 ")]
         [DataTestMethod]
-        public void DisallowedHostsDetected_BCPL1020(int diagnosticCount, string text)
+        public void EnvironmentUrlHardcodedRule(int diagnosticCount, string text)
         {
             CompileAndTestForCode(new EnvironmentUrlHardcodedRule().Code, text, diagnosticCount);
         }
@@ -141,7 +141,7 @@ param param3 int = 5
 output sub int = sum
 ")]
         [DataTestMethod]
-        public void SecureParametersNoDefaults_BCPL1030(int diagnosticCount, string text)
+        public void SecureParameterDefaultRule(int diagnosticCount, string text)
         {
             CompileAndTestForCode(new SecureParameterDefaultRule().Code, text, diagnosticCount);
         }
