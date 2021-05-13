@@ -420,6 +420,42 @@
     }
   },
   {
+    "label": "res-cosmos-cassandra-namespace",
+    "kind": "snippet",
+    "detail": "Cosmos DB Cassandra Namespace",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-cosmos-cassandra-namespace",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-cosmos-cassandra-table",
+    "kind": "snippet",
+    "detail": "Cosmos DB Cassandra Table",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource cassandraKeyspaceTable 'Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables@2016-03-31' = {\n  parent: databaseAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-cosmos-cassandra-table",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:cassandraKeyspaceTable} 'Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables@2016-03-31' = {\n  parent: databaseAccount\n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n    }\n    options: {}\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-cosmos-gremlin-database",
     "kind": "snippet",
     "detail": "Cosmos DB Gremlin Database",
@@ -453,6 +489,78 @@
     "textEdit": {
       "range": {},
       "newText": "resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {\n      throughput: ${3:'throughput'}\n    }\n  }\n}\n\nresource ${4:cosmosDBGremlinGraph} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {\n  parent: databaseAccount\n  name: ${5:'name'}\n  properties: {\n    resource: {\n      id: ${6:'id'}\n      partitionKey: {\n        paths: [\n          ${7:'paths'}\n        ]\n        kind: '${8|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${9|Consistent,Lazy,None|}'\n        includedPaths: [\n          {\n            path: ${10:'path'}\n            indexes: [\n              {\n                kind: '${11|Hash,Range,Spatial|}'\n                dataType: '${12|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${13:-1}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${14:'path'}\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: ${15:'throughput'}\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-cosmos-mongo-database",
+    "kind": "snippet",
+    "detail": "Cosmos DB Mongo Database",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-cosmos-mongo-database",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-cosmos-sql-container",
+    "kind": "snippet",
+    "detail": "Cosmos DB SQL Container",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource sqlContainerName 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {\n  parent: databaseAccount \n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'Consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: 'precision'\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-cosmos-sql-container",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:sqlContainerName} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {\n  parent: databaseAccount \n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n      partitionKey: {\n        paths: [\n          ${6:'paths'}\n        ]\n        kind: '${7|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${8|Consistent,Lazy,None|}'\n        includedPaths: [\n          {\n            path: ${9:'path'}\n            indexes: [\n              {\n                kind: '${10|Hash,Range,Spatial|}'\n                dataType: '${11|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${12:'precision'}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${13:'path'}\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-cosmos-sql-database",
+    "kind": "snippet",
+    "detail": "Cosmos DB SQL Database",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-cosmos-sql-database",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-cosmos-tablestorage-table",
+    "kind": "snippet",
+    "detail": "Cosmos Table Storage",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource databaseAccount 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-cosmos-tablestorage-table",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:databaseAccount} 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     }
   },
   {
@@ -546,6 +654,24 @@
     }
   },
   {
+    "label": "res-log-analytics-solution",
+    "kind": "snippet",
+    "detail": "Log Analytics Solution",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    workspaceResourceId: resourceId('Microsoft.OperationalInsights/workspaces', 'logAnalyticsWorkspace')\n    containedResources: [\n      resourceId('Microsoft.OperationalInsights/workspaces/views', 'logAnalyticsWorkspace', 'logAnalyticsSolution')\n    ]\n  }\n  plan: {\n    name: 'name'\n    product: 'product'\n    publisher: 'publisher'\n    promotionCode: 'promotionCode'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-log-analytics-solution",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:logAnalyticsSolution} 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    workspaceResourceId: resourceId('Microsoft.OperationalInsights/workspaces', ${3:'logAnalyticsWorkspace'})\n    containedResources: [\n      resourceId('Microsoft.OperationalInsights/workspaces/views', ${3:'logAnalyticsWorkspace'}, ${4:'logAnalyticsSolution'})\n    ]\n  }\n  plan: {\n    name: ${5:'name'}\n    product: ${6:'product'}\n    publisher: ${7:'publisher'}\n    promotionCode: ${8:'promotionCode'}\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-log-analytics-workspace",
     "kind": "snippet",
     "detail": "Log Analytics Workspace",
@@ -618,6 +744,24 @@
     }
   },
   {
+    "label": "res-media",
+    "kind": "snippet",
+    "detail": "Media Services account",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    storageAccounts: [\n      {\n        id: resourceId('Microsoft.Storage/storageAccounts', 'mediaServiceStorageAccount')\n        type: 'Primary'\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-media",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:mediaServices} 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    storageAccounts: [\n      {\n        id: resourceId('Microsoft.Storage/storageAccounts', ${3:'mediaServiceStorageAccount'})\n        type: '${4|Primary,Secondary|}'\n      }\n    ]\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-mysql",
     "kind": "snippet",
     "detail": "MySQL Database",
@@ -633,6 +777,24 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:mySQLdb} 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: ${3:'administratorLogin'}\n    administratorLoginPassword: ${4:'administratorLoginPassword'}\n    createMode: ${5|'Default','GeoRestore','PointInTimeRestore','Replica'|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-nic",
+    "kind": "snippet",
+    "detail": "Network Interface",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork', 'subnet')\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-nic",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:networkInterface} 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          privateIPAllocationMethod: '${4|Dynamic,Static|}'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${5:'virtualNetwork'}, ${6:'subnet'})\n          }\n        }\n      }\n    ]\n  }\n}\n"
     }
   },
   {
@@ -759,6 +921,24 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:sharedImageGallery} 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    description: ${3:'description'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-sql",
+    "kind": "snippet",
+    "detail": "SQL Database",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource sqlServer 'Microsoft.Sql/servers@2020-11-01-preview' ={\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    collation: 'collation'\n    edition: 'Basic'\n    maxSizeBytes: 'maxSizeBytes'\n    requestedServiceObjectiveName: 'Basic'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-sql",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource sqlServer 'Microsoft.Sql/servers@2020-11-01-preview' ={\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:sqlServerDatabase} 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    collation: ${4:'collation'}\n    edition: '${5|Basic,Business,BusinessCritical,DataWarehouse,Free,GeneralPurpose,Hyperscale,Premium,PremiumRS,Standard,Stretch,System,System2,Web|}'\n    maxSizeBytes: ${6:'maxSizeBytes'}\n    requestedServiceObjectiveName: '${7|Basic,DS100,DS1000,DS1200,DS1500,DS200,DS2000,DS300,DS400,DS500,DS600,DW100,DW1000,DW10000c,DW1000c,DW1200,DW1500,DW15000c,DW1500c,DW200,DW2000,DW2000c,DW2500c,DW300,DW3000,DW30000c,DW3000c,DW400,DW500,DW5000c,DW600,DW6000,DW6000c,DW7500c,ElasticPool,Free,P1,P11,P15,P2,P3,P4,P6,PRS1,PRS2,PRS4,PRS6,S0,S1,S12,S2,S3,S4,S6,S7,S9,System,System0,System1,System2,System2L,System3,System3L,System4,System4L|}'\n  }\n}\n"
     }
   },
   {
