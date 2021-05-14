@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "arguments:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "azCliVersion",
@@ -36,10 +33,7 @@
     "textEdit": {
       "range": {},
       "newText": "azCliVersion:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "cleanupPreference",
@@ -57,10 +51,7 @@
     "textEdit": {
       "range": {},
       "newText": "cleanupPreference:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "containerSettings",
@@ -78,10 +69,7 @@
     "textEdit": {
       "range": {},
       "newText": "containerSettings:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "environmentVariables",
@@ -99,10 +87,7 @@
     "textEdit": {
       "range": {},
       "newText": "environmentVariables:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "forceUpdateTag",
@@ -120,10 +105,7 @@
     "textEdit": {
       "range": {},
       "newText": "forceUpdateTag:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "primaryScriptUri",
@@ -141,10 +123,7 @@
     "textEdit": {
       "range": {},
       "newText": "primaryScriptUri:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "retentionInterval",
@@ -162,10 +141,7 @@
     "textEdit": {
       "range": {},
       "newText": "retentionInterval:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "scriptContent",
@@ -183,10 +159,7 @@
     "textEdit": {
       "range": {},
       "newText": "scriptContent:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "storageAccountSettings",
@@ -204,10 +177,7 @@
     "textEdit": {
       "range": {},
       "newText": "storageAccountSettings:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "supportingScriptUris",
@@ -225,10 +195,7 @@
     "textEdit": {
       "range": {},
       "newText": "supportingScriptUris:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "timeout",
@@ -246,9 +213,6 @@
     "textEdit": {
       "range": {},
       "newText": "timeout:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

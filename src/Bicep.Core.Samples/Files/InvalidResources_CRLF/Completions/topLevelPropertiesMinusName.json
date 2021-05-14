@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "dependsOn:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "extendedLocation",
@@ -36,10 +33,7 @@
     "textEdit": {
       "range": {},
       "newText": "extendedLocation:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "identity",
@@ -57,10 +51,7 @@
     "textEdit": {
       "range": {},
       "newText": "identity:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "kind",
@@ -78,10 +69,7 @@
     "textEdit": {
       "range": {},
       "newText": "kind:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "location",
@@ -99,10 +87,7 @@
     "textEdit": {
       "range": {},
       "newText": "location:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "properties",
@@ -120,10 +105,7 @@
     "textEdit": {
       "range": {},
       "newText": "properties:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "resource",
@@ -191,10 +173,7 @@
     "textEdit": {
       "range": {},
       "newText": "sku:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "tags",
@@ -212,9 +191,6 @@
     "textEdit": {
       "range": {},
       "newText": "tags:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

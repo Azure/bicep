@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "name:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "secureValue",
@@ -36,10 +33,7 @@
     "textEdit": {
       "range": {},
       "newText": "secureValue:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "value",
@@ -57,9 +51,6 @@
     "textEdit": {
       "range": {},
       "newText": "value:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

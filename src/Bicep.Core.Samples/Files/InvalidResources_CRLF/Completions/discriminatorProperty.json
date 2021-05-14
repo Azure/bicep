@@ -15,10 +15,7 @@
     "textEdit": {
       "range": {},
       "newText": "kind:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   },
   {
     "label": "resource",

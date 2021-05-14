@@ -15,9 +15,6 @@
     "textEdit": {
       "range": {},
       "newText": "description:"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+    }
   }
 ]

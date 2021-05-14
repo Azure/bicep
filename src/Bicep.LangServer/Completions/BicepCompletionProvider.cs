@@ -28,8 +28,6 @@ namespace Bicep.LanguageServer.Completions
     {
         private const string MarkdownNewLine = "  \n";
 
-        private static readonly Container<string> PropertyCommitChars = new(":");
-
         private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
@@ -818,7 +816,6 @@ namespace Bicep.LanguageServer.Completions
                 .WithLabel(property.Name)
                 // property names that much Bicep keywords or containing non-identifier chars need to be escaped
                 .WithPlainTextEdit(replacementRange, $"{escapedPropertyName}{suffix}")
-                .WithCommitCharacters(PropertyCommitChars)
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
                 .WithSortText(GetSortText(property.Name, priority));
