@@ -41,7 +41,7 @@ resource virtualMachineName 'Microsoft.Compute/virtualMachines@2019-12-01' = {
       adminPassword: adminPassword
       windowsConfiguration: {
         provisionVMAgent: 'true'
-//@[26:32) [BCP036 (Warning)] The property "provisionVMAgent" expected a value of type "bool" but the provided value is of type "'true'". |'true'|
+//@[26:32) [BCP036 (Warning)] The property "provisionVMAgent" expected a value of type "bool | null" but the provided value is of type "'true'". |'true'|
       }
     }
     hardwareProfile: {
