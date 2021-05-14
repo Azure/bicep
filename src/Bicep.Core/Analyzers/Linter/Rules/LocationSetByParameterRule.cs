@@ -30,8 +30,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         //   A resource's location property must be a reference to a parameter (of any name)
         //   That parameter must:
         //     a) have no default value
-        //     or b) be the string literal 'global'
-        //     or c) be the expression resourceGroup().location
+        //     or b) default to the string literal 'global'
+        //     or c) default to the expression resourceGroup().location
 
         public LocationSetByParameterRule() : base(
             code: "Location set by parameter",
@@ -43,70 +43,97 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             var spanDiagnostics = new List<TextSpan>();
 
-            var visitor = new Visitor(spanDiagnostics, model);
+            var visitor = new ResourceVisitor(spanDiagnostics, model);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);
 
             return spanDiagnostics.Select(span => CreateDiagnosticForSpan(span));
         }
 
-        private sealed class Visitor : SyntaxVisitor
+        private sealed class ResourceVisitor : SyntaxVisitor
+        {
+            private readonly List<TextSpan> diagnostics;
+            private readonly SemanticModel model;
+            private readonly LocationPropertyVisitor locationPropertyVisitor;
+
+            public ResourceVisitor(List<TextSpan> diagnostics, SemanticModel semanticModel)
+            {
+                this.diagnostics = diagnostics;
+                this.model = semanticModel;
+                this.locationPropertyVisitor = new LocationPropertyVisitor(this.diagnostics, model);
+            }
+
+            public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+            {
+                var topLevelPropsNamedLocation = syntax.GetBody().Properties.Where(prop => prop.NameEquals("location"));
+                foreach (var prop in topLevelPropsNamedLocation)
+                {
+                    this.locationPropertyVisitor.Visit(prop);
+                }
+
+                base.VisitResourceDeclarationSyntax(syntax);
+            }
+        }
+
+        private sealed class LocationPropertyVisitor : SyntaxVisitor
         {
             private readonly List<TextSpan> diagnostics;
             private readonly SemanticModel model;
 
-            public Visitor(List<TextSpan> diagnostics, SemanticModel semanticModel)
+            public LocationPropertyVisitor(List<TextSpan> diagnostics, SemanticModel semanticModel)
             {
                 this.diagnostics = diagnostics;
                 this.model = semanticModel;
             }
 
-            public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+            public override void VisitObjectPropertySyntax(ObjectPropertySyntax locationPropertySyntax)
             {
-                if (syntax.NameEquals("location")) // TODO: only check resource top-level properties
-                {
-                    bool isValid = false;
-                    if (syntax.Value is VariableAccessSyntax variableAccessSyntax)
-                    {
-                        var symbolInfo = this.model.GetSymbolInfo(variableAccessSyntax);
-                        if (symbolInfo is ParameterSymbol parameter)
-                        {
-                            var defaultValue = SyntaxHelper.TryGetDefaultValue(parameter.DeclaringParameter);
+                bool isValid = false;
 
-                            // Default value can null
-                            if (defaultValue == null)
+                // Is "location" property's value must be a reference to a parameter
+                if (locationPropertySyntax.Value is VariableAccessSyntax variableAccessSyntax)
+                {
+                    var symbolInfo = this.model.GetSymbolInfo(variableAccessSyntax);
+                    if (symbolInfo is ParameterSymbol parameter)
+                    {
+                        // CONSIDER: We only need to check a particular parameter definition's default value as being
+                        // valid once, not for every reference to it like we're currently doing
+                        var defaultValue = SyntaxHelper.TryGetDefaultValue(parameter.DeclaringParameter);
+
+                        // Default value for the param can be null...
+                        if (defaultValue == null)
+                        {
+                            isValid = true;
+                        }
+                        else if (defaultValue != null)
+                        {
+                            // ... or string literal "global"
+                            if (defaultValue is StringSyntax defaultString && defaultString.IsStringLiteral())
                             {
-                                isValid = true;
-                            }
-                            else if (defaultValue != null)
-                            {
-                                // ... or string "global"
-                                if (defaultValue is StringSyntax defaultString && defaultString.IsStringLiteral())
+                                if (defaultString.TryGetLiteralValue() == "global")
                                 {
-                                    if (defaultString.TryGetLiteralValue() == "global")
-                                    {
-                                        isValid = true;
-                                    }
+                                    isValid = true;
                                 }
-                                // ... or expression resourceGroup().location
-                                else if (defaultValue is PropertyAccessSyntax propAccessSyntax && propAccessSyntax.PropertyNameEquals("location"))
+                            }
+                            // ... or expression resourceGroup().location
+                            else if (defaultValue is PropertyAccessSyntax propAccessSyntax && propAccessSyntax.PropertyNameEquals("location"))
+                            {
+                                if (propAccessSyntax.BaseExpression is FunctionCallSyntax funcCall
+                                    && funcCall.NameEquals("resourceGroup")
+                                    && funcCall.Arguments.Length == 0)
                                 {
-                                    if (propAccessSyntax.BaseExpression is FunctionCallSyntax funcCall
-                                        && funcCall.NameEquals("resourceGroup")
-                                        && funcCall.Arguments.Length == 0)
-                                    {
-                                        isValid = true;
-                                    }
+                                    isValid = true;
                                 }
                             }
                         }
                     }
-
-                    if (!isValid)
-                    {
-                        this.diagnostics.Add(syntax.Span);
-                    }
                 }
-                base.VisitObjectPropertySyntax(syntax);
+
+                if (!isValid)
+                {
+                    this.diagnostics.Add(locationPropertySyntax.Span);
+                }
+
+                // Don't call base - no need to dig deeper into the expression
             }
         }
     }
