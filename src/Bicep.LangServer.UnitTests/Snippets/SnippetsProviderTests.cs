@@ -362,7 +362,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("discKey", new StringLiteralType("keyA")),
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new TypeProperty("name", new StringLiteralType("value"), TypePropertyFlags.Required),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("id", LanguageConstants.String)
             }, null);
@@ -371,7 +371,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
             {
                 new TypeProperty("discKey", new StringLiteralType("keyB")),
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new TypeProperty("kind", new StringLiteralType("value"), TypePropertyFlags.ReadOnly),
                 new TypeProperty("hostPoolType", LanguageConstants.String)
             }, null);
 
@@ -398,8 +398,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
-	name: $1
-	location: $2
+	name: 'value'
+	location: $1
 	$0
 }");
                 },

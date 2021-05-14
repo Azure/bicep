@@ -336,8 +336,27 @@ namespace Bicep.LanguageServer.Snippets
                 }
                 else
                 {
-                    sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + ": $" + (index).ToString());
-                    index++;
+                    string value = ": $" + (index).ToString();
+                    bool incrementIndex = true;
+                    TypeSymbol typeSymbol = typeProperty.TypeReference.Type;
+
+                    if (typeSymbol.TypeKind == TypeKind.StringLiteral)
+                    {
+                        string typeSymbolName = typeSymbol.Name;
+
+                        if (!string.IsNullOrWhiteSpace(typeSymbolName))
+                        {
+                            value = ": " + typeSymbolName;
+                            incrementIndex = false;
+                        }
+                    }
+
+                    sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + value);
+
+                    if (incrementIndex)
+                    {
+                        index++;
+                    }
                 }
 
                 return sb.ToString();
