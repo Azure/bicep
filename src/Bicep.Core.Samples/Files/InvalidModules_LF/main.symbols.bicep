@@ -20,6 +20,10 @@ module moduleWithoutPath = {
 
 }
 
+// #completionTest(41) -> moduleBodyCompletions
+module moduleWithPath './moduleb.bicep' =
+//@[7:21) Module moduleWithPath. Type: module. Declaration start char: 0, length: 41
+
 // missing identifier #completionTest(7) -> empty
 module 
 //@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 7

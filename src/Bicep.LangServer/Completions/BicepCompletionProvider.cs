@@ -15,7 +15,6 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -57,7 +56,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetModulePathCompletions(model, context))
-                .Concat(GetModuleBodyCompletions(context))
+                .Concat(GetModuleBodyCompletions(model, context))
                 .Concat(GetResourceBodyCompletions(model, context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
@@ -390,8 +389,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
-                TypeSymbol typeSymbol = resourceDeclarationSyntax.GetDeclaredType(model.Binder, AzResourceTypeProvider.CreateWithAzTypes());
-
+                TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
                 IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, resourceDeclarationSyntax.IsExistingResource());
 
                 foreach (Snippet snippet in snippets)
@@ -406,11 +404,33 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> GetModuleBodyCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> CreateModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.EnclosingDeclaration is ModuleDeclarationSyntax moduleDeclarationSyntax)
+            {
+                TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
+                IEnumerable<Snippet> snippets = SnippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol);
+
+                foreach (Snippet snippet in snippets)
+                {
+                    yield return CreateContextualSnippetCompletion(snippet!.Prefix,
+                        snippet.Detail,
+                        snippet.Text,
+                        context.ReplacementRange,
+                        snippet.CompletionPriority,
+                        preselect: true);
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
             {
-                yield return CreateObjectBodyCompletion(context.ReplacementRange);
+                foreach (CompletionItem completionItem in CreateModuleBodyCompletions(model, context))
+                {
+                    yield return completionItem;
+                }
 
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
