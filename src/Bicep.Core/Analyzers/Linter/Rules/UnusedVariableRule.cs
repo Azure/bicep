@@ -13,7 +13,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public UnusedVariableRule() : base(
             code: "Unused variable",
-            ruleName: "Declared variable not used", 
+            ruleName: "Declared variable not used",
             description: CoreResources.UnusedVariableRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1050", // TODO: setup up doc pages
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
