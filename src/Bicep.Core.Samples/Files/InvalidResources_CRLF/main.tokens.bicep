@@ -1862,8 +1862,9 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 //@[92:93) LeftBrace |{|
 //@[93:95) NewLine |\r\n|
   // #completionTest(0, 1, 2) -> topLevelProperties
-//@[51:55) NewLine |\r\n\r\n|
-
+//@[51:53) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1875,8 +1876,8 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[100:101) Assignment |=|
 //@[102:103) LeftBrace |{|
 //@[103:105) NewLine |\r\n|
-  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
-//@[114:116) NewLine |\r\n|
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+//@[61:63) NewLine |\r\n|
   name: 'me'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -1926,6 +1927,10 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[7:9) NewLine |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
 //@[78:80) NewLine |\r\n|
+       
+//@[7:9) NewLine |\r\n|
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
+//@[52:54) NewLine |\r\n|
         properties: {
 //@[8:18) Identifier |properties|
 //@[18:19) Colon |:|
@@ -2352,8 +2357,9 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[8:18) StringComplete |'AzureCLI'|
 //@[18:20) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2429,8 +2435,9 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[8:18) StringComplete |'AzureCLI'|
 //@[18:20) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2507,8 +2514,9 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[8:18) StringComplete |'AzureCLI'|
 //@[18:20) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2602,8 +2610,9 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[8:18) StringComplete |'AzureCLI'|
 //@[18:20) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2687,8 +2696,9 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[8:25) StringComplete |'AzurePowerShell'|
 //@[25:27) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2771,8 +2781,9 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[8:25) StringComplete |'AzurePowerShell'|
 //@[25:27) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2863,8 +2874,9 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[8:25) StringComplete |'AzurePowerShell'|
 //@[25:27) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2972,8 +2984,9 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[8:25) StringComplete |'AzurePowerShell'|
 //@[25:27) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -5523,11 +5536,11 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[15:17) NewLine |\r\n|
     // #completionTest(17) -> symbolsPlusAccount
 //@[48:50) NewLine |\r\n|
-    networkAcls: {
+    networkAcls:  {
 //@[4:15) Identifier |networkAcls|
 //@[15:16) Colon |:|
-//@[17:18) LeftBrace |{|
-//@[18:20) NewLine |\r\n|
+//@[18:19) LeftBrace |{|
+//@[19:21) NewLine |\r\n|
       virtualNetworkRules: [for rule in []: {
 //@[6:25) Identifier |virtualNetworkRules|
 //@[25:26) Colon |:|
@@ -5567,8 +5580,8 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[31:32) Colon |:|
 //@[33:34) LeftBrace |{|
 //@[34:36) NewLine |\r\n|
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
-//@[126:128) NewLine |\r\n|
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
+//@[92:94) NewLine |\r\n|
           fake: [for something in []: true]
 //@[10:14) Identifier |fake|
 //@[14:15) Colon |:|

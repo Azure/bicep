@@ -1465,8 +1465,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[34:35) Colon |:|
 //@[36:37) LeftBrace |{|
 //@[37:39) NewLine |\r\n|
-      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties #completionTest(6) -> subnetIdAndPropertiesNoColon
-//@[113:115) NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
+//@[62:64) NewLine |\r\n|
+     
+//@[5:7) NewLine |\r\n|
+      // #completionTest(6) -> subnetIdAndPropertiesNoColon
+//@[59:61) NewLine |\r\n|
       name: 'subnet-${i}-${j}'
 //@[6:10) Identifier |name|
 //@[10:11) Colon |:|

@@ -217,8 +217,8 @@ param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
-//@[6:26) Parameter expressionInModifier. Type: string. Declaration start char: 0, length: 179
-  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
+//@[6:26) Parameter expressionInModifier. Type: string. Declaration start char: 0, length: 176
+  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
   maxLength: a + 2
   minLength: foo()

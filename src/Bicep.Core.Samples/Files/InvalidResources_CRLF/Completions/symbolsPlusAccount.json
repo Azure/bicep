@@ -5395,5 +5395,19 @@
     "commitCharacters": [
       ":"
     ]
+  },
+  {
+    "label": "{}",
+    "kind": "value",
+    "detail": "{}",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_{}",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "{\n\t$0\n}"
+    }
   }
 ]

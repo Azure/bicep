@@ -452,7 +452,15 @@ namespace Bicep.Core.Parsing
             {
                 this.reader.Read();
 
-                var expression = this.MemberExpression(expressionFlags);
+                var expression = this.WithRecovery(
+                    () => this.MemberExpression(expressionFlags),
+                    RecoveryFlags.None,
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
+
                 return new UnaryOperationSyntax(operatorToken, expression);
             }
 

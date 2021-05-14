@@ -2912,36 +2912,37 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 //@[2:6) NewLine |\r\n\r\n|
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:151) ResourceDeclarationSyntax
+//@[0:153) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:34)  IdentifierSyntax
 //@[9:34)   Identifier |missingTopLevelProperties|
 //@[35:89)  StringSyntax
 //@[35:89)   StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
 //@[90:91)  Assignment |=|
-//@[92:151)  ObjectSyntax
+//@[92:153)  ObjectSyntax
 //@[92:93)   LeftBrace |{|
 //@[93:95)   NewLine |\r\n|
   // #completionTest(0, 1, 2) -> topLevelProperties
-//@[51:55)   NewLine |\r\n\r\n|
-
+//@[51:53)   NewLine |\r\n|
+  
+//@[2:4)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:358) ResourceDeclarationSyntax
+//@[0:305) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:44)  IdentifierSyntax
 //@[9:44)   Identifier |missingTopLevelPropertiesExceptName|
 //@[45:99)  StringSyntax
 //@[45:99)   StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
 //@[100:101)  Assignment |=|
-//@[102:358)  ObjectSyntax
+//@[102:305)  ObjectSyntax
 //@[102:103)   LeftBrace |{|
 //@[103:105)   NewLine |\r\n|
-  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
-//@[114:116)   NewLine |\r\n|
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+//@[61:63)   NewLine |\r\n|
   name: 'me'
 //@[2:12)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
@@ -2963,14 +2964,14 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 // #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
 //@[72:74) NewLine |\r\n|
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[0:468) ResourceDeclarationSyntax
+//@[0:531) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:23)  IdentifierSyntax
 //@[9:23)   Identifier |unfinishedVnet|
 //@[24:70)  StringSyntax
 //@[24:70)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
 //@[71:72)  Assignment |=|
-//@[73:468)  ObjectSyntax
+//@[73:531)  ObjectSyntax
 //@[73:74)   LeftBrace |{|
 //@[74:76)   NewLine |\r\n|
   name: 'v'
@@ -2990,28 +2991,32 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[12:20)     StringComplete |'eastus'|
 //@[20:22)   NewLine |\r\n|
   properties: {
-//@[2:354)   ObjectPropertySyntax
+//@[2:417)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
-//@[14:354)    ObjectSyntax
+//@[14:417)    ObjectSyntax
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     subnets: [
-//@[4:332)     ObjectPropertySyntax
+//@[4:395)     ObjectPropertySyntax
 //@[4:11)      IdentifierSyntax
 //@[4:11)       Identifier |subnets|
 //@[11:12)      Colon |:|
-//@[13:332)      ArraySyntax
+//@[13:395)      ArraySyntax
 //@[13:14)       LeftSquare |[|
 //@[14:16)       NewLine |\r\n|
       {
-//@[6:309)       ArrayItemSyntax
-//@[6:309)        ObjectSyntax
+//@[6:372)       ArrayItemSyntax
+//@[6:372)        ObjectSyntax
 //@[6:7)         LeftBrace |{|
 //@[7:9)         NewLine |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
 //@[78:80)         NewLine |\r\n|
+       
+//@[7:9)         NewLine |\r\n|
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
+//@[52:54)         NewLine |\r\n|
         properties: {
 //@[8:211)         ObjectPropertySyntax
 //@[8:18)          IdentifierSyntax
@@ -3606,14 +3611,14 @@ Discriminator value set 1
 */
 //@[2:4) NewLine |\r\n|
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:264) ResourceDeclarationSyntax
+//@[0:266) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:31)  IdentifierSyntax
 //@[9:31)   Identifier |discriminatorKeySetOne|
 //@[32:82)  StringSyntax
 //@[32:82)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[83:84)  Assignment |=|
-//@[85:264)  ObjectSyntax
+//@[85:266)  ObjectSyntax
 //@[85:86)   LeftBrace |{|
 //@[86:88)   NewLine |\r\n|
   kind: 'AzureCLI'
@@ -3625,8 +3630,9 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[8:18)     StringComplete |'AzureCLI'|
 //@[18:20)   NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59)   NewLine |\r\n\r\n|
-
+//@[55:57)   NewLine |\r\n|
+  
+//@[2:4)   NewLine |\r\n|
   properties: {
 //@[2:94)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
@@ -3712,14 +3718,14 @@ Discriminator value set 1 (conditional)
 */
 //@[2:4) NewLine |\r\n|
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(2==3) {
-//@[0:276) ResourceDeclarationSyntax
+//@[0:278) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:34)  IdentifierSyntax
 //@[9:34)   Identifier |discriminatorKeySetOne_if|
 //@[35:85)  StringSyntax
 //@[35:85)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[86:87)  Assignment |=|
-//@[88:276)  IfConditionSyntax
+//@[88:278)  IfConditionSyntax
 //@[88:90)   Identifier |if|
 //@[90:96)   ParenthesizedExpressionSyntax
 //@[90:91)    LeftParen |(|
@@ -3730,7 +3736,7 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[94:95)     IntegerLiteralSyntax
 //@[94:95)      Integer |3|
 //@[95:96)    RightParen |)|
-//@[97:276)   ObjectSyntax
+//@[97:278)   ObjectSyntax
 //@[97:98)    LeftBrace |{|
 //@[98:100)    NewLine |\r\n|
   kind: 'AzureCLI'
@@ -3742,8 +3748,9 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[8:18)      StringComplete |'AzureCLI'|
 //@[18:20)    NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59)    NewLine |\r\n\r\n|
-
+//@[55:57)    NewLine |\r\n|
+  
+//@[2:4)    NewLine |\r\n|
   properties: {
 //@[2:94)    ObjectPropertySyntax
 //@[2:12)     IdentifierSyntax
@@ -3829,14 +3836,14 @@ Discriminator value set 1 (loop)
 */
 //@[2:4) NewLine |\r\n|
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
-//@[0:288) ResourceDeclarationSyntax
+//@[0:290) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:35)  IdentifierSyntax
 //@[9:35)   Identifier |discriminatorKeySetOne_for|
 //@[36:86)  StringSyntax
 //@[36:86)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[87:88)  Assignment |=|
-//@[89:288)  ForSyntax
+//@[89:290)  ForSyntax
 //@[89:90)   LeftSquare |[|
 //@[91:94)   Identifier |for|
 //@[95:100)   LocalVariableSyntax
@@ -3847,7 +3854,7 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[104:105)    LeftSquare |[|
 //@[105:106)    RightSquare |]|
 //@[106:107)   Colon |:|
-//@[108:287)   ObjectSyntax
+//@[108:289)   ObjectSyntax
 //@[108:109)    LeftBrace |{|
 //@[109:111)    NewLine |\r\n|
   kind: 'AzureCLI'
@@ -3859,8 +3866,9 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[8:18)      StringComplete |'AzureCLI'|
 //@[18:20)    NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59)    NewLine |\r\n\r\n|
-
+//@[55:57)    NewLine |\r\n|
+  
+//@[2:4)    NewLine |\r\n|
   properties: {
 //@[2:94)    ObjectPropertySyntax
 //@[2:12)     IdentifierSyntax
@@ -3968,14 +3976,14 @@ Discriminator value set 1 (filtered loop)
 */
 //@[2:4) NewLine |\r\n|
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
-//@[0:300) ResourceDeclarationSyntax
+//@[0:302) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:38)  IdentifierSyntax
 //@[9:38)   Identifier |discriminatorKeySetOne_for_if|
 //@[39:89)  StringSyntax
 //@[39:89)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[90:91)  Assignment |=|
-//@[92:300)  ForSyntax
+//@[92:302)  ForSyntax
 //@[92:93)   LeftSquare |[|
 //@[94:97)   Identifier |for|
 //@[98:103)   LocalVariableSyntax
@@ -3986,14 +3994,14 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[107:108)    LeftSquare |[|
 //@[108:109)    RightSquare |]|
 //@[109:110)   Colon |:|
-//@[111:299)   IfConditionSyntax
+//@[111:301)   IfConditionSyntax
 //@[111:113)    Identifier |if|
 //@[113:119)    ParenthesizedExpressionSyntax
 //@[113:114)     LeftParen |(|
 //@[114:118)     BooleanLiteralSyntax
 //@[114:118)      TrueKeyword |true|
 //@[118:119)     RightParen |)|
-//@[120:299)    ObjectSyntax
+//@[120:301)    ObjectSyntax
 //@[120:121)     LeftBrace |{|
 //@[121:123)     NewLine |\r\n|
   kind: 'AzureCLI'
@@ -4005,8 +4013,9 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[8:18)       StringComplete |'AzureCLI'|
 //@[18:20)     NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59)     NewLine |\r\n\r\n|
-
+//@[55:57)     NewLine |\r\n|
+  
+//@[2:4)     NewLine |\r\n|
   properties: {
 //@[2:94)     ObjectPropertySyntax
 //@[2:12)      IdentifierSyntax
@@ -4115,14 +4124,14 @@ Discriminator value set 2
 */
 //@[2:4) NewLine |\r\n|
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:270) ResourceDeclarationSyntax
+//@[0:272) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:31)  IdentifierSyntax
 //@[9:31)   Identifier |discriminatorKeySetTwo|
 //@[32:82)  StringSyntax
 //@[32:82)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[83:84)  Assignment |=|
-//@[85:270)  ObjectSyntax
+//@[85:272)  ObjectSyntax
 //@[85:86)   LeftBrace |{|
 //@[86:88)   NewLine |\r\n|
   kind: 'AzurePowerShell'
@@ -4134,8 +4143,9 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[8:25)     StringComplete |'AzurePowerShell'|
 //@[25:27)   NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59)   NewLine |\r\n\r\n|
-
+//@[55:57)   NewLine |\r\n|
+  
+//@[2:4)   NewLine |\r\n|
   properties: {
 //@[2:93)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
@@ -4243,14 +4253,14 @@ Discriminator value set 2 (conditional)
 */
 //@[2:4) NewLine |\r\n|
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:273) ResourceDeclarationSyntax
+//@[0:275) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:34)  IdentifierSyntax
 //@[9:34)   Identifier |discriminatorKeySetTwo_if|
 //@[35:85)  StringSyntax
 //@[35:85)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[86:87)  Assignment |=|
-//@[88:273)  ObjectSyntax
+//@[88:275)  ObjectSyntax
 //@[88:89)   LeftBrace |{|
 //@[89:91)   NewLine |\r\n|
   kind: 'AzurePowerShell'
@@ -4262,8 +4272,9 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[8:25)     StringComplete |'AzurePowerShell'|
 //@[25:27)   NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59)   NewLine |\r\n\r\n|
-
+//@[55:57)   NewLine |\r\n|
+  
+//@[2:4)   NewLine |\r\n|
   properties: {
 //@[2:93)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
@@ -4372,14 +4383,14 @@ Discriminator value set 2 (loops)
 */
 //@[2:4) NewLine |\r\n|
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[0:293) ResourceDeclarationSyntax
+//@[0:295) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:35)  IdentifierSyntax
 //@[9:35)   Identifier |discriminatorKeySetTwo_for|
 //@[36:86)  StringSyntax
 //@[36:86)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[87:88)  Assignment |=|
-//@[89:293)  ForSyntax
+//@[89:295)  ForSyntax
 //@[89:90)   LeftSquare |[|
 //@[90:93)   Identifier |for|
 //@[94:99)   LocalVariableSyntax
@@ -4390,7 +4401,7 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[103:104)    LeftSquare |[|
 //@[104:105)    RightSquare |]|
 //@[105:106)   Colon |:|
-//@[107:292)   ObjectSyntax
+//@[107:294)   ObjectSyntax
 //@[107:108)    LeftBrace |{|
 //@[108:110)    NewLine |\r\n|
   kind: 'AzurePowerShell'
@@ -4402,8 +4413,9 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[8:25)      StringComplete |'AzurePowerShell'|
 //@[25:27)    NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59)    NewLine |\r\n\r\n|
-
+//@[55:57)    NewLine |\r\n|
+  
+//@[2:4)    NewLine |\r\n|
   properties: {
 //@[2:93)    ObjectPropertySyntax
 //@[2:12)     IdentifierSyntax
@@ -4533,14 +4545,14 @@ Discriminator value set 2 (filtered loops)
 */
 //@[2:4) NewLine |\r\n|
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[0:305) ResourceDeclarationSyntax
+//@[0:307) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:38)  IdentifierSyntax
 //@[9:38)   Identifier |discriminatorKeySetTwo_for_if|
 //@[39:89)  StringSyntax
 //@[39:89)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[90:91)  Assignment |=|
-//@[92:305)  ForSyntax
+//@[92:307)  ForSyntax
 //@[92:93)   LeftSquare |[|
 //@[93:96)   Identifier |for|
 //@[97:102)   LocalVariableSyntax
@@ -4551,14 +4563,14 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[106:107)    LeftSquare |[|
 //@[107:108)    RightSquare |]|
 //@[108:109)   Colon |:|
-//@[110:304)   IfConditionSyntax
+//@[110:306)   IfConditionSyntax
 //@[110:112)    Identifier |if|
 //@[112:118)    ParenthesizedExpressionSyntax
 //@[112:113)     LeftParen |(|
 //@[113:117)     BooleanLiteralSyntax
 //@[113:117)      TrueKeyword |true|
 //@[117:118)     RightParen |)|
-//@[119:304)    ObjectSyntax
+//@[119:306)    ObjectSyntax
 //@[119:120)     LeftBrace |{|
 //@[120:122)     NewLine |\r\n|
   kind: 'AzurePowerShell'
@@ -4570,8 +4582,9 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[8:25)       StringComplete |'AzurePowerShell'|
 //@[25:27)     NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59)     NewLine |\r\n\r\n|
-
+//@[55:57)     NewLine |\r\n|
+  
+//@[2:4)     NewLine |\r\n|
   properties: {
 //@[2:93)     ObjectPropertySyntax
 //@[2:12)      IdentifierSyntax
@@ -8498,14 +8511,14 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 // property loops cannot be nested (even more nesting)
 //@[54:56) NewLine |\r\n|
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:720) ResourceDeclarationSyntax
+//@[0:687) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:33)  IdentifierSyntax
 //@[9:33)   Identifier |propertyLoopsCannotNest2|
 //@[34:80)  StringSyntax
 //@[34:80)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
 //@[81:82)  Assignment |=|
-//@[83:720)  ForSyntax
+//@[83:687)  ForSyntax
 //@[83:84)   LeftSquare |[|
 //@[84:87)   Identifier |for|
 //@[88:95)   LocalVariableSyntax
@@ -8516,7 +8529,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[99:114)    IdentifierSyntax
 //@[99:114)     Identifier |storageAccounts|
 //@[114:115)   Colon |:|
-//@[116:719)   ObjectSyntax
+//@[116:686)   ObjectSyntax
 //@[116:117)    LeftBrace |{|
 //@[117:119)    NewLine |\r\n|
   name: account.name
@@ -8573,29 +8586,29 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[8:19)      StringComplete |'StorageV2'|
 //@[19:21)    NewLine |\r\n|
   properties: {
-//@[2:483)    ObjectPropertySyntax
+//@[2:450)    ObjectPropertySyntax
 //@[2:12)     IdentifierSyntax
 //@[2:12)      Identifier |properties|
 //@[12:13)     Colon |:|
-//@[14:483)     ObjectSyntax
+//@[14:450)     ObjectSyntax
 //@[14:15)      LeftBrace |{|
 //@[15:17)      NewLine |\r\n|
     // #completionTest(17) -> symbolsPlusAccount
 //@[48:50)      NewLine |\r\n|
-    networkAcls: {
-//@[4:411)      ObjectPropertySyntax
+    networkAcls:  {
+//@[4:378)      ObjectPropertySyntax
 //@[4:15)       IdentifierSyntax
 //@[4:15)        Identifier |networkAcls|
 //@[15:16)       Colon |:|
-//@[17:411)       ObjectSyntax
-//@[17:18)        LeftBrace |{|
-//@[18:20)        NewLine |\r\n|
+//@[18:378)       ObjectSyntax
+//@[18:19)        LeftBrace |{|
+//@[19:21)        NewLine |\r\n|
       virtualNetworkRules: [for rule in []: {
-//@[6:384)        ObjectPropertySyntax
+//@[6:350)        ObjectPropertySyntax
 //@[6:25)         IdentifierSyntax
 //@[6:25)          Identifier |virtualNetworkRules|
 //@[25:26)         Colon |:|
-//@[27:384)         ForSyntax
+//@[27:350)         ForSyntax
 //@[27:28)          LeftSquare |[|
 //@[28:31)          Identifier |for|
 //@[32:36)          LocalVariableSyntax
@@ -8606,7 +8619,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[40:41)           LeftSquare |[|
 //@[41:42)           RightSquare |]|
 //@[42:43)          Colon |:|
-//@[44:383)          ObjectSyntax
+//@[44:349)          ObjectSyntax
 //@[44:45)           LeftBrace |{|
 //@[45:47)           NewLine |\r\n|
         // #completionTest(12,15,31) -> symbolsPlusRule
@@ -8636,11 +8649,11 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[47:49)             StringRightPiece |}'|
 //@[49:51)           NewLine |\r\n|
         state: [for state in []: {
-//@[8:219)           ObjectPropertySyntax
+//@[8:185)           ObjectPropertySyntax
 //@[8:13)            IdentifierSyntax
 //@[8:13)             Identifier |state|
 //@[13:14)            Colon |:|
-//@[15:219)            ForSyntax
+//@[15:185)            ForSyntax
 //@[15:16)             LeftSquare |[|
 //@[16:19)             Identifier |for|
 //@[20:25)             LocalVariableSyntax
@@ -8651,11 +8664,11 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[29:30)              LeftSquare |[|
 //@[30:31)              RightSquare |]|
 //@[31:32)             Colon |:|
-//@[33:218)             ObjectSyntax
+//@[33:184)             ObjectSyntax
 //@[33:34)              LeftBrace |{|
 //@[34:36)              NewLine |\r\n|
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
-//@[126:128)              NewLine |\r\n|
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
+//@[92:94)              NewLine |\r\n|
           fake: [for something in []: true]
 //@[10:43)              ObjectPropertySyntax
 //@[10:14)               IdentifierSyntax

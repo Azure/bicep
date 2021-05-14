@@ -1926,8 +1926,9 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 //@[10:11) LeftBrace |{|
 //@[11:12) NewLine |\n|
     // #completionTest(0,1,2) -> moduleAParams
-//@[46:48) NewLine |\n\n|
-
+//@[46:47) NewLine |\n|
+  
+//@[2:3) NewLine |\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:4) NewLine |\n|

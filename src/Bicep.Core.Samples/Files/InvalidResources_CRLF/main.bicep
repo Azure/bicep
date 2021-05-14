@@ -382,11 +382,11 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
   // #completionTest(0, 1, 2) -> topLevelProperties
-
+  
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
@@ -401,6 +401,8 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+       
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
             {
@@ -520,7 +522,7 @@ Discriminator value set 1
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
@@ -540,7 +542,7 @@ Discriminator value set 1 (conditional)
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(2==3) {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
@@ -560,7 +562,7 @@ Discriminator value set 1 (loop)
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
@@ -580,7 +582,7 @@ Discriminator value set 1 (filtered loop)
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
@@ -601,7 +603,7 @@ Discriminator value set 2
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
@@ -623,7 +625,7 @@ Discriminator value set 2 (conditional)
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
@@ -646,7 +648,7 @@ Discriminator value set 2 (loops)
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
@@ -669,7 +671,7 @@ Discriminator value set 2 (filtered loops)
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
@@ -1167,12 +1169,12 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   kind: 'StorageV2'
   properties: {
     // #completionTest(17) -> symbolsPlusAccount
-    networkAcls: {
+    networkAcls:  {
       virtualNetworkRules: [for rule in []: {
         // #completionTest(12,15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
           fake: [for something in []: true]
         }]
       }]
