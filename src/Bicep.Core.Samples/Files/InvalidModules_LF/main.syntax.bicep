@@ -2958,14 +2958,14 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
 //@[2:4) NewLine |\n\n|
 
 module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in emptyArray: if(true) {
-//@[0:185) ModuleDeclarationSyntax
+//@[0:187) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:42)  IdentifierSyntax
 //@[7:42)   Identifier |paramNameCompletionsInFilteredLoops|
 //@[43:58)  StringSyntax
 //@[43:58)   StringComplete |'modulea.bicep'|
 //@[59:60)  Assignment |=|
-//@[61:185)  ForSyntax
+//@[61:187)  ForSyntax
 //@[61:62)   LeftSquare |[|
 //@[62:65)   Identifier |for|
 //@[66:71)   ForVariableBlockSyntax
@@ -2983,14 +2983,14 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 //@[75:85)    IdentifierSyntax
 //@[75:85)     Identifier |emptyArray|
 //@[85:86)   Colon |:|
-//@[87:184)   IfConditionSyntax
+//@[87:186)   IfConditionSyntax
 //@[87:89)    Identifier |if|
 //@[89:95)    ParenthesizedExpressionSyntax
 //@[89:90)     LeftParen |(|
 //@[90:94)     BooleanLiteralSyntax
 //@[90:94)      TrueKeyword |true|
 //@[94:95)     RightParen |)|
-//@[96:184)    ObjectSyntax
+//@[96:186)    ObjectSyntax
 //@[96:97)     LeftBrace |{|
 //@[97:98)     NewLine |\n|
   name: 'hello-${x}'
@@ -3006,16 +3006,17 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 //@[18:20)       StringRightPiece |}'|
 //@[20:21)     NewLine |\n|
   params: {
-//@[2:63)     ObjectPropertySyntax
+//@[2:65)     ObjectPropertySyntax
 //@[2:8)      IdentifierSyntax
 //@[2:8)       Identifier |params|
 //@[8:9)      Colon |:|
-//@[10:63)      ObjectSyntax
+//@[10:65)      ObjectSyntax
 //@[10:11)       LeftBrace |{|
 //@[11:12)       NewLine |\n|
     // #completionTest(0,1,2) -> moduleAParams
-//@[46:48)       NewLine |\n\n|
-
+//@[46:47)       NewLine |\n|
+  
+//@[2:3)       NewLine |\n|
   }
 //@[2:3)       RightBrace |}|
 //@[3:4)     NewLine |\n|

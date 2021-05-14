@@ -1062,17 +1062,17 @@ param wrongMetadataSchemaWithDecorator string
 // expression in modifier
 //@[25:26) NewLine |\n|
 param expressionInModifier string {
-//@[0:179) ParameterDeclarationSyntax
+//@[0:176) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |expressionInModifier|
 //@[27:33)  TypeSyntax
 //@[27:33)   Identifier |string|
-//@[34:179)  ObjectSyntax
+//@[34:176)  ObjectSyntax
 //@[34:35)   LeftBrace |{|
 //@[35:36)   NewLine |\n|
-  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
-//@[63:64)   NewLine |\n|
+  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
+//@[60:61)   NewLine |\n|
   default: 2 + 3
 //@[2:16)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax

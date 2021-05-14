@@ -164,7 +164,7 @@ param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
-  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
+  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
   maxLength: a + 2
   minLength: foo()

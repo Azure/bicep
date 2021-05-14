@@ -247,7 +247,7 @@ var test2 = /|* block c|omment *|/
         [TestMethod]
         public async Task VerifyResourceBodyCompletionWithExistingKeywordDoesNotIncludeCustomSnippet()
         {
-            string text = @"resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' existing = ";
+            string text = "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' existing = ";
 
             var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
@@ -523,6 +523,79 @@ resource testRes3 'Test.Rp/readWriteTests@2020-01-01' = {
                 completions.Should().SatisfyRespectively(
                     l => AssertPropertyNameCompletionsWithoutColons(l!),
                     l => AssertPropertyNameCompletionsWithoutColons(l!)));
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInResourceBodies_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {|
+ | name: 'myRes' |
+  tags | : {
+    a: 'A'   |
+  }
+|}
+";
+            await RunCompletionScenarioTest(fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInObjects_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var obj1 = {|}
+var obj2 = {| }
+var obj3 = { |}
+var obj4 = { | }
+var obj5 = {|
+  | prop: true |
+|}
+var obj6 = { |
+  prop  | : false
+ |  }
+";
+            await RunCompletionScenarioTest(fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var arr1 = [|]
+var arr2 = [| ]
+var arr3 = [ |]
+var arr4 = [ | ]
+var arr5 = [|
+  | null |
+|]
+var arr6 = [ |
+  12345
+  |  true
+| ]
+";
+            await RunCompletionScenarioTest(fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInExpressions_AtPositionsWhereNodeShouldBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var unary = |! | true
+var binary = -1 | |+| | 2
+var ternary = true | |?| | 'yes' | |:| | 'no'
+";
+            await RunCompletionScenarioTest(fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletions_MatchingNodeIsBooleanOrIntegerOrNullLiteral_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var booleanExp = !|tr|ue| && |fal|se|
+var integerExp = |12|345| + |543|21|
+var nullLit = |n|ull|
+";
+            await RunCompletionScenarioTest(fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         private static async Task RunCompletionScenarioTest(string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)

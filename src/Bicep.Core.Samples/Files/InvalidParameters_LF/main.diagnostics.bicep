@@ -277,8 +277,8 @@ param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
-//@[34:179) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions\n  default: 2 + 3\n  maxLength: a + 2\n  minLength: foo()\n  allowed: [\n    i\n  ]\n}|
-  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
+//@[34:176) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(10) -> symbolsPlusParamDefaultFunctions\n  default: 2 + 3\n  maxLength: a + 2\n  minLength: foo()\n  allowed: [\n    i\n  ]\n}|
+  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
   maxLength: a + 2
 //@[13:14) [BCP057 (Error)] The name "a" does not exist in the current context. |a|

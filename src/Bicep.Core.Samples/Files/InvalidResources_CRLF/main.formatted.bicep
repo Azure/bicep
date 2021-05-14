@@ -376,7 +376,7 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
@@ -390,6 +390,8 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
             {
@@ -1114,7 +1116,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
         // #completionTest(12,15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
           fake: [for something in []: true]
         }]
       }]

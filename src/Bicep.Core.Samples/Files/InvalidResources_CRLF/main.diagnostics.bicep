@@ -551,12 +551,12 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
-
+  
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:44) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "sku". |missingTopLevelPropertiesExceptName|
-  // #completionTest(0, 1) -> topLevelPropertiesMinusName #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
@@ -571,6 +571,8 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+       
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
             {
@@ -711,7 +713,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
@@ -736,7 +738,7 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
@@ -761,7 +763,7 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
@@ -786,7 +788,7 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
@@ -812,7 +814,7 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
@@ -840,7 +842,7 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
@@ -869,7 +871,7 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
@@ -898,7 +900,7 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
@@ -1553,13 +1555,13 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   kind: 'StorageV2'
   properties: {
     // #completionTest(17) -> symbolsPlusAccount
-    networkAcls: {
+    networkAcls:  {
       virtualNetworkRules: [for rule in []: {
         // #completionTest(12,15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
 //@[16:19) [BCP142 (Error)] Property value for-expressions cannot be nested. |for|
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
           fake: [for something in []: true]
 //@[17:20) [BCP142 (Error)] Property value for-expressions cannot be nested. |for|
         }]

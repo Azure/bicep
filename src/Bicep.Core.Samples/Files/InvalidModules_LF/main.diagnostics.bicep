@@ -554,7 +554,7 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
     // #completionTest(0,1,2) -> moduleAParams
-
+  
   }
 }]
 
