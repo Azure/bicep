@@ -265,8 +265,9 @@ namespace Bicep.LanguageServer.Snippets
                 {
                     foreach (KeyValuePair<string, ObjectType> kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
                     {
-                        string label = "required-properties-" + kvp.Key.Trim(new char[] { '\'' });
-                        Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, description);
+                        string disciminatedObjectKey = kvp.Key;
+                        string label = "required-properties-" + disciminatedObjectKey.Trim(new char[] { '\'' });
+                        Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, description, disciminatedObjectKey);
 
                         if (snippet is not null)
                         {
@@ -277,7 +278,7 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        private Snippet? GetRequiredPropertiesSnippet(ObjectType objectType, string label, string description)
+        private Snippet? GetRequiredPropertiesSnippet(ObjectType objectType, string label, string description, string? discriminatedObjectKey = null)
         {
             int index = 1;
             StringBuilder sb = new StringBuilder();
@@ -288,7 +289,7 @@ namespace Bicep.LanguageServer.Snippets
 
             foreach (KeyValuePair<string, TypeProperty> kvp in sortedProperties)
             {
-                string? snippetText = GetSnippetText(kvp.Value, indentLevel: 1, ref index);
+                string? snippetText = GetSnippetText(kvp.Value, indentLevel: 1, ref index, discriminatedObjectKey);
 
                 if (snippetText is not null)
                 {
@@ -310,7 +311,7 @@ namespace Bicep.LanguageServer.Snippets
             return null;
         }
 
-        private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index)
+        private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index, string? discrimatedObjectKey = null)
         {
             if (typeProperty.Flags.HasFlag(TypePropertyFlags.Required))
             {
@@ -338,17 +339,13 @@ namespace Bicep.LanguageServer.Snippets
                 {
                     string value = ": $" + (index).ToString();
                     bool incrementIndex = true;
-                    TypeSymbol typeSymbol = typeProperty.TypeReference.Type;
 
-                    if (typeSymbol.TypeKind == TypeKind.StringLiteral)
+                    if (discrimatedObjectKey is not null &&
+                        typeProperty.TypeReference.Type is TypeSymbol typeSymbol &&
+                        typeSymbol.Name == discrimatedObjectKey)
                     {
-                        string typeSymbolName = typeSymbol.Name;
-
-                        if (!string.IsNullOrWhiteSpace(typeSymbolName))
-                        {
-                            value = ": " + typeSymbolName;
-                            incrementIndex = false;
-                        }
+                        value = ": " + discrimatedObjectKey;
+                        incrementIndex = false;
                     }
 
                     sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + value);
