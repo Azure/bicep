@@ -1672,6 +1672,20 @@
     }
   },
   {
+    "label": "moduleWithPath",
+    "kind": "module",
+    "detail": "moduleWithPath",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduleWithPath",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "moduleWithPath"
+    }
+  },
+  {
     "label": "moduleWithSelfCycle",
     "kind": "module",
     "detail": "moduleWithSelfCycle",

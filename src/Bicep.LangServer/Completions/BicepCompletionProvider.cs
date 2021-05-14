@@ -15,7 +15,6 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -392,8 +391,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
-                TypeSymbol typeSymbol = resourceDeclarationSyntax.GetDeclaredType(model.Binder, AzResourceTypeProvider.CreateWithAzTypes());
-
+                TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
                 IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, resourceDeclarationSyntax.IsExistingResource());
 
                 foreach (Snippet snippet in snippets)
@@ -412,7 +410,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.EnclosingDeclaration is ModuleDeclarationSyntax moduleDeclarationSyntax)
             {
-                TypeSymbol typeSymbol = moduleDeclarationSyntax.GetDeclaredType(model.Binder.TargetScope, model);
+                TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
                 IEnumerable<Snippet> snippets = SnippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol);
 
                 foreach (Snippet snippet in snippets)

@@ -68,6 +68,24 @@
     }
   },
   {
+    "label": "required-properties",
+    "kind": "snippet",
+    "detail": "Required properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n\tname: \n\tparams: {\n\t\tarrayParam: \n\t\tobjParam: {\n\t\t}\n\t\tstringParamB: \n\t}\n\t\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_required-properties",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "{\n\tname: $1\n\tparams: {\n\t\tarrayParam: $2\n\t\tobjParam: {\n\t\t}\n\t\tstringParamB: $3\n\t}\n\t$0\n}"
+    }
+  },
+  {
     "label": "{}",
     "kind": "snippet",
     "detail": "{}",

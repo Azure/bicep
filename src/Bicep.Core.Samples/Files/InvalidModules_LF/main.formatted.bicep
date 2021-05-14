@@ -10,6 +10,9 @@ module moduleWithoutPath = {
 
 }
 
+// #completionTest(41) -> moduleBodyCompletions
+module moduleWithPath './moduleb.bicep' =
+
 // missing identifier #completionTest(7) -> empty
 module 
 
