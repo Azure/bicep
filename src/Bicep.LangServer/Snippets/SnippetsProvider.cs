@@ -338,19 +338,19 @@ namespace Bicep.LanguageServer.Snippets
                 else
                 {
                     string value = ": $" + (index).ToString();
-                    bool incrementIndex = true;
+                    bool shouldIncrementIndent = true;
 
                     if (discrimatedObjectKey is not null &&
                         typeProperty.TypeReference.Type is TypeSymbol typeSymbol &&
                         typeSymbol.Name == discrimatedObjectKey)
                     {
                         value = ": " + discrimatedObjectKey;
-                        incrementIndex = false;
+                        shouldIncrementIndent = false;
                     }
 
                     sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + value);
 
-                    if (incrementIndex)
+                    if (shouldIncrementIndent)
                     {
                         index++;
                     }
