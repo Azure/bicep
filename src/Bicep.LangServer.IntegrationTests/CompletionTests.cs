@@ -540,13 +540,26 @@ resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {|
         }
 
         [TestMethod]
+        public async Task RequestCompletionsInProgram_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+|  var obj = {} |
+
+|  resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {
+  name: 'myRes'
+}
+";
+            await RunCompletionScenarioTest(fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
         public async Task RequestCompletionsInObjects_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
 var obj1 = {|}
 var obj2 = {| }
-var obj3 = { |}
-var obj4 = { | }
+var obj3 = |{ |}
+var obj4 = { | }|
 var obj5 = {|
   | prop: true |
 |}
@@ -563,8 +576,8 @@ var obj6 = { |
             var fileWithCursors = @"
 var arr1 = [|]
 var arr2 = [| ]
-var arr3 = [ |]
-var arr4 = [ | ]
+var arr3 = [ |]|
+var arr4 = |[ | ]
 var arr5 = [|
   | null |
 |]

@@ -737,9 +737,11 @@ namespace Bicep.LanguageServer.Completions
             }
 
             var lastNodeBeforeOffset = programSyntax.Children.LastOrDefault(node => node.GetEndPosition() <= offset);
+            var firstNodeAfterOffset = programSyntax.Children.FirstOrDefault(node => node.GetPosition() >= offset);
 
-            // Ensure we are not after some node that is not a newline.
-            return lastNodeBeforeOffset is null or Token { Type: TokenType.NewLine };
+            // Ensure we are in between newlines.
+            return lastNodeBeforeOffset is null or Token { Type: TokenType.NewLine } &&
+                firstNodeAfterOffset is null or Token { Type: TokenType.NewLine };
         }
 
         private static bool CanInsertChildNodeAtOffset(ObjectSyntax objectSyntax, int offset)
