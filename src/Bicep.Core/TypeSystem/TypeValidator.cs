@@ -186,6 +186,11 @@ namespace Bicep.Core.TypeSystem
             {
                 // certain properties such as scope, parent, dependsOn do not allow values of "any" type
                 diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.AnyTypeIsNotAllowed());
+
+                // if we let the type narrowing continue, we could get more diagnostics
+                // but it also leads to duplicate "disallow any" diagnostics caused by the union type narrowing
+                // (occurs with "dependsOn: [ any(true) ]")
+                return targetType;
             }
 
             if (config.SkipTypeErrors == false && expressionType is ErrorType)
@@ -273,7 +278,11 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType is UnionType targetUnionType)
             {
-                return UnionType.Create(targetUnionType.Members.Where(x => AreTypesAssignable(expressionType, x.Type)));
+                // we need to narrow each union member so diagnostics get collected correctly
+                // until we get union type simplification logic, this could generate duplicate diagnostics
+                return UnionType.Create(targetUnionType.Members
+                    .Where(x => AreTypesAssignable(expressionType, x.Type))
+                    .Select(x => NarrowType(config, expression, x.Type)));
             }
 
             return targetType;
@@ -404,6 +413,19 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol NarrowObjectType(TypeValidatorConfig config, ObjectSyntax expression, ObjectType targetType)
         {
+            static (TypeSymbol type, bool typeWasPreserved) AddImplicitNull(TypeSymbol propertyType, TypePropertyFlags propertyFlags)
+            {
+                bool preserveType = propertyFlags.HasFlag(TypePropertyFlags.Required) || !propertyFlags.HasFlag(TypePropertyFlags.AllowImplicitNull);
+                return (preserveType ? propertyType : UnionType.Create(propertyType, LanguageConstants.Null), preserveType);
+            }
+
+            static TypeSymbol RemoveImplicitNull(TypeSymbol type, bool typeWasPreserved)
+            {
+                return typeWasPreserved || type is not UnionType unionType
+                    ? type
+                    : UnionType.Create(unionType.Members.Where(m => m != LanguageConstants.Null));
+            }
+
             // TODO: Short-circuit on any object to avoid unnecessary processing?
             // TODO: Consider doing the schema check even if there are parse errors
             // if we have parse errors, there's no point to check assignability
@@ -459,6 +481,7 @@ namespace Bicep.Core.TypeSystem
                         {
                             diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
                         }
+
                         narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
                         continue;
                     }
@@ -470,7 +493,11 @@ namespace Bicep.Core.TypeSystem
                         originSyntax: config.OriginSyntax,
                         onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType), declaredProperty.Name));
 
-                    var narrowedType = NarrowType(newConfig, declaredPropertySyntax.Value, declaredProperty.TypeReference.Type);
+                    // append "| null" to the property type for non-required properties
+                    var (propertyAssignmentType, typeWasPreserved) = AddImplicitNull(declaredProperty.TypeReference.Type, declaredProperty.Flags);
+
+                    var narrowedType = NarrowType(newConfig, declaredPropertySyntax.Value, propertyAssignmentType);
+                    narrowedType = RemoveImplicitNull(narrowedType, typeWasPreserved);
 
                     narrowedProperties.Add(new TypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
                 }
@@ -486,13 +513,14 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType.AdditionalPropertiesType == null)
             {
+                // extra properties are not allowed by the type
+
                 var shouldWarn = ShouldWarn(targetType);
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
                     .OrderBy(x => x);
-
-                // extra properties are not allowed by the type
+                                
                 foreach (var extraProperty in extraProperties)
                 {
                     diagnosticWriter.Write(config.OriginSyntax ?? extraProperty.Key, x =>
@@ -544,8 +572,11 @@ namespace Bicep.Core.TypeSystem
                         originSyntax: config.OriginSyntax,
                         onTypeMismatch: onTypeMismatch);
 
+                    // append "| null" to the type on non-required properties
+                    var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType.Type, targetType.AdditionalPropertiesFlags);
+
                     // although we don't use the result here, it's important to call NarrowType to collect diagnostics
-                    var narrowedType = NarrowType(newConfig, extraProperty.Value, targetType.AdditionalPropertiesType.Type);
+                    var narrowedType = NarrowType(newConfig, extraProperty.Value, additionalPropertiesAssignmentType);
 
                     // TODO should we try and narrow the additional properties type? May be difficult
                 }

@@ -51,6 +51,12 @@ namespace Bicep.Core.TypeSystem
         /// The property must be loop-variant. In other words, the value of the property must change
         /// based on the value of the loop item or index variables. This flag has no effect outside of top-level properties.
         /// </summary>
-        LoopVariant = 1 << 7
+        LoopVariant = 1 << 7,
+
+        /// <summary>
+        /// On non-required properties, this allows the property type to be treated as "<x> | null" (where <x> is the current property type)
+        /// for the purposes of type checking the value assigned to the property.
+        /// </summary>
+        AllowImplicitNull = 1 << 8
     }
 }

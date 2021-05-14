@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Linq;
+using System.Xml.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -10,6 +11,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -2001,4 +2003,54 @@ var foo = az.listKeys('foo', '2012-02-01')[0].value
 
             result.Should().NotHaveAnyDiagnostics();
         }
-    } }
+
+        [TestMethod]
+        public void Test_Issue449_PositiveCase()
+        {
+            var result = CompilationHelper.Compile(@"
+param zonesEnabled bool
+
+resource pubipv4 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
+  name: 'pip'
+  zones: zonesEnabled ? [
+    'a'
+  ] : null
+}");
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Test_Issue449_NegativeCase()
+        {
+            var result = CompilationHelper.Compile(@"
+param zonesEnabled bool
+
+resource pubipv4 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
+  name: null
+  zones: zonesEnabled ? [
+    'a'
+  ] : null
+}
+
+resource lock 'Microsoft.Authorization/locks@2016-09-01' = {
+  name: 'lock'
+  properties: {
+    level: 'CanNotDelete'
+  }
+  scope: null
+}
+
+resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+  name: null
+  parent: null
+}
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"scope\" expected a value of type \"resource | tenant\" but the provided value is of type \"null\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"resource\" but the provided value is of type \"null\"."),
+            });
+        }
+    }
+}
