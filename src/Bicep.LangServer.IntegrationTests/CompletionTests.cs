@@ -356,10 +356,10 @@ var test2 = /|* block c|omment *|/
                     c.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-	kind: $3
+	kind: 'AzureCLI'
 	properties: {
-		azCliVersion: $4
-		retentionInterval: $5
+		azCliVersion: $3
+		retentionInterval: $4
 	}
 	$0
 }");
@@ -372,10 +372,10 @@ var test2 = /|* block c|omment *|/
                     c.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-	kind: $3
+	kind: 'AzurePowerShell'
 	properties: {
-		azPowerShellVersion: $4
-		retentionInterval: $5
+		azPowerShellVersion: $3
+		retentionInterval: $4
 	}
 	$0
 }");
