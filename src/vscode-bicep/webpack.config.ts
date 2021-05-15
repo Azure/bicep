@@ -41,7 +41,7 @@ const extensionConfig: webpack.Configuration = {
       patterns: [
         {
           from: "../textmate/bicep.tmlanguage",
-          to: path.join(__dirname, "bicep.tmLanguage"),
+          to: path.join(__dirname, "syntaxes/bicep.tmlanguage"),
         },
       ],
     }) as { apply(...args: unknown[]): void },
