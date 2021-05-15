@@ -12,8 +12,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class SecureParameterDefaultRule : LinterRuleBase
     {
+        public new const string Code = "Secure paramenter default";
+
         public SecureParameterDefaultRule() : base(
-            code: "Secure Parameter Default",
+            code: Code,
             description: CoreResources.SecureParameterDefaultRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1030") // TODO: setup up doc pages
         { }

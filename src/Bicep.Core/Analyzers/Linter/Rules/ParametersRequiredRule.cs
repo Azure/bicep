@@ -11,8 +11,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class ParametersRequiredRule : LinterRuleBase
     {
+        public new const string Code = "Parameters Required";
         public ParametersRequiredRule() : base(
-            code: "Parameters Required",
+            code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://bicep/linter/rules/BCPL1000") //TODO: set up online documentation location
@@ -21,9 +22,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            bool resourcesExist = model.Root.ResourceDeclarations.Any();
             bool parametersExist = model.Root.ParameterDeclarations.Any();
 
-            if (!parametersExist)
+            if (resourcesExist && !parametersExist)
             {
                 //Document level diagnostic set to position 0 for length of 0
                 var span = new TextSpan(0, 0);
@@ -31,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                     this.AnalyzerName,
                                     span,
                                     this.DiagnosticLevel,
-                                    this.Code,
+                                    Code,
                                     this.GetMessage());
             }
         }

@@ -10,7 +10,6 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    // TODO: nested/modules/for loops?
     public sealed class LocationSetByParameterRule : LinterRuleBase
     {
         // From https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/test-cases#location-uses-parameter
@@ -33,8 +32,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         //     or b) default to the string literal 'global'
         //     or c) default to the expression resourceGroup().location
 
+        public new const string Code = "Location set by parameter";
+
         public LocationSetByParameterRule() : base(
-            code: "Location set by parameter",
+            code: Code,
             description: CoreResources.LocationSetByParameterRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1040")// TODO: setup up doc pages
         { }
@@ -64,10 +65,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             {
-                var topLevelPropsNamedLocation = syntax.GetBody().Properties.Where(prop => prop.NameEquals("location"));
-                foreach (var prop in topLevelPropsNamedLocation)
+                var topLevelPropsNamedLocation = syntax.TryGetBody()?.Properties.Where(prop => prop.NameEquals("location"));
+                if (topLevelPropsNamedLocation != null)
                 {
-                    this.locationPropertyVisitor.Visit(prop);
+                    foreach (var prop in topLevelPropsNamedLocation)
+                    {
+                        this.locationPropertyVisitor.Visit(prop);
+                    }
                 }
 
                 base.VisitResourceDeclarationSyntax(syntax);

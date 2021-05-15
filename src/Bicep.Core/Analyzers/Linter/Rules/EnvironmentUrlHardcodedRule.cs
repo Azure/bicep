@@ -16,10 +16,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class EnvironmentUrlHardcodedRule : LinterRuleBase
     {
+        public new const string Code = "Environment URL hardcoded";
+
         private ImmutableHashSet<string>? DisallowedHosts;
 
         public EnvironmentUrlHardcodedRule() : base(
-            code: "Environment URL hardcoded",
+            code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://bicep/linter/rules/BCPL1020")// TODO: setup up doc pages

@@ -1,22 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
-namespace Bicep.Core.UnitTests.Diagnostics.LinterRules
+namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class LocationSetByParameterTests
+    public class LocationSetByParameterRulesTests : LinterRuleTestsBase
     {
         private void CompileAndTest(string text, int expectedDiagnosticCount)
         {
-            string ruleCode = new LocationSetByParameterRule().Code;
-            var compilationResult = CompilationHelper.Compile(text);
-            var ruleErrors = compilationResult.Diagnostics.Where(d => d.Code == ruleCode).ToArray();
-            Assert.AreEqual(expectedDiagnosticCount, ruleErrors.Count());
+            base.CompileAndTest(LocationSetByParameterRule.Code, text, expectedDiagnosticCount);
         }
 
         [TestMethod]
@@ -331,6 +329,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRules
             ";
 
             CompileAndTest(text, 1);
+        }
+
+        [TestMethod]
+        public void UnaffectedBySyntaxErrors()
+        {
+            string text = @"
+                resource abc 'Microsoft.AAD/domainServices@2021-03-01' // missing body
+            ";
+
+            CompileAndTest(text, 0);
         }
     }
 }
