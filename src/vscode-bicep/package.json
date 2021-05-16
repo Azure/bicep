@@ -86,7 +86,7 @@
     "grammars": [
       {
         "scopeName": "markdown.bicep.codeblock",
-        "path": "./codeblock.json",
+        "path": "./syntaxes/bicep.codeblock.json",
         "injectTo": [
           "text.html.markdown"
         ],
@@ -97,7 +97,7 @@
       {
         "language": "bicep",
         "scopeName": "source.bicep",
-        "path": "./bicep.tmlanguage"
+        "path": "./syntaxes/bicep.tmlanguage"
       }
     ],
     "commands": [
