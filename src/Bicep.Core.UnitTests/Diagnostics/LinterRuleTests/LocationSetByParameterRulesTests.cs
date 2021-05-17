@@ -340,5 +340,24 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             CompileAndTest(text, 0);
         }
+
+        [TestMethod]
+        public void armTtk347()
+        {
+            string text = @"
+                targetScope = 'subscription'
+
+                param workspaceId string
+
+                module diagnosticSettings './activity-log-diagnostics.bicep' = {
+                name: 'DiagnosticSettings'
+                scope: subscription()
+                params: {
+                        workspaceId: workspaceId
+                    }
+                }";
+
+            CompileAndTest(text, 0);
+        }
     }
 }
