@@ -7,17 +7,14 @@ using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
-namespace Bicep.Core.UnitTests.Diagnostics.LinterRules
+namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class LocationSetByParameterTests
+    public class LocationSetByParameterRulesTests : LinterRuleTestsBase
     {
         private void CompileAndTest(string text, int expectedDiagnosticCount)
         {
-            string ruleCode = new LocationSetByParameterRule().Code;
-            var compilationResult = CompilationHelper.Compile(text);
-            var ruleErrors = compilationResult.Diagnostics.Where(d => d.Code == ruleCode).ToArray();
-            Assert.AreEqual(expectedDiagnosticCount, ruleErrors.Count());
+            base.CompileAndTest(LocationSetByParameterRule.Code, text, expectedDiagnosticCount);
         }
 
         [TestMethod]
@@ -220,5 +217,128 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRules
             CompileAndTest(text, 1);
         }
 
+        [TestMethod]
+        public void DoesNotApplyToPropertiesOfAnObject()
+        {
+            string text = @"
+                var var1 = {
+                    location: 'westus'
+                }";
+
+            CompileAndTest(text, 0);
+        }
+
+        [TestMethod]
+        public void DoesNotApplyToDeepPropertiesOfAResource()
+        {
+            string text = @"
+                param location string
+
+                resource createDevopsPipeline 'Microsoft.Unknown/whatever@2019-10-01-preview' = {
+                    name: 'createDevopsPipeline'
+                    location: location // This one passes
+                    kind: 'AzureCLI'
+                    properties: {
+                        location: 'westus' // This one does not apply and is not tested (not a top-level property of a resource)
+                    }
+                }";
+
+            CompileAndTest(text, 0);
+        }
+
+        [TestMethod]
+        public void AppliesToParentAndChildResources()
+        {
+            string text = @"
+                resource myParent 'My.Rp/parentType@2020-01-01' = {
+                    name: 'myParent'
+                    location: 'West US'
+
+                    // declares a resource of type 'My.Rp/parentType/childType@2020-01-01'
+                    resource myChild 'childType' = {
+                        name: 'myChild'
+                        location: 'West US'
+                        properties: {
+                        displayName: 'child in ${myParent.location}'
+                        }
+                    }
+                }";
+
+            CompileAndTest(text, 2);
+        }
+
+        [TestMethod]
+        public void PassesForValidUsageInModuleReference()
+        {
+            string text = @"
+                @minLength(3)
+                @maxLength(11)
+                param namePrefix string
+                param location string = resourceGroup().location
+
+                module stgModule './storageAccount.bicep' = {
+                    name: 'storageDeploy'
+                    params: {
+                        storagePrefix: namePrefix
+                        location: location
+                    }
+                }
+
+                output location object = stgModule.outputs.storageEndpoint
+                output location string = location
+            ";
+
+            CompileAndTest(text, 0);
+        }
+
+        [TestMethod]
+        public void AppliesToLoops()
+        {
+            string text = @"
+                param location string = 'westus'
+
+                var nsgNames = [
+                'nsg1'
+                'nsg2'
+                'nsg3'
+                ]
+
+                resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = [for name in nsgNames: {
+                    name: name
+                    location: location
+                }]
+            ";
+
+            CompileAndTest(text, 1);
+        }
+
+        [TestMethod]
+        public void AppliesToLoops2()
+        {
+            string text = @"
+                var nsgNames = [
+                'nsg1'
+                'nsg2'
+                'nsg3'
+                ]
+
+                resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = [for name in nsgNames: {
+                    name: name
+                    location: 'westus'
+                }]
+            ";
+
+            CompileAndTest(text, 1);
+        }
+
+        [TestMethod]
+        public void UnaffectedBySyntaxErrors()
+        {
+            string text = @"
+                resource abc 'Microsoft.AAD/domainServices@2021-03-01' // missing body
+            ";
+
+            CompileAndTest(text, 0);
+        }
     }
 }

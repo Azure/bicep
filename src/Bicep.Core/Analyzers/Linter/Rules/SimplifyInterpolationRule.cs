@@ -13,8 +13,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class SimplifyInterpolationRule : LinterRuleBase
     {
+        public new const string Code = "Simplify interpolation";
+
         public SimplifyInterpolationRule() : base(
-            code: "Simplify interpolation",
+            code: Code,
             description: CoreResources.SimplifyInterpolationRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1080") // TODO: setup up doc pages
         { }

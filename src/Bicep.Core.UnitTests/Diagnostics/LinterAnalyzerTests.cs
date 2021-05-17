@@ -4,6 +4,7 @@
 using Bicep.Core.Analyzers;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -26,15 +27,15 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [DataTestMethod]
-        [DataRow("BCPL1000")]
-        [DataRow("BCPL1010")]
-        [DataRow("BCPL1020")]
-        [DataRow("BCPL1030")]
-        [DataRow("BCPL1040")]
-        [DataRow("BCPL1050")]
-        [DataRow("BCPL1060")]
-        [DataRow("BCPL1070")]
-        [DataRow("BCPL1080")]
+        [DataRow(EnvironmentUrlHardcodedRule.Code)]
+        [DataRow(InterpolateNotConcatRule.Code)]
+        [DataRow(LocationSetByParameterRule.Code)]
+        [DataRow(ParametersMustBeUsedRule.Code)]
+        [DataRow(ParametersRequiredRule.Code)]
+        [DataRow(SecureParameterDefaultRule.Code)]
+        [DataRow(SimplifyInterpolationRule.Code)]
+        [DataRow(UnnecessaryDependsOnRule.Code)]
+        [DataRow(UnusedVariableRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {
             var linter = new LinterAnalyzer();

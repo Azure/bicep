@@ -11,8 +11,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class ParametersMustBeUsedRule : LinterRuleBase
     {
+        public new const string Code = "Parameters must be used";
         public ParametersMustBeUsedRule() : base(
-            code: "Parameters must be used",
+            code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1010", // TODO: setup up doc pages
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)

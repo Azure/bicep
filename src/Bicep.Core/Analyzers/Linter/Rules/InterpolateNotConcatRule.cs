@@ -17,8 +17,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class InterpolateNotConcatRule : LinterRuleBase
     {
+        public new const string Code = "Interpolate preferred";
+
         public InterpolateNotConcatRule() : base(
-            code: "Interpolate preferred",
+            code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1060") // TODO: setup up doc pages
         { }
