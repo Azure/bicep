@@ -359,5 +359,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             CompileAndTest(text, 0);
         }
+
+        [TestMethod]
+        public void Conditions()
+        {
+            string text = @"
+            resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = if (false) {
+                name: 'myZone'
+                location: resourceGroup().location
+            }";
+
+            CompileAndTest(text, 0);
+        }
     }
 }
