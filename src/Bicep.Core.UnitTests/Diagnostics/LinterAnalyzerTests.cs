@@ -31,7 +31,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(InterpolateNotConcatRule.Code)]
         [DataRow(LocationSetByParameterRule.Code)]
         [DataRow(ParametersMustBeUsedRule.Code)]
-        [DataRow(ParametersRequiredRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]
         [DataRow(UnnecessaryDependsOnRule.Code)]
