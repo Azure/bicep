@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
-using System.Linq;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.CommandLine.Arguments;
 using Bicep.Cli.Logging;
@@ -38,6 +37,8 @@ namespace Bicep.Cli
 
         public static int Main(string[] args)
         {
+            Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
+
             BicepDeploymentsInterop.Initialize();
             var program = new Program(AzResourceTypeProvider.CreateWithAzTypes(), Console.Out, Console.Error, ThisAssembly.AssemblyFileVersion);
             return program.Run(args);
