@@ -44,7 +44,12 @@ namespace Bicep.Core.Configuration
                 // last added json settings take precedent - add local settings last
                 if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
                 {
-                    configBuilder.AddJsonFile(localConfig, false, true);
+                    if (!File.Exists(localConfig))
+                    {
+                        System.Diagnostics.Debugger.Break();
+                    }
+
+                    configBuilder.AddJsonFile(localConfig, true, true);
                     this.CustomSettingsFileName = localConfig;
                 }
                 else
@@ -83,55 +88,13 @@ namespace Bicep.Core.Configuration
         public string? CustomSettingsFileName { get; private set; }
 
         /// <summary>
-        /// Get boolean value from settings for specified setting path
+        /// Get setting value from underlying Config
         /// </summary>
         /// <param name="settingPath"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public bool GetValue(string settingPath, bool defaultValue)
-        {
-            if (Config?[settingPath] is string configValue
-                && bool.TryParse(configValue, out bool configBool))
-            {
-                return configBool;
-            }
-            return defaultValue;
-        }
+        public T GetValue<T>(string settingPath, T defaultValue)
+            => ConfigurationBinder.GetValue<T>(this.Config, settingPath, defaultValue);
 
-        /// <summary>
-        /// Get integer value from settings for specified settings path
-        /// </summary>
-        /// <param name="settingPath"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public int GetValue(string settingPath, int defaultValue)
-        {
-            if (Config?[settingPath] is string configValue
-                && int.TryParse(configValue, out int configInt))
-            {
-                return configInt;
-            }
-            return defaultValue;
-        }
-
-        /// <summary>
-        /// Get string value from settings for specified settings path
-        /// </summary>
-        /// <param name="settingPath"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public string GetValue(string settingPath, string defaultValue)
-            => Config[settingPath] ?? defaultValue;
-
-        public IEnumerable<string> GetValue(string name, IEnumerable<string> defaultValue)
-        {
-            var values = new List<string>();
-            this.Config.Bind(name, values);
-            if (values.Any())
-            {
-                return values;
-            }
-            return defaultValue;
-        }
     }
 }

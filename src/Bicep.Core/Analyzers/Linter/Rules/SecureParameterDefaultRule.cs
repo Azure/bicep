@@ -3,11 +3,8 @@
 
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,8 +13,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class SecureParameterDefaultRule : LinterRuleBase
     {
         public SecureParameterDefaultRule() : base(
-            code: "Secure paramenter default",
-            ruleName: "Secure parameter default not allowed",
+            code: "Secure Parameter Default",
             description: CoreResources.SecureParameterDefaultRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1030") // TODO: setup up doc pages
         { }

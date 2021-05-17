@@ -52,9 +52,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
             var descSet = ruleSet.Select(r => r.Description).ToHashSet();
             descSet.Should().HaveSameCount(ruleSet);
-
-            var nameSet = ruleSet.Select(r => r.RuleName).ToHashSet();
-            nameSet.Should().HaveSameCount(ruleSet);
         }
 
         [TestMethod]
@@ -75,7 +72,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
         public class LinterThrowsTestRule : LinterRuleBase
         {
-            public LinterThrowsTestRule() : base("ThrowsRule", "NotImplementedRule", "Throws an exception when used", "http:\\none", DiagnosticLevel.Warning) { }
+            public LinterThrowsTestRule() : base("ThrowsRule", "Throws an exception when used", "http:\\none", DiagnosticLevel.Warning) { }
 
             override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
             {

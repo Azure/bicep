@@ -18,6 +18,7 @@ namespace Bicep.Core.Analyzers.Linter
 {
     internal class LinterAnalyzer : IBicepAnalyzer
     {
+        public const string SettingsRoot = "Analyzers";
         public const string AnalyzerName = "Bicep Core Linter";
         private readonly ConfigHelper configHelper = new ConfigHelper();
         private readonly string InvocationHost;
@@ -29,28 +30,21 @@ namespace Bicep.Core.Analyzers.Linter
             RuleSet = CreateLinterRules().ToImmutableArray();
         }
 
-        private bool LinterEnabled => this.configHelper.GetValue($"Linter:{AnalyzerName}:Enabled", true);
+        private bool LinterEnabled => this.configHelper.GetValue($"{SettingsRoot}:{AnalyzerName}:Enabled", true);
 
         private IEnumerable<IBicepAnalyzerRule> CreateLinterRules()
         {
-            if (this.LinterEnabled)
-            {
-                var ruleTypes = Assembly.GetExecutingAssembly()
-                    .GetTypes()
-                    .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
-                                && !t.IsInterface && !t.IsAbstract); // exlude the interface and the base class
+            var ruleTypes = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
+                            && !t.IsInterface && !t.IsAbstract); // exlude the interface and the base class
 
-                foreach (var ruleType in ruleTypes)
-                {
-                    if (typeof(IBicepAnalyzerRule).IsAssignableFrom(ruleType))
-                    {
-                        yield return (IBicepAnalyzerRule)Activator.CreateInstance(ruleType);
-                    }
-                }
-            }
-            else
+            foreach (var ruleType in ruleTypes)
             {
-                yield break;
+                if (typeof(IBicepAnalyzerRule).IsAssignableFrom(ruleType))
+                {
+                    yield return (IBicepAnalyzerRule)Activator.CreateInstance(ruleType);
+                }
             }
         }
 
@@ -58,29 +52,38 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel)
         {
+            System.Diagnostics.Debugger.Launch();
             var diagnostics = new List<IBicepAnalyzerDiagnostic>();
 
             //TODO:  remove diagnostic stopwatches
-
             var configSW = new Stopwatch();
             configSW.Start();
+
             this.configHelper.LoadConfiguration(semanticModel.SyntaxTree.FileUri);
             this.RuleSet.ForEach(r => r.Configure(this.configHelper.Config));
+
             configSW.Stop();
             diagnostics.Add(new AnalyzerDiagnostic("Linter", new TextSpan(0, 0), DiagnosticLevel.Info, "Timing Configuration", $"Loaded configuration in: {configSW.ElapsedMilliseconds}ms"));
 
-
-            var analyzeSW = new Stopwatch();
-            analyzeSW.Start();
             if (this.LinterEnabled)
             {
+                var analyzeSW = new Stopwatch();
+                analyzeSW.Start();
                 diagnostics.Add(GetConfigurationDiagnostic());
 
                 diagnostics.AddRange(RuleSet.Where(rule => rule.Enabled)
                                      .SelectMany(r => r.Analyze(semanticModel)));
+                analyzeSW.Stop();
+                diagnostics.Add(new AnalyzerDiagnostic("Linter", new TextSpan(0, 0), DiagnosticLevel.Info, "Timing Linter Analyze", $"Linter Analyzer completed in: {analyzeSW.ElapsedMilliseconds}ms"));
             }
-            analyzeSW.Stop();
-            diagnostics.Add(new AnalyzerDiagnostic("Linter", new TextSpan(0, 0), DiagnosticLevel.Info, "Timing Linter Analyze", $"Linter Analyzer completed in: {analyzeSW.ElapsedMilliseconds}ms"));
+            else
+            {
+                diagnostics.Add(new AnalyzerDiagnostic(AnalyzerName,
+                                                        new TextSpan(0, 0),
+                                                        DiagnosticLevel.Info,
+                                                        "Linter Disabled",
+                                                        string.Format(CoreResources.LinterDisabledFormatMessage, this.configHelper.CustomSettingsFileName)));
+            }
             return diagnostics;
         }
 

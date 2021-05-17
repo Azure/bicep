@@ -33,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter
         private IConfigurationRoot? Config;
         public string AnalyzerName { get; }
         public string Code { get; }
-        public readonly string RuleConfigSection = $"Linter:{LinterAnalyzer.AnalyzerName}:Rules";
+        public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:Rules";
         public bool Enabled => this.DiagnosticLevel != DiagnosticLevel.Off;
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
@@ -93,14 +93,11 @@ namespace Bicep.Core.Analyzers.Linter
 
         internal abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
 
-        protected bool GetConfiguration(string name, bool defaultValue)
-            => this.Config.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
+        protected T GetConfiguration<T>(string name, T defaultValue)
+            => ConfigurationBinder.GetValue(this.Config, $"{RuleConfigSection}:{Code}:{name}", defaultValue);
 
-        protected string GetConfiguration(string name, string defaultValue)
-            => this.Config.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
-
-        protected IEnumerable<string> GetConfiguration(string name, string[] defaultValue)
-            => this.Config.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
+        protected T[] GetArray<T>(string name, T[] defaultValue)
+            => this.Config?.GetSection($"{RuleConfigSection}:{Code}:{name}").Get<T[]>() ?? defaultValue;
 
         /// <summary>
         ///  Create a simple diagnostic that displays the defined Description

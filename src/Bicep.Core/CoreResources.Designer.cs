@@ -97,6 +97,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Linter is disabled in settings file [{0}].
+        /// </summary>
+        internal static string LinterDisabledFormatMessage {
+            get {
+                return ResourceManager.GetString("LinterDisabledFormatMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Linter rule encountered an unexpected exception: {0}.
         /// </summary>
         internal static string LinterRuleExceptionMessageFormat {

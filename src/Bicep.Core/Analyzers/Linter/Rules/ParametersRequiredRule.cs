@@ -4,7 +4,6 @@
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,7 +13,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public ParametersRequiredRule() : base(
             code: "Parameters Required",
-            ruleName: "Parameters Required",
             description: CoreResources.ParameterMustBeUsedRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://bicep/linter/rules/BCPL1000") //TODO: set up online documentation location

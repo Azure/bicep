@@ -16,17 +16,21 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class EnvironmentUrlHardcodedRule : LinterRuleBase
     {
-        private readonly ImmutableHashSet<string> DisallowedHosts;
+        private ImmutableHashSet<string>? DisallowedHosts;
 
         public EnvironmentUrlHardcodedRule() : base(
             code: "Environment URL hardcoded",
-            ruleName: "Environment URL hardcoded",
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://bicep/linter/rules/BCPL1020")// TODO: setup up doc pages
         {
-            // create a hashset lookup for hosts
-            this.DisallowedHosts = GetConfiguration(nameof(this.DisallowedHosts), Array.Empty<string>())
+        }
+
+        public override void Configure(IConfigurationRoot config)
+        {
+            //System.Diagnostics.Debugger.Launch();
+            base.Configure(config);
+            this.DisallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
                                     .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -35,16 +39,19 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            var spansToMark = new Dictionary<TextSpan, List<string>>();
-            var visitor = new BCPL1020Visitor(spansToMark, this.DisallowedHosts);
-            visitor.Visit(model.SyntaxTree.ProgramSyntax);
-
-            foreach(var kvp in spansToMark)
+            if (this.DisallowedHosts != null && this.DisallowedHosts.Any())
             {
-                var span = kvp.Key;
-                foreach(var hosts in kvp.Value)
+                var spansToMark = new Dictionary<TextSpan, List<string>>();
+                var visitor = new BCPL1020Visitor(spansToMark, this.DisallowedHosts);
+                visitor.Visit(model.SyntaxTree.ProgramSyntax);
+
+                foreach (var kvp in spansToMark)
                 {
-                    yield return CreateDiagnosticForSpan(span, hosts);
+                    var span = kvp.Key;
+                    foreach (var hosts in kvp.Value)
+                    {
+                        yield return CreateDiagnosticForSpan(span, hosts);
+                    }
                 }
             }
         }

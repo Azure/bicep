@@ -15,7 +15,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public SimplifyInterpolationRule() : base(
             code: "Simplify interpolation",
-            ruleName: "String interpolation can be simplified.",
             description: CoreResources.SimplifyInterpolationRuleDescription,
             docUri: "https://bicep/linter/rules/BCPL1080") // TODO: setup up doc pages
         { }

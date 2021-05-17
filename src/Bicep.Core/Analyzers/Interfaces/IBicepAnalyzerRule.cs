@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers.Interfaces
@@ -21,9 +22,8 @@ namespace Bicep.Core.Analyzers.Interfaces
         DiagnosticLevel DiagnosticLevel { get; }
         DiagnosticLabel? DiagnosticLabel { get; }
         string DocumentationUri { get; }
-        string RuleName { get; }
         bool Enabled { get; }
-        void ConfigureRule(DiagnosticLevel level);
+        void Configure(IConfigurationRoot config);
         IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model);
     }
 }

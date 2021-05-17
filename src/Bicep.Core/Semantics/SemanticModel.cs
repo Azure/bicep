@@ -18,6 +18,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
+        private readonly Lazy<LinterAnalyzer> linterAnalyzerLazy;
 
         public SemanticModel(Compilation compilation, SyntaxTree syntaxTree)
         {
@@ -47,6 +48,9 @@ namespace Bicep.Core.Semantics
             });
             this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(syntaxTree, Binder));
 
+            // lazy loading the linter will delay linter rule loading
+            // and configuration loading until the linter is actually needed
+            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>( () => new LinterAnalyzer());
         }
 
         public SyntaxTree SyntaxTree { get; }
@@ -62,6 +66,8 @@ namespace Bicep.Core.Semantics
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
 
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
+
+        private LinterAnalyzer LinterAnalyzer => linterAnalyzerLazy.Value;
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
@@ -87,7 +93,6 @@ namespace Bicep.Core.Semantics
 
             var typeValidationDiagnostics = TypeManager.GetAllDiagnostics();
             diagnosticWriter.WriteMultiple(typeValidationDiagnostics);
-
             diagnosticWriter.WriteMultiple(EmitLimitationInfo.Diagnostics);
 
             return diagnosticWriter.GetDiagnostics();
@@ -99,9 +104,7 @@ namespace Bicep.Core.Semantics
         /// <returns></returns>
         public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics()
         {
-            var linter = new LinterAnalyzer();
-
-            var diagnostics = linter.Analyze(this);
+            var diagnostics = LinterAnalyzer.Analyze(this);
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             diagnosticWriter.WriteMultiple(diagnostics);
 
