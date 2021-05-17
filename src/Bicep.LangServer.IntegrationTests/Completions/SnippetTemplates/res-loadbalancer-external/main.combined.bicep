@@ -36,7 +36,7 @@ resource loadBalancerExternal 'Microsoft.Network/loadBalancers@2019-11-01' = {
         name: 'name'
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'name', 'loadBalancerFrontEnd')
+            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'name', 'name')
           }
           backendAddressPool: {
             id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'name', 'name')

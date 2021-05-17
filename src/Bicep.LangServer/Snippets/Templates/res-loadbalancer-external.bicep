@@ -37,28 +37,28 @@ resource ${1:loadBalancerExternal} 'Microsoft.Network/loadBalancers@2019-11-01' 
         name: ${10:'name'}
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', ${2:'name'}, ${11:'loadBalancerFrontEnd'})
+            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', ${2:'name'}, ${3:'name'})
           }
           backendAddressPool: {
             id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', ${2:'name'}, ${5:'name'})
           }
-          protocol: '${12|Tcp,Udp,All|}'
-          frontendPort: ${13:80}
-          backendPort: ${14:80}
+          protocol: '${11|Tcp,Udp,All|}'
+          frontendPort: ${12:80}
+          backendPort: ${13:80}
           enableFloatingIP: false
           idleTimeoutInMinutes: 5
           probe: {
-            id: resourceId('Microsoft.Network/loadBalancers/probes', ${2:'name'}, ${15:'name'})
+            id: resourceId('Microsoft.Network/loadBalancers/probes', ${2:'name'}, ${14:'name'})
           }
         }
       }
     ]
     probes: [
       {
-        name: ${15:'name'}
+        name: ${14:'name'}
         properties: {
-          protocol: '${16|Tcp,Udp,All|}'
-          port: ${17:80}
+          protocol: '${15|Tcp,Udp,All|}'
+          port: ${16:80}
           intervalInSeconds: 5
           numberOfProbes: 2
         }
