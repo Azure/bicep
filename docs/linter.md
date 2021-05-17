@@ -8,11 +8,11 @@ TO DO: ADD DEMO GIF HERE
 
 [`bicepsettings.json`](./src/Bicep.Core/Configuration/bicepsettings.json) can be used to:
 
-- enable analyzers
+- enable/disable analyzers
 - set DiagnosticLevel of rules
   - Warning (default for core rules) - [Displays a warning](https://code.visualstudio.com/docs/editor/editingevolved#_errors-warnings) (caution symbol) and does not prevent building (transpilation)
   - Error - [Displays an error](https://code.visualstudio.com/docs/editor/editingevolved#_errors-warnings) and throws an error at build time
-  - Info - Displays an info message and not prevent building (transpilation)
+  - Info - Displays an info message and does not prevent building (transpilation)
   - Off - Disables the rule
 - set rule-specific values
 
