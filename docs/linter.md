@@ -25,3 +25,7 @@ There are a set of core rules that are enabled by default. You can find their de
 The linter is being designed to be extensible so new rules can be added by either the Bicep team or the community. In the 0.5 milestone, we will be focusing more on extensibility, making it as easy as possible to contribute new rules and/or analyzers.
 
 If you have an idea for a new rule, please use the ```linting-rule``` GitHub label: [![linter-rule](https://img.shields.io/github/issues/Azure/Bicep/linting-rule?color=important&label=linting-rule)](https://github.com/Azure/Bicep/issues?q=is%3Aissue+is%3Aopen+label%3A%22linting-rule%22)
+
+## ARM template test toolkit (ARM-TTK)
+
+We've ported over the rules from the [ARM template test toolkit](https://docs.microsoft.com/azure/azure-resource-manager/templates/test-toolkit) that make sense for Bicep. We recommend using the Bicep linter when working with Bicep, and the ARM template test toolkit when working with ARM templates
