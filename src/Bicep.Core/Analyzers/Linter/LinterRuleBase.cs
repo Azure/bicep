@@ -7,6 +7,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,65 +15,39 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter
 {
-    public abstract class LinterRuleBase : IBicepAnalyzerRule, IDisposable
+    public abstract class LinterRuleBase : IBicepAnalyzerRule
     {
-        public LinterRuleBase(string code, string ruleName, string description, string docUri,
+        public LinterRuleBase(string code, string description, string docUri,
                           DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
                           DiagnosticLabel? diagnosticLabel = null)
         {
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
-            this.RuleName = ruleName;
             this.Description = description;
             this.DocumentationUri = docUri;
             this.DiagnosticLevel = diagnosticLevel;
             this.DiagnosticLabel = diagnosticLabel;
-
-            LoadConfiguration();
-
-            this.configHelper.ConfigFileChanged += OnConfigFileChanged;
         }
 
         internal const string FailedRuleCode = "Linter Rule Error";
-        private readonly ConfigHelper configHelper = new ConfigHelper();
-        private bool disposedValue;
-
+        private IConfigurationRoot? Config;
         public string AnalyzerName { get; }
         public string Code { get; }
-        public string RuleName { get; }
-
-        public const string RuleConfigSection = "Linter:Core:Rules";
-
-        // TODO: Decide how we want to manage configuration
-        // Variants:
-        //  1. enable globally or onchange or onsave (i.e. static whole file)
-        //  2. set severity of diagnostic
-        //  3. when fix is present what about auto application
-
+        public readonly string RuleConfigSection = $"Linter:{LinterAnalyzer.AnalyzerName}:Rules";
         public bool Enabled => this.DiagnosticLevel != DiagnosticLevel.Off;
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
-
         public string Description { get; }
         public string DocumentationUri { get; }
         public Diagnostics.DiagnosticLabel? DiagnosticLabel { get; }
 
-        private void LoadConfiguration()
+        public virtual void Configure(IConfigurationRoot config)
         {
+            this.Config = config;
             var configDiagLevel = GetConfiguration(nameof(this.DiagnosticLevel), this.DiagnosticLevel.ToString());
             if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl))
             {
                 this.DiagnosticLevel = lvl;
             }
-        }
-
-        /// <summary>
-        /// Reload the configuration when notified of settings file change
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnConfigFileChanged(object sender, EventArgs e)
-        {
-            LoadConfiguration();
         }
 
         /// <summary>
@@ -118,19 +93,14 @@ namespace Bicep.Core.Analyzers.Linter
 
         internal abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
 
-        public void ConfigureRule(DiagnosticLevel level)
-        {
-            this.DiagnosticLevel = level;
-        }
-
         protected bool GetConfiguration(string name, bool defaultValue)
-            => configHelper.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
+            => this.Config.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
 
         protected string GetConfiguration(string name, string defaultValue)
-            => configHelper.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
+            => this.Config.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
 
         protected IEnumerable<string> GetConfiguration(string name, string[] defaultValue)
-            => configHelper.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
+            => this.Config.GetValue($"{RuleConfigSection}:{Code}:{name}", defaultValue);
 
         /// <summary>
         ///  Create a simple diagnostic that displays the defined Description
@@ -169,28 +139,5 @@ namespace Bicep.Core.Analyzers.Linter
                 message: this.GetMessage(),
                 codeFixes: new[] { fix },
                 label: this.DiagnosticLabel);
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    if (this.configHelper != null)
-                    {
-                        this.configHelper.ConfigFileChanged -= this.OnConfigFileChanged;
-                    }
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
     }
 }

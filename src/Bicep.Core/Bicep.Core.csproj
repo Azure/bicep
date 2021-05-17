@@ -5,6 +5,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="bicepsettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Configuration\bicepsettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="JetBrains.Annotations" Version="2021.1.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -17,12 +25,6 @@
 		<PackageReference Include="Azure.Deployments.Core" Version="1.0.173" />
 		<PackageReference Include="Azure.Bicep.Types" Version="0.1.112" />
 		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.112" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="bicepsettings.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="Bicep.Core.UnitTests" />

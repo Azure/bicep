@@ -1,73 +1,96 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Extensions;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Bicep.Core.Configuration
 {
-    internal class ConfigHelper : IDisposable
+    internal class ConfigHelper
     {
-        private const string settingsfile = "bicepsettings.json";
-        private bool disposedValue;
-
-        private readonly IConfigurationBuilder ConfigBuilder;
-        private FileSystemWatcher? ConfigWatcher;
-
-        public IConfigurationRoot Config { get; }
+        private const string SettingsFileName = "bicepsettings.json";
 
         /// <summary>
-        /// Subscribe to be notified if the local configuration
-        /// file is changed
+        /// Property exposes the configuration root
+        /// that is currently loaded
         /// </summary>
-        public event EventHandler? ConfigFileChanged;
+        public IConfigurationRoot Config { get; private set; }
 
         internal ConfigHelper()
         {
-            ConfigBuilder = new ConfigurationBuilder();
+            this.Config = BuildConfig(Directory.GetCurrentDirectory());
+        }
 
-            // initialize with Global config setting from installation path
-            var executePath = Assembly.GetExecutingAssembly().Location;
-            var globalConfig = Path.Combine(Path.GetDirectoryName(executePath), settingsfile);
-            if (File.Exists(globalConfig))
+        private IConfigurationRoot BuildConfig(string localFolder)
+        {
+            var configBuilder = new ConfigurationBuilder();
+
+            // load the default settings from file embedded as resource
+            var assembly = Assembly.GetExecutingAssembly();
+            var names = assembly.GetManifestResourceNames();
+            var defaultConfigResourceName = names.FirstOrDefault(n => n.EndsWith(SettingsFileName));
+
+            // keep this stream open until after Build() call
+            using (var defaultConfigStream = assembly.GetManifestResourceStream(defaultConfigResourceName))
             {
-                this.ConfigBuilder.AddJsonFile(globalConfig, false, true);
-            }
+                Debug.Assert(defaultConfigStream != null, "Default configuration file should exist as embedded resource.");
+                configBuilder.AddJsonStream(defaultConfigStream);
 
-            // last added json settings take precedent - add local settings last
-            var localConfig = Path.Join(Directory.GetCurrentDirectory(), settingsfile);
-            if (File.Exists(localConfig))
+                // last added json settings take precedent - add local settings last
+                if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
+                {
+                    configBuilder.AddJsonFile(localConfig, false, true);
+                    this.CustomSettingsFileName = localConfig;
+                }
+                else
+                {
+                    this.CustomSettingsFileName = default;
+                }
+
+                return configBuilder.Build();
+            }
+        }
+
+        private string? DiscoverLocalConfigurationFile(string? nextDir)
+        {
+            while (nextDir != default)
             {
-                this.ConfigBuilder.AddJsonFile(localConfig, false, true);
-                this.ConfigWatcher = new FileSystemWatcher(localConfig);
-                this.ConfigWatcher.Changed += ConfigWatcher_Changed;
+                var fileName = Path.Combine(nextDir, SettingsFileName);
+                if (File.Exists(fileName))
+                {
+                    return fileName;
+                }
+                nextDir = Directory.GetParent(nextDir)?.FullName;
             }
+            return default;
+        }
 
-            this.Config = this.ConfigBuilder.Build();
+        internal void LoadConfiguration(Uri fileUri)
+        {
+            var localFile = Path.GetDirectoryName(fileUri.LocalPath);
+            this.Config = BuildConfig(localFile);
         }
 
         /// <summary>
-        /// handle filewatcher change notification
+        /// Contains path to any custom bicepsettings.json file
+        /// that is currently in effect
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ConfigWatcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            if (this.ConfigFileChanged != null)
-            {
-                this.ConfigFileChanged(this, EventArgs.Empty);
-            }
-        }
+        public string? CustomSettingsFileName { get; private set; }
 
-        public bool GetValue(string name, bool defaultValue)
+        /// <summary>
+        /// Get boolean value from settings for specified setting path
+        /// </summary>
+        /// <param name="settingPath"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public bool GetValue(string settingPath, bool defaultValue)
         {
-            if (Config?[name] is string configValue
+            if (Config?[settingPath] is string configValue
                 && bool.TryParse(configValue, out bool configBool))
             {
                 return configBool;
@@ -75,9 +98,15 @@ namespace Bicep.Core.Configuration
             return defaultValue;
         }
 
-        public int GetValue(string name, int defaultValue)
+        /// <summary>
+        /// Get integer value from settings for specified settings path
+        /// </summary>
+        /// <param name="settingPath"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public int GetValue(string settingPath, int defaultValue)
         {
-            if (Config?[name] is string configValue
+            if (Config?[settingPath] is string configValue
                 && int.TryParse(configValue, out int configInt))
             {
                 return configInt;
@@ -85,8 +114,14 @@ namespace Bicep.Core.Configuration
             return defaultValue;
         }
 
-        public string GetValue(string name, string defaultValue)
-            => Config[name] ?? defaultValue;
+        /// <summary>
+        /// Get string value from settings for specified settings path
+        /// </summary>
+        /// <param name="settingPath"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public string GetValue(string settingPath, string defaultValue)
+            => Config[settingPath] ?? defaultValue;
 
         public IEnumerable<string> GetValue(string name, IEnumerable<string> defaultValue)
         {
@@ -97,39 +132,6 @@ namespace Bicep.Core.Configuration
                 return values;
             }
             return defaultValue;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    if (this.ConfigWatcher != default)
-                    {
-                        this.ConfigWatcher.Changed -= this.ConfigWatcher_Changed;
-                        this.ConfigWatcher = default;
-                    }
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
-            }
-        }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~ConfigHelper()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

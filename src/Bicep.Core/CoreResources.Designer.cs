@@ -61,6 +61,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Custom bicepsettings.json file found [{0}]..
+        /// </summary>
+        internal static string BicepConfigCustomSettingsFoundFormatMessage {
+            get {
+                return ResourceManager.GetString("BicepConfigCustomSettingsFoundFormatMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No bicepsettings.json found for configuration override..
+        /// </summary>
+        internal static string BicepConfigNoCustomSettingsMessage {
+            get {
+                return ResourceManager.GetString("BicepConfigNoCustomSettingsMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current..
         /// </summary>
         internal static string EnvironmentUrlHardcodedRuleDescription {
@@ -88,7 +106,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Best practice dictates that Location be set via parameter..
+        ///   Looks up a localized string similar to Best practice dictates that location be set via parameter. That parameter may default to &apos;global&apos; or resourceGroup().location..
         /// </summary>
         internal static string LocationSetByParameterRuleDescription {
             get {
