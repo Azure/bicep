@@ -14,7 +14,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "Parameters Required";
         public ParametersRequiredRule() : base(
             code: Code,
-            description: CoreResources.ParameterMustBeUsedRuleDescription,
+            description: CoreResources.ParameterRequiredRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://bicep/linter/rules/BCPL1000") //TODO: set up online documentation location
         {
