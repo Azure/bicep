@@ -28,7 +28,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override void Configure(IConfigurationRoot config)
         {
-            //System.Diagnostics.Debugger.Launch();
             base.Configure(config);
             this.DisallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
                                     .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);

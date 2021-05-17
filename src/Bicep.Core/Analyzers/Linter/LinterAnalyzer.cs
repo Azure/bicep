@@ -52,7 +52,6 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel)
         {
-            System.Diagnostics.Debugger.Launch();
             var diagnostics = new List<IBicepAnalyzerDiagnostic>();
 
             //TODO:  remove diagnostic stopwatches
