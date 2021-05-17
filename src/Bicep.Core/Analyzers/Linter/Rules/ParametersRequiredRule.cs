@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: Code,
             description: CoreResources.ParameterRequiredRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
-            docUri: "https://bicep/linter/rules/BCPL1000") //TODO: set up online documentation location
+            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/")
         {
         }
 

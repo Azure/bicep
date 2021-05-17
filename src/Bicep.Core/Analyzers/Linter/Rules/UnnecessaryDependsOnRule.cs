@@ -19,7 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public UnnecessaryDependsOnRule() : base(
             code: Code,
             description: CoreResources.UnnecessaryDependsOnRuleDescription,
-            docUri: "https://bicep/linter/rules/BCPL1070", // TODO: setup up doc pages
+            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/",
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 

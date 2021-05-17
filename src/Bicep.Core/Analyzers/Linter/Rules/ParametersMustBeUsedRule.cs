@@ -15,7 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public ParametersMustBeUsedRule() : base(
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
-            docUri: "https://bicep/linter/rules/BCPL1010", // TODO: setup up doc pages
+            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/",
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 

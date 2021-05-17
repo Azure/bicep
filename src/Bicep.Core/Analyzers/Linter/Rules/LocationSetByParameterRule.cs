@@ -37,7 +37,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public LocationSetByParameterRule() : base(
             code: Code,
             description: CoreResources.LocationSetByParameterRuleDescription,
-            docUri: "https://bicep/linter/rules/BCPL1040")// TODO: setup up doc pages
+            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/")
         { }
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)

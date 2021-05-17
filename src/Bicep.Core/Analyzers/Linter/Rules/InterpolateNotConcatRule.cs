@@ -22,7 +22,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public InterpolateNotConcatRule() : base(
             code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
-            docUri: "https://bicep/linter/rules/BCPL1060") // TODO: setup up doc pages
+            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/")
         { }
 
         private CodeReplacement GetCodeReplacement(TextSpan span)
