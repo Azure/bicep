@@ -20,7 +20,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void CompileAndTest(string text, int expectedDiagnosticCount)
         {
-            base.CompileAndTest(ParametersMustBeUsedRule.Code, text, expectedDiagnosticCount);
+            var errors = GetDiagnostics(ParametersMustBeUsedRule.Code, text);
+            errors.Should().HaveCount(expectedDiagnosticCount);
         }
 
         [DataRow(1, @"
