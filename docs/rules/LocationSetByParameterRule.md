@@ -23,7 +23,7 @@ param location string = 'westus'
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
-    location: resourceGroup().location
+    location: location
     ...
 }
 ```
@@ -35,7 +35,7 @@ param location string = resourceGroup().location
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
-    location: resourceGroup().location
+    location: location
     ...
 }
 ```
