@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<CompilationAssertions> ContainDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
         {
-            var noLinterConfig = new ConfigHelper().GetDisabledLinterCofig();
+            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
 
             Subject.GetEntrypointSemanticModel().GetAllDiagnostics(noLinterConfig).Should().ContainDiagnostic(code, level, message, because, becauseArgs);
 
@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<CompilationAssertions> ContainSingleDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
         {
-            var noLinterConfig = new ConfigHelper().GetDisabledLinterCofig();
+            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
 
             Subject.GetEntrypointSemanticModel().GetAllDiagnostics(noLinterConfig).Should().ContainSingleDiagnostic(code, level, message, because, becauseArgs);
 
@@ -46,7 +46,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<CompilationAssertions> HaveDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message)> diagnostics, string because = "", params object[] becauseArgs)
         {
-            var noLinterConfig = new ConfigHelper().GetDisabledLinterCofig();
+            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
 
             Subject.GetEntrypointSemanticModel().GetAllDiagnostics(noLinterConfig).Should().HaveDiagnostics(diagnostics, because, becauseArgs);
 

@@ -7,7 +7,7 @@ namespace Bicep.Core.Configuration
 {
     internal static class ConfigHelperExtensions
     {
-        public static ConfigHelper GetDisabledLinterCofig(this ConfigHelper configHelper) =>
+        public static ConfigHelper GetDisabledLinterConfig(this ConfigHelper configHelper) =>
             configHelper.OverrideSetting(LinterAnalyzer.LinterEnabledSetting, false)
                         .OverrideSetting(LinterAnalyzer.LinterVerboseSetting, false);
 

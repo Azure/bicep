@@ -124,7 +124,7 @@ namespace Bicep.Core.Samples
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
 
             // quiet the linter diagnostics
-            var overrideConfig = new ConfigHelper().GetDisabledLinterCofig();
+            var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
 
             foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree(overrideConfig))
             {

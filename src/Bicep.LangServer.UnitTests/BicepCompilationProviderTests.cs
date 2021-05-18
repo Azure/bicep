@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
@@ -35,7 +36,9 @@ namespace Bicep.LangServer.UnitTests
 
             context.Compilation.Should().NotBeNull();
             // TOOD: remove Where when the support of modifiers is dropped.
-            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Where(d => d.Code != "BCP161").Should().BeEmpty();
+            context.Compilation.GetEntrypointSemanticModel()
+                   .GetAllDiagnostics(new ConfigHelper().GetDisabledLinterConfig())
+                   .Where(d => d.Code != "BCP161").Should().BeEmpty();
             context.LineStarts.Should().NotBeEmpty();
             context.LineStarts[0].Should().Be(0);
         }

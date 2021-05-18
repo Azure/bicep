@@ -1,7 +1,7 @@
 {
   "analyzers": {
     "bicepcorelinter": {
-      "verbose":  true,
+      "verbose": false,
       "enabled": true,
       "rules": {
         "Environment URL hardcoded": {

@@ -24,12 +24,10 @@ namespace Bicep.Core.Analyzers.Linter
         public static string LinterVerboseSetting => $"{SettingsRoot}:{AnalyzerName}:verbose";
 
         private ConfigHelper configHelper = new ConfigHelper();
-        private readonly string InvocationHost;
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
 
-        public LinterAnalyzer(string host = "unknown")
+        public LinterAnalyzer()
         {
-            InvocationHost = host;
             RuleSet = CreateLinterRules().ToImmutableArray();
         }
 
