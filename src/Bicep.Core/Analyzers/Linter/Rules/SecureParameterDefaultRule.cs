@@ -17,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SecureParameterDefaultRule() : base(
             code: Code,
             description: CoreResources.SecureParameterDefaultRuleDescription,
-            docUri: "https://aka.ms/linter-rules")
+            docUri: "https://aka.ms/bicep/linter/secure-paramenter-default")
         { }
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)

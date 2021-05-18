@@ -11,12 +11,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class ParametersRequiredRule : LinterRuleBase
     {
-        public new const string Code = "parameters-required";
+        public new const string Code = "params-required";
         public ParametersRequiredRule() : base(
             code: Code,
             description: CoreResources.ParameterRequiredRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
-            docUri: "https://aka.ms/linter-rules")
+            docUri: "https://aka.ms/bicep/linter/params-required")
         {
         }
 

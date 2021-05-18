@@ -22,7 +22,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public InterpolateNotConcatRule() : base(
             code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
-            docUri: "https://aka.ms/linter-rules")
+            docUri: "https://aka.ms/bicep/linter/interpolate-not-concat")
         { }
 
         private CodeReplacement GetCodeReplacement(TextSpan span)

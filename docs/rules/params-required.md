@@ -1,6 +1,6 @@
 # Parameters Required
 
-**Code**: parameters-required
+**Code**: params-required
 
 **Description**: Your template should have a parameters element. Parameters are essential for making your templates reusable in different environments. Add parameters to your template for values that change when deploying to different environments.
 

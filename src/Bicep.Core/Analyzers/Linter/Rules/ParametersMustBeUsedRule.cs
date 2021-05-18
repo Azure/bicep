@@ -11,11 +11,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class ParametersMustBeUsedRule : LinterRuleBase
     {
-        public new const string Code = "parameters-must-be-used";
+        public new const string Code = "no-unused-params";
         public ParametersMustBeUsedRule() : base(
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
-            docUri: "https://aka.ms/linter-rules",
+            docUri: "https://aka.ms/bicep/linter/no-unused-params",
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 

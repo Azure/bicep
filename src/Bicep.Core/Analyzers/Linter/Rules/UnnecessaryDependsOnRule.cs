@@ -14,12 +14,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class UnnecessaryDependsOnRule : LinterRuleBase
     {
-        public new const string Code = "unnecessary-dependson";
+        public new const string Code = "no-unnecessary-dependson";
 
         public UnnecessaryDependsOnRule() : base(
             code: Code,
             description: CoreResources.UnnecessaryDependsOnRuleDescription,
-            docUri: "https://aka.ms/linter-rules",
+            docUri: "https://aka.ms/bicep/linter/no-unnecessary-dependson",
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
