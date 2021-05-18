@@ -9,15 +9,15 @@ resource ${1:azureFunction} 'Microsoft.Web/sites@2018-11-01' = {
       appSettings: [
         {
           name: 'AzureWebJobsDashboard'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName};AccountKey=${listKeys(${5:'storageAccountID'}, '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2015-05-01-preview').key1}'
         }
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName};AccountKey=${listKeys(${5:'storageAccountID'}, '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${6:storageAccountName2};AccountKey=${listKeys(${7:'storageAccountID2'}, '2015-05-01-preview').key1}'
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName};AccountKey=${listKeys(${5:'storageAccountID}, '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${8:storageAccountName3};AccountKey=${listKeys(${9:'storageAccountID3'}, '2015-05-01-preview').key1}'
         }
         {
           name: 'WEBSITE_CONTENTSHARE'
@@ -29,11 +29,11 @@ resource ${1:azureFunction} 'Microsoft.Web/sites@2018-11-01' = {
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: reference(resourceId('microsoft.insights/components/', ${6:'applicationInsightsName'}), '2015-05-01').InstrumentationKey
+          value: reference(resourceId('microsoft.insights/components/', ${10:'applicationInsightsName'}), '2015-05-01').InstrumentationKey
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: '${7|dotnet,node,java|}'
+          value: '${11|dotnet,node,java|}'
         }
       ]
     }

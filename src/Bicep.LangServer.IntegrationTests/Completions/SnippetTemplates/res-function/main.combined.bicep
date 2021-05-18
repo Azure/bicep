@@ -8,15 +8,15 @@ resource azureFunction 'Microsoft.Web/sites@2018-11-01' = {
       appSettings: [
         {
           name: 'AzureWebJobsDashboard'
-          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName;AccountKey=${listKeys('storageAccountID', '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName1;AccountKey=${listKeys('storageAccountID1', '2015-05-01-preview').key1}'
         }
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName;AccountKey=${listKeys('storageAccountID', '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName2;AccountKey=${listKeys('storageAccountID2', '2015-05-01-preview').key1}'
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName;AccountKey=${listKeys('storageAccountID', '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName3;AccountKey=${listKeys('storageAccountID3', '2015-05-01-preview').key1}'
         }
         {
           name: 'WEBSITE_CONTENTSHARE'

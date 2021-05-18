@@ -4,7 +4,8 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 }
 
 resource windowsVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: 'windowsVM/customScript'
+  parent: virtualMachine
+  name: 'name'
   location: resourceGroup().location
   properties: {
     publisher: 'Microsoft.Compute'

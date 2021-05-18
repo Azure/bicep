@@ -1,6 +1,6 @@
 ﻿// $1 = 'name'
 // $2 = windowsVMExtensions
-// $3 = 'windowsVM/customScript'
+// $3 = 'name'
 // $4 = 'fileUris'
 // $5 = customScript.ps1
 
