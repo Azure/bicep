@@ -1,6 +1,8 @@
 # Linter
 
-The Bicep linter will inspect your code and catch a customizable set of authoring best practices. It will surface warnings, errors, or informational messages as you're typing in VS Code for immediate feedback. This means you don't have to build or deploy your code to find out that you've made a mistake. Some rules can also surface an automatic code fix through the VS Code light bulb. The linter should make it easier to enforce team coding standards by providing guidance during the development inner loop, as well as the ability to break a build during continuous integration (CI) if there are violations.
+The Bicep linter will inspect your code and catch a customizable set of authoring best practices. It will surface warnings, errors, or informational messages as you're typing in VS Code for immediate feedback. This means you don't have to build or deploy your code to find out that you've made a mistake. Some rules can also surface an automatic code fix through the VS Code light bulb. 
+
+The linter should make it easier to enforce team coding standards by providing guidance during the development inner loop, as well as the ability to break a build (if desired) during continuous integration (CI) for violations.
 
 TO DO: ADD DEMO GIF HERE
 
@@ -9,7 +11,7 @@ TO DO: ADD DEMO GIF HERE
 [`bicepsettings.json`](./src/Bicep.Core/Configuration/bicepsettings.json) can be used to:
 
 - enable/disable analyzers
-- set rule-specific values e.g. DisallowedHosts for [`EnvironmentUrlHardcodedRule`](./rules/EnvironmentUrlHardcodedRule.md) rule
+- set rule-specific values (e.g. DisallowedHosts for [`EnvironmentUrlHardcodedRule`](./rules/EnvironmentUrlHardcodedRule.md) rule)
 - set DiagnosticLevel of rules:
 
 | **DiagnosticLevel**  | **Build-time behavior** | **Editor behavior** |
