@@ -1,6 +1,8 @@
 # Remove unnecessary dependsOn
 
-An implicit dependency will be created when one resource declaration references the identifier of another resource declaration in an expression. It is not necessary to explicitly add dependsOn property.
+**Code**: unnecessary-dependson
+
+**Description**: An implicit dependency will be created when one resource declaration references the identifier of another resource declaration in an expression. It is not necessary to explicitly add dependsOn property.
 
 The following example fails this test because the dependsOn property is not necessary.
 

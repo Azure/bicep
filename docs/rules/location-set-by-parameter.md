@@ -1,6 +1,8 @@
 # Location set by parameter
 
-Your templates should have a parameter named location. Use this parameter for setting the location of resources in your template. In the main template, this parameter can default to the resource group location.
+**Code**: location-set-by-parameter
+
+**Description**: Your templates should have a parameter named location. Use this parameter for setting the location of resources in your template. In the main template, this parameter can default to the resource group location.
 
 Users of your template may have limited regions available to them. When you hard code the resource location, users may be blocked from creating a resource in that region. Users could be blocked even if you set the resource location to "[resourceGroup().location]". The resource group may have been created in a region that other users can't access. Those users are blocked from using the template.
 

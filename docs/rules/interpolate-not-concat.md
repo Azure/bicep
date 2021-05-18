@@ -1,6 +1,8 @@
 # Interpolation preferred
 
-Interpolation should be used instead of concat function.
+**Code**: interpolate-not-concat
+
+**Description**: Interpolation should be used instead of concat function.
 
 The following example fails this test because the concat function is used.
 

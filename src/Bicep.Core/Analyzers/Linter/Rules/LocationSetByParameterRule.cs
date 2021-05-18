@@ -32,12 +32,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         //     or b) default to the string literal 'global'
         //     or c) default to the expression resourceGroup().location
 
-        public new const string Code = "Location set by parameter";
+        public new const string Code = "location-set-by-parameter";
 
         public LocationSetByParameterRule() : base(
             code: Code,
             description: CoreResources.LocationSetByParameterRuleDescription,
-            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/LocationSetByParameterRule.md")
+            docUri: "https://aka.ms/linter-rules")
         { }
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)

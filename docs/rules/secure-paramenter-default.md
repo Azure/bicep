@@ -1,6 +1,8 @@
 # Secure paramenter default
 
-Don't provide a hard-coded default value for a secure parameter in your template. An empty string is fine for the default value.
+**Code**: secure-paramenter-default
+
+**Description**: Don't provide a hard-coded default value for a secure parameter in your template. An empty string is fine for the default value.
 
 You use the types SecureString or SecureObject on parameters that contain sensitive values, like passwords. When a parameter uses a secure type, the value of the parameter isn't logged or stored in the deployment history. This action prevents a malicious user from discovering the sensitive value.
 

@@ -1,6 +1,8 @@
 # Environment URL hardcoded
 
-Do not hardcode environment URLs in your template. Instead, use the environment function to dynamically get these URLs during deployment. For a list of the URL hosts that are blocked, see the default list of DisallowedHosts in [`bicepsettings.json`](./src/Bicep.Core/Configuration/bicepsettings.json).
+**Code**: environment-url-hardcoded
+
+**Description**: Do not hardcode environment URLs in your template. Instead, use the environment function to dynamically get these URLs during deployment. For a list of the URL hosts that are blocked, see the default list of DisallowedHosts in [`bicepsettings.json`](./src/Bicep.Core/Configuration/bicepsettings.json).
 
 The following example fails this test because the URL is hardcoded.
 

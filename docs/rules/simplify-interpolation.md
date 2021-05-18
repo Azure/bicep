@@ -1,6 +1,8 @@
 # Simplify interpolation
 
-It isn't necessary to use interpolation to reference a parameter or variable.
+**Code**: simplify-interpolation
+
+**Description**: It isn't necessary to use interpolation to reference a parameter or variable.
 
 The following example fails this test.
 
