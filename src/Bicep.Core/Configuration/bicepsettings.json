@@ -1,12 +1,12 @@
 {
-  "Analyzers": {
-    "Bicep Core Linter": {
-      "Enabled": true,
-      "Rules": {
+  "analyzers": {
+    "bicepcorelinter": {
+      "verbose":  true,
+      "enabled": true,
+      "rules": {
         "Environment URL hardcoded": {
-          "DiagnosticLevel": "Warning",
-          "DisallowedHosts": [
-            "test",
+          "diagnosticlevel": "Warning",
+          "disallowedhosts": [
             "management.core.windows.net",
             "gallery.azure.com",
             "management.core.windows.net",

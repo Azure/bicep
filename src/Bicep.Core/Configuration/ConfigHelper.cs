@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace Bicep.Core.Configuration
 {
-    internal class ConfigHelper
+    public class ConfigHelper
     {
         private const string SettingsFileName = "bicepsettings.json";
 
@@ -52,7 +52,14 @@ namespace Bicep.Core.Configuration
                     this.CustomSettingsFileName = default;
                 }
 
-                return configBuilder.Build();
+                var config = configBuilder.Build();
+
+                foreach (var kvp in SettingOverrides)
+                {
+                    config[kvp.Key] = kvp.Value.ToString();
+                }
+
+                return this.Config = config;
             }
         }
 
@@ -90,6 +97,37 @@ namespace Bicep.Core.Configuration
         /// <returns></returns>
         public T GetValue<T>(string settingPath, T defaultValue)
             => ConfigurationBinder.GetValue<T>(this.Config, settingPath, defaultValue);
+
+
+        #region internal config management for unit tests
+
+        private Dictionary<string, object> SettingOverrides = new Dictionary<string, object>();
+
+        /// <summary>
+        /// For unit testing we want to force setting overrides
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        internal ConfigHelper OverrideSetting(string name, object value)
+        {
+            SettingOverrides[name] = value;
+            this.Config = BuildConfig(Directory.GetCurrentDirectory());
+            return this;
+        }
+
+        internal bool TryGetOverrideSettingValue<T>(string name, out T? value)
+        {
+            if (SettingOverrides.TryGetValue(name, out var overrideValue)
+                && overrideValue is T typedValue)
+            {
+                value = typedValue;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+        #endregion
 
     }
 }

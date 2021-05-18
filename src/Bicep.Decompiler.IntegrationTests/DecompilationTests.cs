@@ -20,6 +20,7 @@ using FluentAssertions.Execution;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
+using Bicep.Core.Configuration;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -95,7 +96,7 @@ namespace Bicep.Core.IntegrationTests
 
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, bicepUri);
             var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
-            var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree();
+            var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree(new ConfigHelper().GetDisabledLinterCofig());
 
             using (new AssertionScope())
             {

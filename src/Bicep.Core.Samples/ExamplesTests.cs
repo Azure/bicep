@@ -24,6 +24,8 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Bicep.Core.Configuration;
+using Bicep.Core.Analyzers.Linter;
 
 namespace Bicep.Core.Samples
 {
@@ -121,7 +123,10 @@ namespace Bicep.Core.Samples
             var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
 
-            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            // quiet the linter diagnostics
+            var overrideConfig = new ConfigHelper().GetDisabledLinterCofig();
+
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree(overrideConfig))
             {
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     syntaxTree,

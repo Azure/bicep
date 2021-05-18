@@ -18,9 +18,12 @@ namespace Bicep.Core.Analyzers.Linter
 {
     internal class LinterAnalyzer : IBicepAnalyzer
     {
-        public const string SettingsRoot = "Analyzers";
-        public const string AnalyzerName = "Bicep Core Linter";
-        private readonly ConfigHelper configHelper = new ConfigHelper();
+        public const string SettingsRoot = "analyzers";
+        public const string AnalyzerName = "bicepcorelinter";
+        public static string LinterEnabledSetting => $"{SettingsRoot}:{AnalyzerName}:enabled";
+        public static string LinterVerboseSetting => $"{SettingsRoot}:{AnalyzerName}:verbose";
+
+        private ConfigHelper configHelper = new ConfigHelper();
         private readonly string InvocationHost;
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
 
@@ -30,7 +33,8 @@ namespace Bicep.Core.Analyzers.Linter
             RuleSet = CreateLinterRules().ToImmutableArray();
         }
 
-        private bool LinterEnabled => this.configHelper.GetValue($"{SettingsRoot}:{AnalyzerName}:Enabled", true);
+        private bool LinterEnabled => this.configHelper.GetValue(LinterEnabledSetting, true);
+        private bool LinterVerbose => this.configHelper.GetValue(LinterVerboseSetting, true);
 
         private IEnumerable<IBicepAnalyzerRule> CreateLinterRules()
         {
@@ -50,38 +54,40 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => RuleSet;
 
-        public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel)
+        public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel) => Analyze(semanticModel, default);
+
+        internal IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel, ConfigHelper? overrideConfig = default)
         {
+            // check for configuration overrides
+            /// typically only used in unit tests
+            var configHelp = overrideConfig ?? this.configHelper;
+
             var diagnostics = new List<IBicepAnalyzerDiagnostic>();
 
-            //TODO:  remove diagnostic stopwatches
-            var configSW = new Stopwatch();
-            configSW.Start();
-
-            this.configHelper.LoadConfiguration(semanticModel.SyntaxTree.FileUri);
-            this.RuleSet.ForEach(r => r.Configure(this.configHelper.Config));
-
-            configSW.Stop();
-            diagnostics.Add(new AnalyzerDiagnostic("Linter", new TextSpan(0, 0), DiagnosticLevel.Info, "Timing Configuration", $"Loaded configuration in: {configSW.ElapsedMilliseconds}ms"));
-
+            configHelp.LoadConfiguration(semanticModel.SyntaxTree.FileUri);
+            this.RuleSet.ForEach(r => r.Configure(configHelp.Config));
             if (this.LinterEnabled)
             {
-                var analyzeSW = new Stopwatch();
-                analyzeSW.Start();
-                diagnostics.Add(GetConfigurationDiagnostic());
+                // add an info diagnostic for local configuration reporting
+                if (this.LinterVerbose)
+                {
+                    diagnostics.Add(GetConfigurationDiagnostic());
+                }
 
                 diagnostics.AddRange(RuleSet.Where(rule => rule.Enabled)
                                      .SelectMany(r => r.Analyze(semanticModel)));
-                analyzeSW.Stop();
-                diagnostics.Add(new AnalyzerDiagnostic("Linter", new TextSpan(0, 0), DiagnosticLevel.Info, "Timing Linter Analyze", $"Linter Analyzer completed in: {analyzeSW.ElapsedMilliseconds}ms"));
             }
             else
             {
-                diagnostics.Add(new AnalyzerDiagnostic(AnalyzerName,
-                                                        new TextSpan(0, 0),
-                                                        DiagnosticLevel.Info,
-                                                        "Linter Disabled",
-                                                        string.Format(CoreResources.LinterDisabledFormatMessage, this.configHelper.CustomSettingsFileName)));
+                if (this.LinterVerbose)
+                {
+                    diagnostics.Add(
+                        new AnalyzerDiagnostic(AnalyzerName,
+                                new TextSpan(0, 0),
+                                DiagnosticLevel.Info,
+                                "Linter Disabled",
+                                string.Format(CoreResources.LinterDisabledFormatMessage, this.configHelper.CustomSettingsFileName)));
+                }
             }
             return diagnostics;
         }
@@ -97,6 +103,16 @@ namespace Bicep.Core.Analyzers.Linter
                                                     DiagnosticLevel.Info,
                                                     "Bicep Linter Configuration",
                                                     configMessage);
+        }
+
+        /// <summary>
+        /// Internal method intended to allow eash configuration
+        /// override in Unit Testing
+        /// </summary>
+        /// <param name="overrideConfig"></param>
+        internal void OverrideConfig(ConfigHelper overrideConfig)
+        {
+            this.configHelper = overrideConfig;
         }
     }
 }

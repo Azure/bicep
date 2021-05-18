@@ -33,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter
         private IConfigurationRoot? Config;
         public string AnalyzerName { get; }
         public string Code { get; }
-        public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:Rules";
+        public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:rules";
         public bool Enabled => this.DiagnosticLevel != DiagnosticLevel.Off;
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
@@ -43,7 +43,7 @@ namespace Bicep.Core.Analyzers.Linter
         public virtual void Configure(IConfigurationRoot config)
         {
             this.Config = config;
-            var configDiagLevel = GetConfiguration(nameof(this.DiagnosticLevel), this.DiagnosticLevel.ToString());
+            var configDiagLevel = GetConfiguration(nameof(this.DiagnosticLevel).ToLower(), this.DiagnosticLevel.ToString());
             if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl))
             {
                 this.DiagnosticLevel = lvl;
@@ -91,13 +91,35 @@ namespace Bicep.Core.Analyzers.Linter
             }
         }
 
+        /// <summary>
+        /// Abstract method each rule must implement to provide analyzer
+        /// diagnostics through the Analyze API
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         internal abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
 
+        /// <summary>
+        /// Get a setting from defaults or local override
+        /// Expectation: key names for settings are lower case
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         protected T GetConfiguration<T>(string name, T defaultValue)
             => ConfigurationBinder.GetValue(this.Config, $"{RuleConfigSection}:{Code}:{name}", defaultValue);
 
+        /// <summary>
+        /// Get a section of the config file as an array of strings.
+        /// Expectation: all key names shoult be lower case
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         protected T[] GetArray<T>(string name, T[] defaultValue)
-            => this.Config?.GetSection($"{RuleConfigSection}:{Code}:{name}").Get<T[]>() ?? defaultValue;
+            => this.Config?.GetSection($"{RuleConfigSection}:{Code}:{name.ToLower()}").Get<T[]>() ?? defaultValue;
 
         /// <summary>
         ///  Create a simple diagnostic that displays the defined Description

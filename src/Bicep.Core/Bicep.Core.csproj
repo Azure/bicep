@@ -5,11 +5,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="bicepsettings.json" />
+		<None Remove="bicepsettings.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Configuration\bicepsettings.json" />
+		<EmbeddedResource Include="Configuration\bicepsettings.json" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -28,18 +28,20 @@
 	</ItemGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="Bicep.Core.UnitTests" />
+		<InternalsVisibleTo Include="Bicep.Core.Samples" />
+		<InternalsVisibleTo Include="Bicep.Decompiler.IntegrationTests" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Update="CoreResources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>CoreResources.resx</DependentUpon>
-	  </Compile>
+		<Compile Update="CoreResources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>CoreResources.resx</DependentUpon>
+		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-	  <EmbeddedResource Update="CoreResources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
+		<EmbeddedResource Update="CoreResources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
 	</ItemGroup>
 </Project>
