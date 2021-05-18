@@ -371,5 +371,38 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             CompileAndTest(text, 0);
         }
+
+        public void ResourceLoops()
+        {
+            string text = @"
+            param storageAccounts array
+
+            resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for storageName in storageAccounts: {
+                name: storageName
+                location: resourceGroup().location
+                properties: {
+                    supportsHttpsTrafficOnly: true
+                    accessTier: 'Hot'
+                    encryption: {
+                    keySource: 'Microsoft.Storage'
+                    services: {
+                        blob: {
+                        enabled: true
+                        }
+                        file: {
+                        enabled: true
+                        }
+                    }
+                    }
+                }
+                kind: 'StorageV2'
+                sku: {
+                    name: 'Standard_LRS'
+                }
+            }]
+            ";
+
+            CompileAndTest(text, 0);
+        }
     }
 }

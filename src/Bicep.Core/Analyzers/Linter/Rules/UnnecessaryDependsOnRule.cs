@@ -44,7 +44,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             {
-                if (syntax.NameEquals("dependsOn"))
+                if (syntax.NameEquals("dependsOn")) // TODO: false positives in objects with property "dependsOn" etc
                 {
                     if (syntax.Value is ArraySyntax dependencies)
                     {
