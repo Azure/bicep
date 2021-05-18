@@ -762,9 +762,14 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 baseType = UnwrapType(baseType);
+                return GetArrayItemType(syntax, diagnostics, baseType, indexType);
+            });
 
-                if (baseType.TypeKind == TypeKind.Any)
-                {
+        private static ITypeReference GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
+        {
+            switch (baseType)
+            {
+                case AnyType:
                     // base expression is of type any
                     if (indexType.TypeKind == TypeKind.Any)
                     {
@@ -781,10 +786,8 @@ namespace Bicep.Core.TypeSystem
 
                     // index was of the wrong type
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
-                }
 
-                if (baseType is ArrayType baseArray)
-                {
+                case ArrayType baseArray:
                     // we are indexing over an array
                     if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int))
                     {
@@ -794,36 +797,34 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType));
-                }
 
-                if (baseType is ObjectType baseObject)
-                {
-                    // we are indexing over an object
-                    if (indexType.TypeKind == TypeKind.Any)
+                case ObjectType baseObject:
                     {
-                        // index is of type "any"
-                        return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
-                    }
-
-                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
-                    {
-                        switch (syntax.IndexExpression)
+                        // we are indexing over an object
+                        if (indexType.TypeKind == TypeKind.Any)
                         {
-                            case StringSyntax @string when @string.TryGetLiteralValue() is { } literalValue:
-                                // indexing using a string literal so we know the name of the property
-                                return GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue, diagnostics);
-
-                            default:
-                                // the property name is itself an expression
-                                return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
+                            // index is of type "any"
+                            return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
                         }
+
+                        if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
+                        {
+                            switch (syntax.IndexExpression)
+                            {
+                                case StringSyntax @string when @string.TryGetLiteralValue() is { } literalValue:
+                                    // indexing using a string literal so we know the name of the property
+                                    return GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue, diagnostics);
+
+                                default:
+                                    // the property name is itself an expression
+                                    return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
+                            }
+                        }
+
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
                     }
 
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
-                }
-
-                if (baseType is DiscriminatedObjectType)
-                {
+                case DiscriminatedObjectType:
                     if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
                     {
                         // index is assignable to string
@@ -833,11 +834,30 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
-                }
 
-                // index was of the wrong type
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType));
-            });
+                case UnionType unionType:
+                    {
+                        // ensure we enumerate only once since some paths include a side effect that writes a diagnostic
+                        var arrayItemTypes = unionType.Members
+                            .Select(baseMemberType => GetArrayItemType(syntax, diagnostics, baseMemberType.Type, indexType))
+                            .ToList();
+
+                        if(arrayItemTypes.OfType<ErrorType>().Any())
+                        {
+                            // some of the union members are not assignable
+                            // base expression was of the wrong type
+                            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType));
+                        }
+
+                        // all of the union members are assignable - create the resulting item type
+                        return UnionType.Create(arrayItemTypes);
+                    }
+
+                default:
+                    // base expression was of the wrong type
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType));
+            }
+        }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
