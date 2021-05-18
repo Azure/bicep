@@ -4,7 +4,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   location: resourceGroup().location
 }
 
-resource ${2:windowsVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+resource ${2:windowsVMDsc} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   parent: virtualMachine
   name: ${3:'name'}
   location: resourceGroup().location
