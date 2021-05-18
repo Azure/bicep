@@ -9,16 +9,21 @@ TO DO: ADD DEMO GIF HERE
 [`bicepsettings.json`](./src/Bicep.Core/Configuration/bicepsettings.json) can be used to:
 
 - enable/disable analyzers
-- set DiagnosticLevel of rules
-  - Warning (default for core rules) - [Displays a warning](https://code.visualstudio.com/docs/editor/editingevolved#_errors-warnings) (caution symbol) and does not prevent building (transpilation)
-  - Error - [Displays an error](https://code.visualstudio.com/docs/editor/editingevolved#_errors-warnings) and throws an error at build time
-  - Info - Displays an info message and does not prevent building (transpilation)
-  - Off - Disables the rule
-- set rule-specific values
+- set rule-specific values e.g. DisallowedHosts for [`EnvironmentUrlHardcodedRule`](./rules/EnvironmentUrlHardcodedRule.md) rule
+- set DiagnosticLevel of rules:
+
+| **DiagnosticLevel**  | **Build-time behavior** | **Editor behavior** |
+|--|--|--|
+| `Error` | Violations appear as Errors in command-line build output, and cause builds to fail. | Offending code is underlined with a red squiggle and appears in Problems tab. |
+| `Warning` | Violations appear as Warnings in command-line build output, but do not cause builds to fail. | Offending code is underlined with a yellow squiggle and appears in Problems tab. |
+| `Info` | Violations do not appear in command-line build output. | Offending code is underlined with a blue squiggle and appears in Problems tab. |
+| `Off` | Suppressed completely. | Suppressed completely. |
 
 `bicepsettings.json` can be placed alongside your templates in the same directory. The closest configuration file found up the tree will be used.
 
-There are a set of core rules that are enabled by default. You can find their descriptions in the [`./rules`](./rules) folder.
+## Default rules
+
+There are a set of core rules that are enabled by default, set to `Warning` DiagnosticLevel. You can find their descriptions in the [`./rules`](./rules) folder.
 
 ## Future
 
