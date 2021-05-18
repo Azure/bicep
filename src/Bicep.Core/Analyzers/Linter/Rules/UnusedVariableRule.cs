@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public UnusedVariableRule() : base(
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
-            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/",
+            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/UnusedVariableRule.md",
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 

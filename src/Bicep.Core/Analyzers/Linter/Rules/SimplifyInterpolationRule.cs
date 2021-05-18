@@ -18,7 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SimplifyInterpolationRule() : base(
             code: Code,
             description: CoreResources.SimplifyInterpolationRuleDescription,
-            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/")
+            docUri: "https://github.com/Azure/bicep/tree/main/docs/rules/SimplifyInterpolationRule.md")
         { }
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
