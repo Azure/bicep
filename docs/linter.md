@@ -4,7 +4,7 @@ The Bicep linter will inspect your code and catch a customizable set of authorin
 
 The linter should make it easier to enforce team coding standards by providing guidance during the development inner loop, as well as the ability to break a build (if desired) during continuous integration (CI) for violations.
 
-TO DO: ADD DEMO GIF HERE
+![linter demo](./images/linter.gif)
 
 ## Configuration
 
