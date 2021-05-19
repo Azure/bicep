@@ -1,5 +1,5 @@
 ﻿// Azure Functions (v2)
-resource ${1:azureFunction} 'Microsoft.Web/sites@2018-11-01' = {
+resource ${1:azureFunction} 'Microsoft.Web/sites@2020-12-01' = {
   name: ${2:'name'}
   location: resourceGroup().location
   kind: 'functionapp'
@@ -9,15 +9,15 @@ resource ${1:azureFunction} 'Microsoft.Web/sites@2018-11-01' = {
       appSettings: [
         {
           name: 'AzureWebJobsDashboard'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'
         }
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${6:storageAccountName2};AccountKey=${listKeys(${7:'storageAccountID2'}, '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${6:storageAccountName2};AccountKey=${listKeys(${7:'storageAccountID2'}, '2019-06-01').key1}'
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${8:storageAccountName3};AccountKey=${listKeys(${9:'storageAccountID3'}, '2015-05-01-preview').key1}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${8:storageAccountName3};AccountKey=${listKeys(${9:'storageAccountID3'}, '2019-06-01').key1}'
         }
         {
           name: 'WEBSITE_CONTENTSHARE'
