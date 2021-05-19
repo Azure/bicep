@@ -1,5 +1,5 @@
 ﻿// VPN Virtual Network Connection
-resource ${1:vpnVnetConnection} 'Microsoft.Network/connections@2019-11-01' = {
+resource ${1:vpnVnetConnection} 'Microsoft.Network/connections@2020-11-01' = {
   name: ${2:'name'}
   location: resourceGroup().location
   properties: {

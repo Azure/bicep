@@ -1,5 +1,5 @@
 ﻿// KeyVault
-resource ${1:keyVault} 'Microsoft.KeyVault/vaults@2016-10-01' = {
+resource ${1:keyVault} 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: ${2:'name'}
   location: resourceGroup().location
   properties: {

@@ -1,5 +1,5 @@
 ﻿// External Load Balancer
-resource ${1:loadBalancerExternal} 'Microsoft.Network/loadBalancers@2019-11-01' = {
+resource ${1:loadBalancerExternal} 'Microsoft.Network/loadBalancers@2020-11-01' = {
   name: ${2:'name'}
   location: resourceGroup().location
   properties: {

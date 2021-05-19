@@ -1,4 +1,4 @@
-resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: 'name'
   location: resourceGroup().location
   properties: {
