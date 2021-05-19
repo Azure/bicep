@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class EnvironmentUrlHardcodedRule : LinterRuleBase
     {
-        public new const string Code = "Environment URL hardcoded";
+        public new const string Code = "no-hardcoded-env-urls";
 
         private ImmutableHashSet<string>? DisallowedHosts;
 
@@ -24,7 +24,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
-            docUri: "https://bicep/linter/rules/BCPL1020")// TODO: setup up doc pages
+            docUri: "https://aka.ms/bicep/linter/no-hardcoded-env-urls")
         {
         }
 

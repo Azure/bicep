@@ -13,12 +13,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class SimplifyInterpolationRule : LinterRuleBase
     {
-        public new const string Code = "Simplify interpolation";
+        public new const string Code = "simplify-interpolation";
 
         public SimplifyInterpolationRule() : base(
             code: Code,
             description: CoreResources.SimplifyInterpolationRuleDescription,
-            docUri: "https://bicep/linter/rules/BCPL1080") // TODO: setup up doc pages
+            docUri: "https://aka.ms/bicep/linter/simplify-interpolation")
         { }
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
