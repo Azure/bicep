@@ -201,6 +201,9 @@ namespace Bicep.Core.Syntax
             };
         }
 
+        public static FunctionCallSyntax CreateFunctionCall(string functionName)
+            => CreateFunctionCall(functionName, new FunctionArgumentSyntax[0]);
+
         public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
         {
             var arguments = argumentExpressions.Select((expression, i) => new FunctionArgumentSyntax(

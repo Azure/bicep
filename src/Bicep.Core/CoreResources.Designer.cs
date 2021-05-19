@@ -115,7 +115,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Best practice dictates that location be set via parameter. That parameter may default to &apos;global&apos; or resourceGroup().location..
+        ///   Looks up a localized string similar to Best practice dictates that location be through a parameter that has no default or defaults to &apos;global&apos; or resourceGroup().location..
         /// </summary>
         internal static string LocationSetByParameterRuleDescription {
             get {
