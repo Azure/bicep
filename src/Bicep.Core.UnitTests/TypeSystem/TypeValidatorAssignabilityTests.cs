@@ -1067,7 +1067,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return typeProvider.GetType(typeReference, ResourceTypeGenerationFlags.None);
         }
 
-        private static (TypeSymbol result, IReadOnlyList<Diagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(SyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)
+        private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(SyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)
         {
             var binderMock = new Mock<IBinder>();
             binderMock.Setup(x => x.GetParent(It.IsAny<SyntaxBase>()))
