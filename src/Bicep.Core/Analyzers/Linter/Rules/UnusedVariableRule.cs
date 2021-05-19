@@ -11,12 +11,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class UnusedVariableRule : LinterRuleBase
     {
-        public new const string Code = "Unused variable";
+        public new const string Code = "no-unused-vars";
 
         public UnusedVariableRule() : base(
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
-            docUri: "https://bicep/linter/rules/BCPL1050", // TODO: setup up doc pages
+            docUri: "https://aka.ms/bicep/linter/no-unused-vars",
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
