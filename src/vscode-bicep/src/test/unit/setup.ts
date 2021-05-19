@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-process.env.NODE_ENV = "test";
-
 jest.mock(
   "vscode",
   () => ({

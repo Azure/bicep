@@ -6,8 +6,14 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: "module",
+    ecmaFeature: { jsx: true },
   },
   plugins: ["header"],
+  settings: {
+    react: {
+      version: "detect",
+    },
+  },
   extends: ["eslint:recommended", "plugin:prettier/recommended"],
   ignorePatterns: ["/out/**/*"],
   rules: {
@@ -22,13 +28,17 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["*.ts"],
+      files: ["*.ts", "*.tsx"],
       extends: [
+        "plugin:react/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:jest/all",
         "plugin:prettier/recommended",
       ],
       rules: {
+        "react/prop-types": "off",
+        "react/jsx-uses-react": "off",
+        "react/react-in-jsx-scope": "off",
         "jest/no-hooks": "off",
         "jest/prefer-expect-assertions": "off",
         "jest/expect-expect": [

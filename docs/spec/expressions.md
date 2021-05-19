@@ -59,7 +59,7 @@ Ternary operators operate on 3 operands. Bicep supports only one such operator.
 | `?` `:` | Conditional expression | `bool` `any` `any` | ` <true type> \| <false type> ` | `[if(<condition>, <true value>, <false value>)]` | Returns a value based on whether the condition is true or false |
 
 Example usage:
-```
+```bicep
 param replicateGlobally bool
 
 resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
@@ -92,7 +92,7 @@ Enclosing an expression between `(` and `)` allows you to override the default B
 
 ## Property accessors
 Property accessors are used to access properties of an object. They are constructed using the `.` operator. Consider the following:
-```
+```bicep
 var x = {
   y: {
     z: 'Hello`
@@ -109,7 +109,7 @@ Property accessors can be used with any object. This includes parameters and var
 ## Nested resource accessors
 Nested resource accessors are used to access resources that are declared inside another resource. The symbolic name declared by a nested resource can normally only be referenced within the body of the containing resource. To reference a nested resource outside the containing resource, it must be qualified with the containing resource name and the `::` operator. Other resources declared within the same containing resource may used the name without qualification.
 
-```
+```bicep
 resource myParent 'My.Rp/parentType@2020-01-01' = {
   name: 'myParent'
   location: 'West US'
@@ -141,7 +141,7 @@ Since the declaration of `myChild` is contained within `myParent` the access to 
 Array indexers serve two purposes. Most commonly, they are used to access items in an array. However, they can also be used to access properties of objects via expressions or string literals.
 
 Consider the following:
-```
+```bicep
 var index = 1
 
 var myArray = [
@@ -154,7 +154,7 @@ var myArray = [
 Arrays in Bicep are 0-based. In other words, the first item in an array is at index 0. As such, the expression `myArray[0]` will evaluate to `1` and `myArray[2]` will evaluate to `3`. The index of the indexer may itself be another expression. In the above example, `myArray[index]` would evaluate to `2`. Integer indexers are only allowed on expression of array types. Usage of integer indexers on other types is an error.
 
 String-based indexers are also allowed in Bicep. Consider the following:
-```
+```bicep
 param environment string = 'prod'
 
 var environmentSettings = {
@@ -168,7 +168,7 @@ var environmentSettings = {
 ```
 
 Given the above, the expression `environmentSettings['dev']` would evaluate to this object:
-```
+```bicep
 {
   name: 'dev'
 }
@@ -177,7 +177,7 @@ Given the above, the expression `environmentSettings['dev']` would evaluate to t
 Just like with integer indexers, the string indexer can also be an expression. Given the above example, the expression `environmentSettings[environment].name` would evaluate to `'dev'`, `'prod'`, or a runtime error depending on the value of the `environment` parameter. String-based indexers can only be used with expression of object type. Usage on expressions of other types is an error.
 
 In general, expressions are allowed anywhere where a value is specified in Bicep. For example you could use the expressions above in a resource declaration as follows:
-```
+```bicep
 resource site 'microsoft.web/sites@2018-11-01' = {
   name: environmentSettings[environment].name
   location: location

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Linq;
@@ -61,6 +61,11 @@ namespace Bicep.Core.TypeSystem.Az
             if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant))
             {
                 flags |= TypePropertyFlags.DeployTimeConstant;
+            }
+            if(!input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required) && !input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly))
+            {
+                // for non-required and non-readonly resource properties, we allow null assignment
+                flags |= TypePropertyFlags.AllowImplicitNull;
             }
 
             return flags;

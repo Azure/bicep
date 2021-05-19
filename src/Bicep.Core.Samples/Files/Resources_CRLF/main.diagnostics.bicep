@@ -42,7 +42,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   properties: {
     supportsHttpsTrafficOnly: !false
     accessTier: true ? 'Hot' : 'Cold'
-//@[16:37) [BCP036 (Warning)] The property "accessTier" expected a value of type "'Cool' | 'Hot'" but the provided value is of type "'Cold' | 'Hot'". |true ? 'Hot' : 'Cold'|
+//@[16:37) [BCP036 (Warning)] The property "accessTier" expected a value of type "'Cool' | 'Hot' | null" but the provided value is of type "'Cold' | 'Hot'". |true ? 'Hot' : 'Cold'|
     encryption: {
       keySource: 'Microsoft.Storage'
       services: {
@@ -82,7 +82,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
   properties: {
     name: hostingPlanName // just hostingPlanName results in an error
-//@[4:8) [BCP038 (Warning)] The property "name" is not allowed on objects of type "schemas:6_properties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". |name|
+//@[4:8) [BCP037 (Warning)] The property "name" is not allowed on objects of type "schemas:6_properties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". |name|
   }
 }
 
@@ -322,7 +322,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
+      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
+     
+      // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
   }
@@ -400,18 +402,6 @@ resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     addressSpace: {
       addressPrefixes: [
         '10.0.0.0/20'
-      ]
-    }
-  }
-}
-
-resource p2_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-  location: p1_vnet.location
-  name: 'myVnet2'
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/24'
       ]
     }
   }
@@ -501,3 +491,4 @@ output p4_res1childprop string = p4_child1.properties.someProp
 output p4_res1childname string = p4_child1.name
 output p4_res1childtype string = p4_child1.type
 output p4_res1childid string = p4_child1.id
+

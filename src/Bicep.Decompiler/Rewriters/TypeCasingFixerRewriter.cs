@@ -49,8 +49,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                         }
                         else
                         {
-                            var stringToken = new Token(TokenType.StringComplete, new TextSpan(0, 0), StringUtils.EscapeBicepString(insensitivePropertyKey), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
-                            newKeySyntax = new StringSyntax(stringToken.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), insensitivePropertyKey.AsEnumerable());
+                            newKeySyntax = SyntaxFactory.CreateStringLiteral(insensitivePropertyKey);
                         }
 
                         newChildren.Add(new ObjectPropertySyntax(
@@ -132,9 +131,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return base.ReplaceStringSyntax(syntax);
             }
 
-            var stringToken = new Token(TokenType.StringComplete, new TextSpan(0, 0), insensitiveMatch.Name, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
-
-            return new StringSyntax(stringToken.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), insensitiveMatch.RawStringValue.AsEnumerable());
+            return SyntaxFactory.CreateStringLiteral(insensitiveMatch.RawStringValue);
         }
     }
 }

@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageNamePrefix": {
+            "type": "string",
+            "maxLength": 11
+        }
+    },
+    "functions": [
+        {
+            "namespace": "contoso",
+            "members": {
+                "uniqueName": {
+                    "parameters": [
+                        {
+                            "name": "namePrefix",
+                            "type": "string"
+                        }
+                    ],
+                    "output": {
+                        "type": "string",
+                        "value": "[concat(toLower(parameters('namePrefix')), uniqueString(resourceGroup().id))]"
+                    }
+                }
+            }
+        }
+    ],
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[contoso.uniqueName(parameters('storageNamePrefix'))]",
+            "location": "South Central US",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "supportsHttpsTrafficOnly": true
+            }
+        }
+    ]
+}

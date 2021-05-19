@@ -19,13 +19,15 @@ using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Utils;
 using System.Collections.Generic;
 using Bicep.Core.FileSystem;
-using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.Navigation;
+using Bicep.LanguageServer.Snippets;
 
 namespace Bicep.LangServer.IntegrationTests
 {
     public static class IntegrationTestHelper
     {
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider();
+
         public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {
             resourceTypeProvider ??= TestTypeHelper.CreateEmptyProvider();
@@ -41,6 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     ResourceTypeProvider = resourceTypeProvider,
                     FileResolver = fileResolver,
+                    SnippetsProvider = SnippetsProvider
                 });
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 

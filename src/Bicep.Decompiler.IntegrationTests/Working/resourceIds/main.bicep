@@ -35,7 +35,7 @@ resource fooName_blah2 'Foo.Rp/bar@2019-06-01' = {
   name: '${fooName}blah2'
   location: location
   properties: {
-    foobar: reference('${fooName}bar').foo
+    foobar: fooName_bar.properties.foo
     foobarFull: reference('${fooName}bar', '2019-06-01', 'Full').properties.foo
     foobarLocation: reference('${fooName}bar', '2019-06-01', 'Full').location
     foobarResId: fooName_bar.properties.foo

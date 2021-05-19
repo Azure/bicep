@@ -20,7 +20,7 @@ resource NetworkWatcherName_FlowLogName 'Microsoft.Network/networkWatchers/flowL
     format: {
       type: 'JSON'
       version: FlowLogsversion
-//@[15:30) [BCP036 (Warning)] The property "version" expected a value of type "int" but the provided value is of type "string". |FlowLogsversion|
+//@[15:30) [BCP036 (Warning)] The property "version" expected a value of type "int | null" but the provided value is of type "string". |FlowLogsversion|
     }
   }
 }

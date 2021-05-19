@@ -49,8 +49,8 @@ module managementGroupModules 'modules/managementGroup.bicep' = [for (mg, i) in 
 module cannotUseModuleCollectionAsScope 'modules/managementGroup.bicep' = [for (mg, i) in []: {
   name: 'dep-${mg}'
   scope: managementGroupModules
-//@[9:31) [BCP036 (Error)] The property "scope" expected a value of type "managementGroup" but the provided value is of type "module[]". |managementGroupModules|
 //@[9:31) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |managementGroupModules|
+//@[9:31) [BCP036 (Error)] The property "scope" expected a value of type "managementGroup" but the provided value is of type "module[]". |managementGroupModules|
 }]
 
 module cannotUseSingleModuleAsScope 'modules/managementGroup.bicep' = [for (mg, i) in []: {

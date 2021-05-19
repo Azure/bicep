@@ -236,6 +236,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
+//@[7:55) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |propertyLoopInsideParameterValueInsideModuleLoop|
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
     objParam: {
@@ -257,3 +258,32 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
   }
 }]
 
+
+// BEGIN: Key Vault Secret Reference
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module secureModule1 'child/secureParams.bicep' = {
+  name: 'secureModule1'
+  params: {
+    secureStringParam1: kv.getSecret('mySecret')
+    secureStringParam2: kv.getSecret('mySecret','secretVersion')
+  }
+}
+
+resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+  scope: resourceGroup('otherGroup')
+}
+
+module secureModule2 'child/secureParams.bicep' = {
+  name: 'secureModule2'
+  params: {
+    secureStringParam1: scopedKv.getSecret('mySecret')
+    secureStringParam2: scopedKv.getSecret('mySecret','secretVersion')
+  }
+}
+
+// END: Key Vault Secret Reference

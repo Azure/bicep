@@ -43,7 +43,7 @@ const KEYWORDS = {
 
 const lineComment: Mode = {
   className: 'comment',
-  match: `//.*$`,
+  match: `//.*${before(`$`)}`,
 };
 
 const blockComment: Mode = {
@@ -116,17 +116,11 @@ const objectPropertyKeyIdentifier: Mode = {
 };
 
 const objectProperty: Mode = {
-  begin: `^${notBefore(`${ws}}`)}`,
-  end: `$`,
+  begin: `${after(`^`)}${notBefore(`${ws}}`)}`,
+  end: before(`$`),
   contains: withComments([
-    {
-      begin: after(`^${ws}`),
-      end: before(`${ws}:`),
-      contains: withComments([
-        stringLiteral,
-        objectPropertyKeyIdentifier,
-      ]),
-    },
+    objectPropertyKeyIdentifier,
+    stringLiteral,
     {
       begin: after(`:${ws}`),
       end: before(`${ws}$`),

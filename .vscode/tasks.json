@@ -71,6 +71,19 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Update Baselines",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "--filter",
+                "TestCategory=Baseline",
+                "--",
+                "TestRunParameters.Parameter(name=\"SetBaseLine\", value=\"true\")",
+            ],
+            "problemMatcher": "$msCompile"
         }
     ]
 }

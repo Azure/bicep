@@ -200,11 +200,11 @@ param duplicatedModifierProperty string {
 param secureInt int {
 //@[20:70) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: true\n  minLength: 3\n  maxLength: 123\n}|
   secure: true
-//@[2:8) [BCP038 (Error)] The property "secure" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |secure|
+//@[2:8) [BCP037 (Error)] The property "secure" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |secure|
   minLength: 3
-//@[2:11) [BCP038 (Error)] The property "minLength" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |minLength|
+//@[2:11) [BCP037 (Error)] The property "minLength" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |minLength|
   maxLength: 123
-//@[2:11) [BCP038 (Error)] The property "maxLength" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |maxLength|
+//@[2:11) [BCP037 (Error)] The property "maxLength" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |maxLength|
 }
 
 @secure()
@@ -277,8 +277,8 @@ param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
-//@[34:179) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions\n  default: 2 + 3\n  maxLength: a + 2\n  minLength: foo()\n  allowed: [\n    i\n  ]\n}|
-  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
+//@[34:176) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(10) -> symbolsPlusParamDefaultFunctions\n  default: 2 + 3\n  maxLength: a + 2\n  minLength: foo()\n  allowed: [\n    i\n  ]\n}|
+  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
   maxLength: a + 2
 //@[13:14) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
@@ -414,8 +414,8 @@ param paramAccessingVar2 string {
 }
 
 param paramAccessingResource string = sampleResource
-//@[38:52) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
 //@[38:52) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "Microsoft.Foo/foos@2020-02-02". |sampleResource|
+//@[38:52) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
 param paramAccessingResource2 string {
 //@[37:89) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: base64(sampleResource.properties.foo)\n}|
   default: base64(sampleResource.properties.foo)

@@ -8,6 +8,8 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.UnitTests.Assertions;
+using Azure.Deployments.Expression.Expressions;
+using System;
 
 namespace Bicep.Core.IntegrationTests.ArmHelpers
 {
@@ -99,17 +101,41 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         [DataTestMethod]
         [DataRow("{\"val\": \"[replaceMe()]\"}", "{\"val\": \"[replaced()]\"}")]
         [DataRow("{\"val\": [\"[replaceMe()]\"]}", "{\"val\": [\"[replaced()]\"]}")]
+        [DataRow("{\"val\": [\"[nested(replaceMe())]\"]}", "{\"val\": [\"[nested(replaced())]\"]}")]
+        [DataRow("{\"[replaceMe()]\": \"val\"}", "{\"[replaced()]\": \"val\"}")]
         [DataRow("\"[replaceMe()]\"", "\"[replaced()]\"")]
-        public void ReplaceFunctionExpressions_replaces_function_expressions(string jsonInput, string expectedJsonOutput)
+        public void RewriteExpressions_replaces_expressions(string jsonInput, string expectedJsonOutput)
         {
             var input = JToken.Parse(jsonInput);
-            var output = ExpressionHelpers.ReplaceFunctionExpressions(input, function => {
-                if (function.Function == "replaceMe") {
-                    function.Function = "replaced";
+            var output = JTokenHelpers.RewriteExpressions(input, expression => {
+                if (expression is FunctionExpression function && function.Function == "replaceMe") {
+                    return new FunctionExpression("replaced", Array.Empty<LanguageExpression>(), Array.Empty<LanguageExpression>());
                 }
+
+                return expression;
             });
 
             output.Should().DeepEqual(JToken.Parse(expectedJsonOutput));
+        }
+
+        [DataTestMethod]
+        [DataRow("{\"val\": \"[visitMe()]\"}")]
+        [DataRow("{\"val\": [\"[visitMe()]\"]}")]
+        [DataRow("{\"val\": [\"[nested(visitMe())]\"]}")]
+        [DataRow("{\"[visitMe()]\": \"val\"}")]
+        [DataRow("\"[visitMe()]\"")]
+        public void VisitExpressions_visits_expressions(string jsonInput)
+        {
+            var input = JToken.Parse(jsonInput);
+
+            var visited = false;
+            JTokenHelpers.VisitExpressions(input, expression => {
+                if (expression is FunctionExpression function && function.Function == "visitMe") {
+                    visited = true;
+                }
+            });
+
+            visited.Should().BeTrue();
         }
     }
 }

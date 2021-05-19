@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "arguments"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "arguments:"
+    }
   },
   {
     "label": "azPowerShellVersion",
@@ -35,11 +32,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "azPowerShellVersion"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "azPowerShellVersion:"
+    }
   },
   {
     "label": "cleanupPreference",
@@ -56,11 +50,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "cleanupPreference"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "cleanupPreference:"
+    }
   },
   {
     "label": "containerSettings",
@@ -77,11 +68,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "containerSettings"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "containerSettings:"
+    }
   },
   {
     "label": "environmentVariables",
@@ -98,11 +86,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "environmentVariables"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "environmentVariables:"
+    }
   },
   {
     "label": "forceUpdateTag",
@@ -119,11 +104,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "forceUpdateTag"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "forceUpdateTag:"
+    }
   },
   {
     "label": "primaryScriptUri",
@@ -140,11 +122,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "primaryScriptUri"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "primaryScriptUri:"
+    }
   },
   {
     "label": "retentionInterval",
@@ -161,11 +140,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "retentionInterval"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "retentionInterval:"
+    }
   },
   {
     "label": "scriptContent",
@@ -182,11 +158,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "scriptContent"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "scriptContent:"
+    }
   },
   {
     "label": "storageAccountSettings",
@@ -203,11 +176,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "storageAccountSettings"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "storageAccountSettings:"
+    }
   },
   {
     "label": "supportingScriptUris",
@@ -224,11 +194,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "supportingScriptUris"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "supportingScriptUris:"
+    }
   },
   {
     "label": "timeout",
@@ -245,10 +212,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "timeout"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "timeout:"
+    }
   }
 ]

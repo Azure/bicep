@@ -1,6 +1,7 @@
-﻿// $1 = 'testRouteTabl/route'
-// $2 = '0.11.26.162'
-// $3 = None
-// $4 = '248.233.26.131'
+﻿// $1 = routeTableRoute
+// $2 = 'routeTableName/name'
+// $3 = '0.11.26.162'
+// $4 = 'None'
+// $5 = '248.233.26.131'
 
 // Insert snippet here

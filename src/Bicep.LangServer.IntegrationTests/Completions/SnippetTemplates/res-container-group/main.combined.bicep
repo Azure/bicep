@@ -1,12 +1,12 @@
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
-  name: 'testContainerGroup'
+  name: 'name'
   location: resourceGroup().location
   properties: {
     containers: [
       {
-        name: 'testContainerName'
+        name: 'containername'
         properties: {
-          image: 'testContainerImage'
+          image: 'mcr.microsoft.com/azuredocs/aci-helloworld:latest'
           ports: [
             {
               port: 80

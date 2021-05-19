@@ -1,8 +1,9 @@
 resource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {
-  name: 'testRecoveryServiceVault'
+  name: 'name'
   location: resourceGroup().location
   sku: {
-    name: 'Standard'
+    name: 'RS0'
     tier: 'Standard'
   }
 }
+

@@ -50,7 +50,7 @@ resource secrets3 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret i
 }]
 
 resource secrets4 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret in secretsObject.secrets: if (true) {
-  'name': 'test'
+  'name': 'test/child'
   properties:{
   }
 }]

@@ -23,12 +23,16 @@ module moduleWithoutPath = {
 }
 //@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |}|
 
+// #completionTest(41) -> moduleBodyCompletions
+module moduleWithPath './moduleb.bicep' =
+//@[41:41) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
+
 // missing identifier #completionTest(7) -> empty
 module 
 //@[7:7) [BCP096 (Error)] Expected a module identifier at this location. ||
 //@[7:7) [BCP090 (Error)] This module declaration is missing a file path reference. ||
 
-// #completionTest(24,25) -> object
+// #completionTest(24,25) -> moduleObject
 module missingValue '' = 
 //@[20:22) [BCP050 (Error)] The specified module path is empty. |''|
 //@[25:25) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
@@ -189,9 +193,9 @@ module modAUnspecifiedInputs './modulea.bicep' = {
     stringParamB: ''
     objParam: {}
     objArray: []
-//@[4:12) [BCP038 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
+//@[4:12) [BCP037 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
     unspecifiedInput: ''
-//@[4:20) [BCP038 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
+//@[4:20) [BCP037 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
   }
 }
 
@@ -278,30 +282,32 @@ module runtimeValidModule1 'empty.bicep' = {
 
 module runtimeInvalidModule1 'empty.bicep' = {
   name: runtimeValidRes1.location
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 }
 
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
   name: runtimeValidRes1.sku.name
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.sku.name|
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku.name|
 }
 
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.sku['name']|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
-//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['sku']['name']|
+//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku']['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['sku'].name|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
 }
 
 module singleModuleForRuntimeCheck 'modulea.bicep' = {
@@ -313,24 +319,27 @@ var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
 var moduleRuntimeCheck2 = moduleRuntimeCheck
 
 module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
+//@[7:32) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |moduleLoopForRuntimeCheck|
 //@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck|
   name: moduleRuntimeCheck2
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Accessible properties of singleModuleForRuntimeCheck are "name", "scope". |moduleRuntimeCheck2|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Accessible properties of singleModuleForRuntimeCheck are "name". |moduleRuntimeCheck2|
 }]
 
 var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
 var moduleRuntimeCheck4 = moduleRuntimeCheck3
 module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
+//@[7:33) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |moduleLoopForRuntimeCheck2|
 //@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck2|
   name: moduleRuntimeCheck4
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleRuntimeCheck4|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleRuntimeCheck4|
 }]
 
 module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
+//@[7:33) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |moduleLoopForRuntimeCheck3|
 //@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck3|
   name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
-//@[15:65) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleLoopForRuntimeCheck[1].outputs.stringOutputB|
-//@[67:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name", "scope". |moduleLoopForRuntimeCheck[1].outputs.stringOutputA|
+//@[15:65) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleLoopForRuntimeCheck[1].outputs.stringOutputB|
+//@[67:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleLoopForRuntimeCheck[1].outputs.stringOutputA|
 }]
 
 module moduleWithDuplicateName1 './empty.bicep' = {
@@ -515,7 +524,7 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if(true) {
@@ -527,7 +536,7 @@ module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
@@ -540,7 +549,7 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     notAThing: 'test'
-//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+//@[4:13) [BCP037 (Error)] The property "notAThing" is not allowed on objects of type "params". No other properties are allowed. |notAThing|
   }
 }]
 
@@ -549,7 +558,7 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
     // #completionTest(0,1,2) -> moduleAParams
-
+  
   }
 }]
 
@@ -560,6 +569,7 @@ var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilte
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'
 module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
+//@[7:24) [BCP179 (Warning)] The loop item variable "evenMoreDuplicates" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |nonexistentArrays|
 //@[70:86) [BCP057 (Error)] The name "alsoDoesNotExist" does not exist in the current context. |alsoDoesNotExist|
   name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
 //@[17:55) [BCP057 (Error)] The name "whyChooseRealVariablesWhenWeCanPretend" does not exist in the current context. |whyChooseRealVariablesWhenWeCanPretend|
@@ -598,6 +608,7 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
 }
 
 module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
+//@[7:39) [BCP179 (Warning)] The loop item variable "test" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |directRefToCollectionViaLoopBody|
   name: 'hello3'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
@@ -609,6 +620,7 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
 }]
 
 module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
+//@[7:57) [BCP179 (Warning)] The loop item variable "test" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |directRefToCollectionViaLoopBodyWithExtraDependsOn|
   name: 'hello4'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
@@ -617,7 +629,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
     objParam: {}
     stringParamB: ''
     dependsOn: [
-//@[4:13) [BCP038 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
+//@[4:13) [BCP037 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". |dependsOn|
       nonexistentArrays
 //@[6:23) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     ]
@@ -637,4 +649,67 @@ module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 //@[68:75) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |'hello'|
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[68:74) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. |concat|
+
+module anyTypeInScope 'empty.bicep' = {
+//@[7:21) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScope|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScopeConditional|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[7:25) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". |anyTypeInScopeLoop|
+  dependsOn: [
+    any('s')
+//@[4:12) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('s')|
+  ]
+
+  scope: any(42)
+//@[9:16) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(42)|
+}]
+
+// Key Vault Secret Reference
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module secureModule1 'moduleb.bicep' = {
+  name: 'secureModule1'
+  params: {       
+    stringParamA: kv.getSecret('mySecret')
+//@[18:42) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    stringParamB: '${kv.getSecret('mySecret')}'
+//@[21:45) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    objParam: kv.getSecret('mySecret')
+//@[14:38) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[14:38) [BCP036 (Error)] The property "objParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
+    arrayParam: kv.getSecret('mySecret')
+//@[16:40) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+//@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "string". |kv.getSecret('mySecret')|
+    secureStringParam: '${kv.getSecret('mySecret')}'
+//@[26:50) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    secureObjectParam: kv.getSecret('mySecret')
+//@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+//@[27:51) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+    secureObjectParam2: kv.getSecret('mySecret')
+//@[24:48) [BCP036 (Error)] The property "secureObjectParam2" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
+  }
+}
 

@@ -1,0 +1,38 @@
+[
+  {
+    "label": "id",
+    "kind": "property",
+    "detail": "id",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nResource ID.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_id",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "id"
+    }
+  },
+  {
+    "label": "properties",
+    "kind": "property",
+    "detail": "properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `SubnetPropertiesFormat`  \nProperties of the subnet.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_properties",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "properties"
+    }
+  }
+]

@@ -94,6 +94,7 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void Parser_should_produce_expected_syntax(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);

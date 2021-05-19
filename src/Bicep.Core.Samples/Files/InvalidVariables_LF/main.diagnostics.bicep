@@ -214,9 +214,9 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 
 // Issue 486
 var myFloat = 3.14
+//@[16:16) [BCP055 (Error)] Cannot access properties of type "int". An "object" type is required. ||
 //@[16:16) [BCP020 (Error)] Expected a function or property name at this location. ||
 //@[16:18) [BCP019 (Error)] Expected a new line character at this location. |14|
-//@[16:16) [BCP055 (Error)] Cannot access properties of type "int". An "object" type is required. ||
 
 // secure cannot be used as a varaible decorator
 @sys.secure()
@@ -297,6 +297,7 @@ var runtimeLoop3 = [for (zone, i) in zoneInput: {
 
 var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
 //@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. |for|
+//@[37:84) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of zones are "apiVersion", "id", "name", "type". |zones[0].properties.registrationVirtualNetworks|
   a: 0
 }]
 
@@ -320,4 +321,27 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 @batchSize(1)
 //@[1:10) [BCP126 (Error)] Function "batchSize" cannot be used as a variable decorator. |batchSize|
 var batchSizeMakesNoSenseHere = false
+
+
+//KeyVault Secret Reference
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+var keyVaultSecretVar = kv.getSecret('mySecret')
+//@[24:48) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
+//@[39:63) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+var keyVaultSecretObjectVar = {
+  secret: kv.getSecret('mySecret')
+//@[10:34) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+}
+var keyVaultSecretArrayVar = [
+  kv.getSecret('mySecret')
+//@[2:26) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+]
+var keyVaultSecretArrayInterpolatedVar = [
+  '${kv.getSecret('mySecret')}'
+//@[5:29) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
+]
 

@@ -4,4 +4,4 @@ node_modules
 *.vsix
 .vscode-test
 coverage
-bicep.tmlanguage
+syntaxes/bicep.tmlanguage

@@ -62,6 +62,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Module type
         /// </summary>
-        Module,
+        Module
     }
 }

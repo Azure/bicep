@@ -122,5 +122,11 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is after the resource type.
         /// </summary>
         ResourceTypeFollower = 1 << 21,
+
+        /// <summary>
+        /// This is used in conjunction with ObjectPropertyName and indicates that the colon token
+        /// is present in the ObjectPropertySyntax and does not need to be included in the completion.
+        /// </summary>
+        ObjectPropertyColonExists = 1 << 22
     }
 }
