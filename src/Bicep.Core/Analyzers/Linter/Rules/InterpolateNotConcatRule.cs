@@ -17,12 +17,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class InterpolateNotConcatRule : LinterRuleBase
     {
-        public new const string Code = "interpolate-not-concat";
+        public new const string Code = "prefer-interpolation";
 
         public InterpolateNotConcatRule() : base(
             code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/interpolate-not-concat")
+            docUri: "https://aka.ms/bicep/linter/prefer-interpolation")
         { }
 
         private CodeReplacement GetCodeReplacement(TextSpan span)

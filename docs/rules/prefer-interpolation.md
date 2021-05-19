@@ -1,14 +1,14 @@
 # Interpolation preferred
 
-**Code**: interpolate-not-concat
+**Code**: prefer-interpolation
 
-**Description**: Interpolation should be used instead of concat function.
+**Description**: String interpolation should be used instead of the concat function.
 
 The following example fails this test because the concat function is used.
 
 ```bicep
 param suffix string = '001'
-var vnetName = concat('vnet-', parameters('suffix'))
+var vnetName = concat('vnet-', suffix)
 
 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
   name: vnetName

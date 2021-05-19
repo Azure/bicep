@@ -35,4 +35,4 @@ If you have an idea for a new rule, please [submit a feature request](https://gi
 
 ## ARM template test toolkit (arm-ttk)
 
-We've ported over the rules from the [ARM template test toolkit (arm-ttk)](https://docs.microsoft.com/azure/azure-resource-manager/templates/test-toolkit) that make sense for Bicep. We recommend using the Bicep linter when working with Bicep, and arm-ttk when working with ARM templates. It is not advised to run arm-ttk on Bicep generated templates.
+We've ported over most of the rules from the [ARM template test toolkit (arm-ttk)](https://docs.microsoft.com/azure/azure-resource-manager/templates/test-toolkit) that make sense for Bicep (more to come). We recommend using the Bicep linter when working with Bicep, and arm-ttk when working with ARM templates. It is not advised to run arm-ttk on Bicep generated templates. Bicep output is not guaranteed to pass the arm-ttk rules even if it passes the Bicep rules.
