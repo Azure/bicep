@@ -4,7 +4,7 @@
       "verbose": false,
       "enabled": true,
       "rules": {
-        "Environment URL hardcoded": {
+        "no-hardcoded-env-urls": {
           "diagnosticlevel": "Warning",
           "disallowedhosts": [
             "management.core.windows.net",
