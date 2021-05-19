@@ -8,7 +8,7 @@ The linter should make it easier to enforce team coding standards by providing g
 
 ## Configuration
 
-[`bicepsettings.json`](./src/Bicep.Core/Configuration/bicepsettings.json) can be used to:
+[`bicepsettings.json`](../src/Bicep.Core/Configuration/bicepsettings.json) can be used to:
 
 - enable/disable analyzers
 - set rule-specific values (e.g. DisallowedHosts for [`EnvironmentUrlHardcodedRule`](./rules/EnvironmentUrlHardcodedRule.md) rule)
@@ -25,13 +25,13 @@ The linter should make it easier to enforce team coding standards by providing g
 
 ## Default rules
 
-There are a set of core rules that are enabled by default, set to `Warning` DiagnosticLevel. You can find their descriptions in the [`./rules`](./rules) folder.
+There are a set of core rules that are enabled by default, set to `Warning` DiagnosticLevel. You can find their descriptions in the [`./linter-rules`](./linter-rules) folder.
 
 ## Future
 
 The linter is being designed to be extensible so new rules can be added by either the Bicep team or the community. In the 0.5 milestone, we will be focusing more on extensibility, making it as easy as possible to contribute new rules and/or analyzers.
 
-If you have an idea for a new rule, please [submit a feature request](https://github.com/Azure/bicep/issues/new/choose) using the ```linting-rule``` GitHub label: [![linter-rule](https://img.shields.io/github/issues/Azure/Bicep/linting-rule?color=important&label=linting-rule)](https://github.com/Azure/Bicep/issues?q=is%3Aissue+is%3Aopen+label%3A%22linting-rule%22)
+If you have an idea for a new rule, please [submit a feature request](https://github.com/Azure/bicep/issues/new/choose) including "linter-rule" in the title.
 
 ## ARM template test toolkit (arm-ttk)
 
