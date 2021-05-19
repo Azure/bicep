@@ -9,6 +9,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,18 +21,24 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void ExpectPass(string text)
         {
-            var errors = GetDiagnostics(SimplifyInterpolationRule.Code, text);
-            errors.Should().HaveCount(0);
+            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
+            {
+                var errors = GetDiagnostics(SimplifyInterpolationRule.Code, text);
+                errors.Should().HaveCount(0, $"Expecting linter rule to pass. Text: {text}");
+            }
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)
         {
-            var errors = GetDiagnostics(SimplifyInterpolationRule.Code, text);
-            errors.Should().HaveCount(1);
+            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
+            {
+                var errors = GetDiagnostics(SimplifyInterpolationRule.Code, text);
+                errors.Should().HaveCount(1, $"expected one fix per testcase.  Text: {text}");
 
-            errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-            errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-            errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Equals(expectedFix);
+                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
+                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
+                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Be(expectedFix);
+            }
         }
 
         [DataRow(

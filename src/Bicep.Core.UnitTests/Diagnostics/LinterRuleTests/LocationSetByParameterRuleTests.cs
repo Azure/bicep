@@ -5,6 +5,7 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
@@ -15,8 +16,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void CompileAndTest(string text, int expectedDiagnosticCount)
         {
-            var errors = GetDiagnostics(LocationSetByParameterRule.Code, text);
-            errors.Should().HaveCount(expectedDiagnosticCount);
+            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
+            {
+                var errors = GetDiagnostics(LocationSetByParameterRule.Code, text);
+                errors.Should().HaveCount(expectedDiagnosticCount);
+            }
         }
 
         [TestMethod]
@@ -371,7 +375,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 location: resourceGroup().location
             }";
 
-            CompileAndTest(text, 0);
+            CompileAndTest(text, 1);
         }
 
         public void ResourceLoops()

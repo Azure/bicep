@@ -9,6 +9,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,12 +21,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         protected void CompileAndTest(string text, int expectedDiagnosticCount)
         {
-            var errors = GetDiagnostics(SecureParameterDefaultRule.Code, text);
-            errors.Should().HaveCount(expectedDiagnosticCount);
-            if (errors.Any())
+            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
-                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Be("",
-                    "Fix is to replace the default value syntax with empty code");
+                var errors = GetDiagnostics(SecureParameterDefaultRule.Code, text);
+                errors.Should().HaveCount(expectedDiagnosticCount);
+                if (errors.Any())
+                {
+                    errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Be(
+                        "",
+                        "the fix is to remove the default value");
+                }
             }
         }
 

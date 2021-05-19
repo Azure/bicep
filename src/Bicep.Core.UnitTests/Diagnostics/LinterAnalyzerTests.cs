@@ -109,7 +109,7 @@ param param1 string = 'val'";
             diag.Code.Should().Match(LinterRuleBase.FailedRuleCode);
 
             diag.Span.Should().NotBeNull();
-            diag.Span.Position.Should().Equals(0);
+            diag.Span.Position.Should().Be(0);
         }
 
     }
