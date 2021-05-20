@@ -5,11 +5,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="bicepsettings.json" />
+		<None Remove="bicepconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Configuration\bicepsettings.json" />
+		<EmbeddedResource Include="Configuration\bicepconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>

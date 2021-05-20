@@ -19,7 +19,7 @@ namespace Bicep.Core.Analyzers.Linter
     internal class LinterAnalyzer : IBicepAnalyzer
     {
         public const string SettingsRoot = "analyzers";
-        public const string AnalyzerName = "bicepcorelinter";
+        public const string AnalyzerName = "core";
         public static string LinterEnabledSetting => $"{SettingsRoot}:{AnalyzerName}:enabled";
         public static string LinterVerboseSetting => $"{SettingsRoot}:{AnalyzerName}:verbose";
 

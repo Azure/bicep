@@ -118,11 +118,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BicepConfigCustomSettingsFoundFormatMessage" xml:space="preserve">
-    <value>Custom bicepsettings.json file found [{0}].</value>
+    <value>Custom bicepconfig.json file found [{0}].</value>
     <comment>message to indicate that a custom settings file was found {0} is the file location</comment>
   </data>
   <data name="BicepConfigNoCustomSettingsMessage" xml:space="preserve">
-    <value>No bicepsettings.json found for configuration override.</value>
+    <value>No bicepconfig.json found for configuration override.</value>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current.</value>

@@ -1,13 +1,11 @@
 {
   "analyzers": {
-    "bicepcorelinter": {
-      "verbose": true,
+    "core": {
+      "verbose": false,
       "enabled": true,
       "rules": {
-        // If not specified, all the following rules default to warnings
         "no-hardcoded-env-urls": {
           "diagnosticlevel": "warning",
-          // This only needs to be specified if it should be modified
           "disallowedhosts": [
             "management.core.windows.net",
             "gallery.azure.com",
@@ -33,21 +31,6 @@
             "region.asazure.windows.net",
             "batch.core.windows.net"
           ]
-        },
-        "no-unused-params": {
-          "diagnosticlevel": "off"
-        },
-        "no-unused-vars": {
-          "diagnosticlevel": "off"
-        },
-        "prefer-interpolation": {
-          "diagnosticlevel": "warning"
-        },
-        "secure-paramenter-default": {
-          "diagnosticlevel": "error"
-        },
-        "simplify-interpolation": {
-          "diagnosticlevel": "warning"
         }
       }
     }
