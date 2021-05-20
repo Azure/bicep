@@ -130,6 +130,7 @@ namespace Bicep.Cli.IntegrationTests
                 result.Should().Be(0);
                 output.Should().BeEmpty();
                 AssertNoErrors(error, dataSet.Name);
+                error.Should().Match($"{bicepFilePath}(22,7) : Warning Parameters must be used: Declared parameter must be referenced within the document scope.{Environment.NewLine}");
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);

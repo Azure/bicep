@@ -13,13 +13,14 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Analyzers.Linter.Rules;
 
 namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
     public class DecompileTests
     {
-        private const string ValidTemplate =  @"{
+        private const string ValidTemplate = @"{
                 ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
                 ""contentVersion"": ""1.0.0.0"",
                 ""parameters"": {},
@@ -180,7 +181,9 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEquivalentTo(
                     "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
                     "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
+                    $"{bicepFileName}(3,3) : Warning {LocationSetByParameterRule.Code}: {new LocationSetByParameterRule().GetMessage()}"
+                );
                 result.Should().Be(0);
             }
 
@@ -222,6 +225,10 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error, result) = ExecuteProgram("decompile", "--stdout", fileName);
 
+            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
+            Directory.CreateDirectory(outputFileDir);
+            var bicepFileName = Path.Combine(outputFileDir, "main.bicep");
+
             using (new AssertionScope())
             {
                 output.Should().BeEquivalentTo(
@@ -235,7 +242,9 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEquivalentTo(
                     "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
                     "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
+                    $"{bicepFileName}(3,3) : Warning {LocationSetByParameterRule.Code}: {new LocationSetByParameterRule().GetMessage()}"
+                );
                 result.Should().Be(0);
             }
         }
@@ -256,7 +265,9 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEquivalentTo(
                     "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
                     "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
+                    $"{bicepFileName}(3,3) : Warning {LocationSetByParameterRule.Code}: {new LocationSetByParameterRule().GetMessage()}"
+                );
                 result.Should().Be(0);
             }
 
@@ -282,7 +293,9 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEquivalentTo(
                     "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
                     "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
+                    $"{expectedOutputFile}(3,3) : Warning {LocationSetByParameterRule.Code}: {new LocationSetByParameterRule().GetMessage()}"
+                );
                 result.Should().Be(0);
             }
 
@@ -341,7 +354,7 @@ namespace Bicep.Cli.IntegrationTests
             var (output, error, result) = ExecuteProgram("decompile", "--stdout", badPath);
             var expectedErrorBadPath = Path.GetFullPath(badPath);
             var expectedErrorBadUri = PathHelper.FilePathToFileUrl(expectedErrorBadPath);
-            
+
             using (new AssertionScope())
             {
                 output.Should().BeEmpty();

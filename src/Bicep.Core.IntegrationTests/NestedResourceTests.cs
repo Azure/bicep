@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
@@ -629,7 +630,10 @@ output subnet1id string = vnet::subnet1.id
 
             using (new AssertionScope())
             {
-                diags.Should().BeEmpty();
+                diags.Should().HaveDiagnostics(new[]
+                {
+                    (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
+                });
 
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'myVnet', 'subnet1')]");
                 template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray { "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]" });

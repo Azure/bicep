@@ -31,6 +31,8 @@
 		<InternalsVisibleTo Include="Bicep.Core.Samples" />
 		<InternalsVisibleTo Include="Bicep.Decompiler.IntegrationTests" />
 		<InternalsVisibleTo Include="Bicep.LangServer.UnitTests" />
+		<InternalsVisibleTo Include="Bicep.Cli.IntegrationTests" />
+		<InternalsVisibleTo Include="Bicep.Core.IntegrationTests" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CoreResources.Designer.cs">

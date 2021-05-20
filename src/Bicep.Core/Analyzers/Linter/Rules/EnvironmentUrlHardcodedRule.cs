@@ -35,7 +35,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                     .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
-        protected override string GetFormattedMessage(params object[] values)
+        protected override string FormatMessage(params object[] values)
             => string.Format("{0} -- Found: [{1}]", this.Description, values.First());
 
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)

@@ -32,6 +32,7 @@ namespace Bicep.Core.Analyzers.Linter
         internal const string FailedRuleCode = "Linter Rule Error";
         private IConfigurationRoot? Config;
         public string AnalyzerName { get; }
+
         public string Code { get; }
         public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:rules";
         public bool Enabled => this.DiagnosticLevel != DiagnosticLevel.Off;
@@ -39,6 +40,13 @@ namespace Bicep.Core.Analyzers.Linter
         public string Description { get; }
         public string DocumentationUri { get; }
         public Diagnostics.DiagnosticLabel? DiagnosticLabel { get; }
+
+        /// <summary>
+        /// Override to implement detailed message for rule
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        protected virtual string FormatMessage(params object[] values) => this.Description;
 
         public virtual void Configure(IConfigurationRoot config)
         {
@@ -51,24 +59,16 @@ namespace Bicep.Core.Analyzers.Linter
         }
 
         /// <summary>
-        /// GetMessage allows a linter rule display message to be dynamic without
-        /// resorting to side-effect inducing work in the Description property.
-        /// Should be overridden in any rule with a complex message requirement.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual string GetMessage() => this.Description;
-
-        /// <summary>
-        /// Gets a formatted message using the supplied parameter values.
-        /// In the base class this ignores the parameters and will throw
-        /// an exception if called in Debug build.
+        /// Gets a message using the supplied parameter values (if any).
+        /// Otherwise returns the rule description
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        protected virtual string GetFormattedMessage(params object[] values)
+        internal string GetMessage(params object[] values)
         {
-            Debug.Assert(values == null || values.Length == 0, "LinterRule GetFormattedMessage when needed should always be overridden. Values are ignored in base class.");
-            return this.Description;
+            return values.Any()
+                ? FormatMessage(values)
+                : this.Description;
         }
 
         public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
@@ -147,7 +147,7 @@ namespace Bicep.Core.Analyzers.Linter
                 span: span,
                 level: this.DiagnosticLevel,
                 code: this.Code,
-                message: this.GetFormattedMessage(values),
+                message: this.GetMessage(values),
                 label: this.DiagnosticLabel);
 
         internal virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>

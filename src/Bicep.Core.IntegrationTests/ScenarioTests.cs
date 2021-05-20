@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -361,7 +362,9 @@ var issue = true ? {
 } : {}
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage())
+                });
             result.Template.Should().HaveValueAtPath("$.variables.issue", "[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
         }
 
@@ -460,7 +463,9 @@ resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
 }
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                  (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
+                });
             result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'nestedDeployment')].subscriptionId", "abcd-efgh");
             result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'nestedDeployment')].resourceGroup", "bicep-rg");
         }
@@ -659,6 +664,7 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
 
             result.Template.Should().NotHaveValue();
             result.Should().HaveDiagnostics(new[] {
+                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
                 ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
                 ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
@@ -926,7 +932,10 @@ output singleResource object = singleResource
 output allResources array = allResources.resourceTypes
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+                });
             result.Template.Should().HaveValueAtPath("$.variables['singleResource']", "[providers('Microsoft.Insights', 'components')]");
             result.Template.Should().HaveValueAtPath("$.variables['firstApiVersion']", "[variables('singleResource').apiVersions[0]]");
             result.Template.Should().HaveValueAtPath("$.variables['allResources']", "[providers('Microsoft.Insights')]");
@@ -959,6 +968,7 @@ output bar int = 42
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
             });
         }
 
@@ -1031,7 +1041,7 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
         // https://github.com/azure/bicep/issues/657
         public void Test_Issue657_discriminators()
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
@@ -1129,7 +1139,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
         // https://github.com/azure/bicep/issues/657
         public void Test_Issue657_enum()
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
@@ -1284,7 +1294,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1324,7 +1334,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1369,7 +1379,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('vnets')[copyIndex()])]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1457,13 +1467,16 @@ output providerOutput object = {
                 }
             };
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with {
-                Metadata = new() {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            {
+                Metadata = new()
+                {
                     ["providers"] = JToken.FromObject(providersMetadata),
                 }
             });
 
-            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject {
+            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject
+            {
                 ["namespace"] = "Microsoft.Web",
                 ["resourceTypes"] = new JArray {
                     new JObject {
@@ -1474,7 +1487,8 @@ output providerOutput object = {
                 }
             });
 
-            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.otherThing", new JObject {
+            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.otherThing", new JObject
+            {
                 ["resourceType"] = "sites",
                 ["locations"] = new JArray { "West US", "East US" },
                 ["apiVersions"] = new JArray { "2019-01-01", "2020-01-01" },
@@ -1509,8 +1523,10 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
                 }
             };
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with {
-                Metadata = new() {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            {
+                Metadata = new()
+                {
                     ["providers"] = JToken.FromObject(providersMetadata),
                 }
             });
@@ -1867,9 +1883,12 @@ resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.f
 ");
 
             result.Should().HaveDiagnostics(new[] {
+                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
                 ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"test\" -> \"rg\"). Accessible properties of rg are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of rg2 are \"apiVersion\", \"id\", \"name\", \"type\".")
+                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
+                ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of rg2 are \"apiVersion\", \"id\", \"name\", \"type\"."),
+                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
             });
         }
 
