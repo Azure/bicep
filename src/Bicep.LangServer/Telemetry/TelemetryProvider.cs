@@ -12,7 +12,7 @@ namespace Bicep.LanguageServer.Telemetry
 
         public void PostEvent(TelemetryEvent telemetryEvent)
         {
-            if (telemetryEvent == null || telemetryEvent.Properties?.Count == 0)
+            if (telemetryEvent is null || telemetryEvent.Properties?.Count == 0)
             {
                 return;
             }

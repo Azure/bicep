@@ -85,11 +85,19 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
+                    Dictionary<string, string> properties = new Dictionary<string, string>()
+                    {
+                        { "label", resourceSnippet.Prefix }
+                    };
+                    TelemetryEvent telemetryEvent = new("declaration-snippet-completion", properties);
+                    Command command = Command.Create("bicep.telemetry", telemetryEvent);
+
                     yield return CreateContextualSnippetCompletion(resourceSnippet.Prefix,
                                                                    resourceSnippet.Detail,
                                                                    resourceSnippet.Text,
                                                                    context.ReplacementRange,
-                                                                   resourceSnippet.CompletionPriority);
+                                                                   resourceSnippet.CompletionPriority,
+                                                                   command: command);
                 }
             }
 
@@ -399,20 +407,12 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet snippet in snippets)
                 {
-                    Dictionary<string, string> properties = new Dictionary<string, string>()
-                    {
-                        { "label", snippet!.Prefix }
-                    };
-                    TelemetryEvent telemetryEvent = new("snippet-insertion", properties);
-                    Command command = Command.Create("bicep.telemetry", telemetryEvent);
-
                     yield return CreateContextualSnippetCompletion(snippet!.Prefix,
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
                         snippet.CompletionPriority,
-                        preselect: true,
-                        command: command);
+                        preselect: true);
                 }
             }
         }
