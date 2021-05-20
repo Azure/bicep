@@ -25,11 +25,6 @@ namespace Bicep.Core.Visitors
             return visitor.resourceDependencies;
         }
 
-        public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
-        {
-            base.VisitObjectPropertySyntax(syntax);
-        }
-
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
             var symbol = semanticModel.GetSymbolInfo(syntax);
