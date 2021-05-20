@@ -10,6 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.Core.Analyzers.Linter.Rules;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -42,6 +43,10 @@ randomToken
             var response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
                 d => {
+                    d.Range.Should().HaveRange((1, 6), (1, 13));
+                    d.Should().HaveCodeAndSeverity(ParametersMustBeUsedRule.Code, DiagnosticSeverity.Warning);
+                },
+                d => {
                     d.Range.Should().HaveRange((1, 23), (1, 24));
                     d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
                 },
@@ -67,6 +72,10 @@ randomToken
 
             response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
+                d => {
+                    d.Range.Should().HaveRange((1, 6), (1, 13));
+                    d.Should().HaveCodeAndSeverity(ParametersMustBeUsedRule.Code, DiagnosticSeverity.Warning);
+                },
                 d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
                     d.Should().HaveCodeAndSeverity("BCP029", DiagnosticSeverity.Error);
