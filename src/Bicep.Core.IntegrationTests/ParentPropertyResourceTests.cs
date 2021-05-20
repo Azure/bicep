@@ -55,10 +55,7 @@ output subnet1id string = subnet1.id
 
             using (new AssertionScope())
             {
-                diags.Should().HaveDiagnostics(new[]
-                {
-                  (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
-                });
+                diags.Should().BeEmpty();
 
                 template.Should().HaveValueAtPath("$.resources[0].name", "myVnet");
                 template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
@@ -261,8 +258,7 @@ resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
-                  (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
+                  ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed.")
                 });
             }
         }
@@ -287,9 +283,7 @@ resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vmExt\" -> \"vm\")."),
-                  (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                  ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vm\" -> \"vmExt\")."),
-                  (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
+                  ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vm\" -> \"vmExt\").")
                 });
             }
         }

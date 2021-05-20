@@ -24,6 +24,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             // TODO: Performance: Use a visitor to visit VariableAccesssyntax and collects the non-error symbols into a list.
             // Then do a symbol visitor to go through all the symbols that exist and compare.
+            // Same issue for unused-params rule.
 
             // variables must have a reference of type VariableAccessSyntax
             var unreferencedVariables = model.Root.Declarations.OfType<VariableSymbol>()

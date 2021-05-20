@@ -29,11 +29,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataTestMethod]
         [DataRow(EnvironmentUrlHardcodedRule.Code)]
         [DataRow(InterpolateNotConcatRule.Code)]
-        [DataRow(LocationSetByParameterRule.Code)]
         [DataRow(ParametersMustBeUsedRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]
-        [DataRow(UnnecessaryDependsOnRule.Code)]
         [DataRow(UnusedVariableRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {

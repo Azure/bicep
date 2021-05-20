@@ -56,7 +56,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 
             model.GetAllDiagnostics().Should().BeEmpty();
 
-            var expected = new []
+            var expected = new[]
             {
                 new { name = "child", type = "My.RP/parentType/childType@2020-01-01", },
                 new { name = "parent", type = "My.RP/parentType@2020-01-01", },
@@ -96,7 +96,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.GetAllDiagnostics().Should().HaveCount(1);
             model.GetAllDiagnostics().Single().Should().HaveCodeAndSeverity("BCP037", DiagnosticLevel.Error);
 
-            var expected = new []
+            var expected = new[]
             {
                 new { name = "child", type = "My.RP/parentType/childType@2020-01-01", },
                 new { name = "parent", type = "My.RP/parentType@2020-01-01", },
@@ -210,7 +210,7 @@ output fromGrandchildInvalid string = parent::child::cousin.properties.temperatu
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
 
-            model.GetAllDiagnostics().Should().HaveDiagnostics(new []{
+            model.GetAllDiagnostics().Should().HaveDiagnostics(new[]{
                 ("BCP158", DiagnosticLevel.Error, "Cannot access nested resources of type \"'hi'\". A resource type is required."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"parent\" does not contain a nested resource named \"child2\". Known nested resources are: \"child\"."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"child\" does not contain a nested resource named \"cousin\". Known nested resources are: \"grandchild\"."),
@@ -419,10 +419,10 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "child");
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
             var grandchild = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "grandchild");
-            model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new []{ parent, child, }); // order matters
+            model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new[] { parent, child, }); // order matters
         }
 
         [TestMethod]
@@ -468,16 +468,16 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "child");
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
             var childGrandChild = (ResourceSymbol)model.GetSymbolInfo(child.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new []{ parent, child, });
+            model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, child, });
 
             var sibling = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "sibling");
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
             var siblingGrandChild = (ResourceSymbol)model.GetSymbolInfo(sibling.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new []{ parent, sibling, });
+            model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, sibling, });
         }
 
         [TestMethod] // Should turn into positive test when support is added.
@@ -611,7 +611,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
       addressPrefix: '10.0.0.0/24'
     }
   }
-  
+
   resource subnet2 'subnets' = {
     name: 'subnet2'
     properties: {
@@ -630,10 +630,7 @@ output subnet1id string = vnet::subnet1.id
 
             using (new AssertionScope())
             {
-                diags.Should().HaveDiagnostics(new[]
-                {
-                    (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
-                });
+                diags.Should().BeEmpty();
 
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'myVnet', 'subnet1')]");
                 template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray { "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]" });
