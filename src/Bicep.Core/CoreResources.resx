@@ -135,7 +135,7 @@
     <comment>{0} is the location of the settings file</comment>
   </data>
   <data name="LinterRuleExceptionMessageFormat" xml:space="preserve">
-    <value>Linter rule encountered an unexpected exception: {0}</value>
+    <value>Analyzer '{0}' encountered an unexpected exception: {1}</value>
     <comment>string format to display error exception thrown in Linter Rule</comment>
   </data>
   <data name="LocationSetByParameterRuleDescription" xml:space="preserve">

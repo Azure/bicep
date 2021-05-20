@@ -25,17 +25,24 @@ namespace Bicep.Core.Analyzers.Linter
 
         private ConfigHelper configHelper = new ConfigHelper();
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
+        private ImmutableArray<IBicepAnalyzerDiagnostic> RuleCreationErrors;
+
+        internal const string FailedRuleCode = "Linter Rule Error";
+
 
         public LinterAnalyzer()
         {
-            RuleSet = CreateLinterRules().ToImmutableArray();
+            (RuleSet, RuleCreationErrors) = CreateLinterRules();
         }
 
         private bool LinterEnabled => this.configHelper.GetValue(LinterEnabledSetting, true);
         private bool LinterVerbose => this.configHelper.GetValue(LinterVerboseSetting, true);
 
-        private IEnumerable<IBicepAnalyzerRule> CreateLinterRules()
+        private (ImmutableArray<IBicepAnalyzerRule> rules, ImmutableArray<IBicepAnalyzerDiagnostic> errors) CreateLinterRules()
         {
+            List<IBicepAnalyzerDiagnostic> errors = new List<IBicepAnalyzerDiagnostic>();
+            List<IBicepAnalyzerRule> rules = new List<IBicepAnalyzerRule>();
+
             var ruleTypes = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
@@ -45,8 +52,28 @@ namespace Bicep.Core.Analyzers.Linter
 
             foreach (var ruleType in ruleTypes)
             {
-                yield return (IBicepAnalyzerRule)Activator.CreateInstance(ruleType);
+                try
+                {
+                    rules.Add((IBicepAnalyzerRule)Activator.CreateInstance(ruleType));
+                }
+                catch (Exception ex)
+                {
+                    string message = string.Format("Analyzer '{0}' could not instantiate rule '{1}': {2}",
+                        AnalyzerName,
+                        ruleType.Name,
+                        ex.InnerException?.Message ?? ex.Message);
+                    errors.Add(
+                        new AnalyzerDiagnostic(
+                            ruleType.Name,
+                            new TextSpan(0, 0),
+                            DiagnosticLevel.Warning,
+                            LinterAnalyzer.FailedRuleCode,
+                            message,
+                            null));
+                }
             }
+
+            return (rules.ToImmutableArray(), errors.ToImmutableArray());
         }
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => RuleSet;
@@ -65,6 +92,9 @@ namespace Bicep.Core.Analyzers.Linter
             this.RuleSet.ForEach(r => r.Configure(configHelp.Config));
             if (this.LinterEnabled)
             {
+                // Add diaagnostics for rules that failed to load
+                diagnostics.AddRange(RuleCreationErrors);
+
                 // add an info diagnostic for local configuration reporting
                 if (this.LinterVerbose)
                 {

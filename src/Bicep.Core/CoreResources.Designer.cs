@@ -106,7 +106,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Linter rule encountered an unexpected exception: {0}.
+        ///   Looks up a localized string similar to Analyzer '{0}' encountered an unexpected exception: {1}
         /// </summary>
         internal static string LinterRuleExceptionMessageFormat {
             get {

@@ -29,7 +29,6 @@ namespace Bicep.Core.Analyzers.Linter
             this.DiagnosticLabel = diagnosticLabel;
         }
 
-        internal const string FailedRuleCode = "Linter Rule Error";
         private IConfigurationRoot? Config;
         public string AnalyzerName { get; }
 
@@ -83,8 +82,8 @@ namespace Bicep.Core.Analyzers.Linter
                 return new[]{ new AnalyzerDiagnostic(this.AnalyzerName,
                                                     new TextSpan(0, 0),
                                                     DiagnosticLevel.Warning,
-                                                    FailedRuleCode,
-                                                    string.Format(CoreResources.LinterRuleExceptionMessageFormat, ex.Message),
+                                                    LinterAnalyzer.FailedRuleCode,
+                                                    string.Format(CoreResources.LinterRuleExceptionMessageFormat,this.AnalyzerName, ex.Message),
                                                     null)
                 };
             }
