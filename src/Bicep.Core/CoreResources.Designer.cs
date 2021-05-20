@@ -10,8 +10,8 @@
 
 namespace Bicep.Core {
     using System;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,15 +23,15 @@ namespace Bicep.Core {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CoreResources {
-
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal CoreResources() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -45,7 +45,7 @@ namespace Bicep.Core {
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -59,16 +59,16 @@ namespace Bicep.Core {
                 resourceCulture = value;
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Custom bicepconfig.json file found [{0}]..
+        ///   Looks up a localized string similar to Custom bicepconfig.json file found ({0})..
         /// </summary>
         internal static string BicepConfigCustomSettingsFoundFormatMessage {
             get {
                 return ResourceManager.GetString("BicepConfigCustomSettingsFoundFormatMessage", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to No bicepconfig.json found for configuration override..
         /// </summary>
@@ -77,99 +77,99 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("BicepConfigNoCustomSettingsMessage", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current..
+        ///   Looks up a localized string similar to Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds..
         /// </summary>
         internal static string EnvironmentUrlHardcodedRuleDescription {
             get {
                 return ResourceManager.GetString("EnvironmentUrlHardcodedRuleDescription", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Dynamic variable should not use concat - string interpolation should be used..
+        ///   Looks up a localized string similar to Use string interpolation instead of the concat function..
         /// </summary>
         internal static string InterpolateNotConcatRuleDescription {
             get {
                 return ResourceManager.GetString("InterpolateNotConcatRuleDescription", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Linter is disabled in settings file [{0}].
+        ///   Looks up a localized string similar to Linter is disabled in settings file located at {0} .
         /// </summary>
         internal static string LinterDisabledFormatMessage {
             get {
                 return ResourceManager.GetString("LinterDisabledFormatMessage", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Analyzer '{0}' encountered an unexpected exception: {1}
+        ///   Looks up a localized string similar to Analyzer &apos;{0}&apos; encountered an unexpected exception. {1}.
         /// </summary>
         internal static string LinterRuleExceptionMessageFormat {
             get {
                 return ResourceManager.GetString("LinterRuleExceptionMessageFormat", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Best practice dictates that location be through a parameter that has no default or defaults to &apos;global&apos; or resourceGroup().location..
+        ///   Looks up a localized string similar to Resource location should be specified by a parameter with no default value or one that defaults to &apos;global&apos; or resourceGroup().location..
         /// </summary>
         internal static string LocationSetByParameterRuleDescription {
             get {
                 return ResourceManager.GetString("LocationSetByParameterRuleDescription", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Declared parameter must be referenced within the document scope..
+        ///   Looks up a localized string similar to Parameter is declared but never used..
         /// </summary>
         internal static string ParameterMustBeUsedRuleDescription {
             get {
                 return ResourceManager.GetString("ParameterMustBeUsedRuleDescription", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Secure parameters can&apos;t have hardcoded default. This prevents storage of sensitive data in the Bicep declaration..
+        ///   Looks up a localized string similar to Secure parameters should not have hardcoded defaults (except for empty or newGuid())..
         /// </summary>
         internal static string SecureParameterDefaultRuleDescription {
             get {
                 return ResourceManager.GetString("SecureParameterDefaultRuleDescription", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to [See : {0}].
+        ///   Looks up a localized string similar to See {0}.
         /// </summary>
         internal static string SeeDocLinkFormat {
             get {
                 return ResourceManager.GetString("SeeDocLinkFormat", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to String interpolation can be simplified. String variables can be directly assigned to string properties and variables..
+        ///   Looks up a localized string similar to Remove unnecessary string interpolation..
         /// </summary>
         internal static string SimplifyInterpolationRuleDescription {
             get {
                 return ResourceManager.GetString("SimplifyInterpolationRuleDescription", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Best Practice: remove unnecessary dependsOn..
+        ///   Looks up a localized string similar to Remove unnecessary dependsOn..
         /// </summary>
         internal static string UnnecessaryDependsOnRuleDescription {
             get {
                 return ResourceManager.GetString("UnnecessaryDependsOnRuleDescription", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Declared variable encountered that is not used within scope..
+        ///   Looks up a localized string similar to Variable is declared but never used..
         /// </summary>
         internal static string UnusedVariableRuleDescription {
             get {

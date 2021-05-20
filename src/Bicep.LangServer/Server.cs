@@ -15,6 +15,7 @@ using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
@@ -32,6 +33,8 @@ namespace Bicep.LanguageServer
             public IResourceTypeProvider? ResourceTypeProvider { get; set; }
 
             public IFileResolver? FileResolver { get; set; }
+
+            public ITelemetryProvider? TelemetryProvider { get; set; }
         }
 
         private readonly OmnisharpLanguageServer server;
@@ -66,10 +69,17 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
+#pragma warning restore 0612
+                    .WithHandler<BicepTelemetryHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 
                 onOptionsFunc(options);
             });
+
+            if (creationOptions.TelemetryProvider is TelemetryProvider telemetryProvider)
+            {
+                telemetryProvider.LanguageServer = server;
+            }
         }
 
         public async Task RunAsync(CancellationToken cancellationToken)
@@ -79,13 +89,14 @@ namespace Bicep.LanguageServer
             await server.WaitForExit;
         }
 
-        private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
+        private void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
         {
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider());
             services.AddSingleton<IFileResolver>(services => creationOptions.FileResolver ?? new FileResolver());
+            services.AddSingleton<ITelemetryProvider>(services => creationOptions.TelemetryProvider ?? new TelemetryProvider());
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();

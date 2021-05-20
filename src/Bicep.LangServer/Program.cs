@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.LanguageServer.Telemetry;
 
 namespace Bicep.LanguageServer
 {
@@ -22,6 +23,7 @@ namespace Bicep.LanguageServer
                     {
                         ResourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes(),
                         FileResolver = new FileResolver(),
+                        TelemetryProvider = new TelemetryProvider()
                     });
 
                 await server.RunAsync(cancellationToken);
