@@ -13,7 +13,7 @@ namespace Bicep.Core.Configuration
 {
     public class ConfigHelper
     {
-        private const string SettingsFileName = "bicepsettings.json";
+        private const string SettingsFileName = "bicepconfig.json";
 
         /// <summary>
         /// Property exposes the configuration root
@@ -84,7 +84,7 @@ namespace Bicep.Core.Configuration
         }
 
         /// <summary>
-        /// Contains path to any custom bicepsettings.json file
+        /// Contains path to any custom bicepconfig.json file
         /// that is currently in effect
         /// </summary>
         public string? CustomSettingsFileName { get; private set; }
