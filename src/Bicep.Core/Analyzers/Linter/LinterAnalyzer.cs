@@ -45,10 +45,7 @@ namespace Bicep.Core.Analyzers.Linter
 
             foreach (var ruleType in ruleTypes)
             {
-                if (typeof(IBicepAnalyzerRule).IsAssignableFrom(ruleType))
-                {
-                    yield return (IBicepAnalyzerRule)Activator.CreateInstance(ruleType);
-                }
+                yield return (IBicepAnalyzerRule)Activator.CreateInstance(ruleType);
             }
         }
 
