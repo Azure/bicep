@@ -18,31 +18,132 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class UnnecessaryDependsOnRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text)
+        private void ExpectPass(string text, string? because = null)
         {
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
-                var errors = GetDiagnostics(InterpolateNotConcatRule.Code, text);
-                errors.Should().HaveCount(0, $"Expecting linter rule to pass. Text: {text}");
+                var errors = GetDiagnostics(UnnecessaryDependsOnRule.Code, text);
+                errors.Should().HaveCount(0, because ?? $"expecting linter rule to pass");
             }
         }
 
-        private void ExpectDiagnosticWithFix(string text, string expectedFix)
-        {
-            ExpectDiagnosticWithFix(text, new string[] { expectedFix });
-        }
-
-        private void ExpectDiagnosticWithFix(string text, string[] expectedFixes)
+        private void ExpectDiagnostic(string text, string[] unnecessaryFragments, string? because = null)
         {
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
-                var errors = GetDiagnostics(InterpolateNotConcatRule.Code, text);
-                errors.Should().HaveCount(expectedFixes.Length, $"expected one fix per testcase.  Text: {text}");
+                var errors = GetDiagnostics(UnnecessaryDependsOnRule.Code, text);
+                errors.Should().HaveCount(unnecessaryFragments.Length, because);
 
-                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-                var a = errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
+                var actualFragments = errors.Select(e => text.Substring(e.Span.Position, e.Span.Length));
+                actualFragments.Should().BeEquivalentTo(unnecessaryFragments, because);
             }
+        }
+
+        // TODO: Test with loops and loop indicies
+        // TODO: test: If you have a parent and child, and the child references resource1, that does not imply that parent has a reference on resource1
+        [DataRow(
+            @"
+                param location string
+
+                resource VNet1 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                    name: 'VNet1'
+                    location: location
+                    properties: {
+                        addressSpace: {
+                            addressPrefixes: [
+                                '10.0.0.0/16'
+                            ]
+                        }
+                    }
+                }
+
+                resource VNet1_Subnet1 'Microsoft.Network/virtualNetworks/subnets@2018-10-01' = {
+                    name: '${VNet1.name}/Subnet1'
+                    properties: {
+                        addressPrefix: '10.0.0.0/24'
+                    }
+                    dependsOn: [
+                        VNet1 // Reference to parent not needed in bicep
+                    ]
+                }
+            ",
+            "VNet1"
+        )]
+        [DataRow(
+            @"
+                param location string
+
+                resource VNet1 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                    name: 'VNet1'
+                    location: location
+                    properties: {
+                        addressSpace: {
+                        addressPrefixes: [
+                            '10.0.0.0/16'
+                        ]
+                        }
+                    }
+                }
+
+                resource VNet1_Subnet1 'Microsoft.Network/virtualNetworks/subnets@2018-10-01' = {
+                    name: '${VNet1.name}/Subnet1'
+                    properties: {
+                        addressPrefix: '10.0.0.0/24'
+                    }
+                    dependsOn: [
+                        VNet1 // ref to parent not needed in bicep
+                    ]
+                }
+            ",
+            "VNet1"
+        )]
+        [DataTestMethod]
+        public void ReferenceToParent_Fails(string text, params string[] unnecessaryFragments)
+        {
+            // TODO: test with grandparent
+            ExpectDiagnostic(text, unnecessaryFragments);
+        }
+
+        [TestMethod]
+        public void ReferencingSymbolNameCreatesImplicitReference_Fail()
+        {
+            string text = @"
+                resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+                    name: 'myZone'
+                    location: 'global'
+                }
+
+                resource otherResource 'Microsoft.Example/examples@2020-06-01' = {
+                    name: 'exampleResource'
+                    dependsOn: [
+                        dnsZone
+                    ]
+                    properties: {
+                        // get read-only DNS zone property
+                        nameServers: dnsZone.properties.nameServers
+                    }
+                }
+            ";
+            ExpectDiagnostic(text, new string[] { "dnsZone" }, "there's already a reference to dnsZone symbolic name in properties.nameServers");
+        }
+
+        [TestMethod]
+        public void ReferencingSymbolNameCreatesImplicitReference_Passes()
+        {
+            string text = @"
+                resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+                    name: 'myZone'
+                    location: 'global'
+                }
+
+                resource otherResource2 'Microsoft.Example/examples@2020-06-01' = {
+                    name: 'exampleResource2'
+                    dependsOn: [
+                        dnsZone
+                    ]
+                }
+            ";
+            ExpectPass(text, "there is no reference to dnsZone symbolic name otherwise");
         }
     }
 }

@@ -26,17 +26,27 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var spanDiagnostics = new List<TextSpan>();
-            var visitor = new BCPL1070Visitor(model, spanDiagnostics);
-            visitor.Visit(model.SyntaxTree.ProgramSyntax);
+
+            var allResources = model.Root.GetAllResourceDeclarations();
+            var visitor = new dependsOnPropertyVisitor(model, spanDiagnostics);
+            foreach (var resource in allResources)
+            {
+                var dependsOnProperty = resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceLocationPropertyName);
+                if (dependsOnProperty != null)
+                {
+                    visitor.Visit(dependsOnProperty);
+                }
+            }
+
             return spanDiagnostics.Select(span => CreateDiagnosticForSpan(span));
         }
 
-        private sealed class BCPL1070Visitor : SyntaxVisitor
+        private sealed class dependsOnPropertyVisitor : SyntaxVisitor
         {
             private readonly SemanticModel semanticModel;
             private readonly List<TextSpan> diagnostics;
 
-            public BCPL1070Visitor(SemanticModel semanticModel, List<TextSpan> diagnostics)
+            public dependsOnPropertyVisitor(SemanticModel semanticModel, List<TextSpan> diagnostics)
             {
                 this.semanticModel = semanticModel;
                 this.diagnostics = diagnostics;
@@ -44,22 +54,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             {
-                if (syntax.NameEquals("dependsOn")) // TODO: false positives in objects with property "dependsOn" etc
+                if (syntax.Value is ArraySyntax dependencies)
                 {
-                    if (syntax.Value is ArraySyntax dependencies)
+                    var inferredDependencies = ResourceDependencyFinderVisitor.GetResourceDependencies(this.semanticModel, syntax);
+                    foreach (var dependency in dependencies.Items)
                     {
-                        var inferredDependencies = ResourceDependencyFinderVisitor.GetResourceDependencies(this.semanticModel, syntax);
-                        foreach (var dependency in dependencies.Items)
+                        if (dependency.Value is VariableAccessSyntax item
+                            && inferredDependencies.Any(d => d.DeclaringSyntax is ResourceDeclarationSyntax resource
+                               && item.ReferencesResource(resource)))
                         {
-                            if (dependency.Value is VariableAccessSyntax item
-                                && inferredDependencies.Any(d => d.DeclaringSyntax is ResourceDeclarationSyntax resource
-                                   && item.ReferencesResource(resource)))
-                            {
-                                this.diagnostics.Add(dependency.Span);
-                            }
+                            this.diagnostics.Add(dependency.Span);
                         }
                     }
                 }
+
                 base.VisitObjectPropertySyntax(syntax);
             }
         }
