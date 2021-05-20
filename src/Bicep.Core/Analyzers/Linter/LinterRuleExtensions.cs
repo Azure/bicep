@@ -8,7 +8,7 @@ namespace Bicep.Core.Analyzers.Linter
 {
     public static class LinterRuleExtensions
     {
-        public static bool IsEnabled(this IBicepAnalyzerRule rule) =>
-            rule.DiagnosticLevel != DiagnosticLevel.Off;
+        public static bool IsEnabled(this IBicepAnalyzerRule rule)
+            => rule.DiagnosticLevel != DiagnosticLevel.Off;
     }
 }

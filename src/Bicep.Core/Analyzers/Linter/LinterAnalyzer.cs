@@ -39,7 +39,9 @@ namespace Bicep.Core.Analyzers.Linter
             var ruleTypes = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
-                            && !t.IsInterface && !t.IsAbstract); // exlude the interface and the base class
+                            && t.IsClass
+                            && t.IsPublic
+                            && t.GetConstructor(Type.EmptyTypes) != null);
 
             foreach (var ruleType in ruleTypes)
             {
