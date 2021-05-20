@@ -107,11 +107,6 @@ output res2childid string = res2child.id
 
             using (new AssertionScope())
             {
-                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[]
-                {
-                  (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
-                });
-
                 template.Should().HaveValueAtPath("$.resources[0].name", "res1");
                 template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
 
