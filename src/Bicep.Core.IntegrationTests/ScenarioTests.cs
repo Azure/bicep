@@ -95,10 +95,7 @@ output vnetId string = vnet.id
 output vnetstate string = vnet.properties.provisioningState
 "));
 
-            result.Should().HaveDiagnostics(new[]{
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                (UnnecessaryDependsOnRule.Code, DiagnosticLevel.Warning, new UnnecessaryDependsOnRule().GetMessage()),
-            });
+            result.Should().NotHaveAnyDiagnostics();
             // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
             result.Template.Should().HaveValueAtPath("$.outputs['vnetid'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");
             result.Template.Should().HaveValueAtPath("$.outputs['vnetstate'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetstate.value]");
@@ -125,9 +122,7 @@ resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
 }
 ");
 
-            result.Should().HaveDiagnostics(new[]{
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-            });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['config'].value", "[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
         }
 
@@ -469,9 +464,7 @@ resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
 }
 ");
 
-            result.Should().HaveDiagnostics(new[] {
-                  (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
-                });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'nestedDeployment')].subscriptionId", "abcd-efgh");
             result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'nestedDeployment')].resourceGroup", "bicep-rg");
         }
@@ -582,9 +575,7 @@ param location string
 param name string
 "));
 
-            result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-            });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().NotHaveValueAtPath("$.resources[?(@.name == 'vnet')].subscriptionId");
             result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'vnet')].resourceGroup", "rg");
             result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'vnet')].dependsOn[0]", "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg')]");
@@ -672,7 +663,6 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
 
             result.Template.Should().NotHaveValue();
             result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
                 ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
                 ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
@@ -1303,7 +1293,6 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 (UnnecessaryDependsOnRule.Code, DiagnosticLevel.Warning, new UnnecessaryDependsOnRule().GetMessage()),
             });
             result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
@@ -1346,7 +1335,6 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                    (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                     (UnnecessaryDependsOnRule.Code, DiagnosticLevel.Warning, new UnnecessaryDependsOnRule().GetMessage()),
                 });
             result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
@@ -1394,7 +1382,6 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().HaveDiagnostics(new[]{
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 (UnnecessaryDependsOnRule.Code, DiagnosticLevel.Warning, new UnnecessaryDependsOnRule().GetMessage()),
             });
             result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
@@ -1593,7 +1580,7 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
   name: 'myVM'
   location: 'westus'
-  
+
   resource vmExt 'extensions' = {
     name: 'myVMExtension'
     location: 'westus'
@@ -1603,10 +1590,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
 output vmExtName string = vm::vmExt.name
 ");
 
-            result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-            });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().NotBeNull();
         }
 
@@ -1630,7 +1614,6 @@ resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 
 
             result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP037", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" from source declaration \"vmNotWorkingProps\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\"."),
             });
         }
@@ -1673,7 +1656,6 @@ resource my_interface 'Microsoft.Network/networkInterfaces@2015-05-01-preview' =
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP120", DiagnosticLevel.Error, "The property \"location\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
@@ -1738,10 +1720,8 @@ resource p2 'Microsoft.Network/dnsZones@2018-05-01' = {
 ");
             result.Should().HaveDiagnostics(new[]
             {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"parent\""),
                 ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing2\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
                 ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.")
             });
@@ -1826,15 +1806,10 @@ output tagsoutput object = {
 "));
 
             result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
@@ -1847,7 +1822,7 @@ output tagsoutput object = {
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'myVM'
   location: 'westus'
-  
+
   resource vmExts 'extensions' = [for vmExtName in []: {
     name: vmExtName
     location: 'westus'
@@ -1860,8 +1835,6 @@ output vmExtNames array = [for vmExtName in vm::vmExts: {
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.")
             });
         }
@@ -1917,12 +1890,9 @@ resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.f
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
                 ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"test\" -> \"rg\"). Accessible properties of rg are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of rg2 are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
+                ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of rg2 are \"apiVersion\", \"id\", \"name\", \"type\".")
             });
         }
 
@@ -1968,7 +1938,7 @@ resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12
 @sys.allowed([
   'apple'
   'banana'
-]) 
+])
 param foo string = 'peach'
 ");
 
@@ -2016,7 +1986,6 @@ output storageAccount object = {
 "));
 
             result.Should().HaveDiagnostics(new[] {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listSecrets\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
                 ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listSecrets\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
                 ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
@@ -2045,8 +2014,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
             result.Should().HaveDiagnostics(new[] {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"nameCopy\" -> \"name\")."),
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
-                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\").")
             });
         }
 
@@ -2055,7 +2023,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
         public void Test_Issue2624()
         {
             var result = CompilationHelper.Compile(@"
-var foo = az.listKeys('foo', '2012-02-01')[0].value 
+var foo = az.listKeys('foo', '2012-02-01')[0].value
 ");
 
             result.Should().HaveDiagnostics(new[] {
@@ -2155,7 +2123,7 @@ param input object
 param which bool
 
 var default = {
-  
+
 }
 
 var chosenOne = which ? input : default

@@ -87,7 +87,6 @@ param inputb string
                     ("BCP126", DiagnosticLevel.Error, "Function \"maxLength\" cannot be used as a variable decorator."),
                     (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
                     ("BCP127", DiagnosticLevel.Error, "Function \"allowed\" cannot be used as a resource decorator."),
-                    (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                     ("BCP128", DiagnosticLevel.Error, "Function \"secure\" cannot be used as a module decorator."),
                     ("BCP129", DiagnosticLevel.Error, "Function \"minValue\" cannot be used as an output decorator."),
                 });
@@ -166,14 +165,13 @@ param inputb string
 
             using (new AssertionScope())
             {
-                diagnosticsByFile[mainUri].Should().HaveDiagnostics( new[] {
+                diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                     ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
                     (ParametersMustBeUsedRule.Code, DiagnosticLevel.Warning, new ParametersMustBeUsedRule().GetMessage()),
                     ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
                     (InterpolateNotConcatRule.Code, DiagnosticLevel.Warning, new InterpolateNotConcatRule().GetMessage()),
                     (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
                     ("BCP152", DiagnosticLevel.Error, "Function \"environment\" cannot be used as a decorator."),
-                    (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                     ("BCP152", DiagnosticLevel.Error, "Function \"union\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"guid\" cannot be used as a decorator."),
                 });

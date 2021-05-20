@@ -25,13 +25,13 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' = [for (item, i) in []: {
 
 // variant parent
 resource c2 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []: {
-  parent: foos[i] 
+  parent: foos[i]
   name: 's'
 }]
 
 // variant parent and name
 resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []: {
-  parent: foos[i] 
+  parent: foos[i]
   name: string(i)
 }]
 
@@ -66,13 +66,7 @@ resource ds3 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for (script, 
 ";
 
             var result = CompilationHelper.Compile(text);
-            result.Should().HaveDiagnostics(new[]
-            {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
-            });
+            result.Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -143,8 +137,7 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' = [for (item, i) in []: {
             var result = CompilationHelper.Compile(text);
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\"."),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
             });
         }
 
@@ -213,17 +206,15 @@ resource foos2 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" or the index variable \"i\" must be referenced in at least one of the value expressions of the following properties in the loop body: \"name\""),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
-                ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage())
+                ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\"")
             });
         }
 
         [TestMethod]
         public void OptionalInvariantResourcePropertiesWhenRequiredPropertyIsMissingShouldNotProduceWarning()
         {
-            /* 
-             * This asserts that we don't overwarn. If the user didn't yet put in a value for 
+            /*
+             * This asserts that we don't overwarn. If the user didn't yet put in a value for
              * a required property that is expected to be loop-variant, we should not warn them.
              */
 
@@ -240,7 +231,6 @@ resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []
             var result = CompilationHelper.Compile(text);
             result.Should().HaveDiagnostics(new[]
             {
-                (LocationSetByParameterRule.Code, DiagnosticLevel.Warning, new LocationSetByParameterRule().GetMessage()),
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
             });
         }
@@ -248,8 +238,8 @@ resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []
         [TestMethod]
         public void OptionalInvariantModulePropertiesWhenRequiredPropertyIsMissingShouldNotProduceWarning()
         {
-            /* 
-             * This asserts that we don't overwarn. If the user didn't yet put in a value for 
+            /*
+             * This asserts that we don't overwarn. If the user didn't yet put in a value for
              * a required property that is expected to be loop-variant, we should not warn them.
              */
 

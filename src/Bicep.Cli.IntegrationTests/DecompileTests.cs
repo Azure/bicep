@@ -181,8 +181,7 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEquivalentTo(
                     "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
                     "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
-                    $"{bicepFileName}(3,3) : Warning {LocationSetByParameterRule.Code}: {new LocationSetByParameterRule().GetMessage()}"
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues."
                 );
                 result.Should().Be(0);
             }
@@ -239,8 +238,7 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEquivalentTo(
                     "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
                     "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
-                    $"****(3,3) : Warning {LocationSetByParameterRule.Code}: {new LocationSetByParameterRule().GetMessage()}"
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues."
                 );
                 result.Should().Be(0);
             }
@@ -261,8 +259,7 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEquivalentTo(
                     "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
                     "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
-                    $"{bicepFileName}(3,3) : Warning {LocationSetByParameterRule.Code}: {new LocationSetByParameterRule().GetMessage()}"
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues."
                 );
                 result.Should().Be(0);
             }
@@ -289,8 +286,7 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEquivalentTo(
                     "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
                     "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
-                    $"{expectedOutputFile}(3,3) : Warning {LocationSetByParameterRule.Code}: {new LocationSetByParameterRule().GetMessage()}"
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues."
                 );
                 result.Should().Be(0);
             }
