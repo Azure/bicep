@@ -151,6 +151,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [See : {0}].
+        /// </summary>
+        internal static string SeeDocLinkFormat {
+            get {
+                return ResourceManager.GetString("SeeDocLinkFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to String interpolation can be simplified. String variables can be directly assigned to string properties and variables..
         /// </summary>
         internal static string SimplifyInterpolationRuleDescription {

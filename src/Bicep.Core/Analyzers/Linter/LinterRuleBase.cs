@@ -66,9 +66,9 @@ namespace Bicep.Core.Analyzers.Linter
         /// <returns></returns>
         internal string GetMessage(params object[] values)
         {
-            return values.Any()
-                ? FormatMessage(values)
-                : this.Description;
+            return (values.Any() ? FormatMessage(values) : this.Description)
+                + Environment.NewLine
+                + string.Format(CoreResources.SeeDocLinkFormat, this.DocumentationUri);
         }
 
         public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
