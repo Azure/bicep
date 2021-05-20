@@ -10,8 +10,8 @@ The linter should make it easier to enforce team coding standards by providing g
 
 [`bicepsettings.json`](../src/Bicep.Core/Configuration/bicepsettings.json) can be used to:
 
-- enable/disable analyzers
-- set rule-specific values (e.g. DisallowedHosts for [`EnvironmentUrlHardcodedRule`](./rules/EnvironmentUrlHardcodedRule.md) rule)
+- enable/disable analyzer
+- set rule-specific values (e.g. DisallowedHosts for [`no-hardcoded-env-urls`](./linter-rules/no-hardcoded-env-urls.md) rule)
 - set DiagnosticLevel of rules:
 
 | **DiagnosticLevel**  | **Build-time behavior** | **Editor behavior** |
