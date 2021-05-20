@@ -2,6 +2,7 @@
 {
   "version": "0.2.0",
   "configurations": [
+
     {
       "name": "Launch Extension",
       "type": "extensionHost",
@@ -16,7 +17,8 @@
       "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll",
+        "DEBUGTELEMETRY": "verbose"
       }
     },
     {

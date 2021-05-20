@@ -10,11 +10,6 @@ namespace Bicep.LanguageServer.Telemetry
     {
         public ILanguageServer? LanguageServer { get; set; }
 
-        public ITelemetryEventBuilder BuildTelemetryEvent(string eventName)
-        {
-            return new TelemetryEvent(eventName);
-        }
-
         public void PostEvent(TelemetryEvent telemetryEvent)
         {
             if (telemetryEvent == null || telemetryEvent.Properties?.Count == 0)

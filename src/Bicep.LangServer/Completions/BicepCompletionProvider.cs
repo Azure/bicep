@@ -399,17 +399,20 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet snippet in snippets)
                 {
-                    ITelemetryEventBuilder telemetryEventBuilder = TelemetryProvider.BuildTelemetryEvent("snippet-insertion");
-                    telemetryEventBuilder.Set("label", snippet!.Prefix);
-                    Command command = Command.Create("bicep.telemetry", telemetryEventBuilder.ToEvent());
+                    Dictionary<string, string> properties = new Dictionary<string, string>()
+                    {
+                        { "label", snippet!.Prefix }
+                    };
+                    TelemetryEvent telemetryEvent = new("snippet-insertion", properties);
+                    Command command = Command.Create("bicep.telemetry", telemetryEvent);
 
                     yield return CreateContextualSnippetCompletion(snippet!.Prefix,
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
-                        command: command,
                         snippet.CompletionPriority,
-                        preselect: true);
+                        preselect: true,
+                        command: command);
                 }
             }
         }
@@ -992,19 +995,6 @@ namespace Bicep.LanguageServer.Completions
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority))
                 .Build();
-
-        /// <summary>
-        /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
-        /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, Command command, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Snippet)
-                .WithLabel(label)
-                .WithSnippetEdit(replacementRange, snippet)
-                .WithDetail(detail)
-                .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
-                .WithSortText(GetSortText(label, priority))
-                .WithCommand(command)
-                .Preselect(preselect);
 
         private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null)
         {
