@@ -1,40 +1,54 @@
 {
-  "Linter": {
-    "Rules": {
-      "BCPL1010": {
-        "EnabledForEditing": true,
-        "EnabledForCLI": true
-      },
-      "BCPL1020": {
-        "EnabledForEditing": true,
-        "EnabledForCLI": true,
-        "DiagnosticLevel": "Warning",
-        "DisallowedHosts": [
-          "management.core.windows.net",
-          "gallery.azure.com",
-          "management.core.windows.net",
-          "management.azure.com",
-          "database.windows.net",
-          "core.windows.net",
-          "login.microsoftonline.com",
-          "graph.windows.net",
-          "graph.windows.net",
-          "trafficmanager.net",
-          "vault.azure.net",
-          "datalake.azure.net",
-          "azuredatalakestore.net",
-          "azuredatalakeanalytics.net",
-          "vault.azure.net",
-          "api.loganalytics.io",
-          "api.loganalytics.iov1",
-          "asazure.windows.net",
-          "region.asazure.windows.net",
-          "api.loganalytics.iov1",
-          "api.loganalytics.io",
-          "asazure.windows.net",
-          "region.asazure.windows.net",
-          "batch.core.windows.net"
-        ]
+  "analyzers": {
+    "bicepcorelinter": {
+      "verbose": true,
+      "enabled": true,
+      "rules": {
+        // If not specified, all the following rules default to warnings
+        "no-hardcoded-env-urls": {
+          "diagnosticlevel": "warning",
+          // This only needs to be specified if it should be modified
+          "disallowedhosts": [
+            "management.core.windows.net",
+            "gallery.azure.com",
+            "management.core.windows.net",
+            "management.azure.com",
+            "database.windows.net",
+            "core.windows.net",
+            "login.microsoftonline.com",
+            "graph.windows.net",
+            "trafficmanager.net",
+            "vault.azure.net",
+            "datalake.azure.net",
+            "azuredatalakestore.net",
+            "azuredatalakeanalytics.net",
+            "vault.azure.net",
+            "api.loganalytics.io",
+            "api.loganalytics.iov1",
+            "asazure.windows.net",
+            "region.asazure.windows.net",
+            "api.loganalytics.iov1",
+            "api.loganalytics.io",
+            "asazure.windows.net",
+            "region.asazure.windows.net",
+            "batch.core.windows.net"
+          ]
+        },
+        "no-unused-params": {
+          "diagnosticlevel": "off"
+        },
+        "no-unused-vars": {
+          "diagnosticlevel": "off"
+        },
+        "prefer-interpolation": {
+          "diagnosticlevel": "warning"
+        },
+        "secure-paramenter-default": {
+          "diagnosticlevel": "error"
+        },
+        "simplify-interpolation": {
+          "diagnosticlevel": "warning"
+        }
       }
     }
   }
