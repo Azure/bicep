@@ -64,7 +64,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        internal string GetMessage(params object[] values)
+        public string GetMessage(params object[] values)
         {
             return (values.Any() ? FormatMessage(values) : this.Description)
                 + Environment.NewLine
@@ -127,7 +127,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        internal virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span) =>
+        protected virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
                 level: this.DiagnosticLevel,
@@ -142,7 +142,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// <param name="span"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        internal virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span, params object[] values) =>
+        protected virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span, params object[] values) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
                 level: this.DiagnosticLevel,
@@ -150,7 +150,7 @@ namespace Bicep.Core.Analyzers.Linter
                 message: this.GetMessage(values),
                 label: this.DiagnosticLabel);
 
-        internal virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
+        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
                 level: this.DiagnosticLevel,
