@@ -32,7 +32,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(ParametersMustBeUsedRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]
-        [DataRow(UnnecessaryDependsOnRule.Code)]
         [DataRow(UnusedVariableRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {

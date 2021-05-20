@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Visitors
 {
-    public class ResourceDependencyFinderVisitor : SyntaxVisitor // TODO: rename.  ResourceImplicitDependenciesVisitor?
+    public class ResourceDependencyFinderVisitor : SyntaxVisitor
     {
         private readonly SemanticModel semanticModel;
         private readonly HashSet<DeclaredSymbol> resourceDependencies;
@@ -17,20 +17,12 @@ namespace Bicep.Core.Visitors
             this.resourceDependencies = new HashSet<DeclaredSymbol>();
         }
 
-        // TODO: rename.  GetResourcesReferenced?
         public static HashSet<DeclaredSymbol> GetResourceDependencies(SemanticModel semanticModel, SyntaxBase syntax)
         {
             var visitor = new ResourceDependencyFinderVisitor(semanticModel);
             visitor.Visit(syntax);
 
             return visitor.resourceDependencies;
-        }
-
-        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
-        {
-            // Do not traverse into child resources - references inside a child to resource1
-            //   should not imply a reference from the parent to resource1
-            return;
         }
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -49,7 +41,7 @@ namespace Bicep.Core.Visitors
                 case ModuleSymbol moduleSymbol:
                     resourceDependencies.Add(moduleSymbol);
                     return;
-                case VariableSymbol variableSymbol: // Loop variables (TODO:?  test)
+                case VariableSymbol variableSymbol:
                     Visit(variableSymbol.DeclaringSyntax);
                     return;
                 default:
