@@ -5,6 +5,7 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var compilationResult = CompilationHelper.Compile(text);
 
             var internalRuleErrors = compilationResult.Diagnostics.Where(d => d.Code == LinterRuleBase.FailedRuleCode).ToArray();
-            Assert.AreEqual(0, internalRuleErrors.Count(), "There were internal linter rule errors");
+            internalRuleErrors.Count().Should().Be(0, "There should never be linter FailedRuleCode errors");
 
             return compilationResult.Diagnostics.OfType<IBicepAnalyzerDiagnostic>().Where(d => d.Code == ruleCode).ToArray();
         }

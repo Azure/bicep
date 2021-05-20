@@ -24,7 +24,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
                 var errors = GetDiagnostics(SimplifyInterpolationRule.Code, text);
-                errors.Should().HaveCount(0, $"Expecting linter rule to pass. Text: {text}");
+                errors.Should().HaveCount(0, $"expecting linter rule to pass");
             }
         }
 
@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
                 var errors = GetDiagnostics(SimplifyInterpolationRule.Code, text);
-                errors.Should().HaveCount(1, $"expected one fix per testcase.  Text: {text}");
+                errors.Should().HaveCount(1, $"expected one fix per testcase");
 
                 errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
                 errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
