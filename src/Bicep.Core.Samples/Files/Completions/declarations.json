@@ -168,6 +168,24 @@
     }
   },
   {
+    "label": "res-api-management-instance",
+    "kind": "snippet",
+    "detail": "Api Management Instance",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource apiManagementInstance 'Microsoft.ApiManagement/service@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku:{\n    capacity: 0\n    name: 'Developer'\n  }\n  properties:{\n    virtualNetworkType: 'None'\n    publisherEmail: 'publisherEmail@contoso.com'\n    publisherName: 'publisherName'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-api-management-instance",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:apiManagementInstance} 'Microsoft.ApiManagement/service@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku:{\n    capacity: ${3|0,1|}\n    name: ${4|'Developer','Consumption'|}\n  }\n  properties:{\n    virtualNetworkType: ${5:'None'}\n    publisherEmail: ${6:'publisherEmail@contoso.com'}\n    publisherName: ${7:'publisherName'}\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-app-plan",
     "kind": "snippet",
     "detail": "Application Service Plan (Server Farm)",
