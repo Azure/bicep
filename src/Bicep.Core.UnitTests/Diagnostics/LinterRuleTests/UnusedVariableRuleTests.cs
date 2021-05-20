@@ -17,35 +17,35 @@ using System.Linq;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class ParametersMustBeUsedRuleTests : LinterRuleTestsBase
+    public class UnusedVariableRuleTests : LinterRuleTestsBase
     {
         private void CompileAndTest(string text, int expectedDiagnosticCount)
         {
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
-                var errors = GetDiagnostics(ParametersMustBeUsedRule.Code, text);
+                var errors = GetDiagnostics(UnusedVariableRule.Code, text);
                 errors.Should().HaveCount(expectedDiagnosticCount);
             }
         }
 
         [DataRow(1, @"
-param password string
+var password = 'hello'
 var sum = 1 + 3
 output sub int = sum
 ")]
         [DataRow(3, @"
-param param1 string
-param param2 string
-param param3 string
+var var1 = 'var1'
+var var2 = 'var2'
+var var3 = 'var3'
 var sum = 1 + 3
 output sub int = sum
 ")]
         [DataRow(2, @"
-param param1 string
-param param2 int = 4
-param param3 string
+var var1 = 'var1'
+var var2 = 4
+var var3 = resourceGroup().location
 var sum = 1 + 3
-output sub int = sum + param2
+output sub int = sum + var2
 ")]
         [DataRow(0, @"
 param param2 int = 4
@@ -56,51 +56,20 @@ output sub int = sum + param2
 var sum = 1 + 3
 output sub int = sum
 ")]
-        [DataRow(3, @"
-// Syntax errors
-resource abc 'Microsoft.AAD/domainServices@2021-03-01'
-param
-param p1
-param p2 =
-        ")]
         [DataTestMethod]
         public void TestRule(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
         }
 
-        [DataRow(0, @"
-@minLength(3)
-@maxLength(11)
-param namePrefix string
-param location string = resourceGroup().location
-
-module stgModule './storageAccount.bicep' = {
-  name: 'storageDeploy'
-  params: {
-    storagePrefix: namePrefix
-    location: location
-  }
-}
-
-output storageEndpoint object = stgModule.outputs.storageEndpoint
-")]
+        [DataRow(2, @"
+// Syntax errors
+var string =
+var a string
+resource abc 'Microsoft.AAD/domainServices@2021-03-01'
+        ")]
         [DataTestMethod]
-        public void Modules(int diagnosticCount, string text)
-        {
-            CompileAndTest(text, diagnosticCount);
-        }
-
-        [DataRow(0, @"
-param location string
-
-resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = if (false) {
-  name: 'myZone'
-  location: location
-}
-")]
-        [DataTestMethod]
-        public void Conditions(int diagnosticCount, string text)
+        public void SyntaxErrors(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
         }

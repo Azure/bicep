@@ -4,17 +4,23 @@
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class LocationSetByParameterRulesTests : LinterRuleTestsBase
+    public class LocationSetByParameterRuleTests : LinterRuleTestsBase
     {
         private void CompileAndTest(string text, int expectedDiagnosticCount)
         {
-            base.CompileAndTest(LocationSetByParameterRule.Code, text, expectedDiagnosticCount);
+            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
+            {
+                var errors = GetDiagnostics(LocationSetByParameterRule.Code, text);
+                errors.Should().HaveCount(expectedDiagnosticCount);
+            }
         }
 
         [TestMethod]
@@ -336,6 +342,70 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             string text = @"
                 resource abc 'Microsoft.AAD/domainServices@2021-03-01' // missing body
+            ";
+
+            CompileAndTest(text, 0);
+        }
+
+        [TestMethod]
+        public void armTtk347()
+        {
+            string text = @"
+                targetScope = 'subscription'
+
+                param workspaceId string
+
+                module diagnosticSettings './activity-log-diagnostics.bicep' = {
+                name: 'DiagnosticSettings'
+                scope: subscription()
+                params: {
+                        workspaceId: workspaceId
+                    }
+                }";
+
+            CompileAndTest(text, 0);
+        }
+
+        [TestMethod]
+        public void Conditions()
+        {
+            string text = @"
+            resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = if (false) {
+                name: 'myZone'
+                location: resourceGroup().location
+            }";
+
+            CompileAndTest(text, 1);
+        }
+
+        public void ResourceLoops()
+        {
+            string text = @"
+            param storageAccounts array
+
+            resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for storageName in storageAccounts: {
+                name: storageName
+                location: resourceGroup().location
+                properties: {
+                    supportsHttpsTrafficOnly: true
+                    accessTier: 'Hot'
+                    encryption: {
+                    keySource: 'Microsoft.Storage'
+                    services: {
+                        blob: {
+                        enabled: true
+                        }
+                        file: {
+                        enabled: true
+                        }
+                    }
+                    }
+                }
+                kind: 'StorageV2'
+                sku: {
+                    name: 'Standard_LRS'
+                }
+            }]
             ";
 
             CompileAndTest(text, 0);

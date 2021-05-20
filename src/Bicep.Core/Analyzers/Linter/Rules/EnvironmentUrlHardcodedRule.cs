@@ -43,7 +43,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (this.DisallowedHosts != null && this.DisallowedHosts.Any())
             {
                 var spansToMark = new Dictionary<TextSpan, List<string>>();
-                var visitor = new BCPL1020Visitor(spansToMark, this.DisallowedHosts);
+                var visitor = new Visitor(spansToMark, this.DisallowedHosts);
                 visitor.Visit(model.SyntaxTree.ProgramSyntax);
 
                 foreach (var kvp in spansToMark)
@@ -57,12 +57,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private class BCPL1020Visitor : SyntaxVisitor
+        private class Visitor : SyntaxVisitor
         {
             private readonly Dictionary<TextSpan, List<string>> hostsFound;
             private readonly ImmutableHashSet<string> disallowedHosts;
 
-            public BCPL1020Visitor(Dictionary<TextSpan, List<string>> hostsFound, ImmutableHashSet<string> disallowedHosts)
+            public Visitor(Dictionary<TextSpan, List<string>> hostsFound, ImmutableHashSet<string> disallowedHosts)
             {
                 this.hostsFound = hostsFound;
                 this.disallowedHosts = disallowedHosts;
