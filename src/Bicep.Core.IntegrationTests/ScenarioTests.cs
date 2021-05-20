@@ -1292,9 +1292,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 }
 ");
 
-            result.Should().HaveDiagnostics(new[] {
-                (UnnecessaryDependsOnRule.Code, DiagnosticLevel.Warning, new UnnecessaryDependsOnRule().GetMessage()),
-            });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
@@ -1334,9 +1332,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 }
 ");
 
-            result.Should().HaveDiagnostics(new[] {
-                    (UnnecessaryDependsOnRule.Code, DiagnosticLevel.Warning, new UnnecessaryDependsOnRule().GetMessage()),
-                });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
@@ -1381,9 +1377,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 }]
 ");
 
-            result.Should().HaveDiagnostics(new[]{
-                (UnnecessaryDependsOnRule.Code, DiagnosticLevel.Warning, new UnnecessaryDependsOnRule().GetMessage()),
-            });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('vnets')[copyIndex()])]", // dependsOn should include the virtualNetwork parent resource
