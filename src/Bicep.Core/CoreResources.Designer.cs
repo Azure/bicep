@@ -133,15 +133,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A valid template must be parameterized..
-        /// </summary>
-        internal static string ParameterRequiredRuleDescription {
-            get {
-                return ResourceManager.GetString("ParameterRequiredRuleDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Secure parameters can&apos;t have hardcoded default. This prevents storage of sensitive data in the Bicep declaration..
         /// </summary>
         internal static string SecureParameterDefaultRuleDescription {

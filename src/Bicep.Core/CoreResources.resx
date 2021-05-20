@@ -144,9 +144,6 @@
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>Declared parameter must be referenced within the document scope.</value>
   </data>
-  <data name="ParameterRequiredRuleDescription" xml:space="preserve">
-    <value>A valid template must be parameterized.</value>
-  </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.</value>
   </data>
