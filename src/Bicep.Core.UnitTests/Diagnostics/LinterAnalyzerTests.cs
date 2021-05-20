@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             var analyzer = new LinterAnalyzer();
             var ruleSet = analyzer.GetRuleSet();
-            ruleSet.Should().OnlyContain(r => r.Enabled);
+            ruleSet.Should().OnlyContain(r => r.IsEnabled());
         }
 
         [TestMethod]

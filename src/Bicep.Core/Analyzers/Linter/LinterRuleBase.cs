@@ -35,7 +35,6 @@ namespace Bicep.Core.Analyzers.Linter
 
         public string Code { get; }
         public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:rules";
-        public bool Enabled => this.DiagnosticLevel != DiagnosticLevel.Off;
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
         public string DocumentationUri { get; }

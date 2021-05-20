@@ -72,7 +72,7 @@ namespace Bicep.Core.Analyzers.Linter
                     diagnostics.Add(GetConfigurationDiagnostic());
                 }
 
-                diagnostics.AddRange(RuleSet.Where(rule => rule.Enabled)
+                diagnostics.AddRange(RuleSet.Where(rule => rule.IsEnabled())
                                      .SelectMany(r => r.Analyze(semanticModel)));
             }
             else
