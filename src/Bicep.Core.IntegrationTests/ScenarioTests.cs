@@ -2006,6 +2006,31 @@ var foo = az.listKeys('foo', '2012-02-01')[0].value
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/2624
+        public void Test_Issue2757()
+        {
+            var result = CompilationHelper.Compile(@"
+param webApiHostingPlanName string
+param customLocationId string
+
+resource webApiHostingPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
+  name: webApiHostingPlanName
+  location: 'West US'
+  extendedLocation: {
+    type: 'CustomLocation'
+    name: customLocationId
+  }
+  properties: {
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP037", DiagnosticLevel.Warning, "The property \"extendedLocation\" is not allowed on objects of type \"Microsoft.Web/serverfarms\". Permissible properties include \"dependsOn\", \"kind\", \"sku\", \"tags\".")
+            });
+        }
+
+        [TestMethod]
         public void Test_Issue449_PositiveCase()
         {
             var result = CompilationHelper.Compile(@"
