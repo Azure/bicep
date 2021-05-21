@@ -21,14 +21,14 @@ namespace Bicep.Core.TypeSystem
             foreach (var container in containers)
             {
                 // Only visit child nodes of the DTC container to avoid flagging the DTC container itself.
-                foreach (var containerChild in GetChildrenOfDeployTimeConstantContainer(container))
+                foreach (var childContainer in GetChildrenOfDeployTimeConstantContainer(semanticModel, container))
                 {
                     // Validate property accesses, array accesses, resource accesses and function calls.
                     new DeployTimeConstantDirectViolationVisitor(container, semanticModel, diagnosticWriter)
-                        .Visit(containerChild);
+                        .Visit(childContainer);
 
-                    // Validate variable references.
-                    foreach (var variableDependency in VariableDependencyVisitor.GetVariableDependencies(semanticModel, containerChild))
+                    // Validate variable dependencies.
+                    foreach (var variableDependency in VariableDependencyVisitor.GetVariableDependencies(semanticModel, childContainer))
                     {
                         new DeployTimeConstantIndirectViolationVisitor(container, variableDependency, semanticModel, diagnosticWriter)
                             .Visit(variableDependency);
@@ -37,11 +37,17 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private static IEnumerable<SyntaxBase> GetChildrenOfDeployTimeConstantContainer(SyntaxBase deployTimeConstantContainer) => deployTimeConstantContainer switch
+        private static IEnumerable<SyntaxBase> GetChildrenOfDeployTimeConstantContainer(SemanticModel semanticModel, SyntaxBase deployTimeConstantContainer) => deployTimeConstantContainer switch
         {
             ObjectPropertySyntax objectPropertySyntax => objectPropertySyntax.Value.AsEnumerable(),
             IfConditionSyntax ifConditionSyntax => ifConditionSyntax.ConditionExpression.AsEnumerable(),
+
+            // If the ForSyntax is a child of a variable declartion, we should validate both the for-expression and the for-body.
+            ForSyntax forSyntax when semanticModel.Binder.GetParent(forSyntax) is VariableDeclarationSyntax => forSyntax.Expression.AsEnumerable().Concat(forSyntax.Body),
+
+            // Only validate the for-expression in other cases.
             ForSyntax forSyntax => forSyntax.Expression.AsEnumerable(),
+
             FunctionCallSyntaxBase functionCallSyntaxBase => functionCallSyntaxBase.Arguments,
             _ => throw new ArgumentOutOfRangeException(nameof(deployTimeConstantContainer), "Expected an ObjectPropertySyntax, a IfConditionSyntax, a ForSyntax, or a FunctionCallSyntaxBase."),
         };

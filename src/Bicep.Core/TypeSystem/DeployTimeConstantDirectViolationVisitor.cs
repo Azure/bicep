@@ -43,6 +43,16 @@ namespace Bicep.Core.TypeSystem
             base.VisitPropertyAccessSyntax(syntax);
         }
 
+        public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+        {
+            this.FlagIfAccessingEntireResourceOrModule(syntax);
+        }
+
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            this.FlagIfAccessingEntireResourceOrModule(syntax);
+        }
+
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             this.FlagIfFunctionRequiresInlining(syntax);
@@ -57,12 +67,51 @@ namespace Bicep.Core.TypeSystem
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
-        private void FlagIfPropertyNotReadableAtDeployTime(SyntaxBase errorSyntax, string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
+        private void FlagIfAccessingEntireResourceOrModule(SyntaxBase syntax)
+        {
+            if (this.DeployTimeConstantContainer is not IfConditionSyntax and not ForSyntax)
+            {
+                // We can skip validation if we are inside a resource/module body or a function call, because the
+                // type checker should be able to produce type errors if the reference is invalid. There are also
+                // locations where referencing an entire resource/module module body is expected (e.g., scope).
+                return;
+            }
+
+            switch (this.SemanticModel.Binder.GetParent(syntax))
+            {
+                // var foo = [for x in [...]: {
+                //   bar: myVM <-- accessing an entire resource/module.
+                // }]
+                case not PropertyAccessSyntax and not ArrayAccessSyntax when
+                    this.TryExtractResourceOrModuleSymbolAndBodyType(syntax, false) is ({ } accessedSymbol, { } accessedBodyType):
+                    {
+                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+
+                        return;
+                    }
+                // var foo = [for x in [...]: {
+                //   bar: myVNets[1] <-- accessing an entire resource/module via an array index.
+                // }]
+                case ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax } arrayAccessSyntax when
+                    this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
+                    this.TryExtractResourceOrModuleSymbolAndBodyType(syntax, true) is ({ } accessedSymbol, { } accessedBodyType):
+                    {
+                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+
+                        return;
+                    }
+
+                default:
+                    return;
+            }
+        }
+
+        private void FlagIfPropertyNotReadableAtDeployTime(SyntaxBase syntax, string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
         {
             if (accessedBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                 !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
             {
-                this.FlagDeployTimeConstantViolation(errorSyntax, accessedSymbol, accessedBodyType);
+                this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
             }
         }
 

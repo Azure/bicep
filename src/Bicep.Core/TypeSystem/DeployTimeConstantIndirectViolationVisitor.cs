@@ -40,10 +40,11 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType) &&
-                syntax.IndexExpression is StringSyntax stringSyntax)
+            if (syntax.IndexExpression is StringSyntax stringSyntax &&
+                this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
-                if (stringSyntax.TryGetLiteralValue() is { } propertyName) {
+                if (stringSyntax.TryGetLiteralValue() is { } propertyName)
+                {
                     // Validate property access via string literal index (myResource['sku']).
                     this.FlagIfPropertyNotReadableAtDeployTime(propertyName, accessedSymbol, accessedBodyType);
                 }
@@ -53,9 +54,6 @@ namespace Bicep.Core.TypeSystem
                     // since we we cannot tell whether the property is readable at deploy-time or not.
                     this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType);
                 }
-
-                // Do not VisitVariableAccessSyntax on resources or modules.
-                return;
             }
 
             base.VisitArrayAccessSyntax(syntax);
@@ -66,9 +64,6 @@ namespace Bicep.Core.TypeSystem
             if (this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 this.FlagIfPropertyNotReadableAtDeployTime(syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
-
-                // Do not VisitVariableAccessSyntax on resources or modules.
-                return;
             }
 
             base.VisitPropertyAccessSyntax(syntax);
@@ -76,9 +71,6 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-             // This method should not be visited by PropertyAccessSyntax/ArrayAccessSyntax of resource/modules (but variables should visit).
-             // This is meant to catch variable properties which are assigned entire resource/modules,
-             // or to recurse through a chain of variable references.
             if (this.SemanticModel.GetSymbolInfo(syntax) is VariableSymbol variableSymbol &&
                 this.SemanticModel.Binder.TryGetCycle(variableSymbol) is null)
             {
@@ -92,9 +84,6 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
-             // This method should not be visited by PropertyAccessSyntax/ArrayAccessSyntax of resource/modules (but variables should visit).
-             // This is meant to catch variable properties which are assigned entire resource/modules,
-             // or to recurse through a chain of variable references.
             this.FlagIfAccessingEntireResourceOrModule(syntax);
         }
 
@@ -133,10 +122,34 @@ namespace Bicep.Core.TypeSystem
 
         private void FlagIfAccessingEntireResourceOrModule(SyntaxBase syntax)
         {
-            if (this.TryExtractResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType))
+            switch (this.SemanticModel.Binder.GetParent(syntax))
             {
-                var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
-                this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+                // var foo = [for x in [...]: {
+                //   bar: myVM <-- accessing an entire resource/module.
+                // }]
+                case not PropertyAccessSyntax and not ArrayAccessSyntax when
+                    this.TryExtractResourceOrModuleSymbolAndBodyType(syntax, false) is ({ } accessedSymbol, { } accessedBodyType):
+                    {
+                        var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
+                        this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+
+                        break;
+                    }
+                // var foo = [for x in [...]: {
+                //   bar: myVNets[1] <-- accessing an entire resource/module via an array index.
+                // }]
+                case ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax } arrayAccessSyntax when
+                    this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
+                    this.TryExtractResourceOrModuleSymbolAndBodyType(syntax, true) is ({ } accessedSymbol, { } accessedBodyType):
+                    {
+                        var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
+                        this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+
+                        break;
+                    }
+
+                default:
+                    break;
             }
         }
 

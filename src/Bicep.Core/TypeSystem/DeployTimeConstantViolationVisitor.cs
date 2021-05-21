@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -35,20 +36,26 @@ namespace Bicep.Core.TypeSystem
             var diagnosticBuilder = DiagnosticBuilder.ForPosition(errorSyntax);
             var diagnostic = this.DeployTimeConstantContainer switch
             {
-                ObjectPropertySyntax propertySyntax when propertySyntax.TryGetKeyText() is { } propertyName =>
-                    diagnosticBuilder.RuntimeValueNotAllowedInProperty(propertyName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
-                IfConditionSyntax =>
-                    diagnosticBuilder.RuntimeValueNotAllowedInIfConditionExpression(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
-                ForSyntax =>
-                    diagnosticBuilder.RuntimeValueNotAllowedInForExpression(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
-                FunctionCallSyntaxBase functionCallSyntaxBase =>
-                    diagnosticBuilder.RuntimeValueNotAllowedInRunTimeFunctionArguments(functionCallSyntaxBase.Name.IdentifierName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
-                _ =>
-                    throw new ArgumentOutOfRangeException(nameof(this.DeployTimeConstantContainer), "Expected an ObjectPropertySyntax with a propertyName, a IfConditionSyntax, a ForSyntax, or a FunctionCallSyntaxBase."),
+                ObjectPropertySyntax propertySyntax when propertySyntax.TryGetKeyText() is { } propertyName => diagnosticBuilder.RuntimeValueNotAllowedInProperty(propertyName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+                IfConditionSyntax => diagnosticBuilder.RuntimeValueNotAllowedInIfConditionExpression(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+
+                // Corner case: the runtime value is in the for-body of a variable declaration.
+                ForSyntax forSyntax when ErrorSyntaxInForBodyOfVariable(forSyntax, errorSyntax) is string variableName =>
+                    diagnosticBuilder.RuntimeValueNotAllowedInVariableForBody(variableName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+
+                ForSyntax => diagnosticBuilder.RuntimeValueNotAllowedInForExpression(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+                FunctionCallSyntaxBase functionCallSyntaxBase => diagnosticBuilder.RuntimeValueNotAllowedInRunTimeFunctionArguments(functionCallSyntaxBase.Name.IdentifierName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+                _ => throw new ArgumentOutOfRangeException(nameof(this.DeployTimeConstantContainer), "Expected an ObjectPropertySyntax with a propertyName, a IfConditionSyntax, a ForSyntax, or a FunctionCallSyntaxBase."),
             };
 
             this.DiagnosticWriter.Write(diagnostic);
         }
+
+        private string? ErrorSyntaxInForBodyOfVariable(ForSyntax forSyntax, SyntaxBase errorSyntax) =>
+            this.SemanticModel.Binder.GetParent(forSyntax) is VariableDeclarationSyntax variableDeclarationSyntax &&
+            TextSpan.AreOverlapping(errorSyntax, forSyntax.Body)
+                ? variableDeclarationSyntax.Name.IdentifierName
+                : null;
 
         protected (DeclaredSymbol?, ObjectType?) TryExtractResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection = false)
         {
