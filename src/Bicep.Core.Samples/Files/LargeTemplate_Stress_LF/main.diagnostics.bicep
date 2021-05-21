@@ -1,5 +1,5 @@
 var test = [
-//@[4:8) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\r\n[See : https://aka.ms/bicep/linter/no-unused-vars] |test|
+//@[4:8) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |test|
 		  {}
   {}
   {}

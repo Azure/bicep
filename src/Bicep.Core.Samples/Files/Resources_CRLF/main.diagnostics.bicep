@@ -92,7 +92,7 @@ var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 // this variable is not accessed anywhere in this template and depends on a run-time reference
 // it should not be present at all in the template output as there is nowhere logical to put it
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
-//@[4:20) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\r\n[See : https://aka.ms/bicep/linter/no-unused-vars] |cosmosDbEndpoint|
+//@[4:20) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |cosmosDbEndpoint|
 
 param webSiteName string
 param cosmosDb object
@@ -125,9 +125,9 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 }
 
 var _siteApiVersion = site.apiVersion
-//@[4:19) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\r\n[See : https://aka.ms/bicep/linter/no-unused-vars] |_siteApiVersion|
+//@[4:19) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |_siteApiVersion|
 var _siteType = site.type
-//@[4:13) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\r\n[See : https://aka.ms/bicep/linter/no-unused-vars] |_siteType|
+//@[4:13) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |_siteType|
 
 output siteApiVersion string = site.apiVersion
 output siteType string = site.type
@@ -345,7 +345,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 
 // duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
-//@[4:33) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\r\n[See : https://aka.ms/bicep/linter/no-unused-vars] |canHaveDuplicatesAcrossScopes|
+//@[4:33) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |canHaveDuplicatesAcrossScopes|
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
   name: 'vnet-${canHaveDuplicatesAcrossScopes}'
   properties: {
@@ -357,7 +357,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
-//@[4:24) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\r\n[See : https://aka.ms/bicep/linter/no-unused-vars] |duplicatesEverywhere|
+//@[4:24) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |duplicatesEverywhere|
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
   name: 'vnet-${duplicatesEverywhere}'
   properties: {
