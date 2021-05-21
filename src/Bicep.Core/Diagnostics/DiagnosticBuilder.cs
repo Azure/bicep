@@ -1009,18 +1009,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP174",
                 $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information.");
 
-            public ErrorDiagnostic VariableLoopsRuntimeDependencyNotAllowed(IEnumerable<string> variableDependencyChain)
-            {
-                var variableDependencyChainClause = variableDependencyChain.Any()
-                    ? $" Variable dependency chain: \"{string.Join("\" -> \"", variableDependencyChain)}\"."
-                    : string.Empty;
-
-                return new(
-                    TextSpan,
-                    "BCP175",
-                    $"The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}");
-            }
-
             public ErrorDiagnostic AnyTypeIsNotAllowed() => new(
                 TextSpan,
                 "BCP176",
@@ -1070,6 +1058,17 @@ namespace Bicep.Core.Diagnostics
                     TextSpan,
                     "BCP181",
                     $"The arguments of function \"{functionName}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}{accessiblePropertyClause}");
+            }
+
+            public ErrorDiagnostic RuntimeValueNotAllowedInVariableForBody(string variableName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP182",
+                    $"The for-body of the variable \"{variableName}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
             private static string BuildVariableDependencyChainClause(IEnumerable<string>? variableDependencyChain) => variableDependencyChain is not null
