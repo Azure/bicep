@@ -40,7 +40,7 @@ namespace Bicep.LangServer.IntegrationTests
             TelemetryEvent? telemetryEvent = command?.Arguments?.First().ToObject<TelemetryEvent>();
 
             command?.Name.Should().Be(TelemetryConstants.CommandName);
-            telemetryEvent?.EventName.Should().Be(TelemetryConstants.EventNames.DeclarationSnippetCompletion);
+            telemetryEvent?.EventName.Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
             telemetryEvent?.Properties?.ContainsKey("label");
         }
     }

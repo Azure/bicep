@@ -25,7 +25,7 @@ namespace Bicep.LanguageServer.Handlers
         private static ExecuteCommandRegistrationOptions GetExecuteCommandRegistrationOptions()
             => new ExecuteCommandRegistrationOptions()
             {
-                Commands = new Container<string>("bicep.telemetry")
+                Commands = new Container<string>(TelemetryConstants.CommandName)
             };
 
         public override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
