@@ -27,7 +27,7 @@ namespace Bicep.Core.Analyzers.Linter
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
         private ImmutableArray<IBicepAnalyzerDiagnostic> RuleCreationErrors;
 
-        internal const string FailedRuleCode = "Linter Rule Error";
+        internal const string FailedRuleCode = "linter-internal-error";
 
 
         public LinterAnalyzer()
