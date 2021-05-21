@@ -25,7 +25,7 @@ namespace Bicep.Core.Analyzers.Linter
             this.Code = code;
             this.Description = description;
             this.DocumentationUri = docUri;
-            this.Level = diagnosticLevel;
+            this.DiagnosticLevel = diagnosticLevel;
             this.DiagnosticLabel = diagnosticLabel;
         }
 
@@ -34,10 +34,11 @@ namespace Bicep.Core.Analyzers.Linter
 
         public string Code { get; }
         public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:rules";
-        public Diagnostics.DiagnosticLevel Level { get; private set; }
+        public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
         public string DocumentationUri { get; }
         public Diagnostics.DiagnosticLabel? DiagnosticLabel { get; }
+
 
         /// <summary>
         /// Override to implement detailed message for rule
@@ -49,10 +50,10 @@ namespace Bicep.Core.Analyzers.Linter
         public virtual void Configure(IConfigurationRoot config)
         {
             this.Config = config;
-            var configDiagLevel = GetConfiguration(nameof(this.Level).ToLower(), this.Level.ToString());
+            var configDiagLevel = GetConfiguration("level", this.DiagnosticLevel.ToString());
             if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl))
             {
-                this.Level = lvl;
+                this.DiagnosticLevel = lvl;
             }
         }
 
@@ -65,7 +66,7 @@ namespace Bicep.Core.Analyzers.Linter
         public string GetMessage(params object[] values)
         {
             return (values.Any() ? FormatMessage(values) : this.Description)
-                + Environment.NewLine
+                + "\n" // this is used for cross-platform compatibility
                 + string.Format(CoreResources.SeeDocLinkFormat, this.DocumentationUri);
         }
 
@@ -95,7 +96,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        internal abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
+        public abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
 
         /// <summary>
         /// Get a setting from defaults or local override
@@ -128,7 +129,7 @@ namespace Bicep.Core.Analyzers.Linter
         protected virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
-                level: this.Level,
+                level: this.DiagnosticLevel,
                 code: this.Code,
                 message: this.GetMessage(),
                 label: this.DiagnosticLabel);
@@ -143,7 +144,7 @@ namespace Bicep.Core.Analyzers.Linter
         protected virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span, params object[] values) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
-                level: this.Level,
+                level: this.DiagnosticLevel,
                 code: this.Code,
                 message: this.GetMessage(values),
                 label: this.DiagnosticLabel);
@@ -151,7 +152,7 @@ namespace Bicep.Core.Analyzers.Linter
         protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
-                level: this.Level,
+                level: this.DiagnosticLevel,
                 code: this.Code,
                 message: this.GetMessage(),
                 codeFixes: new[] { fix },

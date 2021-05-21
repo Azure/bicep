@@ -28,7 +28,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private CodeReplacement GetCodeReplacement(TextSpan span)
             => new CodeReplacement(span, $"{Code} - this is the new code");
 
-        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var visitor = new Visitor(this);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);

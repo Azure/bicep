@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
 using Bicep.Core.Configuration;
+using Bicep.Core.UnitTests.Configuration;
 
 namespace Bicep.Core.IntegrationTests
 {

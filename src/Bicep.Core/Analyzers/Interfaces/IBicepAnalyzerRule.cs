@@ -19,7 +19,7 @@ namespace Bicep.Core.Analyzers.Interfaces
         string AnalyzerName { get; }
         string Code { get; }
         string Description { get; }
-        DiagnosticLevel Level { get; }
+        DiagnosticLevel DiagnosticLevel { get; }
         DiagnosticLabel? DiagnosticLabel { get; }
         string DocumentationUri { get; }
         void Configure(IConfigurationRoot config);

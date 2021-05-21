@@ -21,7 +21,7 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public IConfigurationRoot Config { get; private set; }
 
-        internal ConfigHelper()
+        public ConfigHelper()
         {
             this.Config = BuildConfig(Directory.GetCurrentDirectory());
         }
@@ -108,7 +108,7 @@ namespace Bicep.Core.Configuration
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
-        internal ConfigHelper OverrideSetting(string name, object value)
+        public ConfigHelper OverrideSetting(string name, object value)
         {
             SettingOverrides[name] = value;
             this.Config = BuildConfig(Directory.GetCurrentDirectory());

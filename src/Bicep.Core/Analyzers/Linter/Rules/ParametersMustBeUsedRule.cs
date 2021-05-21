@@ -19,7 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
-        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             // parameters must have at least two references
             //  1) One reference will be the the paramater syntax declaration

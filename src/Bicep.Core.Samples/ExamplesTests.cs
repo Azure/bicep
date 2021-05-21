@@ -26,6 +26,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.UnitTests.Configuration;
 
 namespace Bicep.Core.Samples
 {

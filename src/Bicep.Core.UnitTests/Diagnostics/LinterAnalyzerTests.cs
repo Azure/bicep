@@ -72,7 +72,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             public LinterThrowsTestRule() : base("ThrowsRule", "Throws an exception when used", "http:\\none", DiagnosticLevel.Warning) { }
 
-            override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+            public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
             {
                 // Have a yield return to force this method to return an iterator like the real rules
                 yield return new AnalyzerDiagnostic(this.AnalyzerName,
@@ -80,7 +80,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
                                                     DiagnosticLevel.Warning,
                                                     "fakeRule",
                                                     "Fake Rule");
-
                 // Now throw an exception
                 throw new System.NotImplementedException();
             }

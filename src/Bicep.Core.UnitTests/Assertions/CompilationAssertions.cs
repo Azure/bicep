@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.UnitTests.Configuration;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 
