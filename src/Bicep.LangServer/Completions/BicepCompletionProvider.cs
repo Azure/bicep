@@ -89,8 +89,8 @@ namespace Bicep.LanguageServer.Completions
                     {
                         { "label", resourceSnippet.Prefix }
                     };
-                    TelemetryEvent telemetryEvent = new("declaration-snippet-completion", properties);
-                    Command command = Command.Create("bicep.telemetry", telemetryEvent);
+                    TelemetryEvent telemetryEvent = new(TelemetryConstants.EventNames.DeclarationSnippetCompletion, properties);
+                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
                     yield return CreateContextualSnippetCompletion(resourceSnippet.Prefix,
                                                                    resourceSnippet.Detail,
