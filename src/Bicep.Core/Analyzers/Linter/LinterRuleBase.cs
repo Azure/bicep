@@ -67,7 +67,7 @@ namespace Bicep.Core.Analyzers.Linter
         public string GetMessage(params object[] values)
         {
             return (values.Any() ? FormatMessage(values) : this.Description)
-                + Environment.NewLine
+                + "\n" // this is used for cross-platform compatibility
                 + string.Format(CoreResources.SeeDocLinkFormat, this.DocumentationUri);
         }
 
