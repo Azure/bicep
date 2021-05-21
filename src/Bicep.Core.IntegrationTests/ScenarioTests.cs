@@ -2072,10 +2072,10 @@ resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
 }
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
-                ("BCP036", DiagnosticLevel.Error, "The property \"scope\" expected a value of type \"resource | tenant\" but the provided value is of type \"null\"."),
-                ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
-                ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"resource\" but the provided value is of type \"null\"."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"scope\" expected a value of type \"resource | tenant\" but the provided value is of type \"null\"."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"parent\" expected a value of type \"resource\" but the provided value is of type \"null\"."),
             });
         }
 
