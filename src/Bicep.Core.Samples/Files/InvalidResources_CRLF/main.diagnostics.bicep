@@ -415,7 +415,7 @@ resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes3.location}'
-//@[28:36) [BCP053 (Error)] The type "Microsoft.Advisor/recommendations/suppressions" does not contain property "location". Available properties include "apiVersion", "id", "name", "properties", "type". |location|
+//@[28:36) [BCP053 (Warning)] The type "Microsoft.Advisor/recommendations/suppressions" does not contain property "location". Available properties include "apiVersion", "id", "name", "properties", "type". |location|
 }
 
 resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -549,13 +549,13 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 }]
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingTopLevelProperties|
+//@[9:34) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
   
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[9:44) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "sku". |missingTopLevelPropertiesExceptName|
+//@[9:44) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "location", "sku". |missingTopLevelPropertiesExceptName|
   // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
@@ -590,7 +590,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 Discriminator key missing
 */
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[86:148) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
+//@[86:148) [BCP078 (Warning)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
   
 }
@@ -599,7 +599,7 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
 Discriminator key missing (conditional)
 */
 resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(true) {
-//@[98:160) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
+//@[98:160) [BCP078 (Warning)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
   
 }
@@ -608,7 +608,7 @@ resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-
 Discriminator key missing (loop)
 */
 resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[108:170) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
+//@[108:170) [BCP078 (Warning)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
   
 }]
@@ -617,7 +617,7 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 Discriminator key missing (filtered loop)
 */
 resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[120:182) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
+//@[120:182) [BCP078 (Warning)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
   
 }]
@@ -710,7 +710,7 @@ var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissi
 Discriminator value set 1
 */
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne|
+//@[9:31) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
@@ -735,7 +735,7 @@ var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
 Discriminator value set 1 (conditional)
 */
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(2==3) {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_if|
+//@[9:34) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
@@ -760,7 +760,7 @@ var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties
 Discriminator value set 1 (loop)
 */
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for|
+//@[9:35) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
@@ -785,7 +785,7 @@ var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].prope
 Discriminator value set 1 (filtered loop)
 */
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
-//@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for_if|
+//@[9:38) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
@@ -811,7 +811,7 @@ var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1]
 Discriminator value set 2
 */
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo|
+//@[9:31) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
@@ -839,7 +839,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['pro
 Discriminator value set 2 (conditional)
 */
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_if|
+//@[9:34) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
@@ -868,7 +868,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_i
 Discriminator value set 2 (loops)
 */
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for|
+//@[9:35) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
@@ -897,7 +897,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_
 Discriminator value set 2 (filtered loops)
 */
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for_if|
+//@[9:38) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
@@ -924,16 +924,16 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name", "properties". |incorrectPropertiesKey|
+//@[9:31) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name", "properties". |incorrectPropertiesKey|
   kind: 'AzureCLI'
 
   propertes: {
-//@[2:11) [BCP089 (Error)] The property "propertes" is not allowed on objects of type "AzureCLI". Did you mean "properties"? |propertes|
+//@[2:11) [BCP089 (Warning)] The property "propertes" is not allowed on objects of type "AzureCLI". Did you mean "properties"? |propertes|
   }
 }
 
 var mock = incorrectPropertiesKey.p
-//@[34:35) [BCP053 (Error)] The type "AzureCLI" does not contain property "p". Available properties include "apiVersion", "id", "identity", "kind", "location", "name", "properties", "systemData", "tags", "type". |p|
+//@[34:35) [BCP053 (Warning)] The type "AzureCLI" does not contain property "p". Available properties include "apiVersion", "id", "identity", "kind", "location", "name", "properties", "systemData", "tags", "type". |p|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -985,7 +985,7 @@ resource startedTypingTypeWithoutQuotes virma
 //@[45:45) [BCP018 (Error)] Expected the "=" character at this location. ||
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
-//@[9:30) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |dashesInPropertyNames|
+//@[9:30) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "location", "name". |dashesInPropertyNames|
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
@@ -1412,7 +1412,7 @@ resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [fo
 
 // duplicate variable in the same scope
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
-//@[9:29) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |itemAndIndexSameName|
+//@[9:29) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "name". |itemAndIndexSameName|
 //@[80:84) [BCP028 (Error)] Identifier "same" is declared multiple times. Remove or rename the duplicates. |same|
 //@[86:90) [BCP028 (Error)] Identifier "same" is declared multiple times. Remove or rename the duplicates. |same|
 }]
@@ -1436,25 +1436,25 @@ resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (
 
 // wrong filter expression type
 resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |wrongFilterExpressionType|
+//@[9:34) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |wrongFilterExpressionType|
 //@[114:117) [BCP046 (Error)] Expected a value of type "bool". |(4)|
 }]
 resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |wrongFilterExpressionType2|
+//@[9:35) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |wrongFilterExpressionType2|
 //@[119:132) [BCP046 (Error)] Expected a value of type "bool". |(concat('s'))|
 }]
 
 // missing required properties
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingRequiredProperties|
+//@[9:34) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingRequiredProperties|
 }]
 resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingRequiredProperties2|
+//@[9:35) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingRequiredProperties2|
 }]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[9:39) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "sku". |missingFewerRequiredProperties|
+//@[9:39) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "sku". |missingFewerRequiredProperties|
   name: account
   location: 'eastus42'
   properties: {
@@ -1854,31 +1854,31 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
 }
 
 resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
-//@[9:24) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParent|
+//@[9:24) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParent|
   parent: any(true)
 //@[10:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
 }
 
 resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
-//@[9:28) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParentLoop|
+//@[9:28) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParentLoop|
   parent: any(true)
 //@[10:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
 }]
 
 resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
-//@[9:23) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScope|
+//@[9:23) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScope|
   scope: any(invalidExistingLocationRef)
 //@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef)|
 }
 
 resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScopeConditional|
+//@[9:34) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScopeConditional|
   scope: any(invalidExistingLocationRef)
 //@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef)|
 }
 
 resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
-//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScope|
+//@[9:31) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScope|
   parent: any('')
 //@[10:17) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('')|
   scope: any(false)
@@ -1886,7 +1886,7 @@ resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' exi
 }
 
 resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScopeLoop|
+//@[9:35) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScopeLoop|
   parent: any('')
 //@[10:17) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('')|
   scope: any(false)

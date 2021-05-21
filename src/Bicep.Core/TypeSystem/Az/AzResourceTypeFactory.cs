@@ -11,6 +11,9 @@ namespace Bicep.Core.TypeSystem.Az
     {
         private readonly Dictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
 
+        // Warn on type mismatch, to avoid blocking deployment on swagger authoring errors.
+        private const TypeSymbolValidationFlags DefaultValidationFlags = TypeSymbolValidationFlags.WarnOnTypeMismatch;
+
         public AzResourceTypeFactory()
         {
             typeCache = new Dictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol>();
@@ -92,11 +95,11 @@ namespace Bicep.Core.TypeSystem.Az
                     var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
                     var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
 
-                    return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
+                    return new ObjectType(objectType.Name, DefaultValidationFlags, properties, additionalProperties, TypePropertyFlags.None);
                 }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                 {
-                    return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType));
+                    return new TypedArrayType(GetTypeReference(arrayType.ItemType), DefaultValidationFlags);
                 }
                 case Azure.Bicep.Types.Concrete.ResourceType resourceType:
                 {
@@ -114,7 +117,7 @@ namespace Bicep.Core.TypeSystem.Az
                 {
                     var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
 
-                    return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType), discriminatedObjectType.Discriminator, elementReferences);
+                    return new DiscriminatedObjectType(discriminatedObjectType.Name, DefaultValidationFlags, discriminatedObjectType.Discriminator, elementReferences);
                 }
                 default:
                     throw new ArgumentException();
@@ -136,19 +139,7 @@ namespace Bicep.Core.TypeSystem.Az
                 extendedProperties[property.Key] = property.Value;
             }
 
-            return new ObjectType(name, GetValidationFlags(isResourceBodyType), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
-        }
-
-        private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType)
-        {
-            if (isResourceBodyType)
-            {
-                // strict validation on top-level resource properties, as 'custom' top-level properties are not supported by the platform
-                return TypeSymbolValidationFlags.Default;
-            }
-
-            // in all other places, we should allow some wiggle room so that we don't block compilation if there are any swagger inaccuracies
-            return TypeSymbolValidationFlags.WarnOnTypeMismatch;
+            return new ObjectType(name, DefaultValidationFlags, extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
         }
 
         private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType input)

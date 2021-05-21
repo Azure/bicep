@@ -858,7 +858,7 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 
 var mock = incorrectPropertiesKey.p
-//@[4:8) Variable mock. Type: error. Declaration start char: 0, length: 35
+//@[4:8) Variable mock. Type: any. Declaration start char: 0, length: 35
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[9:32) Resource incorrectPropertiesKey2. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 774
