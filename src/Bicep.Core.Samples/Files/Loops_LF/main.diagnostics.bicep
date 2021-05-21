@@ -232,6 +232,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
+//@[13:137) [prefer-interpolation (Warning)] Dynamic variable should not use concat - string interpolation should be used.\r\n[See : https://aka.ms/bicep/linter/prefer-interpolation] |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
   }
   dependsOn: [
     storageAccounts2[index - 10]

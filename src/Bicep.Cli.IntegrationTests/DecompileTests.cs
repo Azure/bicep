@@ -216,8 +216,7 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        //TODO: handle the temp file message for linter - see ****
-        [TestMethod, Ignore]
+        [TestMethod]
         public void Decompilation_of_file_with_no_errors_to_stdout()
         {
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");

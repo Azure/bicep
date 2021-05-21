@@ -68,7 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         // TODO: Handle varying linter expectations for data-driven test
-        [DataTestMethod, Ignore]
+        [DataTestMethod]
         [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)

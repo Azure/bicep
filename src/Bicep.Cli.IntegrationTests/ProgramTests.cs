@@ -115,7 +115,7 @@ namespace Bicep.Cli.IntegrationTests
 
 
         // TODO: handle variant linter messaging for each data test
-        [DataTestMethod, Ignore]
+        [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileShouldProduceExpectedTemplate(DataSet dataSet)
         {
@@ -133,7 +133,6 @@ namespace Bicep.Cli.IntegrationTests
                 result.Should().Be(0);
                 output.Should().BeEmpty();
                 AssertNoErrors(error, dataSet.Name);
-                error.Should().Match($"{bicepFilePath}(22,7) : Warning {ParametersMustBeUsedRule.Code}: {new ParametersMustBeUsedRule().GetMessage()}{Environment.NewLine}");
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);

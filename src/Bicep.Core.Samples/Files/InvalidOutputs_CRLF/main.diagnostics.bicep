@@ -8,6 +8,7 @@ output
 //@[7:7) [BCP016 (Error)] Expected an output identifier at this location. ||
 
 var testSymbol = 42
+//@[4:14) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\r\n[See : https://aka.ms/bicep/linter/no-unused-vars] |testSymbol|
 
 // #completionTest(28,29) -> symbols
 output missingValueAndType = 
@@ -190,6 +191,7 @@ output deeper bool = true ? -true : (14 && 's') + 10
 
 output myOutput string = 'hello'
 var attemptToReferenceAnOutput = myOutput
+//@[4:30) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\r\n[See : https://aka.ms/bicep/linter/no-unused-vars] |attemptToReferenceAnOutput|
 //@[33:41) [BCP058 (Error)] The name "myOutput" is an output. Outputs cannot be referenced in expressions. |myOutput|
 
 @sys.maxValue(20)
