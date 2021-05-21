@@ -87,7 +87,7 @@ namespace Bicep.LanguageServer.Completions
                 {
                     Dictionary<string, string> properties = new Dictionary<string, string>()
                     {
-                        { "label", resourceSnippet.Prefix }
+                        { "name", resourceSnippet.Prefix }
                     };
                     TelemetryEvent telemetryEvent = new(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion, properties);
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);

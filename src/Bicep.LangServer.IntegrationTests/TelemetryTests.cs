@@ -41,7 +41,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             command?.Name.Should().Be(TelemetryConstants.CommandName);
             telemetryEvent?.EventName.Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
-            telemetryEvent?.Properties?.ContainsKey("label");
+            telemetryEvent?.Properties?.ContainsKey("name");
         }
     }
 }
