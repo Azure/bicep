@@ -1,11 +1,11 @@
 {
   "analyzers": {
     "core": {
-      "verbose":  true,
+      "verbose": true,
       "enabled": true,
       "rules": {
-        "Environment URL hardcoded": {
-          "diagnosticlevel": "Warning",
+        "no-hardcoded-env-urls": {
+          "level": "Warning",
           "disallowedhosts": [
             "test",
             "management.core.windows.net",

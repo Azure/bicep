@@ -2,10 +2,16 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Bicep.Core.Configuration
+namespace Bicep.Core.UnitTests.Configuration
 {
-    internal static class ConfigHelperExtensions
+    public static class ConfigHelperExtensions
     {
         public static ConfigHelper GetDisabledLinterConfig(this ConfigHelper configHelper) =>
             configHelper.OverrideSetting(LinterAnalyzer.LinterEnabledSetting, false)

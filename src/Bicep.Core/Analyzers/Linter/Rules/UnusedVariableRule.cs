@@ -20,7 +20,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
-        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             // TODO: Performance: Use a visitor to visit VariableAccesssyntax and collects the non-error symbols into a list.
             // Then do a symbol visitor to go through all the symbols that exist and compare.

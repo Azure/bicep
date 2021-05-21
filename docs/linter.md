@@ -8,7 +8,7 @@ The linter should make it easier to enforce team coding standards by providing g
 
 ## Configuration
 
-[`bicepsettings.json`](../src/Bicep.Core/Configuration/bicepsettings.json) can be used to:
+[`bicepconfig.json`](../src/Bicep.Core/Configuration/bicepconfig.json) can be used to:
 
 - enable/disable analyzer
 - set rule-specific values (e.g. DisallowedHosts for [`no-hardcoded-env-urls`](./linter-rules/no-hardcoded-env-urls.md) rule)
@@ -21,7 +21,7 @@ The linter should make it easier to enforce team coding standards by providing g
 | `Info` | Violations do not appear in command-line build output. | Offending code is underlined with a blue squiggle and appears in Problems tab. |
 | `Off` | Suppressed completely. | Suppressed completely. |
 
-`bicepsettings.json` can be placed alongside your templates in the same directory. The closest configuration file found up the tree will be used.
+`bicepconfig.json` can be placed alongside your templates in the same directory. The closest configuration file found up the tree will be used.
 
 ## Default rules
 

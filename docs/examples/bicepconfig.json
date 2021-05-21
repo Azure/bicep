@@ -6,7 +6,7 @@
       "rules": {
         // If not specified, all the following rules default to warnings
         "no-hardcoded-env-urls": {
-          "diagnosticlevel": "warning",
+          "level": "warning",
           // This only needs to be specified if it should be modified
           "disallowedhosts": [
             "management.core.windows.net",
@@ -35,19 +35,19 @@
           ]
         },
         "no-unused-params": {
-          "diagnosticlevel": "off"
+          "level": "off"
         },
         "no-unused-vars": {
-          "diagnosticlevel": "off"
+          "level": "off"
         },
         "prefer-interpolation": {
-          "diagnosticlevel": "warning"
+          "level": "warning"
         },
         "secure-paramenter-default": {
-          "diagnosticlevel": "error"
+          "level": "error"
         },
         "simplify-interpolation": {
-          "diagnosticlevel": "warning"
+          "level": "warning"
         }
       }
     }

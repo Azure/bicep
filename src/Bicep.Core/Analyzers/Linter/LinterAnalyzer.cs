@@ -16,7 +16,7 @@ using System.Reflection;
 
 namespace Bicep.Core.Analyzers.Linter
 {
-    internal class LinterAnalyzer : IBicepAnalyzer
+    public class LinterAnalyzer : IBicepAnalyzer
     {
         public const string SettingsRoot = "analyzers";
         public const string AnalyzerName = "core";

@@ -21,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://aka.ms/bicep/linter/simplify-interpolation")
         { }
 
-        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var spanFixes = new Dictionary<TextSpan, CodeFix>();
             var visitor = new Visitor(spanFixes);
