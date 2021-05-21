@@ -1784,9 +1784,9 @@ output tagsoutput object = {
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }

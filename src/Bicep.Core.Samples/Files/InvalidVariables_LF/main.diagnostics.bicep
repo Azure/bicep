@@ -282,6 +282,7 @@ var runtimeLoop = [for (item, index) in []: indirection]
 //@[19:22) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. Variable dependency chain: "indirection" -> "keys". |for|
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 //@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. Variable dependency chain: "indirection" -> "keys". |for|
+//@[41:52) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("indirection" -> "keys" -> "listKeys"). |indirection|
 
 var zoneInput = []
 resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
@@ -297,7 +298,7 @@ var runtimeLoop3 = [for (zone, i) in zoneInput: {
 
 var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
 //@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. |for|
-//@[37:84) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of zones are "apiVersion", "id", "name", "type". |zones[0].properties.registrationVirtualNetworks|
+//@[37:56) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of zones are "apiVersion", "id", "name", "type". |zones[0].properties|
   a: 0
 }]
 
@@ -310,6 +311,7 @@ var myRef = [
 ]
 var runtimeLoop5 = [for (item, index) in myRef: 's']
 //@[20:23) [BCP175 (Error)] The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated. Variable dependency chain: "myRef" -> "evenMoreIndirection" -> "moreIndirection". |for|
+//@[41:46) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("myRef" -> "evenMoreIndirection" -> "moreIndirection" -> "reference"). |myRef|
 
 // cannot use loops in expressions
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
