@@ -12,9 +12,9 @@ The linter should make it easier to enforce team coding standards by providing g
 
 - enable/disable analyzer
 - set rule-specific values (e.g. DisallowedHosts for [`no-hardcoded-env-urls`](./linter-rules/no-hardcoded-env-urls.md) rule)
-- set DiagnosticLevel of rules:
+- set level of rules:
 
-| **DiagnosticLevel**  | **Build-time behavior** | **Editor behavior** |
+| **level**  | **Build-time behavior** | **Editor behavior** |
 |--|--|--|
 | `Error` | Violations appear as Errors in command-line build output, and cause builds to fail. | Offending code is underlined with a red squiggle and appears in Problems tab. |
 | `Warning` | Violations appear as Warnings in command-line build output, but do not cause builds to fail. | Offending code is underlined with a yellow squiggle and appears in Problems tab. |
@@ -25,7 +25,7 @@ The linter should make it easier to enforce team coding standards by providing g
 
 ## Default rules
 
-There are a set of core rules that are enabled by default, set to `Warning` DiagnosticLevel. You can find their descriptions in the [`./linter-rules`](./linter-rules) folder.
+There are a set of core rules that are enabled by default, set to `Warning` level. You can find their descriptions in the [`./linter-rules`](./linter-rules) folder.
 
 ## Future
 
@@ -35,4 +35,4 @@ If you have an idea for a new rule, please [submit a feature request](https://gi
 
 ## ARM template test toolkit (arm-ttk)
 
-We've ported over most of the rules from the [ARM template test toolkit (arm-ttk)](https://docs.microsoft.com/azure/azure-resource-manager/templates/test-toolkit) that make sense for Bicep (more to come). We recommend using the Bicep linter when working with Bicep, and arm-ttk when working with ARM templates. It is not advised to run arm-ttk on Bicep generated templates. Bicep output is not guaranteed to pass the arm-ttk rules even if it passes the Bicep rules.
+We've ported over most of the rules from the [ARM template test toolkit (arm-ttk)](https://docs.microsoft.com/azure/azure-resource-manager/templates/test-toolkit) that make sense for Bicep (more to come). We recommend using the Bicep linter when working with Bicep, and arm-ttk when working with ARM templates. It is not advised to run arm-ttk on Bicep generated templates. Bicep output is not intended to pass the arm-ttk rules even if it passes the Bicep rules.

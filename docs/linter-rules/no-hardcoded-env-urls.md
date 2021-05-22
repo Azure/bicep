@@ -7,7 +7,7 @@
 The following example fails this test because the URL is hardcoded.
 
 ```bicep
-var AzureURL = "https://management.azure.com"
+var AzureURL = 'https://management.azure.com'
 ```
 
 The test also fails when used with concat or uri.
