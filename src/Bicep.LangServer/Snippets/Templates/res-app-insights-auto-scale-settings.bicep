@@ -1,4 +1,4 @@
-﻿// // Application Insights Auto Scale Settings
+﻿// Application Insights Auto Scale Settings
 resource ${1:appInsightsAutoScaleSettings} 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
   name: ${2:'name'}
   location: resourceGroup().location

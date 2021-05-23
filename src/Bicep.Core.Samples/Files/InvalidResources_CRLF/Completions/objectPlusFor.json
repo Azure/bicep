@@ -100,10 +100,10 @@
   {
     "label": "snippet",
     "kind": "snippet",
-    "detail": "DNS Zone",
+    "detail": "DNS Record",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n  name: 'name'\n  location: 'global'\n}\n\n```"
+      "value": "```bicep\n{\n  name: 'name'\n  location: resourceGroup().location\n}\n\n```"
     },
     "deprecated": false,
     "preselect": true,
