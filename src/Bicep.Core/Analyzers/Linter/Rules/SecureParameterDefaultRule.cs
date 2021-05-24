@@ -58,7 +58,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             {
-                if (syntax.NameEquals("newguid"))
+                if (syntax.NameEquals("newGuid"))
                 {
                     hasNewGuid = true;
                     return;

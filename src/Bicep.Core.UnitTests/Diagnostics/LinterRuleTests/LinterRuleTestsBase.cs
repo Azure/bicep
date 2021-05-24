@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             var compilationResult = CompilationHelper.Compile(text);
 
-            var internalRuleErrors = compilationResult.Diagnostics.Where(d => d.Code == LinterRuleBase.FailedRuleCode).ToArray();
+            var internalRuleErrors = compilationResult.Diagnostics.Where(d => d.Code == LinterAnalyzer.FailedRuleCode).ToArray();
             internalRuleErrors.Count().Should().Be(0, "There should never be linter FailedRuleCode errors");
 
             return compilationResult.Diagnostics.OfType<IBicepAnalyzerDiagnostic>().Where(d => d.Code == ruleCode).ToArray();
