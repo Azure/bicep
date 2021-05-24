@@ -125,10 +125,10 @@
     <value>No bicepsettings.json found for configuration override.</value>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
-    <value>Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current.</value>
+    <value>Do not hardcode environment URLs in your template. Instead, use the environment function to dynamically get these URLs during deployment.</value>
   </data>
   <data name="InterpolateNotConcatRuleDescription" xml:space="preserve">
-    <value>Dynamic variable should not use concat - string interpolation should be used.</value>
+    <value>String interpolation should be used instead of the concat function.</value>
   </data>
   <data name="LinterDisabledFormatMessage" xml:space="preserve">
     <value>Linter is disabled in settings file [{0}]</value>
@@ -139,24 +139,24 @@
     <comment>string format to display error exception thrown in Linter Rule</comment>
   </data>
   <data name="LocationSetByParameterRuleDescription" xml:space="preserve">
-    <value>Best practice dictates that location be through a parameter that has no default or defaults to 'global' or resourceGroup().location.</value>
+    <value>Your templates should have a parameter named location. Use this parameter for setting the location of resources in your template. In the main template, this parameter can default to the resource group location.</value>
   </data>
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
-    <value>Declared parameter must be referenced within the document scope.</value>
+    <value>To reduce confusion in your template, delete any parameters that are defined but not used. This test finds any parameters that aren't used anywhere in the template.</value>
   </data>
   <data name="ParameterRequiredRuleDescription" xml:space="preserve">
-    <value>A valid template must be parameterized.</value>
+    <value>Your template should have at least one parameter. Parameters are essential for making your templates reusable in different environments. Add parameters to your template for values that change when deploying to different environments.</value>
   </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
-    <value>Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.</value>
+    <value>Don't provide a hard-coded default value for a secure parameter in your template, unless it is empty or an expression containing a call to newGuid().</value>
   </data>
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
-    <value>String interpolation can be simplified. String variables can be directly assigned to string properties and variables.</value>
+    <value>It isn't necessary to use interpolation to reference a parameter or variable.</value>
   </data>
   <data name="UnnecessaryDependsOnRuleDescription" xml:space="preserve">
-    <value>Best Practice: remove unnecessary dependsOn.</value>
+    <value>An implicit dependency will be created when one resource declaration references the identifier of another resource declaration in an expression. It is not necessary to explicitly add dependsOn property.</value>
   </data>
   <data name="UnusedVariableRuleDescription" xml:space="preserve">
-    <value>Declared variable encountered that is not used within scope.</value>
+    <value>To reduce confusion in your template, delete any variables that are defined but not used. This test finds any variables that aren't used anywhere in the template.</value>
   </data>
 </root>
