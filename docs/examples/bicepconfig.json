@@ -35,16 +35,16 @@
           ]
         },
         "no-unused-params": {
-          "level": "off"
+          "level": "warning"
         },
         "no-unused-vars": {
-          "level": "off"
+          "level": "warning"
         },
         "prefer-interpolation": {
           "level": "warning"
         },
         "secure-paramenter-default": {
-          "level": "error"
+          "level": "warning"
         },
         "simplify-interpolation": {
           "level": "warning"
