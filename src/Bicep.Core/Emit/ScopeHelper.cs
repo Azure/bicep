@@ -332,8 +332,8 @@ namespace Bicep.Core.Emit
                 case ResourceScope.ManagementGroup:
                     if (scopeData.ManagementGroupNameProperty != null)
                     {
-                        // The template engine expects an unqualified resourceId for the management group scope if deploying at tenant scope
-                        var useFullyQualifiedResourceId = targetScope != ResourceScope.Tenant;
+                        // The template engine expects an unqualified resourceId for the management group scope if deploying at tenant or management group scope
+                        var useFullyQualifiedResourceId = targetScope != ResourceScope.Tenant && targetScope != ResourceScope.ManagementGroup;
                         expressionEmitter.EmitProperty("scope", expressionEmitter.GetManagementGroupResourceId(scopeData.ManagementGroupNameProperty, useFullyQualifiedResourceId));
                     }
                     return;

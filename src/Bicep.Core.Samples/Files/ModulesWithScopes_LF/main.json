@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12718483901242966108"
+      "templateHash": "16212522562356592762"
     }
   },
   "functions": [],
@@ -28,7 +28,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9404982969057584891"
+              "templateHash": "2424681904349356516"
             }
           },
           "functions": [],
@@ -69,7 +69,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2019-10-01",
               "name": "myManagementGroupMod",
-              "scope": "[tenantResourceId('Microsoft.Management/managementGroups', 'myManagementGroup2')]",
+              "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {

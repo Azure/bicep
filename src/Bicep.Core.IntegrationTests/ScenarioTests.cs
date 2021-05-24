@@ -2128,5 +2128,38 @@ var p = chosenOne.foo
                 (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
             });
         }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/2695
+        public void Test_Issue2695()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'managementGroup'
+
+module mgDeploy 'managementGroup.bicep' = {
+  name: 'mgDeploy'
+  params: {    
+  }
+  scope: managementGroup('test')
+}
+"),
+                ("managementGroup.bicep", @"
+targetScope = 'managementGroup'
+
+resource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
+  name: 'policy-assignment-01'
+  properties: {
+    policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/10ee2ea2-fb4d-45b8-a7e9-a2e770044cd9'
+    displayName: 'Sample policy assignment'
+    description: 'Sample policy'
+    enforcementMode: 'Default'    
+  }
+}
+"));
+
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'mgDeploy')].scope", "[format('Microsoft.Management/managementGroups/{0}', 'test')]");
+        }        
     }
 }
