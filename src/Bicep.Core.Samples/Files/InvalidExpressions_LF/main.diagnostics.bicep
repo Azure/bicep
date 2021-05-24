@@ -1,5 +1,5 @@
 /*
-//@[0:0) [Linter Rule Error (Warning)] Linter rule encountered an unexpected exception: Rewrite to string interpolation not successful ||
+//@[0:0) [linter-internal-error (Warning)] Analyzer 'core' encountered an unexpected exception. Rewrite to string interpolation not successful ||
   This tests the various cases of invalid expressions.
 */
 

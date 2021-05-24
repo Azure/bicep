@@ -1,5 +1,5 @@
 
-//@[0:0) [Linter Rule Error (Warning)] Linter rule encountered an unexpected exception: Rewrite to string interpolation not successful ||
+//@[0:0) [linter-internal-error (Warning)] Analyzer 'core' encountered an unexpected exception. Rewrite to string interpolation not successful ||
 // wrong declaration
 bad
 //@[0:3) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |bad|
