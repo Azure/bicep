@@ -6,6 +6,7 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,7 +25,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var spanFixes = new Dictionary<TextSpan, CodeFix>();
-            var visitor = new Visitor(spanFixes);
+            var visitor = new Visitor(spanFixes, model);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);
 
             return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(kvp.Key, kvp.Value));
@@ -33,10 +34,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private sealed class Visitor : SyntaxVisitor
         {
             private readonly Dictionary<TextSpan, CodeFix> spanFixes;
+            private readonly SemanticModel model;
 
-            public Visitor(Dictionary<TextSpan, CodeFix> spanFixes)
+            public Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model)
             {
                 this.spanFixes = spanFixes;
+                this.model = model;
             }
 
             public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -73,9 +76,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (valueSyntax is StringSyntax strSyntax
                     && strSyntax.Expressions.Length == 1
                     && strSyntax.SegmentValues.All(s => string.IsNullOrEmpty(s))
-                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax) // Applies to params and vars
+                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax) // AariableAccessSyntax applies to params and vars
                 {
-                    AddCodeFix(valueSyntax.Span, variableAccessSyntax.Name.IdentifierName);
+                    // We only want to trigger if the var or param is of type string (because interpolation
+                    // using non-string types can be a perfectly valid way to convert to string, e.g. '${intVar}')
+                    var type = model.GetTypeInfo(variableAccessSyntax);
+                    if (IsStrictlyAssignableToString(type))
+                    {
+                        AddCodeFix(valueSyntax.Span, variableAccessSyntax.Name.IdentifierName);
+                    }
                 }
                 return null;
             }
@@ -85,6 +94,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var codeReplacement = new CodeReplacement(span, name);
                 var fix = new CodeFix($"Use string variable assignment: {codeReplacement.Text}", true, codeReplacement); // TODO: localize
                 spanFixes[span] = fix;
+            }
+
+            private bool IsStrictlyAssignableToString(TypeSymbol typeSymbol)
+            {
+                return !(typeSymbol is AnyType)
+                    && TypeValidator.AreTypesAssignable(typeSymbol, LanguageConstants.String);
             }
         }
     }
