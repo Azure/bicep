@@ -65,7 +65,7 @@ namespace Bicep.Core.Configuration
 
         private string? DiscoverLocalConfigurationFile(string? nextDir)
         {
-            while (nextDir != default)
+            while (!string.IsNullOrEmpty(nextDir))
             {
                 var fileName = Path.Combine(nextDir, SettingsFileName);
                 if (File.Exists(fileName))
