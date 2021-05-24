@@ -44,7 +44,7 @@ resource wvdhpds 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
 }
 
 resource wvdwsds 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
-  scope: hostPool
+  scope: workspace
 
   name: 'workspacepool-diag'
   properties: {
