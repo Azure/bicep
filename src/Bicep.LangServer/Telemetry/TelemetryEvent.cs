@@ -8,13 +8,26 @@ namespace Bicep.LanguageServer.Telemetry
 {
     public class TelemetryEvent : TelemetryEventParams
     {
-        public string EventName { get; set; }
-        public Dictionary<string, string>? Properties { get; set; }
+        public Dictionary<string, string> Properties = new Dictionary<string, string>();
 
-        public TelemetryEvent(string eventName, Dictionary<string, string>? properties)
+        public string? EventName { get; set; }
+
+        public static TelemetryEvent Create(string eventName)
         {
-            EventName = eventName;
-            Properties = properties;
+            TelemetryEvent telemetryEvent = new TelemetryEvent();
+            telemetryEvent.EventName = eventName;
+            return telemetryEvent;
+        }
+    }
+
+    public static class TelemetryExtensions
+    {
+        public static void Set(this TelemetryEvent telemetryEvent, string name, string value)
+        {
+            if (!telemetryEvent.Properties.ContainsKey(name))
+            {
+                telemetryEvent.Properties.Add(name, value);
+            }
         }
     }
 }

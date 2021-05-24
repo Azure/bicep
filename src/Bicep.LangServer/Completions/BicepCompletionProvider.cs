@@ -85,11 +85,8 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
-                    Dictionary<string, string> properties = new Dictionary<string, string>()
-                    {
-                        { "name", resourceSnippet.Prefix }
-                    };
-                    TelemetryEvent telemetryEvent = new(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion, properties);
+                    TelemetryEvent telemetryEvent = TelemetryEvent.Create(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
+                    telemetryEvent.Set("name", resourceSnippet.Prefix);
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
                     yield return CreateContextualSnippetCompletion(resourceSnippet.Prefix,
