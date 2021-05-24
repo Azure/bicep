@@ -11,6 +11,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -36,12 +37,18 @@ namespace Bicep.LangServer.IntegrationTests
             });
 
             CompletionItem completionItem = completions.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == "res-aks-cluster").First();
-            Command? command = completionItem.Command;
-            TelemetryEvent? telemetryEvent = command?.Arguments?.First().ToObject<TelemetryEvent>();
 
-            command?.Name.Should().Be(TelemetryConstants.CommandName);
-            telemetryEvent?.EventName.Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
-            telemetryEvent?.Properties?.ContainsKey("name");
+            Command? command = completionItem.Command;
+            command.Should().NotBeNull();
+            command!.Name.Should().Be(TelemetryConstants.CommandName);
+
+            JArray? arguments = command!.Arguments;
+            arguments.Should().NotBeNull();
+
+            TelemetryEvent? telemetryEvent = arguments!.First().ToObject<TelemetryEvent>();
+            telemetryEvent!.Should().NotBeNull();
+            telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
+            telemetryEvent!.Properties?.ContainsKey("name");
         }
     }
 }
