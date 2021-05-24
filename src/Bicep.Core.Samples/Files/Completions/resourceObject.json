@@ -68,6 +68,24 @@
     }
   },
   {
+    "label": "snippet",
+    "kind": "snippet",
+    "detail": "Web Deploy for a Web Application",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n\n\n```"
+    },
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_snippet",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "\n"
+    }
+  },
+  {
     "label": "{}",
     "kind": "snippet",
     "detail": "{}",

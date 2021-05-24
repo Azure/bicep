@@ -40,7 +40,7 @@
         {
             "label": "vscodeext-build",
             "command": "npm",
-            "args": ["run", "compile", "--loglevel", "silent"],
+            "args": ["run", "build", "--loglevel", "silent"],
             "type": "shell",
             "problemMatcher": "$tsc-watch",
             "options": {

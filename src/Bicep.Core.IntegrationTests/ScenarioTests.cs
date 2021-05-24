@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Linq;
 using System.Xml.Linq;
 using Bicep.Core.Diagnostics;
@@ -2051,6 +2052,56 @@ resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"resource\" but the provided value is of type \"null\"."),
             });
+        }
+
+        [TestMethod]
+        public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression()
+        {
+            var result = CompilationHelper.Compile(@"
+param isProdLike bool
+
+var testLocations = [
+  'northeurope'
+]
+var prodLocations = [
+  'northeurope'
+  'westeurope'
+]
+var locations = isProdLike ? prodLocations : testLocations
+var primaryLocation = locations[0]
+");
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression_NegativeCase()
+        {
+            var result = CompilationHelper.Compile(@"
+var foos = true ? true : []
+var primaryFoo = foos[0]
+");
+            result.Should().HaveDiagnostics(new[]
+{
+                ("BCP076",DiagnosticLevel.Error,"Cannot index over expression of type \"array | bool\". Arrays or objects are required.")
+            });
+        }
+
+        [TestMethod]
+        public void Test_Issue2248_UnionTypeInPropertyAccessBaseExpression()
+        {
+            var result = CompilationHelper.Compile(@"
+param input object
+param which bool
+
+var default = {
+  
+}
+
+var chosenOne = which ? input : default
+
+var p = chosenOne.foo
+");
+            result.Should().NotHaveAnyDiagnostics();
         }
     }
 }
