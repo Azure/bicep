@@ -29,21 +29,29 @@ namespace Bicep.Core.Analyzers.Linter
             this.DiagnosticLabel = diagnosticLabel;
         }
 
-        internal const string FailedRuleCode = "Linter Rule Error";
+        public const string FailedRuleCode = "Linter Rule Error";
         private IConfigurationRoot? Config;
         public string AnalyzerName { get; }
+
         public string Code { get; }
-        public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:Rules";
-        public bool Enabled => this.DiagnosticLevel != DiagnosticLevel.Off;
+        public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:rules";
         public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
         public string DocumentationUri { get; }
         public Diagnostics.DiagnosticLabel? DiagnosticLabel { get; }
 
+
+        /// <summary>
+        /// Override to implement detailed message for rule
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        protected virtual string FormatMessage(params object[] values) => this.Description;
+
         public virtual void Configure(IConfigurationRoot config)
         {
             this.Config = config;
-            var configDiagLevel = GetConfiguration(nameof(this.DiagnosticLevel), this.DiagnosticLevel.ToString());
+            var configDiagLevel = GetConfiguration("level", this.DiagnosticLevel.ToString());
             if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl))
             {
                 this.DiagnosticLevel = lvl;
@@ -51,24 +59,16 @@ namespace Bicep.Core.Analyzers.Linter
         }
 
         /// <summary>
-        /// GetMessage allows a linter rule display message to be dynamic without
-        /// resorting to side-effect inducing work in the Description property.
-        /// Should be overridden in any rule with a complex message requirement.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual string GetMessage() => this.Description;
-
-        /// <summary>
-        /// Gets a formatted message using the supplied parameter values.
-        /// In the base class this ignores the parameters and will throw
-        /// an exception if called in Debug build.
+        /// Gets a message using the supplied parameter values (if any).
+        /// Otherwise returns the rule description
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        protected virtual string GetFormattedMessage(params object[] values)
+        public string GetMessage(params object[] values)
         {
-            Debug.Assert(values == null || values.Length == 0, "LinterRule GetFormattedMessage when needed should always be overridden. Values are ignored in base class.");
-            return this.Description;
+            return (values.Any() ? FormatMessage(values) : this.Description)
+                + "\n" // this is used for cross-platform compatibility
+                + string.Format(CoreResources.SeeDocLinkFormat, this.DocumentationUri);
         }
 
         public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
@@ -91,13 +91,35 @@ namespace Bicep.Core.Analyzers.Linter
             }
         }
 
-        internal abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
+        /// <summary>
+        /// Abstract method each rule must implement to provide analyzer
+        /// diagnostics through the Analyze API
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
 
+        /// <summary>
+        /// Get a setting from defaults or local override
+        /// Expectation: key names for settings are lower case
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         protected T GetConfiguration<T>(string name, T defaultValue)
             => ConfigurationBinder.GetValue(this.Config, $"{RuleConfigSection}:{Code}:{name}", defaultValue);
 
+        /// <summary>
+        /// Get a section of the config file as an array of strings.
+        /// Expectation: all key names shoult be lower case
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         protected T[] GetArray<T>(string name, T[] defaultValue)
-            => this.Config?.GetSection($"{RuleConfigSection}:{Code}:{name}").Get<T[]>() ?? defaultValue;
+            => this.Config?.GetSection($"{RuleConfigSection}:{Code}:{name.ToLower()}").Get<T[]>() ?? defaultValue;
 
         /// <summary>
         ///  Create a simple diagnostic that displays the defined Description
@@ -105,7 +127,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        internal virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span) =>
+        protected virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
                 level: this.DiagnosticLevel,
@@ -120,15 +142,15 @@ namespace Bicep.Core.Analyzers.Linter
         /// <param name="span"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        internal virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span, params object[] values) =>
+        protected virtual AnalyzerDiagnostic CreateDiagnosticForSpan(TextSpan span, params object[] values) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
                 level: this.DiagnosticLevel,
                 code: this.Code,
-                message: this.GetFormattedMessage(values),
+                message: this.GetMessage(values),
                 label: this.DiagnosticLabel);
 
-        internal virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
+        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
                 level: this.DiagnosticLevel,

@@ -118,11 +118,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BicepConfigCustomSettingsFoundFormatMessage" xml:space="preserve">
-    <value>Custom bicepsettings.json file found [{0}].</value>
+    <value>Custom bicepconfig.json file found [{0}].</value>
     <comment>message to indicate that a custom settings file was found {0} is the file location</comment>
   </data>
   <data name="BicepConfigNoCustomSettingsMessage" xml:space="preserve">
-    <value>No bicepsettings.json found for configuration override.</value>
+    <value>No bicepconfig.json found for configuration override.</value>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Do not hardcode environment URLs in your template. Instead, use the environment function to dynamically get these URLs during deployment.</value>
@@ -144,11 +144,12 @@
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>To reduce confusion in your template, delete any parameters that are defined but not used. This test finds any parameters that aren't used anywhere in the template.</value>
   </data>
-  <data name="ParameterRequiredRuleDescription" xml:space="preserve">
-    <value>Your template should have at least one parameter. Parameters are essential for making your templates reusable in different environments. Add parameters to your template for values that change when deploying to different environments.</value>
-  </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Don't provide a hard-coded default value for a secure parameter in your template, unless it is empty or an expression containing a call to newGuid().</value>
+  </data>
+  <data name="SeeDocLinkFormat" xml:space="preserve">
+    <value>[See : {0}]</value>
+    <comment>{0} is hyperlink to docs </comment>
   </data>
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>It isn't necessary to use interpolation to reference a parameter or variable.</value>

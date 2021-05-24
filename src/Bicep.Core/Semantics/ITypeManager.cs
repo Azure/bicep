@@ -17,6 +17,5 @@ namespace Bicep.Core.Semantics
 
         IEnumerable<IDiagnostic> GetAllDiagnostics();
 
-        SyntaxBase? GetParent(SyntaxBase syntax);
     }
 }

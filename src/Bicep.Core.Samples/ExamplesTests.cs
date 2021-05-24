@@ -24,6 +24,9 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Bicep.Core.Configuration;
+using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.UnitTests.Configuration;
 
 namespace Bicep.Core.Samples
 {
@@ -109,6 +112,7 @@ namespace Bicep.Core.Samples
 
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ExampleIsValid(ExampleData example)
         {
             // save all the files in the containing directory to disk so that we can test module resolution
@@ -121,7 +125,10 @@ namespace Bicep.Core.Samples
             var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
 
-            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            // quiet the linter diagnostics
+            var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
+
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree(overrideConfig))
             {
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     syntaxTree,
@@ -161,6 +168,7 @@ namespace Bicep.Core.Samples
 
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void Example_uses_consistent_formatting(ExampleData example)
         {
             // save all the files in the containing directory to disk so that we can test module resolution

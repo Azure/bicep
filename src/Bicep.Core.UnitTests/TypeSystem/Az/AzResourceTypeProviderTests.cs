@@ -5,27 +5,32 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Azure.Bicep.Types;
-using Azure.Bicep.Types.Az;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
     [TestClass]
     public class AzResourceTypeProviderTests
     {
+        private static readonly ImmutableHashSet<string> ExpectedLoopVariantProperties = new[]
+        {
+            LanguageConstants.ResourceNamePropertyName,
+            LanguageConstants.ResourceScopePropertyName,
+            LanguageConstants.ResourceParentPropertyName
+        }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
+
         [DataTestMethod]
         [DataRow(ResourceTypeGenerationFlags.None)]
         [DataRow(ResourceTypeGenerationFlags.ExistingResource)]
         [DataRow(ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
+        [DataRow(ResourceTypeGenerationFlags.NestedResource)]
         [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
         {
@@ -49,6 +54,37 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                 catch (Exception exception)
                 {
                     throw new InvalidOperationException($"Deserializing type {availableType.FormatName()} failed", exception);
+                }
+
+                bool IsSymbolicProperty(TypeProperty property)
+                {
+                    var type = property.TypeReference.Type;
+                    return type is IScopeReference || type == LanguageConstants.ResourceOrResourceCollectionRefItem || type == LanguageConstants.ResourceOrResourceCollectionRefArray;
+                }
+
+                /*
+                   This test is the most expensive one because it deserializes all the types.
+                   Creating a separate test to add a bit of extra validation would basically double the runtime of the Az provider tests.
+                 */
+                {
+                    // some types include a top-level scope property that is different than our own scope property
+                    // so we need to filter by type
+                    var topLevelProperties = GetTopLevelProperties(resourceType);
+                    var symbolicProperties = topLevelProperties.Where(property => IsSymbolicProperty(property));
+                    symbolicProperties.Should().NotBeEmpty();
+                    symbolicProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.DisallowAny), $"because all symbolic properties in type '{availableType.FullyQualifiedType}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.DisallowAny)} flag.");
+
+                    var loopVariantProperties = topLevelProperties.Where(property =>
+                        ExpectedLoopVariantProperties.Contains(property.Name) &&
+                        (!string.Equals(property.Name, LanguageConstants.ResourceScopePropertyName, LanguageConstants.IdentifierComparison) || IsSymbolicProperty(property)));
+                    loopVariantProperties.Should().NotBeEmpty();
+                    loopVariantProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant), $"because all loop variant properties in type '{availableType.FullyQualifiedType}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.LoopVariant)} flag.");
+
+                    if(flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
+                    {
+                        // syntactically nested resources should not have the parent property
+                        topLevelProperties.Should().NotContain(property => string.Equals(property.Name, LanguageConstants.ResourceParentPropertyName, LanguageConstants.IdentifierComparison));
+                    }
                 }
             }
         }
@@ -109,7 +145,7 @@ resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new [] {
-                ("BCP038", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Test.Rp/readWriteTests@2020-01-01\". Permissible properties include \"dependsOn\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Test.Rp/readWriteTests@2020-01-01\". Permissible properties include \"dependsOn\"."),
             });
 
             // Missing non top-level properties - should be a warning
@@ -135,7 +171,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new [] {
-                ("BCP038", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\"."),
             });
         }
 
@@ -150,6 +186,19 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             LanguageConstants.Array,
             LanguageConstants.ResourceRef,
         }.ToImmutableHashSet();
+
+        private static IEnumerable<TypeProperty> GetTopLevelProperties(TypeSymbol type) => type switch
+        {
+            ResourceType resourceType => GetTopLevelProperties(resourceType.Body.Type),
+            ObjectType objectType => objectType.Properties.Values,
+            UnionType union => union.Members
+                .SelectMany(member => GetTopLevelProperties(member.Type)),
+            DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty
+                .AsEnumerable()
+                .Concat(discriminated.UnionMembersByKey.Values.SelectMany(member => GetTopLevelProperties(member))),
+
+            _ => Enumerable.Empty<TypeProperty>()
+        };
 
         private static void VisitAllReachableTypes(TypeSymbol typeSymbol, HashSet<TypeSymbol> visited)
         {

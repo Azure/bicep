@@ -3,6 +3,8 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
@@ -15,6 +17,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -53,7 +56,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 
             model.GetAllDiagnostics().Should().BeEmpty();
 
-            var expected = new []
+            var expected = new[]
             {
                 new { name = "child", type = "My.RP/parentType/childType@2020-01-01", },
                 new { name = "parent", type = "My.RP/parentType@2020-01-01", },
@@ -91,9 +94,9 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 
             // The property "resource" is not allowed ...
             model.GetAllDiagnostics().Should().HaveCount(1);
-            model.GetAllDiagnostics().Single().Should().HaveCodeAndSeverity("BCP038", DiagnosticLevel.Error);
+            model.GetAllDiagnostics().Single().Should().HaveCodeAndSeverity("BCP037", DiagnosticLevel.Error);
 
-            var expected = new []
+            var expected = new[]
             {
                 new { name = "child", type = "My.RP/parentType/childType@2020-01-01", },
                 new { name = "parent", type = "My.RP/parentType@2020-01-01", },
@@ -207,7 +210,7 @@ output fromGrandchildInvalid string = parent::child::cousin.properties.temperatu
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(program));
             var model = compilation.GetEntrypointSemanticModel();
 
-            model.GetAllDiagnostics().Should().HaveDiagnostics(new []{
+            model.GetAllDiagnostics().Should().HaveDiagnostics(new[]{
                 ("BCP158", DiagnosticLevel.Error, "Cannot access nested resources of type \"'hi'\". A resource type is required."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"parent\" does not contain a nested resource named \"child2\". Known nested resources are: \"child\"."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"child\" does not contain a nested resource named \"cousin\". Known nested resources are: \"grandchild\"."),
@@ -416,10 +419,10 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "child");
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
             var grandchild = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "grandchild");
-            model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new []{ parent, child, }); // order matters
+            model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new[] { parent, child, }); // order matters
         }
 
         [TestMethod]
@@ -465,16 +468,16 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "child");
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
             var childGrandChild = (ResourceSymbol)model.GetSymbolInfo(child.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new []{ parent, child, });
+            model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, child, });
 
             var sibling = model.Root.GetAllResourceDeclarations().Single(r => r.Name == "sibling");
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new []{ parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
             var siblingGrandChild = (ResourceSymbol)model.GetSymbolInfo(sibling.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new []{ parent, sibling, });
+            model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, sibling, });
         }
 
         [TestMethod] // Should turn into positive test when support is added.
@@ -501,8 +504,10 @@ resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP179", DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\""),
+                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression.")
                 });
             }
         }
@@ -532,7 +537,10 @@ output loopy string = parent::child[0].name
 
             using (new AssertionScope())
             {
-                diags.ExcludingMissingTypes().Should().BeEmpty();
+                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP179",DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\"")
+                });
                 template.Should().NotBeNull();
             }
         }
@@ -603,7 +611,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
       addressPrefix: '10.0.0.0/24'
     }
   }
-  
+
   resource subnet2 'subnets' = {
     name: 'subnet2'
     properties: {

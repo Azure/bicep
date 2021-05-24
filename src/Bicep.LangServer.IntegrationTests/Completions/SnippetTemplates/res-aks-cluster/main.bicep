@@ -1,9 +1,10 @@
-﻿// $1 = 'aksCluster'
-// $2 = 1.19.7
-// $3 = 'testDnsPrefix'
-// $4 = 3
-// $5 = 'Standard_DS2_v2'
-// $6 = 'testUser'
-// $7 = 'testKeyData'
+﻿// $1 = aksCluster
+// $2 = 'name'
+// $3 = 1.19.7
+// $4 = 'dnsPrefix'
+// $5 = 3
+// $6 = 'Standard_DS2_v2'
+// $7 = 'adminUsername'
+// $8 = 'REQUIRED'
 
 // Insert snippet here

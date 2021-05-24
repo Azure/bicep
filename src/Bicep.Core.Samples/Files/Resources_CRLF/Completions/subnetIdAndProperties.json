@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "id"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "id:"
+    }
   },
   {
     "label": "properties",
@@ -35,10 +32,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "properties"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "properties:"
+    }
   }
 ]

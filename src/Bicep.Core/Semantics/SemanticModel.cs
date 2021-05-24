@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -102,9 +103,14 @@ namespace Bicep.Core.Semantics
         /// Gets all the analyzer diagnostics unsorted.
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics()
+        public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics(ConfigHelper? overrideConfig = default)
         {
-            var diagnostics = LinterAnalyzer.Analyze(this);
+            if (overrideConfig != default)
+            {
+                LinterAnalyzer.OverrideConfig(overrideConfig);
+            }
+
+            var diagnostics = LinterAnalyzer.Analyze(this, overrideConfig);
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             diagnosticWriter.WriteMultiple(diagnostics);
 
@@ -114,9 +120,10 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Gets all the diagnostics sorted by span position ascending. This includes lexer, parser, and semantic diagnostics.
         /// </summary>
-        public IEnumerable<IDiagnostic> GetAllDiagnostics() => GetParseDiagnostics()
+        public IEnumerable<IDiagnostic> GetAllDiagnostics(ConfigHelper? overrideConfig = default) =>
+            GetParseDiagnostics()
             .Concat(GetSemanticDiagnostics())
-            .Concat(GetAnalyzerDiagnostics())
+            .Concat(GetAnalyzerDiagnostics(overrideConfig))
             .OrderBy(diag => diag.Span.Position);
 
         public bool HasErrors()
@@ -162,8 +169,14 @@ namespace Bicep.Core.Semantics
             {
                 case InstanceFunctionCallSyntax ifc:
                 {
-                    var baseType = GetTypeInfo(ifc.BaseExpression);
-                    switch (baseType)
+                    var baseType = GetDeclaredType(ifc.BaseExpression);
+
+                    if (baseType is null)
+                    {
+                        return null;
+                    }
+
+                    switch (TypeAssignmentVisitor.UnwrapType(baseType))
                     {
                         case NamespaceType namespaceType when SyntaxTree.Hierarchy.GetParent(ifc) is DecoratorSyntax:
                             return namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name);

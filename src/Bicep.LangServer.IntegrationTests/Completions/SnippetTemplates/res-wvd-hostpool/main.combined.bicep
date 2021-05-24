@@ -1,8 +1,8 @@
-resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
-  name: 'testHostPool'
+resource hostPool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
+  name: 'name'
   location: resourceGroup().location
   properties: {
-    friendlyName: 'testFriendlyName'
+    friendlyName: 'friendlyName'
     hostPoolType: 'Pooled'
     loadBalancerType: 'BreadthFirst'
     preferredAppGroupType: 'Desktop'

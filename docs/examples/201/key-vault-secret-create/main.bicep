@@ -1,3 +1,10 @@
+// Also: 
+// * KeyVaults secrets CANNOT BE EXPORTED into ARM/Bicep format via the Template Export capability. 
+// * documentation on key vault secret resource types: 
+//   https://docs.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults/secrets?tabs=json
+// * 201/key-vault-secret=create in pre-decompiled ARM format
+//   https://github.com/Azure/azure-quickstart-templates/tree/master/201-key-vault-secret-create
+
 @description('Specifies the name of the key vault.')
 param keyVaultName string
 
@@ -39,7 +46,13 @@ param skuName string = 'standard'
 @secure()
 @description('Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object.')
 param secretsObject object = {
-  secrets: []
+  secrets: [
+    // either edit this section with your secrets, or add them as parameters you can define. 
+    {
+      secretName: 'yourSecret'
+      secretValue: 'yourValue'
+    }
+  ]
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2019-09-01' = {

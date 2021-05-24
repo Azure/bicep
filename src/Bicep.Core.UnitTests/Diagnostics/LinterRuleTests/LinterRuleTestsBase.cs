@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
@@ -11,15 +13,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     public class LinterRuleTestsBase
     {
-        protected void CompileAndTest(string ruleCode, string text, int expectedDiagnosticCount)
+        protected IBicepAnalyzerDiagnostic[] GetDiagnostics(string ruleCode, string text)
         {
             var compilationResult = CompilationHelper.Compile(text);
 
             var internalRuleErrors = compilationResult.Diagnostics.Where(d => d.Code == LinterRuleBase.FailedRuleCode).ToArray();
-            Assert.AreEqual(0, internalRuleErrors.Count(), "There were internal linter rule errors");
+            internalRuleErrors.Count().Should().Be(0, "There should never be linter FailedRuleCode errors");
 
-            var ruleErrors = compilationResult.Diagnostics.Where(d => d.Code == ruleCode).ToArray();
-            Assert.AreEqual(expectedDiagnosticCount, ruleErrors.Count());
+            return compilationResult.Diagnostics.OfType<IBicepAnalyzerDiagnostic>().Where(d => d.Code == ruleCode).ToArray();
         }
     }
 }

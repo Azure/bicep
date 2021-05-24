@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "kind"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "kind:"
+    }
   },
   {
     "label": "resource",

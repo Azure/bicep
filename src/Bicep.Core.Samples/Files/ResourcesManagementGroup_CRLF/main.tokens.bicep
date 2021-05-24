@@ -180,5 +180,80 @@ resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = 
 //@[1:2) RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
+resource single_mg 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |single_mg|
+//@[19:69) StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
+//@[70:71) Assignment |=|
+//@[72:73) LeftBrace |{|
+//@[73:75) NewLine |\r\n|
+  scope: tenant()
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:15) Identifier |tenant|
+//@[15:16) LeftParen |(|
+//@[16:17) RightParen |)|
+//@[17:19) NewLine |\r\n|
+  name: 'one-mg'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'one-mg'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// Blueprints are read-only at tenant Scope, but it's a convenient example to use to validate this.
+//@[99:101) NewLine |\r\n|
+resource tenant_blueprint 'Microsoft.Blueprint/blueprints@2018-11-01-preview' = {
+//@[0:8) Identifier |resource|
+//@[9:25) Identifier |tenant_blueprint|
+//@[26:77) StringComplete |'Microsoft.Blueprint/blueprints@2018-11-01-preview'|
+//@[78:79) Assignment |=|
+//@[80:81) LeftBrace |{|
+//@[81:83) NewLine |\r\n|
+  name: 'tenant-blueprint'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:26) StringComplete |'tenant-blueprint'|
+//@[26:28) NewLine |\r\n|
+  properties: {}
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:18) NewLine |\r\n|
+  scope: tenant()
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:15) Identifier |tenant|
+//@[15:16) LeftParen |(|
+//@[16:17) RightParen |)|
+//@[17:19) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource mg_blueprint 'Microsoft.Blueprint/blueprints@2018-11-01-preview' = {
+//@[0:8) Identifier |resource|
+//@[9:21) Identifier |mg_blueprint|
+//@[22:73) StringComplete |'Microsoft.Blueprint/blueprints@2018-11-01-preview'|
+//@[74:75) Assignment |=|
+//@[76:77) LeftBrace |{|
+//@[77:79) NewLine |\r\n|
+  name: 'mg-blueprint'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:22) StringComplete |'mg-blueprint'|
+//@[22:24) NewLine |\r\n|
+  properties: {}
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

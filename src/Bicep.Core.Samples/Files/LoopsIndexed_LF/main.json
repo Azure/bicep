@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12244060679389635458"
+      "templateHash": "14199892713896221789"
     }
   },
   "parameters": {
@@ -264,7 +264,7 @@
       },
       "type": "Microsoft.Network/dnsZones",
       "apiVersion": "2018-05-01",
-      "name": "no loop variable",
+      "name": "no loop variable 2",
       "location": "eastus",
       "dependsOn": [
         "[resourceId('Microsoft.Network/dnsZones', 'no loop variable')]"

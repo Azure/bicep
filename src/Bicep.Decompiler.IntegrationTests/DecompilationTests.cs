@@ -20,6 +20,8 @@ using FluentAssertions.Execution;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
+using Bicep.Core.Configuration;
+using Bicep.Core.UnitTests.Configuration;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -79,6 +81,7 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetWorkingExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void Decompiler_generates_expected_bicep_files_with_diagnostics(ExampleData example)
         {
             // save all the files in the containing directory to disk so that we can test module resolution
@@ -95,7 +98,7 @@ namespace Bicep.Core.IntegrationTests
 
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, bicepUri);
             var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
-            var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree();
+            var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree(new ConfigHelper().GetDisabledLinterConfig());
 
             using (new AssertionScope())
             {
@@ -107,7 +110,7 @@ namespace Bicep.Core.IntegrationTests
                     var diagnostics = diagnosticsBySyntaxTree[syntaxTree];
                     var bicepOutput = filesToSave[syntaxTree.FileUri];
 
-                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, Environment.NewLine, diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, outputDirectory, diag));
+                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, outputDirectory, diag));
                     File.WriteAllText(syntaxTree.FileUri.LocalPath + ".actual", sourceTextWithDiags);
 
                     sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
@@ -134,7 +137,6 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DataRow("NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
-        [DataRow("NonWorking/nested-outer.json", "[11:23]: Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information Microsoft.Resources/deployments pid-00000000-0000-0000-0000-000000000000")]
         [DataRow("NonWorking/invalid-schema.json", "[2:98]: $schema value \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\" did not match any of the known ARM template deployment schemas.")]
         public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
@@ -247,6 +249,65 @@ namespace Bicep.Core.IntegrationTests
 
             sut.Should().Throw<InvalidOperationException>()
                 .WithMessage("Cannot decompile the file with .bicep extension: file:///path/to/main.bicep.");
+        }
+
+        [TestMethod]
+        public void Decompiler_should_partially_handle_user_defined_functions_with_placeholders()
+        {
+            const string template = @"{
+ ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+ ""contentVersion"": ""1.0.0.0"",
+ ""parameters"": {
+   ""storageNamePrefix"": {
+     ""type"": ""string"",
+     ""maxLength"": 11
+   }
+ },
+ ""functions"": [
+  {
+    ""namespace"": ""contoso"",
+    ""members"": {
+      ""uniqueName"": {
+        ""parameters"": [
+          {
+            ""name"": ""namePrefix"",
+            ""type"": ""string""
+          }
+        ],
+        ""output"": {
+          ""type"": ""string"",
+          ""value"": ""[concat(toLower(parameters('namePrefix')), uniqueString(resourceGroup().id))]""
+        }
+      }
+    }
+  }
+],
+ ""resources"": [
+   {
+     ""type"": ""Microsoft.Storage/storageAccounts"",
+     ""apiVersion"": ""2019-04-01"",
+     ""name"": ""[contoso.uniqueName(parameters('storageNamePrefix'))]"",
+     ""location"": ""South Central US"",
+     ""sku"": {
+       ""name"": ""Standard_LRS""
+     },
+     ""kind"": ""StorageV2"",
+     ""properties"": {
+       ""supportsHttpsTrafficOnly"": true
+     }
+   }
+ ]
+}";
+
+            var fileUri = new Uri("file:///path/to/main.json");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [fileUri] = template,
+            });
+
+            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri);
+
+            filesToSave[entryPointUri].Should().Contain($"? /* TODO: User defined functions are not supported and have not been decompiled */");
         }
     }
 }

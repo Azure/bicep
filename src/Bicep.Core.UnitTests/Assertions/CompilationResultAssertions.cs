@@ -51,7 +51,16 @@ namespace Bicep.Core.UnitTests.Assertions
                 diags.Should().HaveDiagnostics(expectedDiagnostics, because, becauseArgs);
             });
 
-        public AndConstraint<CompilationResultAssertions> NotHaveDiagnostics(string because = "", params object[] becauseArgs)
+        public AndConstraint<CompilationResultAssertions> NotHaveDiagnosticsWithCodes(IEnumerable<string> codes, string because = "", params object[] becauseArgs)
+            => DoWithDiagnosticAnnotations(diags =>
+            {
+                foreach (var code in codes)
+                {
+                    diags.Should().NotContainDiagnostic(code, because, becauseArgs);
+                }
+            });
+
+        public AndConstraint<CompilationResultAssertions> NotHaveAnyDiagnostics(string because = "", params object[] becauseArgs)
             => DoWithDiagnosticAnnotations(diags => {
                 diags.Should().BeEmpty(because, becauseArgs);
             });

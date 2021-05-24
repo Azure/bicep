@@ -29,12 +29,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataTestMethod]
         [DataRow(EnvironmentUrlHardcodedRule.Code)]
         [DataRow(InterpolateNotConcatRule.Code)]
-        [DataRow(LocationSetByParameterRule.Code)]
         [DataRow(ParametersMustBeUsedRule.Code)]
-        [DataRow(ParametersRequiredRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]
-        [DataRow(UnnecessaryDependsOnRule.Code)]
         [DataRow(UnusedVariableRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {
@@ -60,7 +57,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             var analyzer = new LinterAnalyzer();
             var ruleSet = analyzer.GetRuleSet();
-            ruleSet.Should().OnlyContain(r => r.Enabled);
+            ruleSet.Should().OnlyContain(r => r.IsEnabled());
         }
 
         [TestMethod]
@@ -75,7 +72,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             public LinterThrowsTestRule() : base("ThrowsRule", "Throws an exception when used", "http:\\none", DiagnosticLevel.Warning) { }
 
-            override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+            public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
             {
                 // Have a yield return to force this method to return an iterator like the real rules
                 yield return new AnalyzerDiagnostic(this.AnalyzerName,
@@ -83,7 +80,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
                                                     DiagnosticLevel.Warning,
                                                     "fakeRule",
                                                     "Fake Rule");
-
                 // Now throw an exception
                 throw new System.NotImplementedException();
             }
@@ -110,7 +106,7 @@ param param1 string = 'val'";
             diag.Code.Should().Match(LinterRuleBase.FailedRuleCode);
 
             diag.Span.Should().NotBeNull();
-            diag.Span.Position.Should().Equals(0);
+            diag.Span.Position.Should().Be(0);
         }
 
     }

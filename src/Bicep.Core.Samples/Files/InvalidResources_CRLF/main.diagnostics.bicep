@@ -1,4 +1,5 @@
 
+//@[0:0) [Linter Rule Error (Warning)] Linter rule encountered an unexpected exception: Rewrite to string interpolation not successful ||
 // wrong declaration
 bad
 //@[0:3) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |bad|
@@ -25,7 +26,7 @@ resource trailingSpace
 //@[24:24) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||
 //@[24:24) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||
 
-// #completionTest(19,20) -> object
+// #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
@@ -246,10 +247,12 @@ resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10
 
 // unsupported resource ref
 var resrefvar = bar.name
+//@[4:13) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |resrefvar|
 
 param resrefpar string = foo.id
-//@[25:28) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
+//@[6:15) [no-unused-params (Warning)] Declared parameter must be referenced within the document scope.\n[See : https://aka.ms/bicep/linter/no-unused-params] |resrefpar|
 //@[25:28) [BCP062 (Error)] The referenced declaration with name "foo" is not valid. |foo|
+//@[25:28) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
 
 output resrefout bool = bar.id
 //@[24:30) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "string". |bar.id|
@@ -361,15 +364,17 @@ resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.location
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 }
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['location']
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
 }
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: runtimeValidRes1.properties.evictionPolicy
-//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.properties.evictionPolicy|
+//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.properties.evictionPolicy|
   kind:'AzureCLI'
   location: 'eastus'
   properties: {
@@ -380,35 +385,35 @@ resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties'].evictionPolicy
-//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['properties'].evictionPolicy|
+//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['properties'].evictionPolicy|
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties']['evictionPolicy']
-//@[8:56) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1['properties']['evictionPolicy']|
+//@[8:56) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['properties']['evictionPolicy']|
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.properties['evictionPolicy']
-//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes1.properties['evictionPolicy']|
+//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.properties['evictionPolicy']|
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2.properties.azCliVersion
-//@[8:48) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes2.properties.azCliVersion|
+//@[8:48) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2.properties.azCliVersion|
 }
 
 var magicString1 = 'location'
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString1}']
-//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes2['${magicString1}']|
+//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString1}']|
 }
 
 // note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
 var magicString2 = 'name'
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString2}']
-//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes2['${magicString2}']|
+//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString2}']|
 }
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -418,21 +423,25 @@ resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@202
 
 resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: validModule.params['name']
-//@[8:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name", "scope". |validModule.params['name']|
+//@[8:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule.params['name']|
 //@[20:26) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
 }
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
-//@[72:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "location", "name", "type". |runtimeInvalidRes3['properties'].azCliVersion|
-//@[119:142) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name", "scope". |validModule.params.name|
+//@[15:40) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[42:70) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
+//@[72:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3['properties'].azCliVersion|
+//@[119:142) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule.params.name|
 //@[131:137) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
 }
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
-//@[70:115) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "location", "name", "type". |runtimeInvalidRes3.properties['azCliVersion']|
-//@[118:144) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name", "scope". |validModule['params'].name|
+//@[11:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[39:67) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
+//@[70:115) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3.properties['azCliVersion']|
+//@[118:144) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule['params'].name|
 //@[130:138) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |'params'|
 }
 
@@ -460,30 +469,31 @@ var runtimeValid = {
 
 resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo1
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo1|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo1|
 }
 
 resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo2
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo2|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo2|
 }
 
 resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo3.properties.azCliVersion
-//@[8:51) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo3.properties.azCliVersion|
+//@[8:51) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo3.properties.azCliVersion|
 }
 
 // Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
 resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo4
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo4|
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo4|
 }
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
-//@[15:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeInvalid.foo1|
-//@[36:79) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimeValidRes2['properties'].azCliVersion|
-//@[113:128) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "location", "name", "type". |runtimefoo4.hop|
+//@[15:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo1|
+//@[36:79) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['properties'].azCliVersion|
+//@[84:109) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[113:128) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimefoo4.hop|
 }
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -504,6 +514,7 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[9:28) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" |loopForRuntimeCheck|
   name: 'test'
   location: 'test'
 }]
@@ -513,46 +524,49 @@ var runtimeCheckVar2 = runtimeCheckVar
 
 resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: runtimeCheckVar2
-//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "location", "name", "type". |runtimeCheckVar2|
+//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |runtimeCheckVar2|
   location: 'test'
 }
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
+//@[9:29) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" |loopForRuntimeCheck2|
   name: runtimeCheckVar2
-//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "location", "name", "type". |runtimeCheckVar2|
+//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |runtimeCheckVar2|
   location: 'test'
 }]
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[9:29) [BCP179 (Warning)] The loop item variable "otherThing" must be referenced in at least one of the value expressions of the following properties: "name" |loopForRuntimeCheck3|
   name: loopForRuntimeCheck[0].properties.zoneType
-//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "location", "name", "type". |loopForRuntimeCheck[0].properties.zoneType|
+//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |loopForRuntimeCheck[0].properties.zoneType|
   location: 'test'
 }]
 
 var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
 var varForRuntimeCheck4b = varForRuntimeCheck4a
 resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
+//@[9:29) [BCP179 (Warning)] The loop item variable "otherThing" must be referenced in at least one of the value expressions of the following properties: "name" |loopForRuntimeCheck4|
   name: varForRuntimeCheck4b
-//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "location", "name", "type". |varForRuntimeCheck4b|
+//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". |varForRuntimeCheck4b|
   location: 'test'
 }]
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
-
+  
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:44) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "sku". |missingTopLevelPropertiesExceptName|
-  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
   
 }
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
+// #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'v'
   location: 'eastus'
@@ -560,6 +574,8 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+       
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
             {
@@ -619,12 +635,15 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 }
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
+//@[4:43) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions|
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
+//@[4:44) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions2|
 //@[76:76) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
 var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
+//@[4:44) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions3|
 //@[76:76) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
@@ -637,12 +656,15 @@ resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@
 }
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
+//@[4:46) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions_if|
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_if = discriminatorKeyValueMissing_if.
+//@[4:47) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions2_if|
 //@[82:82) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(82) -> missingDiscriminatorPropertyIndexPlusSymbols_if
 var discriminatorKeyValueMissingCompletions3_if = discriminatorKeyValueMissing_if[]
+//@[4:47) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions3_if|
 //@[82:82) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
@@ -656,17 +678,21 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
+//@[4:35) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |resourceListIsNotSingleResource|
 //@[38:70) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |discriminatorKeyValueMissing_for|
 //@[71:75) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. |kind|
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_for = discriminatorKeyValueMissing_for[0].p
+//@[4:47) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions_for|
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_for = discriminatorKeyValueMissing_for[0].
+//@[4:48) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions2_for|
 //@[87:87) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(87) -> missingDiscriminatorPropertyIndexPlusSymbols_for
 var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_for[0][]
+//@[4:48) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions3_for|
 //@[87:87) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
@@ -680,17 +706,21 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
+//@[4:38) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |resourceListIsNotSingleResource_if|
 //@[41:76) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |discriminatorKeyValueMissing_for_if|
 //@[77:81) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. |kind|
 
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
+//@[4:50) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions_for_if|
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
+//@[4:51) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions2_for_if|
 //@[93:93) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(93) -> missingDiscriminatorPropertyIndexPlusSymbols_for_if
 var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissing_for_if[0][]
+//@[4:51) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeyValueMissingCompletions3_for_if|
 //@[93:93) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
@@ -700,7 +730,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
@@ -709,13 +739,16 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 // #completionTest(75) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
+//@[4:37) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions|
 //@[74:75) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(75) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
+//@[4:38) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions2|
 //@[75:75) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(75) -> cliPropertyAccessIndexesPlusSymbols
 var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
+//@[4:38) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions3|
 //@[75:75) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
@@ -725,7 +758,7 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
@@ -734,13 +767,16 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 }
 // #completionTest(81) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_if = discriminatorKeySetOne_if.properties.a
+//@[4:40) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions_if|
 //@[80:81) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(81) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2_if = discriminatorKeySetOne_if.properties.
+//@[4:41) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions2_if|
 //@[81:81) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(81) -> cliPropertyAccessIndexesPlusSymbols_if
 var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties[]
+//@[4:41) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions3_if|
 //@[81:81) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
@@ -750,7 +786,7 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
@@ -759,13 +795,16 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 }]
 // #completionTest(86) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_for = discriminatorKeySetOne_for[0].properties.a
+//@[4:41) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions_for|
 //@[85:86) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(94) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2_for = discriminatorKeySetOne_for[any(true)].properties.
+//@[4:42) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions2_for|
 //@[94:94) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(86) -> cliPropertyAccessIndexesPlusSymbols_for
 var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].properties[]
+//@[4:42) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions3_for|
 //@[86:86) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 /*
@@ -775,7 +814,7 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetOne_for_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
@@ -784,13 +823,16 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 }]
 // #completionTest(92) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_for_if = discriminatorKeySetOne_for_if[0].properties.a
+//@[4:44) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions_for_if|
 //@[91:92) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(100) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2_for_if = discriminatorKeySetOne_for_if[any(true)].properties.
+//@[4:45) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions2_for_if|
 //@[100:100) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(92) -> cliPropertyAccessIndexesPlusSymbols_for_if
 var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1].properties[]
+//@[4:45) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetOneCompletions3_for_if|
 //@[92:92) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
 
@@ -801,7 +843,7 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
@@ -810,16 +852,20 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 // #completionTest(75) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+//@[4:37) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletions|
 //@[74:75) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(75) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
+//@[4:38) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletions2|
 //@[75:75) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
+//@[4:49) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletionsArrayIndexer|
 //@[89:90) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
+//@[4:50) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletionsArrayIndexer2|
 //@[90:90) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 /*
@@ -829,7 +875,7 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
@@ -838,16 +884,20 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 }
 // #completionTest(81) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions_if = discriminatorKeySetTwo_if.properties.a
+//@[4:40) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletions_if|
 //@[80:81) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(81) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions2_if = discriminatorKeySetTwo_if.properties.
+//@[4:41) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletions2_if|
 //@[81:81) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(96) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_if = discriminatorKeySetTwo_if['properties'].a
+//@[4:52) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletionsArrayIndexer_if|
 //@[95:96) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(96) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_if['properties'].
+//@[4:53) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletionsArrayIndexer2_if|
 //@[96:96) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 
@@ -858,7 +908,7 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
@@ -867,16 +917,20 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 }]
 // #completionTest(86) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions_for = discriminatorKeySetTwo_for[0].properties.a
+//@[4:41) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletions_for|
 //@[85:86) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(86) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions2_for = discriminatorKeySetTwo_for[0].properties.
+//@[4:42) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletions2_for|
 //@[86:86) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(101) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_for = discriminatorKeySetTwo_for[0]['properties'].a
+//@[4:53) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletionsArrayIndexer_for|
 //@[100:101) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(101) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_for[0]['properties'].
+//@[4:54) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletionsArrayIndexer2_for|
 //@[101:101) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 
@@ -887,7 +941,7 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". |discriminatorKeySetTwo_for_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
@@ -896,16 +950,20 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 }]
 // #completionTest(92) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions_for_if = discriminatorKeySetTwo_for_if[0].properties.a
+//@[4:44) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletions_for_if|
 //@[91:92) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(92) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions2_for_if = discriminatorKeySetTwo_for_if[0].properties.
+//@[4:45) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletions2_for_if|
 //@[92:92) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(107) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_for_if = discriminatorKeySetTwo_for_if[0]['properties'].a
+//@[4:56) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
 //@[106:107) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". |a|
 // #completionTest(107) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetTwo_for_if[0]['properties'].
+//@[4:57) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
 //@[107:107) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 
@@ -920,6 +978,7 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 
 var mock = incorrectPropertiesKey.p
+//@[4:8) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |mock|
 //@[34:35) [BCP053 (Error)] The type "AzureCLI" does not contain property "p". Available properties include "apiVersion", "id", "identity", "kind", "location", "name", "properties", "systemData", "tags", "type". |p|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -976,9 +1035,11 @@ resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+//@[4:23) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |letsAccessTheDashes|
 //@[77:78) [BCP053 (Warning)] The type "schemas:30_autoScalerProfile" does not contain property "s". Available properties include "balance-similar-node-groups", "expander", "max-empty-bulk-delete", "max-graceful-termination-sec", "max-total-unready-percentage", "new-pod-scale-up-delay", "ok-total-unready-count", "scale-down-delay-after-add", "scale-down-delay-after-delete", "scale-down-delay-after-failure", "scale-down-unneeded-time", "scale-down-unready-time", "scale-down-utilization-threshold", "scan-interval", "skip-nodes-with-local-storage", "skip-nodes-with-system-pods". |s|
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
+//@[4:24) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |letsAccessTheDashes2|
 //@[78:78) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 /* 
@@ -986,7 +1047,7 @@ Nested discriminator missing key
 */
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
-//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminator", "nestedDiscriminator_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
 //@[14:51) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. |{\r\n    //createMode: 'Default'\r\n\r\n  }|
@@ -996,19 +1057,22 @@ resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@20
 }
 // #completionTest(90) -> createMode
 var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+//@[4:44) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyCompletions|
 // #completionTest(92) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
+//@[4:45) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyCompletions2|
 //@[92:92) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(94) -> createModeIndexPlusSymbols
 var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
+//@[4:49) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyIndexCompletions|
 
 /* 
 Nested discriminator missing key (conditional)
 */
 resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(bool(1)) {
   name: 'test'
-//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminator", "nestedDiscriminator_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
 //@[14:51) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. |{\r\n    //createMode: 'Default'\r\n\r\n  }|
@@ -1018,18 +1082,23 @@ resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts
 }
 // #completionTest(96) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_if = nestedDiscriminatorMissingKey_if.properties.cr
+//@[4:47) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyCompletions_if|
 // #completionTest(98) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey_if['properties'].
+//@[4:48) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyCompletions2_if|
 //@[98:98) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(100) -> createModeIndexPlusSymbols_if
 var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissingKey_if.properties['']
+//@[4:52) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyIndexCompletions_if|
 
 /* 
 Nested discriminator missing key (loop)
 */
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
+//@[9:42) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" |nestedDiscriminatorMissingKey_for|
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
 //@[14:51) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. |{\r\n    //createMode: 'Default'\r\n\r\n  }|
@@ -1039,19 +1108,24 @@ resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccount
 }]
 // #completionTest(101) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_for = nestedDiscriminatorMissingKey_for[0].properties.cr
+//@[4:48) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyCompletions_for|
 // #completionTest(103) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_for = nestedDiscriminatorMissingKey_for[0]['properties'].
+//@[4:49) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyCompletions2_for|
 //@[103:103) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(105) -> createModeIndexPlusSymbols_for
 var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissingKey_for[0].properties['']
+//@[4:53) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyIndexCompletions_for|
 
 
 /* 
 Nested discriminator missing key (filtered loop)
 */
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
+//@[9:45) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" |nestedDiscriminatorMissingKey_for_if|
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
 //@[14:51) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. |{\r\n    //createMode: 'Default'\r\n\r\n  }|
@@ -1061,12 +1135,15 @@ resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAcco
 }]
 // #completionTest(107) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties.cr
+//@[4:51) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyCompletions_for_if|
 // #completionTest(109) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_for_if = nestedDiscriminatorMissingKey_for_if[0]['properties'].
+//@[4:52) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyCompletions2_for_if|
 //@[109:109) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(111) -> createModeIndexPlusSymbols_for_if
 var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties['']
+//@[4:56) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorMissingKeyIndexCompletions_for_if|
 
 
 /*
@@ -1074,7 +1151,7 @@ Nested discriminator
 */
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
-//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminator", "nestedDiscriminator_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". |properties|
@@ -1084,19 +1161,24 @@ resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-p
 }
 // #completionTest(69) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+//@[4:34) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions|
 //@[68:69) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
 // #completionTest(73) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+//@[4:35) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions2|
 //@[72:73) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
 // #completionTest(69) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
+//@[4:35) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions3|
 //@[69:69) [BCP020 (Error)] Expected a function or property name at this location. ||
 // #completionTest(72) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
+//@[4:35) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions4|
 //@[72:72) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(79) -> defaultCreateModeIndexes
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
+//@[4:44) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorArrayIndexCompletions|
 //@[78:79) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 
 /*
@@ -1104,7 +1186,7 @@ Nested discriminator (conditional)
 */
 resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(true) {
   name: 'test'
-//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminator", "nestedDiscriminator_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". |properties|
@@ -1114,19 +1196,24 @@ resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-0
 }
 // #completionTest(75) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_if = nestedDiscriminator_if.properties.a
+//@[4:37) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions_if|
 //@[74:75) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
 // #completionTest(79) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_if = nestedDiscriminator_if['properties'].a
+//@[4:38) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions2_if|
 //@[78:79) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
 // #completionTest(75) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_if = nestedDiscriminator_if.properties.
+//@[4:38) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions3_if|
 //@[75:75) [BCP020 (Error)] Expected a function or property name at this location. ||
 // #completionTest(78) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_if = nestedDiscriminator_if['properties'].
+//@[4:38) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions4_if|
 //@[78:78) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(85) -> defaultCreateModeIndexes_if
 var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.properties[a]
+//@[4:47) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorArrayIndexCompletions_if|
 //@[84:85) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 
 
@@ -1134,7 +1221,9 @@ var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.propert
 Nested discriminator (loop)
 */
 resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
+//@[9:32) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" |nestedDiscriminator_for|
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". |properties|
@@ -1144,19 +1233,24 @@ resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-
 }]
 // #completionTest(80) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_for = nestedDiscriminator_for[0].properties.a
+//@[4:38) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions_for|
 //@[79:80) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
 // #completionTest(84) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_for = nestedDiscriminator_for[0]['properties'].a
+//@[4:39) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions2_for|
 //@[83:84) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
 // #completionTest(80) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_for = nestedDiscriminator_for[0].properties.
+//@[4:39) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions3_for|
 //@[80:80) [BCP020 (Error)] Expected a function or property name at this location. ||
 // #completionTest(83) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_for = nestedDiscriminator_for[0]['properties'].
+//@[4:39) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions4_for|
 //@[83:83) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(90) -> defaultCreateModeIndexes_for
 var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].properties[a]
+//@[4:48) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorArrayIndexCompletions_for|
 //@[89:90) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 
 
@@ -1164,7 +1258,9 @@ var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].pr
 Nested discriminator (filtered loop)
 */
 resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
+//@[9:35) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" |nestedDiscriminator_for_if|
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
 //@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". |properties|
@@ -1174,19 +1270,24 @@ resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-
 }]
 // #completionTest(86) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].properties.a
+//@[4:41) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions_for_if|
 //@[85:86) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
 // #completionTest(90) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_for_if = nestedDiscriminator_for_if[0]['properties'].a
+//@[4:42) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions2_for_if|
 //@[89:90) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". |a|
 // #completionTest(86) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].properties.
+//@[4:42) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions3_for_if|
 //@[86:86) [BCP020 (Error)] Expected a function or property name at this location. ||
 // #completionTest(89) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['properties'].
+//@[4:42) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorCompletions4_for_if|
 //@[89:89) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(96) -> defaultCreateModeIndexes_for_if
 var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
+//@[4:51) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |nestedDiscriminatorArrayIndexCompletions_for_if|
 //@[95:96) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 
 
@@ -1204,6 +1305,7 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 // this validates that we can get nested property access completions on a conditional resource
 //#completionTest(56) -> vmProperties
 var sigh = nestedPropertyAccessOnConditional.properties.
+//@[4:8) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |sigh|
 //@[56:56) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 /*
@@ -1232,7 +1334,7 @@ resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
 //@[22:53) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. |'My.Rp/mockResource@2020-12-01'|
   name: 'invalidScope'
   scope: notAResource
-//@[9:21) [BCP036 (Error)] The property "scope" expected a value of type "resource" but the provided value is of type "object". |notAResource|
+//@[9:21) [BCP036 (Error)] The property "scope" expected a value of type "resource | tenant" but the provided value is of type "object". |notAResource|
 }
 
 resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
@@ -1438,7 +1540,7 @@ resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-
   location: 'eastus42'
   properties: {
     wrong: 'test'
-//@[4:9) [BCP038 (Warning)] The property "wrong" is not allowed on objects of type "StorageAccountPropertiesCreateParameters". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "encryption", "isHnsEnabled", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "routingPreference", "supportsHttpsTrafficOnly". |wrong|
+//@[4:9) [BCP037 (Warning)] The property "wrong" is not allowed on objects of type "StorageAccountPropertiesCreateParameters". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "encryption", "isHnsEnabled", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "routingPreference", "supportsHttpsTrafficOnly". |wrong|
   }
 }]
 
@@ -1448,7 +1550,7 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
   properties: {
     subnets: [for j in range(0, 4): {
       doesNotExist: 'test'
-//@[6:18) [BCP038 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
+//@[6:18) [BCP037 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
       name: 'subnet-${i}-${j}'
     }]
   }
@@ -1458,7 +1560,7 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
   properties: {
     subnets: [for j in range(0, 4): {
       doesNotExist: 'test'
-//@[6:18) [BCP038 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
+//@[6:18) [BCP037 (Warning)] The property "doesNotExist" is not allowed on objects of type "Subnet". Permissible properties include "id", "properties". |doesNotExist|
       name: 'subnet-${i}-${j}-${k}'
     }]
   }
@@ -1466,6 +1568,7 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 
 // nonexistent arrays and loop variables
 resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
+//@[9:26) [BCP179 (Warning)] The loop item variable "i" must be referenced in at least one of the value expressions of the following properties: "name" |nonexistentArrays|
 //@[86:95) [BCP057 (Error)] The name "notAThing" does not exist in the current context. |notAThing|
   name: 'vnet-${justPlainWrong}'
 //@[16:30) [BCP057 (Error)] The name "justPlainWrong" does not exist in the current context. |justPlainWrong|
@@ -1533,13 +1636,13 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   kind: 'StorageV2'
   properties: {
     // #completionTest(17) -> symbolsPlusAccount
-    networkAcls: {
+    networkAcls:  {
       virtualNetworkRules: [for rule in []: {
         // #completionTest(12,15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
 //@[16:19) [BCP142 (Error)] Property value for-expressions cannot be nested. |for|
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
           fake: [for something in []: true]
 //@[17:20) [BCP142 (Error)] Property value for-expressions cannot be nested. |for|
         }]
@@ -1582,6 +1685,7 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 }]
 
 var directRefViaVar = premiumStorages
+//@[4:19) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |directRefViaVar|
 //@[22:37) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
 output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[40:55) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
@@ -1624,7 +1728,7 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
     subnets: premiumStorages
 //@[13:28) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
     dependsOn: [
-//@[4:13) [BCP038 (Warning)] The property "dependsOn" is not allowed on objects of type "VirtualNetworkPropertiesFormat". Permissible properties include "addressSpace", "bgpCommunities", "ddosProtectionPlan", "dhcpOptions", "enableDdosProtection", "enableVmProtection", "ipAllocations", "virtualNetworkPeerings". |dependsOn|
+//@[4:13) [BCP037 (Warning)] The property "dependsOn" is not allowed on objects of type "VirtualNetworkPropertiesFormat". Permissible properties include "addressSpace", "bgpCommunities", "ddosProtectionPlan", "dhcpOptions", "enableDdosProtection", "enableVmProtection", "ipAllocations", "virtualNetworkPeerings". |dependsOn|
       premiumStorages
 //@[6:21) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |premiumStorages|
     ]
@@ -1640,8 +1744,8 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
   location: 'eastus'
   properties: {
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
-//@[4:61) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type "ZoneProperties". Permissible properties include "registrationVirtualNetworks", "resolutionVirtualNetworks", "zoneType". |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
 //@[4:61) [BCP143 (Error)] For-expressions cannot be used with properties whose names are also expressions. |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
+//@[4:61) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type "ZoneProperties". Permissible properties include "registrationVirtualNetworks", "resolutionVirtualNetworks", "zoneType". |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
   }
 }
 
@@ -1815,6 +1919,103 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
     parent: existingResProperty
     name: 'myExt'
     location: existingResProperty.location
-//@[14:42) [BCP120 (Error)] The property "location" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of existingResProperty are "apiVersion", "id", "name", "scope", "type". |existingResProperty.location|
+//@[14:42) [BCP120 (Error)] The property "location" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of existingResProperty are "apiVersion", "id", "name", "type". |existingResProperty.location|
 }
+
+resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'anyTypeInDependsOn'
+  location: resourceGroup().location
+  dependsOn: [
+    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+//@[4:70) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)|
+    's'
+//@[4:7) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'s'". |'s'|
+    any(true)
+//@[4:13) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+  ]
+}
+
+resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+//@[9:24) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParent|
+  parent: any(true)
+//@[10:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+}
+
+resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+//@[9:28) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInParentLoop|
+  parent: any(true)
+//@[10:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(true)|
+}]
+
+resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[9:23) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScope|
+  scope: any(invalidExistingLocationRef)
+//@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef)|
+}
+
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". |anyTypeInScopeConditional|
+  scope: any(invalidExistingLocationRef)
+//@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(invalidExistingLocationRef)|
+}
+
+resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScope|
+  parent: any('')
+//@[10:17) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('')|
+  scope: any(false)
+//@[9:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(false)|
+}
+
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |anyTypeInExistingScopeLoop|
+  parent: any('')
+//@[10:17) [BCP176 (Error)] Values of the "any" type are not allowed here. |any('')|
+  scope: any(false)
+//@[9:19) [BCP176 (Error)] Values of the "any" type are not allowed here. |any(false)|
+}]
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[89:131) [BCP135 (Error)] Scope "resourceGroup" is not valid for this resource type. Permitted scopes: "tenant". |{\r\n  name: 'tenantLevelResourceBlocked'\r\n}|
+  name: 'tenantLevelResourceBlocked'
+}
+
+// #completionTest(15,36,37) -> resourceTypes
+resource comp1 'Microsoft.Resources/'
+//@[15:37) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/'|
+//@[37:37) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(15,16,17) -> resourceTypes
+resource comp2 ''
+//@[15:17) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |''|
+//@[17:17) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(38) -> resourceTypes
+resource comp3 'Microsoft.Resources/t'
+//@[15:38) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/t'|
+//@[38:38) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(40) -> resourceTypes
+resource comp4 'Microsoft.Resources/t/v'
+//@[15:40) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/t/v'|
+//@[40:40) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(49) -> resourceTypes
+resource comp5 'Microsoft.Storage/storageAccounts'
+//@[15:50) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Storage/storageAccounts'|
+//@[50:50) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(50) -> storageAccountsResourceTypes
+resource comp6 'Microsoft.Storage/storageAccounts@'
+//@[15:51) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Storage/storageAccounts@'|
+//@[51:51) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(52) -> templateSpecsResourceTypes
+resource comp7 'Microsoft.Resources/templateSpecs@20'
+//@[15:53) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'Microsoft.Resources/templateSpecs@20'|
+//@[53:53) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(60,61) -> virtualNetworksResourceTypes
+resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
+//@[61:61) [BCP018 (Error)] Expected the "=" character at this location. ||
 

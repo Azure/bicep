@@ -9,6 +9,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void CompileAndTest(string text, int expectedDiagnosticCount)
         {
-            base.CompileAndTest(ParametersMustBeUsedRule.Code, text, expectedDiagnosticCount);
+            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
+            {
+                var errors = GetDiagnostics(ParametersMustBeUsedRule.Code, text);
+                errors.Should().HaveCount(expectedDiagnosticCount);
+            }
         }
 
         [DataRow(1, @"
@@ -51,12 +56,51 @@ output sub int = sum + param2
 var sum = 1 + 3
 output sub int = sum
 ")]
-        [DataRow(0, @"
-// Syntax error
+        [DataRow(3, @"
+// Syntax errors
 resource abc 'Microsoft.AAD/domainServices@2021-03-01'
+param
+param p1
+param p2 =
         ")]
         [DataTestMethod]
         public void TestRule(int diagnosticCount, string text)
+        {
+            CompileAndTest(text, diagnosticCount);
+        }
+
+        [DataRow(0, @"
+@minLength(3)
+@maxLength(11)
+param namePrefix string
+param location string = resourceGroup().location
+
+module stgModule './storageAccount.bicep' = {
+  name: 'storageDeploy'
+  params: {
+    storagePrefix: namePrefix
+    location: location
+  }
+}
+
+output storageEndpoint object = stgModule.outputs.storageEndpoint
+")]
+        [DataTestMethod]
+        public void Modules(int diagnosticCount, string text)
+        {
+            CompileAndTest(text, diagnosticCount);
+        }
+
+        [DataRow(0, @"
+param location string
+
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = if (false) {
+  name: 'myZone'
+  location: location
+}
+")]
+        [DataTestMethod]
+        public void Conditions(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
         }

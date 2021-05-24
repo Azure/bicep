@@ -86,9 +86,6 @@ namespace Bicep.LanguageServer.Completions
             return item;
         }
 
-
-
-
         public static CompletionItem WithSortText(this CompletionItem item, string sortText)
         {
             item.SortText = sortText;
@@ -102,7 +99,6 @@ namespace Bicep.LanguageServer.Completions
             item.Preselect = preselect;
             return item;
         }
-
 
         public static CompletionItem WithCommand(this CompletionItem item, Command command)
         {

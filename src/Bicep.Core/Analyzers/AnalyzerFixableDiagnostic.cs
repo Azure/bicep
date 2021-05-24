@@ -9,9 +9,9 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers
 {
-    internal class AnalyzerFixableDiagnostic : AnalyzerDiagnostic, IBicepAnalyerFixableDiagnostic
+    public class AnalyzerFixableDiagnostic : AnalyzerDiagnostic, IBicepAnalyerFixableDiagnostic
     {
-        internal AnalyzerFixableDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level, string code, string message, DiagnosticLabel? label, IEnumerable<CodeFix> codeFixes)
+        public AnalyzerFixableDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level, string code, string message, DiagnosticLabel? label, IEnumerable<CodeFix> codeFixes)
             : base(analyzerName, span, level, code, message, label)
         {
             this.Fixes = codeFixes;

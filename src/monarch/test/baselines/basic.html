@@ -57,7 +57,7 @@
 }]
 
 <span class="hljs-keyword">resource</span> <span class="hljs-variable">secrets4</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets@2018-02-14&#39;</span> = [<span class="hljs-keyword">for</span> <span class="hljs-variable">secret</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">secretsObject</span>.<span class="hljs-variable">secrets</span>: <span class="hljs-keyword">if</span> (<span class="hljs-keyword">true</span>) {
-  <span class="hljs-string">&#39;</span><span class="hljs-string">name&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">test&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">name&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">test/child&#39;</span>
   <span class="hljs-variable">properties</span>:{
   }
 }]

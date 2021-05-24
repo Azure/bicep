@@ -10,7 +10,7 @@ resource foo 'ddd'
 // #completionTest(23) -> resourceTypes
 resource trailingSpace  
 
-// #completionTest(19,20) -> object
+// #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
 
 // wrong resource type
@@ -376,13 +376,13 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
 }
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
+// #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'v'
   location: 'eastus'
@@ -390,6 +390,8 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
             {
@@ -1114,7 +1116,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
         // #completionTest(12,15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
           fake: [for something in []: true]
         }]
       }]
@@ -1328,3 +1330,67 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
   name: 'myExt'
   location: existingResProperty.location
 }
+
+resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'anyTypeInDependsOn'
+  location: resourceGroup().location
+  dependsOn: [
+    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+    's'
+    any(true)
+  ]
+}
+
+resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+  parent: any(true)
+}
+
+resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+  parent: any(true)
+}]
+
+resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
+  scope: any(invalidExistingLocationRef)
+}
+
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if (true) {
+  scope: any(invalidExistingLocationRef)
+}
+
+resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
+  parent: any('')
+  scope: any(false)
+}
+
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
+  parent: any('')
+  scope: any(false)
+}]
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+  name: 'tenantLevelResourceBlocked'
+}
+
+// #completionTest(15,36,37) -> resourceTypes
+resource comp1 'Microsoft.Resources/'
+
+// #completionTest(15,16,17) -> resourceTypes
+resource comp2 ''
+
+// #completionTest(38) -> resourceTypes
+resource comp3 'Microsoft.Resources/t'
+
+// #completionTest(40) -> resourceTypes
+resource comp4 'Microsoft.Resources/t/v'
+
+// #completionTest(49) -> resourceTypes
+resource comp5 'Microsoft.Storage/storageAccounts'
+
+// #completionTest(50) -> storageAccountsResourceTypes
+resource comp6 'Microsoft.Storage/storageAccounts@'
+
+// #completionTest(52) -> templateSpecsResourceTypes
+resource comp7 'Microsoft.Resources/templateSpecs@20'
+
+// #completionTest(60,61) -> virtualNetworksResourceTypes
+resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'

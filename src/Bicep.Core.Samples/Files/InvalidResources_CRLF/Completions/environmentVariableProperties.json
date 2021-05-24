@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "name"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "name:"
+    }
   },
   {
     "label": "secureValue",
@@ -35,11 +32,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "secureValue"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "secureValue:"
+    }
   },
   {
     "label": "value",
@@ -56,10 +50,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "value"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "value:"
+    }
   }
 ]

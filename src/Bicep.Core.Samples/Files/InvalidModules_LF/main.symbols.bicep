@@ -20,11 +20,15 @@ module moduleWithoutPath = {
 
 }
 
+// #completionTest(41) -> moduleBodyCompletions
+module moduleWithPath './moduleb.bicep' =
+//@[7:21) Module moduleWithPath. Type: module. Declaration start char: 0, length: 41
+
 // missing identifier #completionTest(7) -> empty
 module 
 //@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 7
 
-// #completionTest(24,25) -> object
+// #completionTest(24,25) -> moduleObject
 module missingValue '' = 
 //@[7:19) Module missingValue. Type: error. Declaration start char: 0, length: 25
 
@@ -553,11 +557,11 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
 module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in emptyArray: if(true) {
 //@[67:68) Local x. Type: any. Declaration start char: 67, length: 1
 //@[69:70) Local i. Type: int. Declaration start char: 69, length: 1
-//@[7:42) Module paramNameCompletionsInFilteredLoops. Type: module[]. Declaration start char: 0, length: 185
+//@[7:42) Module paramNameCompletionsInFilteredLoops. Type: module[]. Declaration start char: 0, length: 187
   name: 'hello-${x}'
   params: {
     // #completionTest(0,1,2) -> moduleAParams
-
+  
   }
 }]
 
@@ -647,4 +651,54 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[52:57) Local thing. Type: any. Declaration start char: 52, length: 5
 //@[58:59) Local i. Type: int. Declaration start char: 58, length: 1
 //@[7:27) Module nonObjectModuleBody4. Type: module[]. Declaration start char: 0, length: 77
+
+module anyTypeInScope 'empty.bicep' = {
+//@[7:21) Module anyTypeInScope. Type: module. Declaration start char: 0, length: 91
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[7:32) Module anyTypeInScopeConditional. Type: module. Declaration start char: 0, length: 112
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[47:52) Local thing. Type: any. Declaration start char: 47, length: 5
+//@[7:25) Module anyTypeInScopeLoop. Type: module[]. Declaration start char: 0, length: 114
+  dependsOn: [
+    any('s')
+  ]
+
+  scope: any(42)
+}]
+
+// Key Vault Secret Reference
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[9:11) Resource kv. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 88
+  name: 'testkeyvault'
+}
+
+module secureModule1 'moduleb.bicep' = {
+//@[7:20) Module secureModule1. Type: module. Declaration start char: 0, length: 464
+  name: 'secureModule1'
+  params: {       
+    stringParamA: kv.getSecret('mySecret')
+    stringParamB: '${kv.getSecret('mySecret')}'
+    objParam: kv.getSecret('mySecret')
+    arrayParam: kv.getSecret('mySecret')
+    secureStringParam: '${kv.getSecret('mySecret')}'
+    secureObjectParam: kv.getSecret('mySecret')
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+    secureObjectParam2: kv.getSecret('mySecret')
+  }
+}
 

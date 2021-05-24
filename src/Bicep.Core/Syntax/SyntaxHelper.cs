@@ -15,13 +15,13 @@ namespace Bicep.Core.Syntax
 
         public static ArraySyntax? TryGetAllowedSyntax(ParameterDeclarationSyntax parameterDeclarationSyntax)
         {
-            if (!(parameterDeclarationSyntax.Modifier is ObjectSyntax modifierObject))
+            if (parameterDeclarationSyntax.Modifier is not ObjectSyntax modifierObject)
             {
                 return null;
             }
 
             var allowedValuesSyntax = TryGetObjectProperty(modifierObject, LanguageConstants.ParameterAllowedPropertyName);
-            if (!(allowedValuesSyntax is ArraySyntax allowedArraySyntax))
+            if (allowedValuesSyntax is not ArraySyntax allowedArraySyntax)
             {
                 return null;
             }
@@ -57,9 +57,9 @@ namespace Bicep.Core.Syntax
             if (pathValue == null)
             {
                 failureBuilder = x => x.ModulePathInterpolationUnsupported();
-                return null;                
+                return null;
             }
-            
+
             failureBuilder = null;
             return pathValue;
         }
@@ -85,7 +85,8 @@ namespace Bicep.Core.Syntax
                 return ResourceScope.None;
             }
 
-            return literalValue switch {
+            return literalValue switch
+            {
                 LanguageConstants.TargetScopeTypeTenant => ResourceScope.Tenant,
                 LanguageConstants.TargetScopeTypeManagementGroup => ResourceScope.ManagementGroup,
                 LanguageConstants.TargetScopeTypeSubscription => ResourceScope.Subscription,

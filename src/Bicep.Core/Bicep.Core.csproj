@@ -5,11 +5,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="bicepsettings.json" />
+		<None Remove="bicepconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Configuration\bicepsettings.json" />
+		<EmbeddedResource Include="Configuration\bicepconfig.json" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -27,19 +27,16 @@
 		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.112" />
 	</ItemGroup>
 	<ItemGroup>
-		<InternalsVisibleTo Include="Bicep.Core.UnitTests" />
+		<Compile Update="CoreResources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>CoreResources.resx</DependentUpon>
+		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Update="CoreResources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>CoreResources.resx</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-	<ItemGroup>
-	  <EmbeddedResource Update="CoreResources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
+		<EmbeddedResource Update="CoreResources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
 	</ItemGroup>
 </Project>

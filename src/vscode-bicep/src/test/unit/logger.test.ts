@@ -19,18 +19,18 @@ import * as winston from "winston";
 import * as loggerModule from "../../utils/logger";
 import { expectDefined } from "../utils/assert";
 
-const mockWinstonLogger = ({
+const mockWinstonLogger = {
   clear: jest.fn(),
   close: jest.fn(),
   log: jest.fn(),
-} as unknown) as winston.Logger;
+} as unknown as winston.Logger;
 
 const mockWorkspaceState: vscode.Memento = {
   get: jest.fn(),
   update: jest.fn(),
 };
 const mockGlobalstate = { ...mockWorkspaceState, setKeysForSync: jest.fn() };
-const mockContext = ({
+const mockContext = {
   subscriptions: [],
   workspaceState: mockWorkspaceState,
   globalState: mockGlobalstate,
@@ -38,7 +38,7 @@ const mockContext = ({
   extensionPath: "",
   storagePath: "",
   logPath: "",
-} as unknown) as vscode.ExtensionContext;
+} as unknown as vscode.ExtensionContext;
 
 const mockOutputChannel: vscode.OutputChannel = {
   name: "",
@@ -50,14 +50,10 @@ const mockOutputChannel: vscode.OutputChannel = {
   show: jest.fn(),
 };
 
-const {
-  createLogger,
-  getLogger,
-  resetLogger,
-  WinstonLogger,
-} = loggerModule as typeof loggerModule & {
-  resetLogger: () => void;
-};
+const { createLogger, getLogger, resetLogger, WinstonLogger } =
+  loggerModule as typeof loggerModule & {
+    resetLogger: () => void;
+  };
 
 describe("createLogger()", () => {
   it("should add a new logger to disposibles subscription", () => {

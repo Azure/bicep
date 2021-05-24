@@ -21,20 +21,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://aka.ms/bicep/linter/simplify-interpolation")
         { }
 
-        override internal IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var spanFixes = new Dictionary<TextSpan, CodeFix>();
-            var visitor = new BCPL1080Visitor(spanFixes);
+            var visitor = new Visitor(spanFixes);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);
 
             return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(kvp.Key, kvp.Value));
         }
 
-        private sealed class BCPL1080Visitor : SyntaxVisitor
+        private sealed class Visitor : SyntaxVisitor
         {
             private readonly Dictionary<TextSpan, CodeFix> spanFixes;
 
-            public BCPL1080Visitor(Dictionary<TextSpan, CodeFix> spanFixes)
+            public Visitor(Dictionary<TextSpan, CodeFix> spanFixes)
             {
                 this.spanFixes = spanFixes;
             }
@@ -73,7 +73,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (valueSyntax is StringSyntax strSyntax
                     && strSyntax.Expressions.Length == 1
                     && strSyntax.SegmentValues.All(s => string.IsNullOrEmpty(s))
-                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax)
+                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax) // Applies to params and vars
                 {
                     AddCodeFix(valueSyntax.Span, variableAccessSyntax.Name.IdentifierName);
                 }
@@ -83,7 +83,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private void AddCodeFix(TextSpan span, string name)
             {
                 var codeReplacement = new CodeReplacement(span, name);
-                var fix = new CodeFix($"Use string variable assignment: {codeReplacement.Text}", true, codeReplacement);
+                var fix = new CodeFix($"Use string variable assignment: {codeReplacement.Text}", true, codeReplacement); // TODO: localize
                 spanFixes[span] = fix;
             }
         }

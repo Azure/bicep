@@ -12,22 +12,22 @@ namespace Bicep.LanguageServer.Completions
 {
     public static class SyntaxMatcher
     {
-        public static bool IsTailMatch<T1>(IList<SyntaxBase> nodes, Func<T1, bool> predicate)
+        public static bool IsTailMatch<T1>(IList<SyntaxBase> nodes, Func<T1, bool>? predicate = null)
             where T1 : SyntaxBase
         {
             return nodes.Count >= 1 &&
                    nodes[^1] is T1 one &&
-                   predicate(one);
+                   (predicate is null || predicate.Invoke(one));
         }
 
-        public static bool IsTailMatch<T1, T2>(IList<SyntaxBase> nodes, Func<T1, T2, bool> predicate)
+        public static bool IsTailMatch<T1, T2>(IList<SyntaxBase> nodes, Func<T1, T2, bool>? predicate = null)
             where T1 : SyntaxBase
             where T2 : SyntaxBase
         {
             return nodes.Count >= 2 &&
                    nodes[^2] is T1 one &&
                    nodes[^1] is T2 two &&
-                   predicate(one, two);
+                   (predicate is null || predicate(one, two));
         }
 
         public static bool IsTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool> predicate) 
@@ -42,18 +42,24 @@ namespace Bicep.LanguageServer.Completions
                    predicate(one, two, three);
         }
 
-        public static bool IsTailMatch<T1, T2, T3, T4>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, bool> predicate)
+        public static bool IsTailMatch<T1, T2, T3, T4>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, bool> predicate, Action<T1, T2, T3, T4>? actionOnMatch = null)
             where T1 : SyntaxBase
             where T2 : SyntaxBase
             where T3 : SyntaxBase
             where T4 : SyntaxBase
         {
-            return nodes.Count >= 4 &&
+            if (nodes.Count >= 4 &&
                    nodes[^4] is T1 one &&
                    nodes[^3] is T2 two &&
                    nodes[^2] is T3 three &&
                    nodes[^1] is T4 four &&
-                   predicate(one, two, three, four);
+                   predicate(one, two, three, four))
+            {
+                actionOnMatch?.Invoke(one, two, three, four);
+                return true;
+            }
+
+            return false;
         }
 
         public static bool IsTailMatch<T1, T2, T3, T4, T5>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, T5, bool> predicate)
@@ -84,10 +90,23 @@ namespace Bicep.LanguageServer.Completions
             {
                 // callback is invoked only if node span contains the offset
                 // in inclusive mode, 2 nodes can be returned if cursor is between end of one node and beginning of another
-                // we will pick the node to the left as the winner
-                if (nodes.Any() == false || TextSpan.AreNeighbors(nodes.Last(), current) == false)
+                // we will pick the node to the left as the winner if it's not a newline. Otherwise, pick the right one instead.
+                if (!nodes.Any())
                 {
                     nodes.Add(current);
+                }
+                else
+                {
+                    var lastNode = nodes[^1];
+
+                    if (TextSpan.AreNeighbors(lastNode, current) && lastNode is Token { Type: TokenType.NewLine })
+                    {
+                        nodes[^1] = current;
+                    }
+                    else if (!TextSpan.AreNeighbors(lastNode, current))
+                    {
+                        nodes.Add(current);
+                    }
                 }
 
                 // don't filter out the nodes

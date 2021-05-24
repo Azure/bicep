@@ -50,9 +50,10 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (!(this.model.GetSymbolInfo(syntax) is ResourceSymbol resourceSymbol))
+            if (this.model.GetSymbolInfo(syntax) is not ResourceSymbol resourceSymbol)
             {
-                throw new InvalidOperationException("Unbound declaration");
+                // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
+                return;
             }
 
             // Resource ancestors are always dependencies.
@@ -71,9 +72,9 @@ namespace Bicep.Core.Emit
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
-            if (!(this.model.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol))
+            if (this.model.GetSymbolInfo(syntax) is not ModuleSymbol moduleSymbol)
             {
-                throw new InvalidOperationException("Unbound declaration");
+                return;
             }
 
             // save previous declaration as we may call this recursively
@@ -89,9 +90,9 @@ namespace Bicep.Core.Emit
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            if (!(this.model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol))
+            if (this.model.GetSymbolInfo(syntax) is not VariableSymbol variableSymbol)
             {
-                throw new InvalidOperationException("Unbound declaration");
+                return;
             }
 
             // save previous declaration as we may call this recursively
@@ -204,7 +205,7 @@ namespace Bicep.Core.Emit
                 VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.Value,
                 _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
             };
-            
+
             // using the resource/module body as the context to allow indexed depdnencies relying on the resource/module loop index to work as expected
             var inaccessibleLocals = dfa.GetInaccessibleLocalsAfterSyntaxMove(candidateIndexExpression, context);
             if(inaccessibleLocals.Any())
