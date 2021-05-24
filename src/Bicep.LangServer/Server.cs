@@ -89,7 +89,7 @@ namespace Bicep.LanguageServer
             await server.WaitForExit;
         }
 
-        private void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
+        private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
         {
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
