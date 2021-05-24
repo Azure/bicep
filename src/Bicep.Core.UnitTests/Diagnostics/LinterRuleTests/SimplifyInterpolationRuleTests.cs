@@ -43,6 +43,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         [DataRow(
             @"
+            param p1 string
+            var v1 = '${p1}'
+            ",
+            "p1"
+        )]
+        [DataRow(
+            @"
                 param AutomationAccountName string
                 resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                     name: '${AutomationAccountName}'
@@ -61,10 +68,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         )]
         [DataRow(
             @"
-            param p1 string
-            var v1 = '${p1}'
-            ",
+                param p1 string = 'a'
+                resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+                    properties: {
+                        encryption: '${p1}'
+                    }
+                }",
             "p1"
+        )]
+        [DataRow(@"
+                @secure
+                param ssVal string
+                var stringVal = '${ssVal}'
+            ",
+            "ssVal"
         )]
         [DataTestMethod]
         public void ParameterReference(string text, string expectedFix)
@@ -72,17 +89,33 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ExpectDiagnosticWithFix(text, expectedFix);
         }
 
-        [TestMethod]
-        public void VariableReference()
+        [DataRow(
+            @"
+                var AutomationAccountName = 'mystring'
+                resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+                    name: '${AutomationAccountName}'
+                }
+            ",
+            "AutomationAccountName"
+        )]
+        [DataRow(@"
+                @secure
+                var ssVal = 'mystring'
+                var stringVal = '${ssVal}'
+            ",
+            "ssVal"
+        )]
+        [DataRow(@"
+                @secure
+                var ssVal = concat('a', 'b')
+                var stringVal = '${ssVal}'
+            ",
+            "ssVal"
+        )]
+        [DataTestMethod]
+        public void VariableReference(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(
-                @"
-                    var AutomationAccountName string
-                    resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
-                        name: '${AutomationAccountName}'
-                    }",
-                "AutomationAccountName"
-            );
+            ExpectDiagnosticWithFix(text, expectedFix);
         }
 
         [DataRow(@"
@@ -104,13 +137,18 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }"
         )]
         [DataRow(@"
-                    param AutomationAccountName string
+                    var AutomationAccountName = 'hello'
                     resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                         name: '${AutomationAccountName}${AutomationAccountName}'
                     }"
         )]
+        [DataRow(
+            @"
+            var s = '${concat('a','b')}'
+            "
+        )]
         [DataTestMethod]
-        public void InterpolationMoreThanJustParam_Passes(string text)
+        public void InterpolationMoreThanJustParamOrVar_Passes(string text)
         {
             ExpectPass(text);
         }
@@ -126,5 +164,80 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             ExpectPass(text);
         }
+
+        [DataRow(@"
+            resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
+                name: 'scriptWithStorage'
+                location: location
+                kind: 'AzureCLI'
+                identity: {
+                    type: 'UserAssigned'
+                    userAssignedIdentities: {
+                    '${uamiId}': {}  // <-- string interpolation inside string property should not fail test
+                    }
+                }
+                properties: {
+                    azCliVersion: '2.0.80'
+                    storageAccountSettings: {
+                    storageAccountName: stg.name
+                    storageAccountKey: listKeys(stg.id, stg.apiVersion).keys[0].value
+                    }
+                    scriptContent: scriptToExecute
+                    cleanupPreference: 'OnSuccess'
+                    retentionInterval: 'P1D'
+                    forceUpdateTag: currentTime // ensures script will run every time
+                }
+            }
+            "
+        )]
+        [DataTestMethod]
+        public void StringInterpolationInsidePropertyNames_Passes(string text)
+        {
+            ExpectPass(text);
+        }
+
+        [DataRow(@"
+            var val = {}
+            var stringVal = '${val}' // is a string '123'
+            "
+        )]
+        [DataRow(@"
+            var intVal = 123
+            var stringVal = '${intVal}' // is a string '123'
+            "
+        )]
+        [DataRow(@"
+            var arrayOfStrings = [ 'a', 'b' ]
+            var stringVal = '${arrayOfStrings}'
+        ")]
+        [DataTestMethod]
+        public void TypeIsNotString_Passes(string text)
+        {
+            ExpectPass(text);
+        }
+
+        [DataRow(
+            @"
+                param untypedParam string
+                output s string = '${untypedParam}
+            "
+        )]
+        [DataRow(
+            @"
+                var s = '${unknown}'
+            "
+        )]
+        [DataRow(
+            @"
+                param untypedParam // syntax error
+                var stringVal = '${untypedParam}'
+            "
+        )]
+        [DataTestMethod]
+        public void SyntaxErrors_ExpectNoFixes(string text)
+        {
+            ExpectPass(text);
+        }
     }
 }
+
