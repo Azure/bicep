@@ -29,7 +29,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (var defaultValueSyntax in defaultValueSyntaxes)
             {
                 var defaultValue = defaultValueSyntax.DefaultValue;
-                if (defaultValue is StringSyntax defaultString && defaultString.IsStringLiteral()
+                if (defaultValue is StringSyntax defaultString
+                    && !defaultString.IsInterpolated()
                     && defaultString.TryGetLiteralValue() == "")
                 {
                     // Empty string - okay
