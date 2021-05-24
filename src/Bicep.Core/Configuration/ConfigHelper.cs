@@ -81,15 +81,18 @@ namespace Bicep.Core.Configuration
         {
             try
             {
-                while (nextDir != default && Path.IsPathRooted(nextDir))
-                {
-                    var fileName = Path.Combine(nextDir, SettingsFileName);
-                    if (File.Exists(fileName))
-                    {
-                        return fileName;
-                    }
-                    nextDir = Directory.GetParent(nextDir)?.FullName;
-                }
+              while (!string.IsNullOrEmpty(nextDir))
+              {
+                  while (!string.IsNullOrEmpty(nextDir))
+                  {
+                      var fileName = Path.Combine(nextDir, SettingsFileName);
+                      if (File.Exists(fileName))
+                      {
+                          return fileName;
+                      }
+                      nextDir = Directory.GetParent(nextDir)?.FullName;
+                  }
+              }
             }
             catch (Exception)
             {
