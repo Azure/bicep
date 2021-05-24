@@ -26,7 +26,13 @@ namespace Bicep.Core.Configuration
             this.Config = BuildConfig(Directory.GetCurrentDirectory());
         }
 
-        private IConfigurationRoot BuildConfig(string localFolder)
+        private IConfigurationRoot BuildConfig(Uri fileUri)
+        {
+            string? localFolder = fileUri.IsFile ? fileUri.LocalPath : null;
+            return BuildConfig(localFolder);
+        }
+
+        private IConfigurationRoot BuildConfig(string? localFolder)
         {
             var configBuilder = new ConfigurationBuilder();
 
@@ -52,35 +58,57 @@ namespace Bicep.Core.Configuration
                     this.CustomSettingsFileName = default;
                 }
 
-                var config = configBuilder.Build();
-
-                foreach (var kvp in SettingOverrides)
+                try
                 {
-                    config[kvp.Key] = kvp.Value.ToString();
-                }
+                    var config = configBuilder.Build();
 
-                return this.Config = config;
+                    foreach (var kvp in SettingOverrides)
+                    {
+                        config[kvp.Key] = kvp.Value.ToString();
+                    }
+
+                    return this.Config = config;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(
+                        string.Format("Could not load configuration file. {0}", ex.InnerException?.Message ?? ex.Message));
+                }
             }
         }
 
         private string? DiscoverLocalConfigurationFile(string? nextDir)
         {
-            while (!string.IsNullOrEmpty(nextDir))
+            try
             {
-                var fileName = Path.Combine(nextDir, SettingsFileName);
-                if (File.Exists(fileName))
-                {
-                    return fileName;
-                }
-                nextDir = Directory.GetParent(nextDir)?.FullName;
+              while (!string.IsNullOrEmpty(nextDir))
+              {
+                  while (!string.IsNullOrEmpty(nextDir))
+                  {
+                      var fileName = Path.Combine(nextDir, SettingsFileName);
+                      if (File.Exists(fileName))
+                      {
+                          return fileName;
+                      }
+                      nextDir = Directory.GetParent(nextDir)?.FullName;
+                  }
+              }
             }
+            catch (Exception)
+            {
+            }
+
             return default;
         }
 
-        internal void LoadConfiguration(Uri fileUri)
+        internal void LoadDefaultConfiguration()
         {
-            var localFile = Path.GetDirectoryName(fileUri.LocalPath);
-            this.Config = BuildConfig(localFile);
+            this.Config = BuildConfig((string?)null);
+        }
+
+        internal void LoadConfigurationForSourceFile(Uri fileUri)
+        {
+            this.Config = BuildConfig(fileUri);
         }
 
         /// <summary>

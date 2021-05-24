@@ -25,17 +25,24 @@ namespace Bicep.Core.Analyzers.Linter
 
         private ConfigHelper configHelper = new ConfigHelper();
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
+        private ImmutableArray<IBicepAnalyzerDiagnostic> RuleCreationErrors;
+
+        // TODO: This should be controlled by a core component, not an analyzer
+        public const string FailedRuleCode = "linter-internal-error";
 
         public LinterAnalyzer()
         {
-            RuleSet = CreateLinterRules().ToImmutableArray();
+            (RuleSet, RuleCreationErrors) = CreateLinterRules();
         }
 
         private bool LinterEnabled => this.configHelper.GetValue(LinterEnabledSetting, true);
         private bool LinterVerbose => this.configHelper.GetValue(LinterVerboseSetting, true);
 
-        private IEnumerable<IBicepAnalyzerRule> CreateLinterRules()
+        private (ImmutableArray<IBicepAnalyzerRule> rules, ImmutableArray<IBicepAnalyzerDiagnostic> errors) CreateLinterRules()
         {
+            List<IBicepAnalyzerDiagnostic> errors = new List<IBicepAnalyzerDiagnostic>();
+            List<IBicepAnalyzerRule> rules = new List<IBicepAnalyzerRule>();
+
             var ruleTypes = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
@@ -45,8 +52,21 @@ namespace Bicep.Core.Analyzers.Linter
 
             foreach (var ruleType in ruleTypes)
             {
-                yield return (IBicepAnalyzerRule)Activator.CreateInstance(ruleType);
+                try
+                {
+                    rules.Add((IBicepAnalyzerRule)Activator.CreateInstance(ruleType));
+                }
+                catch (Exception ex)
+                {
+                    string message = string.Format("Analyzer '{0}' could not instantiate rule '{1}'. {2}",
+                        AnalyzerName,
+                        ruleType.Name,
+                        ex.InnerException?.Message ?? ex.Message);
+                    errors.Add(CreateInternalErrorDiagnostic(AnalyzerName, message));
+                }
             }
+
+            return (rules.ToImmutableArray(), errors.ToImmutableArray());
         }
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => RuleSet;
@@ -61,10 +81,22 @@ namespace Bicep.Core.Analyzers.Linter
 
             var diagnostics = new List<IBicepAnalyzerDiagnostic>();
 
-            configHelp.LoadConfiguration(semanticModel.SyntaxTree.FileUri);
+            try
+            {
+                configHelp.LoadConfigurationForSourceFile(semanticModel.SyntaxTree.FileUri);
+            }
+            catch (Exception ex)
+            {
+                diagnostics.Add(CreateInternalErrorDiagnostic(AnalyzerName, ex.InnerException?.Message ?? ex.Message));
+                // Build a default config to continue with.  This should not fail.
+                configHelp.LoadDefaultConfiguration();
+            }
             this.RuleSet.ForEach(r => r.Configure(configHelp.Config));
             if (this.LinterEnabled)
             {
+                // Add diaagnostics for rules that failed to load
+                diagnostics.AddRange(RuleCreationErrors);
+
                 // add an info diagnostic for local configuration reporting
                 if (this.LinterVerbose)
                 {
@@ -103,13 +135,24 @@ namespace Bicep.Core.Analyzers.Linter
         }
 
         /// <summary>
-        /// Internal method intended to allow eash configuration
+        /// Internal method intended to allow easy configuration
         /// override in Unit Testing
         /// </summary>
         /// <param name="overrideConfig"></param>
         internal void OverrideConfig(ConfigHelper overrideConfig)
         {
             this.configHelper = overrideConfig;
+        }
+
+        internal IBicepAnalyzerDiagnostic CreateInternalErrorDiagnostic(string analyzerName, string message)
+        {
+            return new AnalyzerDiagnostic(
+                    analyzerName,
+                    new TextSpan(0, 0),
+                    DiagnosticLevel.Warning,
+                    LinterAnalyzer.FailedRuleCode,
+                    message,
+                    null);
         }
     }
 }
