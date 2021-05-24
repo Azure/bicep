@@ -3,11 +3,11 @@
 
 namespace Bicep.LanguageServer.Telemetry
 {
-    public class TelemetryConstants
+    public static class TelemetryConstants
     {
         public const string CommandName = "bicep.Telemetry";
 
-        public class EventNames
+        public static class EventNames
         {
             public const string TopLevelDeclarationSnippetInsertion = nameof(TopLevelDeclarationSnippetInsertion);
         }

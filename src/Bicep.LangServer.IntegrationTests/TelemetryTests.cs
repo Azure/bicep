@@ -39,16 +39,16 @@ namespace Bicep.LangServer.IntegrationTests
             CompletionItem completionItem = completions.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == "res-aks-cluster").First();
 
             Command? command = completionItem.Command;
-            command.Should().NotBeNull();
-            command!.Name.Should().Be(TelemetryConstants.CommandName);
+            Assert.IsNotNull(command);
+            Assert.AreEqual(TelemetryConstants.CommandName, command!.Name);
 
             JArray? arguments = command!.Arguments;
-            arguments.Should().NotBeNull();
+            Assert.IsNotNull(arguments);
 
             TelemetryEvent? telemetryEvent = arguments!.First().ToObject<TelemetryEvent>();
-            telemetryEvent!.Should().NotBeNull();
-            telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
-            telemetryEvent!.Properties?.ContainsKey("name");
+            Assert.IsNotNull(telemetryEvent);
+            Assert.AreEqual(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion, telemetryEvent!.EventName);
+            Assert.IsTrue(telemetryEvent!.Properties?.ContainsKey("name"));
         }
     }
 }
