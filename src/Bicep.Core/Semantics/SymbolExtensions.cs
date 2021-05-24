@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
@@ -25,5 +27,17 @@ namespace Bicep.Core.Semantics
 
         public static SyntaxBase? SafeGetBodyPropertyValue(this ModuleSymbol moduleSymbol, string propertyName)
             => SafeGetBodyProperty(moduleSymbol, propertyName)?.Value;
+
+        public static bool IsSecure(this ParameterSymbol parameterSymbol)
+        {
+            // local function
+            bool isSecure(DecoratorSyntax? value) => value?.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.NameEquals("secure");
+
+            if (parameterSymbol?.DeclaringSyntax is ParameterDeclarationSyntax paramDeclaration)
+            {
+                return paramDeclaration.Decorators.Any(d => isSecure(d));
+            }
+            return false;
+        }
     }
 }

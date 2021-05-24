@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -33,6 +34,7 @@ param l
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
+                (ParametersMustBeUsedRule.Code, DiagnosticLevel.Warning, new ParametersMustBeUsedRule().GetMessage()),
                 ("BCP014", DiagnosticLevel.Error, "Expected a parameter type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
             });
         }
@@ -361,7 +363,9 @@ var issue = true ? {
 } : {}
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage())
+                });
             result.Template.Should().HaveValueAtPath("$.variables.issue", "[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
         }
 
@@ -905,6 +909,7 @@ var foo = 42
             result.Should().HaveDiagnostics(new[] {
                 ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
                 ("BCP057", DiagnosticLevel.Error, "The name \"w\" does not exist in the current context."),
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
             });
         }
 
@@ -926,7 +931,10 @@ output singleResource object = singleResource
 output allResources array = allResources.resourceTypes
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+                });
             result.Template.Should().HaveValueAtPath("$.variables['singleResource']", "[providers('Microsoft.Insights', 'components')]");
             result.Template.Should().HaveValueAtPath("$.variables['firstApiVersion']", "[variables('singleResource').apiVersions[0]]");
             result.Template.Should().HaveValueAtPath("$.variables['allResources']", "[providers('Microsoft.Insights')]");
@@ -959,6 +967,7 @@ output bar int = 42
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
             });
         }
 
@@ -1031,7 +1040,7 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
         // https://github.com/azure/bicep/issues/657
         public void Test_Issue657_discriminators()
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
@@ -1129,7 +1138,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
         // https://github.com/azure/bicep/issues/657
         public void Test_Issue657_enum()
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
@@ -1284,7 +1293,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1324,7 +1333,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1369,7 +1378,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('vnets')[copyIndex()])]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1457,13 +1466,16 @@ output providerOutput object = {
                 }
             };
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with {
-                Metadata = new() {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            {
+                Metadata = new()
+                {
                     ["providers"] = JToken.FromObject(providersMetadata),
                 }
             });
 
-            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject {
+            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject
+            {
                 ["namespace"] = "Microsoft.Web",
                 ["resourceTypes"] = new JArray {
                     new JObject {
@@ -1474,7 +1486,8 @@ output providerOutput object = {
                 }
             });
 
-            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.otherThing", new JObject {
+            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.otherThing", new JObject
+            {
                 ["resourceType"] = "sites",
                 ["locations"] = new JArray { "West US", "East US" },
                 ["apiVersions"] = new JArray { "2019-01-01", "2020-01-01" },
@@ -1509,8 +1522,10 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
                 }
             };
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with {
-                Metadata = new() {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            {
+                Metadata = new()
+                {
                     ["providers"] = JToken.FromObject(providersMetadata),
                 }
             });
@@ -1545,7 +1560,9 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 }]
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[]{
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+            });
             result.Template.Should().NotBeNull();
         }
 
@@ -1557,7 +1574,7 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
   name: 'myVM'
   location: 'westus'
-  
+
   resource vmExt 'extensions' = {
     name: 'myVMExtension'
     location: 'westus'
@@ -1799,7 +1816,7 @@ output tagsoutput object = {
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'myVM'
   location: 'westus'
-  
+
   resource vmExts 'extensions' = [for vmExtName in []: {
     name: vmExtName
     location: 'westus'
@@ -1915,11 +1932,12 @@ resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12
 @sys.allowed([
   'apple'
   'banana'
-]) 
+])
 param foo string = 'peach'
 ");
 
             result.Should().HaveDiagnostics(new[] {
+                (ParametersMustBeUsedRule.Code, DiagnosticLevel.Warning, new ParametersMustBeUsedRule().GetMessage()),
                 ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
             });
         }
@@ -1990,7 +2008,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
             result.Should().HaveDiagnostics(new[] {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"nameCopy\" -> \"name\")."),
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
-                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\").")
             });
         }
 
@@ -1999,10 +2017,12 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
         public void Test_Issue2624()
         {
             var result = CompilationHelper.Compile(@"
-var foo = az.listKeys('foo', '2012-02-01')[0].value 
+var foo = az.listKeys('foo', '2012-02-01')[0].value
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+            });
         }
 
         [TestMethod]
@@ -2070,7 +2090,9 @@ var prodLocations = [
 var locations = isProdLike ? prodLocations : testLocations
 var primaryLocation = locations[0]
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+            });
         }
 
         [TestMethod]
@@ -2081,7 +2103,8 @@ var foos = true ? true : []
 var primaryFoo = foos[0]
 ");
             result.Should().HaveDiagnostics(new[]
-{
+            {
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
                 ("BCP076",DiagnosticLevel.Error,"Cannot index over expression of type \"array | bool\". Arrays or objects are required.")
             });
         }
@@ -2094,14 +2117,16 @@ param input object
 param which bool
 
 var default = {
-  
+
 }
 
 var chosenOne = which ? input : default
 
 var p = chosenOne.foo
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+            });
         }
 
         [TestMethod]

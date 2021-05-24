@@ -33,7 +33,7 @@ namespace Bicep.Core.TypeSystem
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
             => declaredTypeManager.GetDeclaredTypeAssignment(syntax);
 
-        public IEnumerable<Diagnostic> GetAllDiagnostics()
+        public IEnumerable<IDiagnostic> GetAllDiagnostics()
             => typeAssignmentVisitor.GetAllDiagnostics();
 
     }

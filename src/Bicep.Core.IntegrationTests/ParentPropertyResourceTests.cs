@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Linq;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Diagnostics;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using Bicep.Core.UnitTests.Diagnostics;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -104,8 +104,6 @@ output res2childid string = res2child.id
 
             using (new AssertionScope())
             {
-                diags.ExcludingMissingTypes().Should().BeEmpty();
-
                 template.Should().HaveValueAtPath("$.resources[0].name", "res1");
                 template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
 
@@ -260,7 +258,7 @@ resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
+                  ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed.")
                 });
             }
         }
@@ -285,7 +283,7 @@ resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vmExt\" -> \"vm\")."),
-                  ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vm\" -> \"vmExt\")."),
+                  ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vm\" -> \"vmExt\").")
                 });
             }
         }
@@ -429,7 +427,8 @@ output child0Name string = child[0].name
                 template.Should().HaveValueAtPath("$.resources[0].name", "parent");
                 template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
 
-                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject { 
+                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject
+                {
                     ["name"] = "child",
                     ["count"] = "[length(variables('items'))]",
                 });
@@ -472,14 +471,16 @@ output child0Name string = child[0].name
             {
                 diags.ExcludingMissingTypes().Should().BeEmpty();
 
-                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject { 
+                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject
+                {
                     ["name"] = "parent",
                     ["count"] = "[length(variables('items'))]"
                 });
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('parent{0}', variables('items')[copyIndex()])]");
                 template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
 
-                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject { 
+                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject
+                {
                     ["name"] = "child",
                     ["count"] = "[length(variables('items'))]",
                 });
@@ -522,7 +523,8 @@ output childName string = child.name
             {
                 diags.ExcludingMissingTypes().Should().BeEmpty();
 
-                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject { 
+                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject
+                {
                     ["name"] = "parent",
                     ["count"] = "[length(variables('items'))]"
                 });
@@ -569,14 +571,16 @@ output child0Name string = child[0].name
             {
                 diags.ExcludingMissingTypes().Should().BeEmpty();
 
-                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject { 
+                template.Should().HaveValueAtPath("$.resources[0].copy", new JObject
+                {
                     ["name"] = "parent",
                     ["count"] = "[length(variables('items'))]"
                 });
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('parent{0}', variables('items')[copyIndex()])]");
                 template.Should().NotHaveValueAtPath("$.resources[0].dependsOn");
 
-                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject { 
+                template.Should().HaveValueAtPath("$.resources[1].copy", new JObject
+                {
                     ["name"] = "child",
                     ["count"] = "[length(variables('items'))]",
                 });

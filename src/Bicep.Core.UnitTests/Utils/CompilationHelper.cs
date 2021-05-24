@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.Utils
     {
         public record CompilationResult(
             JToken? Template,
-            IEnumerable<Diagnostic> Diagnostics,
+            IEnumerable<IDiagnostic> Diagnostics,
             Compilation Compilation)
         {
             public SyntaxTree SyntaxTree => Compilation.SyntaxTreeGrouping.EntryPoint;
