@@ -25,9 +25,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://aka.ms/bicep/linter/prefer-interpolation")
         { }
 
-        private CodeReplacement GetCodeReplacement(TextSpan span)
-            => new CodeReplacement(span, $"{Code} - this is the new code");
-
         public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var visitor = new Visitor(this);
@@ -62,20 +59,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 base.VisitFunctionCallSyntax(syntax);
             }
 
-            private CodeFix? CreateFix(FunctionCallSyntax func)
+            private CodeFix? CreateFix(FunctionCallSyntax functionCallSyntax)
             {
-                if (GetCodeReplacement(func) is CodeReplacement cr)
+                if (GetCodeReplacement(functionCallSyntax) is CodeReplacement cr)
                 {
                     return new CodeFix($"Use string interpolation: {cr.Text}", true, cr); // TODO: localize
                 }
                 return null;
             }
 
-            private CodeReplacement? GetCodeReplacement(FunctionCallSyntax func)
+            private CodeReplacement? GetCodeReplacement(FunctionCallSyntax functionCallSyntax)
             {
-                if (RewriteConcatToInterpolate(func) is StringSyntax newSyntax)
+                if (RewriteConcatToInterpolate(functionCallSyntax) is StringSyntax newSyntax)
                 {
-                    return CodeReplacement.FromSyntax(func.Span, newSyntax);
+                    return CodeReplacement.FromSyntax(functionCallSyntax.Span, newSyntax);
                 }
                 return null;
             }
