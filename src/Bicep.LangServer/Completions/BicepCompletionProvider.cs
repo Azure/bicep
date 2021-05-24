@@ -96,8 +96,8 @@ namespace Bicep.LanguageServer.Completions
                                                                    resourceSnippet.Detail,
                                                                    resourceSnippet.Text,
                                                                    context.ReplacementRange,
-                                                                   resourceSnippet.CompletionPriority,
-                                                                   command: command);
+                                                                   resourceSnippet.CompletionPriority)
+                        .WithCommand(command);
                 }
             }
 
