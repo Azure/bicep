@@ -23,7 +23,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public EnvironmentUrlHardcodedRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
-            diagnosticLevel: Diagnostics.DiagnosticLevel.Warning,
             docUri: "https://aka.ms/bicep/linter/no-hardcoded-env-urls")
         {
         }
