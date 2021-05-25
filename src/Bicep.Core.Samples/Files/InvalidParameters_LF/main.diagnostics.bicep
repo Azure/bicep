@@ -662,7 +662,7 @@ param someString string {
 //@[8:8) [BCP020 (Error)] Expected a function or property name at this location. ||
 param someInteger int = 20
 //@[6:17) [no-unused-params (Warning)] Declared parameter must be referenced within the document scope.\n[See : https://aka.ms/bicep/linter/no-unused-params] |someInteger|
-//@[22:26) [secure-paramenter-default (Warning)] Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.\n[See : https://aka.ms/bicep/linter/secure-paramenter-default] |= 20|
+//@[22:26) [secure-parameter-default (Warning)] Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.\n[See : https://aka.ms/bicep/linter/secure-parameter-default] |= 20|
 
 @allowed([], [], 2)
 //@[8:19) [BCP071 (Error)] Expected 1 argument, but got 3. |([], [], 2)|

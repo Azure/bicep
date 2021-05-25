@@ -43,7 +43,7 @@
         "prefer-interpolation": {
           "level": "warning"
         },
-        "secure-paramenter-default": {
+        "secure-parameter-default": {
           "level": "warning"
         },
         "simplify-interpolation": {

@@ -316,7 +316,7 @@ param decoratedBool bool = (true && false) != true
 @secure()
 param decoratedObject object = {
 //@[6:21) [no-unused-params (Warning)] Declared parameter must be referenced within the document scope.\n[See : https://aka.ms/bicep/linter/no-unused-params] |decoratedObject|
-//@[29:265) [secure-paramenter-default (Warning)] Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.\n[See : https://aka.ms/bicep/linter/secure-paramenter-default] |= {\r\n  enabled: true\r\n  name: 'this is my object'\r\n  priority: 3\r\n  info: {\r\n    a: 'b'\r\n  }\r\n  empty: {\r\n  }\r\n  array: [\r\n    'string item'\r\n    12\r\n    true\r\n    [\r\n      'inner'\r\n      false\r\n    ]\r\n    {\r\n      a: 'b'\r\n    }\r\n  ]\r\n}|
+//@[29:265) [secure-parameter-default (Warning)] Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.\n[See : https://aka.ms/bicep/linter/secure-parameter-default] |= {\r\n  enabled: true\r\n  name: 'this is my object'\r\n  priority: 3\r\n  info: {\r\n    a: 'b'\r\n  }\r\n  empty: {\r\n  }\r\n  array: [\r\n    'string item'\r\n    12\r\n    true\r\n    [\r\n      'inner'\r\n      false\r\n    ]\r\n    {\r\n      a: 'b'\r\n    }\r\n  ]\r\n}|
   enabled: true
   name: 'this is my object'
   priority: 3
