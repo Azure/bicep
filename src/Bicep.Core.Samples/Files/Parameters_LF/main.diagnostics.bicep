@@ -239,7 +239,7 @@ param someParameter string {
 })
 param someParameterWithDecorator string = 'one'
 //@[6:32) [no-unused-params (Warning)] Declared parameter must be referenced within the document scope.\n[See : https://aka.ms/bicep/linter/no-unused-params] |someParameterWithDecorator|
-//@[40:47) [secure-paramenter-default (Warning)] Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.\n[See : https://aka.ms/bicep/linter/secure-paramenter-default] |= 'one'|
+//@[40:47) [secure-parameter-default (Warning)] Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.\n[See : https://aka.ms/bicep/linter/secure-parameter-default] |= 'one'|
 
 param defaultValueExpression int {
 //@[6:28) [no-unused-params (Warning)] Declared parameter must be referenced within the document scope.\n[See : https://aka.ms/bicep/linter/no-unused-params] |defaultValueExpression|
@@ -300,7 +300,7 @@ param decoratedBool bool
 @secure()
 param decoratedObject object = {
 //@[6:21) [no-unused-params (Warning)] Declared parameter must be referenced within the document scope.\n[See : https://aka.ms/bicep/linter/no-unused-params] |decoratedObject|
-//@[29:55) [secure-paramenter-default (Warning)] Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.\n[See : https://aka.ms/bicep/linter/secure-paramenter-default] |= {\n  location: 'westus'\n}|
+//@[29:55) [secure-parameter-default (Warning)] Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.\n[See : https://aka.ms/bicep/linter/secure-parameter-default] |= {\n  location: 'westus'\n}|
   location: 'westus'
 }
 
