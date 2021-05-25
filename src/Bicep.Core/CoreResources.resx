@@ -131,7 +131,7 @@
     <value>Use string interpolation instead of the concat function.</value>
   </data>
   <data name="LinterDisabledFormatMessage" xml:space="preserve">
-    <value>Linter is disabled in settings file ({0})</value>
+    <value>Linter is disabled in settings file located at {0} </value>
     <comment>{0} is the location of the settings file</comment>
   </data>
   <data name="LinterRuleExceptionMessageFormat" xml:space="preserve">
