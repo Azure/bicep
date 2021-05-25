@@ -316,7 +316,7 @@ param decoratedBool bool = (true && false) != true
 @secure()
 param decoratedObject object = {
 //@[6:21) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |decoratedObject|
-//@[29:265) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults in the template file (except for newGuid()).\nSee https://aka.ms/bicep/linter/secure-parameter-default |= {\r\n  enabled: true\r\n  name: 'this is my object'\r\n  priority: 3\r\n  info: {\r\n    a: 'b'\r\n  }\r\n  empty: {\r\n  }\r\n  array: [\r\n    'string item'\r\n    12\r\n    true\r\n    [\r\n      'inner'\r\n      false\r\n    ]\r\n    {\r\n      a: 'b'\r\n    }\r\n  ]\r\n}|
+//@[29:265) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults (except for empty or newGuid()).\nSee https://aka.ms/bicep/linter/secure-parameter-default |= {\r\n  enabled: true\r\n  name: 'this is my object'\r\n  priority: 3\r\n  info: {\r\n    a: 'b'\r\n  }\r\n  empty: {\r\n  }\r\n  array: [\r\n    'string item'\r\n    12\r\n    true\r\n    [\r\n      'inner'\r\n      false\r\n    ]\r\n    {\r\n      a: 'b'\r\n    }\r\n  ]\r\n}|
   enabled: true
   name: 'this is my object'
   priority: 3

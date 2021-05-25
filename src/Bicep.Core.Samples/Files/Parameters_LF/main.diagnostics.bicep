@@ -239,7 +239,7 @@ param someParameter string {
 })
 param someParameterWithDecorator string = 'one'
 //@[6:32) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |someParameterWithDecorator|
-//@[40:47) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults in the template file (except for newGuid()).\nSee https://aka.ms/bicep/linter/secure-parameter-default |= 'one'|
+//@[40:47) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults (except for empty or newGuid()).\nSee https://aka.ms/bicep/linter/secure-parameter-default |= 'one'|
 
 param defaultValueExpression int {
 //@[6:28) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |defaultValueExpression|
@@ -300,7 +300,7 @@ param decoratedBool bool
 @secure()
 param decoratedObject object = {
 //@[6:21) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |decoratedObject|
-//@[29:55) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults in the template file (except for newGuid()).\nSee https://aka.ms/bicep/linter/secure-parameter-default |= {\n  location: 'westus'\n}|
+//@[29:55) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults (except for empty or newGuid()).\nSee https://aka.ms/bicep/linter/secure-parameter-default |= {\n  location: 'westus'\n}|
   location: 'westus'
 }
 

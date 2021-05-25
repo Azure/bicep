@@ -662,7 +662,7 @@ param someString string {
 //@[8:8) [BCP020 (Error)] Expected a function or property name at this location. ||
 param someInteger int = 20
 //@[6:17) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |someInteger|
-//@[22:26) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults in the template file (except for newGuid()).\nSee https://aka.ms/bicep/linter/secure-parameter-default |= 20|
+//@[22:26) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults (except for empty or newGuid()).\nSee https://aka.ms/bicep/linter/secure-parameter-default |= 20|
 
 @allowed([], [], 2)
 //@[8:19) [BCP071 (Error)] Expected 1 argument, but got 3. |([], [], 2)|
