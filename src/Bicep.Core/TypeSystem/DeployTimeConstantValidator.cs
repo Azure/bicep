@@ -39,7 +39,7 @@ namespace Bicep.Core.TypeSystem
 
         private static IEnumerable<SyntaxBase> GetChildrenOfDeployTimeConstantContainer(SemanticModel semanticModel, SyntaxBase deployTimeConstantContainer) => deployTimeConstantContainer switch
         {
-            ObjectPropertySyntax objectPropertySyntax => objectPropertySyntax.Value.AsEnumerable(),
+            ObjectPropertySyntax objectPropertySyntax => objectPropertySyntax.Key.AsEnumerable().Concat(objectPropertySyntax.Value),
             IfConditionSyntax ifConditionSyntax => ifConditionSyntax.ConditionExpression.AsEnumerable(),
 
             // If the ForSyntax is a child of a variable declartion, we should validate both the for-expression and the for-body.

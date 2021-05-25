@@ -7,6 +7,9 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
+    /// <summary>
+    /// Collects syntaxes that only accept deploy-time constant values (deploy-time constant containers).
+    /// </summary>
     public class DeployTimeConstantContainerVisitor : SyntaxVisitor
     {
         private readonly SemanticModel semanticModel;
@@ -29,11 +32,8 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            if (syntax.TryGetKeyText() is { } propertyName &&
-                this.semanticModel.Binder.GetParent(syntax) is { } objectSyntax &&
-                this.semanticModel.TypeManager.GetDeclaredType(objectSyntax) is ObjectType objectType &&
-                objectType.Properties.TryGetValue(propertyName, out var propertyType) &&
-                propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+            if (syntax.TryGetTypeProperty(this.semanticModel.Binder, this.semanticModel.TypeManager) is { } typeProperty &&
+                typeProperty.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
             {
                 // The property type exists and and has the DTC flag.
                 this.deployTimeConstantContainers.Add(syntax);
