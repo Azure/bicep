@@ -54,7 +54,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     // We should only suggest rewriting concat() calls that result in a string (concat can also operate on and
                     // return arrays)
                     var resultType = this.model.GetTypeInfo(syntax);
-                    if (!(resultType is AnyType) && TypeValidator.AreTypesAssignable(resultType, LanguageConstants.String))
+                    if (resultType is not AnyType && TypeValidator.AreTypesAssignable(resultType, LanguageConstants.String))
                     {
                         {
                             if (CreateFix(syntax) is CodeFix fix)
