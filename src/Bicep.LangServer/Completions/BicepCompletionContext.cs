@@ -5,14 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -296,31 +294,22 @@ namespace Bicep.LanguageServer.Completions
                 return false;
             }
 
-            if (!object.ReferenceEquals(resourceDeclarationSyntax.TryGetBody(), objectInfo.node))
+            if (!ReferenceEquals(resourceDeclarationSyntax.TryGetBody(), objectInfo.node))
             {
                 // we're inside of an object, but it's not the body of a resource.
                 return false;
             }
 
-            switch (matchingNodes[^1])
-            {
-                case ObjectSyntax objectSyntax:
-                    // we are somewhere in the trivia portion of the object node (trivia span is not included in the token span)
-                    // which is why the last node in the list of matching nodes is not a Token.
-                    return CanInsertChildNodeAtOffset(objectSyntax, offset);
-
-                case Token token:
-                    int nodeCount = matchingNodes.Count - objectInfo.index;
-
-                    if (nodeCount == 2 && token.Type == TokenType.NewLine && CanInsertChildNodeAtOffset((ObjectSyntax)matchingNodes[^2], offset))
-                    {
-                        return true;
-                    }
-
-                    break;
-            }
-
-            return false;
+            return
+                SyntaxMatcher.IsTailMatch<ObjectSyntax>(
+                    matchingNodes,
+                    objectSyntax => CanInsertChildNodeAtOffset(objectSyntax, offset)) ||
+                SyntaxMatcher.IsTailMatch<ObjectSyntax, Token>(
+                    matchingNodes,
+                    (objectSyntax, token) => token.Type == TokenType.NewLine && CanInsertChildNodeAtOffset(objectSyntax, offset)) ||
+                SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, IdentifierSyntax, Token>(
+                    matchingNodes,
+                    (objectPropertySyntax, _, _) => objectPropertySyntax.Colon is SkippedTriviaSyntax && objectPropertySyntax.Value is SkippedTriviaSyntax);
         }
 
         private static bool IsMemberAccessContext(List<SyntaxBase> matchingNodes, (PropertyAccessSyntax? node, int index) propertyAccessInfo, int offset)

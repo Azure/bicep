@@ -19,6 +19,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.Analyzers.Linter.Rules;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -83,7 +84,7 @@ param requiredIpnut string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
-                diagsParams.Diagnostics.Should().BeEmpty();
+                diagsParams.Diagnostics.Should().Contain(x => x.Code == ParametersMustBeUsedRule.Code);
 
                 diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -100,8 +101,8 @@ param requiredInput string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
-                diagsParams.Diagnostics.Should().BeEmpty();
-
+                diagsParams.Diagnostics.Should().Contain(x => x.Code == ParametersMustBeUsedRule.Code);
+                
                 diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
                 diagsParams.Diagnostics.Should().BeEmpty();

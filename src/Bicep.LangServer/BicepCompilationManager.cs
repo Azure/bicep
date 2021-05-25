@@ -102,7 +102,7 @@ namespace Bicep.LanguageServer
             return context;
         }
 
-        private ImmutableArray<SyntaxTree> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
+        private ImmutableArray<SyntaxTree> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> closingDiagnostics)
         {
             this.activeContexts.TryRemove(documentUri, out var removedContext);
 
@@ -170,7 +170,7 @@ namespace Bicep.LanguageServer
         }
 
         // TODO: Remove the lexer part when we stop it from emitting errors
-        private IEnumerable<Core.Diagnostics.Diagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+        private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> diagnostics)
         {

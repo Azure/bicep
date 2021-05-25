@@ -4,6 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Xml.Linq;
 
@@ -24,13 +25,13 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' = [for (item, i) in []: {
 
 // variant parent
 resource c2 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []: {
-  parent: foos[i] 
+  parent: foos[i]
   name: 's'
 }]
 
 // variant parent and name
 resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []: {
-  parent: foos[i] 
+  parent: foos[i]
   name: string(i)
 }]
 
@@ -135,7 +136,7 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' = [for (item, i) in []: {
 }]";
             var result = CompilationHelper.Compile(text);
             result.Should().HaveDiagnostics(new[]
-{
+            {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
             });
         }
@@ -212,8 +213,8 @@ resource foos2 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
         [TestMethod]
         public void OptionalInvariantResourcePropertiesWhenRequiredPropertyIsMissingShouldNotProduceWarning()
         {
-            /* 
-             * This asserts that we don't overwarn. If the user didn't yet put in a value for 
+            /*
+             * This asserts that we don't overwarn. If the user didn't yet put in a value for
              * a required property that is expected to be loop-variant, we should not warn them.
              */
 
@@ -229,7 +230,7 @@ resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []
 ";
             var result = CompilationHelper.Compile(text);
             result.Should().HaveDiagnostics(new[]
-{
+            {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
             });
         }
@@ -237,8 +238,8 @@ resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []
         [TestMethod]
         public void OptionalInvariantModulePropertiesWhenRequiredPropertyIsMissingShouldNotProduceWarning()
         {
-            /* 
-             * This asserts that we don't overwarn. If the user didn't yet put in a value for 
+            /*
+             * This asserts that we don't overwarn. If the user didn't yet put in a value for
              * a required property that is expected to be loop-variant, we should not warn them.
              */
 

@@ -67,6 +67,7 @@ namespace Bicep.LangServer.IntegrationTests
             actual.Should().EqualWithJsonDiffOutput(TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
         }
 
+        // TODO: Handle varying linter expectations for data-driven test
         [DataTestMethod]
         [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -537,6 +538,29 @@ resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {|
 |}
 ";
             await RunCompletionScenarioTest(fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInResourceBodies_AtPositionsWhereNestedResourceCanBeInserted_ReturnsNestedResourceCompletions()
+        {
+            var fileWithCursors = @"
+resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {
+|
+   |
+  re|
+   |res
+}
+";
+
+            static void AssertAllCompletionsContainResourceLabel(IEnumerable<CompletionList?> completionLists)
+            {
+                foreach (var completionList in completionLists)
+                {
+                    completionList.Should().Contain(x => x.Label == "resource");
+                }
+            }
+
+            await RunCompletionScenarioTest(fileWithCursors, AssertAllCompletionsContainResourceLabel);
         }
 
         [TestMethod]

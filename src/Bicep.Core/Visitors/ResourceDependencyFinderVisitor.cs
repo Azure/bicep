@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Decompiler.Visitors
+namespace Bicep.Core.Visitors
 {
     public class ResourceDependencyFinderVisitor : SyntaxVisitor
     {

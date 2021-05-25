@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Bicep.Core.Syntax;
-using System.IO;
+using Bicep.Core.Decompiler.Rewriters;
+using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
-using Bicep.Core.FileSystem;
-using System.Collections.Immutable;
-using Bicep.Core.Workspaces;
-using Bicep.Core.Extensions;
+using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Decompiler.Rewriters;
+using Bicep.Core.Workspaces;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Decompiler
 {

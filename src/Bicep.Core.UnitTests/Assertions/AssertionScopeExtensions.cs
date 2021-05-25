@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Assertions
         /// <summary>
         /// Prints the program syntax with line numbers and diagnostics if a test fails in the given assertion scope.
         /// </summary>
-        public static AssertionScope WithVisualDiagnostics(this AssertionScope assertionScope, SyntaxTree syntaxTree, IEnumerable<Diagnostic> diagnostics)
+        public static AssertionScope WithVisualDiagnostics(this AssertionScope assertionScope, SyntaxTree syntaxTree, IEnumerable<IDiagnostic> diagnostics)
             => WithAnnotatedSource(
                 assertionScope,
                 syntaxTree,

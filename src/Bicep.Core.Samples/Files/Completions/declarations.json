@@ -168,6 +168,24 @@
     }
   },
   {
+    "label": "res-api-management-instance",
+    "kind": "snippet",
+    "detail": "Api Management Instance",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource apiManagementInstance 'Microsoft.ApiManagement/service@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku:{\n    capacity: 0\n    name: 'Developer'\n  }\n  properties:{\n    virtualNetworkType: 'None'\n    publisherEmail: 'publisherEmail@contoso.com'\n    publisherName: 'publisherName'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-api-management-instance",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:apiManagementInstance} 'Microsoft.ApiManagement/service@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku:{\n    capacity: ${3|0,1|}\n    name: ${4|'Developer','Consumption'|}\n  }\n  properties:{\n    virtualNetworkType: ${5:'None'}\n    publisherEmail: ${6:'publisherEmail@contoso.com'}\n    publisherName: ${7:'publisherName'}\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-app-plan",
     "kind": "snippet",
     "detail": "Application Service Plan (Server Farm)",
@@ -600,6 +618,24 @@
     }
   },
   {
+    "label": "res-function",
+    "kind": "snippet",
+    "detail": "Azure Functions (v2)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource azureFunction 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'serverFarmName')\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName1;AccountKey=${listKeys('storageAccountID1', '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName2;AccountKey=${listKeys('storageAccountID2', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName3;AccountKey=${listKeys('storageAccountID3', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower('name')\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference(resourceId('microsoft.insights/components/', 'applicationInsightsName'), '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: 'dotnet'\n        }\n      ]\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-function",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:azureFunction} 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${3:'serverFarmName'})\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${6:storageAccountName2};AccountKey=${listKeys(${7:'storageAccountID2'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${8:storageAccountName3};AccountKey=${listKeys(${9:'storageAccountID3'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower(${2:'name'})\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference(resourceId('microsoft.insights/components/', ${10:'applicationInsightsName'}), '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: '${11|dotnet,node,java|}'\n        }\n      ]\n    }\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-ip",
     "kind": "snippet",
     "detail": "Public IP Address",
@@ -636,6 +672,24 @@
     }
   },
   {
+    "label": "res-keyvault",
+    "kind": "snippet",
+    "detail": "KeyVault",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    enabledForDeployment: true\n    enabledForTemplateDeployment: true\n    enabledForDiskEncryption: true\n    tenantId: 'tenantId'\n    accessPolicies: [\n      {\n        tenantId: 'tenantId'\n        objectId: 'objectId'\n        permissions: {\n          keys: [\n            'get'\n          ]\n          secrets: [\n            'list'\n            'get'\n            'get'\n          ]\n        }\n      }\n    ]\n    sku: {\n      name: 'standard'\n      family: 'A'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-keyvault",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:keyVault} 'Microsoft.KeyVault/vaults@2019-09-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    enabledForDeployment: true\n    enabledForTemplateDeployment: true\n    enabledForDiskEncryption: true\n    tenantId: ${3:'tenantId'}\n    accessPolicies: [\n      {\n        tenantId: ${3:'tenantId'}\n        objectId: ${4:'objectId'}\n        permissions: {\n          keys: [\n            'get'\n          ]\n          secrets: [\n            'list'\n            'get'\n            'get'\n          ]\n        }\n      }\n    ]\n    sku: {\n      name: 'standard'\n      family: 'A'\n    }\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-keyvault-secret",
     "kind": "snippet",
     "detail": "Key Vault Secret",
@@ -651,6 +705,42 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:keyVaultSecret} 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: ${2:'keyVaultName/name'}\n  properties: {\n    value: ${3:'value'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-loadbalancer-external",
+    "kind": "snippet",
+    "detail": "External Load Balancer",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', 'publicIP')\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: 'name'\n      }\n    ]\n    inboundNatRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'name', 'name')\n          }\n          protocol: 'Tcp'\n          frontendPort: 50001\n          backendPort: 3389\n          enableFloatingIP: false\n        }\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'name', 'name')\n          }\n          backendAddressPool: {\n            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'name', 'name')\n          }\n          protocol: 'Tcp'\n          frontendPort: 80\n          backendPort: 80\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: resourceId('Microsoft.Network/loadBalancers/probes', 'name', 'name')\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: 'name'\n        properties: {\n          protocol: 'Tcp'\n          port: 80\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-loadbalancer-external",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:loadBalancerExternal} 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', ${4:'publicIP'})\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: ${5:'name'}\n      }\n    ]\n    inboundNatRules: [\n      {\n        name: ${6:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', ${2:'name'}, ${3:'name'})\n          }\n          protocol: '${7|Tcp,Udp,All|}'\n          frontendPort: ${8:50001}\n          backendPort: ${9:3389}\n          enableFloatingIP: false\n        }\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: ${10:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', ${2:'name'}, ${3:'name'})\n          }\n          backendAddressPool: {\n            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', ${2:'name'}, ${5:'name'})\n          }\n          protocol: '${11|Tcp,Udp,All|}'\n          frontendPort: ${12:80}\n          backendPort: ${13:80}\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: resourceId('Microsoft.Network/loadBalancers/probes', ${2:'name'}, ${14:'name'})\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: ${14:'name'}\n        properties: {\n          protocol: '${15|Tcp,Udp,All|}'\n          port: ${16:80}\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-loadbalancer-internal",
+    "kind": "snippet",
+    "detail": "Internal Load Balancer",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAddress: '0.0.0.0'\n          privateIPAllocationMethod: 'Static'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork', 'subnet')\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: 'name'\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'name', 'name')\n          }\n          backendAddressPool: {\n            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'name', 'name')\n          }\n          protocol: 'Tcp'\n          frontendPort: 80\n          backendPort: 80\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: resourceId('Microsoft.Network/loadBalancers/probes', 'name', 'name')\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: 'name'\n        properties: {\n          protocol: 'Tcp'\n          port: 80\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-loadbalancer-internal",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:loadBalancerInternal} 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          privateIPAddress: ${4:'0.0.0.0'}\n          privateIPAllocationMethod: 'Static'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${5:'virtualNetwork'}, ${6:'subnet'})\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: ${7:'name'}\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: ${8:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', ${2:'name'}, ${3:'name'})\n          }\n          backendAddressPool: {\n            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', ${2:'name'}, ${7:'name'})\n          }\n          protocol: '${9|Tcp,Udp,All|}'\n          frontendPort: ${10:80}\n          backendPort: ${11:80}\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: resourceId('Microsoft.Network/loadBalancers/probes', ${2:'name'}, ${12:'name'})\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: ${12:'name'}\n        properties: {\n          protocol: '${13|Tcp,Udp,All|}'\n          port: ${14:80}\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n"
     }
   },
   {
@@ -1032,6 +1122,60 @@
     }
   },
   {
+    "label": "res-vm-dsc",
+    "kind": "snippet",
+    "detail": "Desired State Configuration PowerShell script for a Windows Virtual Machine",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource windowsVMDsc 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Powershell'\n    type: 'DSC'\n    typeHandlerVersion: '2.9'\n    autoUpgradeMinorVersion: true\n    settings: {\n      modulesUrl: 'modulesUrl'\n      sasToken: 'sasToken'\n      configurationFunction: 'configurationFunction'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vm-dsc",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:windowsVMDsc} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Powershell'\n    type: 'DSC'\n    typeHandlerVersion: '2.9'\n    autoUpgradeMinorVersion: true\n    settings: {\n      modulesUrl: ${4:'modulesUrl'}\n      sasToken: ${5:'sasToken'}\n      configurationFunction: ${6:'configurationFunction'}\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-vm-script-linux",
+    "kind": "snippet",
+    "detail": "Custom script extension for Linux Virtual Machine",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource linuxVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Azure.Extensions'\n    type: 'CustomScript'\n    typeHandlerVersion: '2.1'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        'fileUris'\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'sh customScript.sh'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vm-script-linux",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:linuxVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {\n  parent: virtualMachine\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Azure.Extensions'\n    type: 'CustomScript'\n    typeHandlerVersion: '2.1'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        ${4:'fileUris'}\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'sh ${5:customScript.sh}'\n    }\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-vm-script-windows",
+    "kind": "snippet",
+    "detail": "Custom script extension for a Windows Virtual Machine",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource windowsVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Compute'\n    type: 'CustomScriptExtension'\n    typeHandlerVersion: '1.10'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        'fileUris'\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'powershell -ExecutionPolicy Bypass -file customScript.ps1'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vm-script-windows",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:windowsVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Compute'\n    type: 'CustomScriptExtension'\n    typeHandlerVersion: '1.10'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        ${4:'fileUris'}\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'powershell -ExecutionPolicy Bypass -file ${5:customScript.ps1}'\n    }\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-vnet",
     "kind": "snippet",
     "detail": "Virtual Network",
@@ -1083,6 +1227,78 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:localNetworkGateway} 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        ${3:'REQUIRED'}\n      ]\n    }\n    gatewayIpAddress: ${4:'gatewayIpAddress'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-vpn-vnet-connection",
+    "kind": "snippet",
+    "detail": "VPN Virtual Network Connection",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource vpnVnetConnection 'Microsoft.Network/connections@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    virtualNetworkGateway1: {\n      id: resourceId('Microsoft.Network/virtualNetworkGateways', 'vnetGateway')\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: resourceId('Microsoft.Network/localNetworkGateways', 'localGateway')\n      properties:{}\n    }\n    connectionType: 'IPsec'\n    routingWeight: 0\n    sharedKey: 'sharedkey'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vpn-vnet-connection",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:vpnVnetConnection} 'Microsoft.Network/connections@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    virtualNetworkGateway1: {\n      id: resourceId('Microsoft.Network/virtualNetworkGateways', ${3:'vnetGateway'})\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: resourceId('Microsoft.Network/localNetworkGateways', ${4:'localGateway'})\n      properties:{}\n    }\n    connectionType: '${5|IPsec,Vnet2Vnet,ExpressRoute,VPNClient|}'\n    routingWeight: ${6:0}\n    sharedKey: ${7:'sharedkey'}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-vpn-vnet-gateway",
+    "kind": "snippet",
+    "detail": "VPN Virtual Network Gateway",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork', 'subnet')\n          }\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', 'publicIPAddress')\n          }\n        }\n      }\n    ]\n    sku: {\n      name: 'Basic'\n      tier: 'Basic'\n    }\n    gatewayType: 'Vpn'\n    vpnType: 'PolicyBased'\n    enableBgp: true\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vpn-vnet-gateway",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:virtualNetworkGateway} 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${4:'virtualNetwork'}, ${5:'subnet'})\n          }\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', ${6:'publicIPAddress'})\n          }\n        }\n      }\n    ]\n    sku: {\n      name: '${7|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n      tier: '${8|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n    }\n    gatewayType: '${9|Vpn,ExpressRoute|}'\n    vpnType: '${10|PolicyBased,RouteBased|}'\n    enableBgp: ${11|true,false|}\n  }\n}\n"
+    }
+  },
+  {
+    "label": "res-web-app",
+    "kind": "snippet",
+    "detail": "Web Application",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2018-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/'appServicePlan'': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'appServicePlan')\n  }\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-web-app",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:webApplication} 'Microsoft.Web/sites@2018-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${3:'appServicePlan'}': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${4:'appServicePlan'})\n  }\n}"
+    }
+  },
+  {
+    "label": "res-web-app-deploy",
+    "kind": "snippet",
+    "detail": "Web Deploy for a Web Application",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource 'webApplicationExtension 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: 'packageUri'\n    dbType: 'None'\n    connectionString: 'connectionString'\n    setParameters: {\n      'IIS Web Application Name': 'name'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-web-app-deploy",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:'webApplicationExtension} 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: ${3:'packageUri'}\n    dbType: 'None'\n    connectionString: ${4:'connectionString'}\n    setParameters: {\n      'IIS Web Application Name': ${5:'name'}\n    }\n  }\n}\n"
     }
   },
   {

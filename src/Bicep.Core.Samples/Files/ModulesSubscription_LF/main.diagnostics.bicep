@@ -29,6 +29,7 @@ module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: 
     scriptName: 'test-${name}-${i}'
   }
   scope: resourceGroup(concat(name, '-extra'))
+//@[23:45) [prefer-interpolation (Warning)] Dynamic variable should not use concat - string interpolation should be used.\n[See : https://aka.ms/bicep/linter/prefer-interpolation] |concat(name, '-extra')|
 }]
 
 
