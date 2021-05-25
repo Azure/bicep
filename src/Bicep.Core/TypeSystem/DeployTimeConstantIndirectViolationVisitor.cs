@@ -165,9 +165,10 @@ namespace Bicep.Core.TypeSystem
 
         protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
         {
-            if (this.SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol { Name: var functionName, FunctionFlags: FunctionFlags.RequiresInlining })
+            if (this.SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                var variableDependencyChain = this.BuildVariablDependencyChain(functionName);
+                var variableDependencyChain = this.BuildVariablDependencyChain(functionSymbol.Name);
                 FlagDeployTimeConstantViolation(variableDependencyChain: variableDependencyChain);
             }
         }

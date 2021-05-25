@@ -72,7 +72,8 @@ namespace Bicep.Core.TypeSystem
 
         private void CollectIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
         {
-            if (this.semanticModel.GetSymbolInfo(syntax) is FunctionSymbol { FunctionFlags: FunctionFlags.RequiresInlining })
+            if (this.semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 this.deployTimeConstantContainers.Add(syntax);
             }
