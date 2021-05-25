@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18310625205876859262"
+      "templateHash": "14974550603307173803"
     }
   },
   "parameters": {
@@ -30,8 +30,8 @@
   "functions": [],
   "resources": [
     {
-      "type": "Microsoft.Network/virtualnetworks",
-      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-12-01",
       "name": "[parameters('vnetName')]",
       "location": "[parameters('vnetLocation')]",
       "properties": {
@@ -44,11 +44,22 @@
           {
             "name": "[parameters('subnetName')]",
             "properties": {
-              "addressPrefix": "[parameters('subnetPrefix')]"
+              "addressPrefix": "[parameters('subnetPrefix')]",
+              "privateEndpointNetworkPolicies": "Disabled"
             }
           }
         ]
       }
     }
-  ]
+  ],
+  "outputs": {
+    "subnetId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))).subnets[0].id]"
+    },
+    "vnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+    }
+  }
 }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2786526292618952263"
+      "templateHash": "6019636043464107368"
     }
   },
   "parameters": {
@@ -280,6 +280,72 @@
         "description": "An array."
       },
       "maxLength": 20
+    },
+    "allowedPermutation": {
+      "type": "array",
+      "defaultValue": [
+        "Microsoft.AnalysisServices/servers",
+        "Microsoft.ContainerRegistry/registries"
+      ],
+      "allowedValues": [
+        "Microsoft.AnalysisServices/servers",
+        "Microsoft.ApiManagement/service",
+        "Microsoft.Network/applicationGateways",
+        "Microsoft.Automation/automationAccounts",
+        "Microsoft.ContainerInstance/containerGroups",
+        "Microsoft.ContainerRegistry/registries",
+        "Microsoft.ContainerService/managedClusters"
+      ]
+    },
+    "allowedPermutationWithDecorator": {
+      "type": "array",
+      "defaultValue": [
+        "Microsoft.AnalysisServices/servers",
+        "Microsoft.ContainerRegistry/registries"
+      ],
+      "allowedValues": [
+        "Microsoft.AnalysisServices/servers",
+        "Microsoft.ApiManagement/service",
+        "Microsoft.Network/applicationGateways",
+        "Microsoft.Automation/automationAccounts",
+        "Microsoft.ContainerInstance/containerGroups",
+        "Microsoft.ContainerRegistry/registries",
+        "Microsoft.ContainerService/managedClusters"
+      ]
+    },
+    "allowedArray": {
+      "type": "array",
+      "defaultValue": [
+        "Microsoft.AnalysisServices/servers",
+        "Microsoft.ApiManagement/service"
+      ],
+      "allowedValues": [
+        [
+          "Microsoft.AnalysisServices/servers",
+          "Microsoft.ApiManagement/service"
+        ],
+        [
+          "Microsoft.Network/applicationGateways",
+          "Microsoft.Automation/automationAccounts"
+        ]
+      ]
+    },
+    "allowedArrayWithDecorator": {
+      "type": "array",
+      "defaultValue": [
+        "Microsoft.AnalysisServices/servers",
+        "Microsoft.ApiManagement/service"
+      ],
+      "allowedValues": [
+        [
+          "Microsoft.AnalysisServices/servers",
+          "Microsoft.ApiManagement/service"
+        ],
+        [
+          "Microsoft.Network/applicationGateways",
+          "Microsoft.Automation/automationAccounts"
+        ]
+      ]
     }
   },
   "functions": [],

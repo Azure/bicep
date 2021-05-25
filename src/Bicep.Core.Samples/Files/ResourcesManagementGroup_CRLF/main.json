@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5794550789758205473"
+      "templateHash": "3184915884062952651"
     }
   },
   "parameters": {
@@ -62,6 +62,25 @@
         "[format('Microsoft.Authorization/roleAssignments/{0}', guid('contributor', parameters('contributorPrincipals')[0]))]",
         "[format('Microsoft.Authorization/roleAssignments/{0}', guid('owner', parameters('ownerPrincipalId')))]"
       ]
+    },
+    {
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "scope": "/",
+      "name": "one-mg"
+    },
+    {
+      "type": "Microsoft.Blueprint/blueprints",
+      "apiVersion": "2018-11-01-preview",
+      "scope": "/",
+      "name": "tenant-blueprint",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Blueprint/blueprints",
+      "apiVersion": "2018-11-01-preview",
+      "name": "mg-blueprint",
+      "properties": {}
     }
   ]
 }

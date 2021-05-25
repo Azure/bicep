@@ -11,16 +11,17 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepRenameHandler : RenameHandler
+    public class BicepRenameHandler : RenameHandlerBase
     {
         private readonly ISymbolResolver symbolResolver;
 
-        public BicepRenameHandler(ISymbolResolver symbolResolver) : base(CreateRegistrationOptions())
+        public BicepRenameHandler(ISymbolResolver symbolResolver) : base()
         {
             this.symbolResolver = symbolResolver;
         }
@@ -32,6 +33,12 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // result is not a symbol or it's a built-in symbol that was not declared by the user (namespaces, functions, for example)
                 // symbols that are not declared by the user cannot be renamed
+                return Task.FromResult<WorkspaceEdit?>(null);
+            }
+
+            if (result.Symbol is PropertySymbol)
+            {
+                // TODO: Implement for PropertySymbol
                 return Task.FromResult<WorkspaceEdit?>(null);
             }
 
@@ -64,12 +71,18 @@ namespace Bicep.LanguageServer.Handlers
                 case INamedDeclarationSyntax declarationSyntax:
                     return declarationSyntax.Name;
 
+                case PropertyAccessSyntax propertyAccessSyntax:
+                    return propertyAccessSyntax.PropertyName;
+
+                case ObjectPropertySyntax objectPropertySyntax:
+                    return objectPropertySyntax.Key as IdentifierSyntax;
+
                 default:
                     return null;
             }
         }
 
-        private static RenameRegistrationOptions CreateRegistrationOptions() => new RenameRegistrationOptions
+        protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = DocumentSelectorFactory.Create(),
             PrepareProvider = false

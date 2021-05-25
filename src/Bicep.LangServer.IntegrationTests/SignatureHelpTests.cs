@@ -6,13 +6,17 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -34,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
             var tree = compilation.SyntaxTreeGrouping.EntryPoint;
@@ -57,24 +61,24 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 var expectDecorator = compilation.GetEntrypointSemanticModel().Binder.GetParent(functionCall) is DecoratorSyntax;
 
-                symbolTable.TryGetValue(functionCall, out var symbol);
+                var symbol = compilation.GetEntrypointSemanticModel().GetSymbolInfo(functionCall);
                 
                 // if the cursor is present immediate after the function argument opening paren,
                 // the signature help can only show the signature of the enclosing function
                 var startOffset = functionCall.OpenParen.GetEndPosition();
-                await ValidateOffset(client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(compilation, client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
                 
                 // if the cursor is present immediately before the function argument closing paren,
                 // the signature help can only show the signature of the enclosing function
                 var endOffset = functionCall.CloseParen.Span.Position;
-                await ValidateOffset(client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(compilation, client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
             }
         }
 
         [TestMethod]
         public async Task NonExistentUriShouldProvideNoSignatureHelp()
         {
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, DocumentUri.From("/fake.bicep"));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, string.Empty, DocumentUri.From("/fake.bicep"));
 
             var signatureHelp = await RequestSignatureHelp(client, new Position(0, 0), DocumentUri.From("/fake2.bicep"));
             signatureHelp.Should().BeNull();
@@ -86,7 +90,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var tree = compilation.SyntaxTreeGrouping.EntryPoint;
 
@@ -109,44 +113,55 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (var nonFunction in nonFunctions)
             {
-                var position = PositionHelper.GetPosition(tree.LineStarts, nonFunction.Span.Position);
-                var signatureHelp = await RequestSignatureHelp(client, position, uri);
-                signatureHelp.Should().BeNull();
+                using (new AssertionScope().WithVisualCursor(tree, nonFunction.Span.ToZeroLengthSpan()))
+                {
+                    var position = PositionHelper.GetPosition(tree.LineStarts, nonFunction.Span.Position);
+                    var signatureHelp = await RequestSignatureHelp(client, position, uri);
+                    signatureHelp.Should().BeNull();
+                }
             }
         }
 
-        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol, bool expectDecorator)
+        private static async Task ValidateOffset(Compilation compilation, ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol, bool expectDecorator)
         {
             var position = PositionHelper.GetPosition(tree.LineStarts, offset);
             var initial = await RequestSignatureHelp(client, position, uri);
 
-            if(symbol != null)
+            // fancy method to give us some annotated source code to look at if any assertions fail :)
+            using (new AssertionScope().WithVisualCursor(tree, new TextSpan(offset, 0)))
             {
-                // real function should have valid signature help
-                AssertValidSignatureHelp(initial, symbol, expectDecorator);
-
-                if (initial!.Signatures.Count() >= 2)
+                if (symbol is not null)
                 {
-                    // update index to 1 to mock user changing active signature
-                    initial.ActiveSignature = 1;
+                    // real function should have valid signature help
+                    AssertValidSignatureHelp(initial, symbol, expectDecorator);
 
-                    var shouldRemember = await RequestSignatureHelp(client, position, uri, new SignatureHelpContext
+                    if (initial!.Signatures.Count() >= 2)
                     {
-                        ActiveSignatureHelp = initial,
-                        IsRetrigger = true,
-                        TriggerKind = SignatureHelpTriggerKind.ContentChange
-                    });
+                        // update index to 1 to mock user changing active signature
+                    const int ExpectedActiveSignatureIndex = 1;
+                    var modified = initial with
+                    {
+                        ActiveSignature = ExpectedActiveSignatureIndex
+                    };
 
-                    // we passed the same signature help as content with a different active index
-                    // should get the same index back
-                    AssertValidSignatureHelp(shouldRemember, symbol, expectDecorator);
-                    shouldRemember!.ActiveSignature.Should().Be(1);
+                        var shouldRemember = await RequestSignatureHelp(client, position, uri, new SignatureHelpContext
+                        {
+                        ActiveSignatureHelp = modified,
+                            IsRetrigger = true,
+                            TriggerKind = SignatureHelpTriggerKind.ContentChange
+                        });
+
+                        // we passed the same signature help as content with a different active index
+                        // should get the same index back
+                        AssertValidSignatureHelp(shouldRemember, symbol, expectDecorator);
+                    shouldRemember!.ActiveSignature.Should().Be(ExpectedActiveSignatureIndex);
+                    }
                 }
-            }
-            else
-            {
-                // not a real function - no signature help expected
-                initial.Should().BeNull();
+                else
+                {
+                    // not a real function - no signature help expected
+                    initial.Should().BeNull();
+                }
             }
         }
 

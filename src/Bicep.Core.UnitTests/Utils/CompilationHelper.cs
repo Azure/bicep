@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.Utils
     {
         public record CompilationResult(
             JToken? Template,
-            IEnumerable<Diagnostic> Diagnostics,
+            IEnumerable<IDiagnostic> Diagnostics,
             Compilation Compilation)
         {
             public SyntaxTree SyntaxTree => Compilation.SyntaxTreeGrouping.EntryPoint;
@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
-            => Compile(new AzResourceTypeProvider(), files);
+            => Compile(AzResourceTypeProvider.CreateWithAzTypes(), files);
 
         public static CompilationResult Compile(string fileContents)
             => Compile(("main.bicep", fileContents));

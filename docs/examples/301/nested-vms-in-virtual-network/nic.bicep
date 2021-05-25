@@ -23,7 +23,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
           primary: true
           privateIPAllocationMethod: ipAllocationMethod
           // pip is optional
-          privateIPAddress: any(pipId == '' ? null : staticIpAddress)
+          privateIPAddress: staticIpAddress
           subnet: {
             id: subnetId
           }

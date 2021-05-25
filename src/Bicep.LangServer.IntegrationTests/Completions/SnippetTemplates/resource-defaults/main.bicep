@@ -1,8 +1,6 @@
 ﻿// $1 = nsg
-// $2 = Aad
-// $3 = domainServices
-// $4 = 2017-06-01
-// $5 = 'testResource'
-// $6 = 'testLocation'
+// $2 = Microsoft.Aad/domainServices@2017-06-01
+// $3 = 'testResource'
+// $4 = 'testLocation'
 
 // Insert snippet here

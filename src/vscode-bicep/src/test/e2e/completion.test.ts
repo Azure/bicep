@@ -28,7 +28,7 @@ describe("completion", (): void => {
   });
 
   afterAll(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
   });
 
   it("should provide completion while typing an indentifier", async () => {

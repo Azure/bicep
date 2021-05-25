@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
@@ -28,21 +29,20 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public bool IsCollection => this.Context.TypeManager.GetTypeInfo(this.DeclaringResource) is ArrayType;
+        public bool IsCollection => this.Type is ArrayType;
 
-        public ResourceTypeReference? TryGetResourceTypeReference()
+        public ResourceType? TryGetResourceType() => this.Type switch
         {
-            if (this.Type is ResourceType resourceType)
-            {
-                return resourceType.TypeReference;
-            }
+            ResourceType resourceType => resourceType,
+            ArrayType { Item: ResourceType resourceType } => resourceType,
+            _ => null,
+        };
 
-            if (this.Type is ArrayType arrayType && arrayType.Item.Type is ResourceType itemType)
-            {
-                return itemType.TypeReference;
-            }
+        public ResourceTypeReference GetResourceTypeReference() =>
+            this.TryGetResourceTypeReference() ??  throw new ArgumentException($"Resource symbol does not have a valid type (found {this.Type.Name})");
 
-            return null;
-        }
+        public ResourceTypeReference? TryGetResourceTypeReference() => this.TryGetResourceType()?.TypeReference;
+
+        public ObjectType? TryGetBodyObjectType() => this.TryGetResourceType()?.Body.Type as ObjectType;
     }
 }

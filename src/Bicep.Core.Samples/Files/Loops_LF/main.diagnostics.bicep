@@ -232,6 +232,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
+//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -264,13 +265,15 @@ output existingIndexedResourceLocation string = existingStorageAccounts[index/2]
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
+//@[9:24) [BCP179 (Warning)] The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" |duplicatedNames|
   name: 'no loop variable'
   location: 'eastus'
 }]
 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-  name: 'no loop variable'
+//@[9:34) [BCP179 (Warning)] The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" |referenceToDuplicateNames|
+  name: 'no loop variable 2'
   location: 'eastus'
   dependsOn: [
     duplicatedNames[index]

@@ -13,13 +13,16 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Completions;
-using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,7 +40,7 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class CompletionTests
     {
-        public static readonly AzResourceTypeProvider TypeProvider = new AzResourceTypeProvider();
+        public static readonly IResourceTypeProvider TypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -48,7 +51,7 @@ namespace Bicep.LangServer.IntegrationTests
             const string expectedSetName = "declarations";
             var uri = DocumentUri.From($"/{this.TestContext.TestName}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, string.Empty, uri);
 
             var actual = await GetActualCompletions(client, uri, new Position(0, 0));
             var actualLocation = FileHelper.SaveResultFile(this.TestContext, $"{this.TestContext.TestName}_{expectedSetName}", actual.ToString(Formatting.Indented));
@@ -61,96 +64,80 @@ namespace Bicep.LangServer.IntegrationTests
 
             var expected = JToken.Parse(expectedStr);
 
-            actual.Should().EqualWithJsonDiffOutput(TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
+            actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
         }
 
+        // TODO: Handle varying linter expectations for data-driven test
         [DataTestMethod]
         [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
-            string pathPrefix = "Completions/SnippetTemplates/";
-            string bicepManifestResourceStreamName = pathPrefix + completionData.Prefix + "/main.bicep";
-            string jsonManifestResourceStreamName = pathPrefix + completionData.Prefix + "/diagnostics.json";
+            string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
 
-            // Save all the files in the containing directory to disk
-            SaveFilesToDisk(bicepManifestResourceStreamName, jsonManifestResourceStreamName, out string bicepFile, out string diagnosticsFile);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(this.TestContext, typeof(CompletionTests).Assembly, pathPrefix);
 
-            // Verify snippet placeholder and expected diagnostics files exist
-            VerifyPlaceholderAndDiagnosticsInformationFilesExist(completionData.Prefix, bicepFile, diagnosticsFile);
+            var bicepFileName = Path.Combine(outputDirectory, "main.bicep");
+            var bicepSourceFileName = Path.Combine("src", "Bicep.LangServer.IntegrationTests", pathPrefix, Path.GetRelativePath(outputDirectory, bicepFileName));
+            File.Exists(bicepFileName).Should().BeTrue($"Snippet placeholder file \"{bicepSourceFileName}\" should be checked in");
+            var bicepContents = await File.ReadAllTextAsync(bicepFileName);
 
-            // Start language server, copy snippet text, replace placeholders and return diagnostics information
-            Container<Diagnostic> diagnostics = await StartServerAndGetDiagnosticsAsync(bicepManifestResourceStreamName, completionData.SnippetText);
+            // Request the expected completion from the server, and ensure it is unique + valid
+            var completionText = await RequestSnippetCompletion(bicepFileName, completionData, bicepContents);
 
-            Stream? jsonStream = typeof(CompletionTests).Assembly.GetManifestResourceStream(jsonManifestResourceStreamName);
-            StreamReader streamReader = new StreamReader(jsonStream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
-            string expected = await streamReader.ReadToEndAsync();
+            // Replace all the placeholders with values from the placeholder file
+            var replacementContents = SnippetCompletionTestHelper.GetSnippetTextAfterPlaceholderReplacements(completionText, bicepContents);
 
-            var actual = JToken.FromObject(diagnostics);
-
-            var actualLocation = FileHelper.SaveResultFile(this.TestContext, $"{completionData.Prefix}_Actual.json", actual.ToString(Formatting.Indented));
-            var expectedLocation = Path.Combine("src", "Bicep.LangServer.Integrationtests", "Completions", "SnippetTemplates", completionData.Prefix, "main.json");
-
-            actual.Should().EqualWithJsonDiffOutput(TestContext, JToken.Parse(expected), expectedLocation, actualLocation, "because ");
-        }
-
-        private void SaveFilesToDisk(string bicepManifestResourceStreamName,
-                                     string jsonManifestResourceStreamName,
-                                     out string bicepFile,
-                                     out string diagnosticsFile)
-        {
-            var parentStream = GetParentStreamName(bicepManifestResourceStreamName);
-            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(CompletionTests).Assembly, parentStream);
-
-            bicepFile = Path.Combine(outputDirectory, Path.GetFileName(bicepManifestResourceStreamName));
-            diagnosticsFile = Path.Combine(outputDirectory, Path.GetFileName(jsonManifestResourceStreamName));
-        }
-
-        private static string GetParentStreamName(string streamName) => Path.GetDirectoryName(streamName)!.Replace('\\', '/');
-
-        private async Task<Container<Diagnostic>> StartServerAndGetDiagnosticsAsync(string bicepFileName, string snippetText)
-        {
-            Dictionary<Uri, string> fileSystemDict = new Dictionary<Uri, string>();
-            MultipleMessageListener<PublishDiagnosticsParams> diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-
-            ILanguageClient client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagnosticsListener.AddMessage(diags));
-                },
-                fileResolver: new InMemoryFileResolver(fileSystemDict));
-
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
-            Stream? bicepStream = typeof(CompletionTests).Assembly.GetManifestResourceStream(bicepFileName);
-            StreamReader streamReader = new StreamReader(bicepStream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
-
-            string bicepFileWithPlaceholderReplacements = await streamReader.ReadToEndAsync();
-
-            string snippetTextAfterReplacements = SnippetCompletionTestHelper.GetSnippetTextAfterPlaceholderReplacements(snippetText, bicepFileWithPlaceholderReplacements);
-            fileSystemDict[documentUri.ToUri()] = bicepFileWithPlaceholderReplacements.Replace("// Insert snippet here", snippetTextAfterReplacements);
-
-            // This is required to verify module snippet completion
-            DocumentUri testDocumentUri = DocumentUri.FromFileSystemPath("Completions/SnippetTemplates/module/test.bicep");
-            fileSystemDict[testDocumentUri.ToUri()] = string.Empty;
-
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, fileSystemDict[documentUri.ToUri()], 1));
-
-            var diagsParams = await diagnosticsListener.WaitNext();
-            diagsParams.Uri.Should().Be(documentUri);
-
-            return diagsParams.Diagnostics;
-        }
-
-        private void VerifyPlaceholderAndDiagnosticsInformationFilesExist(string prefix, string bicepFileName, string jsonFileName)
-        {
-            // Group assertion failures using AssertionScope, rather than reporting the first failure
             using (new AssertionScope())
             {
-                bool snippetPlaceholderFileExists = File.Exists(bicepFileName);
-                snippetPlaceholderFileExists.Should().BeTrue($"Snippet placeholder file for snippet with label- \"{prefix}\" should be checked in");
+                var combinedFileName = Path.Combine(outputDirectory, "main.combined.bicep");
+                var combinedSourceFileName = Path.Combine("src", "Bicep.LangServer.IntegrationTests", pathPrefix, Path.GetRelativePath(outputDirectory, combinedFileName));
+                File.Exists(combinedFileName).Should().BeTrue($"Combined snippet file \"{combinedSourceFileName}\" should be checked in");
 
-                bool diagnosticsFileExists = File.Exists(jsonFileName);
-                diagnosticsFileExists.Should().BeTrue($"Diagnostics information file- diagnostics.json for snippet with label- \"{prefix}\" should be checked in");
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(combinedFileName));
+                var compilation = new Compilation(TypeProvider, syntaxTreeGrouping);
+                var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(replacementContents, Environment.NewLine, diagnostics, diag => OutputHelper.GetDiagLoggingString(replacementContents, outputDirectory, diag));
+                File.WriteAllText(combinedFileName + ".actual", sourceTextWithDiags);
+
+                sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                    TestContext,
+                    File.Exists(combinedFileName) ? (await File.ReadAllTextAsync(combinedFileName)) : string.Empty,
+                    expectedLocation: combinedSourceFileName,
+                    actualLocation: combinedFileName + ".actual");
             }
+        }
+
+        private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile)
+        {
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
+            var syntaxTree = SyntaxTree.Create(documentUri.ToUri(), placeholderFile);
+
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(
+                this.TestContext,
+                placeholderFile,
+                documentUri,
+                null,
+                TypeProvider);
+
+            var cursor = placeholderFile.IndexOf("// Insert snippet here");
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = documentUri,
+                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+            });
+
+            var matchingSnippets = completions.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == completionData.Prefix);
+
+            matchingSnippets.Should().HaveCount(1);
+            var completion = matchingSnippets.First();
+
+            completion.TextEdit.Should().NotBeNull();
+            completion.TextEdit!.TextEdit!.Range.Should().Be(new TextSpan(cursor, 0).ToRange(syntaxTree.LineStarts));
+            completion.TextEdit.TextEdit.NewText.Should().NotBeNullOrWhiteSpace();
+
+            return completion.TextEdit.TextEdit.NewText;
         }
 
         private static IEnumerable<object[]> GetSnippetCompletionData()
@@ -173,6 +160,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
         {
             // ensure all files are present locally
@@ -182,7 +170,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var uri = DocumentUri.FromFileSystemPath(entryPoint);
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: TypeProvider, fileResolver: new FileResolver());
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, resourceTypeProvider: TypeProvider, fileResolver: new FileResolver());
 
             var intermediate = new List<(Position position, JToken actual)>();
 
@@ -201,41 +189,476 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var fileWithCursors = @"
 var completeString = |'he|llo'|
-var interpolatedString = |'abc${|true}|de|f${|false}|gh|i'|
+var interpolatedString = |'abc|${true}|de|f|${false}|gh|i'|
 var multilineString = |'''|
 hel|lo
 '''|
 ";
-            var bicepFile = fileWithCursors.Replace("|", "");
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), bicepFile);
 
-            var cursors = new List<int>();
-            for (var i = 0; i < fileWithCursors.Length; i++)
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task Completions_are_offered_in_string_expressions()
+        {
+            var fileWithCursors = @"
+var interpolatedString = 'abc${|true}def${|}ghi${res|}xyz'
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsNonEmpty);
+        }
+
+        [TestMethod]
+        public async Task Completions_are_offered_immediately_before_and_after_comments()
+        {
+            var fileWithCursors = @"
+var test = |// comment here
+var test2 = |/* block comment */|
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsNonEmpty);
+        }
+
+        [TestMethod]
+        public async Task Completions_are_not_offered_immediately_after_open_paren()
+        {
+            var fileWithCursors = @"
+param foo = {|
+
+var bar = {|
+
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {|
+
+output baz object = {|
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task Completions_are_not_offered_inside_comments()
+        {
+            var fileWithCursors = @"
+var test = /|/ comment here|
+var test2 = /|* block c|omment *|/
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task VerifyResourceBodyCompletionWithExistingKeywordDoesNotIncludeCustomSnippet()
+        {
+            string text = "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' existing = ";
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+
+            var completions = await client.RequestCompletion(new CompletionParams
             {
-                if (fileWithCursors[i] == '|')
+                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
                 {
-                    cursors.Add(i - cursors.Count);
+                    c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("required-properties");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("if");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-indexed");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-filtered");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyResourceBodyCompletionWithoutExistingKeywordIncludesCustomSnippet()
+        {
+            string text = @"resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = ";
+
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("snippet");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("required-properties");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("if");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-indexed");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-filtered");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyResourceBodyCompletionWithDiscriminatedObjectTypeContainsRequiredPropertiesSnippet()
+        {
+            string text = @"resource deploymentScripts 'Microsoft.Resources/deploymentScripts@2020-10-01'=";
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.Label.Should().Be("required-properties-AzureCLI");
+                    c.Detail.Should().Be("Required properties");
+                    c.TextEdit?.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	location: $2
+	kind: 'AzureCLI'
+	properties: {
+		azCliVersion: $3
+		retentionInterval: $4
+	}
+	$0
+}");
+                },
+                c =>
+                {
+
+                    c.Label.Should().Be("required-properties-AzurePowerShell");
+                    c.Detail.Should().Be("Required properties");
+                    c.TextEdit?.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	location: $2
+	kind: 'AzurePowerShell'
+	properties: {
+		azPowerShellVersion: $3
+		retentionInterval: $4
+	}
+	$0
+}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("if");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-indexed");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-filtered");
+                });
+        }
+
+        [TestMethod]
+        public async Task Property_completions_include_descriptions()
+        {
+            var fileWithCursors = @"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
+  name: 'testRes'
+  properties: {
+    |
+  }
+}
+
+output string test = testRes.|
+output string test2 = testRes.properties.|
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
+                completions.Should().SatisfyRespectively(
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which is required."),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports writing.")),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("apiVersion property"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("id property"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("name property"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("properties property"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("type property")),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports reading."),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which is required."))));
+        }
+
+        [TestMethod]
+        public async Task Completions_after_resource_type_should_only_include_existing_keyword()
+        {
+            var fileWithCursors = @"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' |
+
+resource testRes2 'Test.Rp/readWriteTests@2020-01-01' | = {
+}
+
+resource testRes3 'Test.Rp/readWriteTests@2020-01-01' e| = {
+}
+
+resource testRes4 'Test.Rp/readWriteTests@2020-01-01' e|= {
+}
+
+resource testRes5 'Test.Rp/readWriteTests@2020-01-01' |= {
+}
+";
+
+            static void AssertExistingKeywordCompletion(CompletionItem item)
+            {
+                item.Label.Should().Be("existing");
+                item.Detail.Should().Be("existing");
+                item.Documentation.Should().BeNull();
+                item.Kind.Should().Be(CompletionItemKind.Keyword);
+                item.Preselect.Should().BeFalse();
+                item.TextEdit!.TextEdit!.NewText.Should().Be("existing");
+
+                // do not add = to the list of commit chars
+                // it makes it difficult to type = without the "existing" keyword :)
+                item.CommitCharacters.Should().BeNull();
+            }
+
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
+                completions.Should().SatisfyRespectively(
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d))));
+        }
+
+        [TestMethod]
+        public async Task PropertyNameCompletionsShouldIncludeTrailingColonIfColonIsMissing()
+        {
+            var fileWithCursors = @"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
+  |
+}
+
+resource testRes2 'Test.Rp/readWriteTests@2020-01-01' = {
+  n|
+}
+";
+            static void AssertPropertyNameCompletionsWithColons(CompletionList list)
+            {
+                list.Where(i => i.Kind == CompletionItemKind.Property)
+                    .Should()
+                    .OnlyContain(x => string.Equals(x.TextEdit!.TextEdit!.NewText, x.Label + ':'));
+            }
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
+                completions.Should().SatisfyRespectively(
+                    l => AssertPropertyNameCompletionsWithColons(l!),
+                    l => AssertPropertyNameCompletionsWithColons(l!)));
+        }
+
+        [TestMethod]
+        public async Task PropertyNameCompletionsShouldNotIncludeTrailingColonIfItIsPresent()
+        {
+            static void AssertPropertyNameCompletionsWithoutColons(CompletionList list)
+            {
+                list.Where(i => i.Kind == CompletionItemKind.Property)
+                    .Should()
+                    .OnlyContain(x => string.Equals(x.TextEdit!.TextEdit!.NewText, x.Label));
+            }
+
+            var fileWithCursors = @"
+resource testRes2 'Test.Rp/readWriteTests@2020-01-01' = {
+  n|:
+}
+
+resource testRes3 'Test.Rp/readWriteTests@2020-01-01' = {
+  n| :
+}
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
+               completions.Should().SatisfyRespectively(
+                   l => AssertPropertyNameCompletionsWithoutColons(l!),
+                   l => AssertPropertyNameCompletionsWithoutColons(l!)));
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInResourceBodies_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {|
+ | name: 'myRes' |
+  tags | : {
+    a: 'A'   |
+  }
+|}
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInResourceBodies_AtPositionsWhereNestedResourceCanBeInserted_ReturnsNestedResourceCompletions()
+        {
+            var fileWithCursors = @"
+resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {
+|
+   |
+  re|
+   |res
+}
+";
+
+            static void AssertAllCompletionsContainResourceLabel(IEnumerable<CompletionList?> completionLists)
+            {
+                foreach (var completionList in completionLists)
+                {
+                    completionList.Should().Contain(x => x.Label == "resource");
                 }
             }
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(bicepFile, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsContainResourceLabel);
+        }
 
-            foreach (var cursor in cursors)
+        [TestMethod]
+        public async Task RequestCompletionsInProgram_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+|  var obj = {} |
+
+|  resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {
+  name: 'myRes'
+}
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInObjects_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var obj1 = {|}
+var obj2 = {| }
+var obj3 = |{ |}
+var obj4 = { | }|
+var obj5 = {|
+  | prop: true |
+|}
+var obj6 = { |
+  prop  | : false
+ |  }
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var arr1 = [|]
+var arr2 = [| ]
+var arr3 = [ |]|
+var arr4 = |[ | ]
+var arr5 = [|
+  | null |
+|]
+var arr6 = [ |
+  12345
+  |  true
+| ]
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInExpressions_AtPositionsWhereNodeShouldBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var unary = |! | true
+var binary = -1 | |+| | 2
+var ternary = true | |?| | 'yes' | |:| | 'no'
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletions_MatchingNodeIsBooleanOrIntegerOrNullLiteral_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var booleanExp = !|tr|ue| && |fal|se|
+var integerExp = |12|345| + |543|21|
+var nullLit = |n|ull|
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var completions = await RequestCompletions(client, syntaxTree, cursors);
+
+            assertAction(completions);
+        }
+
+        private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
+        {
+            foreach (var completionList in completionLists)
             {
-                using var assertionScope = new AssertionScope();
-                assertionScope.AddReportable(
-                    "completion context",
-                    PrintHelper.PrintWithAnnotations(syntaxTree, new[] {
-                        new PrintHelper.Annotation(new TextSpan(cursor, 0), "cursor position"),
-                    }, 1, true));
+                completionList.Should().NotBeEmpty();
+            }
+        }
 
-                var completions = await client.RequestCompletion(new CompletionParams
-                {
-                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
-                });
-
-                completions.Should().BeEmpty();
+        private static void AssertAllCompletionsEmpty(IEnumerable<CompletionList?> completionLists)
+        {
+            foreach (var completionList in completionLists)
+            {
+                completionList.Should().BeEmpty();
             }
         }
 
@@ -280,7 +703,7 @@ hel|lo
                 _ => GetGlobalCompletionSetPath(setName)
             };
 
-            actual.Should().EqualWithJsonDiffOutput(TestContext, expected, expectedLocation, actualLocation, "because ");
+            actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
         private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
@@ -300,7 +723,65 @@ hel|lo
         private static async Task<JToken> GetActualCompletions(ILanguageClient client, DocumentUri uri, Position position)
         {
             // local function
-            string NormalizeLineEndings(string value) => value.Replace("\r", string.Empty);
+            string? NormalizeLineEndings(string? value) => value is null
+                ? null
+                : value.Replace("\r", string.Empty);
+
+            StringOrMarkupContent? NormalizeDocumentation(StringOrMarkupContent? value) =>
+                value?.MarkupContent?.Value is null
+                    ? null
+                    : new(value.MarkupContent with
+                    {
+                        Value = NormalizeLineEndings(value.MarkupContent.Value)!
+                    });
+
+            TextEditOrInsertReplaceEdit? NormalizeTextEdit(TextEditOrInsertReplaceEdit? value) =>
+                value is null
+                    ? null
+                    : new TextEditOrInsertReplaceEdit(value.TextEdit! with
+                    {
+                        NewText = NormalizeLineEndings(value.TextEdit.NewText)!,
+
+                        // ranges in these text edits will vary by completion trigger position
+                        // if we try to assert on these, we will have an explosion of assert files
+                        // let's ignore it for now until we come up with a better solution
+                        Range = new Range()
+                    });
+
+            TextEditContainer? NormalizeAdditionalTextEdits(TextEditContainer? value) =>
+                value is null
+                    ? null
+                    : new TextEditContainer(value.Select(edit => edit with
+                    {
+                        Range = new Range()
+                    }));
+
+            // OmniSharp sometimes will add a $$__handler_id__$$ property to the Data dictionary of a completion
+            // (likely is needed to somehow help with routing of the ResolveCompletion requests)
+            // the value is different every time you run the language server
+            // to make our test asserts work, we will remove it and set the Data property null if nothing else remains in the object
+            JToken? NormalizeData(JToken? value)
+            {
+                // LSP protocol dictates that the Data property is of "any" type, so we need to check
+                if (value is JObject @object)
+                {
+                    const string omnisharpHandlerIdPropertyName = "$$__handler_id__$$";
+
+                    if (@object.Property(omnisharpHandlerIdPropertyName) != null)
+                    {
+                        @object.Remove(omnisharpHandlerIdPropertyName);
+
+                        if (!@object.HasValues)
+                        {
+                            return null;
+                        }
+
+                        return @object;
+                    }
+                }
+
+                return value;
+            }
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
@@ -308,67 +789,18 @@ hel|lo
                 Position = position
             });
 
-            // normalize line endings so assertions match on all OSs
-            foreach (var completion in completions)
+            // normalize the completions to remove OS-specific mismatches (line endings) as well as any randomness
+            var normalized = completions.Select(completion => completion with
             {
-                if (completion.InsertText != null)
-                {
-                    completion.InsertText = NormalizeLineEndings(completion.InsertText);
-                }
+                InsertText = NormalizeLineEndings(completion.InsertText),
+                Detail = NormalizeLineEndings(completion.Detail),
+                Documentation = NormalizeDocumentation(completion.Documentation),
+                TextEdit = NormalizeTextEdit(completion.TextEdit),
+                AdditionalTextEdits = NormalizeAdditionalTextEdits(completion.AdditionalTextEdits),
+                Data = NormalizeData(completion.Data)
+            });
 
-                if (completion.Detail != null)
-                {
-                    completion.Detail = NormalizeLineEndings(completion.Detail);
-                }
-
-                if (completion.Documentation?.MarkupContent?.Value != null)
-                {
-                    completion.Documentation.MarkupContent.Value = NormalizeLineEndings(completion.Documentation.MarkupContent.Value);
-                }
-
-                if (completion.TextEdit != null)
-                {
-                    completion.TextEdit.NewText = NormalizeLineEndings(completion.TextEdit.NewText);
-
-                    // ranges in these text edits will vary by completion trigger position
-                    // if we try to assert on these, we will have an explosion of assert files
-                    // let's ignore it for now until we come up with a better solution
-                    completion.TextEdit.Range = new Range();
-                }
-
-                // can't do != null because the container overloads the != operator 😠
-                if (!(completion.AdditionalTextEdits is null))
-                {
-                    foreach (var additionalEdit in completion.AdditionalTextEdits)
-                    {
-                        additionalEdit.Range = new Range();
-                    }
-                }
-            }
-
-            // OmniSharp sometimes will add a $$__handler_id__$$ property to the Data dictionary of a completion
-            // (likely is needed to somehow help with routing of the ResolveCompletion requests)
-            // the value is different every time you run the language server
-            // to make our test asserts work, we will remove it and set the Data property null if nothing else remains in the object
-            foreach (var completion in completions)
-            {
-                const string omnisharpHandlerIdPropertyName = "$$__handler_id__$$";
-
-                // LSP protocol dictates that the Data property is of "any" type, so we need to check
-                if (completion.Data is JObject @object && @object.Property(omnisharpHandlerIdPropertyName) != null)
-                {
-                    @object.Remove(omnisharpHandlerIdPropertyName);
-
-                    if (!@object.HasValues)
-                    {
-                        completion.Data = null;
-                    }
-                }
-            }
-
-            //var serialized = JToken.FromObject(completions.OrderBy(c => c.Label, StringComparer.Ordinal));
-
-            return JToken.FromObject(completions.OrderBy(c => c.Label, StringComparer.Ordinal), DataSetSerialization.CreateSerializer());
+            return JToken.FromObject(normalized.OrderBy(c => c.Label, StringComparer.Ordinal), DataSetSerialization.CreateSerializer());
         }
 
         private static (JToken content, ExpectedCompletionsScope scope)? ResolveExpectedCompletions(DataSet dataSet, string setName)
@@ -418,6 +850,23 @@ hel|lo
             public string SnippetText { get; }
 
             public static string GetDisplayName(MethodInfo methodInfo, object[] data) => ((CompletionData)data[0]).Prefix!;
+        }
+
+        private static async Task<IEnumerable<CompletionList?>> RequestCompletions(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
+        {
+            var completions = new List<CompletionList?>();
+            foreach (var cursor in cursors)
+            {
+                var completionList = await client.RequestCompletion(new CompletionParams
+                {
+                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                });
+
+                completions.Add(completionList);
+            }
+
+            return completions;
         }
     }
 }

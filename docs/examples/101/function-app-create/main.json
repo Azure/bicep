@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "754050298982564611"
+      "templateHash": "15435256629397286543"
     }
   },
   "parameters": {
@@ -69,7 +69,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts/blobServices",
       "apiVersion": "2019-06-01",
-      "name": "[format('{0}/default', variables('storageAccountName'))]",
+      "name": "[format('{0}/{1}', variables('storageAccountName'), 'default')]",
       "properties": {
         "cors": {
           "corsRules": []
@@ -192,7 +192,7 @@
     {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/web', variables('functionAppName'))]",
+      "name": "[format('{0}/{1}', variables('functionAppName'), 'web')]",
       "properties": {
         "numberOfWorkers": -1,
         "defaultDocuments": [
@@ -214,7 +214,6 @@
         "logsDirectorySizeLimit": 35,
         "detailedErrorLoggingEnabled": false,
         "publishingUsername": "[format('${0}', variables('functionAppName'))]",
-        "azureStorageAccounts": {},
         "scmType": "None",
         "use32BitWorkerProcess": true,
         "webSocketsEnabled": false,
@@ -263,7 +262,7 @@
         "http20Enabled": true,
         "minTlsVersion": "1.2",
         "ftpsState": "AllAllowed",
-        "PreWarmedInstanceCount": 0
+        "preWarmedInstanceCount": 0
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
@@ -272,7 +271,7 @@
     {
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}.azurewebsites.net', variables('functionAppName'), variables('functionAppName'))]",
+      "name": "[format('{0}/{1}', variables('functionAppName'), format('{0}.azurewebsites.net', variables('functionAppName')))]",
       "properties": {
         "siteName": "[variables('functionAppName')]",
         "hostNameType": "Verified"

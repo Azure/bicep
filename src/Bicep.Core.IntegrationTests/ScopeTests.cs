@@ -7,8 +7,9 @@ using FluentAssertions;
 using Bicep.Core.UnitTests.Utils;
 using Newtonsoft.Json.Linq;
 using FluentAssertions.Execution;
-using Azure.Bicep.Types.Concrete;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.Resources;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -177,14 +178,12 @@ output resourceARef string = resourceA.properties.myProp
         [TestMethod]
         public void Existing_resources_can_be_referenced_at_other_scopes()
         {
-            var typeName = "My.Rp/myResource@2020-01-01";
-            var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
-                var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
-                var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
-                    ["kind"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.ReadOnly, "kind property"),
-                }, null));
-                var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup, factory.GetReference(objectType)));
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeProvider = TestTypeHelper.CreateProviderWithTypes(new [] {
+                new ResourceType(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                    new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly, "kind property"),
+                }, null))
             });
 
             // explicitly pass a valid scope
@@ -222,13 +221,11 @@ output resourceARef string = resourceA.kind
         [TestMethod]
         public void Errors_are_raised_for_existing_resources_at_invalid_scopes()
         {
-            var typeName = "My.Rp/myResource@2020-01-01";
-            var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
-                var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
-                var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
-                }, null));
-                var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup, factory.GetReference(objectType)));
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeProvider = TestTypeHelper.CreateProviderWithTypes(new [] {
+                new ResourceType(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                }, null))
             });
 
             // explicitly pass an invalid scope
@@ -260,13 +257,11 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
         [TestMethod]
         public void Errors_are_raised_for_extensions_of_existing_resources_at_invalid_scopes()
         {
-            var typeName = "My.Rp/myResource@2020-01-01";
-            var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
-                var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
-                var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
-                }, null));
-                var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup | ScopeType.Extension, factory.GetReference(objectType)));
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeProvider = TestTypeHelper.CreateProviderWithTypes(new [] {
+                new ResourceType(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                }, null))
             });
 
             // extension resource of an existing resource at an invalid scope
@@ -290,13 +285,11 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         [TestMethod]
         public void Extensions_of_existing_resources_are_permitted()
         {
-            var typeName = "My.Rp/myResource@2020-01-01";
-            var typeProvider = ResourceTypeProviderHelper.CreateAzResourceTypeProvider(factory => {
-                var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(BuiltInTypeKind.String));
-                var objectType = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(typeName, new Dictionary<string, ObjectProperty> {
-                    ["name"] = new ObjectProperty(factory.GetReference(stringType), ObjectPropertyFlags.DeployTimeConstant, "name property"),
-                }, null));
-                var resourceType = factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(typeName, ScopeType.ResourceGroup | ScopeType.Extension, factory.GetReference(objectType)));
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeProvider = TestTypeHelper.CreateProviderWithTypes(new [] {
+                new ResourceType(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                }, null))
             });
 
             // extension resource of an existing resource at an invalid scope
@@ -316,6 +309,46 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
                 diags.Should().BeEmpty();
 
                 template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[format('My.Rp/myResource/{0}', 'resourceA')]");
+            }
+        }
+
+        [DataRow("resourceGroup", true)]
+        [DataRow("subscription", true)]
+        [DataRow("managementGroup", true)]
+        [DataRow("tenant", false)]
+        [DataTestMethod]
+        public void Tenant_scope_resources_can_be_deployed_from_anywhere(string targetScope, bool tenantScopeExpected)
+        {
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeProvider = TestTypeHelper.CreateProviderWithTypes(new[] {
+                new ResourceType(typeReference, ResourceScope.Tenant, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                }, null))
+            });
+
+            var (template, diags, _) = CompilationHelper.Compile(typeProvider, ("main.bicep", @"
+targetScope = 'TARGET_SCOPE'
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+  scope: tenant()
+}
+".Replace("TARGET_SCOPE", targetScope)));
+
+            using (new AssertionScope())
+            {
+                diags.Should().BeEmpty();
+                template.Should().NotBeNull();
+
+                const string path = "$.resources[?(@.name == 'resourceA')].scope";
+                if (tenantScopeExpected)
+                {
+                    
+                    template.Should().HaveValueAtPath(path, "/");
+                }
+                else
+                {
+                    template.Should().NotHaveValueAtPath(path);
+                }
             }
         }
     }

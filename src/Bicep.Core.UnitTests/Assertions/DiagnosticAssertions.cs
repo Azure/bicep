@@ -15,13 +15,13 @@ namespace Bicep.Core.UnitTests.Assertions
 {
     public static class DiagnosticExtensions 
     {
-        public static DiagnosticAssertions Should(this Diagnostic diagnostic)
+        public static DiagnosticAssertions Should(this IDiagnostic diagnostic)
         {
             return new DiagnosticAssertions(diagnostic); 
         }
     }
 
-    public class DiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, DiagnosticAssertions>
+    public class DiagnosticAssertions : ReferenceTypeAssertions<IDiagnostic, DiagnosticAssertions>
     {
         private class DiagnosticFormatter : IValueFormatter
         {
@@ -44,23 +44,17 @@ namespace Bicep.Core.UnitTests.Assertions
             Formatter.AddFormatter(new DiagnosticFormatter());
         }
 
-        public DiagnosticAssertions(Diagnostic diagnostic)
+        public DiagnosticAssertions(IDiagnostic diagnostic)
             : base(diagnostic)
         {
         }
 
         protected override string Identifier => "Diagnostic";
 
-        public static void DoWithDiagnosticAnnotations(SyntaxTree syntaxTree, IEnumerable<Diagnostic> diagnostics, Action<IEnumerable<Diagnostic>> action)
+        public static void DoWithDiagnosticAnnotations(SyntaxTree syntaxTree, IEnumerable<IDiagnostic> diagnostics, Action<IEnumerable<IDiagnostic>> action)
         {
-            using (var scope = new AssertionScope())
+            using (new AssertionScope().WithVisualDiagnostics(syntaxTree, diagnostics))
             {
-                scope.AddReportable("diagnostics", PrintHelper.PrintWithAnnotations(
-                    syntaxTree,
-                    diagnostics.Select(x => new PrintHelper.Annotation(x.Span, $"[{x.Code} ({x.Level})] {x.Message}")),
-                    1,
-                    true));
-
                 action(diagnostics);
             }
         }

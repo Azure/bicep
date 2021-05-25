@@ -438,7 +438,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 _ => null,
             };
 
-            static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
+            static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
                 var lengthSyntax = SingleArgumentSelector(decoratorSyntax);
 
@@ -448,7 +448,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
             }
 
-            yield return new DecoratorBuilder("secure")
+            yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Object))
@@ -468,16 +468,31 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .Build();
 
-            yield return new DecoratorBuilder("allowed")
+            yield return new DecoratorBuilder(LanguageConstants.ParameterAllowedPropertyName)
                 .WithDescription("Defines the allowed values of the parameter.")
                 .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
-                     TypeValidator.NarrowTypeAndCollectDiagnostics(
-                            typeManager,
+                .WithValidator((_, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
+                {
+                    if (ReferenceEquals(targetType, LanguageConstants.Array) &&
+                        SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
+                        allowedValues.Items.All(item => item.Value is not ArraySyntax))
+                    {
+                        /* 
+                         * ARM handles array params with allowed values differently. If none of items of
+                         * the allowed values is array, it will check if the parameter value is a subset
+                         * of the allowed values.
+                         */
+                        return;
+                    }
+
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(
+                        typeManager,
+                        binder,
+                        diagnosticWriter,
                         SingleArgumentSelector(decoratorSyntax),
-                        new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
-                        diagnosticWriter))
+                        new TypedArrayType(targetType, TypeSymbolValidationFlags.Default));
+                })
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();
 
@@ -519,8 +534,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines metadata of the parameter.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((_, decoratorSyntax, _, typeManager, diagnosticWriter) => 
-                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata, diagnosticWriter))
+                .WithValidator((_, decoratorSyntax, _, typeManager, binder, diagnosticWriter) => 
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
                 .WithEvaluator(MergeToTargetObject("metadata", SingleArgumentSelector))
                 .Build();
 
@@ -537,7 +552,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("batchSize", LanguageConstants.Int, "The size of the batch")
                 .WithFlags(FunctionFlags.ResourceOrModuleDecorator)
                 // the decorator is constrained to resources and modules already - checking for array alone is simple and should be sufficient
-                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
+                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
                 {
                     if (!TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Array))
                     {

@@ -17,7 +17,7 @@
     "variables": {
         "armBaseUrl": "[parameters('baseUrl')]",
         "module1Url": "[concat(variables('armBaseUrl'),'/nested/module1.json')]",
-        "module2Url": "[concat(variables('armBaseUrl'),'/nested/module2.json')]",
+        "module2Url": "[concat(variables('armBaseUrl'),'/nested/module2.jsonc')]",
         "objectVar": {
             "val1": "[concat('a', parameters('location'), 'b')]"
         },

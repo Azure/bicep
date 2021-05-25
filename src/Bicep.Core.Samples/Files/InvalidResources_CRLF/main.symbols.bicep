@@ -16,7 +16,7 @@ resource foo 'ddd'
 resource trailingSpace  
 //@[9:22) Resource trailingSpace. Type: error. Declaration start char: 0, length: 24
 
-// #completionTest(19,20) -> object
+// #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
 //@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 20
 
@@ -472,29 +472,31 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 }]
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 151
+//@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 153
   // #completionTest(0, 1, 2) -> topLevelProperties
-
+  
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[9:44) Resource missingTopLevelPropertiesExceptName. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 304
-  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+//@[9:44) Resource missingTopLevelPropertiesExceptName. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 305
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
   
 }
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
+// #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[9:23) Resource unfinishedVnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 468
+//@[9:23) Resource unfinishedVnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 531
   name: 'v'
   location: 'eastus'
   properties: {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+       
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
             {
@@ -638,10 +640,10 @@ var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissi
 Discriminator value set 1
 */
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:31) Resource discriminatorKeySetOne. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 264
+//@[9:31) Resource discriminatorKeySetOne. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 266
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
@@ -662,10 +664,10 @@ var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
 Discriminator value set 1 (conditional)
 */
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(2==3) {
-//@[9:34) Resource discriminatorKeySetOne_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 276
+//@[9:34) Resource discriminatorKeySetOne_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 278
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
@@ -687,10 +689,10 @@ Discriminator value set 1 (loop)
 */
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
 //@[95:100) Local thing. Type: any. Declaration start char: 95, length: 5
-//@[9:35) Resource discriminatorKeySetOne_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 288
+//@[9:35) Resource discriminatorKeySetOne_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 290
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
@@ -712,10 +714,10 @@ Discriminator value set 1 (filtered loop)
 */
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
 //@[98:103) Local thing. Type: any. Declaration start char: 98, length: 5
-//@[9:38) Resource discriminatorKeySetOne_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 300
+//@[9:38) Resource discriminatorKeySetOne_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 302
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
@@ -737,10 +739,10 @@ var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1]
 Discriminator value set 2
 */
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:31) Resource discriminatorKeySetTwo. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 270
+//@[9:31) Resource discriminatorKeySetTwo. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 272
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
@@ -764,10 +766,10 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['pro
 Discriminator value set 2 (conditional)
 */
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:34) Resource discriminatorKeySetTwo_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 273
+//@[9:34) Resource discriminatorKeySetTwo_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 275
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
@@ -793,10 +795,10 @@ Discriminator value set 2 (loops)
 */
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
 //@[94:99) Local thing. Type: any. Declaration start char: 94, length: 5
-//@[9:35) Resource discriminatorKeySetTwo_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 293
+//@[9:35) Resource discriminatorKeySetTwo_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 295
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
@@ -822,10 +824,10 @@ Discriminator value set 2 (filtered loops)
 */
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
 //@[97:102) Local thing. Type: any. Declaration start char: 97, length: 5
-//@[9:38) Resource discriminatorKeySetTwo_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 305
+//@[9:38) Resource discriminatorKeySetTwo_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 307
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-
+  
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
@@ -1493,7 +1495,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 // property loops cannot be nested (even more nesting)
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[88:95) Local account. Type: any. Declaration start char: 88, length: 7
-//@[9:33) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 720
+//@[9:33) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 687
   name: account.name
   location: account.location
   sku: {
@@ -1502,14 +1504,14 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   kind: 'StorageV2'
   properties: {
     // #completionTest(17) -> symbolsPlusAccount
-    networkAcls: {
+    networkAcls:  {
       virtualNetworkRules: [for rule in []: {
 //@[32:36) Local rule. Type: any. Declaration start char: 32, length: 4
         // #completionTest(12,15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
 //@[20:25) Local state. Type: any. Declaration start char: 20, length: 5
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
           fake: [for something in []: true]
 //@[21:30) Local something. Type: any. Declaration start char: 21, length: 9
         }]
@@ -1769,10 +1771,99 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1/res2'
 }
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-//@[9:27) Resource existngResProperty. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 164
-  name: 'existngResProperty'
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+//@[9:28) Resource existingResProperty. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 166
+  name: 'existingResProperty'
   location: 'westeurope'
   properties: {}
 }
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[9:35) Resource invalidExistingLocationRef. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 196
+    parent: existingResProperty
+    name: 'myExt'
+    location: existingResProperty.location
+}
+
+resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[9:27) Resource anyTypeInDependsOn. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 259
+  name: 'anyTypeInDependsOn'
+  location: resourceGroup().location
+  dependsOn: [
+    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+    's'
+    any(true)
+  ]
+}
+
+resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+//@[9:24) Resource anyTypeInParent. Type: Microsoft.Network/dnsZones/CNAME@2018-05-01. Declaration start char: 0, length: 98
+  parent: any(true)
+}
+
+resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+//@[82:87) Local thing. Type: any. Declaration start char: 82, length: 5
+//@[9:28) Resource anyTypeInParentLoop. Type: Microsoft.Network/dnsZones/CNAME@2018-05-01[]. Declaration start char: 0, length: 121
+  parent: any(true)
+}]
+
+resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[9:23) Resource anyTypeInScope. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 115
+  scope: any(invalidExistingLocationRef)
+}
+
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
+//@[9:34) Resource anyTypeInScopeConditional. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 135
+  scope: any(invalidExistingLocationRef)
+}
+
+resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
+//@[9:31) Resource anyTypeInExistingScope. Type: Microsoft.Network/dnsZones/AAAA@2018-05-01. Declaration start char: 0, length: 132
+  parent: any('')
+  scope: any(false)
+}
+
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
+//@[97:102) Local thing. Type: any. Declaration start char: 97, length: 5
+//@[9:35) Resource anyTypeInExistingScopeLoop. Type: Microsoft.Network/dnsZones/AAAA@2018-05-01[]. Declaration start char: 0, length: 155
+  parent: any('')
+  scope: any(false)
+}]
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[9:35) Resource tenantLevelResourceBlocked. Type: Microsoft.Management/managementGroups@2020-05-01. Declaration start char: 0, length: 131
+  name: 'tenantLevelResourceBlocked'
+}
+
+// #completionTest(15,36,37) -> resourceTypes
+resource comp1 'Microsoft.Resources/'
+//@[9:14) Resource comp1. Type: error. Declaration start char: 0, length: 37
+
+// #completionTest(15,16,17) -> resourceTypes
+resource comp2 ''
+//@[9:14) Resource comp2. Type: error. Declaration start char: 0, length: 17
+
+// #completionTest(38) -> resourceTypes
+resource comp3 'Microsoft.Resources/t'
+//@[9:14) Resource comp3. Type: error. Declaration start char: 0, length: 38
+
+// #completionTest(40) -> resourceTypes
+resource comp4 'Microsoft.Resources/t/v'
+//@[9:14) Resource comp4. Type: error. Declaration start char: 0, length: 40
+
+// #completionTest(49) -> resourceTypes
+resource comp5 'Microsoft.Storage/storageAccounts'
+//@[9:14) Resource comp5. Type: error. Declaration start char: 0, length: 50
+
+// #completionTest(50) -> storageAccountsResourceTypes
+resource comp6 'Microsoft.Storage/storageAccounts@'
+//@[9:14) Resource comp6. Type: error. Declaration start char: 0, length: 51
+
+// #completionTest(52) -> templateSpecsResourceTypes
+resource comp7 'Microsoft.Resources/templateSpecs@20'
+//@[9:14) Resource comp7. Type: error. Declaration start char: 0, length: 53
+
+// #completionTest(60,61) -> virtualNetworksResourceTypes
+resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
+//@[9:14) Resource comp8. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 61
 

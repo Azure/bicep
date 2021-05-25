@@ -33,6 +33,43 @@ namespace Bicep.Core.Decompiler.Rewriters
             this.semanticModel = semanticModel;
         }
 
+        public SyntaxBase? TryGetReplacementChildName(StringSyntax childName, SyntaxBase parentName, ResourceSymbol parentResourceSymbol)
+        {
+            switch (parentName)
+            {
+                case VariableAccessSyntax parentVarAccess:
+                {
+                    if (childName.Expressions.FirstOrDefault() is not VariableAccessSyntax childVarAccess ||
+                        semanticModel.GetSymbolInfo(parentVarAccess) != semanticModel.GetSymbolInfo(childVarAccess))
+                    {
+                        return null;
+                    }
+
+                    if (!childName.SegmentValues[1].StartsWith("/"))
+                    {
+                        return null;
+                    }
+
+                    var newName = SyntaxFactory.CreateString(
+                        new [] { childName.SegmentValues[1].Substring(1) }.Concat(childName.SegmentValues.Skip(2)),
+                        childName.Expressions.Skip(1));
+
+                    return newName;
+                }
+                case StringSyntax parentString:
+                {
+                    if (TryGetReplacementStringSyntax(parentString, childName, parentResourceSymbol) is not {} newName)
+                    {
+                        return null;
+                    }
+
+                    return newName;
+                }
+            }
+
+            return null;
+        }
+
         protected override SyntaxBase ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             if (syntax.TryGetBody() is not ObjectSyntax resourceBody ||
@@ -58,7 +95,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             {
                 if (otherResourceSymbol.Type is not ResourceType otherResourceType ||
                     otherResourceType.TypeReference.Types.Length != resourceType.TypeReference.Types.Length - 1 ||
-                    !resourceType.TypeReference.TypesString.StartsWith(otherResourceType.TypeReference.TypesString, StringComparison.OrdinalIgnoreCase))
+                    !resourceType.TypeReference.TypesString.StartsWith($"{otherResourceType.TypeReference.TypesString}/", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -70,51 +107,21 @@ namespace Bicep.Core.Decompiler.Rewriters
                     continue;
                 }
 
-                StringSyntax replacementStringSyntax;
-                if (otherResourceNameProp.Value is StringSyntax otherResourceName)
-                {
-                    var newStringSyntax = TryGetReplacementStringSyntax(otherResourceName, resourceName, otherResourceSymbol);
-                    if (newStringSyntax == null)
-                    {
-                        continue;
-                    }
-
-                    replacementStringSyntax = newStringSyntax;
-                }
-                else if (otherResourceNameProp.Value is VariableAccessSyntax parentVarAccess &&
-                    resourceName.Expressions.FirstOrDefault() is VariableAccessSyntax childVarAccess)
-                {
-                    if (semanticModel.GetSymbolInfo(parentVarAccess) != semanticModel.GetSymbolInfo(childVarAccess))
-                    {
-                        continue;
-                    }
-
-                    var otherResourceIdentifier = new Token(TokenType.Identifier, new TextSpan(0, 0), otherResourceSymbol.Name, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
-                    var nameProperty = new Token(TokenType.Identifier, new TextSpan(0, 0), "name", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
-
-                    var replacementExpression = new PropertyAccessSyntax(
-                        new VariableAccessSyntax(new IdentifierSyntax(otherResourceIdentifier)),
-                        new Token(TokenType.Dot, new TextSpan(0, 0), ".", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()),
-                        new IdentifierSyntax(nameProperty));
-
-                    replacementStringSyntax = new StringSyntax(
-                        resourceName.StringTokens,
-                        replacementExpression.AsEnumerable().Concat(resourceName.Expressions.Skip(1)),
-                        resourceName.SegmentValues);
-                }
-                else
+                if (TryGetReplacementChildName(resourceName, otherResourceNameProp.Value, otherResourceSymbol) is not {} newName)
                 {
                     continue;
                 }
 
-                var replacementNameProp = new ObjectPropertySyntax(
-                    resourceNameProp.Key,
-                    resourceNameProp.Colon,
-                    replacementStringSyntax);
+                var replacementNameProp = new ObjectPropertySyntax(resourceNameProp.Key, resourceNameProp.Colon, newName);
+                var parentProp = new ObjectPropertySyntax(
+                    SyntaxFactory.CreateIdentifier(LanguageConstants.ResourceParentPropertyName),
+                    SyntaxFactory.ColonToken,
+                    SyntaxFactory.CreateVariableAccess(otherResourceSymbol.Name));
 
                 var replacementBody = new ObjectSyntax(
                     resourceBody.OpenBrace,
-                    resourceBody.Children.Replace(resourceNameProp, replacementNameProp),
+                    // parent prop comes first!
+                    parentProp.AsEnumerable().Concat(resourceBody.Children.Replace(resourceNameProp, replacementNameProp)),
                     resourceBody.CloseBrace);
 
                 // at the top we just checked if there is a legitimate body
@@ -141,7 +148,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             return syntax;
         }
 
-        public StringSyntax? TryGetReplacementStringSyntax(StringSyntax parent, StringSyntax child, ResourceSymbol parentResourceSymbol)
+        public SyntaxBase? TryGetReplacementStringSyntax(StringSyntax parent, StringSyntax child, ResourceSymbol parentResourceSymbol)
         {
             if (parent.SegmentValues.Length > child.SegmentValues.Length ||
                 parent.Expressions.Length > child.Expressions.Length)
@@ -180,21 +187,16 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return null;
             }
 
-            var parentResourceIdentifier = new Token(TokenType.Identifier, new TextSpan(0, 0), parentResourceSymbol.Name, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
-            var nameProperty = new Token(TokenType.Identifier, new TextSpan(0, 0), "name", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
-            var replacementExpression = new PropertyAccessSyntax(
-                new VariableAccessSyntax(new IdentifierSyntax(parentResourceIdentifier)),
-                new Token(TokenType.Dot, new TextSpan(0, 0), ".", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()),
-                new IdentifierSyntax(nameProperty));
+            var newNameValues = new [] { finalSegmentSuffix.Substring(1) }.Concat(child.SegmentValues.Skip(finalIndex + 1)).ToArray();
+            var newExpressions = child.Expressions.Skip(finalIndex).ToArray();
 
-            var leftStringToken = new Token(TokenType.StringLeftPiece, new TextSpan(0, 0), "'${", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
-            var nextStringToken = parent.SegmentValues.Length == child.SegmentValues.Length ? 
-                new Token(TokenType.StringRightPiece, new TextSpan(0, 0), StringUtils.EscapeBicepString(finalSegmentSuffix, "}", "'"), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()) :
-                new Token(TokenType.StringMiddlePiece, new TextSpan(0, 0), StringUtils.EscapeBicepString(finalSegmentSuffix, "}", "${"), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
-            return new StringSyntax(
-                new [] { leftStringToken, nextStringToken }.Concat(child.StringTokens.Skip(parent.StringTokens.Length)),
-                replacementExpression.AsEnumerable().Concat(child.Expressions.Skip(parent.Expressions.Length)),
-                new [] { "", finalSegmentSuffix }.Concat(child.SegmentValues.Skip(parent.SegmentValues.Length)));
+            if (newNameValues.Length == 2 && newNameValues[0] == "" && newNameValues[1] == "")
+            {
+                // return "expr" rather than "'${expr}'"
+                return newExpressions[0];
+            }
+
+            return SyntaxFactory.CreateString(newNameValues, newExpressions);
         }
     }
 }

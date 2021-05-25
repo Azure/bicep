@@ -157,7 +157,7 @@ namespace Bicep.Core.IntegrationTests
                 "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#" => TemplateDeploymentScope.ManagementGroup,
                 "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#" => TemplateDeploymentScope.Subscription,
                 "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#" => TemplateDeploymentScope.ResourceGroup,
-                _ => throw new InvalidOperationException(),
+                _ => throw new InvalidOperationException($"Unrecognized schema: {templateJtoken["$schema"]}"),
             };
 
             var metadata = new InsensitiveDictionary<JToken>(config.Metadata);
@@ -177,18 +177,25 @@ namespace Bicep.Core.IntegrationTests
                 };
             };
 
-            var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
+            try
+            {
+                var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
 
-            TemplateEngine.ValidateTemplate(template, "2020-06-01", deploymentScope);
-            TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(config.Parameters), metadata, new InsensitiveDictionary<JToken>());
+                TemplateEngine.ValidateTemplate(template, "2020-06-01", deploymentScope);
+                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(config.Parameters), metadata, new InsensitiveDictionary<JToken>());
 
-            TemplateEngine.ProcessTemplateLanguageExpressions(template, "2020-06-01");
+                TemplateEngine.ProcessTemplateLanguageExpressions(template, "2020-06-01");
 
-            ProcessTemplateLanguageExpressions(template, config, deploymentScope);
+                ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
-            TemplateEngine.ValidateProcessedTemplate(template, "2020-06-01", deploymentScope);
+                TemplateEngine.ValidateProcessedTemplate(template, "2020-06-01", deploymentScope);
 
-            return template.ToJToken();
+                return template.ToJToken();
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidOperationException($"Evaluating template failed: {exception.Message}.\nOriginal template: {templateJtoken}", exception);
+            }
         }
     }
 }

@@ -205,41 +205,65 @@ namespace Bicep.Core.Diagnostics
                 "BCP034",
                 $"The enclosing array expected an item of type \"{expectedType}\", but the provided item was of type \"{actualType}\".");
 
-            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, IEnumerable<string> properties, string blockName) => new(
-                TextSpan,
-                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
-                "BCP035",
-                $"The specified \"{blockName}\" declaration is missing the following required properties: {ToQuotedString(properties)}.");
+            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, IEnumerable<string> properties, string blockName)
+            {
+                var sourceDeclarationClause = sourceDeclaration is not null
+                    ? $" from source declaration \"{sourceDeclaration.Name}\""
+                    : string.Empty;
 
-            public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, string property, TypeSymbol expectedType, TypeSymbol actualType) => new(
-                TextSpan,
-                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
-                "BCP036",
-                $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
+                return new(
+                    TextSpan,
+                    warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                    "BCP035",
+                    $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.");
+            }
 
-            public Diagnostic DisallowedProperty(bool warnInsteadOfError, TypeSymbol type) => new(
-                TextSpan,
-                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
-                "BCP037",
-                $"No other properties are allowed on objects of type \"{type}\".");
+            public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol expectedType, TypeSymbol actualType)
+            {
+                var sourceDeclarationClause = sourceDeclaration is not null
+                    ? $" in source declaration \"{sourceDeclaration.Name}\""
+                    : string.Empty;
 
-            public Diagnostic DisallowedPropertyWithPermissibleProperties(bool warnInsteadOfError, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties) => new(
-                TextSpan,
-                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
-                "BCP038",
-                $"The property \"{property}\" is not allowed on objects of type \"{type}\". Permissible properties include {ToQuotedString(validUnspecifiedProperties)}.");
+                return new(
+                    TextSpan,
+                    warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                    "BCP036",
+                    $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value{sourceDeclarationClause} is of type \"{actualType}\".");
+            }
 
-            public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, TypeSymbol type) => new(
-                TextSpan,
-                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
-                "BCP039",
-                $"String interpolation is not supported for keys on objects of type \"{type}\".");
+            public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
+            {
+                var permissiblePropertiesClause = validUnspecifiedProperties.Any()
+                    ? $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}."
+                    : $" No other properties are allowed.";
 
-            public Diagnostic DisallowedInterpolatedKeyPropertyWithPermissibleProperties(bool warnInsteadOfError, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties) => new(
-                TextSpan,
-                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
-                "BCP040",
-                $"String interpolation is not supported for keys on objects of type \"{type}\". Permissible properties include {ToQuotedString(validUnspecifiedProperties)}.");
+                var sourceDeclarationClause = sourceDeclaration is not null
+                    ? $" from source declaration \"{sourceDeclaration.Name}\""
+                    : string.Empty;
+
+                return new(
+                    TextSpan,
+                    warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                    "BCP037",
+                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}");
+            }
+
+            public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
+            {
+                var permissiblePropertiesClause = validUnspecifiedProperties.Any()
+                    ? $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}."
+                    : $" No other properties are allowed.";
+
+                var sourceDeclarationClause = sourceDeclaration is not null
+                    ? $" in source declaration \"{sourceDeclaration.Name}\""
+                    : string.Empty;
+
+                return new(
+                    TextSpan,
+                    warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                    "BCP040",
+                    $"String interpolation is not supported for keys on objects of type \"{type}\"{sourceDeclarationClause}.{permissiblePropertiesClause}");
+            }
 
             public ErrorDiagnostic VariableTypeAssignmentDisallowed(TypeSymbol valueType) => new(
                 TextSpan,
@@ -619,15 +643,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP106",
                 "Expected a new line character at this location. Commas are not used as separator delimiters.");
 
-            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceSymbol, string name) => new(
+            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceType, string name) => new(
                 TextSpan,
                 "BCP107",
-                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\".");
+                $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\".");
 
-            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceSymbol, string name, string suggestedName) => new(
+            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceType, string name, string suggestedName) => new(
                 TextSpan,
                 "BCP108",
-                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\". Did you mean \"{suggestedName}\"?",
+                $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?",
                 null,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
@@ -698,11 +722,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP119",
                 $"Unsupported scope for extension resource deployment. Expected a resource reference.");
 
-            public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
+            public Diagnostic RuntimePropertyNotAllowedInProperty(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
             {
-                var variableDependencyChainClause = variableDependencyChain != null
-                    ? $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). "
-                    : string.Empty;
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
 
                 return new ErrorDiagnostic(
                     TextSpan,
@@ -997,6 +1019,59 @@ namespace Bicep.Core.Diagnostics
                     "BCP175",
                     $"The variable for-expression body or array expression must be evaluable at the start of the deployment and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}");
             }
+
+            public ErrorDiagnostic AnyTypeIsNotAllowed() => new(
+                TextSpan,
+                "BCP176",
+                $"Values of the \"any\" type are not allowed here.");
+
+            public ErrorDiagnostic RuntimePropertyNotAllowedInIfConditionExpression(IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP177",
+                    $"The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}.");
+            }
+
+            public ErrorDiagnostic RuntimePropertyNotAllowedInForExpression(IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP178",
+                    $"The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}.");
+            }
+
+            public Diagnostic ForExpressionContainsLoopInvariants(string itemVariableName, string? indexVariableName, IEnumerable<string> expectedVariantProperties) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP179",
+                indexVariableName is null
+                    ? $"The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
+                    : $"The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
+
+            public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
+                TextSpan,
+                "BCP180",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+
+            public ErrorDiagnostic RuntimePropertyNotAllowedInRunTimeFunctionArguments(string functionName, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP181",
+                    $"The arguments of function \"{functionName}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}.");
+            }
+
+            private static string BuildVariableDependencyChainClause(IEnumerable<string>? variableDependencyChain) => variableDependencyChain != null
+                ? $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). "
+                : string.Empty;
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

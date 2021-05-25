@@ -33,9 +33,8 @@ async function go() {
       console.log(`Running tests against VSCode-${vscodeVersion}`);
 
       const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
-      const cliPath = resolveCliPathFromVSCodeExecutablePath(
-        vscodeExecutablePath
-      );
+      const cliPath =
+        resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
 
       const isRoot = os.userInfo().username === "root";
 
@@ -60,7 +59,7 @@ async function go() {
         vscodeExecutablePath,
         extensionDevelopmentPath: path.resolve(__dirname, "../../.."),
         extensionTestsPath: path.resolve(__dirname, "index"),
-        extensionTestsEnv: { NODE_ENV: "test" },
+        extensionTestsEnv: { TEST_MODE: "e2e" },
         launchArgs: ["--enable-proposed-api", ...userDataArguments],
       });
     }

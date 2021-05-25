@@ -2611,14 +2611,14 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i)
 // reference to a resource collection whose name expression does not reference any loop variables
 //@[97:98) NewLine |\n|
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
-//@[0:196) ResourceDeclarationSyntax
+//@[0:198) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:34)  IdentifierSyntax
 //@[9:34)   Identifier |referenceToDuplicateNames|
 //@[35:74)  StringSyntax
 //@[35:74)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
 //@[75:76)  Assignment |=|
-//@[77:196)  ForSyntax
+//@[77:198)  ForSyntax
 //@[77:78)   LeftSquare |[|
 //@[78:81)   Identifier |for|
 //@[82:90)   ForVariableBlockSyntax
@@ -2636,17 +2636,17 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 //@[94:95)    LeftSquare |[|
 //@[95:96)    RightSquare |]|
 //@[96:97)   Colon |:|
-//@[98:195)   ObjectSyntax
+//@[98:197)   ObjectSyntax
 //@[98:99)    LeftBrace |{|
 //@[99:100)    NewLine |\n|
-  name: 'no loop variable'
-//@[2:26)    ObjectPropertySyntax
+  name: 'no loop variable 2'
+//@[2:28)    ObjectPropertySyntax
 //@[2:6)     IdentifierSyntax
 //@[2:6)      Identifier |name|
 //@[6:7)     Colon |:|
-//@[8:26)     StringSyntax
-//@[8:26)      StringComplete |'no loop variable'|
-//@[26:27)    NewLine |\n|
+//@[8:28)     StringSyntax
+//@[8:28)      StringComplete |'no loop variable 2'|
+//@[28:29)    NewLine |\n|
   location: 'eastus'
 //@[2:20)    ObjectPropertySyntax
 //@[2:10)     IdentifierSyntax

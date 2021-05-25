@@ -6,132 +6,167 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Completions
 {
-    public static class CompletionItemBuilder
+    public class CompletionItemBuilder
     {
-        public static CompletionItem Create(CompletionItemKind kind) => new CompletionItem {Kind = kind};
+        private readonly CompletionItemKind kind;
+        private readonly string label;
 
-        public static CompletionItem WithAdditionalEdits(this CompletionItem item, TextEditContainer editContainer)
+        private TextEditContainer? additionalTextEdits;
+        private Container<string>? commitCharacters;
+        private string? detail;
+        private StringOrMarkupContent? documentation;
+        private string? filterText;
+        private string? insertText;
+        private InsertTextFormat insertTextFormat;
+        private TextEditOrInsertReplaceEdit? textEdit;
+        private InsertTextMode insertTextMode;
+        
+        private string? sortText;
+        private bool preselect;
+        private Command? command;
+
+        private CompletionItemBuilder(CompletionItemKind kind, string label)
         {
-            item.AdditionalTextEdits = editContainer;
-            return item;
+            this.kind = kind;
+            this.label = label;
         }
 
-        public static CompletionItem WithCommitCharacters(this CompletionItem item, Container<string> commitCharacters)
+        public static CompletionItemBuilder Create(CompletionItemKind kind, string label) => new CompletionItemBuilder(kind, label);
+
+        public CompletionItem Build()
         {
-            item.CommitCharacters = commitCharacters;
-            return item;
+            return new()
+            {
+                Label = this.label,
+                Kind = kind,
+
+                AdditionalTextEdits = this.additionalTextEdits,
+                CommitCharacters = this.commitCharacters,
+                Detail = this.detail,
+                Documentation = this.documentation,
+                FilterText = this.filterText,
+                InsertText = this.insertText,
+                InsertTextFormat = this.insertTextFormat,
+                TextEdit = this.textEdit,
+                InsertTextMode = this.insertTextMode,                
+                SortText = this.sortText,
+                Preselect = this.preselect,
+                Command = this.command
+            };
         }
 
-        public static CompletionItem WithDetail(this CompletionItem item, string detail)
+        public CompletionItemBuilder WithAdditionalEdits(TextEditContainer editContainer)
         {
-            item.Detail = detail;
-            return item;
+            this.additionalTextEdits = editContainer;
+            return this;
         }
 
-        public static CompletionItem WithDocumentation(this CompletionItem item, string markdown)
+        public CompletionItemBuilder WithCommitCharacters(Container<string> commitCharacters)
         {
-            item.Documentation = new StringOrMarkupContent(new MarkupContent
+            this.commitCharacters = commitCharacters;
+            return this;
+        }
+
+        public CompletionItemBuilder WithDetail(string detail)
+        {
+            this.detail = detail;
+            return this;
+        }
+
+        public CompletionItemBuilder WithDocumentation(string markdown)
+        {
+            this.documentation = new StringOrMarkupContent(new MarkupContent
             {
                 Kind = MarkupKind.Markdown,
                 Value = markdown
             });
-            return item;
+            return this;
         }
         
-        public static CompletionItem WithFilterText(this CompletionItem item, string filterText)
+        public CompletionItemBuilder WithFilterText(string filterText)
         {
-            item.FilterText = filterText;
-            return item;
+            this.filterText = filterText;
+            return this;
         }
 
-        public static CompletionItem WithInsertText(this CompletionItem item, string insertText)
+        public CompletionItemBuilder WithInsertText(string insertText)
         {
-            AssertNoTextEdit(item);
+            this.AssertNoTextEdit();
 
-            item.InsertText = insertText;
-            item.InsertTextFormat = InsertTextFormat.PlainText;
-            item.InsertTextMode = InsertTextMode.AdjustIndentation;
+            this.insertText = insertText;
+            this.insertTextFormat = InsertTextFormat.PlainText;
+            this.insertTextMode = InsertTextMode.AdjustIndentation;
 
-            return item;
+            return this;
         }
-
-        public static CompletionItem WithLabel(this CompletionItem item, string label)
-        {
-            item.Label = label;
-            return item;
-        }        
         
-        public static CompletionItem WithPlainTextEdit(this CompletionItem item, Range range, string text)
+        public CompletionItemBuilder WithPlainTextEdit(Range range, string text)
         {
-            AssertNoInsertText(item);
-            SetTextEditInternal(item, range, InsertTextFormat.PlainText, text);
-            return item;
+            this.AssertNoInsertText();
+            this.SetTextEditInternal(range, InsertTextFormat.PlainText, text);
+            return this;
         }
 
-        public static CompletionItem WithSnippet(this CompletionItem item, string snippet)
+        public CompletionItemBuilder WithSnippet(string snippet)
         {
-            AssertNoTextEdit(item);
+            this.AssertNoTextEdit();
 
-            item.InsertText = snippet;
-            item.InsertTextFormat = InsertTextFormat.Snippet;
-            item.InsertTextMode = InsertTextMode.AdjustIndentation;
+            this.insertText = snippet;
+            this.insertTextFormat = InsertTextFormat.Snippet;
+            this.insertTextMode = InsertTextMode.AdjustIndentation;
 
-            return item;
+            return this;
         }
 
-        public static CompletionItem WithSnippetEdit(this CompletionItem item, Range range, string snippet)
+        public CompletionItemBuilder WithSnippetEdit(Range range, string snippet)
         {
-            AssertNoInsertText(item);
-            SetTextEditInternal(item, range, InsertTextFormat.Snippet, snippet);
-            return item;
+            this.AssertNoInsertText();
+            this.SetTextEditInternal(range, InsertTextFormat.Snippet, snippet);
+            return this;
         }
 
-
-
-
-        public static CompletionItem WithSortText(this CompletionItem item, string sortText)
+        public CompletionItemBuilder WithSortText(string sortText)
         {
-            item.SortText = sortText;
-            return item;
+            this.sortText = sortText;
+            return this;
         }
 
-        public static CompletionItem Preselect(this CompletionItem item) => item.Preselect(preselect: true);
+        public CompletionItemBuilder Preselect() => this.Preselect(preselect: true);
 
-        public static CompletionItem Preselect(this CompletionItem item, bool preselect)
+        public CompletionItemBuilder Preselect(bool preselect)
         {
-            item.Preselect = preselect;
-            return item;
+            this.preselect = preselect;
+            return this;
         }
 
-
-        public static CompletionItem WithCommand(this CompletionItem item, Command command)
+        public CompletionItemBuilder WithCommand(Command command)
         {
-            item.Command = command;
-            return item;
+            this.command = command;
+            return this;
         }
 
-        private static void SetTextEditInternal(CompletionItem item, Range range, InsertTextFormat format, string text)
+        private void SetTextEditInternal(Range range, InsertTextFormat format, string text)
         {
-            item.InsertTextFormat = format;
-            item.TextEdit = new TextEdit
+            this.insertTextFormat = format;
+            this.textEdit = new TextEdit
             {
                 Range = range,
                 NewText = text
             };
-            item.InsertTextMode = InsertTextMode.AdjustIndentation;
+            this.insertTextMode = InsertTextMode.AdjustIndentation;
         }
 
-        private static void AssertNoTextEdit(CompletionItem item)
+        private void AssertNoTextEdit()
         {
-            if (item.TextEdit != null)
+            if (this.textEdit != null)
             {
                 throw new InvalidOperationException("Unable to set the specified insert text because a text edit is already set.");
             }
         }
 
-        private static void AssertNoInsertText(CompletionItem item)
+        private void AssertNoInsertText()
         {
-            if (item.InsertText != null)
+            if (this.insertText != null)
             {
                 throw new InvalidOperationException("Unable to set the text edit because the insert text is already set.");
             }

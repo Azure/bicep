@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Linq;
@@ -39,7 +39,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         private TypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectProperty input)
         {
-            return new TypeProperty(name, GetTypeReference(input.Type), GetTypePropertyFlags(input));
+            return new TypeProperty(name, GetTypeReference(input.Type), GetTypePropertyFlags(input), input.Description);
         }
 
         private static TypePropertyFlags GetTypePropertyFlags(Azure.Bicep.Types.Concrete.ObjectProperty input)
@@ -61,6 +61,11 @@ namespace Bicep.Core.TypeSystem.Az
             if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant))
             {
                 flags |= TypePropertyFlags.DeployTimeConstant;
+            }
+            if(!input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required) && !input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly))
+            {
+                // for non-required and non-readonly resource properties, we allow null assignment
+                flags |= TypePropertyFlags.AllowImplicitNull;
             }
 
             return flags;

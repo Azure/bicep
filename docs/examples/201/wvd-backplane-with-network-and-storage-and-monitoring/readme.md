@@ -46,31 +46,31 @@ are created.
  - WVD Hostpool
  - WVD AppGroup
  - WVD Workspace
- This Bicep module can be run separatly or as part of Deploy-Modules.bicep
+ This Bicep module can be run separatly or as part of main.bicep
  
  ## wvd-network-module.bicep
 This Bicep Module creates networking components in Azure. The following objects are created.
  - Virtual Network
  - Subnet
- This Bicep module can be run separatly or as part of Deploy-Modules.bicep
+ This Bicep module can be run separatly or as part of main.bicep
 
  ## wvd-fileservices-module.bicep
 This Bicep Module creates File Services components in Azure. The following objects are created.
  - Storage Account
  - File Share
- This Bicep module can be run separatly or as part of Deploy-Modules.bicep
+ This Bicep module can be run separatly or as part of main.bicep
 
   ## wvd-LogAnalytics.bicep
 This Bicep Module creates Log Analytics components in Azure. The following objects are created.
  - Log Analytics Workspace
- This Bicep module can be run separatly or as part of Deploy-Modules.bicep
+ This Bicep module can be run separatly or as part of main.bicep
 
   ## wvd-monitor-diag.bicep
 This Bicep Module configures Log Analytics diagnostics settings for WVD components in Azure. The following objects
 are configured for Log Analytics
  - Workspace
  - Hostpool
- This Bicep module can be run separatly or as part of Deploy-Modules.bicep
+ This Bicep module can be run separatly or as part of main.bicep
 
 ## main.json
 This file is the JSON output after transpiling 'main.bicep'

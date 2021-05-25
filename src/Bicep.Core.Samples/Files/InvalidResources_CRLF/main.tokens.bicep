@@ -34,8 +34,8 @@ resource trailingSpace
 //@[9:22) Identifier |trailingSpace|
 //@[24:28) NewLine |\r\n\r\n|
 
-// #completionTest(19,20) -> object
-//@[35:37) NewLine |\r\n|
+// #completionTest(19,20) -> resourceObject
+//@[43:45) NewLine |\r\n|
 resource foo 'ddd'= 
 //@[0:8) Identifier |resource|
 //@[9:12) Identifier |foo|
@@ -1862,8 +1862,9 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 //@[92:93) LeftBrace |{|
 //@[93:95) NewLine |\r\n|
   // #completionTest(0, 1, 2) -> topLevelProperties
-//@[51:55) NewLine |\r\n\r\n|
-
+//@[51:53) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1875,8 +1876,8 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[100:101) Assignment |=|
 //@[102:103) LeftBrace |{|
 //@[103:105) NewLine |\r\n|
-  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
-//@[60:62) NewLine |\r\n|
+  // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
+//@[61:63) NewLine |\r\n|
   name: 'me'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -1892,8 +1893,8 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-// #completionTest(24,25,26,49,65) -> resourceTypes
-//@[51:53) NewLine |\r\n|
+// #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
+//@[72:74) NewLine |\r\n|
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[0:8) Identifier |resource|
 //@[9:23) Identifier |unfinishedVnet|
@@ -1926,6 +1927,10 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[7:9) NewLine |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
 //@[78:80) NewLine |\r\n|
+       
+//@[7:9) NewLine |\r\n|
+        // #completionTest(0,1,2,3,4,5,6,7) -> empty
+//@[52:54) NewLine |\r\n|
         properties: {
 //@[8:18) Identifier |properties|
 //@[18:19) Colon |:|
@@ -2352,8 +2357,9 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[8:18) StringComplete |'AzureCLI'|
 //@[18:20) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2429,8 +2435,9 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[8:18) StringComplete |'AzureCLI'|
 //@[18:20) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2507,8 +2514,9 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[8:18) StringComplete |'AzureCLI'|
 //@[18:20) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2602,8 +2610,9 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[8:18) StringComplete |'AzureCLI'|
 //@[18:20) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2687,8 +2696,9 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[8:25) StringComplete |'AzurePowerShell'|
 //@[25:27) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2771,8 +2781,9 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[8:25) StringComplete |'AzurePowerShell'|
 //@[25:27) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2863,8 +2874,9 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[8:25) StringComplete |'AzurePowerShell'|
 //@[25:27) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -2972,8 +2984,9 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[8:25) StringComplete |'AzurePowerShell'|
 //@[25:27) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:59) NewLine |\r\n\r\n|
-
+//@[55:57) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
 //@[12:13) Colon |:|
@@ -5523,11 +5536,11 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[15:17) NewLine |\r\n|
     // #completionTest(17) -> symbolsPlusAccount
 //@[48:50) NewLine |\r\n|
-    networkAcls: {
+    networkAcls:  {
 //@[4:15) Identifier |networkAcls|
 //@[15:16) Colon |:|
-//@[17:18) LeftBrace |{|
-//@[18:20) NewLine |\r\n|
+//@[18:19) LeftBrace |{|
+//@[19:21) NewLine |\r\n|
       virtualNetworkRules: [for rule in []: {
 //@[6:25) Identifier |virtualNetworkRules|
 //@[25:26) Colon |:|
@@ -5567,8 +5580,8 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[31:32) Colon |:|
 //@[33:34) LeftBrace |{|
 //@[34:36) NewLine |\r\n|
-          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
-//@[126:128) NewLine |\r\n|
+          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
+//@[92:94) NewLine |\r\n|
           fake: [for something in []: true]
 //@[10:14) Identifier |fake|
 //@[14:15) Colon |:|
@@ -6607,19 +6620,19 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
 //@[0:8) Identifier |resource|
-//@[9:27) Identifier |existngResProperty|
-//@[28:74) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[75:83) Identifier |existing|
-//@[84:85) Assignment |=|
-//@[86:87) LeftBrace |{|
-//@[87:89) NewLine |\r\n|
-  name: 'existngResProperty'
+//@[9:28) Identifier |existingResProperty|
+//@[29:75) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[76:84) Identifier |existing|
+//@[85:86) Assignment |=|
+//@[87:88) LeftBrace |{|
+//@[88:90) NewLine |\r\n|
+  name: 'existingResProperty'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
-//@[8:28) StringComplete |'existngResProperty'|
-//@[28:30) NewLine |\r\n|
+//@[8:29) StringComplete |'existingResProperty'|
+//@[29:31) NewLine |\r\n|
   location: 'westeurope'
 //@[2:10) Identifier |location|
 //@[10:11) Colon |:|
@@ -6633,6 +6646,318 @@ resource existngResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' exist
 //@[16:18) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:35) Identifier |invalidExistingLocationRef|
+//@[36:93) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[94:95) Assignment |=|
+//@[96:97) LeftBrace |{|
+//@[97:99) NewLine |\r\n|
+    parent: existingResProperty
+//@[4:10) Identifier |parent|
+//@[10:11) Colon |:|
+//@[12:31) Identifier |existingResProperty|
+//@[31:33) NewLine |\r\n|
+    name: 'myExt'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:17) StringComplete |'myExt'|
+//@[17:19) NewLine |\r\n|
+    location: existingResProperty.location
+//@[4:12) Identifier |location|
+//@[12:13) Colon |:|
+//@[14:33) Identifier |existingResProperty|
+//@[33:34) Dot |.|
+//@[34:42) Identifier |location|
+//@[42:44) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:27) Identifier |anyTypeInDependsOn|
+//@[28:67) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[68:69) Assignment |=|
+//@[70:71) LeftBrace |{|
+//@[71:73) NewLine |\r\n|
+  name: 'anyTypeInDependsOn'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:28) StringComplete |'anyTypeInDependsOn'|
+//@[28:30) NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:25) Identifier |resourceGroup|
+//@[25:26) LeftParen |(|
+//@[26:27) RightParen |)|
+//@[27:28) Dot |.|
+//@[28:36) Identifier |location|
+//@[36:38) NewLine |\r\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+//@[4:7) Identifier |any|
+//@[7:8) LeftParen |(|
+//@[8:34) Identifier |invalidExistingLocationRef|
+//@[34:35) Dot |.|
+//@[35:45) Identifier |properties|
+//@[45:46) Dot |.|
+//@[46:69) Identifier |autoUpgradeMinorVersion|
+//@[69:70) RightParen |)|
+//@[70:72) NewLine |\r\n|
+    's'
+//@[4:7) StringComplete |'s'|
+//@[7:9) NewLine |\r\n|
+    any(true)
+//@[4:7) Identifier |any|
+//@[7:8) LeftParen |(|
+//@[8:12) TrueKeyword |true|
+//@[12:13) RightParen |)|
+//@[13:15) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:24) Identifier |anyTypeInParent|
+//@[25:70) StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
+//@[71:72) Assignment |=|
+//@[73:74) LeftBrace |{|
+//@[74:76) NewLine |\r\n|
+  parent: any(true)
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:13) Identifier |any|
+//@[13:14) LeftParen |(|
+//@[14:18) TrueKeyword |true|
+//@[18:19) RightParen |)|
+//@[19:21) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
+//@[0:8) Identifier |resource|
+//@[9:28) Identifier |anyTypeInParentLoop|
+//@[29:74) StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
+//@[75:76) Assignment |=|
+//@[77:78) LeftSquare |[|
+//@[78:81) Identifier |for|
+//@[82:87) Identifier |thing|
+//@[88:90) Identifier |in|
+//@[91:92) LeftSquare |[|
+//@[92:93) RightSquare |]|
+//@[93:94) Colon |:|
+//@[95:96) LeftBrace |{|
+//@[96:98) NewLine |\r\n|
+  parent: any(true)
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:13) Identifier |any|
+//@[13:14) LeftParen |(|
+//@[14:18) TrueKeyword |true|
+//@[18:19) RightParen |)|
+//@[19:21) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[0:8) Identifier |resource|
+//@[9:23) Identifier |anyTypeInScope|
+//@[24:66) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[67:68) Assignment |=|
+//@[69:70) LeftBrace |{|
+//@[70:72) NewLine |\r\n|
+  scope: any(invalidExistingLocationRef)
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:39) Identifier |invalidExistingLocationRef|
+//@[39:40) RightParen |)|
+//@[40:42) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
+//@[0:8) Identifier |resource|
+//@[9:34) Identifier |anyTypeInScopeConditional|
+//@[35:77) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[78:79) Assignment |=|
+//@[80:82) Identifier |if|
+//@[82:83) LeftParen |(|
+//@[83:87) TrueKeyword |true|
+//@[87:88) RightParen |)|
+//@[89:90) LeftBrace |{|
+//@[90:92) NewLine |\r\n|
+  scope: any(invalidExistingLocationRef)
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:39) Identifier |invalidExistingLocationRef|
+//@[39:40) RightParen |)|
+//@[40:42) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:31) Identifier |anyTypeInExistingScope|
+//@[32:76) StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
+//@[77:85) Identifier |existing|
+//@[86:87) Assignment |=|
+//@[88:89) LeftBrace |{|
+//@[89:91) NewLine |\r\n|
+  parent: any('')
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:13) Identifier |any|
+//@[13:14) LeftParen |(|
+//@[14:16) StringComplete |''|
+//@[16:17) RightParen |)|
+//@[17:19) NewLine |\r\n|
+  scope: any(false)
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:18) FalseKeyword |false|
+//@[18:19) RightParen |)|
+//@[19:21) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
+//@[0:8) Identifier |resource|
+//@[9:35) Identifier |anyTypeInExistingScopeLoop|
+//@[36:80) StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
+//@[81:89) Identifier |existing|
+//@[90:91) Assignment |=|
+//@[92:93) LeftSquare |[|
+//@[93:96) Identifier |for|
+//@[97:102) Identifier |thing|
+//@[103:105) Identifier |in|
+//@[106:107) LeftSquare |[|
+//@[107:108) RightSquare |]|
+//@[108:109) Colon |:|
+//@[110:111) LeftBrace |{|
+//@[111:113) NewLine |\r\n|
+  parent: any('')
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:13) Identifier |any|
+//@[13:14) LeftParen |(|
+//@[14:16) StringComplete |''|
+//@[16:17) RightParen |)|
+//@[17:19) NewLine |\r\n|
+  scope: any(false)
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:12) Identifier |any|
+//@[12:13) LeftParen |(|
+//@[13:18) FalseKeyword |false|
+//@[18:19) RightParen |)|
+//@[19:21) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:35) Identifier |tenantLevelResourceBlocked|
+//@[36:86) StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
+//@[87:88) Assignment |=|
+//@[89:90) LeftBrace |{|
+//@[90:92) NewLine |\r\n|
+  name: 'tenantLevelResourceBlocked'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:36) StringComplete |'tenantLevelResourceBlocked'|
+//@[36:38) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// #completionTest(15,36,37) -> resourceTypes
+//@[45:47) NewLine |\r\n|
+resource comp1 'Microsoft.Resources/'
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |comp1|
+//@[15:37) StringComplete |'Microsoft.Resources/'|
+//@[37:41) NewLine |\r\n\r\n|
+
+// #completionTest(15,16,17) -> resourceTypes
+//@[45:47) NewLine |\r\n|
+resource comp2 ''
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |comp2|
+//@[15:17) StringComplete |''|
+//@[17:21) NewLine |\r\n\r\n|
+
+// #completionTest(38) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource comp3 'Microsoft.Resources/t'
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |comp3|
+//@[15:38) StringComplete |'Microsoft.Resources/t'|
+//@[38:42) NewLine |\r\n\r\n|
+
+// #completionTest(40) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource comp4 'Microsoft.Resources/t/v'
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |comp4|
+//@[15:40) StringComplete |'Microsoft.Resources/t/v'|
+//@[40:44) NewLine |\r\n\r\n|
+
+// #completionTest(49) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource comp5 'Microsoft.Storage/storageAccounts'
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |comp5|
+//@[15:50) StringComplete |'Microsoft.Storage/storageAccounts'|
+//@[50:54) NewLine |\r\n\r\n|
+
+// #completionTest(50) -> storageAccountsResourceTypes
+//@[54:56) NewLine |\r\n|
+resource comp6 'Microsoft.Storage/storageAccounts@'
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |comp6|
+//@[15:51) StringComplete |'Microsoft.Storage/storageAccounts@'|
+//@[51:55) NewLine |\r\n\r\n|
+
+// #completionTest(52) -> templateSpecsResourceTypes
+//@[52:54) NewLine |\r\n|
+resource comp7 'Microsoft.Resources/templateSpecs@20'
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |comp7|
+//@[15:53) StringComplete |'Microsoft.Resources/templateSpecs@20'|
+//@[53:57) NewLine |\r\n\r\n|
+
+// #completionTest(60,61) -> virtualNetworksResourceTypes
+//@[57:59) NewLine |\r\n|
+resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
+//@[0:8) Identifier |resource|
+//@[9:14) Identifier |comp8|
+//@[15:61) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[61:63) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

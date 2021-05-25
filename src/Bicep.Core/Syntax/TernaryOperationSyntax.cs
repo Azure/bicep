@@ -6,10 +6,11 @@ namespace Bicep.Core.Syntax
 {
     public class TernaryOperationSyntax : ExpressionSyntax
     {
-        public TernaryOperationSyntax(SyntaxBase conditionExpression, Token question, SyntaxBase trueExpression, Token colon, SyntaxBase falseExpression)
+        public TernaryOperationSyntax(SyntaxBase conditionExpression, Token question, SyntaxBase trueExpression, SyntaxBase colon, SyntaxBase falseExpression)
         {
             AssertTokenType(question,nameof(question), TokenType.Question);
-            AssertTokenType(colon, nameof(colon), TokenType.Colon);
+            AssertSyntaxType(colon, nameof(colon), typeof(Token), typeof(SkippedTriviaSyntax));
+            AssertTokenType(colon as Token, nameof(colon), TokenType.Colon);
 
             this.ConditionExpression = conditionExpression;
             this.Question = question;
@@ -24,7 +25,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase TrueExpression { get; }
 
-        public Token Colon { get; }
+        public SyntaxBase Colon { get; }
 
         public SyntaxBase FalseExpression { get; }
 

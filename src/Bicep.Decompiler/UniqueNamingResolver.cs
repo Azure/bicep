@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
+using Bicep.Decompiler.ArmHelpers;
 
 namespace Bicep.Decompiler
 {
@@ -28,9 +30,16 @@ namespace Bicep.Decompiler
                 _ => nameType.ToString().ToUpperInvariant(),
             };
 
-        private static string EscapeIdentifier(string identifier)
+        public static string EscapeIdentifier(string identifier)
         {
-            return Regex.Replace(identifier, "[^a-zA-Z0-9\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Nd}\\p{Mn}\\p{Mc}\\p{Cf}]+", "_").Trim('_');
+            var value = Regex.Replace(identifier, "[^a-zA-Z0-9\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Nd}\\p{Mn}\\p{Mc}\\p{Cf}]+", "_").Trim('_');
+            if (Regex.IsMatch(value, "^[0-9].*"))
+            {
+                // an identifier cannot start with a digit - work around this by prefixing with '_'
+                value = "_" + value;
+            }
+
+            return value;
         }
 
         public string? TryLookupName(NameType nameType, string desiredName)
@@ -91,6 +100,9 @@ namespace Bicep.Decompiler
 
         public string? TryLookupResourceName(string? typeString, LanguageExpression nameExpression)
         {
+            // normalize strings - this flattens nested format() and concat() expressions, and outputs via concat()
+            nameExpression = LanguageExpressionRewriter.Rewrite(nameExpression, ExpressionHelpers.FlattenStringOperations);
+
             if (typeString is null)
             {
                 var nameString = ExpressionsEngine.SerializeExpression(nameExpression);
@@ -121,6 +133,9 @@ namespace Bicep.Decompiler
 
         public string? TryRequestResourceName(string typeString, LanguageExpression nameExpression)
         {
+            // normalize strings - this flattens nested format() and concat() expressions, and outputs via concat()
+            nameExpression = LanguageExpressionRewriter.Rewrite(nameExpression, ExpressionHelpers.FlattenStringOperations);
+
             // it's valid to include a trailing slash, so we need to normalize it
             typeString = typeString.TrimEnd('/');
 

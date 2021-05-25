@@ -8,16 +8,17 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepHoverHandler : HoverHandler
+    public class BicepHoverHandler : HoverHandlerBase
     {
         private readonly ISymbolResolver symbolResolver;
 
-        public BicepHoverHandler(ISymbolResolver symbolResolver) : base(CreateRegistrationOptions())
+        public BicepHoverHandler(ISymbolResolver symbolResolver)
         {
             this.symbolResolver = symbolResolver;
         }
@@ -46,12 +47,6 @@ namespace Bicep.LanguageServer.Handlers
                 Range = PositionHelper.GetNameRange(result.Context.LineStarts, result.Origin)
             });
         }
-
-        private static HoverRegistrationOptions CreateRegistrationOptions() =>
-            new HoverRegistrationOptions
-            {
-                DocumentSelector = DocumentSelectorFactory.Create()
-            };
 
         private static string? GetMarkdown(SymbolResolutionResult result)
         {
@@ -87,6 +82,15 @@ namespace Bicep.LanguageServer.Handlers
                     // it's not possible for a non-function call syntax to resolve to a function symbol
                     // but this simplifies the checks
                     return GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel());
+
+                case PropertySymbol property:
+                    var markdown =  $"```bicep\n{property.Name}: {property.Type}\n```\n";
+                    if (property.Description is not null)
+                    {
+                        markdown += $"{property.Description}\n";
+                    }
+
+                    return markdown;
 
                 case FunctionSymbol function when result.Origin is InstanceFunctionCallSyntax functionCall:
                     return GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel());
@@ -127,6 +131,11 @@ namespace Bicep.LanguageServer.Handlers
 
             return buffer.ToString();
         }
+
+        protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
+        {
+            DocumentSelector = DocumentSelectorFactory.Create()
+        };
     }
 }
 

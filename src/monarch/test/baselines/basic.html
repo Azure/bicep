@@ -1,0 +1,127 @@
+
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-comment">// test</span>
+<span class="hljs-comment">/* test 2 */</span>
+<span class="hljs-keyword">targetScope</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">resourceGroup&#39;</span>
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">avcsdd</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.Cache/redis@2020-06-01&#39;</span> = { <span class="hljs-comment">// line comment</span>
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span> <span class="hljs-comment">/* block</span>
+<span class="hljs-comment">  comment */</span>
+  <span class="hljs-variable">location</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">somewhere&#39;</span>
+  <span class="hljs-variable">properties</span>: {
+    <span class="hljs-variable">sku</span>: {
+      <span class="hljs-variable">capacity</span>: <span class="hljs-number">123</span>
+      <span class="hljs-variable">family</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">C&#39;</span>
+      <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">Basic&#39;</span>
+    }
+  }
+}
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">secretsObject</span> = {
+  <span class="hljs-variable">secrets</span>: [
+    <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>
+    <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>
+  ]
+}
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">parent</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">secrets0</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets@2018-02-14&#39;</span> = {
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span>${<span class="hljs-variable">parent</span>}<span class="hljs-string">/child&#39;</span>
+  <span class="hljs-variable">properties</span>: {
+    <span class="hljs-variable">attributes</span>:  {
+      <span class="hljs-variable">enabled</span>: <span class="hljs-keyword">true</span>
+    }
+  }
+}
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">secrets1</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets@2018-02-14&#39;</span> = <span class="hljs-keyword">if</span> (<span class="hljs-variable">secrets0</span>.<span class="hljs-variable">id</span> == <span class="hljs-string">&#39;</span><span class="hljs-string">&#39;</span>) {
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span>${<span class="hljs-variable">parent</span>}<span class="hljs-string">/child1&#39;</span>
+  <span class="hljs-variable">properties</span>: {
+  }
+}
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">secrets2</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets@2018-02-14&#39;</span> = [<span class="hljs-keyword">for</span> <span class="hljs-variable">secret</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">secretsObject</span>.<span class="hljs-variable">secrets</span>: {
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">asdfsd/forloop&#39;</span>
+  <span class="hljs-variable">properties</span>: {}
+}]
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">secrets3</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets@2018-02-14&#39;</span> = [<span class="hljs-keyword">for</span> <span class="hljs-variable">secret</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">secretsObject</span>.<span class="hljs-variable">secrets</span>: {
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">jk</span>${<span class="hljs-keyword">true</span>}<span class="hljs-string">asdf</span>${<span class="hljs-number">23</span>}<span class="hljs-string">.</span><span class="hljs-string">\${</span><span class="hljs-string">SDF</span>${<span class="hljs-variable">secretsObject</span>[<span class="hljs-string">&#39;</span><span class="hljs-string">secrets&#39;</span>][<span class="hljs-number">1</span>]}<span class="hljs-string">&#39;</span>
+  <span class="hljs-variable">properties</span>: {
+  }
+}]
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">secrets4</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets@2018-02-14&#39;</span> = [<span class="hljs-keyword">for</span> <span class="hljs-variable">secret</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">secretsObject</span>.<span class="hljs-variable">secrets</span>: <span class="hljs-keyword">if</span> (<span class="hljs-keyword">true</span>) {
+  <span class="hljs-string">&#39;</span><span class="hljs-string">name&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">test/child&#39;</span>
+  <span class="hljs-variable">properties</span>:{
+  }
+}]
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">virtualNetwork</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.Network/virtualNetworks@2020-08-01&#39;</span> <span class="hljs-keyword">existing</span> = {
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">myVnet&#39;</span>
+}
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multi</span> = <span class="hljs-string">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multi2</span> = <span class="hljs-string">&#39;&#39;&#39;</span>
+<span class="hljs-string">      hello!</span>
+<span class="hljs-string">&#39;&#39;&#39;</span>
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">func</span> = <span class="hljs-variable">resourceGroup</span>().<span class="hljs-variable">location</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">func2</span> = <span class="hljs-variable">reference</span>(<span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets&#39;</span>, <span class="hljs-variable">func</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-variable">func3</span> = <span class="hljs-variable">union</span>({
+  <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>: <span class="hljs-variable">resourceGroup</span>().<span class="hljs-variable">id</span>
+}, {
+  <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">test&#39;</span>
+})
+
+@<span class="hljs-variable">allowed</span>([
+  <span class="hljs-string">&#39;</span><span class="hljs-string">hello!&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">hi!&#39;</span>
+])
+@<span class="hljs-variable">secure</span>()
+<span class="hljs-keyword">param</span> <span class="hljs-variable">secureParam</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">hello!&#39;</span>
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">emojis</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">💪😊😈🍕☕&#39;</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">ninjaCat</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">🐱‍👤&#39;</span>
+
+<span class="hljs-comment">/* block */</span>
+
+<span class="hljs-comment">/*</span>
+<span class="hljs-comment">朝辞白帝彩云间</span>
+<span class="hljs-comment">千里江陵一日还</span>
+<span class="hljs-comment">两岸猿声啼不住</span>
+<span class="hljs-comment">轻舟已过万重山</span>
+<span class="hljs-comment">*/</span>
+
+<span class="hljs-comment">// greek letters in comment: Π π Φ φ plus emoji 😎</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">variousAlphabets</span> = {
+  <span class="hljs-string">&#39;</span><span class="hljs-string">α&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">α&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">Ωω&#39;</span>: [
+    <span class="hljs-string">&#39;</span><span class="hljs-string">Θμ&#39;</span>
+  ]
+  <span class="hljs-string">&#39;</span><span class="hljs-string">ążźćłóę&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">Cześć!&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">áéóúñü&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">¡Hola!&#39;</span>
+
+  <span class="hljs-string">&#39;</span><span class="hljs-string">二头肌&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">二头肌&#39;</span>
+}
+
+<span class="hljs-keyword">output</span> <span class="hljs-variable">concatUnicodeStrings</span> <span class="hljs-variable">string</span> = <span class="hljs-variable">concat</span>(<span class="hljs-string">&#39;</span><span class="hljs-string">Θμ&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">二头肌&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">α&#39;</span>)
+<span class="hljs-keyword">output</span> <span class="hljs-variable">interpolateUnicodeStrings</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">Θμ二</span>${<span class="hljs-variable">emojis</span>}<span class="hljs-string">头肌</span>${<span class="hljs-variable">ninjaCat</span>}<span class="hljs-string">α&#39;</span>
+
+<span class="hljs-comment">// all of these should produce the same string</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">surrogate_char</span>      = <span class="hljs-string">&#39;</span><span class="hljs-string">𐐷&#39;</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">surrogate_codepoint</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">\u{10437}</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">surrogate_pairs</span>     = <span class="hljs-string">&#39;</span><span class="hljs-string">\u{D801}\u{DC37}</span><span class="hljs-string">&#39;</span>
+
+<span class="hljs-comment">// ascii escapes</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">hello</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">❆ Hello</span><span class="hljs-string">\u{20}</span><span class="hljs-string">World</span><span class="hljs-string">\u{21}</span><span class="hljs-string"> ❁&#39;</span>
+
+
+    </pre>
+  </body>
+</html>

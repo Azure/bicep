@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "arrayParam"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "arrayParam:"
+    }
   },
   {
     "label": "objParam",
@@ -35,11 +32,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "objParam"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "objParam:"
+    }
   },
   {
     "label": "stringParamA",
@@ -56,11 +50,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "stringParamA"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "stringParamA:"
+    }
   },
   {
     "label": "stringParamB",
@@ -77,10 +68,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "stringParamB"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "stringParamB:"
+    }
   }
 ]

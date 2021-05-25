@@ -217,8 +217,8 @@ param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
-//@[6:26) Parameter expressionInModifier. Type: string. Declaration start char: 0, length: 179
-  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
+//@[6:26) Parameter expressionInModifier. Type: string. Declaration start char: 0, length: 176
+  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
   maxLength: a + 2
   minLength: foo()
@@ -528,6 +528,70 @@ param duplicateDecorators string
 @maxLength(-100)
 param invalidLength string
 //@[6:19) Parameter invalidLength. Type: string. Declaration start char: 0, length: 58
+
+
+param invalidPermutation array {
+//@[6:24) Parameter invalidPermutation. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 402
+    default: [
+		'foobar'
+		true
+        100
+	]
+    allowed: [
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+		'Microsoft.ContainerInstance/containerGroups'
+		'Microsoft.ContainerRegistry/registries'
+		'Microsoft.ContainerService/managedClusters'
+    ]
+}
+
+@allowed([
+	'Microsoft.AnalysisServices/servers'
+	'Microsoft.ApiManagement/service'
+	'Microsoft.Network/applicationGateways'
+	'Microsoft.Automation/automationAccounts'
+	'Microsoft.ContainerInstance/containerGroups'
+	'Microsoft.ContainerRegistry/registries'
+	'Microsoft.ContainerService/managedClusters'
+])
+param invalidPermutationWithDecorator array = [
+//@[6:37) Parameter invalidPermutationWithDecorator. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 379
+	'foobar'
+	true
+    100
+]
+
+param invalidDefaultWithAllowedArray array {
+//@[6:36) Parameter invalidDefaultWithAllowedArray. Type: array. Declaration start char: 0, length: 266
+    default: true
+    allowed: [
+		[
+			'Microsoft.AnalysisServices/servers'
+			'Microsoft.ApiManagement/service'
+		]
+		[
+			'Microsoft.Network/applicationGateways'
+			'Microsoft.Automation/automationAccounts'
+		]
+    ]
+}
+
+
+@allowed([
+	[
+		'Microsoft.AnalysisServices/servers'
+		'Microsoft.ApiManagement/service'
+	]
+	[
+		'Microsoft.Network/applicationGateways'
+		'Microsoft.Automation/automationAccounts'
+	]
+])
+param invalidDefaultWithAllowedArrayDecorator array = true
+//@[6:45) Parameter invalidDefaultWithAllowedArrayDecorator. Type: array. Declaration start char: 0, length: 245
 
 // unterminated multi-line comment
 /*    

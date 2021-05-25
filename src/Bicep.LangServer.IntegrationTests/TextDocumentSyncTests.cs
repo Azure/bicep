@@ -10,12 +10,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.Core.Analyzers.Linter.Rules;
 
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
     public class TextDocumentSyncTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
         public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics()
@@ -23,7 +27,7 @@ namespace Bicep.LangServer.IntegrationTests
             var documentUri = DocumentUri.From("/template.bicep");
             var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(options => 
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(this.TestContext, options => 
             {
                 options.OnPublishDiagnostics(diags => {
                     diagsReceived.SetResult(diags);
@@ -41,6 +45,10 @@ randomToken
 
             var response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
+                d => {
+                    d.Range.Should().HaveRange((1, 6), (1, 13));
+                    d.Should().HaveCodeAndSeverity(ParametersMustBeUsedRule.Code, DiagnosticSeverity.Warning);
+                },
                 d => {
                     d.Range.Should().HaveRange((1, 23), (1, 24));
                     d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
@@ -67,6 +75,10 @@ randomToken
 
             response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
+                d => {
+                    d.Range.Should().HaveRange((1, 6), (1, 13));
+                    d.Should().HaveCodeAndSeverity(ParametersMustBeUsedRule.Code, DiagnosticSeverity.Warning);
+                },
                 d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
                     d.Should().HaveCodeAndSeverity("BCP029", DiagnosticSeverity.Error);

@@ -5,7 +5,7 @@
     "detail": "id",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nResource ID.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "id"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "id:"
+    }
   },
   {
     "label": "properties",
@@ -26,7 +23,7 @@
     "detail": "properties",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubnetPropertiesFormat`  \n"
+      "value": "Type: `SubnetPropertiesFormat`  \nProperties of the subnet.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -35,10 +32,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "properties"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "properties:"
+    }
   }
 ]

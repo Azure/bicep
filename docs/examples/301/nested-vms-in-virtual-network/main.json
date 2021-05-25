@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16767638129179699760"
+      "templateHash": "10423930535761061776"
     }
   },
   "parameters": {
@@ -367,7 +367,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4056214892007614382"
+              "templateHash": "7684617739934394954"
             }
           },
           "parameters": {
@@ -416,7 +416,7 @@
                     "properties": {
                       "primary": true,
                       "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-                      "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
                       },
@@ -472,7 +472,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4056214892007614382"
+              "templateHash": "7684617739934394954"
             }
           },
           "parameters": {
@@ -521,7 +521,7 @@
                     "properties": {
                       "primary": true,
                       "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-                      "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
                       },
@@ -582,7 +582,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4056214892007614382"
+              "templateHash": "7684617739934394954"
             }
           },
           "parameters": {
@@ -631,7 +631,7 @@
                     "properties": {
                       "primary": true,
                       "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-                      "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
                       },
@@ -694,7 +694,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4056214892007614382"
+              "templateHash": "7684617739934394954"
             }
           },
           "parameters": {
@@ -743,7 +743,7 @@
                     "properties": {
                       "primary": true,
                       "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
-                      "privateIPAddress": "[if(equals(parameters('pipId'), ''), null(), parameters('staticIpAddress'))]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
                       },

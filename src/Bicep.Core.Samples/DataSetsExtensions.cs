@@ -17,8 +17,6 @@ namespace Bicep.Core.Samples
 {
     public static class DataSetsExtensions
     {
-        private static readonly ITypeLoader TypeLoader = new TypeLoader();
-
         public static IEnumerable<object[]> ToDynamicTestData(this IEnumerable<DataSet> source) => source.Select(ToDynamicTestData);
 
         public static object[] ToDynamicTestData(this DataSet ds) => new object[] {ds};
@@ -35,7 +33,7 @@ namespace Bicep.Core.Samples
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), fileUri);
 
-            return new Compilation(new AzResourceTypeProvider(TypeLoader), syntaxTreeGrouping);
+            return new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
         }
     }
 }

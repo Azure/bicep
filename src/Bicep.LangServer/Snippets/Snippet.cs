@@ -14,11 +14,11 @@ namespace Bicep.LanguageServer.Snippets
     public sealed class Snippet
     {
         // Below regex is used to detect following snippet syntax:
-        // ${(?<index>\d+):(?<name>\w+)} detects placeholders i.e. tab stops with values e.g ${1:foo}
+        // ${(?<index>\d+):(?<name>[^}]+)} detects placeholders i.e. tab stops with values e.g ${1:foo}
         // $(?<index>\d+) detects tab stops e.g. $1
-        // $(?<index>\d+)\|((?<name>[^,]+)(?<value>.*))\|} detects placeholders with choices e.g. ${1|one,two,three|}
+        // $(?<index>\d+)\|((?<name>[^,]+)(.*))\|} detects placeholders with choices e.g. ${1|one,two,three|}
         // See https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax for more information
-        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>\w+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(?<value>.*))\|})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>[^}]+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(.*))\|})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         public Snippet(string text, CompletionPriority completionPriority = CompletionPriority.Medium, string prefix = "", string detail = "")
         {
@@ -32,8 +32,6 @@ namespace Bicep.LanguageServer.Snippets
                 .Select(CreatePlaceholder)
                 .OrderBy(p=>p.Index)
                 .ToImmutableArray();
-
-            this.Validate();
         }
 
         public string Prefix { get; }
@@ -86,21 +84,6 @@ namespace Bicep.LanguageServer.Snippets
                 index: int.Parse(match.Groups["index"].Value),
                 name: name,
                 span: new TextSpan(match.Index, match.Length));
-        }
-
-        private void Validate()
-        {
-            // empty snippet is pointless but still valid
-            if (this.Placeholders.IsEmpty)
-            {
-                return;
-            }
-
-            var firstPlaceholderIndex = this.Placeholders.First().Index;
-            if (firstPlaceholderIndex != 0 && firstPlaceholderIndex != 1)
-            {
-                throw new ArgumentException($"The first snippet placeholder must have index 0 or 1, but the provided index is {firstPlaceholderIndex}");
-            }
         }
     }
 }

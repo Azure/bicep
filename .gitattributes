@@ -1,3 +1,4 @@
 *.bicep -text
 *.ts text eol=lf
 *.cs text eol=lf
+*.sh text eol=lf

@@ -42,7 +42,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   properties: {
     supportsHttpsTrafficOnly: !false
     accessTier: true ? 'Hot' : 'Cold'
-//@[16:37) [BCP036 (Warning)] The property "accessTier" expected a value of type "'Cool' | 'Hot'" but the provided value is of type "'Cold' | 'Hot'". |true ? 'Hot' : 'Cold'|
+//@[16:37) [BCP036 (Warning)] The property "accessTier" expected a value of type "'Cool' | 'Hot' | null" but the provided value is of type "'Cold' | 'Hot'". |true ? 'Hot' : 'Cold'|
     encryption: {
       keySource: 'Microsoft.Storage'
       services: {
@@ -82,7 +82,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
   properties: {
     name: hostingPlanName // just hostingPlanName results in an error
-//@[4:8) [BCP038 (Warning)] The property "name" is not allowed on objects of type "schemas:6_properties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". |name|
+//@[4:8) [BCP037 (Warning)] The property "name" is not allowed on objects of type "schemas:6_properties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". |name|
   }
 }
 
@@ -92,6 +92,7 @@ var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 // this variable is not accessed anywhere in this template and depends on a run-time reference
 // it should not be present at all in the template output as there is nowhere logical to put it
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
+//@[4:20) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |cosmosDbEndpoint|
 
 param webSiteName string
 param cosmosDb object
@@ -124,7 +125,9 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 }
 
 var _siteApiVersion = site.apiVersion
+//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |_siteApiVersion|
 var _siteType = site.type
+//@[4:13) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |_siteType|
 
 output siteApiVersion string = site.apiVersion
 output siteType string = site.type
@@ -322,7 +325,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
+      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
+     
+      // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
   }
@@ -340,6 +345,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 
 // duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
+//@[4:33) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |canHaveDuplicatesAcrossScopes|
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
   name: 'vnet-${canHaveDuplicatesAcrossScopes}'
   properties: {
@@ -351,6 +357,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
+//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |duplicatesEverywhere|
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
   name: 'vnet-${duplicatesEverywhere}'
   properties: {
@@ -489,3 +496,4 @@ output p4_res1childprop string = p4_child1.properties.someProp
 output p4_res1childname string = p4_child1.name
 output p4_res1childtype string = p4_child1.type
 output p4_res1childid string = p4_child1.id
+

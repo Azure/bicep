@@ -11,14 +11,14 @@ There are no constraints on placement of variable declarations. They can be mixe
 The examples below cover variable declaration using hard-coded and calculated values.
 
 ### String variable
-```
+```bicep
 var myString = 'my string value'
 
 var location = resourceGroup().location
 ```
 
 ### Boolean variables
-```
+```bicep
 var iAmTrue = true
 var iAmFalse = false
 
@@ -26,14 +26,14 @@ var hasItems = length(myArray) >= 0
 ```
 
 ### Numeric variables
-```
+```bicep
 var meaningOfLifeTheUniVerseAndEverything = 42
 
 var lengthOfMyArray = length(myArray)
 ```
 
 ### Object variables
-```
+```bicep
 var myObject = {
   first: 1
   second: 2
@@ -43,7 +43,7 @@ var keys = listKeys(myResource.id, myResource.apiVersion)
 ```
 
 ### Array variables
-```
+```bicep
 var myArray = [
   'item 1'
   'item 2'

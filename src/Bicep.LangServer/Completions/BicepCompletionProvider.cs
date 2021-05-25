@@ -27,11 +27,9 @@ namespace Bicep.LanguageServer.Completions
     {
         private const string MarkdownNewLine = "  \n";
 
-        private static readonly Container<string> PropertyCommitChars = new Container<string>(":");
+        private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
-        private static readonly Container<string> ResourceSymbolCommitChars = new Container<string>(":");
-
-        private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
+        private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
         private IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
@@ -56,8 +54,10 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
+                .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetModulePathCompletions(model, context))
-                .Concat(GetResourceOrModuleBodyCompletions(context))
+                .Concat(GetModuleBodyCompletions(model, context))
+                .Concat(GetResourceBodyCompletions(model, context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
                 .Concat(GetOutputValueCompletions(model, context))
@@ -200,13 +200,43 @@ namespace Bicep.LanguageServer.Completions
 
                 return items;
             }
-            // we need to ensure that Microsoft.Compute/virtualMachines@whatever comes before Microsoft.Compute/virtualMachines/extensions@whatever
-            // similarly, newest api versions should be shown first
+
+            // ResourceType completions are divided into 2 parts.
+            // If the current value passes the namespace and type notation ("<Namespace>/<type>") format, we return the fully qualified resource types
+            if (context.EnclosingDeclaration is ResourceDeclarationSyntax declarationSyntax
+                && declarationSyntax.Type is StringSyntax stringSyntax
+                && stringSyntax.TryGetLiteralValue() is string entered
+                && ResourceTypeReference.IsNamespaceAndTypeSegment(entered))
+            {
+                // newest api versions should be shown first
+                // strict filtering on type so that we show api versions for only the selected type
+                return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FullyQualifiedType))
+                    .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
+                    .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                    .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
+                    .ToList();
+            }
+            
+            // if we do not have the namespace and type notation, we only return uniquie resource types without their api-versions
+            // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
+            // we still order by apiVersion first to have consistent indexes
             return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+                .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                .GroupBy(rt => rt.FullyQualifiedType)
+                .Select(rt => rt.First())
                 .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
-                .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
-                .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange))
+                .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false))
                 .ToList();
+        }
+
+        private IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
+            {
+                const string existing = "existing";
+                yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
+            }
         }
 
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
@@ -234,8 +264,7 @@ namespace Bicep.LanguageServer.Completions
             var files = Enumerable.Empty<Uri>();
             var dirs = Enumerable.Empty<Uri>();
 
-
-            // technically bicep files do not have to follow the bicep extension, so 
+            // technically bicep files do not have to follow the bicep extension, so
             // we are not enforcing *.bicep get files command
             if (FileResolver.TryDirExists(query))
             {
@@ -252,22 +281,24 @@ namespace Bicep.LanguageServer.Completions
             var fileItems = files
                 .Where(file => file != model.SyntaxTree.FileUri)
                 .Where(file => file.Segments.Last().EndsWith(LanguageConstants.LanguageFileExtension))
-                .Select(file => CreateModulePathCompletion(
+                .Select(file => CreateModulePathCompletionBuilder(
                     file.Segments.Last(),
                     (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(file).ToString(),
                     context.ReplacementRange,
                     CompletionItemKind.File,
-                    file.Segments.Last().EndsWith(LanguageConstants.LanguageId) ? CompletionPriority.High : CompletionPriority.Medium))
+                    file.Segments.Last().EndsWith(LanguageConstants.LanguageId) ? CompletionPriority.High : CompletionPriority.Medium)
+                .Build())
                 .ToList();
 
             var dirItems = dirs
-                .Select(dir => CreateModulePathCompletion(
+                .Select(dir => CreateModulePathCompletionBuilder(
                     dir.Segments.Last(),
                     (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir).ToString(),
                     context.ReplacementRange,
                     CompletionItemKind.Folder,
                     CompletionPriority.Medium)
-                .WithCommand(new Command { Name = EditorCommands.RequestCompletions }))
+                .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                .Build())
                 .ToList();
             return fileItems.Concat(dirItems);
         }
@@ -316,7 +347,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetVariableValueCompletions(BicepCompletionContext context)
         {
-            if(!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -337,11 +368,71 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(declaredType, context.ReplacementRange, model, context, loopsAllowed: true);
         }
 
-        private IEnumerable<CompletionItem> GetResourceOrModuleBodyCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody) || context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody))
             {
-                yield return CreateObjectBodyCompletion(context.ReplacementRange);
+                foreach (CompletionItem completionItem in CreateResourceBodyCompletions(model, context))
+                {
+                    yield return completionItem;
+                }
+
+                yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
+
+                // loops are always allowed in a resource/module
+                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object, filtersAllowed: true))
+                {
+                    yield return completion;
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> CreateResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
+            {
+                TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
+                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, resourceDeclarationSyntax.IsExistingResource());
+
+                foreach (Snippet snippet in snippets)
+                {
+                    yield return CreateContextualSnippetCompletion(snippet!.Prefix,
+                        snippet.Detail,
+                        snippet.Text,
+                        context.ReplacementRange,
+                        snippet.CompletionPriority,
+                        preselect: true);
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> CreateModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.EnclosingDeclaration is ModuleDeclarationSyntax moduleDeclarationSyntax)
+            {
+                TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
+                IEnumerable<Snippet> snippets = SnippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol);
+
+                foreach (Snippet snippet in snippets)
+                {
+                    yield return CreateContextualSnippetCompletion(snippet!.Prefix,
+                        snippet.Detail,
+                        snippet.Text,
+                        context.ReplacementRange,
+                        snippet.CompletionPriority,
+                        preselect: true);
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
+            {
+                foreach (CompletionItem completionItem in CreateModuleBodyCompletions(model, context))
+                {
+                    yield return completionItem;
+                }
 
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
@@ -564,13 +655,14 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var specifiedPropertyNames = context.Object.ToKnownPropertyNames();
+            var specifiedPropertyNames = context.Object.ToNamedPropertyDictionary();
 
             // exclude read-only properties as they can't be set
             // exclude properties whose name has been specified in the object already
+            var includeColon = !context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyColonExists);
             return GetProperties(declaredType)
-                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.Contains(p.Name) == false)
-                .Select(p => CreatePropertyNameCompletion(p, context.ReplacementRange));
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.ContainsKey(p.Name) == false)
+                .Select(p => CreatePropertyNameCompletion(p, includeColon, context.ReplacementRange));
         }
 
         private static IEnumerable<TypeProperty> GetProperties(TypeSymbol? type)
@@ -647,23 +739,23 @@ namespace Bicep.LanguageServer.Completions
                     break;
 
                 case StringLiteralType stringLiteral:
-                    yield return CompletionItemBuilder.Create(CompletionItemKind.EnumMember)
-                        .WithLabel(stringLiteral.Name)
+                    yield return CompletionItemBuilder.Create(CompletionItemKind.EnumMember, stringLiteral.Name)
                         .WithPlainTextEdit(replacementRange, stringLiteral.Name)
                         .WithDetail(stringLiteral.Name)
                         .Preselect()
-                        .WithSortText(GetSortText(stringLiteral.Name, CompletionPriority.Medium));
+                        .WithSortText(GetSortText(stringLiteral.Name, CompletionPriority.Medium))
+                        .Build();
 
                     break;
 
                 case ArrayType arrayType:
                     const string arrayLabel = "[]";
-                    yield return CompletionItemBuilder.Create(CompletionItemKind.Value)
-                        .WithLabel(arrayLabel)
+                    yield return CompletionItemBuilder.Create(CompletionItemKind.Value, arrayLabel)
                         .WithSnippetEdit(replacementRange, "[\n\t$0\n]")
                         .WithDetail(arrayLabel)
                         .Preselect()
-                        .WithSortText(GetSortText(arrayLabel, CompletionPriority.High));
+                        .WithSortText(GetSortText(arrayLabel, CompletionPriority.High))
+                        .Build();
 
                     if (loopsAllowed)
                     {
@@ -695,22 +787,22 @@ namespace Bicep.LanguageServer.Completions
         private static CompletionItem CreateObjectBodyCompletion(Range replacementRange)
         {
             const string objectLabel = "{}";
-            return CompletionItemBuilder.Create(CompletionItemKind.Value)
-                .WithLabel(objectLabel)
+            return CompletionItemBuilder.Create(CompletionItemKind.Value, objectLabel)
                 .WithSnippetEdit(replacementRange, "{\n\t$0\n}")
                 .WithDetail(objectLabel)
                 .Preselect()
-                .WithSortText(GetSortText(objectLabel, CompletionPriority.High));
+                .WithSortText(GetSortText(objectLabel, CompletionPriority.High))
+                .Build();
         }
 
         private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)
         {
             const string conditionLabel = "if";
-            return CompletionItemBuilder.Create(CompletionItemKind.Snippet)
-                .WithLabel(conditionLabel)
+            return CompletionItemBuilder.Create(CompletionItemKind.Snippet, conditionLabel)
                 .WithSnippetEdit(replacementRange, "if (${1:condition}) {\n\t$0\n}")
                 .WithDetail(conditionLabel)
-                .WithSortText(GetSortText(conditionLabel, CompletionPriority.High));
+                .WithSortText(GetSortText(conditionLabel, CompletionPriority.High))
+                .Build();
         }
 
         private static IEnumerable<CompletionItem> CreateLoopCompletions(Range replacementRange, TypeSymbol arrayItemType, bool filtersAllowed)
@@ -732,37 +824,39 @@ namespace Bicep.LanguageServer.Completions
             yield return CreateContextualSnippetCompletion(loopLabel, loopLabel, itemSnippet, replacementRange, CompletionPriority.High);
             yield return CreateContextualSnippetCompletion(indexedLabel, indexedLabel, indexedSnippet, replacementRange, CompletionPriority.High);
 
-            if(filtersAllowed && assignableToObject && !assignableToArray)
+            if (filtersAllowed && assignableToObject && !assignableToArray)
             {
                 yield return CreateContextualSnippetCompletion(filteredLabel, filteredLabel, "[for (${2:item}, ${3:index}) in ${1:list}: if (${4:condition}) {\n\t$0\n}]", replacementRange, CompletionPriority.High);
             }
         }
 
-        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Property)
-                .WithLabel(property.Name)
-                // property names containg spaces need to be escaped
-                .WithPlainTextEdit(replacementRange, IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name)
-                .WithCommitCharacters(PropertyCommitChars)
+        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        {
+            var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
+            var suffix = includeColon ? ":" : string.Empty;
+            return CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
+                // property names that much Bicep keywords or containing non-identifier chars need to be escaped
+                .WithPlainTextEdit(replacementRange, $"{escapedPropertyName}{suffix}")
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
-                .WithSortText(GetSortText(property.Name, priority));
+                .WithSortText(GetSortText(property.Name, priority))
+                .Build();
+        }
 
         private static CompletionItem CreatePropertyIndexCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var escaped = StringUtils.EscapeBicepString(property.Name);
-            return CompletionItemBuilder.Create(CompletionItemKind.Property)
-                .WithLabel(escaped)
+            return CompletionItemBuilder.Create(CompletionItemKind.Property, escaped)
                 .WithPlainTextEdit(replacementRange, escaped)
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
-                .WithSortText(GetSortText(escaped, priority));
+                .WithSortText(GetSortText(escaped, priority))
+                .Build();
         }
 
         private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, SyntaxTree tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
-            var item = CompletionItemBuilder.Create(CompletionItemKind.Property)
-                .WithLabel(property.Name)
+            var item = CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 .WithCommitCharacters(PropertyAccessCommitChars)
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
@@ -789,33 +883,49 @@ namespace Bicep.LanguageServer.Completions
                 item.WithPlainTextEdit(replacementRange, property.Name);
             }
 
-            return item;
+            return item.Build();
         }
 
         private static CompletionItem CreateKeywordCompletion(string keyword, string detail, Range replacementRange, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Keyword)
-                .WithLabel(keyword)
+            CompletionItemBuilder.Create(CompletionItemKind.Keyword, keyword)
                 .WithPlainTextEdit(replacementRange, keyword)
                 .WithDetail(detail)
                 .Preselect(preselect)
-                .WithSortText(GetSortText(keyword, priority));
+                .WithSortText(GetSortText(keyword, priority))
+                .Build();
 
         private static CompletionItem CreateTypeCompletion(TypeSymbol type, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Class)
-                .WithLabel(type.Name)
+            CompletionItemBuilder.Create(CompletionItemKind.Class, type.Name)
                 .WithPlainTextEdit(replacementRange, type.Name)
                 .WithDetail(type.Name)
-                .WithSortText(GetSortText(type.Name, priority));
+                .WithSortText(GetSortText(type.Name, priority))
+                .Build();
 
-        private static CompletionItem CreateResourceTypeCompletion(ResourceTypeReference resourceType, int index, Range replacementRange)
+        private static CompletionItem CreateResourceTypeCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool showApiVersion)
         {
-            var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}@{resourceType.ApiVersion}");
-            return CompletionItemBuilder.Create(CompletionItemKind.Class)
-                .WithLabel(insertText)
-                .WithPlainTextEdit(replacementRange, insertText)
-                .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
-                // 8 hex digits is probably overkill :)
-                .WithSortText(index.ToString("x8"));
+            // Splitting ResourceType Completion in to two pieces, one for the 'Namespace/type', the second for '@<api-version>'
+            if (showApiVersion)
+            {
+                var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}@{resourceType.ApiVersion}");
+                return CompletionItemBuilder.Create(CompletionItemKind.Class, resourceType.ApiVersion)
+                    .WithFilterText(insertText)
+                    .WithPlainTextEdit(replacementRange, insertText)
+                    .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
+                    // 8 hex digits is probably overkill :)
+                    .WithSortText(index.ToString("x8"))
+                    .Build();
+            }
+            else
+            {
+                var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}");
+                return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
+                    .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
+                    .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}`")
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    // 8 hex digits is probably overkill :)
+                    .WithSortText(index.ToString("x8"))
+                    .Build();
+            }
         }
 
         private static CompletionItem CreateResourceTypeSegmentCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool includeApiVersion, string displayApiVersion)
@@ -824,19 +934,18 @@ namespace Bicep.LanguageServer.Completions
             var insertText = includeApiVersion ?
                 StringUtils.EscapeBicepString($"{resourceType.Types[^1]}@{resourceType.ApiVersion}") :
                 StringUtils.EscapeBicepString($"{resourceType.Types[^1]}");
-            return CompletionItemBuilder.Create(CompletionItemKind.Class)
-                .WithLabel(insertText)
+            return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                 .WithPlainTextEdit(replacementRange, insertText)
                 .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{displayApiVersion}`")
                 // 8 hex digits is probably overkill :)
-                .WithSortText(index.ToString("x8"));
+                .WithSortText(index.ToString("x8"))
+                .Build();
         }
 
-        private static CompletionItem CreateModulePathCompletion(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
+        private static CompletionItemBuilder CreateModulePathCompletionBuilder(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
         {
             path = StringUtils.EscapeBicepString(path);
-            var item = CompletionItemBuilder.Create(completionItemKind)
-                .WithLabel(name)
+            var item = CompletionItemBuilder.Create(completionItemKind, name)
                 .WithFilterText(path)
                 .WithSortText(GetSortText(name, priority));
             // Folder completions should keep us within the completion string
@@ -848,31 +957,33 @@ namespace Bicep.LanguageServer.Completions
             {
                 item = item.WithPlainTextEdit(replacementRange, path);
             }
+
             return item;
         }
 
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Snippet)
-                .WithLabel(label)
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
+            CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                 .WithSnippetEdit(replacementRange, snippet)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
-                .WithSortText(GetSortText(label, priority));
+                .WithSortText(GetSortText(label, priority))
+                .Preselect(preselect)
+                .Build();
 
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
         private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, TextEditContainer additionalTextEdits, CompletionPriority priority = CompletionPriority.Medium) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Snippet)
-                .WithLabel(label)
+            CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                 .WithSnippetEdit(replacementRange, snippet)
                 .WithAdditionalEdits(additionalTextEdits)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
-                .WithSortText(GetSortText(label, priority));
+                .WithSortText(GetSortText(label, priority))
+                .Build();
 
         private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null)
         {
@@ -880,8 +991,7 @@ namespace Bicep.LanguageServer.Completions
             var kind = GetCompletionItemKind(symbol);
             var priority = GetCompletionPriority(symbol);
 
-            var completion = CompletionItemBuilder.Create(kind)
-                .WithLabel(insertText)
+            var completion = CompletionItemBuilder.Create(kind, insertText)
                 .WithSortText(GetSortText(insertText, priority));
 
             if (symbol is ResourceSymbol)
@@ -907,12 +1017,14 @@ namespace Bicep.LanguageServer.Completions
 
                 return completion
                     .WithDetail($"{insertText}()")
-                    .WithSnippetEdit(replacementRange, snippet);
+                    .WithSnippetEdit(replacementRange, snippet)
+                    .Build();
             }
 
             return completion
                 .WithDetail(insertText)
-                .WithPlainTextEdit(replacementRange, insertText);
+                .WithPlainTextEdit(replacementRange, insertText)
+                .Build();
         }
 
         // the priority must be a number in the sort text
@@ -971,6 +1083,11 @@ namespace Bicep.LanguageServer.Completions
             if (property.Flags.HasFlag(TypePropertyFlags.Constant))
             {
                 buffer.Append($"Requires a compile-time constant value.{MarkdownNewLine}");
+            }
+
+            if (property.Description is not null)
+            {
+                buffer.Append($"{property.Description}{MarkdownNewLine}");
             }
 
             return buffer.ToString();

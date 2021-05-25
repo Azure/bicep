@@ -1,19 +1,42 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.173" />
-    <PackageReference Include="Azure.Deployments.Core" Version="1.0.173" />
-    <PackageReference Include="Azure.Bicep.Types" Version="0.1.107" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.107" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="bicepconfig.json" />
+	</ItemGroup>
 
+	<ItemGroup>
+		<EmbeddedResource Include="Configuration\bicepconfig.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="JetBrains.Annotations" Version="2021.1.0">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+		<PackageReference Include="Azure.Deployments.Expression" Version="1.0.173" />
+		<PackageReference Include="Azure.Deployments.Core" Version="1.0.173" />
+		<PackageReference Include="Azure.Bicep.Types" Version="0.1.112" />
+		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.112" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="CoreResources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>CoreResources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="CoreResources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
 </Project>

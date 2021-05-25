@@ -160,7 +160,7 @@ param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
-  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
+  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
   maxLength: a + 2
   minLength: foo()
@@ -420,6 +420,64 @@ param duplicateDecorators string
 @minLength(-1)
 @maxLength(-100)
 param invalidLength string
+
+param invalidPermutation array {
+  default: [
+    'foobar'
+    true
+    100
+  ]
+  allowed: [
+    'Microsoft.AnalysisServices/servers'
+    'Microsoft.ApiManagement/service'
+    'Microsoft.Network/applicationGateways'
+    'Microsoft.Automation/automationAccounts'
+    'Microsoft.ContainerInstance/containerGroups'
+    'Microsoft.ContainerRegistry/registries'
+    'Microsoft.ContainerService/managedClusters'
+  ]
+}
+
+@allowed([
+  'Microsoft.AnalysisServices/servers'
+  'Microsoft.ApiManagement/service'
+  'Microsoft.Network/applicationGateways'
+  'Microsoft.Automation/automationAccounts'
+  'Microsoft.ContainerInstance/containerGroups'
+  'Microsoft.ContainerRegistry/registries'
+  'Microsoft.ContainerService/managedClusters'
+])
+param invalidPermutationWithDecorator array = [
+  'foobar'
+  true
+  100
+]
+
+param invalidDefaultWithAllowedArray array {
+  default: true
+  allowed: [
+    [
+      'Microsoft.AnalysisServices/servers'
+      'Microsoft.ApiManagement/service'
+    ]
+    [
+      'Microsoft.Network/applicationGateways'
+      'Microsoft.Automation/automationAccounts'
+    ]
+  ]
+}
+
+@allowed([
+  [
+    'Microsoft.AnalysisServices/servers'
+    'Microsoft.ApiManagement/service'
+  ]
+  [
+    'Microsoft.Network/applicationGateways'
+    'Microsoft.Automation/automationAccounts'
+  ]
+])
+param invalidDefaultWithAllowedArrayDecorator array = true
 
 // unterminated multi-line comment
 /*    

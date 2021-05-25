@@ -25,3 +25,27 @@ export async function executeCompletionItemProviderCommand(
     position
   );
 }
+
+export async function executeShowVisualizerCommand(
+  documentUri: vscode.Uri
+): Promise<vscode.ViewColumn | undefined> {
+  return await vscode.commands.executeCommand(
+    "bicep.showVisualizer",
+    documentUri
+  );
+}
+
+export async function executeShowVisualizerToSideCommand(
+  documentUri: vscode.Uri
+): Promise<vscode.ViewColumn | undefined> {
+  return await vscode.commands.executeCommand(
+    "bicep.showVisualizerToSide",
+    documentUri
+  );
+}
+
+export async function executeShowSourceCommand(): Promise<
+  vscode.TextEditor | undefined
+> {
+  return await vscode.commands.executeCommand("bicep.showSource");
+}

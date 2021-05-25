@@ -9,7 +9,7 @@ namespace Bicep.Core.Syntax
 {
     public class SkippedTriviaSyntax : SyntaxBase
     {
-        public SkippedTriviaSyntax(TextSpan span, IEnumerable<SyntaxBase> elements, IEnumerable<Diagnostic> diagnostics)
+        public SkippedTriviaSyntax(TextSpan span, IEnumerable<SyntaxBase> elements, IEnumerable<IDiagnostic> diagnostics)
         {
             this.Span = span;
             this.Elements = elements.ToImmutableArray();
@@ -26,7 +26,7 @@ namespace Bicep.Core.Syntax
         /// <summary>
         /// Diagnostics to raise.
         /// </summary>
-        public ImmutableArray<Diagnostic> Diagnostics { get; }
+        public ImmutableArray<IDiagnostic> Diagnostics { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitSkippedTriviaSyntax(this);
 

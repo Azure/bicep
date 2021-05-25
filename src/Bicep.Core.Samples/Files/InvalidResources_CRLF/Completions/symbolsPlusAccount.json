@@ -31,6 +31,125 @@
     }
   },
   {
+    "label": "anyTypeInDependsOn",
+    "kind": "interface",
+    "detail": "anyTypeInDependsOn",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInDependsOn",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInDependsOn"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInExistingScope",
+    "kind": "interface",
+    "detail": "anyTypeInExistingScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInExistingScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInExistingScope"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInExistingScopeLoop",
+    "kind": "interface",
+    "detail": "anyTypeInExistingScopeLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInExistingScopeLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInExistingScopeLoop"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInParent",
+    "kind": "interface",
+    "detail": "anyTypeInParent",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInParent",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInParent"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInParentLoop",
+    "kind": "interface",
+    "detail": "anyTypeInParentLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInParentLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInParentLoop"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInScope",
+    "kind": "interface",
+    "detail": "anyTypeInScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInScope"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "anyTypeInScopeConditional",
+    "kind": "interface",
+    "detail": "anyTypeInScopeConditional",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyTypeInScopeConditional",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyTypeInScopeConditional"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "array",
     "kind": "function",
     "detail": "array()",
@@ -332,6 +451,142 @@
     "command": {
       "command": "editor.action.triggerParameterHints"
     }
+  },
+  {
+    "label": "comp1",
+    "kind": "interface",
+    "detail": "comp1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp2",
+    "kind": "interface",
+    "detail": "comp2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp3",
+    "kind": "interface",
+    "detail": "comp3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp4",
+    "kind": "interface",
+    "detail": "comp4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp4"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp5",
+    "kind": "interface",
+    "detail": "comp5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp5"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp6",
+    "kind": "interface",
+    "detail": "comp6",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp6",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp6"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp7",
+    "kind": "interface",
+    "detail": "comp7",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp7",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp7"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "comp8",
+    "kind": "interface",
+    "detail": "comp8",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_comp8",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "comp8"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "concat",
@@ -1460,17 +1715,17 @@
     }
   },
   {
-    "label": "existngResProperty",
+    "label": "existingResProperty",
     "kind": "interface",
-    "detail": "existngResProperty",
+    "detail": "existingResProperty",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_existngResProperty",
+    "sortText": "2_existingResProperty",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "existngResProperty"
+      "newText": "existingResProperty"
     },
     "commitCharacters": [
       ":"
@@ -2128,6 +2383,23 @@
     "textEdit": {
       "range": {},
       "newText": "invalidDuplicateName3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "invalidExistingLocationRef",
+    "kind": "interface",
+    "detail": "invalidExistingLocationRef",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidExistingLocationRef",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidExistingLocationRef"
     },
     "commitCharacters": [
       ":"
@@ -4709,6 +4981,23 @@
     }
   },
   {
+    "label": "tenantLevelResourceBlocked",
+    "kind": "interface",
+    "detail": "tenantLevelResourceBlocked",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_tenantLevelResourceBlocked",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "tenantLevelResourceBlocked"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "tenantResourceId",
     "kind": "function",
     "detail": "tenantResourceId()",
@@ -5106,5 +5395,19 @@
     "commitCharacters": [
       ":"
     ]
+  },
+  {
+    "label": "{}",
+    "kind": "value",
+    "detail": "{}",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_{}",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "{\n\t$0\n}"
+    }
   }
 ]

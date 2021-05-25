@@ -1,3 +1,0 @@
-resource partialDeclaration
-
-resource next

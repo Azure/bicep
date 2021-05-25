@@ -18,34 +18,46 @@ namespace Bicep.Core.Semantics
         private delegate IEnumerable<string> GetNameSuggestions();
         private delegate ErrorDiagnostic GetMissingNameError(DiagnosticBuilder.DiagnosticBuilderInternal builder, string? suggestedName);
 
-        public static Symbol ResolveNamespaceQualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceSymbol namespaceSymbol)
+        public static Symbol ResolveNamespaceQualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceType namespaceType)
             => ResolveSymbolInternal(
                 allowedFlags,
                 foundSymbol,
                 identifierSyntax,
                 getNameSuggestions: () =>
                 {
-                    var knowFunctionNames = namespaceSymbol.Type.MethodResolver.GetKnownFunctions().Keys;
+                    var knowFunctionNames = namespaceType.MethodResolver.GetKnownFunctions().Keys;
 
                     return allowedFlags.HasAnyDecoratorFlag()
-                        ? knowFunctionNames.Concat(namespaceSymbol.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
+                        ? knowFunctionNames.Concat(namespaceType.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
                         : knowFunctionNames;
                 },
-                getMissingNameError: (builder, suggestedName) => suggestedName switch {
-                    null => builder.FunctionDoesNotExistInNamespace(namespaceSymbol, identifierSyntax.IdentifierName),
-                    _ => builder.FunctionDoesNotExistInNamespaceWithSuggestion(namespaceSymbol, identifierSyntax.IdentifierName, suggestedName),
+                getMissingNameError: (builder, suggestedName) => suggestedName switch
+                {
+                    null => builder.FunctionDoesNotExistInNamespace(namespaceType, identifierSyntax.IdentifierName),
+                    _ => builder.FunctionDoesNotExistInNamespaceWithSuggestion(namespaceType, identifierSyntax.IdentifierName, suggestedName),
                 });
 
-        public static Symbol ResolveObjectQualifiedFunction(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)
-            => ResolveSymbolInternal(
-                FunctionFlags.Default,
+        public static Symbol ResolveObjectQualifiedFunctionWithoutValidatingFlags(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)
+        {
+            // The method is not used during binding, so we should not perform validations for FunctionFlags.
+            var allowedFlags = foundSymbol is FunctionSymbol functionSymbol ? functionSymbol.FunctionFlags : FunctionFlags.Default;
+
+            if (objectType is NamespaceType namespaceType)
+            {
+                return ResolveNamespaceQualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaceType);
+            }
+
+            return ResolveSymbolInternal(
+                allowedFlags,
                 foundSymbol,
                 identifierSyntax,
                 getNameSuggestions: () => objectType.MethodResolver.GetKnownFunctions().Keys,
-                getMissingNameError: (builder, suggestedName) => suggestedName switch {
+                getMissingNameError: (builder, suggestedName) => suggestedName switch
+                {
                     null => builder.FunctionDoesNotExistOnObject(objectType, identifierSyntax.IdentifierName),
                     _ => builder.FunctionDoesNotExistOnObjectWithSuggestion(objectType, identifierSyntax.IdentifierName, suggestedName),
                 });
+        }
 
         public static Symbol ResolveUnqualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, IEnumerable<NamespaceSymbol> namespaces)
             => ResolveSymbolInternal(
@@ -60,7 +72,8 @@ namespace Bicep.Core.Semantics
                         ? knowFunctionNames.Concat(x.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
                         : knowFunctionNames;
                 }),
-                getMissingNameError: (builder, suggestedName) => suggestedName switch {
+                getMissingNameError: (builder, suggestedName) => suggestedName switch
+                {
                     null => builder.SymbolicNameDoesNotExist(identifierSyntax.IdentifierName),
                     _ => builder.SymbolicNameDoesNotExistWithSuggestion(identifierSyntax.IdentifierName, suggestedName),
                 });
@@ -71,14 +84,15 @@ namespace Bicep.Core.Semantics
                 foundSymbol,
                 identifierSyntax,
                 getNameSuggestions: () => namespaces.SelectMany(x => x.Type.Properties.Keys).Concat(declarations),
-                getMissingNameError: (builder, suggestedName) => suggestedName switch {
+                getMissingNameError: (builder, suggestedName) => suggestedName switch
+                {
                     null => builder.SymbolicNameDoesNotExist(identifierSyntax.IdentifierName),
                     _ => builder.SymbolicNameDoesNotExistWithSuggestion(identifierSyntax.IdentifierName, suggestedName),
                 });
 
         private static Symbol ResolveSymbolInternal(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, GetNameSuggestions getNameSuggestions, GetMissingNameError getMissingNameError)
         {
-            if (foundSymbol == null)
+            if (foundSymbol is null)
             {
                 var nameCandidates = getNameSuggestions().ToImmutableSortedSet(StringComparer.OrdinalIgnoreCase);
                 var suggestedName = SpellChecker.GetSpellingSuggestion(identifierSyntax.IdentifierName, nameCandidates);
@@ -86,13 +100,11 @@ namespace Bicep.Core.Semantics
                 return new ErrorSymbol(getMissingNameError(DiagnosticBuilder.ForPosition(identifierSyntax), suggestedName));
             }
 
-            switch (foundSymbol)
+            return foundSymbol switch
             {
-                case FunctionSymbol functionSymbol:
-                    return ResolveFunctionFlags(allowedFlags, functionSymbol, identifierSyntax);
-                default:
-                    return foundSymbol;
-            }
+                FunctionSymbol functionSymbol => ResolveFunctionFlags(allowedFlags, functionSymbol, identifierSyntax),
+                _ => foundSymbol,
+            };
         }
 
         private static Symbol ResolveFunctionFlags(FunctionFlags allowedFlags, FunctionSymbol functionSymbol, IPositionable span)

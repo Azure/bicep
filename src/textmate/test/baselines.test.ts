@@ -6,10 +6,9 @@ import { readFile, writeFile } from 'fs/promises';
 import { IOnigLib, IToken, parseRawGrammar, Registry, StackElement } from 'vscode-textmate';
 import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma';
 import path, { dirname, basename, extname } from 'path';
-import plist from 'plist';
-import { grammarPath } from '../src/grammar';
-import { env } from 'process';
+import { grammarPath, BicepScope } from '../src/bicep';
 import { spawnSync } from 'child_process';
+import { escape } from 'html-escaper';
 
 async function createOnigLib(): Promise<IOnigLib> {
   const onigWasm = await readFile(`${path.dirname(require.resolve('vscode-oniguruma'))}/onig.wasm`);
@@ -27,9 +26,36 @@ const registry = new Registry({
   loadGrammar: async scopeName => {
     const grammar = await readFile(grammarPath, { encoding: 'utf-8' });
 
-    return parseRawGrammar(grammar);    
+    return parseRawGrammar(grammar);
   }
 });
+
+const tokenToHljsClass: Record<BicepScope, string | null> = {
+  'comment.block.bicep': 'comment',
+  'comment.line.double-slash.bicep': 'comment',
+  'constant.character.escape.bicep': null,
+  'constant.numeric.bicep': 'number',
+  'constant.language.bicep': 'literal',
+  'entity.name.function.bicep': 'function',
+  'keyword.control.declaration.bicep': 'keyword',
+  'string.quoted.single.bicep': 'string',
+  'string.quoted.multi.bicep': 'string',
+  'variable.other.readwrite.bicep': 'variable',
+  'variable.other.property.bicep': 'property',
+  'punctuation.definition.template-expression.begin.bicep': 'subst',
+  'punctuation.definition.template-expression.end.bicep': 'subst',
+};
+
+function getTokenPriority(scope: BicepScope) {
+  switch (scope) {
+    // a bit of a hack to make changes easier to review; if there are multiple tokens, layer them on top of the string.
+    // this basically emulates what VSCode does.
+    case 'string.quoted.single.bicep':
+      return 0;
+    default:
+      return 1;
+  }
+}
 
 async function getTokensByLine(content: string) {
   const grammar = await registry.loadGrammar('source.bicep');
@@ -74,7 +100,7 @@ function hasOverlap(first: IToken, second: IToken) {
 
 async function writeBaseline(filePath: string) {
   const baselineBaseName = basename(filePath, extname(filePath));
-  const baselineFilePath = path.join(dirname(filePath), `${baselineBaseName}.tokens`);
+  const baselineFilePath = path.join(dirname(filePath), `${baselineBaseName}.html`);
 
   let diffBefore = '';
   const bicepFile = await readFile(filePath, { encoding: 'utf-8' });
@@ -82,45 +108,51 @@ async function writeBaseline(filePath: string) {
     diffBefore = await readFile(baselineFilePath, { encoding: 'utf-8' });
   } catch {} // ignore and create the baseline file anyway
 
-  let baseline = '';
+  let html = '';
   const tokensByLine = await getTokensByLine(bicepFile);
-  const maxLineLength = Math.max(...tokensByLine.map(x => x.line.length));
 
   for (const { line, tokens } of tokensByLine) {
-    baseline += `  ${line}\n`;
+    let currentIndex = 0;
+    for (const token of tokens) {
+      const visibleScopes = token.scopes
+        .filter(x => !!(tokenToHljsClass as any)[x]) as BicepScope[];
 
-    const filteredTokens = tokens.map(token => ({
-      ...token,
-      // only interested in non-metadata scopes
-      scopes: token.scopes.filter(x => !x.startsWith('meta.') && x !== 'source.bicep'),
-    }))
-      .filter(x => x.scopes.length > 0)
-      .reduce<IToken[]>((acc, curr) => {
-        const prevIndex = acc.length - 1;
-        if (acc.length > 1 && hasOverlap(acc[prevIndex], curr)) {
-          acc[prevIndex] = {
-            ...acc[prevIndex],
-            endIndex: curr.endIndex,
-          };
-        } else {
-          acc.push(curr);
-        }
+      visibleScopes.sort((a, b) => getTokenPriority(b) - getTokenPriority(a));
 
-        return acc;
-      }, []);
+      if (token.startIndex > currentIndex) {
+        html += escape(line.substring(currentIndex, token.startIndex));
+      }
 
-    for (const token of filteredTokens) {
-      baseline += '//';
-      baseline += ' '.repeat(token.startIndex);
-      baseline += '~'.repeat(token.endIndex - token.startIndex);
-      baseline += ' '.repeat(maxLineLength + 2 - token.endIndex);
-      baseline += token.scopes.join(', ');
-      baseline += '\n';
+      if (visibleScopes.length > 0) {
+        html += `<span class="hljs-${tokenToHljsClass[visibleScopes[0]]}">`;
+        html += escape(line.substring(token.startIndex, token.endIndex));
+        html += `</span>`;
+      } else {
+        html += escape(line.substring(token.startIndex, token.endIndex));
+      }
+
+      currentIndex = token.endIndex;
     }
+
+    if (line.length > currentIndex) {
+      html += escape(line.substring(currentIndex, line.length));
+    }
+
+    html += '\n';
   }
 
-  const diffAfter = baseline;
-  await writeFile(baselineFilePath, baseline, { encoding: 'utf-8' });
+  const diffAfter = `
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+${html}
+    </pre>
+  </body>
+</html>`;
+  await writeFile(baselineFilePath, diffAfter, { encoding: 'utf-8' });
 
   return {
     diffBefore,
@@ -151,22 +183,17 @@ for (const filePath of baselineFiles) {
       // skip the invalid files - we don't expect them to compile
 
       it('can be compiled', async () => {
-        const bicepExePathVariable = 'BICEP_CLI_EXECUTABLE';
-        const bicepExePath = env[bicepExePathVariable];
-        if (!bicepExePath) {
-          fail(`Unable to find '${bicepExePathVariable}' env variable`);
+        const cliCsproj = `${__dirname}/../../Bicep.Cli/Bicep.Cli.csproj`;
+
+        if (!existsSync(cliCsproj)) {
+          fail(`Unable to find '${cliCsproj}'`);
           return;
         }
-  
-        if (!existsSync(bicepExePath)) {
-          fail(`Unable to find '${bicepExePath}' specified in '${bicepExePathVariable}' env variable`);
-          return;
-        }
-  
-        const result = spawnSync(bicepExePath, ['build', '--stdout', filePath], { encoding: 'utf-8' });
-  
-        // NOTE - if stderr or status are null, this indicates we were unable to invoke the exe (missing file, or hasn't had 'chmod +x' run)
-        expect(result.stderr).toBe('');
+
+        const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], { encoding: 'utf-8' });
+
+        expect(result.error).toBeUndefined();
+        expect(result.stderr).not.toContain(') : Error ')
         expect(result.status).toBe(0);
       });
     }

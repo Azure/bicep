@@ -1628,6 +1628,322 @@ param decoratedArray array
 //@[6:20)   Identifier |decoratedArray|
 //@[21:26)  TypeSyntax
 //@[21:26)   Identifier |array|
-//@[26:27) NewLine |\n|
+//@[26:28) NewLine |\n\n|
+
+param allowedPermutation array {
+//@[0:454) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:24)  IdentifierSyntax
+//@[6:24)   Identifier |allowedPermutation|
+//@[25:30)  TypeSyntax
+//@[25:30)   Identifier |array|
+//@[31:454)  ObjectSyntax
+//@[31:32)   LeftBrace |{|
+//@[32:33)   NewLine |\n|
+    default: [
+//@[4:99)   ObjectPropertySyntax
+//@[4:11)    IdentifierSyntax
+//@[4:11)     Identifier |default|
+//@[11:12)    Colon |:|
+//@[13:99)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:15)     NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38)     ArrayItemSyntax
+//@[2:38)      StringSyntax
+//@[2:38)       StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39)     NewLine |\n|
+		'Microsoft.ContainerRegistry/registries'
+//@[2:42)     ArrayItemSyntax
+//@[2:42)      StringSyntax
+//@[2:42)       StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[42:43)     NewLine |\n|
+	]
+//@[1:2)     RightSquare |]|
+//@[2:3)   NewLine |\n|
+    allowed: [
+//@[4:319)   ObjectPropertySyntax
+//@[4:11)    IdentifierSyntax
+//@[4:11)     Identifier |allowed|
+//@[11:12)    Colon |:|
+//@[13:319)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:15)     NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38)     ArrayItemSyntax
+//@[2:38)      StringSyntax
+//@[2:38)       StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39)     NewLine |\n|
+		'Microsoft.ApiManagement/service'
+//@[2:35)     ArrayItemSyntax
+//@[2:35)      StringSyntax
+//@[2:35)       StringComplete |'Microsoft.ApiManagement/service'|
+//@[35:36)     NewLine |\n|
+		'Microsoft.Network/applicationGateways'
+//@[2:41)     ArrayItemSyntax
+//@[2:41)      StringSyntax
+//@[2:41)       StringComplete |'Microsoft.Network/applicationGateways'|
+//@[41:42)     NewLine |\n|
+		'Microsoft.Automation/automationAccounts'
+//@[2:43)     ArrayItemSyntax
+//@[2:43)      StringSyntax
+//@[2:43)       StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[43:44)     NewLine |\n|
+		'Microsoft.ContainerInstance/containerGroups'
+//@[2:47)     ArrayItemSyntax
+//@[2:47)      StringSyntax
+//@[2:47)       StringComplete |'Microsoft.ContainerInstance/containerGroups'|
+//@[47:48)     NewLine |\n|
+		'Microsoft.ContainerRegistry/registries'
+//@[2:42)     ArrayItemSyntax
+//@[2:42)      StringSyntax
+//@[2:42)       StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[42:43)     NewLine |\n|
+		'Microsoft.ContainerService/managedClusters'
+//@[2:46)     ArrayItemSyntax
+//@[2:46)      StringSyntax
+//@[2:46)       StringComplete |'Microsoft.ContainerService/managedClusters'|
+//@[46:47)     NewLine |\n|
+    ]
+//@[4:5)     RightSquare |]|
+//@[5:6)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+@allowed([
+//@[0:435) ParameterDeclarationSyntax
+//@[0:305)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:305)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:304)    FunctionArgumentSyntax
+//@[9:304)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      NewLine |\n|
+	'Microsoft.AnalysisServices/servers'
+//@[1:37)      ArrayItemSyntax
+//@[1:37)       StringSyntax
+//@[1:37)        StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[37:38)      NewLine |\n|
+	'Microsoft.ApiManagement/service'
+//@[1:34)      ArrayItemSyntax
+//@[1:34)       StringSyntax
+//@[1:34)        StringComplete |'Microsoft.ApiManagement/service'|
+//@[34:35)      NewLine |\n|
+	'Microsoft.Network/applicationGateways'
+//@[1:40)      ArrayItemSyntax
+//@[1:40)       StringSyntax
+//@[1:40)        StringComplete |'Microsoft.Network/applicationGateways'|
+//@[40:41)      NewLine |\n|
+	'Microsoft.Automation/automationAccounts'
+//@[1:42)      ArrayItemSyntax
+//@[1:42)       StringSyntax
+//@[1:42)        StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[42:43)      NewLine |\n|
+	'Microsoft.ContainerInstance/containerGroups'
+//@[1:46)      ArrayItemSyntax
+//@[1:46)       StringSyntax
+//@[1:46)        StringComplete |'Microsoft.ContainerInstance/containerGroups'|
+//@[46:47)      NewLine |\n|
+	'Microsoft.ContainerRegistry/registries'
+//@[1:41)      ArrayItemSyntax
+//@[1:41)       StringSyntax
+//@[1:41)        StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[41:42)      NewLine |\n|
+	'Microsoft.ContainerService/managedClusters'
+//@[1:45)      ArrayItemSyntax
+//@[1:45)       StringSyntax
+//@[1:45)        StringComplete |'Microsoft.ContainerService/managedClusters'|
+//@[45:46)      NewLine |\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param allowedPermutationWithDecorator array = [
+//@[0:5)  Identifier |param|
+//@[6:37)  IdentifierSyntax
+//@[6:37)   Identifier |allowedPermutationWithDecorator|
+//@[38:43)  TypeSyntax
+//@[38:43)   Identifier |array|
+//@[44:129)  ParameterDefaultValueSyntax
+//@[44:45)   Assignment |=|
+//@[46:129)   ArraySyntax
+//@[46:47)    LeftSquare |[|
+//@[47:48)    NewLine |\n|
+	'Microsoft.AnalysisServices/servers'
+//@[1:37)    ArrayItemSyntax
+//@[1:37)     StringSyntax
+//@[1:37)      StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[37:38)    NewLine |\n|
+	'Microsoft.ContainerRegistry/registries'
+//@[1:41)    ArrayItemSyntax
+//@[1:41)     StringSyntax
+//@[1:41)      StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[41:42)    NewLine |\n|
+]
+//@[0:1)    RightSquare |]|
+//@[1:3) NewLine |\n\n|
+
+param allowedArray array {
+//@[0:323) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:18)  IdentifierSyntax
+//@[6:18)   Identifier |allowedArray|
+//@[19:24)  TypeSyntax
+//@[19:24)   Identifier |array|
+//@[25:323)  ObjectSyntax
+//@[25:26)   LeftBrace |{|
+//@[26:27)   NewLine |\n|
+    default: [
+//@[4:92)   ObjectPropertySyntax
+//@[4:11)    IdentifierSyntax
+//@[4:11)     Identifier |default|
+//@[11:12)    Colon |:|
+//@[13:92)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:15)     NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38)     ArrayItemSyntax
+//@[2:38)      StringSyntax
+//@[2:38)       StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39)     NewLine |\n|
+		'Microsoft.ApiManagement/service'
+//@[2:35)     ArrayItemSyntax
+//@[2:35)      StringSyntax
+//@[2:35)       StringComplete |'Microsoft.ApiManagement/service'|
+//@[35:36)     NewLine |\n|
+	]
+//@[1:2)     RightSquare |]|
+//@[2:3)   NewLine |\n|
+    allowed: [
+//@[4:201)   ObjectPropertySyntax
+//@[4:11)    IdentifierSyntax
+//@[4:11)     Identifier |allowed|
+//@[11:12)    Colon |:|
+//@[13:201)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:15)     NewLine |\n|
+		[
+//@[2:84)     ArrayItemSyntax
+//@[2:84)      ArraySyntax
+//@[2:3)       LeftSquare |[|
+//@[3:4)       NewLine |\n|
+			'Microsoft.AnalysisServices/servers'
+//@[3:39)       ArrayItemSyntax
+//@[3:39)        StringSyntax
+//@[3:39)         StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[39:40)       NewLine |\n|
+			'Microsoft.ApiManagement/service'
+//@[3:36)       ArrayItemSyntax
+//@[3:36)        StringSyntax
+//@[3:36)         StringComplete |'Microsoft.ApiManagement/service'|
+//@[36:37)       NewLine |\n|
+		]
+//@[2:3)       RightSquare |]|
+//@[3:4)     NewLine |\n|
+		[
+//@[2:95)     ArrayItemSyntax
+//@[2:95)      ArraySyntax
+//@[2:3)       LeftSquare |[|
+//@[3:4)       NewLine |\n|
+			'Microsoft.Network/applicationGateways'
+//@[3:42)       ArrayItemSyntax
+//@[3:42)        StringSyntax
+//@[3:42)         StringComplete |'Microsoft.Network/applicationGateways'|
+//@[42:43)       NewLine |\n|
+			'Microsoft.Automation/automationAccounts'
+//@[3:44)       ArrayItemSyntax
+//@[3:44)        StringSyntax
+//@[3:44)         StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[44:45)       NewLine |\n|
+		]
+//@[2:3)       RightSquare |]|
+//@[3:4)     NewLine |\n|
+    ]
+//@[4:5)     RightSquare |]|
+//@[5:6)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+@allowed([
+//@[0:303) ParameterDeclarationSyntax
+//@[0:186)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:186)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:185)    FunctionArgumentSyntax
+//@[9:185)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      NewLine |\n|
+	[
+//@[1:80)      ArrayItemSyntax
+//@[1:80)       ArraySyntax
+//@[1:2)        LeftSquare |[|
+//@[2:3)        NewLine |\n|
+		'Microsoft.AnalysisServices/servers'
+//@[2:38)        ArrayItemSyntax
+//@[2:38)         StringSyntax
+//@[2:38)          StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[38:39)        NewLine |\n|
+		'Microsoft.ApiManagement/service'
+//@[2:35)        ArrayItemSyntax
+//@[2:35)         StringSyntax
+//@[2:35)          StringComplete |'Microsoft.ApiManagement/service'|
+//@[35:36)        NewLine |\n|
+	]
+//@[1:2)        RightSquare |]|
+//@[2:3)      NewLine |\n|
+	[
+//@[1:91)      ArrayItemSyntax
+//@[1:91)       ArraySyntax
+//@[1:2)        LeftSquare |[|
+//@[2:3)        NewLine |\n|
+		'Microsoft.Network/applicationGateways'
+//@[2:41)        ArrayItemSyntax
+//@[2:41)         StringSyntax
+//@[2:41)          StringComplete |'Microsoft.Network/applicationGateways'|
+//@[41:42)        NewLine |\n|
+		'Microsoft.Automation/automationAccounts'
+//@[2:43)        ArrayItemSyntax
+//@[2:43)         StringSyntax
+//@[2:43)          StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[43:44)        NewLine |\n|
+	]
+//@[1:2)        RightSquare |]|
+//@[2:3)      NewLine |\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param allowedArrayWithDecorator array = [
+//@[0:5)  Identifier |param|
+//@[6:31)  IdentifierSyntax
+//@[6:31)   Identifier |allowedArrayWithDecorator|
+//@[32:37)  TypeSyntax
+//@[32:37)   Identifier |array|
+//@[38:116)  ParameterDefaultValueSyntax
+//@[38:39)   Assignment |=|
+//@[40:116)   ArraySyntax
+//@[40:41)    LeftSquare |[|
+//@[41:42)    NewLine |\n|
+	'Microsoft.AnalysisServices/servers'
+//@[1:37)    ArrayItemSyntax
+//@[1:37)     StringSyntax
+//@[1:37)      StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[37:38)    NewLine |\n|
+	'Microsoft.ApiManagement/service'
+//@[1:34)    ArrayItemSyntax
+//@[1:34)     StringSyntax
+//@[1:34)      StringComplete |'Microsoft.ApiManagement/service'|
+//@[34:35)    NewLine |\n|
+]
+//@[0:1)    RightSquare |]|
+//@[1:2) NewLine |\n|
 
 //@[0:0) EndOfFile ||

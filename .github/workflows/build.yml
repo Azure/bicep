@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Update Baselines"]
+    types:
+      - completed
 
 jobs:
   build-bicep:
@@ -47,13 +51,13 @@ jobs:
           publishPackages: 'false'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.7.2
+        uses: actions/setup-dotnet@v1.8.0
       
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
@@ -63,7 +67,15 @@ jobs:
         run: dotnet pack --configuration ${{ matrix.configuration }}
       
       - name: Test
-        run: dotnet test --configuration ${{ matrix.configuration }} --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings
+        run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: Bicep.TestResults.${{ matrix.rid }}
+          path: ./TestResults/**/*.trx
+          if-no-files-found: error
 
       - name: Publish Language Server
         if: ${{ matrix.publishLanguageServer == 'true' }}
@@ -112,7 +124,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v1.5.0
         with:
           flags: dotnet
 
@@ -122,13 +134,13 @@ jobs:
     needs: build-bicep
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.7.2
+        uses: actions/setup-dotnet@v1.8.0
       
       - name: Download Bicep CLI
         uses: actions/download-artifact@v2
@@ -168,13 +180,13 @@ jobs:
           rid: 'osx-x64'
     
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.7.2
+        uses: actions/setup-dotnet@v1.8.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
@@ -246,7 +258,7 @@ jobs:
           rid: 'osx-x64'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -260,12 +272,16 @@ jobs:
         run: npm ci
         working-directory: ./src/vscode-bicep
         
-      - name: Compile
-        run: npm run compile
-        working-directory: ./src/vscode-bicep
-
       - name: Run lint
         run: npm run lint
+        working-directory: ./src/vscode-bicep
+          
+      - name: Run unit tests
+        run: npm run test:unit
+        working-directory: ./src/vscode-bicep
+
+      - name: Run snapshot tests
+        run: npm run test:snapshot
         working-directory: ./src/vscode-bicep
 
       - name: Download Language Server
@@ -273,9 +289,13 @@ jobs:
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
-          
-      - name: Run unit tests
-        run: npm run test:unit
+
+      - name: Build prod
+        run: npm run build:prod
+        working-directory: ./src/vscode-bicep
+        
+      - name: Build E2E tests
+        run: npm run build:e2e
         working-directory: ./src/vscode-bicep
 
       - name: Run E2E tests
@@ -295,7 +315,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v1.5.0
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
@@ -318,13 +338,13 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.7.2
+        uses: actions/setup-dotnet@v1.8.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
@@ -350,41 +370,41 @@ jobs:
           path: ./src/playground/dist/*
           if-no-files-found: error
 
-  build-textmate:
-    name: 'Build Textmate'
+  build-grammars:
+    name: 'Build Grammars'
     runs-on: 'ubuntu-latest'
-    needs: build-bicep
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
-      
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v2
-        with:
-          name: bicep-release-linux-x64
-          path: ./bicep-release-linux-x64
 
-      - name: Mark Bicep CLI as executable
-        run: chmod +x ${{ github.workspace }}/bicep-release-linux-x64/bicep
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.8.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.5
         with:
           node-version: 14.x
       
-      - name: npm ci
-        run: npm ci
+      - name: TextMate Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm test
         working-directory: ./src/textmate
-
-      - name: Run lint
-        run: npm run lint
-        working-directory: ./src/textmate
-
-      - name: Run Tests
-        run: npm test
-        env:
-          BICEP_CLI_EXECUTABLE: ${{ github.workspace }}/bicep-release-linux-x64/bicep
-        working-directory: ./src/textmate
+      
+      - name: HighlightJs Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm test
+        working-directory: ./src/highlightjs
+      
+      - name: Monarch Grammar
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+        working-directory: ./src/monarch

@@ -18,6 +18,7 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -41,7 +42,7 @@ namespace Bicep.LangServer.UnitTests
 
             var server = CreateMockServer(document);
 
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
 
             const int version = 42;
             var uri = DocumentUri.File(this.TestContext.TestName);
@@ -85,7 +86,7 @@ namespace Bicep.LangServer.UnitTests
 
             var server = CreateMockServer(document);
 
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
 
             const int version = 42;
             var uri = DocumentUri.File(this.TestContext.TestName);
@@ -152,7 +153,7 @@ namespace Bicep.LangServer.UnitTests
 
             var server = CreateMockServer(document);
 
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
 
             const int version = 42;
             var uri = DocumentUri.File(this.TestContext.TestName);
@@ -215,7 +216,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var server = Repository.Create<ILanguageServerFacade>();
 
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -231,7 +232,7 @@ namespace Bicep.LangServer.UnitTests
 
             var server = CreateMockServer(document);
 
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -320,7 +321,7 @@ namespace Bicep.LangServer.UnitTests
             bool failUpsert = true;
             provider
                 .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>()))
-                .Returns<IReadOnlyWorkspace, DocumentUri>((workspace, documentUri) => failUpsert ? throw new InvalidOperationException(expectedMessage) : new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()).Create(workspace, documentUri));
+                .Returns<IReadOnlyWorkspace, DocumentUri>((workspace, documentUri) => failUpsert ? throw new InvalidOperationException(expectedMessage) : new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()).Create(workspace, documentUri));
 
             var manager = new BicepCompilationManager(server.Object, provider.Object, new Workspace());
 
@@ -385,6 +386,14 @@ namespace Bicep.LangServer.UnitTests
             server
                 .Setup(m => m.TextDocument)
                 .Returns(document.Object);
+
+            var window = Repository.Create<IWindowLanguageServer>();
+            window
+                .Setup(m => m.SendNotification(It.IsAny<LogMessageParams>()));
+
+            server
+                .Setup(m => m.Window)
+                .Returns(window.Object);
 
             return server;
         }

@@ -22,7 +22,7 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly IResourceTypeProvider resourceTypeProvider = new AzResourceTypeProvider();
+        private static readonly IResourceTypeProvider resourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
 
         private readonly IJSRuntime jsRuntime;
 
@@ -158,7 +158,7 @@ namespace Bicep.Wasm
             return reader.ReadToEnd();
         }
 
-        private static object ToMonacoDiagnostic(Diagnostic diagnostic, IReadOnlyList<int> lineStarts)
+        private static object ToMonacoDiagnostic(IDiagnostic diagnostic, IReadOnlyList<int> lineStarts)
         {
             var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
             var (endLine, endChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.GetEndPosition());

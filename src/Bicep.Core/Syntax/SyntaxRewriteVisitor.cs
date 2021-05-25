@@ -24,6 +24,18 @@ namespace Bicep.Core.Syntax
             return syntax;
         }
 
+        public TOut? Rewrite<TSyntax, TOut>(TSyntax syntax)
+            where TSyntax : SyntaxBase
+            where TOut : SyntaxBase
+        {
+            if (TryRewrite(syntax, out var newSyntax))
+            {
+                return newSyntax as TOut;
+            }
+
+            return null;
+        }
+
         protected virtual SyntaxBase RewriteInternal(SyntaxBase syntax)
         {
             currentSyntax = null;
@@ -60,6 +72,29 @@ namespace Bicep.Core.Syntax
             newSyntax = newSyntaxTyped;
             return hasChanges;
         }
+
+        private bool TryRewriteStrict<TSyntax, TOut>(TSyntax? syntax, [NotNullIfNotNull("syntax")] out TOut? newSyntax)
+            where TSyntax : SyntaxBase
+            where TOut: SyntaxBase
+        {
+            if (syntax is null)
+            {
+                newSyntax = null;
+                return false;
+            }
+
+            var newSyntaxUntyped = RewriteInternal(syntax);
+            var hasChanges = !object.ReferenceEquals(syntax, newSyntaxUntyped);
+
+            if (newSyntaxUntyped is not TOut newSyntaxTyped)
+            {
+                throw new InvalidOperationException($"Expected {nameof(currentSyntax)} to be of type {typeof(TSyntax)}");
+            }
+
+            newSyntax = newSyntaxTyped;
+            return hasChanges;
+        }
+
 
         private bool TryRewrite(IEnumerable<SyntaxBase> syntaxes, out IEnumerable<SyntaxBase> newSyntaxes)
             => TryRewriteStrict<SyntaxBase>(syntaxes, out newSyntaxes);
@@ -307,7 +342,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ProgramSyntax(children, endOfFile, Enumerable.Empty<Diagnostic>());
+            return new ProgramSyntax(children, endOfFile, Enumerable.Empty<IDiagnostic>());
         }
         void ISyntaxVisitor.VisitProgramSyntax(ProgramSyntax syntax) => ReplaceCurrent(syntax, ReplaceProgramSyntax);
 
@@ -346,7 +381,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new SkippedTriviaSyntax(new TextSpan(0, 0), elements, Enumerable.Empty<Diagnostic>());
+            return new SkippedTriviaSyntax(new TextSpan(0, 0), elements, Enumerable.Empty<IDiagnostic>());
         }
         void ISyntaxVisitor.VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax) => ReplaceCurrent(syntax, ReplaceSkippedTriviaSyntax);
 
@@ -621,7 +656,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= TryRewriteStrict(syntax.IndexVariable, out var indexVariable);
             hasChanges |= TryRewrite(syntax.CloseParen, out var closeParen);
 
-            if(!hasChanges)
+            if (!hasChanges)
             {
                 return syntax;
             }

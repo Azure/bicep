@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -30,7 +31,7 @@ namespace Bicep.Cli.IntegrationTests
 
         private static Program CreateProgram(TextWriter outputWriter, TextWriter errorWriter)
         {
-            return new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, BicepTestConstants.DevAssemblyFileVersion);
+            return new Program(TestTypeHelper.CreateEmptyProvider(), outputWriter, errorWriter, BicepTestConstants.DevAssemblyFileVersion);
         }
 
         [TestMethod]
@@ -112,6 +113,8 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().Be($"The input file path was not specified{Environment.NewLine}");
         }
 
+
+        // TODO: handle variant linter messaging for each data test
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileShouldProduceExpectedTemplate(DataSet dataSet)
@@ -129,7 +132,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().BeEmpty();
-                AssertEmptyOrDeprecatedError(error, dataSet.Name);
+                AssertNoErrors(error, dataSet.Name);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -161,7 +164,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
-                AssertEmptyOrDeprecatedError(error, dataSet.Name);
+                AssertNoErrors(error, dataSet.Name);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -315,7 +318,7 @@ output myOutput string = 'hello!'
         public void LockedOutputFileShouldProduceExpectedError()
         {
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "Empty.bicep", DataSets.Empty.Bicep);
-            var outputFile = PathHelper.GetDefaultOutputPath(inputFile);
+            var outputFile = PathHelper.GetDefaultBuildOutputPath(inputFile);
 
             // ReSharper disable once ConvertToUsingDeclaration
             using (new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
@@ -337,7 +340,7 @@ output myOutput string = 'hello!'
         private static IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
         {
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), syntaxTreeGrouping);
 
             var output = new List<string>();
             foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
@@ -362,19 +365,11 @@ output myOutput string = 'hello!'
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
 
-        private static void AssertEmptyOrDeprecatedError(string error, string dataSetName)
+        private static void AssertNoErrors(string error, string dataSetName)
         {
-            if (dataSetName == "Parameters_LF" || dataSetName == "Parameters_CRLF")
+            foreach (var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
-                // TODO: remove this branch when the support of parameter modifiers is dropped. 
-                foreach(var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    line.Should().Contain("BCP161");
-                }
-            }
-            else
-            {
-                error.Should().BeEmpty();
+                line.Should().NotContain(") : Error ");
             }
         }
     }

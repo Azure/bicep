@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
@@ -14,6 +15,8 @@ namespace Bicep.Core.Syntax
             {
                 return;
             }
+
+            RuntimeHelpers.EnsureSufficientExecutionStack();
 
             VisitInternal(node);
         }

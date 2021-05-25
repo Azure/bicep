@@ -11,6 +11,7 @@ var arrayVar = [
   'abc'
   location
 ]
+var boolVar = true
 
 module module1Deploy 'nested/module1.bicep' = {
   name: 'module1Deploy'
@@ -18,6 +19,15 @@ module module1Deploy 'nested/module1.bicep' = {
     stringParam: location
     objectParam: objectVar
     arrayParam: arrayVar
+  }
+}
+
+module module1ArmDeploy 'nested/module1.arm.bicep' = {
+  name: 'module1ArmDeploy'
+  params: {
+    stringParam: location
+    objectParam: objectVar
+    boolParam: boolVar
   }
 }
 

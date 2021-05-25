@@ -5,7 +5,7 @@ param baseUrl string = 'https://my.base/url'
 
 var armBaseUrl = baseUrl
 var module1Url = '${armBaseUrl}/nested/module1.json'
-var module2Url = '${armBaseUrl}/nested/module2.json'
+var module2Url = '${armBaseUrl}/nested/module2.jsonc'
 var objectVar = {
   val1: 'a${location}b'
 }

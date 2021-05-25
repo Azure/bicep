@@ -120,6 +120,25 @@ namespace Bicep.LangServer.UnitTests.Snippets
         }
 
         [TestMethod]
+        public void SnippetPlaceholderTextWithUrlShouldParseCorrectly()
+        {
+            string text = @"var testIdentifier = '${1:http://test-content-url.nupkg}'";
+
+            var snippet = new Snippet(text);
+            snippet.Text.Should().Be(text);
+
+            snippet.Placeholders.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Index.Should().Be(1);
+                    x.Name.Should().Be("http://test-content-url.nupkg");
+                    x.Span.ToString().Should().Be("[22:56]");
+                });
+
+            snippet.FormatDocumentation().Should().Be("var testIdentifier = 'http://test-content-url.nupkg'");
+        }
+
+        [TestMethod]
         public void SnippetPlaceholderTextWithMultipleChoicesShouldReturnFirstOneByDefault()
         {
            string text = @"var testIdentifier = '${1|Enabled,Disabled|}'";
@@ -136,6 +155,54 @@ namespace Bicep.LangServer.UnitTests.Snippets
                     x.Name.Should().Be("Enabled");
                     x.Span.ToString().Should().Be("[22:44]");
                 });
+
+            Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
+        }
+
+        [TestMethod]
+        public void SnippetPlaceholderTextWithAsteriskShouldParseCorrectly()
+        {
+            string text = @"var destinationPortRange = '${1:*}'";
+
+            string expectedTextAfterPlaceholderReplacements = "var destinationPortRange = '*'";
+
+            var snippet = new Snippet(text);
+            snippet.Text.Should().Be(text);
+
+            snippet.Placeholders.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Index.Should().Be(1);
+                    x.Name.Should().Be("*");
+                    x.Span.ToString().Should().Be("[28:34]");
+                });
+
+            Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
+        }
+
+        [TestMethod]
+        public void SnippetPlaceholderTextWithTypeStringShouldParseCorrectly()
+        {
+            string text = "resource ${1:Identifier} 'Microsoft.${2:Aad/domainServices/ouContainer@2017-06-01}' = { }";
+            var snippet = new Snippet(text);
+
+            snippet.Text.Should().Be(text);
+
+            snippet.Placeholders.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Index.Should().Be(1);
+                    x.Name.Should().Be("Identifier");
+                    x.Span.ToString().Should().Be("[9:24]");
+                },
+                x =>
+                {
+                    x.Index.Should().Be(2);
+                    x.Name.Should().Be("Aad/domainServices/ouContainer@2017-06-01");
+                    x.Span.ToString().Should().Be("[36:82]");
+                });
+
+            string expectedTextAfterPlaceholderReplacements = "resource Identifier 'Microsoft.Aad/domainServices/ouContainer@2017-06-01' = { }";
 
             Assert.AreEqual(expectedTextAfterPlaceholderReplacements, snippet.FormatDocumentation());
         }

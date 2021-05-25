@@ -37,14 +37,11 @@ resource roleDefinitionName 'Microsoft.Authorization/roleAssignments@2020-04-01-
   name: roleDefinitionName_var
   properties: {
     roleDefinitionId: roleDefinitionId
-    principalId: reference(identityName_var).principalId
+    principalId: identityName.properties.principalId
     scope: resourceGroup().id
 //@[4:9) [BCP073 (Warning)] The property "scope" is read-only. Expressions cannot be assigned to read-only properties. |scope|
     principalType: 'ServicePrincipal'
   }
-  dependsOn: [
-    identityName
-  ]
 }
 
 resource storageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' = {

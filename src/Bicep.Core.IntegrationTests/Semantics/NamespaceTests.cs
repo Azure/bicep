@@ -28,6 +28,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [DataTestMethod]
         [DynamicData(nameof(GetNamespaces), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void FunctionsShouldHaveExpectedSignatures(NamespaceSymbol @namespace)
         {
             var knownOverloads = @namespace.Type.MethodResolver.GetKnownFunctions().Values
@@ -56,7 +57,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             // local function
             static object[] CreateRow(NamespaceSymbol @namespace) => new object[] {@namespace};
 
-            var (_, _, compilation) = CompilationHelper.Compile(new TestResourceTypeProvider(), ("main.bicep", string.Empty));
+            var (_, _, compilation) = CompilationHelper.Compile(TestTypeHelper.CreateEmptyProvider(), ("main.bicep", string.Empty));
 
             return compilation.GetEntrypointSemanticModel().Root.ImportedNamespaces.Values.Select(CreateRow);
         }

@@ -7,7 +7,7 @@ param acrName string = 'acr001${uniqueString(resourceGroup().id)}' // must be gl
 @description('Enable admin user that have push / pull permission to the registry.')
 param acrAdminUserEnabled bool = false
 
-@description('Specifies the Azure location where the key vault should be created.')
+@description('Specifies the Azure location where the container registry should be created.')
 param location string = resourceGroup().location
 
 @allowed([
