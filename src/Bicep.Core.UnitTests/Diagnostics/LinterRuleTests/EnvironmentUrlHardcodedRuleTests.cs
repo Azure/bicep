@@ -118,3 +118,4 @@ var a = concat('${p1}${'azuredatalakestore.net'}${p2}', 'foo')
         }
     }
 }
+
