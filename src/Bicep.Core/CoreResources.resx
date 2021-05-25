@@ -139,7 +139,7 @@
     <comment>string format to display error exception thrown in Linter Rule</comment>
   </data>
   <data name="LocationSetByParameterRuleDescription" xml:space="preserve">
-    <value>Resource location should be specified by a parameter with no default or that defaults to 'global' or resourceGroup().location.</value>
+    <value>Resource location should be specified by a parameter with no default value or one that defaults to 'global' or resourceGroup().location.</value>
   </data>
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>Parameter is declared but never used.</value>
