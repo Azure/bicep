@@ -7,6 +7,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -27,7 +28,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            var visitor = new Visitor(this);
+            var visitor = new Visitor(this, model);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);
             return visitor.diagnostics;
         }
@@ -38,22 +39,32 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private const string concatFunction = "concat";
             private InterpolateNotConcatRule parent;
+            private SemanticModel model;
 
-            public Visitor(InterpolateNotConcatRule parent)
+            public Visitor(InterpolateNotConcatRule parent, SemanticModel model)
             {
                 this.parent = parent;
+                this.model = model;
             }
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             {
-                if (syntax.NameEquals(concatFunction))
+                if (syntax.NameEquals(concatFunction) && !syntax.GetParseDiagnostics().Any())
                 {
-                    if (CreateFix(syntax) is CodeFix fix)
+                    // We should only suggest rewriting concat() calls that result in a string (concat can also operate on and
+                    // return arrays)
+                    var resultType = this.model.GetTypeInfo(syntax);
+                    if (!(resultType is AnyType) && TypeValidator.AreTypesAssignable(resultType, LanguageConstants.String))
                     {
-                        this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(syntax.Span, fix));
+                        {
+                            if (CreateFix(syntax) is CodeFix fix)
+                            {
+                                this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(syntax.Span, fix));
 
-                        // Only report on the top-most concat call
-                        return;
+                                // Only report on the top-most string-valued concat call
+                                return;
+                            }
+                        }
                     }
                 }
 

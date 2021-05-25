@@ -233,6 +233,37 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'abcdefghi${v1}jkl'"
         )]
+        [DataRow(
+            @"
+                var a = [
+                    'a'
+                    123
+                ]
+                var c1 = concat('a', '${a}', 'b')
+            ",
+            "'a${a}b'"
+        )]
+        [DataRow(
+            @"
+                var a = [
+                    'a'
+                    123
+                ]
+                var c2 = concat('${a}', '${a}', uniqueString('${a}'))
+            ",
+            "'${a}${a}${uniqueString('${a}')}'"
+        )]
+        [DataRow(
+            @"
+                var a = [
+                    'a'
+                    123
+                ]
+                var b = {}
+                var c3 = concat('${a}', '${b}', uniqueString('${a}'))
+            ",
+            "'${a}${b}${uniqueString('${a}')}'"
+        )]
         [DataTestMethod]
         public void StringFolding_HasFix(string text, string expectedFix)
         {
@@ -258,6 +289,100 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ExpectDiagnosticWithFix(text, expectedFix);
         }
 
+        [DataRow(
+            @"
+                var a = [
+                    'a'
+                    'b'
+                    123
+                ]
+                var b = [
+                    'c'
+                    456
+                ]
+                output test2 array = concat(a, b) // Valid expression, but result would be an array, not a string, so no suggestions
+                output test3 string = '${a}${b}' // Valid, but already a string interpolation, so no suggested fix
+            "
+        )]
+        [DataRow(
+            @"
+                var myObj = {
+                    val: true
+                }
+                var myArray = [
+                    12
+                    34
+                ]
+                output testa object = concat(myObj, myArray) // This results in a compiler error (type mismatch), should not suggest fixes
+                output test string = '${myObj}..${myArray}'  // Valid but already a string interpolation
+            "
+        )]
+        [DataRow(
+            @"
+                var myObj = {
+                val: true
+                }
+                output testa object = concat(myObj, myObj) // Another type mismatch error
+            "
+        )]
+        [DataRow(
+            @"
+                var myObj = {
+                val: true
+                }
+                output testa object = concat(myObj, 'a') // Another type mismatch error
+            "
+        )]
+        [DataRow(
+            @"
+                var a = [
+                    'a'
+                    123
+                ]
+                var b = [
+                    'c'
+                ]
+                var c = concat(a, a) // Two arrays - result is array
+            "
+        )]
+        [DataRow(
+            @"
+                var a = [
+                    'a'
+                    123
+                ]
+                var b = {}
+                var c = concat(a, b, uniqueString('${a}')) // type mismaatch
+            "
+        )]
+        [DataRow(
+            @"
+                var a = [
+                    'a'
+                    123
+                ]
+                var b
+                var c = concat('a', b, uniqueString('${a}')) // b is in error
+            "
+        )]
+        [DataRow(
+            @"
+                var a = 'a'
+                output c string = concat(, a) // syntax error
+            "
+        )]
+        [DataRow(
+            @"
+                var a = []
+                var b = concat(a) // array
+            "
+        )]
+        [DataTestMethod]
+        public void ArgsNotStrings_DoNotSuggestFix(string text)
+        {
+            ExpectPass(text);
+        }
+
         [DataRow(@"
                 var v1 = 'v1'
                 var v2 = 'v2'
@@ -275,22 +400,27 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
                 var v1 = concat()
             ",
-            "''"
+            null
         )]
-        //TODO: handle linter errors in this case
-        /*
         [DataRow(@"
                 var v3 = concat(1 +, 'hi')
             ",
             null
         )]
-        */
         [DataRow(@"
                 module abc concat('a', 'b') = {
                     name: 'name'
                 }
             ",
             null
+        )]
+        [DataRow(
+            @"
+                var a = 'a'
+                output c string = concat(, a) // syntax error here shouldn't affect us suggesting a fix in the next line
+                output d string = concat('a', 'b')
+            ",
+            "'ab'"
         )]
         [DataTestMethod]
         public void HandlesSyntaxErrors(string text, string? expectedFix)
@@ -304,5 +434,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ExpectDiagnosticWithFix(text, expectedFix);
             }
         }
+
     }
 }
