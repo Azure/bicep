@@ -90,4 +90,3 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
     }
 }
-
