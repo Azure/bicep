@@ -145,7 +145,7 @@
     <value>Parameter is declared but never used.</value>
   </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
-    <value>Secure parameters should not have hardcoded defaults in the template file (except for newGuid()).</value>
+    <value>Secure parameters should not have hardcoded defaults (except for empty or newGuid()).</value>
   </data>
   <data name="SeeDocLinkFormat" xml:space="preserve">
     <value>See {0}</value>
