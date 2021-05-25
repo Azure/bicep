@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,20 +9,24 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepTextDocumentSyncHandler : TextDocumentSyncHandler
+    public class BicepTextDocumentSyncHandler : TextDocumentSyncHandlerBase
     {
         private readonly ICompilationManager compilationManager;
+        private readonly ILanguageServerFacade server;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager)
-            : base(TextDocumentSyncKind.Full, GetSaveRegistrationOptions())
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, ILanguageServerFacade server)
         {
             this.compilationManager = compilationManager;
+            this.server = server;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -41,9 +46,19 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
-            
-            return Unit.Task;
+            this.server.Window.LogInfo($"Received open file request server-side.");
+
+            try
+            {
+                this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
+
+                return Unit.Task;
+            }
+            catch(Exception exception)
+            {
+                this.server.Window.LogError($"Exception server side: {exception}");
+                throw;
+            }
         }
 
         public override Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
@@ -58,11 +73,10 @@ namespace Bicep.LanguageServer.Handlers
             return Unit.Task;
         }
 
-        private static TextDocumentSaveRegistrationOptions GetSaveRegistrationOptions()
-            => new TextDocumentSaveRegistrationOptions
-            {
-                DocumentSelector = DocumentSelectorFactory.Create(),
-                IncludeText = true,
-            };
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
+        {
+            Change = TextDocumentSyncKind.Full,
+            DocumentSelector = DocumentSelectorFactory.Create()
+        };
     }
 }

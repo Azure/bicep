@@ -27,6 +27,9 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class FileWatcherTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         private static void SendDidChangeWatchedFiles(ILanguageClient client, params (DocumentUri documentUri, FileChangeType changeType)[] changes)
         {
             var fileChanges = new Container<FileEvent>(changes.Select(x => new FileEvent
@@ -47,6 +50,7 @@ namespace Bicep.LangServer.IntegrationTests
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                this.TestContext,
                 options => 
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
@@ -124,6 +128,7 @@ param requiredInput string
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                this.TestContext,
                 options => 
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
@@ -190,6 +195,7 @@ param requiredIpnut string
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                this.TestContext,
                 options => 
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));

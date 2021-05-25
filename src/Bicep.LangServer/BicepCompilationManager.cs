@@ -15,6 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer
@@ -149,7 +150,7 @@ namespace Bicep.LanguageServer
 
                 // publish a single fatal error diagnostic to tell the user something horrible has occurred
                 // TODO: Tell user how to create an issue on GitHub.
-                var fatalError = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic
+                var fatalError = new Diagnostic
                 {
                     Range = new Range
                     {
@@ -172,14 +173,18 @@ namespace Bicep.LanguageServer
         // TODO: Remove the lexer part when we stop it from emitting errors
         private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-        private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> diagnostics)
+        private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<Diagnostic> diagnostics)
         {
+            server.Window.LogInfo("Publishing diagnostics...");
+
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = uri,
                 Version = version,
-                Diagnostics = new Container<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic>(diagnostics)
+                Diagnostics = new Container<Diagnostic>(diagnostics)
             });
+
+            server.Window.LogInfo("Published diagnostics.");
         }
     }
 }
