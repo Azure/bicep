@@ -118,20 +118,20 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BicepConfigCustomSettingsFoundFormatMessage" xml:space="preserve">
-    <value>Custom bicepconfig.json file found [{0}].</value>
+    <value>Custom bicepconfig.json file found ({0}).</value>
     <comment>message to indicate that a custom settings file was found {0} is the file location</comment>
   </data>
   <data name="BicepConfigNoCustomSettingsMessage" xml:space="preserve">
     <value>No bicepconfig.json found for configuration override.</value>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
-    <value>Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current.</value>
+    <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
   </data>
   <data name="InterpolateNotConcatRuleDescription" xml:space="preserve">
-    <value>Dynamic variable should not use concat - string interpolation should be used.</value>
+    <value>Use string interpolation instead of the concat function.</value>
   </data>
   <data name="LinterDisabledFormatMessage" xml:space="preserve">
-    <value>Linter is disabled in settings file [{0}]</value>
+    <value>Linter is disabled in settings file ({0})</value>
     <comment>{0} is the location of the settings file</comment>
   </data>
   <data name="LinterRuleExceptionMessageFormat" xml:space="preserve">
@@ -139,25 +139,25 @@
     <comment>string format to display error exception thrown in Linter Rule</comment>
   </data>
   <data name="LocationSetByParameterRuleDescription" xml:space="preserve">
-    <value>Best practice dictates that location be through a parameter that has no default or defaults to 'global' or resourceGroup().location.</value>
+    <value>Resource location should be specified by a parameter with no default or that defaults to 'global' or resourceGroup().location.</value>
   </data>
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
-    <value>Declared parameter must be referenced within the document scope.</value>
+    <value>Parameter is declared but never used.</value>
   </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
-    <value>Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.</value>
+    <value>Secure parameters should not have hardcoded defaults in the template file (except for newGuid()).</value>
   </data>
   <data name="SeeDocLinkFormat" xml:space="preserve">
-    <value>[See : {0}]</value>
+    <value>See {0}</value>
     <comment>{0} is hyperlink to docs </comment>
   </data>
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
-    <value>String interpolation can be simplified. String variables can be directly assigned to string properties and variables.</value>
+    <value>Remove unnecessary string interpolation.</value>
   </data>
   <data name="UnnecessaryDependsOnRuleDescription" xml:space="preserve">
-    <value>Best Practice: remove unnecessary dependsOn.</value>
+    <value>Remove unnecessary dependsOn.</value>
   </data>
   <data name="UnusedVariableRuleDescription" xml:space="preserve">
-    <value>Declared variable encountered that is not used within scope.</value>
+    <value>Variable is declared but never used.</value>
   </data>
 </root>
