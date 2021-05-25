@@ -106,7 +106,6 @@ param inputb string
                 template.Should().NotHaveValue();
                 diagnostics.Should().HaveDiagnostics(new[] {
                     ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
-                    (InterpolateNotConcatRule.Code, DiagnosticLevel.Warning, new InterpolateNotConcatRule().GetMessage()),
                     ("BCP132", DiagnosticLevel.Error, "Expected a declaration after the decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator.")
                 });
@@ -169,7 +168,6 @@ param inputb string
                     ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
                     (ParametersMustBeUsedRule.Code, DiagnosticLevel.Warning, new ParametersMustBeUsedRule().GetMessage()),
                     ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
-                    (InterpolateNotConcatRule.Code, DiagnosticLevel.Warning, new InterpolateNotConcatRule().GetMessage()),
                     (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
                     ("BCP152", DiagnosticLevel.Error, "Function \"environment\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"union\" cannot be used as a decorator."),
