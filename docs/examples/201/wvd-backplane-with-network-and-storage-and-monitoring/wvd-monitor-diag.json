@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6082030172290952535"
+      "templateHash": "6360399044046989416"
     }
   },
   "parameters": {
@@ -55,7 +55,7 @@
     {
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+      "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
       "name": "workspacepool-diag",
       "properties": {
         "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
