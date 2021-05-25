@@ -139,6 +139,7 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
     template: {
       // string key value
       '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+//@[17:98) [no-hardcoded-env-urls (Warning)] Environment URLs should not be hardcoded. Access URLs via the environment() function to keep references current. -- Found: 'management.azure.com'\n[See : https://aka.ms/bicep/linter/no-hardcoded-env-urls] |'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'|
       contentVersion: '1.0.0.0'
       resources: [
       ]
