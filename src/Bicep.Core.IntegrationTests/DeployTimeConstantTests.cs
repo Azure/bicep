@@ -69,5 +69,34 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
                 ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of aRecord are \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
+
+        [TestMethod]
+        public void DtcValidation_RuntimeValueAsDtcPropertyKey_ProducesDiagnostics()
+        {
+            var result = CompilationHelper.Compile(@"
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'name'
+  location: 'global'
+}
+
+resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
+  name: 'appPlan'
+  location: resourceGroup().location
+  tags: {
+    '${listKeys('storage', '2020-01-01')}': 'value'
+    '${dnsZone.etag}': 'value'
+  }
+  sku: {
+    name: 'F1'
+    capacity: 1
+  }
+}
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of dnsZone are \"apiVersion\", \"id\", \"name\", \"type\"."),
+            });
+        }
     }
 }
