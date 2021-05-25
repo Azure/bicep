@@ -28,7 +28,7 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public static class IntegrationTestHelper
     {
-        private const int DefaultTimeout = 20000;
+        private const int DefaultTimeout = 10000;
 
         public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider();
 
