@@ -10,19 +10,19 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentSymbolHandler: DocumentSymbolHandler
+    public class BicepDocumentSymbolHandler: DocumentSymbolHandlerBase
     {
         private readonly ILogger<BicepDocumentSymbolHandler> logger;
         private readonly ICompilationManager compilationManager;
 
         public BicepDocumentSymbolHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager)
-            : base(GetSymbolRegistrationOptions())
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
@@ -36,18 +36,10 @@ namespace Bicep.LanguageServer.Handlers
                 // we have not yet compiled this document, which shouldn't really happen
                 this.logger.LogError("Document symbol request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
 
-                return Task.FromResult(new SymbolInformationOrDocumentSymbolContainer(new SymbolInformationOrDocumentSymbol()));
+                return Task.FromResult(new SymbolInformationOrDocumentSymbolContainer());
             }
 
             return Task.FromResult(new SymbolInformationOrDocumentSymbolContainer(GetSymbols(context)));
-        }
-
-        private static DocumentSymbolRegistrationOptions GetSymbolRegistrationOptions()
-        {
-            return new DocumentSymbolRegistrationOptions
-            {
-                DocumentSelector = DocumentSelectorFactory.Create()
-            };
         }
 
         private IEnumerable<SymbolInformationOrDocumentSymbol> GetSymbols(CompilationContext context)
@@ -115,6 +107,11 @@ namespace Bicep.LanguageServer.Handlers
                     return string.Empty;
             }
         }
+
+        protected override DocumentSymbolRegistrationOptions CreateRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new()
+        {
+            DocumentSelector = DocumentSelectorFactory.Create()
+        };
     }
 }
 

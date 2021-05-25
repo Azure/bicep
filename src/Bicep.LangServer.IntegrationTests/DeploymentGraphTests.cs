@@ -23,6 +23,9 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class DeploymentGraphTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         public async Task RequestDeploymentGraphShouldReturnDeploymentGraph()
         {
@@ -30,6 +33,7 @@ namespace Bicep.LangServer.IntegrationTests
             var fileSystemDict = new Dictionary<Uri, string>();
 
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 BuiltInTestTypes.Create(),
                 new InMemoryFileResolver(fileSystemDict));
