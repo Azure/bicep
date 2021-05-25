@@ -21,12 +21,10 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepTextDocumentSyncHandler : TextDocumentSyncHandlerBase
     {
         private readonly ICompilationManager compilationManager;
-        private readonly ILanguageServerFacade server;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, ILanguageServerFacade server)
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager)
         {
             this.compilationManager = compilationManager;
-            this.server = server;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -46,19 +44,9 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            this.server.Window.LogInfo($"Received open file request server-side.");
+            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
 
-            try
-            {
-                this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
-
-                return Unit.Task;
-            }
-            catch(Exception exception)
-            {
-                this.server.Window.LogError($"Exception server side: {exception}");
-                throw;
-            }
+            return Unit.Task;
         }
 
         public override Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)

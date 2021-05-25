@@ -76,8 +76,6 @@ namespace Bicep.LanguageServer
         {
             await server.Initialize(cancellationToken);
 
-            server.LogInfo("Bicep language service initialized.");
-
             await server.WaitForExit;
         }
 

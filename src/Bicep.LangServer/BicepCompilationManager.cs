@@ -175,16 +175,12 @@ namespace Bicep.LanguageServer
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<Diagnostic> diagnostics)
         {
-            server.Window.LogInfo("Publishing diagnostics...");
-
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = uri,
                 Version = version,
                 Diagnostics = new Container<Diagnostic>(diagnostics)
             });
-
-            server.Window.LogInfo("Published diagnostics.");
         }
     }
 }
