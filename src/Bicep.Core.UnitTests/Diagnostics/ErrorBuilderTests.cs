@@ -1,16 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
+using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
@@ -145,6 +147,27 @@ namespace Bicep.Core.UnitTests.Diagnostics
             }
 
             return $"<param_{index}>";
+        }
+
+        [TestMethod]
+        public void CreateOmnisharpDiagnosticWithCodeDesription()
+        {
+            var sampleUri = "https://aka.ms/this/is/a/test";
+            var analyzerName = "unit test";
+
+            IEnumerable<IDiagnostic> diags = new[]
+            {
+                new Analyzers.AnalyzerDiagnostic(analyzerName, new TextSpan(0,0), DiagnosticLevel.Warning,
+                                                  "Analyzer Msg Code", "Analyzer message string", sampleUri)
+            };
+
+            var lineStarts = new[] { 0 }.ToImmutableArray<int>();
+            var omnisharpDiagnostics = diags.ToDiagnostics(lineStarts);
+
+            omnisharpDiagnostics.Should().HaveCount(1);
+            var omnisharpDiag = omnisharpDiagnostics.First();
+            omnisharpDiag.CodeDescription?.Href?.Should().Be(sampleUri);
+            omnisharpDiag.Source?.Should().Be($"{LanguageConstants.LanguageId} {analyzerName}");
         }
     }
 }

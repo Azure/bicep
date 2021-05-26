@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Diagnostic = Bicep.Core.Diagnostics.Diagnostic;
 
 namespace Bicep.LanguageServer.Extensions
 {
