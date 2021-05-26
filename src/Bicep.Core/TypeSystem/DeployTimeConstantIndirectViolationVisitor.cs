@@ -41,7 +41,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             if (syntax.IndexExpression is StringSyntax stringSyntax &&
-                this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+                this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression, false) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 if (stringSyntax.TryGetLiteralValue() is { } propertyName)
                 {
@@ -61,7 +61,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression, false) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 this.FlagIfPropertyNotReadableAtDeployTime(syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
             }

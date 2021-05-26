@@ -57,7 +57,7 @@ namespace Bicep.Core.TypeSystem
                 ? variableDeclarationSyntax.Name.IdentifierName
                 : null;
 
-        protected (DeclaredSymbol?, ObjectType?) TryExtractResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection = false)
+        protected (DeclaredSymbol?, ObjectType?) TryExtractResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection)
         {
             if (syntax is ArrayAccessSyntax { BaseExpression: var baseSyntax })
             {
