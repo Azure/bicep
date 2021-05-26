@@ -6,53 +6,53 @@ var myInt = 42
 // a string variable
 var myStr = 'str'
 var curliesWithNoInterp = '}{1}{'
-//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |curliesWithNoInterp|
+//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used. |curliesWithNoInterp|
 var interp1 = 'abc${123}def'
 var interp2 = '${123}def'
 var interp3 = 'abc${123}'
-//@[4:11) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |interp3|
+//@[4:11) [no-unused-vars (Warning)] Variable is declared but never used. |interp3|
 var interp4 = 'abc${123}${456}jk$l${789}p$'
-//@[4:11) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |interp4|
+//@[4:11) [no-unused-vars (Warning)] Variable is declared but never used. |interp4|
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
-//@[4:16) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |doubleInterp|
+//@[4:16) [no-unused-vars (Warning)] Variable is declared but never used. |doubleInterp|
 var curliesInInterp = '{${123}{0}${true}}'
-//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |curliesInInterp|
+//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used. |curliesInInterp|
 
 // #completionTest(0) -> declarations
 
 // verify correct bracket escaping
 var bracketInTheMiddle = 'a[b]'
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |bracketInTheMiddle|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |bracketInTheMiddle|
 // #completionTest(25) -> empty
 var bracketAtBeginning = '[test'
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |bracketAtBeginning|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |bracketAtBeginning|
 // #completionTest(23) -> symbolsPlusTypes
 var enclosingBrackets = '[test]'
-//@[4:21) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |enclosingBrackets|
+//@[4:21) [no-unused-vars (Warning)] Variable is declared but never used. |enclosingBrackets|
 var emptyJsonArray = '[]'
 var interpolatedBrackets = '[${myInt}]'
-//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |interpolatedBrackets|
+//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used. |interpolatedBrackets|
 var nestedBrackets = '[test[]test2]'
-//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |nestedBrackets|
+//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used. |nestedBrackets|
 var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
-//@[4:30) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |nestedInterpolatedBrackets|
+//@[4:30) [no-unused-vars (Warning)] Variable is declared but never used. |nestedInterpolatedBrackets|
 var bracketStringInExpression = concat('[', '\'test\'',']')
-//@[4:29) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |bracketStringInExpression|
+//@[4:29) [no-unused-vars (Warning)] Variable is declared but never used. |bracketStringInExpression|
 
 // booleans
 var myTruth = true
-//@[4:11) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myTruth|
+//@[4:11) [no-unused-vars (Warning)] Variable is declared but never used. |myTruth|
 var myFalsehood = false
-//@[4:15) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myFalsehood|
+//@[4:15) [no-unused-vars (Warning)] Variable is declared but never used. |myFalsehood|
 
 var myEmptyObj = { }
-//@[4:14) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myEmptyObj|
+//@[4:14) [no-unused-vars (Warning)] Variable is declared but never used. |myEmptyObj|
 var myEmptyArray = [ ]
-//@[4:16) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myEmptyArray|
+//@[4:16) [no-unused-vars (Warning)] Variable is declared but never used. |myEmptyArray|
 
 // object
 var myObj = {
-//@[4:9) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myObj|
+//@[4:9) [no-unused-vars (Warning)] Variable is declared but never used. |myObj|
   a: 'a'
   b: -12
   c: true
@@ -74,7 +74,7 @@ var myObj = {
 }
 
 var objWithInterp = {
-//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |objWithInterp|
+//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used. |objWithInterp|
   '${myStr}': 1
   'abc${myStr}def': 2
   '${interp1}abc${interp2}': '${interp1}abc${interp2}'
@@ -82,7 +82,7 @@ var objWithInterp = {
 
 // array
 var myArr = [
-//@[4:9) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myArr|
+//@[4:9) [no-unused-vars (Warning)] Variable is declared but never used. |myArr|
   'pirates'
   'say'
   'arr'
@@ -90,7 +90,7 @@ var myArr = [
 
 // array with objects
 var myArrWithObjects = [
-//@[4:20) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myArrWithObjects|
+//@[4:20) [no-unused-vars (Warning)] Variable is declared but never used. |myArrWithObjects|
   {
     name: 'one'
     enable: true
@@ -102,58 +102,58 @@ var myArrWithObjects = [
 ]
 
 var expressionIndexOnAny = any({
-//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |expressionIndexOnAny|
+//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used. |expressionIndexOnAny|
 })[az.resourceGroup().location]
 
 var anyIndexOnAny = any(true)[any(false)]
-//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |anyIndexOnAny|
+//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used. |anyIndexOnAny|
 
 var deploymentName = deployment().name
-//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |deploymentName|
+//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used. |deploymentName|
 var templateLinkUri = deployment().properties.templateLink.uri
-//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |templateLinkUri|
+//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used. |templateLinkUri|
 var templateLinkId = deployment().properties.templateLink.id
-//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |templateLinkId|
+//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used. |templateLinkId|
 
 var portalEndpoint = environment().portal
-//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |portalEndpoint|
+//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used. |portalEndpoint|
 var loginEndpoint = environment().authentication.loginEndpoint
-//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |loginEndpoint|
+//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used. |loginEndpoint|
 
 var namedPropertyIndexer = {
-//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |namedPropertyIndexer|
+//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used. |namedPropertyIndexer|
   foo: 's'
 }['foo']
 
 var intIndexer = [
-//@[4:14) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |intIndexer|
+//@[4:14) [no-unused-vars (Warning)] Variable is declared but never used. |intIndexer|
   's'
 ][0]
 
 var functionOnIndexer1 = concat([
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |functionOnIndexer1|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |functionOnIndexer1|
   's'
 ][0], 's')
 
 var functionOnIndexer2 = concat([
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |functionOnIndexer2|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |functionOnIndexer2|
 ][0], 's')
 
 var functionOnIndexer3 = concat([
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |functionOnIndexer3|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |functionOnIndexer3|
 ][0], any('s'))
 
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
-//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myPropertyName|
+//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used. |myPropertyName|
 
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
-//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |unusedIntermediateRef|
+//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used. |unusedIntermediateRef|
 
 // previously this was not possible to emit correctly
 var previousEmitLimit = [
-//@[4:21) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |previousEmitLimit|
+//@[4:21) [no-unused-vars (Warning)] Variable is declared but never used. |previousEmitLimit|
   concat('s')
   '${4}'
   {
@@ -178,7 +178,7 @@ var previousEmitLimit = [
 
 // previously this was not possible to emit correctly
 var previousEmitLimit2 = [
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |previousEmitLimit2|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |previousEmitLimit2|
   concat('s')
   '${4}'
   {
@@ -203,7 +203,7 @@ var previousEmitLimit2 = [
 
 // previously this was not possible to emit correctly
 var previousEmitLimit3 = {
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |previousEmitLimit3|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |previousEmitLimit3|
   a: {
     b: {
       a: az.resourceGroup().location
@@ -220,15 +220,15 @@ var previousEmitLimit3 = {
 
 var myVar = 'hello'
 var myVar2 = any({
-//@[4:10) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myVar2|
+//@[4:10) [no-unused-vars (Warning)] Variable is declared but never used. |myVar2|
   something: myVar
 })
 var myVar3 = any(any({
-//@[4:10) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myVar3|
+//@[4:10) [no-unused-vars (Warning)] Variable is declared but never used. |myVar3|
   something: myVar
 }))
 var myVar4 = length(any(concat('s','a')))
-//@[4:10) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myVar4|
+//@[4:10) [no-unused-vars (Warning)] Variable is declared but never used. |myVar4|
 
 // verify that unqualified banned function identifiers can be used as declaration identifiers
 var variables = true
@@ -250,32 +250,32 @@ var not = true
 var and = true
 var or = true
 var I_WANT_IT_ALL = variables && parameters && if && createArray && createObject && add && sub && mul && div && mod && less && lessOrEquals && greater && greaterOrEquals && equals && not && and && or
-//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |I_WANT_IT_ALL|
+//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used. |I_WANT_IT_ALL|
 
 // identifiers can have underscores
 var _ = 3
 var __ = 10 * _
 var _0a_1b = true
 var _1_ = _0a_1b || (__ + _ % 2 == 0)
-//@[4:7) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |_1_|
+//@[4:7) [no-unused-vars (Warning)] Variable is declared but never used. |_1_|
 
 // fully qualified access
 var resourceGroup = 'something'
-//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |resourceGroup|
+//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used. |resourceGroup|
 var resourceGroupName = az.resourceGroup().name
-//@[4:21) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |resourceGroupName|
+//@[4:21) [no-unused-vars (Warning)] Variable is declared but never used. |resourceGroupName|
 var resourceGroupObject = az.resourceGroup()
 var propertyAccessFromObject = resourceGroupObject.name
-//@[4:28) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |propertyAccessFromObject|
+//@[4:28) [no-unused-vars (Warning)] Variable is declared but never used. |propertyAccessFromObject|
 var isTrue = sys.max(1, 2) == 3
 var isFalse = !isTrue
-//@[4:11) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |isFalse|
+//@[4:11) [no-unused-vars (Warning)] Variable is declared but never used. |isFalse|
 var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
-//@[4:12) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |someText|
+//@[4:12) [no-unused-vars (Warning)] Variable is declared but never used. |someText|
 
 // Bicep functions that cannot be converted into ARM functions
 var scopesWithoutArmRepresentation = {
-//@[4:34) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |scopesWithoutArmRepresentation|
+//@[4:34) [no-unused-vars (Warning)] Variable is declared but never used. |scopesWithoutArmRepresentation|
   tenant: tenant()
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
   resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
@@ -284,7 +284,7 @@ var scopesWithoutArmRepresentation = {
 // Issue #1332
 var issue1332_propname = 'ptest'
 var issue1332 = true ? {
-//@[4:13) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |issue1332|
+//@[4:13) [no-unused-vars (Warning)] Variable is declared but never used. |issue1332|
     prop1: {
         '${issue1332_propname}': {}
     }
@@ -292,72 +292,72 @@ var issue1332 = true ? {
 
 // Issue #486
 var myBigInt = 2199023255552
-//@[4:12) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myBigInt|
+//@[4:12) [no-unused-vars (Warning)] Variable is declared but never used. |myBigInt|
 var myIntExpression = 5 * 5
-//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myIntExpression|
+//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used. |myIntExpression|
 var myBigIntExpression = 2199023255552 * 2
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myBigIntExpression|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |myBigIntExpression|
 var myBigIntExpression2 = 2199023255552 * 2199023255552
-//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myBigIntExpression2|
+//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used. |myBigIntExpression2|
 
 // variable loops
 var incrementingNumbers = [for i in range(0,10) : i]
-//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |incrementingNumbers|
+//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used. |incrementingNumbers|
 var loopInput = [
   'one'
   'two'
 ]
 var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
-//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfStringsViaLoop|
+//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used. |arrayOfStringsViaLoop|
 var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
-//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfObjectsViaLoop|
+//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used. |arrayOfObjectsViaLoop|
   index: i
   name: name
   value: 'prefix-${i}-${name}-suffix'
 }]
 var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
-//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfArraysViaLoop|
+//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used. |arrayOfArraysViaLoop|
   i
   name
   'prefix-${i}-${name}-suffix'
 ]]
 var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
-//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfBooleans|
+//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used. |arrayOfBooleans|
 var arrayOfHardCodedNumbers = [for i in range(0,10): 3]
-//@[4:27) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfHardCodedNumbers|
+//@[4:27) [no-unused-vars (Warning)] Variable is declared but never used. |arrayOfHardCodedNumbers|
 var arrayOfHardCodedBools = [for i in range(0,10): false]
-//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfHardCodedBools|
+//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used. |arrayOfHardCodedBools|
 var arrayOfHardCodedStrings = [for i in range(0,3): 'hi']
-//@[4:27) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfHardCodedStrings|
+//@[4:27) [no-unused-vars (Warning)] Variable is declared but never used. |arrayOfHardCodedStrings|
 var arrayOfNonRuntimeFunctionCalls = [for i in range(0,3): concat('hi', i)]
-//@[4:34) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfNonRuntimeFunctionCalls|
+//@[4:34) [no-unused-vars (Warning)] Variable is declared but never used. |arrayOfNonRuntimeFunctionCalls|
 
 var multilineString = '''
-//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineString|
+//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used. |multilineString|
 HELLO!
 '''
 
 var multilineEmpty = ''''''
-//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineEmpty|
+//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used. |multilineEmpty|
 var multilineEmptyNewline = '''
-//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineEmptyNewline|
+//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used. |multilineEmptyNewline|
 '''
 
 // evaluates to '\'abc\''
 var multilineExtraQuotes = ''''abc''''
-//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineExtraQuotes|
+//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used. |multilineExtraQuotes|
 
 // evaluates to '\'\nabc\n\''
 var multilineExtraQuotesNewlines = ''''
-//@[4:32) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineExtraQuotesNewlines|
+//@[4:32) [no-unused-vars (Warning)] Variable is declared but never used. |multilineExtraQuotesNewlines|
 abc
 ''''
 
 var multilineSingleLine = '''hello!'''
-//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineSingleLine|
+//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used. |multilineSingleLine|
 
 var multilineFormatted = format('''
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineFormatted|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. |multilineFormatted|
 Hello,
 my
 name is
@@ -365,7 +365,7 @@ name is
 ''', 'Anthony')
 
 var multilineJavaScript = '''
-//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineJavaScript|
+//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used. |multilineJavaScript|
 // NOT RECOMMENDED PATTERN
 const fs = require('fs');
 
