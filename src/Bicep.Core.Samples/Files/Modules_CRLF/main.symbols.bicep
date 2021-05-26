@@ -349,4 +349,49 @@ module secureModule2 'child/secureParams.bicep' = {
   }
 }
 
+//looped module with looped existing resource (Issue #2862)
+var vaults = [
+//@[4:10) Variable vaults. Type: array. Declaration start char: 0, length: 200
+  {
+    vaultName: 'test-1-kv'
+    vaultRG: 'test-1-rg'
+    vaultSub: 'abcd-efgh'
+  }
+  {
+    vaultName: 'test-2-kv'
+    vaultRG: 'test-2-rg'
+    vaultSub: 'ijkl-1adg1'
+  }
+]
+var secrets = [
+//@[4:11) Variable secrets. Type: array. Declaration start char: 0, length: 132
+  {
+    name: 'secret01'
+    version: 'versionA'
+  }
+  {
+    name: 'secret02'
+    version: 'versionB'
+  }
+]
+
+resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault in vaults: {
+//@[73:78) Local vault. Type: any. Declaration start char: 73, length: 5
+//@[9:17) Resource loopedKv. Type: Microsoft.KeyVault/vaults@2019-09-01[]. Declaration start char: 0, length: 175
+  name: vault.vaultName
+  scope: resourceGroup(vault.vaultSub, vault.vaultRG)
+}]
+
+module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secrets: {
+//@[61:67) Local secret. Type: any. Declaration start char: 61, length: 6
+//@[69:70) Local i. Type: int. Declaration start char: 69, length: 1
+//@[7:25) Module secureModuleLooped. Type: module[]. Declaration start char: 0, length: 278
+  name: 'secureModuleLooped-${i}'
+  params: {
+    secureStringParam1: loopedKv[i].getSecret(secret.name)
+    secureStringParam2: loopedKv[i].getSecret(secret.name, secret.version)
+  }
+}]
+
+
 // END: Key Vault Secret Reference
