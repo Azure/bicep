@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             foreach (var diagnosticMethod in diagnosticMethods)
             {
                 var mockParams = diagnosticMethod.GetParameters().Select(CreateMockParameter);
-                
+
                 var diagnostic = diagnosticMethod.Invoke(builder, mockParams.ToArray()) as Diagnostic;
 
                 // verify that the Code is unique
@@ -92,17 +92,17 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
             if (parameter.ParameterType == typeof(IList<TypeSymbol>))
             {
-                return new List<TypeSymbol> {new PrimitiveType($"<list_type_{index}>", TypeSymbolValidationFlags.Default)};
+                return new List<TypeSymbol> { new PrimitiveType($"<list_type_{index}>", TypeSymbolValidationFlags.Default) };
             }
 
             if (parameter.ParameterType == typeof(IEnumerable<string>))
             {
-                return new List<string> {$"<value_{index}"};
+                return new List<string> { $"<value_{index}" };
             }
 
             if (parameter.ParameterType == typeof(IList<string>))
             {
-                return new List<string> {$"<value_{index}"};
+                return new List<string> { $"<value_{index}" };
             }
 
             if (parameter.ParameterType == typeof(Uri))
@@ -121,7 +121,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return 0;
             }
 
-            if(parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
+            if (parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
             {
                 return 0;
             }
@@ -165,9 +165,13 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var omnisharpDiagnostics = diags.ToDiagnostics(lineStarts);
 
             omnisharpDiagnostics.Should().HaveCount(1);
-            var omnisharpDiag = omnisharpDiagnostics.First();
-            omnisharpDiag.CodeDescription?.Href?.Should().Be(sampleUri);
-            omnisharpDiag.Source?.Should().Be($"{LanguageConstants.LanguageId} {analyzerName}");
+            omnisharpDiagnostics.Should().SatisfyRespectively(
+                diag =>
+                {
+                    diag.CodeDescription!.Href!.Should().Be(sampleUri);
+                    diag.Source!.Should().Be($"{LanguageConstants.LanguageId} {analyzerName}");
+                }
+            );
         }
     }
 }
