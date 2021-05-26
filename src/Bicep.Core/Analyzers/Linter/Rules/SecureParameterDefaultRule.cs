@@ -3,6 +3,7 @@
 
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://aka.ms/bicep/linter/secure-parameter-default")
         { }
 
-        override public IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var defaultValueSyntaxes = model.Root.ParameterDeclarations.Where(p => p.IsSecure())
                 .Select(p => p.Modifier as ParameterDefaultValueSyntax)

@@ -7,14 +7,12 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Analyzers
 {
-    public class AnalyzerDiagnostic : Diagnostic, IBicepAnalyzerDiagnostic
+    public class AnalyzerDiagnostic : Diagnostic, IDiagnostic
     {
-        public AnalyzerDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level, string code, string message, DiagnosticLabel? label = default)
-            : base(span, level, code, message, label)
+        public AnalyzerDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level, string code, string message, string? documentationUri, DiagnosticLabel? label = default)
+            : base(span, level, code, message, documentationUri, label)
         {
-            this.AnalyzerName = analyzerName;
+            this.Source = $"{LanguageConstants.LanguageId} {analyzerName}";
         }
-
-        public string AnalyzerName { get; }
     }
 }

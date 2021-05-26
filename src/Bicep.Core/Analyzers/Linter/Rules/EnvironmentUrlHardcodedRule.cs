@@ -3,6 +3,7 @@
 
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -37,7 +38,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         protected override string FormatMessage(params object[] values)
             => string.Format("{0} -- Found: [{1}]", this.Description, values.First());
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             if (this.DisallowedHosts != null && this.DisallowedHosts.Any())
             {

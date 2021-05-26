@@ -147,10 +147,6 @@
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Secure parameters can't have hardcoded default. This prevents storage of sensitive data in the Bicep declaration.</value>
   </data>
-  <data name="SeeDocLinkFormat" xml:space="preserve">
-    <value>[See : {0}]</value>
-    <comment>{0} is hyperlink to docs </comment>
-  </data>
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>String interpolation can be simplified. String variables can be directly assigned to string properties and variables.</value>
   </data>

@@ -24,7 +24,7 @@ namespace Bicep.Core.Analyzers.Linter
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
             this.Description = description;
-            this.DocumentationUri = docUri;
+            this.Uri = docUri;
             this.DiagnosticLevel = diagnosticLevel;
             this.DiagnosticLabel = diagnosticLabel;
         }
@@ -34,10 +34,10 @@ namespace Bicep.Core.Analyzers.Linter
 
         public string Code { get; }
         public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:rules";
-        public Diagnostics.DiagnosticLevel DiagnosticLevel { get; private set; }
+        public DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
-        public string DocumentationUri { get; }
-        public Diagnostics.DiagnosticLabel? DiagnosticLabel { get; }
+        public string Uri { get; }
+        public DiagnosticLabel? DiagnosticLabel { get; }
 
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             this.Config = config;
             var configDiagLevel = GetConfiguration("level", this.DiagnosticLevel.ToString());
-            if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl))
+            if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, (bool)true, out var lvl))
             {
                 this.DiagnosticLevel = lvl;
             }
@@ -64,13 +64,9 @@ namespace Bicep.Core.Analyzers.Linter
         /// <param name="values"></param>
         /// <returns></returns>
         public string GetMessage(params object[] values)
-        {
-            return (values.Any() ? FormatMessage(values) : this.Description)
-                + "\n" // this is used for cross-platform compatibility
-                + string.Format(CoreResources.SeeDocLinkFormat, this.DocumentationUri);
-        }
+            => (values.Any() ? FormatMessage(values) : this.Description);
 
-        public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel model)
+        public IEnumerable<IDiagnostic> Analyze(SemanticModel model)
         {
             try
             {
@@ -85,7 +81,7 @@ namespace Bicep.Core.Analyzers.Linter
                                                     DiagnosticLevel.Warning,
                                                     LinterAnalyzer.FailedRuleCode,
                                                     string.Format(CoreResources.LinterRuleExceptionMessageFormat,this.AnalyzerName, ex.Message),
-                                                    null)
+                                                    null, null)
                 };
             }
         }
@@ -96,7 +92,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public abstract IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model);
+        public abstract IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model);
 
         /// <summary>
         /// Get a setting from defaults or local override
@@ -132,6 +128,7 @@ namespace Bicep.Core.Analyzers.Linter
                 level: this.DiagnosticLevel,
                 code: this.Code,
                 message: this.GetMessage(),
+                documentationUri: this.Uri,
                 label: this.DiagnosticLabel);
 
         /// <summary>
@@ -147,6 +144,7 @@ namespace Bicep.Core.Analyzers.Linter
                 level: this.DiagnosticLevel,
                 code: this.Code,
                 message: this.GetMessage(values),
+                documentationUri: this.Uri,
                 label: this.DiagnosticLabel);
 
         protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
@@ -155,6 +153,7 @@ namespace Bicep.Core.Analyzers.Linter
                 level: this.DiagnosticLevel,
                 code: this.Code,
                 message: this.GetMessage(),
+                documentationUri: this.Uri,
                 codeFixes: new[] { fix },
                 label: this.DiagnosticLabel);
     }

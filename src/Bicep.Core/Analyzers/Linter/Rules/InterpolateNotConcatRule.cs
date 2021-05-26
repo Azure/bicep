@@ -3,6 +3,7 @@
 
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
@@ -25,7 +26,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: "https://aka.ms/bicep/linter/prefer-interpolation")
         { }
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var visitor = new Visitor(this);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);
@@ -34,7 +35,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class Visitor : SyntaxVisitor
         {
-            public List<IBicepAnalyzerDiagnostic> diagnostics = new List<IBicepAnalyzerDiagnostic>();
+            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
 
             private InterpolateNotConcatRule parent;
 
