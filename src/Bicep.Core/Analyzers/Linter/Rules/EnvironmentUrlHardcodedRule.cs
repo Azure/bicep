@@ -35,7 +35,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         }
 
         protected override string FormatMessage(params object[] values)
-            => string.Format("{0} -- Found: '{1}'", this.Description, values.First());
+            => string.Format("{0} Found this disallowed host: \"{1}\"", this.Description, values.First());
 
         public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
@@ -62,7 +62,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitStringSyntax(StringSyntax syntax)
             {
-                var disallowedHost = syntax.SegmentValues.Select(s => findEnvironmentUrlInString(s))
+                var disallowedHost = syntax.SegmentValues.Select(s => FindEnvironmentUrlInString(s))
                     .Where(span => span != null)
                     .FirstOrDefault();
                 if (disallowedHost != null)
@@ -73,7 +73,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 base.VisitStringSyntax(syntax);
             }
 
-            private string? findEnvironmentUrlInString(string str)
+            private string? FindEnvironmentUrlInString(string str)
             {
                 foreach (var host in this.disallowedHosts)
                 {
