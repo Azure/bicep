@@ -38,8 +38,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             public List<IBicepAnalyzerDiagnostic> diagnostics = new List<IBicepAnalyzerDiagnostic>();
 
             private const string concatFunction = "concat";
-            private InterpolateNotConcatRule parent;
-            private SemanticModel model;
+            private readonly InterpolateNotConcatRule parent;
+            private readonly SemanticModel model;
 
             public Visitor(InterpolateNotConcatRule parent, SemanticModel model)
             {
