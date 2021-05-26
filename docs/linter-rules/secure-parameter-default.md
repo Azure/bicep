@@ -1,6 +1,6 @@
-# Secure paramenter default
+# Secure parameter default
 
-**Code**: secure-paramenter-default
+**Code**: secure-parameter-default
 
 **Description**: Don't provide a hard-coded default value for a secure parameter in your template, unless it is empty or an expression containing a call to newGuid().
 
@@ -15,9 +15,19 @@ The following example fails this test:
 param adminPassword string = 'HardcodedPassword'
 ```
 
-The following example passes this test.
+The following examples pass this test:
 
 ```bicep
 @secure()
 param adminPassword string
+```
+
+```bicep
+@secure()
+param adminPassword string = ''
+```
+
+```bicep
+@secure()
+param adminPassword string = newGuid()
 ```

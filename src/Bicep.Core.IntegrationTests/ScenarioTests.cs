@@ -1801,9 +1801,9 @@ output tagsoutput object = {
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
@@ -2026,6 +2026,7 @@ var foo = az.listKeys('foo', '2012-02-01')[0].value
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/449
         public void Test_Issue449_PositiveCase()
         {
             var result = CompilationHelper.Compile(@"
@@ -2041,6 +2042,7 @@ resource pubipv4 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/449
         public void Test_Issue449_NegativeCase()
         {
             var result = CompilationHelper.Compile(@"
@@ -2075,6 +2077,7 @@ resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/2248
         public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression()
         {
             var result = CompilationHelper.Compile(@"
@@ -2096,6 +2099,7 @@ var primaryLocation = locations[0]
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/2248
         public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression_NegativeCase()
         {
             var result = CompilationHelper.Compile(@"
@@ -2110,6 +2114,7 @@ var primaryFoo = foos[0]
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/2248
         public void Test_Issue2248_UnionTypeInPropertyAccessBaseExpression()
         {
             var result = CompilationHelper.Compile(@"
@@ -2159,7 +2164,64 @@ resource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01'
 "));
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'mgDeploy')].scope", "[format('Microsoft.Management/managementGroups/{0}', 'test')]");
-        }        
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2622
+        public void Test_Issue2622()
+        {
+            var result = CompilationHelper.Compile(@"
+resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
+  // Runtime error. This should be blocked.
+  name: listKeys('foo', '2012-01-01')[0].value
+  location: resourceGroup().location
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    dnsSettings: {
+      domainNameLabel: 'dnsname'
+    }
+  }
+}
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP120",DiagnosticLevel.Error,"The property \"name\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.")
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2291
+        public void Test_Issue2291()
+        {
+            var result = CompilationHelper.Compile(@"
+resource registry 'Microsoft.ContainerRegistry/registries@2019-12-01-preview' existing = {
+  name: 'foo'
+  resource importPipeline 'importPipelines' existing = {
+    name: 'import'
+  }
+}
+
+resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2019-12-01-preview' = [for index in range(0, 3): if(registry::importPipeline.properties.trigger.sourceTrigger.status == 'Disabled') {
+  parent: registry
+  name: 'bar${index}'
+  properties: {
+    request: {
+      pipelineResourceId: registry::importPipeline.id
+      artifacts: []
+      source: {
+        type: 'AzureStorageBlob'
+        name: 'blobBaseName_${index}'
+      }
+      catalogDigest: ''
+    }
+    forceUpdateTag: ''
+  }
+}]
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP177",DiagnosticLevel.Error,"The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of importPipeline are \"apiVersion\", \"id\", \"name\", \"type\".")
+            });
+        }
     }
 }

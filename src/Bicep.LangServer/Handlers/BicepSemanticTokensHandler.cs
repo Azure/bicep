@@ -7,20 +7,20 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    [Obsolete] // proposed LSP feature must be marked 'obsolete' to access
     public class BicepSemanticTokensHandler : SemanticTokensHandlerBase
     {
         private readonly ILogger<BicepSemanticTokensHandler> logger;
         private readonly ICompilationManager compilationManager;
 
+        // TODO: Not sure if this needs to be shared.
+        private readonly SemanticTokensLegend legend = new();
+
         public BicepSemanticTokensHandler(ILogger<BicepSemanticTokensHandler> logger, ICompilationManager compilationManager)
-            : base(GetSemanticTokensRegistrationOptions())
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new SemanticTokensDocument(GetRegistrationOptions().Legend));
+            return Task.FromResult(new SemanticTokensDocument(this.legend));
         }
 
         protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken)
@@ -43,18 +43,15 @@ namespace Bicep.LanguageServer.Handlers
             return Task.CompletedTask;
         }
 
-        private static SemanticTokensRegistrationOptions GetSemanticTokensRegistrationOptions()
+        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            return new SemanticTokensRegistrationOptions
+            DocumentSelector = DocumentSelectorFactory.Create(),
+            Legend = this.legend,
+            Full = new SemanticTokensCapabilityRequestFull
             {
-                DocumentSelector = DocumentSelectorFactory.Create(),
-                Legend = new SemanticTokensLegend(),
-                Full = new SemanticTokensCapabilityRequestFull
-                {
-                    Delta = true
-                },
-                Range = true
-            };
-        }
+                Delta = true
+            },
+            Range = true
+        };
     }
 }

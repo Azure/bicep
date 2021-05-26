@@ -18,6 +18,7 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -385,6 +386,14 @@ namespace Bicep.LangServer.UnitTests
             server
                 .Setup(m => m.TextDocument)
                 .Returns(document.Object);
+
+            var window = Repository.Create<IWindowLanguageServer>();
+            window
+                .Setup(m => m.SendNotification(It.IsAny<LogMessageParams>()));
+
+            server
+                .Setup(m => m.Window)
+                .Returns(window.Object);
 
             return server;
         }
