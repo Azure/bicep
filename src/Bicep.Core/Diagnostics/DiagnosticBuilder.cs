@@ -946,8 +946,8 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Info,
                 "BCP161",
-                "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples).",
-                null,
+                "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead.",
+                new Uri("https://aka.ms/BicepSpecParams"),
                 DiagnosticLabel.Deprecated);
 
             public ErrorDiagnostic ExpectedLoopItemIdentifierOrVariableBlockStart() => new(
@@ -1014,7 +1014,8 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP174",
-                $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information.");
+                $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property.",
+                new Uri("https://aka.ms/BicepScopes"));
 
             public ErrorDiagnostic AnyTypeIsNotAllowed() => new(
                 TextSpan,
