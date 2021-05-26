@@ -299,6 +299,63 @@ output exposed string = mySecret
             result.Should().NotGenerateATemplate();
             result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/2862
+        /// </summary>
+        [TestMethod]
+        public void ValidKeyVaultSecretReferenceInLoopedModuleWithLoopedKeyVault_Issue2862()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+var secrets = [
+{
+  name: 'secret01'
+  version: 'versionA'
+  vaultName: 'test-1-kv'
+  vaultRG: 'test-1-rg'
+  vaultSub: 'abcd-efgh'
+}
+{
+  name: 'secret02'
+  version: 'versionB'
+  vaultName: 'test-2-kv'
+  vaultRG: 'test-2-rg'
+  vaultSub: 'ijkl-1adg1'
+}
+]
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for secret in secrets: {
+  name: secret.vaultName
+  scope: resourceGroup(secret.vaultSub, secret.vaultRG)
+}]
+
+module secret 'secret.bicep' = [for (secret, i) in secrets : {
+  name: 'secret'
+  scope: resourceGroup('secret-${i}-rg')
+  params: {
+    mySecret: kv[i].getSecret('super-${secret.name}', secret.version)
+  }
+}]
+"),
+                ("secret.bicep", @"
+@secure()
+param mySecret string = 'defaultSecret'
+
+output exposed string = mySecret
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            var parameterToken = template!.SelectToken("$.resources[?(@.name == 'secret')].properties.parameters.mySecret")!;
+            using (new AssertionScope())
+            {
+                parameterToken.SelectToken("$.value")!.Should().BeNull();
+                parameterToken.SelectToken("$.reference.keyVault.id")!.Should().DeepEqual("[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('secrets')[copyIndex()].vaultSub, variables('secrets')[copyIndex()].vaultRG), 'Microsoft.KeyVault/vaults', variables('secrets')[copyIndex()].vaultName)]");
+                parameterToken.SelectToken("$.reference.secretName")!.Should().DeepEqual("[format('super-{0}', variables('secrets')[copyIndex()].name)]");
+                parameterToken.SelectToken("$.reference.secretVersion")!.Should().DeepEqual("[variables('secrets')[copyIndex()].version]");
+            }
+        }
     }
 }
 
