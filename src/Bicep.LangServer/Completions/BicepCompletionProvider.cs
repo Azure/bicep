@@ -85,11 +85,13 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
+                    string prefix = resourceSnippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
-                    telemetryEvent.Set("name", resourceSnippet.Prefix);
+                    telemetryEvent.Set("name", prefix);
+
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
-                    yield return CreateContextualSnippetCompletion(resourceSnippet.Prefix,
+                    yield return CreateContextualSnippetCompletion(prefix,
                                                                    resourceSnippet.Detail,
                                                                    resourceSnippet.Text,
                                                                    context.ReplacementRange,
@@ -404,12 +406,19 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet snippet in snippets)
                 {
-                    yield return CreateContextualSnippetCompletion(snippet!.Prefix,
+                    string prefix = snippet.Prefix;
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.ResourceBodySnippetInsertion);
+                    telemetryEvent.Set("name", prefix);
+                    telemetryEvent.Set("type", typeSymbol.Name);
+                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+
+                    yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
                         snippet.CompletionPriority,
-                        preselect: true);
+                        preselect: true)
+                        .WithCommand(command);
                 }
             }
         }
@@ -423,12 +432,20 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet snippet in snippets)
                 {
-                    yield return CreateContextualSnippetCompletion(snippet!.Prefix,
+                    string prefix = snippet.Prefix;
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.ResourceBodySnippetInsertion);
+                    telemetryEvent.Set("name", prefix);
+                    telemetryEvent.Set("type", typeSymbol.Name);
+
+                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+
+                    yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
                         snippet.CompletionPriority,
-                        preselect: true);
+                        preselect: true)
+                        .WithCommand(command);
                 }
             }
         }
