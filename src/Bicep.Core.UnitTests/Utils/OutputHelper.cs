@@ -73,10 +73,11 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             var docLink = diagnostic.Uri == null
-                ? string.Empty
-                : $"{diagnostic.Source}({diagnostic.Uri})";
+                ? "none"
+                : $"{diagnostic.Source}({diagnostic.Uri.AbsoluteUri})";
 
-            return $"[{diagnostic.Code} ({diagnostic.Level})] {message} {docLink}|{spanText}|";
+
+            return $"[{diagnostic.Code} ({diagnostic.Level})] {message} (CodeDescription: {docLink}) |{spanText}|";
         }
     }
 }
