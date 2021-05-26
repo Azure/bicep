@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Extensions
 
         private static (string?, CodeDescription?) GetDiagnosticDocumentation(IDiagnostic diagnostic)
         {
-            if (!string.IsNullOrEmpty(diagnostic.Uri))
+            if (diagnostic.Uri != null)
             {
                 // This shuffling of the Code to Uri gives us the message formatting
                 // that is desired where the documentation link is displayed as the text
@@ -43,7 +43,7 @@ namespace Bicep.LanguageServer.Extensions
                 // Desired format:
                 //   Declared parameter must be referenced within the document scope. bicep core(https://aka.ms/bicep/linter/no-unused-params) [2,7]
 
-                return new(diagnostic.Uri, new CodeDescription() { Href = new Uri(diagnostic.Uri) });
+                return new(diagnostic.Uri.AbsoluteUri, new CodeDescription() { Href = diagnostic.Uri });
             }
 
             // no additional documentation

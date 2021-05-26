@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Diagnostics;
 using Bicep.Core.Parsing;
 
@@ -10,7 +11,7 @@ namespace Bicep.Core.Diagnostics
     public class Diagnostic : IDiagnostic
     {
         public Diagnostic(TextSpan span, DiagnosticLevel level, string code, string message,
-                            string? documentationUri = null, DiagnosticLabel? label = null)
+                            Uri? documentationUri = null, DiagnosticLabel? label = null)
         {
             Span = span;
             Level = level;
@@ -33,7 +34,7 @@ namespace Bicep.Core.Diagnostics
 
         public string Message { get; }
 
-        public string? Uri { get; }
+        public Uri? Uri { get; }
 
     }
 }

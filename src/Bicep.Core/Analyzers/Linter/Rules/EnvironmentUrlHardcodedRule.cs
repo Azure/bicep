@@ -24,7 +24,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public EnvironmentUrlHardcodedRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/no-hardcoded-env-urls")
+            docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
         {
         }
 

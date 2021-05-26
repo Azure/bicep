@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Parsing;
+using System;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -11,6 +12,6 @@ namespace Bicep.Core.Diagnostics
         DiagnosticLabel? Label { get; }
         DiagnosticLevel Level { get; }
         string Message { get; }
-        string? Uri { get; }
+        Uri? Uri { get; }
     }
 }

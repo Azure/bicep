@@ -70,7 +70,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
         public class LinterThrowsTestRule : LinterRuleBase
         {
-            public LinterThrowsTestRule() : base("ThrowsRule", "Throws an exception when used", "http:\\none", DiagnosticLevel.Warning) { }
+            public LinterThrowsTestRule() : base("ThrowsRule", "Throws an exception when used", null, DiagnosticLevel.Warning) { }
 
             public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
             {

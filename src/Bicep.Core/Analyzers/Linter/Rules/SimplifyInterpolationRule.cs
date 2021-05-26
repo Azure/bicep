@@ -19,7 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SimplifyInterpolationRule() : base(
             code: Code,
             description: CoreResources.SimplifyInterpolationRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/simplify-interpolation")
+            docUri: new System.Uri("https://aka.ms/bicep/linter/simplify-interpolation"))
         { }
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)

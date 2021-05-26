@@ -17,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter
 {
     public abstract class LinterRuleBase : IBicepAnalyzerRule
     {
-        public LinterRuleBase(string code, string description, string docUri,
+        public LinterRuleBase(string code, string description, Uri? docUri = null,
                           DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
                           DiagnosticLabel? diagnosticLabel = null)
         {
@@ -36,7 +36,7 @@ namespace Bicep.Core.Analyzers.Linter
         public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:rules";
         public DiagnosticLevel DiagnosticLevel { get; private set; }
         public string Description { get; }
-        public string Uri { get; }
+        public Uri? Uri { get; }
         public DiagnosticLabel? DiagnosticLabel { get; }
 
 
@@ -51,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             this.Config = config;
             var configDiagLevel = GetConfiguration("level", this.DiagnosticLevel.ToString());
-            if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, (bool)true, out var lvl))
+            if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl))
             {
                 this.DiagnosticLevel = lvl;
             }

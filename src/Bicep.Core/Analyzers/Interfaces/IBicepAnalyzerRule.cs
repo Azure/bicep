@@ -4,6 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers.Interfaces
@@ -21,7 +22,7 @@ namespace Bicep.Core.Analyzers.Interfaces
         string Description { get; }
         DiagnosticLevel DiagnosticLevel { get; }
         DiagnosticLabel? DiagnosticLabel { get; }
-        string Uri { get; }
+        Uri? Uri { get; }
         void Configure(IConfigurationRoot config);
         IEnumerable<IDiagnostic> Analyze(SemanticModel model);
     }

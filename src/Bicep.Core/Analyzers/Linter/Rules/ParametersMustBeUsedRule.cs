@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public ParametersMustBeUsedRule() : base(
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/no-unused-params",
+            docUri: new System.Uri("https://aka.ms/bicep/linter/no-unused-params"),
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 

@@ -23,7 +23,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public InterpolateNotConcatRule() : base(
             code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/prefer-interpolation")
+            docUri: new Uri("https://aka.ms/bicep/linter/prefer-interpolation"))
         { }
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)

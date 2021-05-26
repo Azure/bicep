@@ -152,7 +152,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void CreateOmnisharpDiagnosticWithCodeDesription()
         {
-            var sampleUri = "https://aka.ms/this/is/a/test";
+            var sampleUri = new Uri("https://aka.ms/this/is/a/test");
             var analyzerName = "unit test";
 
             IEnumerable<IDiagnostic> diags = new[]
@@ -167,7 +167,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             omnisharpDiagnostics.Should().SatisfyRespectively(
                 diag =>
                 {
-                    diag.CodeDescription!.Href!.Should().Be(sampleUri);
+                    diag.CodeDescription!.Href!.Should().Be(sampleUri.AbsoluteUri);
                     diag.Source!.Should().Be($"{LanguageConstants.LanguageId} {analyzerName}");
                 }
             );
