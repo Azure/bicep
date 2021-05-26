@@ -92,7 +92,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private void AddCodeFix(TextSpan span, string name)
             {
                 var codeReplacement = new CodeReplacement(span, name);
-                var fix = new CodeFix($"Use string variable assignment: {codeReplacement.Text}", true, codeReplacement); // TODO: localize
+                var fix = new CodeFix($"Remove unnecessary string interpolation", true, codeReplacement); // TODO: localize
                 spanFixes[span] = fix;
             }
 

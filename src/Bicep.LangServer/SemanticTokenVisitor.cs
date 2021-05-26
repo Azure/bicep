@@ -7,12 +7,11 @@ using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer
 {
-    [Obsolete] // proposed LSP feature must be marked 'obsolete' to access
     public class SemanticTokenVisitor : SyntaxVisitor
     {
         private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens;
@@ -114,7 +113,7 @@ namespace Bicep.LanguageServer
             }
             else
             {
-                AddTokenType(syntax.Key, SemanticTokenType.Member);
+                AddTokenType(syntax.Key, SemanticTokenType.Method);
             }
             Visit(syntax.Colon);
             Visit(syntax.Value);

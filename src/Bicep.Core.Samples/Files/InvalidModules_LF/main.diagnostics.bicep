@@ -172,22 +172,22 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
 
 // #completionTest(55) -> moduleATopLevelPropertyAccess
 var modulePropertyAccessCompletions = modAEmptyInputs.o
-//@[4:35) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |modulePropertyAccessCompletions|
+//@[4:35) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |modulePropertyAccessCompletions|
 //@[54:55) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". |o|
 
 // #completionTest(81) -> moduleAWithConditionTopLevelPropertyAccess
 var moduleWithConditionPropertyAccessCompletions = modAEmptyInputsWithCondition.o
-//@[4:48) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |moduleWithConditionPropertyAccessCompletions|
+//@[4:48) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |moduleWithConditionPropertyAccessCompletions|
 //@[80:81) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". |o|
 
 // #completionTest(56) -> moduleAOutputs
 var moduleOutputsCompletions = modAEmptyInputs.outputs.s
-//@[4:28) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |moduleOutputsCompletions|
+//@[4:28) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |moduleOutputsCompletions|
 //@[55:56) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |s|
 
 // #completionTest(82) -> moduleAWithConditionOutputs
 var moduleWithConditionOutputsCompletions = modAEmptyInputsWithCondition.outputs.s
-//@[4:41) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |moduleWithConditionOutputsCompletions|
+//@[4:41) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |moduleWithConditionOutputsCompletions|
 //@[81:82) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |s|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
@@ -204,7 +204,7 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 }
 
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
-//@[4:21) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |unspecifiedOutput|
+//@[4:21) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |unspecifiedOutput|
 //@[54:58) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |test|
 
 module modCycle './cycle.bicep' = {
@@ -283,7 +283,7 @@ resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 module runtimeValidModule1 'empty.bicep' = {
   name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
-//@[8:89) [prefer-interpolation (Warning)] Dynamic variable should not use concat - string interpolation should be used.\n[See : https://aka.ms/bicep/linter/prefer-interpolation] |concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)|
+//@[8:89) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)|
 }
 
 module runtimeInvalidModule1 'empty.bicep' = {
@@ -344,7 +344,7 @@ module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
 //@[7:33) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |moduleLoopForRuntimeCheck3|
 //@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |moduleLoopForRuntimeCheck3|
   name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
-//@[8:119) [prefer-interpolation (Warning)] Dynamic variable should not use concat - string interpolation should be used.\n[See : https://aka.ms/bicep/linter/prefer-interpolation] |concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )|
+//@[8:119) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )|
 //@[15:51) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleLoopForRuntimeCheck[1].outputs|
 //@[67:103) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". |moduleLoopForRuntimeCheck[1].outputs|
 }]
@@ -571,12 +571,12 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 
 // #completionTest(100) -> moduleAOutputs
 var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilteredLoops[0].outputs.
-//@[4:50) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |propertyAccessCompletionsForFilteredModuleLoop|
+//@[4:50) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |propertyAccessCompletionsForFilteredModuleLoop|
 //@[100:100) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'
-//@[4:22) [no-unused-vars (Warning)] Declared variable encountered that is not used within scope.\n[See : https://aka.ms/bicep/linter/no-unused-vars] |evenMoreDuplicates|
+//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |evenMoreDuplicates|
 module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
 //@[7:24) [BCP179 (Warning)] The loop item variable "evenMoreDuplicates" must be referenced in at least one of the value expressions of the following properties: "name", "scope" |nonexistentArrays|
 //@[70:86) [BCP057 (Error)] The name "alsoDoesNotExist" does not exist in the current context. |alsoDoesNotExist|
@@ -598,7 +598,7 @@ module directRefToCollectionViaSingleBody 'modulea.bicep' = {
   name: 'hello'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[16:69) [prefer-interpolation (Warning)] Dynamic variable should not use concat - string interpolation should be used.\n[See : https://aka.ms/bicep/linter/prefer-interpolation] |concat(wrongModuleParameterInLoop, nonexistentArrays)|
+//@[16:69) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(wrongModuleParameterInLoop, nonexistentArrays)|
 //@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
 //@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     objParam: {}
@@ -610,7 +610,7 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
   name: 'hello2'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[16:69) [prefer-interpolation (Warning)] Dynamic variable should not use concat - string interpolation should be used.\n[See : https://aka.ms/bicep/linter/prefer-interpolation] |concat(wrongModuleParameterInLoop, nonexistentArrays)|
+//@[16:69) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(wrongModuleParameterInLoop, nonexistentArrays)|
 //@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
 //@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     objParam: {}
@@ -623,7 +623,7 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
   name: 'hello3'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[16:69) [prefer-interpolation (Warning)] Dynamic variable should not use concat - string interpolation should be used.\n[See : https://aka.ms/bicep/linter/prefer-interpolation] |concat(wrongModuleParameterInLoop, nonexistentArrays)|
+//@[16:69) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(wrongModuleParameterInLoop, nonexistentArrays)|
 //@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
 //@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     objParam: {}
@@ -636,7 +636,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
   name: 'hello4'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[16:69) [prefer-interpolation (Warning)] Dynamic variable should not use concat - string interpolation should be used.\n[See : https://aka.ms/bicep/linter/prefer-interpolation] |concat(wrongModuleParameterInLoop, nonexistentArrays)|
+//@[16:69) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(wrongModuleParameterInLoop, nonexistentArrays)|
 //@[23:49) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |wrongModuleParameterInLoop|
 //@[51:68) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. |nonexistentArrays|
     objParam: {}

@@ -15,9 +15,19 @@ The following example fails this test:
 param adminPassword string = 'HardcodedPassword'
 ```
 
-The following example passes this test.
+The following examples pass this test:
 
 ```bicep
 @secure()
 param adminPassword string
+```
+
+```bicep
+@secure()
+param adminPassword string = ''
+```
+
+```bicep
+@secure()
+param adminPassword string = newGuid()
 ```
