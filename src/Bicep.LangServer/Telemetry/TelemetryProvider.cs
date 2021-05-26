@@ -8,18 +8,23 @@ namespace Bicep.LanguageServer.Telemetry
 {
     public class TelemetryProvider : ITelemetryProvider
     {
-        public ILanguageServer? LanguageServer { get; set; }
+        private readonly ILanguageServerFacade server;
 
-        public void PostEvent(TelemetryEvent telemetryEvent)
+        public TelemetryProvider(ILanguageServerFacade server)
+        {
+            this.server = server;
+        }
+
+        public void PostEvent(BicepTelemetryEvent telemetryEvent)
         {
             if (telemetryEvent is null ||
-                !string.IsNullOrWhiteSpace(telemetryEvent.EventName) ||
+                string.IsNullOrWhiteSpace(telemetryEvent.EventName) ||
                 telemetryEvent.Properties?.Count == 0)
             {
                 return;
             }
 
-            LanguageServer?.Window.SendTelemetryEvent(telemetryEvent);
+            server.Window.SendTelemetryEvent(telemetryEvent);
         }
     }
 }

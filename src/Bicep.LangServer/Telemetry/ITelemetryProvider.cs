@@ -5,6 +5,6 @@ namespace Bicep.LanguageServer.Telemetry
 {
     public interface ITelemetryProvider
     {
-        void PostEvent(TelemetryEvent telemetryEvent);
+        void PostEvent(BicepTelemetryEvent telemetryEvent);
     }
 }

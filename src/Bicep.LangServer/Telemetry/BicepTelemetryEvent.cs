@@ -6,15 +6,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Telemetry
 {
-    public class TelemetryEvent : TelemetryEventParams
+    public class BicepTelemetryEvent : TelemetryEventParams
     {
-        public Dictionary<string, string> Properties = new Dictionary<string, string>();
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public string? EventName { get; set; }
 
-        public static TelemetryEvent Create(string eventName)
+        public static BicepTelemetryEvent Create(string eventName)
         {
-            TelemetryEvent telemetryEvent = new TelemetryEvent();
+            BicepTelemetryEvent telemetryEvent = new BicepTelemetryEvent();
             telemetryEvent.EventName = eventName;
             return telemetryEvent;
         }
@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Telemetry
 
     public static class TelemetryExtensions
     {
-        public static void Set(this TelemetryEvent telemetryEvent, string name, string value)
+        public static void Set(this BicepTelemetryEvent telemetryEvent, string name, string value)
         {
             if (!telemetryEvent.Properties.ContainsKey(name))
             {

@@ -85,7 +85,7 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
-                    TelemetryEvent telemetryEvent = TelemetryEvent.Create(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
                     telemetryEvent.Set("name", resourceSnippet.Prefix);
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 

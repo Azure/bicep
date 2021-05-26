@@ -33,8 +33,6 @@ namespace Bicep.LanguageServer
             public IResourceTypeProvider? ResourceTypeProvider { get; set; }
 
             public IFileResolver? FileResolver { get; set; }
-
-            public ITelemetryProvider? TelemetryProvider { get; set; }
         }
 
         private readonly OmnisharpLanguageServer server;
@@ -75,11 +73,6 @@ namespace Bicep.LanguageServer
 
                 onOptionsFunc(options);
             });
-
-            if (creationOptions.TelemetryProvider is TelemetryProvider telemetryProvider)
-            {
-                telemetryProvider.LanguageServer = server;
-            }
         }
 
         public async Task RunAsync(CancellationToken cancellationToken)
@@ -96,7 +89,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider());
             services.AddSingleton<IFileResolver>(services => creationOptions.FileResolver ?? new FileResolver());
-            services.AddSingleton<ITelemetryProvider>(services => creationOptions.TelemetryProvider ?? new TelemetryProvider());
+            services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();

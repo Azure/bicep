@@ -7,8 +7,6 @@ using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -20,7 +18,9 @@ using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
@@ -28,6 +28,9 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompletionProviderTests
     {
+        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+        private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
+
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
@@ -35,7 +38,7 @@ namespace Bicep.LangServer.UnitTests
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
-            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider());
+            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider(Server));
 
             var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, 0));
 
@@ -115,7 +118,7 @@ output o int = 42
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single().Value.Span.Position;
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
             
-            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider());
+            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider(Server));
             var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
             
@@ -154,7 +157,7 @@ output o int = 42
 
             var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
 
-            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider());
+            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider(Server));
             var completions = provider.GetFilteredCompletions(
                 compilation,
                 BicepCompletionContext.Create(compilation, offset)).ToList();
@@ -187,7 +190,7 @@ output length int =
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Value.Span.Position;
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider());
+            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider(Server));
             var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
@@ -229,7 +232,7 @@ output length int =
         {
             var grouping = SyntaxTreeGroupingFactory.CreateFromText("output test ");
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider());
+            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider(Server));
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -246,7 +249,7 @@ output length int =
         {
             var grouping = SyntaxTreeGroupingFactory.CreateFromText("param foo ");
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider());
+            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider(Server));
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -293,7 +296,7 @@ output length int =
         {
             var grouping = SyntaxTreeGroupingFactory.CreateFromText("/*test*/param foo ");
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
-            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider());
+            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider(Server));
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -351,7 +354,7 @@ output length int =
         {
         var grouping = SyntaxTreeGroupingFactory.CreateFromText(codeFragment);
         var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
-        var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider());
+        var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider(), new TelemetryProvider(Server));
 
         var offset = codeFragment.IndexOf('|');
 
