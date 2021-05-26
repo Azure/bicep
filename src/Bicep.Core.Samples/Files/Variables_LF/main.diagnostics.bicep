@@ -1,5 +1,4 @@
 
-//@[0:0) [linter-internal-error (Warning)] Analyzer 'core' encountered an unexpected exception. Rewrite to string interpolation not successful ||
 // an int variable
 var myInt = 42
 
@@ -38,6 +37,7 @@ var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
 //@[4:30) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |nestedInterpolatedBrackets|
 var bracketStringInExpression = concat('[', '\'test\'',']')
 //@[4:29) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |bracketStringInExpression|
+//@[32:59) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('[', '\'test\'',']')|
 
 // booleans
 var myTruth = true
@@ -132,11 +132,13 @@ var intIndexer = [
 
 var functionOnIndexer1 = concat([
 //@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |functionOnIndexer1|
+//@[25:50) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat([\n  's'\n][0], 's')|
   's'
 ][0], 's')
 
 var functionOnIndexer2 = concat([
 //@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |functionOnIndexer2|
+//@[25:44) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat([\n][0], 's')|
 ][0], 's')
 
 var functionOnIndexer3 = concat([
@@ -155,6 +157,7 @@ var unusedIntermediateRef = unusedIntermediate.secondaryKey
 var previousEmitLimit = [
 //@[4:21) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |previousEmitLimit|
   concat('s')
+//@[2:13) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('s')|
   '${4}'
   {
     a: {
@@ -180,6 +183,7 @@ var previousEmitLimit = [
 var previousEmitLimit2 = [
 //@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |previousEmitLimit2|
   concat('s')
+//@[2:13) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('s')|
   '${4}'
   {
     a: {
@@ -229,6 +233,7 @@ var myVar3 = any(any({
 }))
 var myVar4 = length(any(concat('s','a')))
 //@[4:10) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |myVar4|
+//@[24:39) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('s','a')|
 
 // verify that unqualified banned function identifiers can be used as declaration identifiers
 var variables = true
@@ -331,6 +336,7 @@ var arrayOfHardCodedStrings = [for i in range(0,3): 'hi']
 //@[4:27) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfHardCodedStrings|
 var arrayOfNonRuntimeFunctionCalls = [for i in range(0,3): concat('hi', i)]
 //@[4:34) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |arrayOfNonRuntimeFunctionCalls|
+//@[59:74) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('hi', i)|
 
 var multilineString = '''
 //@[4:19) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |multilineString|
