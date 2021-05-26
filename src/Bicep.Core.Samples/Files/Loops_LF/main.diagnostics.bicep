@@ -232,7 +232,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
-//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
+//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. bicep core(https://aka.ms/bicep/linter/prefer-interpolation)|concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
   }
   dependsOn: [
     storageAccounts2[index - 10]
