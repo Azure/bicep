@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [DataRow(1, @"
-var password = 'hello'
+var password = 'PLACEHOLDER'
 var sum = 1 + 3
 output sub int = sum
 ")]
