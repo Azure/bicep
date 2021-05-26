@@ -71,7 +71,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedParameterContinuation() => new(
                 TextSpan,
                 "BCP008",
-                "Expected the \"=\" token, a parameter modifier, or a newline at this location.");
+                "Expected the \"=\" token, or a newline at this location.");
 
             public ErrorDiagnostic UnrecognizedExpression() => new(
                 TextSpan,
@@ -403,7 +403,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new(
                 TextSpan,
                 "BCP065",
-                $"Function \"{functionName}\" is not valid at this location. It can only be used in parameter default declarations.");
+                $"Function \"{functionName}\" is not valid at this location. It can only be used as a parameter default value.");
 
             public ErrorDiagnostic FunctionOnlyValidInResourceBody(string functionName) => new(
                 TextSpan,
@@ -783,11 +783,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP130",
                 "Decorators are not allowed here.");
 
-            public ErrorDiagnostic CannotUseParameterDecoratorsAndModifiersTogether() => new(
-                TextSpan,
-                "BCP131",
-                "Parameter modifiers and decorators cannot be used together. Please use decorators only.");
-
             public ErrorDiagnostic ExpectedDeclarationAfterDecorator() => new(
                 TextSpan,
                 "BCP132",
@@ -935,13 +930,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP160",
                 $"A nested resource cannot appear inside of a resource with a for-expression.");
-
-            public Diagnostic ParameterModifiersDeprecated() => new(
-                TextSpan,
-                DiagnosticLevel.Info,
-                "BCP161",
-                "Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples).",
-                DiagnosticLabel.Deprecated);
 
             public ErrorDiagnostic ExpectedLoopItemIdentifierOrVariableBlockStart() => new(
                 TextSpan,

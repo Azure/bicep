@@ -23,7 +23,7 @@ param % string
 param % string 3 = 's'
 //@[6:7) [BCP013 (Error)] Expected a parameter identifier at this location. |%|
 //@[6:7) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |%|
-//@[15:16) [BCP008 (Error)] Expected the "=" token, a parameter modifier, or a newline at this location. |3|
+//@[15:16) [BCP008 (Error)] Expected the "=" token, or a newline at this location. |3|
 
 param myBool bool
 //@[6:12) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |myBool|
@@ -63,13 +63,11 @@ param malformedType2 44 = f
 //@[26:27) [BCP057 (Error)] The name "f" does not exist in the current context. |f|
 
 // malformed type but type check should still happen
-param malformedModifier 44 {
+@secure('s')
+//@[7:12) [BCP071 (Error)] Expected 0 arguments, but got 1. |('s')|
+param malformedModifier 44
 //@[6:23) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |malformedModifier|
 //@[24:26) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". |44|
-//@[27:44) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: 's'\n}|
-  secure: 's'
-//@[10:13) [BCP036 (Error)] The property "secure" expected a value of type "bool" but the provided value is of type "'s'". |'s'|
-}
 
 param myString2 string = 'string value'
 //@[6:15) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |myString2|
@@ -93,7 +91,7 @@ param myFalsehood bool = 'false'
 
 param wrongAssignmentToken string: 'hello'
 //@[6:26) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |wrongAssignmentToken|
-//@[33:34) [BCP008 (Error)] Expected the "=" token, a parameter modifier, or a newline at this location. |:|
+//@[33:34) [BCP008 (Error)] Expected the "=" token, or a newline at this location. |:|
 
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 //@[6:267) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
@@ -218,41 +216,11 @@ param wrongType fluffyBunny = 'what\'s up doc?'
 //@[16:27) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |fluffyBunny|
 
 // modifier on an invalid type
-param someArray arra {
-//@[6:15) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |someArray|
-//@[16:20) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |arra|
-//@[21:55) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  minLength: 3\n  maxLength: 24\n}|
-  minLength: 3
-  maxLength: 24
-}
-
 @minLength(3)
 @maxLength(24)
-param someArrayWithDecorator arra
-//@[6:28) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |someArrayWithDecorator|
-//@[29:33) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |arra|
-
-// duplicate modifier property
-param duplicatedModifierProperty string {
-//@[6:32) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |duplicatedModifierProperty|
-//@[40:74) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  minLength: 3\n  minLength: 24\n}|
-  minLength: 3
-//@[2:11) [BCP025 (Error)] The property "minLength" is declared multiple times in this object. Remove or rename the duplicate properties. |minLength|
-  minLength: 24
-//@[2:11) [BCP025 (Error)] The property "minLength" is declared multiple times in this object. Remove or rename the duplicate properties. |minLength|
-}
-
-// non-existent modifiers
-param secureInt int {
-//@[6:15) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |secureInt|
-//@[20:70) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  secure: true\n  minLength: 3\n  maxLength: 123\n}|
-  secure: true
-//@[2:8) [BCP037 (Error)] The property "secure" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |secure|
-  minLength: 3
-//@[2:11) [BCP037 (Error)] The property "minLength" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |minLength|
-  maxLength: 123
-//@[2:11) [BCP037 (Error)] The property "maxLength" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |maxLength|
-}
+param someArray arra
+//@[6:15) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |someArray|
+//@[16:20) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |arra|
 
 @secure()
 //@[0:9) [BCP124 (Error)] The decorator "secure" can only be attached to targets of type "object | string", but the target has type "int". |@secure()|
@@ -260,31 +228,10 @@ param secureInt int {
 //@[0:13) [BCP124 (Error)] The decorator "minLength" can only be attached to targets of type "array | string", but the target has type "int". |@minLength(3)|
 @maxLength(123)
 //@[0:15) [BCP124 (Error)] The decorator "maxLength" can only be attached to targets of type "array | string", but the target has type "int". |@maxLength(123)|
-param secureIntWithDecorator int
-//@[6:28) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |secureIntWithDecorator|
+param secureInt int
+//@[6:15) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |secureInt|
 
 // wrong modifier value types
-param wrongIntModifier int {
-//@[6:22) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |wrongIntModifier|
-//@[27:139) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: true\n  allowed: [\n    'test'\n    true\n  ]\n  minValue: {\n  }\n  maxValue: [\n  ]\n  metadata: 'wrong'\n}|
-  default: true
-//@[11:15) [BCP036 (Error)] The property "default" expected a value of type "int" but the provided value is of type "bool". |true|
-  allowed: [
-    'test'
-//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'test'". |'test'|
-    true
-//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "bool". |true|
-  ]
-  minValue: {
-//@[12:17) [BCP036 (Error)] The property "minValue" expected a value of type "int" but the provided value is of type "object". |{\n  }|
-  }
-  maxValue: [
-//@[12:17) [BCP036 (Error)] The property "maxValue" expected a value of type "int" but the provided value is of type "array". |[\n  ]|
-  ]
-  metadata: 'wrong'
-//@[12:19) [BCP036 (Error)] The property "metadata" expected a value of type "ParameterModifierMetadata" but the provided value is of type "'wrong'". |'wrong'|
-}
-
 @allowed([
   'test'
 //@[2:8) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'test'". |'test'|
@@ -299,9 +246,9 @@ param wrongIntModifier int {
 ])
 @metadata('wrong')
 //@[10:17) [BCP070 (Error)] Argument of type "'wrong'" is not assignable to parameter of type "object". |'wrong'|
-param wrongIntModifierWithDecorator int = true
-//@[6:35) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |wrongIntModifierWithDecorator|
-//@[42:46) [BCP027 (Error)] The parameter expects a default value of type "int" but provided value is of type "bool". |true|
+param wrongIntModifier int = true
+//@[6:22) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |wrongIntModifier|
+//@[29:33) [BCP027 (Error)] The parameter expects a default value of type "int" but provided value is of type "bool". |true|
 
 @metadata(any([]))
 //@[10:17) [BCP032 (Error)] The value must be a compile-time constant. |any([])|
@@ -312,38 +259,14 @@ param fatalErrorInIssue1713
 //@[27:27) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". ||
 
 // wrong metadata schema
-param wrongMetadataSchema string {
-//@[6:25) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |wrongMetadataSchema|
-//@[33:76) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  metadata: {\n    description: true\n  }\n}|
-  metadata: {
-    description: true
-//@[17:21) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "bool". |true|
-  }
-}
-
 @metadata({
   description: true
 //@[15:19) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "bool". |true|
 })
-param wrongMetadataSchemaWithDecorator string
-//@[6:38) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |wrongMetadataSchemaWithDecorator|
+param wrongMetadataSchema string
+//@[6:25) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |wrongMetadataSchema|
 
 // expression in modifier
-param expressionInModifier string {
-//@[6:26) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |expressionInModifier|
-//@[34:176) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(10) -> symbolsPlusParamDefaultFunctions\n  default: 2 + 3\n  maxLength: a + 2\n  minLength: foo()\n  allowed: [\n    i\n  ]\n}|
-  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
-  default: 2 + 3
-  maxLength: a + 2
-//@[13:14) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
-  minLength: foo()
-//@[13:16) [BCP057 (Error)] The name "foo" does not exist in the current context. |foo|
-  allowed: [
-    i
-//@[4:5) [BCP057 (Error)] The name "i" does not exist in the current context. |i|
-  ]
-}
-
 @maxLength(a + 2)
 //@[11:12) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 @minLength(foo())
@@ -352,22 +275,9 @@ param expressionInModifier string {
   i
 //@[2:3) [BCP057 (Error)] The name "i" does not exist in the current context. |i|
 ])
-param expressionInModifierWithDecorator string = 2 + 3
-//@[6:39) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |expressionInModifierWithDecorator|
-//@[49:54) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "int". |2 + 3|
-
-param nonCompileTimeConstant string {
-//@[6:28) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |nonCompileTimeConstant|
-//@[36:122) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  maxLength: 2 + 3\n  minLength: length([])\n  allowed: [\n    resourceGroup().id\n  ]\n}|
-  maxLength: 2 + 3
-//@[13:18) [BCP032 (Error)] The value must be a compile-time constant. |2 + 3|
-  minLength: length([])
-//@[13:23) [BCP032 (Error)] The value must be a compile-time constant. |length([])|
-  allowed: [
-    resourceGroup().id
-//@[4:22) [BCP032 (Error)] The value must be a compile-time constant. |resourceGroup().id|
-  ]
-}
+param expressionInModifier string = 2 + 3
+//@[6:26) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |expressionInModifier|
+//@[36:41) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "int". |2 + 3|
 
 @maxLength(2 + 3)
 //@[11:16) [BCP032 (Error)] The value must be a compile-time constant. |2 + 3|
@@ -377,33 +287,19 @@ param nonCompileTimeConstant string {
   resourceGroup().id
 //@[2:20) [BCP032 (Error)] The value must be a compile-time constant. |resourceGroup().id|
 ])
-param nonCompileTimeConstantWithDecorator string
-//@[6:41) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |nonCompileTimeConstantWithDecorator|
+param nonCompileTimeConstant string
+//@[6:28) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |nonCompileTimeConstant|
 
 
-param emptyAllowedString string {
+@allowed([])
+//@[9:11) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
+param emptyAllowedString string
 //@[6:24) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |emptyAllowedString|
-//@[32:49) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: []\n}|
-  allowed: []
-//@[11:13) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
-}
 
 @allowed([])
 //@[9:11) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
-param emptyAllowedStringWithDecorator string
-//@[6:37) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |emptyAllowedStringWithDecorator|
-
-param emptyAllowedInt int {
+param emptyAllowedInt int
 //@[6:21) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |emptyAllowedInt|
-//@[26:43) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: []\n}|
-  allowed: []
-//@[11:13) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
-}
-
-@allowed([])
-//@[9:11) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
-param emptyAllowedIntWithDecorator int
-//@[6:34) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |emptyAllowedIntWithDecorator|
 
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
@@ -415,48 +311,11 @@ param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
 param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 //@[37:58) [BCP080 (Error)] The expression is involved in a cycle ("paramDefaultTwoCycle1" -> "paramDefaultTwoCycle2"). |paramDefaultTwoCycle1|
 
-// 1-cycle in modifier params
-param paramModifierOneCycle string {
-//@[35:71) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: paramModifierOneCycle\n}|
-  default: paramModifierOneCycle
-//@[11:32) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierOneCycle|
-}
-
-// 1-cycle in modifier with non-default property
-param paramModifierSelfCycle string {
-//@[36:83) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    paramModifierSelfCycle\n  ]\n}|
-  allowed: [
-    paramModifierSelfCycle
-//@[4:26) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierSelfCycle|
-  ]
-}
-
 @allowed([
-  paramModifierSelfCycleWithDecorator
-//@[2:37) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierSelfCycleWithDecorator|
+  paramModifierSelfCycle
+//@[2:24) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierSelfCycle|
 ])
-param paramModifierSelfCycleWithDecorator string
-
-// 2-cycle in modifier params
-param paramModifierTwoCycle1 string {
-//@[36:73) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: paramModifierTwoCycle2\n}|
-  default: paramModifierTwoCycle2
-//@[11:33) [BCP080 (Error)] The expression is involved in a cycle ("paramModifierTwoCycle2" -> "paramModifierTwoCycle1"). |paramModifierTwoCycle2|
-}
-param paramModifierTwoCycle2 string {
-//@[36:73) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: paramModifierTwoCycle1\n}|
-  default: paramModifierTwoCycle1
-//@[11:33) [BCP080 (Error)] The expression is involved in a cycle ("paramModifierTwoCycle1" -> "paramModifierTwoCycle2"). |paramModifierTwoCycle1|
-}
-
-// 2-cycle mixed param syntaxes
-param paramMixedTwoCycle1 string = paramMixedTwoCycle2
-//@[35:54) [BCP080 (Error)] The expression is involved in a cycle ("paramMixedTwoCycle2" -> "paramMixedTwoCycle1"). |paramMixedTwoCycle2|
-param paramMixedTwoCycle2 string {
-//@[33:67) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: paramMixedTwoCycle1\n}|
-  default: paramMixedTwoCycle1
-//@[11:30) [BCP080 (Error)] The expression is involved in a cycle ("paramMixedTwoCycle1" -> "paramMixedTwoCycle2"). |paramMixedTwoCycle1|
-}
+param paramModifierSelfCycle string
 
 // wrong types of "variable"/identifier access
 var sampleVar = 'sample'
@@ -469,126 +328,27 @@ output sampleOutput string = 'hello'
 param paramAccessingVar string = concat(sampleVar, 's')
 //@[33:55) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(sampleVar, 's')|
 //@[40:49) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleVar|
-param paramAccessingVar2 string {
-//@[6:24) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |paramAccessingVar2|
-//@[32:69) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: 'foo ${sampleVar} foo'\n}|
-  default: 'foo ${sampleVar} foo'
-//@[18:27) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleVar|
-}
 
 param paramAccessingResource string = sampleResource
 //@[6:28) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |paramAccessingResource|
 //@[38:52) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "Microsoft.Foo/foos@2020-02-02". |sampleResource|
 //@[38:52) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
-param paramAccessingResource2 string {
-//@[6:29) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |paramAccessingResource2|
-//@[37:89) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: base64(sampleResource.properties.foo)\n}|
-  default: base64(sampleResource.properties.foo)
-//@[18:32) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
-}
 
 param paramAccessingOutput string = sampleOutput
 //@[6:26) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |paramAccessingOutput|
 //@[36:48) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. |sampleOutput|
-param paramAccessingOutput2 string {
-//@[6:27) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |paramAccessingOutput2|
-//@[35:62) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  default: sampleOutput\n}|
-  default: sampleOutput
-//@[11:23) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. |sampleOutput|
-}
-
-param stringLiteral string {
-//@[27:57) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'def'\n  ]\n}|
-  allowed: [
-    'def'
-  ]
-}
-
-param stringLiteral2 string {
-//@[28:93) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'abc'\n    'def'\n  ]\n  default: stringLiteral\n}|
-  allowed: [
-    'abc'
-    'def'
-  ]
-  default: stringLiteral
-}
-
-param stringLiteral3 string {
-//@[6:20) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |stringLiteral3|
-//@[28:84) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'abc'\n  ]\n  default: stringLiteral2\n}|
-  allowed: [
-    'abc'
-  ]
-  default: stringLiteral2
-//@[11:25) [BCP036 (Error)] The property "default" expected a value of type "'abc'" but the provided value is of type "'abc' | 'def'". |stringLiteral2|
-}
 
 // #completionTest(6) -> empty
 param 
 //@[6:6) [BCP013 (Error)] Expected a parameter identifier at this location. ||
 //@[6:6) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params ||
 
-param stringModifierCompletions string {
-//@[6:31) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |stringModifierCompletions|
-//@[39:101) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(0,1,2) -> stringModifierProperties\n  \n}|
-  // #completionTest(0,1,2) -> stringModifierProperties
-  
-}
-
-param intModifierCompletions int {
-//@[6:28) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |intModifierCompletions|
-//@[33:92) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  // #completionTest(0,1,2) -> intModifierProperties\n  \n}|
-  // #completionTest(0,1,2) -> intModifierProperties
-  
-}
-
 // #completionTest(46,47) -> justSymbols
 param defaultValueOneLinerCompletions string = 
 //@[6:37) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |defaultValueOneLinerCompletions|
 //@[47:47) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
-param defaultValueCompletions string {
-//@[6:29) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |defaultValueCompletions|
-//@[37:396) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n  allowed: [\n    'one'\n    'two'\n    'three'\n    // #completionTest(0,1,2,3,4) -> oneTwoThree\n    \n  ]\n  // #completionTest(10,11) -> oneTwoThreePlusSymbols\n  default: \n  \n  // #completionTest(9,10) -> booleanValues\n  secure: \n\n  metadata: {\n    // #completionTest(0,1,2,3) -> description\n    \n  }\n  // #completionTest(0,1,2) -> stringLengthConstraints\n  \n}|
-  allowed: [
-    'one'
-    'two'
-    'three'
-    // #completionTest(0,1,2,3,4) -> oneTwoThree
-    
-  ]
-  // #completionTest(10,11) -> oneTwoThreePlusSymbols
-  default: 
-//@[11:11) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
-  
-  // #completionTest(9,10) -> booleanValues
-  secure: 
-//@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
-
-  metadata: {
-    // #completionTest(0,1,2,3) -> description
-    
-  }
-  // #completionTest(0,1,2) -> stringLengthConstraints
-  
-}
-
 // invalid comma separator (array)
-param commaOne string {
-//@[6:14) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |commaOne|
-//@[22:174) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    metadata: {\n      description: 'Name of Virtual Machine'\n    }\n    secure: true\n    allowed: [\n      'abc',\n      'def'\n    ]\n    default: 'abc'\n}|
-    metadata: {
-      description: 'Name of Virtual Machine'
-    }
-    secure: true
-    allowed: [
-      'abc',
-//@[11:12) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. |,|
-      'def'
-    ]
-    default: 'abc'
-}
-
 @metadata({
   description: 'Name of Virtual Machine'
 })
@@ -597,24 +357,8 @@ param commaOne string {
 //@[7:8) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. |,|
   'def'
 ])
-param commaOneWithDecorator string
-//@[6:27) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |commaOneWithDecorator|
-
-// invalid comma separator (object)
-param commaTwo string {
-//@[6:14) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |commaTwo|
-//@[22:174) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    metadata: {\n      description: 'Name of Virtual Machine'\n    },\n    secure: true\n    allowed: [\n      'abc'\n      'def'\n    ]\n    default: 'abc'\n}|
-    metadata: {
-      description: 'Name of Virtual Machine'
-    },
-//@[5:6) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. |,|
-    secure: true
-    allowed: [
-      'abc'
-      'def'
-    ]
-    default: 'abc'
-}
+param commaOne string
+//@[6:14) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |commaOne|
 
 @secure
 //@[1:7) [BCP063 (Error)] The name "secure" is not a parameter, variable, resource or module. |secure|
@@ -638,12 +382,8 @@ param incompleteDecorators string
 // wrong target type
 @minValue(20)
 //@[0:13) [BCP124 (Error)] The decorator "minValue" can only be attached to targets of type "int", but the target has type "string". |@minValue(20)|
-param someString string {
+param someString string
 //@[6:16) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |someString|
-//@[24:25) [BCP131 (Error)] Parameter modifiers and decorators cannot be used together. Please use decorators only. |{|
-	// using decorators and modifier at the same time
-    secure: true
-}
 
 @allowed([
     true
@@ -723,29 +463,6 @@ param duplicateDecorators string
 param invalidLength string
 //@[6:19) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |invalidLength|
 
-
-param invalidPermutation array {
-//@[6:24) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |invalidPermutation|
-//@[31:402) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    default: [\n\t\t'foobar'\n\t\ttrue\n        100\n\t]\n    allowed: [\n\t\t'Microsoft.AnalysisServices/servers'\n\t\t'Microsoft.ApiManagement/service'\n\t\t'Microsoft.Network/applicationGateways'\n\t\t'Microsoft.Automation/automationAccounts'\n\t\t'Microsoft.ContainerInstance/containerGroups'\n\t\t'Microsoft.ContainerRegistry/registries'\n\t\t'Microsoft.ContainerService/managedClusters'\n    ]\n}|
-    default: [
-		'foobar'
-//@[2:10) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "'foobar'". |'foobar'|
-		true
-//@[2:6) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "bool". |true|
-        100
-//@[8:11) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "int". |100|
-	]
-    allowed: [
-		'Microsoft.AnalysisServices/servers'
-		'Microsoft.ApiManagement/service'
-		'Microsoft.Network/applicationGateways'
-		'Microsoft.Automation/automationAccounts'
-		'Microsoft.ContainerInstance/containerGroups'
-		'Microsoft.ContainerRegistry/registries'
-		'Microsoft.ContainerService/managedClusters'
-    ]
-}
-
 @allowed([
 	'Microsoft.AnalysisServices/servers'
 	'Microsoft.ApiManagement/service'
@@ -755,8 +472,8 @@ param invalidPermutation array {
 	'Microsoft.ContainerRegistry/registries'
 	'Microsoft.ContainerService/managedClusters'
 ])
-param invalidPermutationWithDecorator array = [
-//@[6:37) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |invalidPermutationWithDecorator|
+param invalidPermutation array = [
+//@[6:24) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |invalidPermutation|
 	'foobar'
 //@[1:9) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "'foobar'". |'foobar'|
 	true
@@ -764,24 +481,6 @@ param invalidPermutationWithDecorator array = [
     100
 //@[4:7) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "int". |100|
 ]
-
-param invalidDefaultWithAllowedArray array {
-//@[6:36) [no-unused-params (Warning)] Parameter is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-params |invalidDefaultWithAllowedArray|
-//@[43:266) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead (see https://aka.ms/BicepSpecParams for examples). |{\n    default: true\n    allowed: [\n\t\t[\n\t\t\t'Microsoft.AnalysisServices/servers'\n\t\t\t'Microsoft.ApiManagement/service'\n\t\t]\n\t\t[\n\t\t\t'Microsoft.Network/applicationGateways'\n\t\t\t'Microsoft.Automation/automationAccounts'\n\t\t]\n    ]\n}|
-    default: true
-//@[13:17) [BCP036 (Error)] The property "default" expected a value of type "array" but the provided value is of type "bool". |true|
-    allowed: [
-		[
-			'Microsoft.AnalysisServices/servers'
-			'Microsoft.ApiManagement/service'
-		]
-		[
-			'Microsoft.Network/applicationGateways'
-			'Microsoft.Automation/automationAccounts'
-		]
-    ]
-}
-
 
 @allowed([
 	[

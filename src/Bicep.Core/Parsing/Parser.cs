@@ -248,9 +248,6 @@ namespace Bicep.Core.Parsing
                         // default value is specified
                         TokenType.Assignment => this.ParameterDefaultValue(),
 
-                        // modifier is specified
-                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
-
                         _ => throw new ExpectedTokenException(current, b => b.ExpectedParameterContinuation())
                     };
                 },

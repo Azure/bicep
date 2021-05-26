@@ -720,9 +720,11 @@ module secureModule1 'moduleb.bicep' = {
     secureObjectParam: kv.getSecret('mySecret')
 //@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
     secureStringParam2: '${kv.getSecret('mySecret')}'
+//@[4:22) [BCP037 (Error)] The property "secureStringParam2" is not allowed on objects of type "params". No other properties are allowed. |secureStringParam2|
 //@[27:51) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
     secureObjectParam2: kv.getSecret('mySecret')
-//@[24:48) [BCP036 (Error)] The property "secureObjectParam2" expected a value of type "object" but the provided value is of type "string". |kv.getSecret('mySecret')|
+//@[4:22) [BCP037 (Error)] The property "secureObjectParam2" is not allowed on objects of type "params". No other properties are allowed. |secureObjectParam2|
+//@[24:48) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. |kv.getSecret('mySecret')|
   }
 }
 

@@ -124,10 +124,10 @@ var y = {
 // utcNow and newGuid used outside a param default value
 var test = utcNow('u')
 //@[4:8) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |test|
-//@[11:17) [BCP065 (Error)] Function "utcNow" is not valid at this location. It can only be used in parameter default declarations. |utcNow|
+//@[11:17) [BCP065 (Error)] Function "utcNow" is not valid at this location. It can only be used as a parameter default value. |utcNow|
 var test2 = newGuid()
 //@[4:9) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |test2|
-//@[12:19) [BCP065 (Error)] Function "newGuid" is not valid at this location. It can only be used in parameter default declarations. |newGuid|
+//@[12:19) [BCP065 (Error)] Function "newGuid" is not valid at this location. It can only be used as a parameter default value. |newGuid|
 
 // bad string escape sequence in object key
 var test3 = {

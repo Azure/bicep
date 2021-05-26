@@ -23,7 +23,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         override public IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var defaultValueSyntaxes = model.Root.ParameterDeclarations.Where(p => p.IsSecure())
-                .Select(p => p.Modifier as ParameterDefaultValueSyntax)
+                .Select(p => p.DeclaringParameter.Modifier as ParameterDefaultValueSyntax)
                 .OfType<ParameterDefaultValueSyntax>(); // this eliminates nulls (when there's no default value)
 
             foreach (var defaultValueSyntax in defaultValueSyntaxes)

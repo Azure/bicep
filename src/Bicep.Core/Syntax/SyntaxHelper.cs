@@ -13,32 +13,11 @@ namespace Bicep.Core.Syntax
         private static SyntaxBase? TryGetObjectProperty(ObjectSyntax objectSyntax, string propertyName)
             => objectSyntax.Properties.SingleOrDefault(p => p.TryGetKeyText() == propertyName)?.Value;
 
-        public static ArraySyntax? TryGetAllowedSyntax(ParameterDeclarationSyntax parameterDeclarationSyntax)
-        {
-            if (parameterDeclarationSyntax.Modifier is not ObjectSyntax modifierObject)
-            {
-                return null;
-            }
-
-            var allowedValuesSyntax = TryGetObjectProperty(modifierObject, LanguageConstants.ParameterAllowedPropertyName);
-            if (allowedValuesSyntax is not ArraySyntax allowedArraySyntax)
-            {
-                return null;
-            }
-
-            return allowedArraySyntax;
-        }
-
         public static SyntaxBase? TryGetDefaultValue(ParameterDeclarationSyntax parameterDeclarationSyntax)
         {
             if (parameterDeclarationSyntax.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
             {
                 return defaultValueSyntax.DefaultValue;
-            }
-
-            if (parameterDeclarationSyntax.Modifier is ObjectSyntax modifierObject)
-            {
-                return TryGetObjectProperty(modifierObject, LanguageConstants.ParameterDefaultPropertyName);
             }
 
             return null;

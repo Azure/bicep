@@ -174,10 +174,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
                 ("main.bicep", @"
 targetScope = 'subscription'
 
-param azRegion string {
-  default: 'southcentralus'
-}
-
+param azRegion string = 'southcentralus'
 param vNetAddressPrefix string = '10.1.0.0/24'
 param GatewayAddressPrefix string = '10.1.0.0/27'
 param AppAddressPrefix string = '10.1.0.128/26'
