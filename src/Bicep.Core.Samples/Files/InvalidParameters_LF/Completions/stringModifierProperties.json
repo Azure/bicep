@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "allowed"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "allowed:"
+    }
   },
   {
     "label": "default",
@@ -35,11 +32,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "default"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "default:"
+    }
   },
   {
     "label": "maxLength",
@@ -56,11 +50,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "maxLength"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "maxLength:"
+    }
   },
   {
     "label": "metadata",
@@ -77,11 +68,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "metadata"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "metadata:"
+    }
   },
   {
     "label": "minLength",
@@ -98,11 +86,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "minLength"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "minLength:"
+    }
   },
   {
     "label": "secure",
@@ -119,10 +104,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "secure"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "secure:"
+    }
   }
 ]

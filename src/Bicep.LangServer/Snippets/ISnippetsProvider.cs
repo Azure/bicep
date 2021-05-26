@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.TypeSystem;
 using System.Collections.Generic;
 
 namespace Bicep.LanguageServer.Snippets
@@ -8,5 +9,9 @@ namespace Bicep.LanguageServer.Snippets
     public interface ISnippetsProvider
     {
         IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets();
+
+        IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol);
+
+        IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol, bool isExistingResource);
     }
 }

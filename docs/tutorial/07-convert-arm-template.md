@@ -47,7 +47,7 @@ Here's an example ARM Template that deploys a storage account.
 
 Let's decompile the ARM template with `bicep decompile ".\storage.json"` and look at the output `.bicep` file.
 
-```
+```bicep
 param location string = resourceGroup().location
 param namePrefix string = 'contoso'
 param production bool = false
@@ -89,7 +89,7 @@ ARM Template:
 ```
 
 Bicep:
-```
+```bicep
 param name string = 'myName'
 ```
 
@@ -115,7 +115,7 @@ ARM Template:
 
 Bicep:
 
-```
+```bicep
 @allowed([
   'myName'
   'myOtherName'
@@ -139,7 +139,7 @@ ARM Template:
 
 Bicep:
 
-```
+```bicep
 var location = 'eastus'
 ```
 
@@ -160,7 +160,7 @@ ARM Template:
 
 Bicep:
 
-```
+```bicep
 output myOutput string = 'my output value'
 ```
 
@@ -210,7 +210,7 @@ ARM Template:
 
 Bicep:
 
-```
+```bicep
 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
   name: 'vnet001'
   location: resourceGroup().location

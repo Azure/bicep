@@ -444,6 +444,23 @@
     }
   },
   {
+    "label": "kv",
+    "kind": "interface",
+    "detail": "kv",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_kv",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "kv"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "last",
     "kind": "function",
     "detail": "last()",

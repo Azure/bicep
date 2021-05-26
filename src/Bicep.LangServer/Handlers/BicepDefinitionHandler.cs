@@ -2,21 +2,21 @@
 // Licensed under the MIT License.
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDefinitionHandler : DefinitionHandler
+    public class BicepDefinitionHandler : DefinitionHandlerBase
     {
         private readonly ISymbolResolver symbolResolver;
 
-        public BicepDefinitionHandler(ISymbolResolver symbolResolver) : base(CreateRegistrationOptions())
+        public BicepDefinitionHandler(ISymbolResolver symbolResolver) : base()
         {
             this.symbolResolver = symbolResolver;
         }
@@ -54,10 +54,9 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(new LocationOrLocationLinks());
         }
 
-        private static DefinitionRegistrationOptions CreateRegistrationOptions() =>
-            new DefinitionRegistrationOptions
-            {
-                DocumentSelector = DocumentSelectorFactory.Create()
-            };
+        protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()
+        {
+            DocumentSelector = DocumentSelectorFactory.Create()
+        };
     }
 }

@@ -3,7 +3,7 @@
 A `resource` declaration defines a resource that will be either created or updated at deployment time along with its intended state. The resource is also assigned to an identifier. You can reference the identifier in [expressions](./expressions.md) that are part of [variables](./variables.md), [outputs](./outputs.md), or other `resource` declarations.
 
 Consider the following declaration that creates or updates a [DNS Zone](https://docs.microsoft.com/en-us/azure/dns/dns-zones-records):
-```
+```bicep
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
   name: 'myZone'
   location: 'global'
@@ -76,7 +76,7 @@ A nested resource may access properties of its parent resource. Other resources 
 
 More info on the nested child resource access operator can be found in the [expressions spec](./expressions.md#nested-resource-accessors).
 
-**Note:** Alternatively, you can use the `parent` property on child resources to declare a child resource as a top-level resource. [Read more about the "parent" property](./resource-scopes#'parent'-property-syntax)
+**Note:** Alternatively, you can use the `parent` property on child resources to declare a child resource as a top-level resource. [Read more about the "parent" property](./resource-scopes.md#'parent'-property-syntax)
 
 ## Resource dependencies
 

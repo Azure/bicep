@@ -17,7 +17,7 @@ namespace Bicep.Core.Parsing
     {
         private readonly TokenReader reader;
 
-        private readonly ImmutableArray<Diagnostic> lexerDiagnostics;
+        private readonly ImmutableArray<IDiagnostic> lexerDiagnostics;
 
         public Parser(string text)
         {
@@ -378,9 +378,31 @@ namespace Bicep.Core.Parsing
             if (this.Check(TokenType.Question))
             {
                 var question = this.reader.Read();
-                var trueExpression = this.Expression(expressionFlags);
-                var colon = this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
-                var falseExpression = this.Expression(expressionFlags);
+                var trueExpression = this.WithRecovery(
+                    () => this.Expression(expressionFlags),
+                    RecoveryFlags.None,
+                    TokenType.Colon,
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
+                var colon = this.WithRecovery(
+                    () => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")),
+                    GetSuppressionFlag(trueExpression),
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
+                var falseExpression = this.WithRecovery(
+                    () => this.Expression(expressionFlags),
+                    GetSuppressionFlag(colon),
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
 
                 return new TernaryOperationSyntax(candidate, question, trueExpression, colon, falseExpression);
             }
@@ -407,7 +429,15 @@ namespace Bicep.Core.Parsing
 
                 this.reader.Read();
 
-                SyntaxBase rightExpression = this.BinaryExpression(expressionFlags, operatorPrecedence);
+                SyntaxBase rightExpression = this.WithRecovery(
+                    () => this.BinaryExpression(expressionFlags, operatorPrecedence),
+                    RecoveryFlags.None,
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
+
                 current = new BinaryOperationSyntax(current, candidateOperatorToken, rightExpression);
             }
 
@@ -422,7 +452,15 @@ namespace Bicep.Core.Parsing
             {
                 this.reader.Read();
 
-                var expression = this.MemberExpression(expressionFlags);
+                var expression = this.WithRecovery(
+                    () => this.MemberExpression(expressionFlags),
+                    RecoveryFlags.None,
+                    TokenType.StringRightPiece,
+                    TokenType.RightBrace,
+                    TokenType.RightParen,
+                    TokenType.RightSquare,
+                    TokenType.NewLine);
+
                 return new UnaryOperationSyntax(operatorToken, expression);
             }
 
@@ -547,8 +585,21 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ParenthesizedExpression(ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
-            var expression = this.WithRecovery(() => this.Expression(expressionFlags), RecoveryFlags.None, TokenType.RightParen, TokenType.NewLine);
-            var closeParen = this.WithRecovery(() => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")), GetSuppressionFlag(expression), TokenType.NewLine);
+            var expression = this.WithRecovery(
+                () => this.Expression(expressionFlags),
+                RecoveryFlags.None,
+                TokenType.StringRightPiece,
+                TokenType.RightBrace,
+                TokenType.RightParen,
+                TokenType.RightSquare,
+                TokenType.NewLine);
+            var closeParen = this.WithRecovery(
+                () => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")),
+                GetSuppressionFlag(expression),
+                TokenType.StringRightPiece,
+                TokenType.RightBrace,
+                TokenType.RightSquare,
+                TokenType.NewLine);
 
             return new ParenthesizedExpressionSyntax(openParen, expression, closeParen);
         }
@@ -758,7 +809,7 @@ namespace Bicep.Core.Parsing
 
             if (stringValue is null)
             {
-                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<Diagnostic>());
+                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<IDiagnostic>());
             }
 
             return new StringSyntax(token.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), stringValue.AsEnumerable());
@@ -806,7 +857,7 @@ namespace Bicep.Core.Parsing
                         // Things start to get hairy to build the string if we return an uneven number of tokens and expressions.
                         // Rather than trying to add two expression nodes, combine them.
                         var combined = new[] { interpExpression, skippedSyntax };
-                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined, Enumerable.Empty<Diagnostic>());
+                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined, Enumerable.Empty<IDiagnostic>());
                     }
 
                     tokensOrSyntax.Add(interpExpression);
@@ -865,7 +916,7 @@ namespace Bicep.Core.Parsing
                 {
                     // This error-handling is just for cases where we were completely unable to interpret the string.
                     var span = TextSpan.BetweenInclusiveAndExclusive(startToken, reader.Peek());
-                    return new SkippedTriviaSyntax(span, tokensOrSyntax, Enumerable.Empty<Diagnostic>());
+                    return new SkippedTriviaSyntax(span, tokensOrSyntax, Enumerable.Empty<IDiagnostic>());
                 }
 
                 return null;

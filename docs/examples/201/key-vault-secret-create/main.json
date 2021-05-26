@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2057707609372589599"
+      "templateHash": "209805249433312840"
     }
   },
   "parameters": {
@@ -88,7 +88,12 @@
     "secretsObject": {
       "type": "secureObject",
       "defaultValue": {
-        "secrets": []
+        "secrets": [
+          {
+            "secretName": "yourSecret",
+            "secretValue": "yourValue"
+          }
+        ]
       },
       "metadata": {
         "description": "Specifies all secrets {\"secretName\":\"\",\"secretValue\":\"\"} wrapped in a secure object."

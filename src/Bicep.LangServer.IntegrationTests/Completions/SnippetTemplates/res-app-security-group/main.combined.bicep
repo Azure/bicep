@@ -1,5 +1,5 @@
 resource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {
-  name: 'testApplicationSecurityGroup'
+  name: 'name'
   location: resourceGroup().location
 }
 

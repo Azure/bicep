@@ -1,9 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -21,6 +22,9 @@ namespace Bicep.Core.Syntax
 
         public static IdentifierSyntax CreateIdentifier(string text)
             => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
+
+        public static VariableAccessSyntax CreateVariableAccess(string text)
+            => new VariableAccessSyntax(CreateIdentifier(text));
 
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token AtToken => CreateToken(TokenType.At, "@");
@@ -139,8 +143,28 @@ namespace Bicep.Core.Syntax
             new IntegerLiteralSyntax(CreateToken(TokenType.Integer, value.ToString()), value);
 
         public static StringSyntax CreateStringLiteral(string value)
+            => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
+
+        public static StringSyntax CreateString(IEnumerable<string> values, IEnumerable<SyntaxBase> expressions)
         {
-            return new StringSyntax(CreateStringLiteralToken(value).AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
+            var valuesArray = values.ToArray();
+            var expressionsArray = expressions.ToArray();
+            
+            if (valuesArray.Length != expressionsArray.Length + 1)
+            {
+                throw new ArgumentException($"The number of values must be 1 greater than the number of expressions");
+            }
+
+            var stringTokens = new List<Token>();
+            for (var i = 0; i < valuesArray.Length; i++)
+            {
+                var isStart = (i == 0);
+                var isEnd = (i == valuesArray.Length - 1);
+
+                stringTokens.Add(CreateStringInterpolationToken(isStart, isEnd, valuesArray[i]));
+            }
+
+            return new StringSyntax(stringTokens, expressionsArray, valuesArray);
         }
 
         public static StringSyntax CreateStringLiteralWithComment(string value, string comment)
@@ -162,25 +186,23 @@ namespace Bicep.Core.Syntax
             var endToken = CreateStringInterpolationToken(false, true, "");
 
             return new StringSyntax(
-                new [] { startToken, endToken },
+                new[] { startToken, endToken },
                 syntax.AsEnumerable(),
-                new [] { "", "" });
+                new[] { "", "" });
         }
 
         public static Token CreateStringInterpolationToken(bool isStart, bool isEnd, string value)
         {
-            if (isStart)
-            {
-                return CreateToken(TokenType.StringLeftPiece, $"'{EscapeBicepString(value)}${{");
-            }
-
-            if (isEnd)
-            {
-                return CreateToken(TokenType.StringRightPiece, $"}}{EscapeBicepString(value)}'");
-            }
-
-            return CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{");
+            return (isStart, isEnd) switch {
+                (true, true) => CreateToken(TokenType.StringComplete, $"'{EscapeBicepString(value)}'"),
+                (true, false) => CreateToken(TokenType.StringLeftPiece, $"'{EscapeBicepString(value)}${{"),
+                (false, false) => CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{"),
+                (false, true) => CreateToken(TokenType.StringRightPiece, $"}}{EscapeBicepString(value)}'"),
+            };
         }
+
+        public static FunctionCallSyntax CreateFunctionCall(string functionName)
+            => CreateFunctionCall(functionName, new FunctionArgumentSyntax[0]);
 
         public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
         {
@@ -194,6 +216,13 @@ namespace Bicep.Core.Syntax
                 arguments,
                 RightParenToken);
         }
+
+        public static FunctionCallSyntax CreateFunctionCall(string functionName, params FunctionArgumentSyntax[] argumentSyntaxes)
+            => new FunctionCallSyntax(
+                CreateIdentifier(functionName),
+                LeftParenToken,
+                argumentSyntaxes,
+                RightParenToken);
 
         public static DecoratorSyntax CreateDecorator(string functionName, params SyntaxBase[] argumentExpressions)
         {
@@ -245,5 +274,83 @@ namespace Bicep.Core.Syntax
             TokenType.NullKeyword => "null",
             _ => ""
         };
+
+        public static SyntaxBase FlattenStringOperations(SyntaxBase original)
+        {
+            if (original is FunctionCallSyntax functionCallSyntax)
+            {
+                if (functionCallSyntax.NameEquals("concat"))
+                {
+                    // just return the inner portion if there's only one concat entry
+                    if (functionCallSyntax.Arguments.Length == 1)
+                    {
+                        return functionCallSyntax.Arguments.Select(arg => arg.Expression).First();
+                    }
+                    else
+                    {
+                        var concatArguments = new List<FunctionArgumentSyntax>();
+                        foreach (var arg in functionCallSyntax.Arguments)
+                        {
+                            // recurse
+                            var flattenedExpression = FlattenStringOperations(arg.Expression);
+
+                            if (flattenedExpression is FunctionCallSyntax childFunction && childFunction.NameEquals("concat"))
+                            {
+                                // concat directly inside a concat - break it out
+                                concatArguments.AddRange(childFunction.Arguments);
+                                continue;
+                            }
+
+                            concatArguments.Add(new FunctionArgumentSyntax(flattenedExpression, arg.Comma));
+                        }
+
+                        // overwrite the original expression
+                        functionCallSyntax = CreateFunctionCall("concat", CombineConcatArguments(concatArguments).ToArray());
+                        return functionCallSyntax;
+                    }
+                }
+            }
+
+            // return unchanged
+            return original;
+        }
+
+        private static IEnumerable<FunctionArgumentSyntax> CombineConcatArguments(IEnumerable<FunctionArgumentSyntax> arguments)
+        {
+            var stringList = new List<string>();
+            foreach (var argument in arguments)
+            {
+                // accumulate string literals if possible
+                if (argument.Expression is StringSyntax stringSyntax)
+                {
+                    if (!stringSyntax.Expressions.Any())
+                    {
+                        foreach (var text in stringSyntax.SegmentValues)
+                        {
+                            stringList.Add(text);
+                        }
+
+                        // don't return the string yet - there may be another string to join
+                        continue;
+                    }
+                }
+
+                // check to see if a previous string needs to be yielded back
+                if (stringList.Any())
+                {
+                    yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
+                    stringList.Clear();
+                }
+
+                // if the arg is not a string it will yield back here
+                yield return argument;
+            }
+
+            // yield final string if there is one
+            if (stringList.Any())
+            {
+                yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
+            }
+        }
     }
 }

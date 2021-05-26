@@ -1465,8 +1465,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[34:35) Colon |:|
 //@[36:37) LeftBrace |{|
 //@[37:39) NewLine |\r\n|
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
-//@[64:66) NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
+//@[62:64) NewLine |\r\n|
+     
+//@[5:7) NewLine |\r\n|
+      // #completionTest(6) -> subnetIdAndPropertiesNoColon
+//@[59:61) NewLine |\r\n|
       name: 'subnet-${i}-${j}'
 //@[6:10) Identifier |name|
 //@[10:11) Colon |:|
@@ -1940,56 +1944,6 @@ resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-resource p2_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p2_vnet|
-//@[17:63) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[64:65) Assignment |=|
-//@[66:67) LeftBrace |{|
-//@[67:69) NewLine |\r\n|
-  location: p1_vnet.location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:19) Identifier |p1_vnet|
-//@[19:20) Dot |.|
-//@[20:28) Identifier |location|
-//@[28:30) NewLine |\r\n|
-  name: 'myVnet2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:17) StringComplete |'myVnet2'|
-//@[17:19) NewLine |\r\n|
-  properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
-    addressSpace: {
-//@[4:16) Identifier |addressSpace|
-//@[16:17) Colon |:|
-//@[18:19) LeftBrace |{|
-//@[19:21) NewLine |\r\n|
-      addressPrefixes: [
-//@[6:21) Identifier |addressPrefixes|
-//@[21:22) Colon |:|
-//@[23:24) LeftSquare |[|
-//@[24:26) NewLine |\r\n|
-        '10.0.0.0/24'
-//@[8:21) StringComplete |'10.0.0.0/24'|
-//@[21:23) NewLine |\r\n|
-      ]
-//@[6:7) RightSquare |]|
-//@[7:9) NewLine |\r\n|
-    }
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 //@[0:8) Identifier |resource|
 //@[9:19) Identifier |p1_subnet1|
@@ -2381,4 +2335,6 @@ output p4_res1childid string = p4_child1.id
 //@[31:40) Identifier |p4_child1|
 //@[40:41) Dot |.|
 //@[41:43) Identifier |id|
-//@[43:43) EndOfFile ||
+//@[43:45) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

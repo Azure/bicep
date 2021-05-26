@@ -15,11 +15,6 @@ namespace Bicep.Core.Emit
         private readonly SemanticModel model;
 
         /// <summary>
-        /// The JSON spec requires UTF8 without a BOM, so we use this encoding to write JSON files.
-        /// </summary>
-        private Encoding UTF8EncodingWithoutBom => new UTF8Encoding(false);
-
-        /// <summary>
         /// Assembly File Version to emit into the metadata
         /// </summary>
         private readonly string assemblyFileVersion;
@@ -29,6 +24,11 @@ namespace Bicep.Core.Emit
             this.model = model;
             this.assemblyFileVersion = assemblyFileVersion;
         }
+
+        /// <summary>
+        /// The JSON spec requires UTF8 without a BOM, so we use this encoding to write JSON files.
+        /// </summary>
+        public static Encoding UTF8EncodingWithoutBom { get; } = new UTF8Encoding(false);
 
         /// <summary>
         /// Emits a template to the specified stream if there are no errors. No writes are made to the stream if there are compilation errors.

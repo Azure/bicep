@@ -10,6 +10,7 @@ var ninjaCat = '🐱‍👤'
 
 // greek letters in comment: Π π Φ φ plus emoji 😎
 var variousAlphabets = {
+//@[4:20) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |variousAlphabets|
   'α': 'α'
   'Ωω': [
     'Θμ'
@@ -21,12 +22,17 @@ var variousAlphabets = {
 }
 
 output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
+//@[37:61) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('Θμ', '二头肌', 'α')|
 output interpolateUnicodeStrings string = 'Θμ二${emojis}头肌${ninjaCat}α'
 
 // all of these should produce the same string
 var surrogate_char      = '𐐷'
+//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |surrogate_char|
 var surrogate_codepoint = '\u{10437}'
+//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |surrogate_codepoint|
 var surrogate_pairs     = '\u{D801}\u{DC37}'
+//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |surrogate_pairs|
 
 // ascii escapes
 var hello = '❆ Hello\u{20}World\u{21} ❁'
+//@[4:9) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |hello|

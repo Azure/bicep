@@ -182,21 +182,34 @@ namespace Bicep.Core.Emit
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            var symbol = this.semanticModel.GetSymbolInfo(syntax);
+            this.ValidateDirectAccessToResourceOrModuleCollection(syntax);
+
+            // visit children
+            base.VisitVariableAccessSyntax(syntax);
+        }
+
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            this.ValidateDirectAccessToResourceOrModuleCollection(syntax);
+
+            // visit children
+            base.VisitResourceAccessSyntax(syntax);
+        }
+
+        private void ValidateDirectAccessToResourceOrModuleCollection(SyntaxBase variableOrResourceAccessSyntax)
+        {
+            var symbol = this.semanticModel.GetSymbolInfo(variableOrResourceAccessSyntax);
             if (symbol is ResourceSymbol { IsCollection: true } || symbol is ModuleSymbol { IsCollection: true })
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
-                var parent = this.semanticModel.Binder.GetParent(syntax);
+                var parent = this.semanticModel.Binder.GetParent(variableOrResourceAccessSyntax);
                 if (!this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
                 {
                     // the parent is not array access, which means that someone is doing a direct reference to the collection
                     // which is not allowed outside of the dependsOn properties
-                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).DirectAccessToCollectionNotSupported());
+                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(variableOrResourceAccessSyntax).DirectAccessToCollectionNotSupported());
                 }
             }
-
-            // visit children
-            base.VisitVariableAccessSyntax(syntax);
         }
 
         private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.SafeGetPropertyByName("dependsOn");

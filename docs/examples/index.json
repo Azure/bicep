@@ -256,6 +256,10 @@
         "description": "101/templatespec-create"
     },
     {
+        "filePath": "101/template-spec-deploy/main.bicep",
+        "description": "101/template-spec-deploy"
+    },
+    {
         "filePath": "101/vm-simple-linux/main.bicep",
         "description": "101/vm-simple-linux"
     },

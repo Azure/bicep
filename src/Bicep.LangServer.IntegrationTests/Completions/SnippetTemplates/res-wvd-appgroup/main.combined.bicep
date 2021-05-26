@@ -1,10 +1,10 @@
-resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
-  name: 'testAppGroup'
+resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
+  name: 'name'
   location: resourceGroup().location
   properties: {
-    friendlyName: 'testFriendlyName'
+    friendlyName: 'friendlyName'
     applicationGroupType: 'Desktop'
-    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'testHostPool')
+    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'REQUIRED')
   }
 }
 

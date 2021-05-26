@@ -1,32 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as vscode from "vscode";
 import {
-  registerUIExtensionVariables,
-  AzureUserInput,
   callWithTelemetryAndErrorHandling,
   IActionContext,
-  IAzExtOutputChannel,
 } from "vscode-azureextensionui";
 
+import { getLogger } from "./logger";
+
 export async function activateWithTelemetryAndErrorHandling(
-  context: vscode.ExtensionContext,
-  outputChannel: IAzExtOutputChannel,
   activateCallback: () => Promise<void>
 ): Promise<void> {
-  const startTime = Date.now();
-  registerUIExtensionVariables({
-    context,
-    outputChannel,
-    ui: new AzureUserInput(context.globalState),
-  });
-
   await callWithTelemetryAndErrorHandling(
     "bicep.activate",
     async (activateContext: IActionContext) => {
+      const startTime = Date.now();
       activateContext.telemetry.properties.isActivationEvent = "true";
 
-      await activateCallback();
+      try {
+        await activateCallback();
+      } catch (e) {
+        getLogger().error(e.message ?? e);
+        throw e;
+      }
 
       activateContext.telemetry.measurements.extensionLoad =
         (Date.now() - startTime) / 1000;

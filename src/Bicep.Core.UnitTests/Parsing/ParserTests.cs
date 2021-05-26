@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Linq;
 using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -105,7 +106,6 @@ namespace Bicep.Core.UnitTests.Parsing
 
         [DataTestMethod]
         [DataRow("'${>}def'")]
-        [DataRow("'${b+}def'")]
         [DataRow("'${concat(}def'")]
         [DataRow("'${concat)}def'")]
         [DataRow("'${'nest\\ed'}def'")]
@@ -118,7 +118,22 @@ namespace Bicep.Core.UnitTests.Parsing
         public void Interpolation_with_bad_expressions_should_parse_successfully(string text)
         {
             var expression = ParseAndVerifyType<StringSyntax>(text);
-            expression.Expressions.Should().Contain(x => x is SkippedTriviaSyntax);
+            expression.Expressions.Should().Contain(x => x is SkippedTriviaSyntax || x is BinaryOperationSyntax);
+        }
+
+        [DataTestMethod]
+        [DataRow("'${!}def'")]
+        [DataRow("'${ -}def'")]
+        [DataRow("'${b+}def'")]
+        [DataRow("'${b + (d /}def'")]
+        [DataRow("'${true ? }def'")]
+        [DataRow("'${true ? false }def'")]
+        [DataRow("'${true ? : }def'")]
+        [DataRow("'${true ? : null}def'")]
+        public void Interpolation_with_incomplete_expressions_should_parse_successfully(string text)
+        {
+            var expression = ParseAndVerifyType<StringSyntax>(text);
+            expression.Expressions.Should().Contain(x => x is UnaryOperationSyntax || x is BinaryOperationSyntax || x is TernaryOperationSyntax);
         }
 
         [DataTestMethod]
@@ -154,8 +169,9 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("-!null")]
         public void UnaryOperatorsCannotBeChained(string text)
         {
-            Action fail = () => ParserHelper.ParseExpression(text);
-            fail.Should().Throw<ExpectedTokenException>().WithMessage("Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
+            var expression = ParseAndVerifyType<UnaryOperationSyntax>(text);
+            expression.Expression.Should().BeOfType<SkippedTriviaSyntax>()
+                .Which.Diagnostics.Single().Message.Should().Be("Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
         }
 
         [DataTestMethod]

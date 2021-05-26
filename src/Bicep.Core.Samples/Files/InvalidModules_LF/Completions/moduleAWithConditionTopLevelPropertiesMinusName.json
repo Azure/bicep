@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "dependsOn"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "dependsOn:"
+    }
   },
   {
     "label": "params",
@@ -35,11 +32,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "params"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "params:"
+    }
   },
   {
     "label": "scope",
@@ -56,10 +50,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "scope"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "scope:"
+    }
   }
 ]

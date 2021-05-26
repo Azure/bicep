@@ -40,7 +40,7 @@
         {
             "label": "vscodeext-build",
             "command": "npm",
-            "args": ["run", "compile", "--loglevel", "silent"],
+            "args": ["run", "build", "--loglevel", "silent"],
             "type": "shell",
             "problemMatcher": "$tsc-watch",
             "options": {
@@ -69,6 +69,19 @@
                 "${workspaceFolder}/Bicep.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Update Baselines",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "--filter",
+                "TestCategory=Baseline",
+                "--",
+                "TestRunParameters.Parameter(name=\"SetBaseLine\", value=\"true\")",
             ],
             "problemMatcher": "$msCompile"
         }

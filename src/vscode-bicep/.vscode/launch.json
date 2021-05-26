@@ -20,6 +20,40 @@
       }
     },
     {
+      "name": "Launch Extension: Prod",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceRoot}"
+      ],
+      "stopOnEntry": false,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
+      "preLaunchTask": "build:prod",
+      "env": {
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
+      }
+    },
+    {
+      "name": "Launch Extension: Watch",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceRoot}"
+      ],
+      "stopOnEntry": false,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
+      "preLaunchTask": "watch",
+      "env": {
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
+      }
+    },
+    {
       "name": "Launch Tests: E2E",
       "type": "extensionHost",
       "request": "launch",
@@ -29,10 +63,10 @@
         "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
       ],
       "outFiles": ["${workspaceRoot}/out/test/e2e/**/*.js"],
-      "preLaunchTask": "${defaultBuildTask}",
+      "preLaunchTask": "build:e2e",
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll",
-        "NODE_ENV": "test"
+        "TEST_MODE": "e2e"
       }
     }
   ]

@@ -14,11 +14,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "arguments"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "arguments:"
+    }
   },
   {
     "label": "containerSettings",
@@ -35,11 +32,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "containerSettings"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "containerSettings:"
+    }
   },
   {
     "label": "forceUpdateTag",
@@ -56,11 +50,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "forceUpdateTag"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "forceUpdateTag:"
+    }
   },
   {
     "label": "primaryScriptUri",
@@ -77,11 +68,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "primaryScriptUri"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "primaryScriptUri:"
+    }
   },
   {
     "label": "scriptContent",
@@ -98,11 +86,8 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "scriptContent"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "scriptContent:"
+    }
   },
   {
     "label": "timeout",
@@ -119,10 +104,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "timeout"
-    },
-    "commitCharacters": [
-      ":"
-    ]
+      "newText": "timeout:"
+    }
   }
 ]

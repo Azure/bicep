@@ -1,12 +1,12 @@
 resource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
-  name: 'testRouteTable'
+  name: 'name'
   location: resourceGroup().location
   properties: {
     routes: [
       {
-        name: 'testRoute'
+        name: 'name'
         properties: {
-          addressPrefix: 'testDestinationCIDR'
+          addressPrefix: 'destinationCIDR'
           nextHopType: 'VirtualNetworkGateway'
           nextHopIpAddress: '0.11.26.162'
         }
@@ -15,3 +15,4 @@ resource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
     disableBgpRoutePropagation: true
   }
 }
+

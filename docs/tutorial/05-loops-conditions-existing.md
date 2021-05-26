@@ -86,7 +86,7 @@ resource blob 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06
 ```
 
 There's also a [loop index variant](../spec/loops.md#use-the-loop-index) which gives us access to the current item's index in the array:
-```
+```bicep
 resource blob 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06-01' = [for (name, index) in containerNames: {
   name: '${stg.name}/default/${name}-${index + 1}'
 }]

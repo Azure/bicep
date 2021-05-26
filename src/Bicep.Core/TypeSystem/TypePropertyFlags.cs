@@ -33,8 +33,30 @@ namespace Bicep.Core.TypeSystem
         WriteOnly = 1 << 3,
 
         /// <summary>
-        /// This property's value known at the start of the deployment, and does not require inlining.
+        /// The property only accepts deploy-time constants whose values must be known at the start of the deployment, and do not require inlining.
         /// </summary>
         DeployTimeConstant = 1 << 4,
+
+        /// <summary>
+        /// Blocks assignment of the "any" type to the property having this flag.
+        /// </summary>
+        DisallowAny = 1 << 5,
+
+        /// <summary>
+        /// The property's value is readable at deploy-time (e.g., id, name, type, and apiVersion).
+        /// </summary>
+        ReadableAtDeployTime = 1 << 6,
+
+        /// <summary>
+        /// The property must be loop-variant. In other words, the value of the property must change
+        /// based on the value of the loop item or index variables. This flag has no effect outside of top-level properties.
+        /// </summary>
+        LoopVariant = 1 << 7,
+
+        /// <summary>
+        /// On non-required properties, this allows the property type to be treated as "<x> | null" (where <x> is the current property type)
+        /// for the purposes of type checking the value assigned to the property.
+        /// </summary>
+        AllowImplicitNull = 1 << 8
     }
 }

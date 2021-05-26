@@ -26,21 +26,21 @@ namespace Bicep.Core.UnitTests.FileSystem
         {
             if (CompilerFlags.IsWindowsBuild)
             {
-                yield return new [] { "file:///C:/abc/file.bicep", "def/ghi.bicep", "file:///C:/abc/def/ghi.bicep", };
-                yield return new [] { "file:///C:/abc/file.bicep", "./def/ghi.bicep", "file:///C:/abc/def/ghi.bicep", };
-                yield return new [] { "file:///C:/abc/file.bicep", "../ghi.bicep", "file:///C:/ghi.bicep", }; // directory is resolved relative to parent path
-                yield return new [] { "file:///C:/abc/file.bicep", "./def/../ghi.bicep", "file:///C:/abc/ghi.bicep", }; // directory is resolved
-                yield return new [] { "file:///D:/abc/file.bicep", "/def.bicep", "file:///D:/def.bicep", }; // root child path is used as-is
-                yield return new [] { "file:///E:/abc/file.bicep", "/abc/../def/../ghi.bicep", "file:///E:/ghi.bicep", }; // root child path is used as-is with normalization
+                yield return new[] { "file:///C:/abc/file.bicep", "def/ghi.bicep", "file:///C:/abc/def/ghi.bicep", };
+                yield return new[] { "file:///C:/abc/file.bicep", "./def/ghi.bicep", "file:///C:/abc/def/ghi.bicep", };
+                yield return new[] { "file:///C:/abc/file.bicep", "../ghi.bicep", "file:///C:/ghi.bicep", }; // directory is resolved relative to parent path
+                yield return new[] { "file:///C:/abc/file.bicep", "./def/../ghi.bicep", "file:///C:/abc/ghi.bicep", }; // directory is resolved
+                yield return new[] { "file:///D:/abc/file.bicep", "/def.bicep", "file:///D:/def.bicep", }; // root child path is used as-is
+                yield return new[] { "file:///E:/abc/file.bicep", "/abc/../def/../ghi.bicep", "file:///E:/ghi.bicep", }; // root child path is used as-is with normalization
             }
             else
             {
-                yield return new [] { "file:///abc/file.bicep", "def/ghi.bicep", "file:///abc/def/ghi.bicep", };
-                yield return new [] { "file:///abc/file.bicep", "./def/ghi.bicep", "file:///abc/def/ghi.bicep", };
-                yield return new [] { "file:///abc/file.bicep", "../ghi.bicep", "file:///ghi.bicep", }; // directory is resolved relative to parent path
-                yield return new [] { "file:///abc/file.bicep", "./def/../ghi.bicep", "file:///abc/ghi.bicep", }; // directory is resolved
-                yield return new [] { "file:///abc/file.bicep", "/def.bicep", "file:///def.bicep", }; // root child path is used as-is
-                yield return new [] { "file:///abc/file.bicep", "/abc/../def/../ghi.bicep", "file:///ghi.bicep", }; // root child path is used as-is with normalization
+                yield return new[] { "file:///abc/file.bicep", "def/ghi.bicep", "file:///abc/def/ghi.bicep", };
+                yield return new[] { "file:///abc/file.bicep", "./def/ghi.bicep", "file:///abc/def/ghi.bicep", };
+                yield return new[] { "file:///abc/file.bicep", "../ghi.bicep", "file:///ghi.bicep", }; // directory is resolved relative to parent path
+                yield return new[] { "file:///abc/file.bicep", "./def/../ghi.bicep", "file:///abc/ghi.bicep", }; // directory is resolved
+                yield return new[] { "file:///abc/file.bicep", "/def.bicep", "file:///def.bicep", }; // root child path is used as-is
+                yield return new[] { "file:///abc/file.bicep", "/abc/../def/../ghi.bicep", "file:///ghi.bicep", }; // root child path is used as-is with normalization
             }
         }
 
@@ -53,7 +53,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             File.WriteAllText(tempFile, "abcd\r\ndef");
             fileResolver.TryRead(tempFileUri, out var fileContents, out var failureMessage).Should().BeTrue();
-            fileContents.Should().Equals("abc\r\ndef");
+            fileContents.Should().Be("abcd\r\ndef");
             failureMessage.Should().BeNull();
 
             File.Delete(tempFile);
@@ -64,7 +64,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IOException), AllowDerivedTypes=true)]
+        [ExpectedException(typeof(IOException), AllowDerivedTypes = true)]
         public void GetDirectories_should_return_expected_results()
         {
             var fileResolver = new FileResolver();
@@ -88,7 +88,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IOException), AllowDerivedTypes=true)]
+        [ExpectedException(typeof(IOException), AllowDerivedTypes = true)]
         public void GetFiles_should_return_expected_results()
         {
             var fileResolver = new FileResolver();

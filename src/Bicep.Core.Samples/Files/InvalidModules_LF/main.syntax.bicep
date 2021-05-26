@@ -67,6 +67,19 @@ module moduleWithoutPath = {
 //@[0:1)  RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// #completionTest(41) -> moduleBodyCompletions
+//@[47:48) NewLine |\n|
+module moduleWithPath './moduleb.bicep' =
+//@[0:41) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |moduleWithPath|
+//@[22:39)  StringSyntax
+//@[22:39)   StringComplete |'./moduleb.bicep'|
+//@[40:41)  Assignment |=|
+//@[41:41)  SkippedTriviaSyntax
+//@[41:43) NewLine |\n\n|
+
 // missing identifier #completionTest(7) -> empty
 //@[49:50) NewLine |\n|
 module 
@@ -79,8 +92,8 @@ module
 //@[7:7)  SkippedTriviaSyntax
 //@[7:9) NewLine |\n\n|
 
-// #completionTest(24,25) -> object
-//@[35:36) NewLine |\n|
+// #completionTest(24,25) -> moduleObject
+//@[41:42) NewLine |\n|
 module missingValue '' = 
 //@[0:25) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -2958,14 +2971,14 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
 //@[2:4) NewLine |\n\n|
 
 module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in emptyArray: if(true) {
-//@[0:185) ModuleDeclarationSyntax
+//@[0:187) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:42)  IdentifierSyntax
 //@[7:42)   Identifier |paramNameCompletionsInFilteredLoops|
 //@[43:58)  StringSyntax
 //@[43:58)   StringComplete |'modulea.bicep'|
 //@[59:60)  Assignment |=|
-//@[61:185)  ForSyntax
+//@[61:187)  ForSyntax
 //@[61:62)   LeftSquare |[|
 //@[62:65)   Identifier |for|
 //@[66:71)   ForVariableBlockSyntax
@@ -2983,14 +2996,14 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 //@[75:85)    IdentifierSyntax
 //@[75:85)     Identifier |emptyArray|
 //@[85:86)   Colon |:|
-//@[87:184)   IfConditionSyntax
+//@[87:186)   IfConditionSyntax
 //@[87:89)    Identifier |if|
 //@[89:95)    ParenthesizedExpressionSyntax
 //@[89:90)     LeftParen |(|
 //@[90:94)     BooleanLiteralSyntax
 //@[90:94)      TrueKeyword |true|
 //@[94:95)     RightParen |)|
-//@[96:184)    ObjectSyntax
+//@[96:186)    ObjectSyntax
 //@[96:97)     LeftBrace |{|
 //@[97:98)     NewLine |\n|
   name: 'hello-${x}'
@@ -3006,16 +3019,17 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 //@[18:20)       StringRightPiece |}'|
 //@[20:21)     NewLine |\n|
   params: {
-//@[2:63)     ObjectPropertySyntax
+//@[2:65)     ObjectPropertySyntax
 //@[2:8)      IdentifierSyntax
 //@[2:8)       Identifier |params|
 //@[8:9)      Colon |:|
-//@[10:63)      ObjectSyntax
+//@[10:65)      ObjectSyntax
 //@[10:11)       LeftBrace |{|
 //@[11:12)       NewLine |\n|
     // #completionTest(0,1,2) -> moduleAParams
-//@[46:48)       NewLine |\n\n|
-
+//@[46:47)       NewLine |\n|
+  
+//@[2:3)       NewLine |\n|
   }
 //@[2:3)       RightBrace |}|
 //@[3:4)     NewLine |\n|
@@ -3619,6 +3633,395 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[74:75)    LeftParen |(|
 //@[75:76)    RightParen |)|
 //@[76:77)   RightSquare |]|
-//@[77:78) NewLine |\n|
+//@[77:79) NewLine |\n\n|
+
+module anyTypeInScope 'empty.bicep' = {
+//@[0:91) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |anyTypeInScope|
+//@[22:35)  StringSyntax
+//@[22:35)   StringComplete |'empty.bicep'|
+//@[36:37)  Assignment |=|
+//@[38:91)  ObjectSyntax
+//@[38:39)   LeftBrace |{|
+//@[39:40)   NewLine |\n|
+  dependsOn: [
+//@[2:31)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:31)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:15)     NewLine |\n|
+    any('s')
+//@[4:12)     ArrayItemSyntax
+//@[4:12)      FunctionCallSyntax
+//@[4:7)       IdentifierSyntax
+//@[4:7)        Identifier |any|
+//@[7:8)       LeftParen |(|
+//@[8:11)       FunctionArgumentSyntax
+//@[8:11)        StringSyntax
+//@[8:11)         StringComplete |'s'|
+//@[11:12)       RightParen |)|
+//@[12:13)     NewLine |\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)   NewLine |\n\n|
+
+  scope: any(42)
+//@[2:16)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:16)    FunctionCallSyntax
+//@[9:12)     IdentifierSyntax
+//@[9:12)      Identifier |any|
+//@[12:13)     LeftParen |(|
+//@[13:15)     FunctionArgumentSyntax
+//@[13:15)      IntegerLiteralSyntax
+//@[13:15)       Integer |42|
+//@[15:16)     RightParen |)|
+//@[16:17)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module anyTypeInScopeConditional 'empty.bicep' = if(false) {
+//@[0:112) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:32)  IdentifierSyntax
+//@[7:32)   Identifier |anyTypeInScopeConditional|
+//@[33:46)  StringSyntax
+//@[33:46)   StringComplete |'empty.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:112)  IfConditionSyntax
+//@[49:51)   Identifier |if|
+//@[51:58)   ParenthesizedExpressionSyntax
+//@[51:52)    LeftParen |(|
+//@[52:57)    BooleanLiteralSyntax
+//@[52:57)     FalseKeyword |false|
+//@[57:58)    RightParen |)|
+//@[59:112)   ObjectSyntax
+//@[59:60)    LeftBrace |{|
+//@[60:61)    NewLine |\n|
+  dependsOn: [
+//@[2:31)    ObjectPropertySyntax
+//@[2:11)     IdentifierSyntax
+//@[2:11)      Identifier |dependsOn|
+//@[11:12)     Colon |:|
+//@[13:31)     ArraySyntax
+//@[13:14)      LeftSquare |[|
+//@[14:15)      NewLine |\n|
+    any('s')
+//@[4:12)      ArrayItemSyntax
+//@[4:12)       FunctionCallSyntax
+//@[4:7)        IdentifierSyntax
+//@[4:7)         Identifier |any|
+//@[7:8)        LeftParen |(|
+//@[8:11)        FunctionArgumentSyntax
+//@[8:11)         StringSyntax
+//@[8:11)          StringComplete |'s'|
+//@[11:12)        RightParen |)|
+//@[12:13)      NewLine |\n|
+  ]
+//@[2:3)      RightSquare |]|
+//@[3:5)    NewLine |\n\n|
+
+  scope: any(42)
+//@[2:16)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:16)     FunctionCallSyntax
+//@[9:12)      IdentifierSyntax
+//@[9:12)       Identifier |any|
+//@[12:13)      LeftParen |(|
+//@[13:15)      FunctionArgumentSyntax
+//@[13:15)       IntegerLiteralSyntax
+//@[13:15)        Integer |42|
+//@[15:16)      RightParen |)|
+//@[16:17)    NewLine |\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
+//@[0:114) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:25)  IdentifierSyntax
+//@[7:25)   Identifier |anyTypeInScopeLoop|
+//@[26:39)  StringSyntax
+//@[26:39)   StringComplete |'empty.bicep'|
+//@[40:41)  Assignment |=|
+//@[42:114)  ForSyntax
+//@[42:43)   LeftSquare |[|
+//@[43:46)   Identifier |for|
+//@[47:52)   LocalVariableSyntax
+//@[47:52)    IdentifierSyntax
+//@[47:52)     Identifier |thing|
+//@[53:55)   Identifier |in|
+//@[56:58)   ArraySyntax
+//@[56:57)    LeftSquare |[|
+//@[57:58)    RightSquare |]|
+//@[58:59)   Colon |:|
+//@[60:113)   ObjectSyntax
+//@[60:61)    LeftBrace |{|
+//@[61:62)    NewLine |\n|
+  dependsOn: [
+//@[2:31)    ObjectPropertySyntax
+//@[2:11)     IdentifierSyntax
+//@[2:11)      Identifier |dependsOn|
+//@[11:12)     Colon |:|
+//@[13:31)     ArraySyntax
+//@[13:14)      LeftSquare |[|
+//@[14:15)      NewLine |\n|
+    any('s')
+//@[4:12)      ArrayItemSyntax
+//@[4:12)       FunctionCallSyntax
+//@[4:7)        IdentifierSyntax
+//@[4:7)         Identifier |any|
+//@[7:8)        LeftParen |(|
+//@[8:11)        FunctionArgumentSyntax
+//@[8:11)         StringSyntax
+//@[8:11)          StringComplete |'s'|
+//@[11:12)        RightParen |)|
+//@[12:13)      NewLine |\n|
+  ]
+//@[2:3)      RightSquare |]|
+//@[3:5)    NewLine |\n\n|
+
+  scope: any(42)
+//@[2:16)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:16)     FunctionCallSyntax
+//@[9:12)      IdentifierSyntax
+//@[9:12)       Identifier |any|
+//@[12:13)      LeftParen |(|
+//@[13:15)      FunctionArgumentSyntax
+//@[13:15)       IntegerLiteralSyntax
+//@[13:15)        Integer |42|
+//@[15:16)      RightParen |)|
+//@[16:17)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+// Key Vault Secret Reference
+//@[29:31) NewLine |\n\n|
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[0:88) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:11)  IdentifierSyntax
+//@[9:11)   Identifier |kv|
+//@[12:50)  StringSyntax
+//@[12:50)   StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[51:59)  Identifier |existing|
+//@[60:61)  Assignment |=|
+//@[62:88)  ObjectSyntax
+//@[62:63)   LeftBrace |{|
+//@[63:64)   NewLine |\n|
+  name: 'testkeyvault'
+//@[2:22)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:22)    StringSyntax
+//@[8:22)     StringComplete |'testkeyvault'|
+//@[22:23)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module secureModule1 'moduleb.bicep' = {
+//@[0:464) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:20)  IdentifierSyntax
+//@[7:20)   Identifier |secureModule1|
+//@[21:36)  StringSyntax
+//@[21:36)   StringComplete |'moduleb.bicep'|
+//@[37:38)  Assignment |=|
+//@[39:464)  ObjectSyntax
+//@[39:40)   LeftBrace |{|
+//@[40:41)   NewLine |\n|
+  name: 'secureModule1'
+//@[2:23)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:23)    StringSyntax
+//@[8:23)     StringComplete |'secureModule1'|
+//@[23:24)   NewLine |\n|
+  params: {       
+//@[2:397)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:397)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[18:19)     NewLine |\n|
+    stringParamA: kv.getSecret('mySecret')
+//@[4:42)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |stringParamA|
+//@[16:17)      Colon |:|
+//@[18:42)      InstanceFunctionCallSyntax
+//@[18:20)       VariableAccessSyntax
+//@[18:20)        IdentifierSyntax
+//@[18:20)         Identifier |kv|
+//@[20:21)       Dot |.|
+//@[21:30)       IdentifierSyntax
+//@[21:30)        Identifier |getSecret|
+//@[30:31)       LeftParen |(|
+//@[31:41)       FunctionArgumentSyntax
+//@[31:41)        StringSyntax
+//@[31:41)         StringComplete |'mySecret'|
+//@[41:42)       RightParen |)|
+//@[42:43)     NewLine |\n|
+    stringParamB: '${kv.getSecret('mySecret')}'
+//@[4:47)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |stringParamB|
+//@[16:17)      Colon |:|
+//@[18:47)      StringSyntax
+//@[18:21)       StringLeftPiece |'${|
+//@[21:45)       InstanceFunctionCallSyntax
+//@[21:23)        VariableAccessSyntax
+//@[21:23)         IdentifierSyntax
+//@[21:23)          Identifier |kv|
+//@[23:24)        Dot |.|
+//@[24:33)        IdentifierSyntax
+//@[24:33)         Identifier |getSecret|
+//@[33:34)        LeftParen |(|
+//@[34:44)        FunctionArgumentSyntax
+//@[34:44)         StringSyntax
+//@[34:44)          StringComplete |'mySecret'|
+//@[44:45)        RightParen |)|
+//@[45:47)       StringRightPiece |}'|
+//@[47:48)     NewLine |\n|
+    objParam: kv.getSecret('mySecret')
+//@[4:38)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |objParam|
+//@[12:13)      Colon |:|
+//@[14:38)      InstanceFunctionCallSyntax
+//@[14:16)       VariableAccessSyntax
+//@[14:16)        IdentifierSyntax
+//@[14:16)         Identifier |kv|
+//@[16:17)       Dot |.|
+//@[17:26)       IdentifierSyntax
+//@[17:26)        Identifier |getSecret|
+//@[26:27)       LeftParen |(|
+//@[27:37)       FunctionArgumentSyntax
+//@[27:37)        StringSyntax
+//@[27:37)         StringComplete |'mySecret'|
+//@[37:38)       RightParen |)|
+//@[38:39)     NewLine |\n|
+    arrayParam: kv.getSecret('mySecret')
+//@[4:40)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |arrayParam|
+//@[14:15)      Colon |:|
+//@[16:40)      InstanceFunctionCallSyntax
+//@[16:18)       VariableAccessSyntax
+//@[16:18)        IdentifierSyntax
+//@[16:18)         Identifier |kv|
+//@[18:19)       Dot |.|
+//@[19:28)       IdentifierSyntax
+//@[19:28)        Identifier |getSecret|
+//@[28:29)       LeftParen |(|
+//@[29:39)       FunctionArgumentSyntax
+//@[29:39)        StringSyntax
+//@[29:39)         StringComplete |'mySecret'|
+//@[39:40)       RightParen |)|
+//@[40:41)     NewLine |\n|
+    secureStringParam: '${kv.getSecret('mySecret')}'
+//@[4:52)     ObjectPropertySyntax
+//@[4:21)      IdentifierSyntax
+//@[4:21)       Identifier |secureStringParam|
+//@[21:22)      Colon |:|
+//@[23:52)      StringSyntax
+//@[23:26)       StringLeftPiece |'${|
+//@[26:50)       InstanceFunctionCallSyntax
+//@[26:28)        VariableAccessSyntax
+//@[26:28)         IdentifierSyntax
+//@[26:28)          Identifier |kv|
+//@[28:29)        Dot |.|
+//@[29:38)        IdentifierSyntax
+//@[29:38)         Identifier |getSecret|
+//@[38:39)        LeftParen |(|
+//@[39:49)        FunctionArgumentSyntax
+//@[39:49)         StringSyntax
+//@[39:49)          StringComplete |'mySecret'|
+//@[49:50)        RightParen |)|
+//@[50:52)       StringRightPiece |}'|
+//@[52:53)     NewLine |\n|
+    secureObjectParam: kv.getSecret('mySecret')
+//@[4:47)     ObjectPropertySyntax
+//@[4:21)      IdentifierSyntax
+//@[4:21)       Identifier |secureObjectParam|
+//@[21:22)      Colon |:|
+//@[23:47)      InstanceFunctionCallSyntax
+//@[23:25)       VariableAccessSyntax
+//@[23:25)        IdentifierSyntax
+//@[23:25)         Identifier |kv|
+//@[25:26)       Dot |.|
+//@[26:35)       IdentifierSyntax
+//@[26:35)        Identifier |getSecret|
+//@[35:36)       LeftParen |(|
+//@[36:46)       FunctionArgumentSyntax
+//@[36:46)        StringSyntax
+//@[36:46)         StringComplete |'mySecret'|
+//@[46:47)       RightParen |)|
+//@[47:48)     NewLine |\n|
+    secureStringParam2: '${kv.getSecret('mySecret')}'
+//@[4:53)     ObjectPropertySyntax
+//@[4:22)      IdentifierSyntax
+//@[4:22)       Identifier |secureStringParam2|
+//@[22:23)      Colon |:|
+//@[24:53)      StringSyntax
+//@[24:27)       StringLeftPiece |'${|
+//@[27:51)       InstanceFunctionCallSyntax
+//@[27:29)        VariableAccessSyntax
+//@[27:29)         IdentifierSyntax
+//@[27:29)          Identifier |kv|
+//@[29:30)        Dot |.|
+//@[30:39)        IdentifierSyntax
+//@[30:39)         Identifier |getSecret|
+//@[39:40)        LeftParen |(|
+//@[40:50)        FunctionArgumentSyntax
+//@[40:50)         StringSyntax
+//@[40:50)          StringComplete |'mySecret'|
+//@[50:51)        RightParen |)|
+//@[51:53)       StringRightPiece |}'|
+//@[53:54)     NewLine |\n|
+    secureObjectParam2: kv.getSecret('mySecret')
+//@[4:48)     ObjectPropertySyntax
+//@[4:22)      IdentifierSyntax
+//@[4:22)       Identifier |secureObjectParam2|
+//@[22:23)      Colon |:|
+//@[24:48)      InstanceFunctionCallSyntax
+//@[24:26)       VariableAccessSyntax
+//@[24:26)        IdentifierSyntax
+//@[24:26)         Identifier |kv|
+//@[26:27)       Dot |.|
+//@[27:36)       IdentifierSyntax
+//@[27:36)        Identifier |getSecret|
+//@[36:37)       LeftParen |(|
+//@[37:47)       FunctionArgumentSyntax
+//@[37:47)        StringSyntax
+//@[37:47)         StringComplete |'mySecret'|
+//@[47:48)       RightParen |)|
+//@[48:49)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:2) NewLine |\n|
 
 //@[0:0) EndOfFile ||
