@@ -164,7 +164,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var lineStarts = new[] { 0 }.ToImmutableArray<int>();
             var omnisharpDiagnostics = diags.ToDiagnostics(lineStarts);
 
-            omnisharpDiagnostics.Should().HaveCount(1);
             omnisharpDiagnostics.Should().SatisfyRespectively(
                 diag =>
                 {
