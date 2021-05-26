@@ -44,7 +44,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, resourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes());
 
             // construct a parallel compilation
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
@@ -133,7 +133,7 @@ namespace Bicep.LangServer.IntegrationTests
                 node is not Token;
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
 
             // construct a parallel compilation
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
@@ -190,7 +190,7 @@ output string test = testRes.prop|erties.rea|donly
 ");
 
             var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
             hovers.Should().SatisfyRespectively(
@@ -221,7 +221,7 @@ output string test = testRes[3].prop|erties.rea|donly
 ");
 
             var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
             hovers.Should().SatisfyRespectively(
@@ -252,7 +252,7 @@ output string test = testRes.prop|erties.rea|donly
 ");
 
             var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
             hovers.Should().SatisfyRespectively(
@@ -275,7 +275,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 ");
 
             var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
             hovers.Should().SatisfyRespectively(

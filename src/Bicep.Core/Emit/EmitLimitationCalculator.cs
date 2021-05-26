@@ -20,10 +20,9 @@ namespace Bicep.Core.Emit
 
             var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
             var resourceScopeData = ScopeHelper.GetResoureScopeInfo(model, diagnosticWriter);
-            DeployTimeConstantVisitor.ValidateDeployTimeConstants(model, diagnosticWriter);
 
+            DeployTimeConstantValidator.Validate(model, diagnosticWriter);
             ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
-
             FunctionPlacementValidatorVisitor.Validate(model, diagnosticWriter);
 
             DetectDuplicateNames(model, diagnosticWriter, resourceScopeData, moduleScopeData);

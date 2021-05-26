@@ -38,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
             var tree = compilation.SyntaxTreeGrouping.EntryPoint;
@@ -78,7 +78,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task NonExistentUriShouldProvideNoSignatureHelp()
         {
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, DocumentUri.From("/fake.bicep"));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, string.Empty, DocumentUri.From("/fake.bicep"));
 
             var signatureHelp = await RequestSignatureHelp(client, new Position(0, 0), DocumentUri.From("/fake2.bicep"));
             signatureHelp.Should().BeNull();
@@ -90,7 +90,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var tree = compilation.SyntaxTreeGrouping.EntryPoint;
 
@@ -138,11 +138,15 @@ namespace Bicep.LangServer.IntegrationTests
                     if (initial!.Signatures.Count() >= 2)
                     {
                         // update index to 1 to mock user changing active signature
-                        initial.ActiveSignature = 1;
+                    const int ExpectedActiveSignatureIndex = 1;
+                    var modified = initial with
+                    {
+                        ActiveSignature = ExpectedActiveSignatureIndex
+                    };
 
                         var shouldRemember = await RequestSignatureHelp(client, position, uri, new SignatureHelpContext
                         {
-                            ActiveSignatureHelp = initial,
+                        ActiveSignatureHelp = modified,
                             IsRetrigger = true,
                             TriggerKind = SignatureHelpTriggerKind.ContentChange
                         });
@@ -150,7 +154,7 @@ namespace Bicep.LangServer.IntegrationTests
                         // we passed the same signature help as content with a different active index
                         // should get the same index back
                         AssertValidSignatureHelp(shouldRemember, symbol, expectDecorator);
-                        shouldRemember!.ActiveSignature.Should().Be(1);
+                    shouldRemember!.ActiveSignature.Should().Be(ExpectedActiveSignatureIndex);
                     }
                 }
                 else

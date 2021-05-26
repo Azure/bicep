@@ -37,6 +37,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
 
+            private const string concatFunction = "concat";
             private InterpolateNotConcatRule parent;
 
             public Visitor(InterpolateNotConcatRule parent)
@@ -46,7 +47,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             {
-                if (syntax.NameEquals("concat"))
+                if (syntax.NameEquals(concatFunction))
                 {
                     if (CreateFix(syntax) is CodeFix fix)
                     {
@@ -132,7 +133,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         addStringSyntax(stringSyntax);
                         prevArg = stringSyntax;
                     }
-                    else if (argSet.arg is FunctionCallSyntax funcSyntax && funcSyntax.NameEquals("concat"))
+                    else if (argSet.arg is FunctionCallSyntax funcSyntax && funcSyntax.NameEquals(concatFunction))
                     {
                         stringSyntax = RewriteConcatCallback(funcSyntax);
                         addStringSyntax(stringSyntax);
