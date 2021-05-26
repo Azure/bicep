@@ -631,7 +631,6 @@ param incompleteDecorators string
 
 @concat(1, 2)
 //@[1:7) [BCP152 (Error)] Function "concat" cannot be used as a decorator. |concat|
-//@[1:13) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat(1, 2)|
 @sys.concat('a', 'b')
 //@[5:11) [BCP152 (Error)] Function "concat" cannot be used as a decorator. |concat|
 @secure()
