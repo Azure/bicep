@@ -383,7 +383,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             @"
                 var a = 'text'
-                var b = concat(a) // by definition of rule we require more than 1 argument to concat
+                var b = concat(a) // by definition concat must have multiple arguments before we recommend interpolation
             "
         )]
         [DataTestMethod]
