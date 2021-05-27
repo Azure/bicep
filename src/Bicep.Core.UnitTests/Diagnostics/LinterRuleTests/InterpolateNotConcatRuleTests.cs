@@ -373,8 +373,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         )]
         [DataRow(
             @"
-                var a = []
-                var b = concat(a) // array
+                var a1 = []
+                var a2 = []
+                var a3 = []
+                var a3 = []
+                var b = concat(a1, a2, a3, a4) // arrays - no interpolate recommended
+            "
+        )]
+        [DataRow(
+            @"
+                var a = 'text'
+                var b = concat(a) // by definition of rule we require more than 1 argument to concat
             "
         )]
         [DataTestMethod]
