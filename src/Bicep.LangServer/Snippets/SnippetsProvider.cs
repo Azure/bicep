@@ -130,10 +130,12 @@ namespace Bicep.LanguageServer.Snippets
 
                 if (declaredSymbol.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax)
                 {
-                    string type = declaredSymbol.Type.Name;
-
-                    CacheResourceDeclaration(resourceDeclarationSyntax, type, template, description);
-                    CacheResourceDependencies(kvp.Value, template, type);
+                   if (declaredSymbol.Type is TypeSymbol typeSymbol && typeSymbol.TypeKind != TypeKind.Error)
+                    {
+                        string type = typeSymbol.Name;
+                        CacheResourceDeclaration(resourceDeclarationSyntax, type, template, description);
+                        CacheResourceDependencies(kvp.Value, template, type);
+                    }
                 }
             }
         }
