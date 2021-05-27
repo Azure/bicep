@@ -203,34 +203,6 @@
     }
   },
   {
-    "label": "commaOneWithDecorator",
-    "kind": "field",
-    "detail": "commaOneWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_commaOneWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "commaOneWithDecorator"
-    }
-  },
-  {
-    "label": "commaTwo",
-    "kind": "field",
-    "detail": "commaTwo",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_commaTwo",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "commaTwo"
-    }
-  },
-  {
     "label": "concat",
     "kind": "function",
     "detail": "concat()",
@@ -316,20 +288,6 @@
     }
   },
   {
-    "label": "defaultValueCompletions",
-    "kind": "field",
-    "detail": "defaultValueCompletions",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_defaultValueCompletions",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "defaultValueCompletions"
-    }
-  },
-  {
     "label": "defaultValueOneLinerCompletions",
     "kind": "field",
     "detail": "defaultValueOneLinerCompletions",
@@ -372,20 +330,6 @@
     }
   },
   {
-    "label": "duplicatedModifierProperty",
-    "kind": "field",
-    "detail": "duplicatedModifierProperty",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicatedModifierProperty",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicatedModifierProperty"
-    }
-  },
-  {
     "label": "empty",
     "kind": "function",
     "detail": "empty()",
@@ -417,20 +361,6 @@
     }
   },
   {
-    "label": "emptyAllowedIntWithDecorator",
-    "kind": "field",
-    "detail": "emptyAllowedIntWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_emptyAllowedIntWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "emptyAllowedIntWithDecorator"
-    }
-  },
-  {
     "label": "emptyAllowedString",
     "kind": "field",
     "detail": "emptyAllowedString",
@@ -442,20 +372,6 @@
     "textEdit": {
       "range": {},
       "newText": "emptyAllowedString"
-    }
-  },
-  {
-    "label": "emptyAllowedStringWithDecorator",
-    "kind": "field",
-    "detail": "emptyAllowedStringWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_emptyAllowedStringWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "emptyAllowedStringWithDecorator"
     }
   },
   {
@@ -501,20 +417,6 @@
     "textEdit": {
       "range": {},
       "newText": "expressionInModifier"
-    }
-  },
-  {
-    "label": "expressionInModifierWithDecorator",
-    "kind": "field",
-    "detail": "expressionInModifierWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_expressionInModifierWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "expressionInModifierWithDecorator"
     }
   },
   {
@@ -662,20 +564,6 @@
     }
   },
   {
-    "label": "intModifierCompletions",
-    "kind": "field",
-    "detail": "intModifierCompletions",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_intModifierCompletions",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "intModifierCompletions"
-    }
-  },
-  {
     "label": "intersection",
     "kind": "function",
     "detail": "intersection()",
@@ -690,20 +578,6 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
-    }
-  },
-  {
-    "label": "invalidDefaultWithAllowedArray",
-    "kind": "field",
-    "detail": "invalidDefaultWithAllowedArray",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_invalidDefaultWithAllowedArray",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "invalidDefaultWithAllowedArray"
     }
   },
   {
@@ -746,20 +620,6 @@
     "textEdit": {
       "range": {},
       "newText": "invalidPermutation"
-    }
-  },
-  {
-    "label": "invalidPermutationWithDecorator",
-    "kind": "field",
-    "detail": "invalidPermutationWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_invalidPermutationWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "invalidPermutationWithDecorator"
     }
   },
   {
@@ -1106,20 +966,6 @@
     }
   },
   {
-    "label": "nonCompileTimeConstantWithDecorator",
-    "kind": "field",
-    "detail": "nonCompileTimeConstantWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_nonCompileTimeConstantWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "nonCompileTimeConstantWithDecorator"
-    }
-  },
-  {
     "label": "nonConstantInDecorator",
     "kind": "field",
     "detail": "nonConstantInDecorator",
@@ -1179,20 +1025,6 @@
     }
   },
   {
-    "label": "paramAccessingOutput2",
-    "kind": "field",
-    "detail": "paramAccessingOutput2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramAccessingOutput2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramAccessingOutput2"
-    }
-  },
-  {
     "label": "paramAccessingResource",
     "kind": "field",
     "detail": "paramAccessingResource",
@@ -1207,20 +1039,6 @@
     }
   },
   {
-    "label": "paramAccessingResource2",
-    "kind": "field",
-    "detail": "paramAccessingResource2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramAccessingResource2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramAccessingResource2"
-    }
-  },
-  {
     "label": "paramAccessingVar",
     "kind": "field",
     "detail": "paramAccessingVar",
@@ -1232,20 +1050,6 @@
     "textEdit": {
       "range": {},
       "newText": "paramAccessingVar"
-    }
-  },
-  {
-    "label": "paramAccessingVar2",
-    "kind": "field",
-    "detail": "paramAccessingVar2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramAccessingVar2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramAccessingVar2"
     }
   },
   {
@@ -1291,48 +1095,6 @@
     }
   },
   {
-    "label": "paramMixedTwoCycle1",
-    "kind": "field",
-    "detail": "paramMixedTwoCycle1",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramMixedTwoCycle1",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramMixedTwoCycle1"
-    }
-  },
-  {
-    "label": "paramMixedTwoCycle2",
-    "kind": "field",
-    "detail": "paramMixedTwoCycle2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramMixedTwoCycle2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramMixedTwoCycle2"
-    }
-  },
-  {
-    "label": "paramModifierOneCycle",
-    "kind": "field",
-    "detail": "paramModifierOneCycle",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramModifierOneCycle",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramModifierOneCycle"
-    }
-  },
-  {
     "label": "paramModifierSelfCycle",
     "kind": "field",
     "detail": "paramModifierSelfCycle",
@@ -1344,48 +1106,6 @@
     "textEdit": {
       "range": {},
       "newText": "paramModifierSelfCycle"
-    }
-  },
-  {
-    "label": "paramModifierSelfCycleWithDecorator",
-    "kind": "field",
-    "detail": "paramModifierSelfCycleWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramModifierSelfCycleWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramModifierSelfCycleWithDecorator"
-    }
-  },
-  {
-    "label": "paramModifierTwoCycle1",
-    "kind": "field",
-    "detail": "paramModifierTwoCycle1",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramModifierTwoCycle1",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramModifierTwoCycle1"
-    }
-  },
-  {
-    "label": "paramModifierTwoCycle2",
-    "kind": "field",
-    "detail": "paramModifierTwoCycle2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_paramModifierTwoCycle2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "paramModifierTwoCycle2"
     }
   },
   {
@@ -1567,20 +1287,6 @@
     }
   },
   {
-    "label": "secureIntWithDecorator",
-    "kind": "field",
-    "detail": "secureIntWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_secureIntWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "secureIntWithDecorator"
-    }
-  },
-  {
     "label": "skip",
     "kind": "function",
     "detail": "skip()",
@@ -1609,20 +1315,6 @@
     "textEdit": {
       "range": {},
       "newText": "someArray"
-    }
-  },
-  {
-    "label": "someArrayWithDecorator",
-    "kind": "field",
-    "detail": "someArrayWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_someArrayWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "someArrayWithDecorator"
     }
   },
   {
@@ -1702,62 +1394,6 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
-    }
-  },
-  {
-    "label": "stringLiteral",
-    "kind": "field",
-    "detail": "stringLiteral",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_stringLiteral",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "stringLiteral"
-    }
-  },
-  {
-    "label": "stringLiteral2",
-    "kind": "field",
-    "detail": "stringLiteral2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_stringLiteral2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "stringLiteral2"
-    }
-  },
-  {
-    "label": "stringLiteral3",
-    "kind": "field",
-    "detail": "stringLiteral3",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_stringLiteral3",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "stringLiteral3"
-    }
-  },
-  {
-    "label": "stringModifierCompletions",
-    "kind": "field",
-    "detail": "stringModifierCompletions",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_stringModifierCompletions",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "stringModifierCompletions"
     }
   },
   {
@@ -2139,20 +1775,6 @@
     }
   },
   {
-    "label": "wrongIntModifierWithDecorator",
-    "kind": "field",
-    "detail": "wrongIntModifierWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_wrongIntModifierWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "wrongIntModifierWithDecorator"
-    }
-  },
-  {
     "label": "wrongMetadataSchema",
     "kind": "field",
     "detail": "wrongMetadataSchema",
@@ -2164,20 +1786,6 @@
     "textEdit": {
       "range": {},
       "newText": "wrongMetadataSchema"
-    }
-  },
-  {
-    "label": "wrongMetadataSchemaWithDecorator",
-    "kind": "field",
-    "detail": "wrongMetadataSchemaWithDecorator",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_wrongMetadataSchemaWithDecorator",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "wrongMetadataSchemaWithDecorator"
     }
   },
   {

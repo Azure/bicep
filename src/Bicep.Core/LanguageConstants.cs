@@ -159,48 +159,6 @@ namespace Bicep.Core
             return null;
         }
 
-        public static TypeSymbol CreateParameterModifierType(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
-        {
-            return new ObjectType($"ParameterModifier<{allowedValuesType.Name}>", TypeSymbolValidationFlags.Default, CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
-        }
-
-        private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
-        {
-            /*
-             * The primitiveType may be set to "any" when there's a parse error in the declared type syntax node.
-             * In that case, we cannot determine which modifier properties are allowed, so we allow them all.
-             */
-
-            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object) || ReferenceEquals(primitiveType, Any))
-            {
-                // only string and object types have secure equivalents
-                yield return new TypeProperty(ParameterSecurePropertyName, Bool, TypePropertyFlags.Constant);
-            }
-
-            // default value is allowed to have expressions
-            yield return new TypeProperty(ParameterDefaultPropertyName, allowedValuesType);
-
-            //if (premitiveType is ArrayType && allowedValuesType)
-            allowedValuesType = allowedValuesType is TypedArrayType ? allowedValuesType : new TypedArrayType(allowedValuesType, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty(ParameterAllowedPropertyName, allowedValuesType, TypePropertyFlags.Constant);
-
-            if (ReferenceEquals(primitiveType, Int) || ReferenceEquals(primitiveType, Any))
-            {
-                // value constraints are valid on integer parameters only
-                yield return new TypeProperty("minValue", Int, TypePropertyFlags.Constant);
-                yield return new TypeProperty("maxValue", Int, TypePropertyFlags.Constant);
-            }
-
-            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Array) || ReferenceEquals(primitiveType, Any))
-            {
-                // strings and arrays can have length constraints
-                yield return new TypeProperty("minLength", Int, TypePropertyFlags.Constant);
-                yield return new TypeProperty("maxLength", Int, TypePropertyFlags.Constant);
-            }
-
-            yield return new TypeProperty("metadata", ParameterModifierMetadata, TypePropertyFlags.Constant);
-        }
-
         private static IEnumerable<TypeProperty> CreateParameterModifierMetadataProperties()
         {
             yield return new TypeProperty("description", String, TypePropertyFlags.Constant);

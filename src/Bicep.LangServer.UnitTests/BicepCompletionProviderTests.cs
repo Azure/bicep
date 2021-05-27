@@ -173,35 +173,6 @@ output o int = 42
         }
 
         [TestMethod]
-        public void CompletionsForModifierDefaultValuesShouldIncludeFunctionsValidInDefaultValues()
-        {
-            var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"param p string {
-  defaultValue: 
-}");
-
-            var offset = ((ObjectSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).Properties.Single().Value.Span.Position;
-
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
-            var context = BicepCompletionContext.Create(compilation, offset);
-
-            var provider = new BicepCompletionProvider(new FileResolver(), new SnippetsProvider());
-            var completions = provider.GetFilteredCompletions(compilation, context).ToList();
-
-            AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
-
-            // outputs can't be referenced so they should not show up in completions
-            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
-
-            completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
-            completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
-            completions.Where(c => c.Kind == SymbolKind.Module.ToCompletionItemKind()).Should().BeEmpty();
-
-            // should not see parameter completions because we set the enclosing declaration which will exclude the corresponding symbol
-            // this avoids cycle suggestions
-            completions.Where(c => c.Kind == SymbolKind.Parameter.ToCompletionItemKind()).Should().BeEmpty();
-        }
-
-        [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
             var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"
