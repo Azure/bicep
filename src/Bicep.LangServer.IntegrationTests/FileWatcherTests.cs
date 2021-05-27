@@ -88,6 +88,7 @@ param requiredIpnut string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
+                // note that linter diagnostics do a fix up on the "Code" so check the expected documentation Uri
                 diagsParams.Diagnostics.Should().Contain(x => x.CodeDescription!.Href == new ParametersMustBeUsedRule().Uri);
 
                 diagsParams = await diagsListener.WaitNext();
@@ -105,6 +106,7 @@ param requiredInput string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
+                // note that linter diagnostics do a fix up on the "Code" so check the expected documentation Uri
                 diagsParams.Diagnostics.Should().Contain(x => x.CodeDescription!.Href == new ParametersMustBeUsedRule().Uri);
 
                 diagsParams = await diagsListener.WaitNext();
