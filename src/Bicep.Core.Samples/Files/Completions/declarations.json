@@ -289,6 +289,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:applicationGateway} 'Microsoft.Network/applicationGateways@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: '${3|Standard_Small,Standard_Medium,Standard_Large,WAF_Medium,WAF_Large,Standard_v2,WAF_v2|}'\n      tier: '${4|Standard,WAF,Standard_v2,WAF_v2|}'\n      capacity: ${5:'capacity'}\n    }\n    gatewayIPConfigurations: [\n      {\n        name: ${6:'name'}\n        properties: {\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${7:'virtualNetwork'}, ${8:'Subnet-1'})\n          }\n        }\n      }\n    ]\n    frontendIPConfigurations: [\n      {\n        name: ${9:'name'}\n        properties: {\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', ${10:'publicIPAddress'})\n          }\n        }\n      }\n    ]\n    frontendPorts: [\n      {\n        name: ${11:'name'}\n        properties: {\n          port: ${12:'port'}\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: ${13:'name'}\n      }\n    ]\n    backendHttpSettingsCollection: [\n      {\n        name: ${14:'name'}\n        properties: {\n          port: ${15:'port'}\n          protocol: '${16|Http,Https|}'\n          cookieBasedAffinity: 'Disabled'\n        }\n      }\n    ]\n    httpListeners: [\n      {\n        name: ${17:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', ${2:'name'}, ${9:'name'})\n          }\n          frontendPort: {\n            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', ${2:'name'}, ${11:'name'})\n          }\n          protocol: '${18|Http,Https|}'\n          sslCertificate: null\n        }\n      }\n    ]\n    requestRoutingRules: [\n      {\n        name: ${19:'name'}\n        properties: {\n          ruleType: '${20|Basic,PathBasedRouting|}'\n          httpListener: {\n            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', ${2:'name'}, ${17:'name'})\n          }\n          backendAddressPool: {\n            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', ${2:'name'}, ${13:'name'})\n          }\n          backendHttpSettings: {\n            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', ${2:'name'}, ${14:'name'})\n          }\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-app-gateway"
+          }
+        }
+      ]
     }
   },
   {
@@ -307,6 +318,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:applicationGatewayFirewall} 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    policySettings: {\n      requestBodyCheck: ${3|true,false|}\n      maxRequestBodySizeInKb: ${4:'maxRequestBodySizeInKb'}\n      fileUploadLimitInMb: ${5:'fileUploadLimitInMb'}\n      state: '${6|Enabled,Disabled|}'\n      mode: '${7|Detection,Prevention|}'\n    }\n    managedRules: {\n      managedRuleSets: [\n        {\n          ruleSetType: ${8:'ruleSetType'}\n          ruleSetVersion: ${9:'ruleSetVersion'}\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-app-gateway-waf"
+          }
+        }
+      ]
     }
   },
   {
@@ -325,6 +347,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:appInsightsComponents} 'Microsoft.Insights/components@2020-02-02-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: 'web'\n  properties: {\n    Application_Type: '${3|web,other|}'\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-app-insights"
+          }
+        }
+      ]
     }
   },
   {
@@ -343,6 +376,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:appInsightsAlertRules} 'Microsoft.Insights/alertrules@2016-03-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    name: ${3:'name'}\n    description: ${4:'description'}\n    isEnabled: false\n    condition: {\n      failedLocationCount: ${5:'failedLocationCount'}\n      'odata.type': '${6|Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition,Microsoft.Azure.Management.Insights.Models.ManagementEventRuleCondition,Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition|}'\n      dataSource: {\n        'odata.type': '${7|Microsoft.Azure.Management.Insights.Models.RuleManagementEventDataSource,Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource|}'\n        resourceUri: ${8:'resourceUri'}\n      }\n      windowSize: ${9:'windowSize'}\n    }\n    action: {\n      'odata.type': '${10|Microsoft.Azure.Management.Insights.Models.RuleEmailAction,Microsoft.Azure.Management.Insights.Models.RuleWebhookAction|}'\n      sendToServiceOwners: true\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-app-insights-alert-rules"
+          }
+        }
+      ]
     }
   },
   {
@@ -361,6 +405,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:appInsightsAutoScaleSettings} 'Microsoft.Insights/autoscalesettings@2015-04-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  tags: {\n    Application_Type: '${3|web,other|}'\n    'hidden-link:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}': 'Resource'\n  }\n  properties: {\n    name: ${5:'name'}\n    profiles: [\n      {\n        name: ${6:'name'}\n        capacity: {\n          minimum: ${7:'minimum'}\n          maximum: ${8:'maximum'}\n          default: ${9:'default'}\n        }\n        rules: [\n          {\n            metricTrigger: {\n              metricName: ${10:'name'}\n              metricResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}'\n              timeGrain: 'PT1M'\n              statistic: 'Average'\n              timeWindow: 'PT10M'\n              timeAggregation: 'Average'\n              operator: 'GreaterThan'\n              threshold: 80\n            }\n            scaleAction: {\n              direction: 'Increase'\n              type: 'ChangeCount'\n              value:  ${11:'value'}\n              cooldown: 'PT10M'\n            }\n          }\n          {\n            metricTrigger: {\n              metricName: ${12:'name'}\n              metricResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}'\n              timeGrain: 'PT1M'\n              statistic: 'Average'\n              timeWindow: 'PT1H'\n              timeAggregation: 'Average'\n              operator: 'LessThan'\n              threshold: 60\n            }\n            scaleAction: {\n              direction: 'Decrease'\n              type: 'ChangeCount'\n              value: ${13:'value'}\n              cooldown: 'PT1H'\n            }\n          }\n        ]\n      }\n    ]\n    enabled: false\n    targetResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}'\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-app-insights-auto-scale-settings"
+          }
+        }
+      ]
     }
   },
   {
@@ -1046,6 +1101,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:dnsRecord} 'Microsoft.Network/dnsZones/${3|A,AAAA,CNAME,MX,NS,PTR,SOA,SRV,TXT|}@2018-05-01' = {\n  parent: dnsZone\n  name: ${4:'name'}\n  properties: {\n    TTL: 3600\n    '${5|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}': []\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-dns-record"
+          }
+        }
+      ]
     }
   },
   {
@@ -1093,6 +1159,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    applicationRuleCollections: [\n      {\n        name: ${3:'name'}\n        properties: {\n          priority: ${4:'priority'}\n          action: {\n            type: '${5|Allow,Deny|}'\n          }\n          rules: [\n            {\n              name: ${6:'name'}\n              description: ${7:'description'}\n              sourceAddresses: [\n                ${8:'sourceAddress'}\n              ]\n              protocols: [\n                {\n                  protocolType: '${9|Http,Https,Mssql|}'\n                  port: ${10|80,443,1433|}\n                }\n              ]\n              targetFqdns: [\n                ${11:'www.microsoft.com'}\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    natRuleCollections: [\n      {\n        name: ${12:'name'}\n        properties: {\n          priority: ${13:'priority'}\n          action: {\n            type: '${14|Dnat, Snat|}'\n          }\n          rules: [\n            {\n              name: ${15:'name'}\n              description: ${16:'description'}\n              sourceAddresses: [\n                ${17:'sourceAddress'}\n              ]\n              destinationAddresses: [\n                ${18:'destinationAddress'}\n              ]\n              destinationPorts: [\n                ${19:'port'}\n              ]\n              protocols: [\n                '${20|TCP,UDP,Any,ICMP|}'\n              ]\n              translatedAddress: ${21:'translatedAddress'}\n              translatedPort: ${22:'translatedPort'}\n            }\n          ]\n        }\n      }\n    ]\n    networkRuleCollections: [\n      {\n        name: ${23:'name'}\n        properties: {\n          priority: ${24:'priority'}\n          action: {\n            type: '${25|Deny,Allow|}'\n          }\n          rules: [\n            {\n              name: ${26:'name'}\n              description: ${27:'description'}\n              sourceAddresses: [\n                ${28:'sourceAddress'}\n              ]\n              destinationAddresses: [\n                ${29:'destinationAddress'}\n              ]\n              destinationPorts: [\n                ${30:'destinationPort'}\n              ]\n              protocols: [\n                '${31|TCP,UDP,Any,ICMP|}'\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    ipConfigurations: [\n      {\n        name: ${32:'name'}\n        properties: {\n          subnet: {\n            id: resourceId('${33:virtualNetworkResourceGroup}', 'Microsoft.Network/virtualNetworks/subnets', '${34:virtualNetworkName}', 'AzureFirewallSubnet')\n          }\n          publicIPAddress: {\n            id: ${35:'id'}\n          }\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-firewall"
+          }
+        }
+      ]
     }
   },
   {
@@ -1604,6 +1681,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:appServicePlan} 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3:'name'}\n    capacity: ${4:capacity}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-plan"
+          }
+        }
+      ]
     }
   },
   {
@@ -1825,6 +1913,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource sqlServer 'Microsoft.Sql/servers@2020-11-01-preview' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: ${2:'administratorLogin'}\n    administratorLoginPassword: ${3:'administratorLoginPassword'}\n  }\n}\n\nresource ${4:sqlServerFirewallRules} 'Microsoft.Sql/servers/firewallRules@2020-11-01-preview' = {\n  parent: sqlServer\n  name: ${5:'name'}\n  properties: {\n    startIpAddress: ${6:'startIpAddress'}\n    endIpAddress: ${7:'endIpAddress'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-sql-server-firewall-rules"
+          }
+        }
+      ]
     }
   },
   {
@@ -2046,6 +2145,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:ubuntuVM} 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    hardwareProfile: {\n      vmSize: 'Standard_A2_v2'\n    }\n    osProfile: {\n      computerName: ${3:'computerName'}\n      adminUsername: ${4:'adminUsername'}\n      adminPassword: ${5:'adminPassword'}\n    }\n    storageProfile: {\n      imageReference: {\n        publisher: 'Canonical'\n        offer: 'UbuntuServer'\n        sku: '16.04-LTS'\n        version: 'latest'\n      }\n      osDisk: {\n        name: ${6:'name'}\n        caching: 'ReadWrite'\n        createOption: 'FromImage'\n      }\n    }\n    networkProfile: {\n      networkInterfaces: [\n        {\n          id: ${7:'id'}\n        }\n      ]\n    }\n    diagnosticsProfile: {\n      bootDiagnostics: {\n        enabled: true\n        storageUri: ${8:'storageUri'}\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vm-ubuntu"
+          }
+        }
+      ]
     }
   },
   {
@@ -2064,6 +2174,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:windowsVM} 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    hardwareProfile: {\n      vmSize: 'Standard_A2_v2'\n    }\n    osProfile: {\n      computerName: ${3:'computerName'}\n      adminUsername: ${4:'adminUsername'}\n      adminPassword: ${5:'adminPassword'}\n    }\n    storageProfile: {\n      imageReference: {\n        publisher: 'MicrosoftWindowsServer'\n        offer: 'WindowsServer'\n        sku: '2012-R2-Datacenter'\n        version: 'latest'\n      }\n      osDisk: {\n        name: ${6:'name'}\n        caching: 'ReadWrite'\n        createOption: 'FromImage'\n      }\n    }\n    networkProfile: {\n      networkInterfaces: [\n        {\n          id: ${7:'id'}\n        }\n      ]\n    }\n    diagnosticsProfile: {\n      bootDiagnostics: {\n        enabled: true\n        storageUri:  ${8:'storageUri'}\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vm-windows"
+          }
+        }
+      ]
     }
   },
   {
@@ -2082,6 +2203,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:windowsVMDiagnostics} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Azure.Diagnostics'\n    type: 'IaaSDiagnostics'\n    typeHandlerVersion: '1.5'\n    autoUpgradeMinorVersion: true\n    settings: {\n      xmlCfg: base64('<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <Logs scheduledTransferPeriod=\"PT1M\" scheduledTransferLogLevelFilter=\"Error\" /> <Directories scheduledTransferPeriod=\"PT1M\"> <IISLogs containerName =\"wad-iis-logfiles\" /> <FailedRequestLogs containerName =\"wad-failedrequestlogs\" /> </Directories> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*\" /> </WindowsEventLog> <CrashDumps containerName=\"wad-crashdumps\" dumpType=\"Mini\"> <CrashDumpConfiguration processName=\"WaIISHost.exe\"/> <CrashDumpConfiguration processName=\"WaWorkerHost.exe\"/> <CrashDumpConfiguration processName=\"w3wp.exe\"/> </CrashDumps> <PerformanceCounters scheduledTransferPeriod=\"PT1M\"> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Memory\\\\\\\\\\\\\\\\Available MBytes\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Web Service(_Total)\\\\\\\\\\\\\\\\ISAPI Extension Requests/sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Web Service(_Total)\\\\\\\\\\\\\\\\Bytes Total/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET Applications(__Total__)\\\\\\\\\\\\\\\\Requests/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET Applications(__Total__)\\\\\\\\\\\\\\\\Errors Total/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET\\\\\\\\\\\\\\\\Requests Queued\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET\\\\\\\\\\\\\\\\Requests Rejected\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Processor(_Total)\\\\\\\\\\\\\\\\% Processor Time\" sampleRate=\"PT3M\" /> </PerformanceCounters> </DiagnosticMonitorConfiguration> </WadCfg>')\n      storageAccount: ${3:'storageaccount'}\n    }\n    protectedSettings: {\n      storageAccountName: ${4:'storageAccountName'}\n      storageAccountKey: listkeys(resourceId('Microsoft.Storage/storageAccounts', ${3:'storageaccount'}), '2015-06-15').key1\n      storageAccountEndPoint: reference(resourceId('Microsoft.Storage/storageAccounts', ${3:'storageaccount'}), '2015-06-15').primaryEndpoints.blob\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vm-windows-diagnostics"
+          }
+        }
+      ]
     }
   },
   {

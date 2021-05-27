@@ -112,7 +112,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n  name: ${2:'name'}\n  location: 'global'\n}\n"
+      "newText": "{\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
