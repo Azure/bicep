@@ -44,7 +44,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
-
         [DataRow(@"
                 param suffix string = '001'
                 var vnetName = concat('vnet-', suffix)
@@ -132,11 +131,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ExpectDiagnosticWithFix(text, expectedFixes);
         }
 
-        [DataRow(@"
-                var v1 = concat('abc')
-            ",
-            "'abc'"
-        )]
         [DataRow(@"
                 var v1 = concat('abc', 'def')
             ",
@@ -386,12 +380,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var b = concat(a1, a2, a3, a4) // arrays - no interpolate recommended
             "
         )]
-        [DataRow(
-            @"
-                var a = 'text'
-                var b = concat(a) // by definition concat must have multiple arguments before we recommend interpolation
-            "
-        )]
         [DataTestMethod]
         public void ArgsNotStrings_DoNotSuggestFix(string text)
         {
@@ -450,5 +438,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
+        [DataRow(@"
+                var v1 = concat('abc')
+            "
+        )]
+        [DataRow(@"
+                var a = 'text'
+                var b = concat(a) // by definition concat must have multiple arguments before we recommend interpolation
+            "
+        )]
+        [DataTestMethod]
+        public void SingleArgs_DontSuggestFix(string text)
+        {
+            ExpectPass(text);
+        }
     }
 }
