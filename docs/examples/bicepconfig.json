@@ -4,35 +4,8 @@
       "verbose": true,
       "enabled": true,
       "rules": {
-        // If not specified, all the following rules default to warnings
         "no-hardcoded-env-urls": {
-          "level": "warning",
-          // This only needs to be specified if it should be modified
-          "disallowedhosts": [
-            "management.core.windows.net",
-            "gallery.azure.com",
-            "management.core.windows.net",
-            "management.azure.com",
-            "database.windows.net",
-            "core.windows.net",
-            "login.microsoftonline.com",
-            "graph.windows.net",
-            "trafficmanager.net",
-            "vault.azure.net",
-            "datalake.azure.net",
-            "azuredatalakestore.net",
-            "azuredatalakeanalytics.net",
-            "vault.azure.net",
-            "api.loganalytics.io",
-            "api.loganalytics.iov1",
-            "asazure.windows.net",
-            "region.asazure.windows.net",
-            "api.loganalytics.iov1",
-            "api.loganalytics.io",
-            "asazure.windows.net",
-            "region.asazure.windows.net",
-            "batch.core.windows.net"
-          ]
+          "level": "warning"
         },
         "no-unused-params": {
           "level": "warning"
