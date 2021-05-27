@@ -990,7 +990,7 @@ resource eventGridSubscription 'Microsoft.EventGrid/topics/providers/eventSubscr
             // verify the template still compiles
             result.Template.Should().NotBeNull();
             result.Should().HaveDiagnostics(new[] {
-                ("BCP174", DiagnosticLevel.Warning, "Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information."),
+                ("BCP174", DiagnosticLevel.Warning, "Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property."),
             });
 
             result = CompilationHelper.Compile(@"

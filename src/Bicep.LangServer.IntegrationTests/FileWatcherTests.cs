@@ -51,7 +51,7 @@ namespace Bicep.LangServer.IntegrationTests
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
-                options => 
+                options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
@@ -88,7 +88,7 @@ param requiredIpnut string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
-                diagsParams.Diagnostics.Should().Contain(x => x.Code == ParametersMustBeUsedRule.Code);
+                diagsParams.Diagnostics.Should().Contain(x => x.CodeDescription!.Href == new ParametersMustBeUsedRule().Uri);
 
                 diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -105,8 +105,8 @@ param requiredInput string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
-                diagsParams.Diagnostics.Should().Contain(x => x.Code == ParametersMustBeUsedRule.Code);
-                
+                diagsParams.Diagnostics.Should().Contain(x => x.CodeDescription!.Href == new ParametersMustBeUsedRule().Uri);
+
                 diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
                 diagsParams.Diagnostics.Should().BeEmpty();
@@ -129,7 +129,7 @@ param requiredInput string
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
-                options => 
+                options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
@@ -196,7 +196,7 @@ param requiredIpnut string
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
-                options => 
+                options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
