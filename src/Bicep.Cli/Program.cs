@@ -70,7 +70,7 @@ namespace Bicep.Cli
                         default:
                             var exeName = ArgumentParser.GetExeName();
                             var arguments = string.Join(' ', args);
-                            this.errorWriter.WriteLine($"Unrecognized arguments '{arguments}' specified. Use '{exeName} --help' to view available options.");
+                            this.errorWriter.WriteLine(string.Format(CliResources.UnrecognizedArgumentsFormat, arguments, exeName));
                             return 1;
                     }
                 }
@@ -115,7 +115,7 @@ namespace Bicep.Cli
                 var outputDir = PathHelper.ResolvePath(arguments.OutputDir);
                 if (!Directory.Exists(outputDir))
                 {
-                    throw new CommandLineException($"The specified output directory \"{outputDir}\" does not exist.");
+                    throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
                 }
 
                 var outputPath = Path.Combine(outputDir, Path.GetFileName(bicepPath));
@@ -202,7 +202,7 @@ namespace Bicep.Cli
             }
             catch (Exception exception)
             {
-                this.errorWriter.WriteLine($"{jsonPath}: Decompilation failed with fatal error \"{exception.Message}\"");
+                this.errorWriter.WriteLine(string.Format(CliResources.DecompiliationFailedFormat, jsonPath, exception.Message));
                 return 1;
             }
         }
@@ -226,9 +226,10 @@ namespace Bicep.Cli
             }
             catch (Exception exception)
             {
-                this.errorWriter.WriteLine($"{jsonPath}: Decompilation failed with fatal error \"{exception.Message}\"");
+                this.errorWriter.WriteLine(string.Format(CliResources.DecompiliationFailedFormat, jsonPath, exception.Message));
                 return 1;
-            } finally
+            }
+            finally
             {
                 if (File.Exists(tempOutputPath))
                 {
@@ -251,11 +252,7 @@ namespace Bicep.Cli
 
         public int Decompile(ILogger logger, BuildOrDecompileArguments arguments)
         {
-            logger.LogWarning(
-                "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.\n" +
-                "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.\n" +
-                "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
-
+            logger.LogWarning(CliResources.DecompilerDisclaimerMessage);
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
             var jsonPath = PathHelper.ResolvePath(arguments.InputFile);
 
@@ -268,7 +265,7 @@ namespace Bicep.Cli
                 var outputDir = PathHelper.ResolvePath(arguments.OutputDir);
                 if (!Directory.Exists(outputDir))
                 {
-                    throw new CommandLineException($"The specified output directory \"{outputDir}\" does not exist.");
+                    throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
                 }
 
                 var outputPath = Path.Combine(outputDir, Path.GetFileName(jsonPath));
