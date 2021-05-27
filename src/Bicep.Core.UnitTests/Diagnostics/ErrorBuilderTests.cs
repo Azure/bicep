@@ -5,12 +5,10 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 
@@ -147,30 +145,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
             }
 
             return $"<param_{index}>";
-        }
-
-        [TestMethod]
-        public void CreateOmnisharpDiagnosticWithCodeDesription()
-        {
-            var sampleUri = new Uri("https://aka.ms/this/is/a/test");
-            var analyzerName = "unit test";
-
-            IEnumerable<IDiagnostic> diags = new[]
-            {
-                new Analyzers.AnalyzerDiagnostic(analyzerName, new TextSpan(0,0), DiagnosticLevel.Warning,
-                                                  "Analyzer Msg Code", "Analyzer message string", sampleUri)
-            };
-
-            var lineStarts = new[] { 0 }.ToImmutableArray<int>();
-            var omnisharpDiagnostics = diags.ToDiagnostics(lineStarts);
-
-            omnisharpDiagnostics.Should().SatisfyRespectively(
-                diag =>
-                {
-                    diag.CodeDescription!.Href!.Should().Be(sampleUri.AbsoluteUri);
-                    diag.Source!.Should().Be($"{LanguageConstants.LanguageId} {analyzerName}");
-                }
-            );
         }
     }
 }
