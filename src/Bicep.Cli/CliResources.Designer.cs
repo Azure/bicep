@@ -72,7 +72,7 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0}: Decompilation failed with fatal error &apos;{1}&apos;.
+        ///   Looks up a localized string similar to {0}: Decompilation failed with fatal error &quot;{1}&quot;.
         /// </summary>
         internal static string DecompiliationFailedFormat {
             get {
@@ -81,7 +81,7 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified output directory &apos;{0}&apos; does not exist..
+        ///   Looks up a localized string similar to The specified output directory &quot;{0}&quot; does not exist..
         /// </summary>
         internal static string DirectoryDoesNotExistFormat {
             get {
@@ -90,7 +90,7 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unrecognized arguments &apos;{0}&apos; specified. Use &apos;{1} --help&apos; to view available options..
+        ///   Looks up a localized string similar to Unrecognized arguments &quot;{0}&quot; specified. Use &quot;{1} --help&quot; to view available options..
         /// </summary>
         internal static string UnrecognizedArgumentsFormat {
             get {

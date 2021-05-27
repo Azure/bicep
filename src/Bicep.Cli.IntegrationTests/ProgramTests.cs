@@ -94,7 +94,7 @@ namespace Bicep.Cli.IntegrationTests
             output.Should().BeEmpty();
 
             error.Should().NotBeEmpty();
-            error.Should().Be($"Unrecognized arguments 'wrong fake broken' specified. Use 'bicep --help' to view available options.{Environment.NewLine}");
+            error.Should().Be($"Unrecognized arguments \"wrong fake broken\" specified. Use \"bicep --help\" to view available options.{Environment.NewLine}");
         }
 
         [TestMethod]
