@@ -25,7 +25,11 @@ namespace Bicep.Cli.Logging
         public void LogDiagnostic(Uri fileUri, IDiagnostic diagnostic, ImmutableArray<int> lineStarts)
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-            string message = $"{fileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}";
+
+            // build a a code description link if the Uri is assigned
+            var codeDescription = diagnostic.Uri == null ? string.Empty : $" - {diagnostic.Source}({diagnostic.Uri.AbsoluteUri})";
+
+            var message = $"{fileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
 
             this.logger.Log(ToLogLevel(diagnostic.Level), message);
 
@@ -35,7 +39,8 @@ namespace Bicep.Cli.Logging
         public bool HasLoggedErrors { get; private set; }
 
         private static LogLevel ToLogLevel(DiagnosticLevel level)
-            => level switch {
+            => level switch
+            {
                 DiagnosticLevel.Info => LogLevel.Information,
                 DiagnosticLevel.Warning => LogLevel.Warning,
                 DiagnosticLevel.Error => LogLevel.Error,
