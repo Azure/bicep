@@ -56,14 +56,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     var resultType = this.model.GetTypeInfo(syntax);
                     if (resultType is not AnyType && TypeValidator.AreTypesAssignable(resultType, LanguageConstants.String))
                     {
+                        // must have more than 1 argument to use interpolation
+                        if (syntax.Arguments.Length > 1 && CreateFix(syntax) is CodeFix fix)
                         {
-                            if (CreateFix(syntax) is CodeFix fix)
-                            {
-                                this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(syntax.Span, fix));
+                            this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(syntax.Span, fix));
 
-                                // Only report on the top-most string-valued concat call
-                                return;
-                            }
+                            // Only report on the top-most string-valued concat call
+                            return;
                         }
                     }
                 }
