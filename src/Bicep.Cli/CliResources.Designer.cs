@@ -90,15 +90,6 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to See additional documentation:.
-        /// </summary>
-        internal static string SeeAdditionalDocumentationLabel {
-            get {
-                return ResourceManager.GetString("SeeAdditionalDocumentationLabel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unrecognized arguments &apos;{0}&apos; specified. Use &apos;{1} --help&apos; to view available options..
         /// </summary>
         internal static string UnrecognizedArgumentsFormat {

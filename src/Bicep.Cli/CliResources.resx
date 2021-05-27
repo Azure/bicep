@@ -130,9 +130,6 @@ If you would like to report any issues or inaccurate conversions, please see htt
     <value>The specified output directory '{0}' does not exist.</value>
     <comment>{0} is directory path</comment>
   </data>
-  <data name="SeeAdditionalDocumentationLabel" xml:space="preserve">
-    <value>See additional documentation:</value>
-  </data>
   <data name="UnrecognizedArgumentsFormat" xml:space="preserve">
     <value>Unrecognized arguments '{0}' specified. Use '{1} --help' to view available options.</value>
     <comment>{0} arguments    {1} exe name</comment>

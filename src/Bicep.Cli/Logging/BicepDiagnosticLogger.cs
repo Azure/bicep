@@ -27,7 +27,7 @@ namespace Bicep.Cli.Logging
             (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
 
             // build a a code description link if the Uri is assigned
-            var codeDescription = diagnostic.Uri == null ? string.Empty : $" - {CliResources.SeeAdditionalDocumentationLabel}({diagnostic.Uri.AbsoluteUri})";
+            var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
 
             var message = $"{fileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
 
