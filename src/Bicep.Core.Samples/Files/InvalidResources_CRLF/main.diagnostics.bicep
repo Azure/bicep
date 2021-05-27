@@ -1526,7 +1526,6 @@ resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01
 resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
 //@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". |wrongFilterExpressionType2|
 //@[119:132) [BCP046 (Error)] Expected a value of type "bool". |(concat('s'))|
-//@[120:131) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('s')|
 }]
 
 // missing required properties
