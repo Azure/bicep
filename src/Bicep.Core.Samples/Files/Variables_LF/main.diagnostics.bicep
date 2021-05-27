@@ -157,7 +157,6 @@ var unusedIntermediateRef = unusedIntermediate.secondaryKey
 var previousEmitLimit = [
 //@[4:21) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |previousEmitLimit|
   concat('s')
-//@[2:13) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('s')|
   '${4}'
   {
     a: {
@@ -183,7 +182,6 @@ var previousEmitLimit = [
 var previousEmitLimit2 = [
 //@[4:22) [no-unused-vars (Warning)] Variable is declared but never used.\nSee https://aka.ms/bicep/linter/no-unused-vars |previousEmitLimit2|
   concat('s')
-//@[2:13) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('s')|
   '${4}'
   {
     a: {
