@@ -29,6 +29,7 @@ namespace Bicep.Core.Emit
             DetectIncorrectlyFormattedNames(model, diagnosticWriter);
             DetectUnexpectedResourceLoopInvariantProperties(model, diagnosticWriter);
             DetectUnexpectedModuleLoopInvariantProperties(model, diagnosticWriter);
+            DetectUnsupportedModuleParameterAssignments(model, diagnosticWriter);
 
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -270,6 +271,36 @@ namespace Bicep.Core.Emit
                 {
                     // all the expected variant properties are loop invariant
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(module.NameSyntax).ForExpressionContainsLoopInvariants(itemVariable.Name.IdentifierName, indexVariable?.Name.IdentifierName, expectedVariantPropertiesForType.Select(p => p.Name)));
+                }
+            }
+        }
+
+        public static void DetectUnsupportedModuleParameterAssignments(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            foreach(var moduleSymbol in semanticModel.Root.ModuleDeclarations)
+            {
+                if(moduleSymbol.DeclaringModule.TryGetBody() is not ObjectSyntax body)
+                {
+                    // skip modules with malformed bodies
+                    continue;
+                }
+
+                var paramsValue = body.SafeGetPropertyByName(LanguageConstants.ModuleParamsPropertyName)?.Value;
+                switch(paramsValue)
+                {
+                    case null:
+                    case ObjectSyntax:
+                    case SkippedTriviaSyntax:
+                        // no params, the value is an object literal, or we have parse errors
+                        // skip the module
+                        continue;
+
+                    default:
+                        // unexpected type is assigned as the value of the "params" property
+                        // we can't emit that directly because the parameters have to be converted into an object whose property values are objects with a "value" property
+                        // ideally we would add a runtime function to take care of the conversion in these cases, but it doesn't exist yet
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(paramsValue).ModuleParametersPropertyRequiresObjectLiteral());
+                        break;
                 }
             }
         }
