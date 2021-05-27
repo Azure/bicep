@@ -86,9 +86,7 @@ namespace Bicep.LanguageServer.Completions
                 foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
                     string prefix = resourceSnippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
-                    telemetryEvent.Set("name", prefix);
-
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
                     yield return CreateContextualSnippetCompletion(prefix,
@@ -407,9 +405,7 @@ namespace Bicep.LanguageServer.Completions
                 foreach (Snippet snippet in snippets)
                 {
                     string prefix = snippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.ResourceBodySnippetInsertion);
-                    telemetryEvent.Set("name", prefix);
-                    telemetryEvent.Set("type", typeSymbol.Name);
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, typeSymbol.Name);
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
                     yield return CreateContextualSnippetCompletion(prefix,
@@ -433,9 +429,7 @@ namespace Bicep.LanguageServer.Completions
                 foreach (Snippet snippet in snippets)
                 {
                     string prefix = snippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.ModuleBodySnippetInsertion);
-                    telemetryEvent.Set("name", prefix);
-
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
                     yield return CreateContextualSnippetCompletion(prefix,

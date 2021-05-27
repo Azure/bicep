@@ -8,26 +8,39 @@ namespace Bicep.LanguageServer.Telemetry
 {
     public record BicepTelemetryEvent : TelemetryEventParams
     {
-        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
-
         public string? EventName { get; set; }
 
-        public static BicepTelemetryEvent Create(string eventName)
-        {
-            BicepTelemetryEvent telemetryEvent = new BicepTelemetryEvent();
-            telemetryEvent.EventName = eventName;
-            return telemetryEvent;
-        }
-    }
+        public Dictionary<string, string>? Properties { get; set; }
 
-    public static class TelemetryExtensions
-    {
-        public static void Set(this BicepTelemetryEvent telemetryEvent, string name, string value)
-        {
-            if (!telemetryEvent.Properties.ContainsKey(name))
+        public static BicepTelemetryEvent CreateTopLevelDeclarationSnippetInsertion(string name)
+            => new BicepTelemetryEvent
             {
-                telemetryEvent.Properties.Add(name, value);
-            }
-        }
+                EventName = TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion,
+                Properties = new()
+                {
+                    ["name"] = name,
+                },
+            };
+
+        public static BicepTelemetryEvent CreateResourceBodySnippetInsertion(string name, string type)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.ResourceBodySnippetInsertion,
+                Properties = new()
+                {
+                    ["name"] = name,
+                    ["type"] = type,
+                },
+            };
+
+        public static BicepTelemetryEvent CreateModuleBodySnippetInsertion(string name)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.ModuleBodySnippetInsertion,
+                Properties = new()
+                {
+                    ["name"] = name,
+                },
+            };
     }
 }

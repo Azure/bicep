@@ -36,25 +36,17 @@ namespace Bicep.LangServer.IntegrationTests
                 { "name", "res-aks-cluster" }
             };
 
-            TaskCompletionSource<TelemetryEventParams> telemetryReceived = await ResolveCompletionAsync(string.Empty, "res-aks-cluster", TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion, properties);
-            TelemetryEventParams telemetryEventParams = await IntegrationTestHelper.WithTimeoutAsync(telemetryReceived.Task);
-            IDictionary<string, object> extensionData = telemetryEventParams.ExtensionData;
-            ICollection<string> keys = extensionData.Keys;
+            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(string.Empty, "res-aks-cluster", TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion, properties);
 
-            keys.Count.Should().Be(2);
-            keys.Should().Contain("eventName");
-            keys.Should().Contain("properties");
-            extensionData["eventName"].ToString().Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
-            extensionData["properties"].ToString().Should().BeEquivalentToIgnoringNewlines(@"{
-  ""name"": ""res-aks-cluster""
-}");
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
+            bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
-        [DataRow("required-properties", "{\r\n  \"name\": \"required-properties\",\r\n  \"type\": \"Microsoft.ContainerService/managedClusters@2021-03-01\"\r\n}")]
-        [DataRow("snippet", "{\r\n  \"name\": \"snippet\",\r\n  \"type\": \"Microsoft.ContainerService/managedClusters@2021-03-01\"\r\n}")]
-        [DataRow("{}", "{\r\n  \"name\": \"{}\",\r\n  \"type\": \"Microsoft.ContainerService/managedClusters@2021-03-01\"\r\n}")]
+        [DataRow("required-properties")]
+        [DataRow("snippet")]
+        [DataRow("{}")]
         [DataTestMethod]
-        public async Task VerifyResourceBodySnippetInsertionFiresTelemetryEvent(string prefix, string expectedProperties)
+        public async Task VerifyResourceBodySnippetInsertionFiresTelemetryEvent(string prefix)
         {
             string text = "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = ";
             IDictionary<string, string> properties = new Dictionary<string, string>
@@ -63,16 +55,10 @@ namespace Bicep.LangServer.IntegrationTests
                 { "type", "Microsoft.ContainerService/managedClusters@2021-03-01" }
             };
 
-            TaskCompletionSource<TelemetryEventParams> telemetryReceived = await ResolveCompletionAsync(text, prefix, TelemetryConstants.EventNames.ResourceBodySnippetInsertion, properties);
-            TelemetryEventParams telemetryEventParams = await IntegrationTestHelper.WithTimeoutAsync(telemetryReceived.Task);
-            IDictionary<string, object> extensionData = telemetryEventParams.ExtensionData;
-            ICollection<string> keys = extensionData.Keys;
+            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(text, prefix, TelemetryConstants.EventNames.ResourceBodySnippetInsertion, properties);
 
-            keys.Count.Should().Be(2);
-            keys.Should().Contain("eventName");
-            keys.Should().Contain("properties");
-            extensionData["eventName"].ToString().Should().Be(TelemetryConstants.EventNames.ResourceBodySnippetInsertion);
-            extensionData["properties"].ToString().Should().BeEquivalentToIgnoringNewlines(expectedProperties);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.ResourceBodySnippetInsertion);
+            bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
         [TestMethod]
@@ -84,30 +70,22 @@ namespace Bicep.LangServer.IntegrationTests
                 { "name", "{}" }
             };
 
-            TaskCompletionSource<TelemetryEventParams> telemetryReceived = await ResolveCompletionAsync(text, "{}", TelemetryConstants.EventNames.ModuleBodySnippetInsertion, properties);
-            TelemetryEventParams telemetryEventParams = await IntegrationTestHelper.WithTimeoutAsync(telemetryReceived.Task);
-            IDictionary<string, object> extensionData = telemetryEventParams.ExtensionData;
-            ICollection<string> keys = extensionData.Keys;
+            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(text, "{}", TelemetryConstants.EventNames.ModuleBodySnippetInsertion, properties);
 
-            keys.Count.Should().Be(2);
-            keys.Should().Contain("eventName");
-            keys.Should().Contain("properties");
-            extensionData["eventName"].ToString().Should().Be(TelemetryConstants.EventNames.ModuleBodySnippetInsertion);
-            extensionData["properties"].ToString().Should().BeEquivalentToIgnoringNewlines(@"{
-  ""name"": ""{}""
-}");
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.ModuleBodySnippetInsertion);
+            bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
-        private async Task<TaskCompletionSource<TelemetryEventParams>> ResolveCompletionAsync(string text, string prefix, string eventName, IDictionary<string, string> properties)
+        private async Task<BicepTelemetryEvent> ResolveCompletionAsync(string text, string prefix, string eventName, IDictionary<string, string> properties)
         {
             var fileSystemDict = new Dictionary<Uri, string>();
-            var telemetryReceived = new TaskCompletionSource<TelemetryEventParams>();
+            var telemetryReceived = new TaskCompletionSource<BicepTelemetryEvent>();
 
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 TestContext,
                 options =>
                 {
-                    options.OnTelemetryEvent(telemetry => telemetryReceived.SetResult(telemetry));
+                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryReceived.SetResult(telemetry));
                 },
                 fileResolver: new InMemoryFileResolver(fileSystemDict));
 
@@ -124,19 +102,13 @@ namespace Bicep.LangServer.IntegrationTests
 
             CompletionItem completionItem = completions.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == prefix).First();
             Command? command = completionItem.Command;
-
-            command!.Name.Should().Be(TelemetryConstants.CommandName);
-
             JArray? arguments = command!.Arguments;
             BicepTelemetryEvent? telemetryEvent = arguments!.First().ToObject<BicepTelemetryEvent>();
-
-            telemetryEvent!.EventName.Should().Be(eventName);
-            telemetryEvent!.Properties!.Should().Equal(properties);
 
             await client.ResolveCompletion(completionItem);
             await client.Workspace.ExecuteCommand(command);
 
-            return telemetryReceived;
+            return await IntegrationTestHelper.WithTimeoutAsync(telemetryReceived.Task);
         }
     }
 }

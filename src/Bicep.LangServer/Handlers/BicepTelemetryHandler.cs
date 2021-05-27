@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.LanguageServer.Telemetry;
-using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
@@ -18,32 +16,20 @@ namespace Bicep.LanguageServer.Handlers
     // Flow of events:
     // 1. workspace/executeCommand request is sent from the client to the server
     // 2. The above triggers telemetry/event from server to client
-    public class BicepTelemetryHandler : ExecuteCommandHandlerBase<BicepTelemetryEvent>
+    public class BicepTelemetryHandler : ExecuteTypedCommandHandlerBase<BicepTelemetryEvent>
     {
         private readonly ITelemetryProvider TelemetryProvider;
 
-        public BicepTelemetryHandler(ITelemetryProvider telemetryProvider)
+        public BicepTelemetryHandler(ITelemetryProvider telemetryProvider, ISerializer serializer)
+           : base(TelemetryConstants.CommandName, serializer)
         {
             TelemetryProvider = telemetryProvider;
         }
 
-        public override Task<BicepTelemetryEvent> Handle(ExecuteCommandParams<BicepTelemetryEvent> request, CancellationToken cancellationToken)
+        public override Task<Unit> Handle(BicepTelemetryEvent bicepTelemetryEvent, CancellationToken cancellationToken)
         {
-            JArray? arguments = request.Arguments;
-            if (arguments is not null && arguments.Any() &&
-                arguments[0] is JToken jToken &&
-                jToken.ToObject<BicepTelemetryEvent>() is BicepTelemetryEvent telemetryEvent)
-            {
-                TelemetryProvider.PostEvent(telemetryEvent);
-                return Task.FromResult(telemetryEvent);
-            }
-
-            return Task.FromResult(BicepTelemetryEvent.Create(string.Empty));
+            TelemetryProvider.PostEvent(bicepTelemetryEvent);
+            return Unit.Task;
         }
-
-        protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities) => new()
-        {
-            Commands = new Container<string>(TelemetryConstants.CommandName)
-        };
     }
 }

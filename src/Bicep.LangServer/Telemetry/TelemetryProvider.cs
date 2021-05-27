@@ -18,7 +18,7 @@ namespace Bicep.LanguageServer.Telemetry
 
         public void PostEvent(BicepTelemetryEvent telemetryEvent)
         {
-            if (string.IsNullOrWhiteSpace(telemetryEvent.EventName) || telemetryEvent.Properties.Count == 0)
+            if (string.IsNullOrWhiteSpace(telemetryEvent.EventName) || telemetryEvent.Properties?.Count == 0)
             {
                 throw new ArgumentException("Invalid telemetryEvent. Event name is either null, empty, consists only " +
                     "of white-space characters or no properties are set on the event");
