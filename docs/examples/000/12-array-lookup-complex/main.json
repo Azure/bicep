@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.255.40792",
+      "templateHash": "5413563177335957936"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "SubnetArray": [
+      "GatewaySubnet",
+      "AzureBastionSubnet",
+      "AzureFirewallSubnet",
+      "websubnet",
+      "appsubnet",
+      "sqlsubnet"
+    ],
+    "SubnetObj": {
+      "GatewaySubnet": {
+        "AddressSpace": "10.1.0.0/27"
+      },
+      "AzureBastionSubnet": {
+        "AddressSpace": "10.1.0.33/27"
+      },
+      "AzureFirewallSubnet": {
+        "AddressSpace": "10.1.0.33/27"
+      },
+      "websubnet": {
+        "AddressSpace": "10.1.1.0/24"
+      },
+      "appsubnet": {
+        "AddressSpace": "10.1.2.0/24"
+      },
+      "sqlsubnet": {
+        "AddressSpace": "10.1.3.0/24"
+      }
+    }
+  },
+  "resources": [],
+  "outputs": {
+    "bicepObject": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('SubnetArray'))]",
+        "input": {
+          "name": "[variables('SubnetArray')[copyIndex()]]",
+          "CIDR": "[variables('SubnetObj')[variables('SubnetArray')[copyIndex()]].AddressSpace]"
+        }
+      }
+    }
+  }
+}

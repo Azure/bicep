@@ -11,7 +11,7 @@
 ])
 param azRegion string
 
-//Note that this should be extented to all regions
+//Note that this could be extented to all regions
 var RegionToTimezone = {
   eastus: 'Eastern Standard Time'
   eastus2: 'Eastern Standard Time'
@@ -22,6 +22,7 @@ var RegionToTimezone = {
   westus: 'Pacific Standard Time'
   westus2: 'Pacific Standard Time'
 }
+//Lookup the timezone in the object hash
 var timezone = RegionToTimezone['${azRegion}']
 
 output AzRegion string = azRegion
