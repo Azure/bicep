@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
@@ -17,11 +18,10 @@ namespace Bicep.LanguageServer.Telemetry
 
         public void PostEvent(BicepTelemetryEvent telemetryEvent)
         {
-            if (telemetryEvent is null ||
-                string.IsNullOrWhiteSpace(telemetryEvent.EventName) ||
-                telemetryEvent.Properties?.Count == 0)
+            if (string.IsNullOrWhiteSpace(telemetryEvent.EventName) || telemetryEvent.Properties.Count == 0)
             {
-                return;
+                throw new ArgumentException("Invalid telemetryEvent. Event name is either null, empty, consists only " +
+                    "of white-space characters or no properties are set on the event");
             }
 
             server.Window.SendTelemetryEvent(telemetryEvent);
