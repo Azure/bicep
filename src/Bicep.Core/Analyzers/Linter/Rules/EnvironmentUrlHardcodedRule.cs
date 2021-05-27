@@ -47,7 +47,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.span, entry.host));
             }
 
-            return Enumerable.Empty<IBicepAnalyzerDiagnostic>();
+            return Enumerable.Empty<IDiagnostic>();
         }
 
         private class Visitor : SyntaxVisitor
