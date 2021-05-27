@@ -15,9 +15,8 @@ using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
 
@@ -66,6 +65,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
+                    .WithHandler<BicepTelemetryHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 
                 onOptionsFunc(options);
@@ -86,6 +86,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider());
             services.AddSingleton<IFileResolver>(services => creationOptions.FileResolver ?? new FileResolver());
+            services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();

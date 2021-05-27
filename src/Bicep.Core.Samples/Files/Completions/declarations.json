@@ -29,6 +29,17 @@
     "textEdit": {
       "range": {},
       "newText": "module ${1:Identifier} ${2:Path} = {\n  name: $3\n  $0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "module"
+          }
+        }
+      ]
     }
   },
   {
@@ -61,6 +72,17 @@
     "textEdit": {
       "range": {},
       "newText": "output ${1:Identifier} ${2:Type} = $0"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "output"
+          }
+        }
+      ]
     }
   },
   {
@@ -93,6 +115,17 @@
     "textEdit": {
       "range": {},
       "newText": "param ${1:Identifier} ${2:Type}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "param"
+          }
+        }
+      ]
     }
   },
   {
@@ -111,6 +144,17 @@
     "textEdit": {
       "range": {},
       "newText": "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "param-defaults"
+          }
+        }
+      ]
     }
   },
   {
@@ -129,6 +173,17 @@
     "textEdit": {
       "range": {},
       "newText": "@allowed([\n  $3\n])\nparam ${1:Identifier} ${2:Type} = $4"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "param-defaults-allowed-values"
+          }
+        }
+      ]
     }
   },
   {
@@ -147,6 +202,17 @@
     "textEdit": {
       "range": {},
       "newText": "@secure()\nparam ${1:Identifier} string"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "param-secure-string"
+          }
+        }
+      ]
     }
   },
   {
@@ -165,6 +231,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:aksCluster} 'Microsoft.ContainerService/managedClusters@2021-03-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    kubernetesVersion: '${3|1.19.7,1.19.6,1.18.14,1.18.10,1.17.16,1.17.13|}'\n    dnsPrefix: ${4:'dnsprefix'}\n    enableRBAC: true\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: ${5:3}\n        vmSize: ${6:'Standard_DS2_v2'}\n        osType: 'Linux'\n        mode: 'System'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: ${7:'adminUserName'}\n      ssh: {\n        publicKeys: [\n          {\n            keyData: ${8:'REQUIRED'}\n          }\n        ]\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-aks-cluster"
+          }
+        }
+      ]
     }
   },
   {
@@ -183,6 +260,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:apiManagementInstance} 'Microsoft.ApiManagement/service@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku:{\n    capacity: ${3|0,1|}\n    name: ${4|'Developer','Consumption'|}\n  }\n  properties:{\n    virtualNetworkType: ${5:'None'}\n    publisherEmail: ${6:'publisherEmail@contoso.com'}\n    publisherName: ${7:'publisherName'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-api-management-instance"
+          }
+        }
+      ]
     }
   },
   {
@@ -201,6 +289,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:appServicePlan} 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-app-plan"
+          }
+        }
+      ]
     }
   },
   {
@@ -219,6 +318,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:applicationSecurityGroup} 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-app-security-group"
+          }
+        }
+      ]
     }
   },
   {
@@ -237,6 +347,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:automationAccount} 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: ${3|'Free','Basic'|}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-automation-account"
+          }
+        }
+      ]
     }
   },
   {
@@ -255,6 +376,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationCertificate} 'Microsoft.Automation/automationAccounts/certificates@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    base64Value: ${4:'base64Value'}\n    description: ${5:'description'}\n    thumbprint: ${6:'thumbprint'}\n    isExportable: ${7|true,false|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-automation-cert"
+          }
+        }
+      ]
     }
   },
   {
@@ -273,6 +405,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationCredential} 'Microsoft.Automation/automationAccounts/credentials@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    userName: ${4:'userName'}\n    password: ${5:'password'}\n    description: ${6:'description'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-automation-cred"
+          }
+        }
+      ]
     }
   },
   {
@@ -291,6 +434,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationJobSchedule} 'Microsoft.Automation/automationAccounts/jobSchedules@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    schedule: {\n      name: ${4:'name'}\n    }\n    runbook: {\n      name: ${5:'name'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-automation-job-schedule"
+          }
+        }
+      ]
     }
   },
   {
@@ -309,6 +463,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationAccountVariable} 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    contentLink: {\n      uri: ${4:'https://content-url.nupkg'}\n    }\n  }\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-automation-module"
+          }
+        }
+      ]
     }
   },
   {
@@ -327,6 +492,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationRunbook} 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    logVerbose: ${4|true,false|}\n    logProgress: ${5|true,false|}\n    runbookType: '${6|Script,Graph,PowerShellWorkflow,PowerShell,GraphPowerShellWorkflow,GraphPowerShell|}'\n    publishContentLink: {\n      uri: ${7:'uri'}\n      version: ${8:'1.0.0.0'}\n    }\n    description: ${9:'description'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-automation-runbook"
+          }
+        }
+      ]
     }
   },
   {
@@ -345,6 +521,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationSchedule} 'Microsoft.Automation/automationAccounts/schedules@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    description: ${4:'description'}\n    startTime: ${5:'startTime'}\n    interval: ${6:'interval'}\n    frequency: '${7|OneTime,Day,Hour,Week,Month|}'\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-automation-schedule"
+          }
+        }
+      ]
     }
   },
   {
@@ -363,6 +550,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationVariable} 'Microsoft.Automation/automationAccounts/variables@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    value: ${4:'value'}\n    description: ${5:'description'}\n    isEncrypted: ${6|true,false|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-automation-variable"
+          }
+        }
+      ]
     }
   },
   {
@@ -381,6 +579,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:availabilitySet} 'Microsoft.Compute/availabilitySets@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-availability-set"
+          }
+        }
+      ]
     }
   },
   {
@@ -399,6 +608,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:containerGroup} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    containers: [\n      {\n        name: ${3:'containername'}\n        properties: {\n          image: ${4:'mcr.microsoft.com/azuredocs/aci-helloworld:latest'}\n          ports: [\n            {\n              port: ${5:80}\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: ${6:1}\n              memoryInGB: ${7:4}\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: ${8|'OnFailure','Always','Never'|}\n    osType: ${9|'Linux','Windows'|}\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: ${10|'TCP','UDP'|}\n          port: ${11:80}\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-container-group"
+          }
+        }
+      ]
     }
   },
   {
@@ -417,6 +637,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:containerRegistry} 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3|'Classic','Basic','Standard','Premium'|}\n  }\n  properties: {\n    adminUserEnabled: ${4|true,false|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-container-registry"
+          }
+        }
+      ]
     }
   },
   {
@@ -435,6 +666,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:cosmosDbAccount} 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: ${3|'GlobalDocumentDB','MongoDB','Parse'|}\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: ${4|'Eventual','Session','BoundedStaleness','Strong','ConsistentPrefix'|}\n      maxStalenessPrefix: ${5:1}\n      maxIntervalInSeconds: ${6:5}\n    }\n    locations: [\n      {\n        locationName: ${7:'location'}\n        failoverPriority: ${8:0}\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: ${9|true,false|}\n    capabilities: [\n      {\n        name: ${10|'EnableTable','EnableGremlin'|}\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-account"
+          }
+        }
+      ]
     }
   },
   {
@@ -453,6 +695,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:cassandraKeyspace} 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-cassandra-keyspace"
+          }
+        }
+      ]
     }
   },
   {
@@ -471,6 +724,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:cassandraKeyspaceTable} 'Microsoft.DocumentDb/databaseAccounts/apis/keyspaces/tables@2016-03-31' = {\n  parent: cassandraKeyspace\n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n    }\n    options: {}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-cassandra-table"
+          }
+        }
+      ]
     }
   },
   {
@@ -489,6 +753,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:gremlinDb} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-gremlin-database"
+          }
+        }
+      ]
     }
   },
   {
@@ -507,6 +782,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {\n      throughput: ${3:'throughput'}\n    }\n  }\n}\n\nresource ${4:cosmosDbGremlinGraph} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {\n  parent: gremlinDb\n  name: ${5:'name'}\n  properties: {\n    resource: {\n      id: ${6:'id'}\n      partitionKey: {\n        paths: [\n          ${7:'paths'}\n        ]\n        kind: '${8|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${9|Consistent,Lazy,None|}'\n        includedPaths: [\n          {\n            path: ${10:'path'}\n            indexes: [\n              {\n                kind: '${11|Hash,Range,Spatial|}'\n                dataType: '${12|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${13:-1}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${14:'path'}\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: ${15:'throughput'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-gremlin-graph"
+          }
+        }
+      ]
     }
   },
   {
@@ -525,6 +811,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:mongoDb} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-mongo-database"
+          }
+        }
+      ]
     }
   },
   {
@@ -543,6 +840,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:sqlContainerName} 'Microsoft.DocumentDb/databaseAccounts/apis/databases/containers@2016-03-31' = {\n  parent: sqlDb \n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n      partitionKey: {\n        paths: [\n          ${6:'paths'}\n        ]\n        kind: '${7|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${8|Consistent,Lazy,None|}'\n        includedPaths: [\n          {\n            path: ${9:'path'}\n            indexes: [\n              {\n                kind: '${10|Hash,Range,Spatial|}'\n                dataType: '${11|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${12:'precision'}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${13:'path'}\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-sql-container"
+          }
+        }
+      ]
     }
   },
   {
@@ -561,6 +869,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:sqlDb} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-sql-database"
+          }
+        }
+      ]
     }
   },
   {
@@ -579,6 +898,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:cosmosTable} 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-cosmos-tablestorage-table"
+          }
+        }
+      ]
     }
   },
   {
@@ -597,6 +927,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:dataLakeStore} 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    newTier: ${3|'Consumption','Commitment_1TB','Commitment_10TB','Commitment_100TB','Commitment_500TB','Commitment_1PB','Commitment_5PB'|}\n    encryptionState: ${4|'Enabled','Disabled'|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-data-lake"
+          }
+        }
+      ]
     }
   },
   {
@@ -615,6 +956,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:dnsZone} 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: ${2:'name'}\n  location: 'global'\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-dns-zone"
+          }
+        }
+      ]
     }
   },
   {
@@ -633,6 +985,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:azureFunction} 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${3:'serverFarmName'})\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${6:storageAccountName2};AccountKey=${listKeys(${7:'storageAccountID2'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${8:storageAccountName3};AccountKey=${listKeys(${9:'storageAccountID3'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower(${2:'name'})\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference(resourceId('microsoft.insights/components/', ${10:'applicationInsightsName'}), '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: '${11|dotnet,node,java|}'\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-function"
+          }
+        }
+      ]
     }
   },
   {
@@ -651,6 +1014,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:publicIPAddress} 'Microsoft.Network/publicIPAddresses@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    publicIPAllocationMethod: 'Dynamic'\n    dnsSettings: {\n      domainNameLabel: ${3:'dnsname'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-ip"
+          }
+        }
+      ]
     }
   },
   {
@@ -669,6 +1043,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:publicIPPrefix} 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: 'Standard'\n  }\n  properties: {\n    publicIPAddressVersion: 'IPv4'\n    prefixLength: ${3:28}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-ip-prefix"
+          }
+        }
+      ]
     }
   },
   {
@@ -687,6 +1072,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:keyVault} 'Microsoft.KeyVault/vaults@2019-09-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    enabledForDeployment: true\n    enabledForTemplateDeployment: true\n    enabledForDiskEncryption: true\n    tenantId: ${3:'tenantId'}\n    accessPolicies: [\n      {\n        tenantId: ${3:'tenantId'}\n        objectId: ${4:'objectId'}\n        permissions: {\n          keys: [\n            'get'\n          ]\n          secrets: [\n            'list'\n            'get'\n            'get'\n          ]\n        }\n      }\n    ]\n    sku: {\n      name: 'standard'\n      family: 'A'\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-keyvault"
+          }
+        }
+      ]
     }
   },
   {
@@ -705,6 +1101,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:keyVaultSecret} 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: ${2:'keyVaultName/name'}\n  properties: {\n    value: ${3:'value'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-keyvault-secret"
+          }
+        }
+      ]
     }
   },
   {
@@ -723,6 +1130,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:loadBalancerExternal} 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', ${4:'publicIP'})\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: ${5:'name'}\n      }\n    ]\n    inboundNatRules: [\n      {\n        name: ${6:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', ${2:'name'}, ${3:'name'})\n          }\n          protocol: '${7|Tcp,Udp,All|}'\n          frontendPort: ${8:50001}\n          backendPort: ${9:3389}\n          enableFloatingIP: false\n        }\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: ${10:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', ${2:'name'}, ${3:'name'})\n          }\n          backendAddressPool: {\n            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', ${2:'name'}, ${5:'name'})\n          }\n          protocol: '${11|Tcp,Udp,All|}'\n          frontendPort: ${12:80}\n          backendPort: ${13:80}\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: resourceId('Microsoft.Network/loadBalancers/probes', ${2:'name'}, ${14:'name'})\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: ${14:'name'}\n        properties: {\n          protocol: '${15|Tcp,Udp,All|}'\n          port: ${16:80}\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-loadbalancer-external"
+          }
+        }
+      ]
     }
   },
   {
@@ -741,6 +1159,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:loadBalancerInternal} 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          privateIPAddress: ${4:'0.0.0.0'}\n          privateIPAllocationMethod: 'Static'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${5:'virtualNetwork'}, ${6:'subnet'})\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: ${7:'name'}\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: ${8:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', ${2:'name'}, ${3:'name'})\n          }\n          backendAddressPool: {\n            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', ${2:'name'}, ${7:'name'})\n          }\n          protocol: '${9|Tcp,Udp,All|}'\n          frontendPort: ${10:80}\n          backendPort: ${11:80}\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: resourceId('Microsoft.Network/loadBalancers/probes', ${2:'name'}, ${12:'name'})\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: ${12:'name'}\n        properties: {\n          protocol: '${13|Tcp,Udp,All|}'\n          port: ${14:80}\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-loadbalancer-internal"
+          }
+        }
+      ]
     }
   },
   {
@@ -759,6 +1188,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:logAnalyticsSolution} 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    workspaceResourceId: resourceId('Microsoft.OperationalInsights/workspaces', ${3:'logAnalyticsWorkspace'})\n    containedResources: [\n      resourceId('Microsoft.OperationalInsights/workspaces/views', ${3:'logAnalyticsWorkspace'}, ${4:'logAnalyticsSolution'})\n    ]\n  }\n  plan: {\n    name: ${5:'name'}\n    product: ${6:'product'}\n    publisher: ${7:'publisher'}\n    promotionCode: ${8:'promotionCode'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-log-analytics-solution"
+          }
+        }
+      ]
     }
   },
   {
@@ -777,6 +1217,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:logAnalyticsWorkspace} 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: ${3|'Free','Standard','Premium','Unlimited','PerNode','PerGB2018','Standalone'|}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-log-analytics-workspace"
+          }
+        }
+      ]
     }
   },
   {
@@ -795,6 +1246,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:logicApp} 'Microsoft.Logic/integrationAccounts@2016-06-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-logic-app"
+          }
+        }
+      ]
     }
   },
   {
@@ -813,6 +1275,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:logicAppConnector} 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    name: ${3:'name'}\n    apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, ${4:'logicAppConnectorApi'})\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-logic-app-connector"
+          }
+        }
+      ]
     }
   },
   {
@@ -831,6 +1304,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:managedIdentity} 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-managed-identity"
+          }
+        }
+      ]
     }
   },
   {
@@ -849,6 +1333,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:mediaServices} 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    storageAccounts: [\n      {\n        id: resourceId('Microsoft.Storage/storageAccounts', ${3:'mediaServiceStorageAccount'})\n        type: '${4|Primary,Secondary|}'\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-media"
+          }
+        }
+      ]
     }
   },
   {
@@ -867,6 +1362,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:mySQLdb} 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    administratorLogin: ${3:'administratorLogin'}\n    administratorLoginPassword: ${4:'administratorLoginPassword'}\n    createMode: ${5|'Default','GeoRestore','PointInTimeRestore','Replica'|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-mysql"
+          }
+        }
+      ]
     }
   },
   {
@@ -885,6 +1391,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:networkInterface} 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          privateIPAllocationMethod: '${4|Dynamic,Static|}'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${5:'virtualNetwork'}, ${6:'subnet'})\n          }\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-nic"
+          }
+        }
+      ]
     }
   },
   {
@@ -903,6 +1420,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:networkSecurityGroup} 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    securityRules: [\n      {\n        name: ${3:'nsgRule'}\n        properties: {\n          description: ${4:'description'}\n          protocol: ${5|'Tcp','Udp','*'|}\n          sourcePortRange: ${6:'*'}\n          destinationPortRange: ${7:'*'}\n          sourceAddressPrefix: ${8:'*'}\n          destinationAddressPrefix: ${9:'*'}\n          access: ${10|'Allow','Deny'|}\n          priority: ${11:100}\n          direction: ${12|'Inbound','Outbound'|}\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-nsg"
+          }
+        }
+      ]
     }
   },
   {
@@ -921,6 +1449,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:networkSecurityGroupSecurityRule} 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: ${2:'networkSecurityGroup/name'}\n  properties: {\n    description: ${3:'description'}\n    protocol: ${4|'*','Ah','Esp','Icmp','Tcp','Udb'|}\n    sourcePortRange: ${5:'sourcePortRange'}\n    destinationPortRange: ${6:'destinationPortRange'}\n    sourceAddressPrefix: ${7:'sourceAddressPrefix'}\n    destinationAddressPrefix: ${8:'destinationAddressPrefix'}\n    access: ${9|'Allow','Deny'|}\n    priority: ${10:100}\n    direction: ${11|'Inbound','Outbound'|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-nsgrule"
+          }
+        }
+      ]
     }
   },
   {
@@ -939,6 +1478,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:recoveryServiceVault} 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3|'RS0','Standard'|}\n    tier: ${4:'Standard'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-recovery-service-vault"
+          }
+        }
+      ]
     }
   },
   {
@@ -957,6 +1507,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:redisCache} 'Microsoft.Cache/Redis@2019-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    sku: {\n      name: 'Basic'\n      family: 'C'\n      capacity: 0\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-redis"
+          }
+        }
+      ]
     }
   },
   {
@@ -975,6 +1536,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:routeTable} 'Microsoft.Network/routeTables@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    routes: [\n      {\n        name: ${3:'name'}\n        properties: {\n          addressPrefix: ${4:'destinationCIDR'}\n          nextHopType: ${5|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}\n          nextHopIpAddress: ${6:'nextHopIp'}\n        }\n      }\n    ]\n    disableBgpRoutePropagation: ${7|true,false|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-route-table"
+          }
+        }
+      ]
     }
   },
   {
@@ -993,6 +1565,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:routeTableRoute} 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: ${2:'routeTableName/name'}\n  properties: {\n    addressPrefix: ${3:'addressPrefix'}\n    nextHopType: ${4|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}\n    nextHopIpAddress: ${5:'nextHopIp'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-route-table-route"
+          }
+        }
+      ]
     }
   },
   {
@@ -1011,6 +1594,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:sharedImageGallery} 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    description: ${3:'description'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-shared-image-gallery"
+          }
+        }
+      ]
     }
   },
   {
@@ -1029,6 +1623,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource sqlServer 'Microsoft.Sql/servers@2014-04-01' ={\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:sqlServerDatabase} 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    collation: ${4:'collation'}\n    edition: '${5|Basic,Business,BusinessCritical,DataWarehouse,Free,GeneralPurpose,Hyperscale,Premium,PremiumRS,Standard,Stretch,System,System2,Web|}'\n    maxSizeBytes: ${6:'maxSizeBytes'}\n    requestedServiceObjectiveName: '${7|Basic,DS100,DS1000,DS1200,DS1500,DS200,DS2000,DS300,DS400,DS500,DS600,DW100,DW1000,DW10000c,DW1000c,DW1200,DW1500,DW15000c,DW1500c,DW200,DW2000,DW2000c,DW2500c,DW300,DW3000,DW30000c,DW3000c,DW400,DW500,DW5000c,DW600,DW6000,DW6000c,DW7500c,ElasticPool,Free,P1,P11,P15,P2,P3,P4,P6,PRS1,PRS2,PRS4,PRS6,S0,S1,S12,S2,S3,S4,S6,S7,S9,System,System0,System1,System2,System2L,System3,System3L,System4,System4L|}'\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-sql"
+          }
+        }
+      ]
     }
   },
   {
@@ -1047,6 +1652,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: ${1:'name'}\n  location: ${2:'location'}\n}\n\nresource ${3:sqlDatabaseImport} 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: ${4:'name'}\n  properties: {\n    storageKeyType: '${5|StorageAccessKey,SharedAccessKey|}'\n    storageKey: ${6:'storageKey'}\n    storageUri: ${7:'storageUri'}\n    administratorLogin: ${8:'administratorLogin'}\n    administratorLoginPassword: ${9:'administratorLoginPassword'}\n    operationMode: ${10:'operationMode'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-sql-db-import"
+          }
+        }
+      ]
     }
   },
   {
@@ -1065,6 +1681,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:storageaccount} 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: ${3|'StorageV2','Storage','BlobStorage','BlockBlobStorage','FileStorage'|}\n  sku: {\n    name: ${4:'Premium_LRS'}\n    tier: ${5|'Premium','Standard'|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-storage"
+          }
+        }
+      ]
     }
   },
   {
@@ -1083,6 +1710,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:templateSpec} 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    description: ${3:'description'}\n    displayName: ${4:'displayName'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-template-spec"
+          }
+        }
+      ]
     }
   },
   {
@@ -1101,6 +1739,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:trafficManagerProfile} 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {\n  name: ${2:'name'}\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: ${3|'Performance','Priority','Weighted','Geographic'|}\n    dnsConfig: {\n      relativeName: ${4:'dnsConfigRelativeName'}\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: ${5|'HTTP','HTTPS','TCP'|}\n      port: ${6:80}\n      path: ${7:'path'}\n      intervalInSeconds: ${8:30}\n      timeoutInSeconds: ${9:5}\n      toleratedNumberOfFailures: ${10:3}\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: ${11:'targetResourceId'}\n          endpointStatus: ${12|'Enabled','Disabled'|}\n          weight: ${13:100}\n          priority: ${14:1}\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-traffic-manager"
+          }
+        }
+      ]
     }
   },
   {
@@ -1119,6 +1768,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    type: ${3|'Standard','Basic'|}\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: ${4|'Optimize','OptimizeAndAllow','All','None'|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-virtual-wan"
+          }
+        }
+      ]
     }
   },
   {
@@ -1137,6 +1797,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:windowsVMDsc} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Powershell'\n    type: 'DSC'\n    typeHandlerVersion: '2.9'\n    autoUpgradeMinorVersion: true\n    settings: {\n      modulesUrl: ${4:'modulesUrl'}\n      sasToken: ${5:'sasToken'}\n      configurationFunction: ${6:'configurationFunction'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vm-dsc"
+          }
+        }
+      ]
     }
   },
   {
@@ -1155,6 +1826,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:linuxVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {\n  parent: virtualMachine\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Azure.Extensions'\n    type: 'CustomScript'\n    typeHandlerVersion: '2.1'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        ${4:'fileUris'}\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'sh ${5:customScript.sh}'\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vm-script-linux"
+          }
+        }
+      ]
     }
   },
   {
@@ -1173,6 +1855,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:windowsVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: ${3:'name'}\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.Compute'\n    type: 'CustomScriptExtension'\n    typeHandlerVersion: '1.10'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        ${4:'fileUris'}\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'powershell -ExecutionPolicy Bypass -file ${5:customScript.ps1}'\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vm-script-windows"
+          }
+        }
+      ]
     }
   },
   {
@@ -1191,6 +1884,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:virtualNetwork} 'Microsoft.Network/virtualNetworks@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    addressSpace: {\n      addressPrefixes: [\n        '10.0.0.0/16'\n      ]\n    }\n    subnets: [\n      {\n        name: 'Subnet-1'\n        properties: {\n          addressPrefix: '10.0.0.0/24'\n        }\n      }\n      {\n        name: 'Subnet-2'\n        properties: {\n          addressPrefix: '10.0.1.0/24'\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vnet"
+          }
+        }
+      ]
     }
   },
   {
@@ -1209,6 +1913,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:peering} 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: ${2:'virtualNetwork/name'}\n  properties: {\n    allowVirtualNetworkAccess: ${3|true,false|}\n    allowForwardedTraffic: ${4|true,false|}\n    allowGatewayTransit: ${5|true,false|}\n    useRemoteGateways: ${6|true,false|}\n    remoteVirtualNetwork: {\n      id: resourceId('Microsoft.Network/virtualNetworks', ${7:'REQUIRED'})\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vnet-peering"
+          }
+        }
+      ]
     }
   },
   {
@@ -1227,6 +1942,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:localNetworkGateway} 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        ${3:'REQUIRED'}\n      ]\n    }\n    gatewayIpAddress: ${4:'gatewayIpAddress'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vpn-local-gateway"
+          }
+        }
+      ]
     }
   },
   {
@@ -1245,6 +1971,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:vpnVnetConnection} 'Microsoft.Network/connections@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    virtualNetworkGateway1: {\n      id: resourceId('Microsoft.Network/virtualNetworkGateways', ${3:'vnetGateway'})\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: resourceId('Microsoft.Network/localNetworkGateways', ${4:'localGateway'})\n      properties:{}\n    }\n    connectionType: '${5|IPsec,Vnet2Vnet,ExpressRoute,VPNClient|}'\n    routingWeight: ${6:0}\n    sharedKey: ${7:'sharedkey'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vpn-vnet-connection"
+          }
+        }
+      ]
     }
   },
   {
@@ -1263,6 +2000,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:virtualNetworkGateway} 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${4:'virtualNetwork'}, ${5:'subnet'})\n          }\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', ${6:'publicIPAddress'})\n          }\n        }\n      }\n    ]\n    sku: {\n      name: '${7|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n      tier: '${8|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n    }\n    gatewayType: '${9|Vpn,ExpressRoute|}'\n    vpnType: '${10|PolicyBased,RouteBased|}'\n    enableBgp: ${11|true,false|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vpn-vnet-gateway"
+          }
+        }
+      ]
     }
   },
   {
@@ -1281,6 +2029,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:webApplication} 'Microsoft.Web/sites@2018-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${3:'appServicePlan'}': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${4:'appServicePlan'})\n  }\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-web-app"
+          }
+        }
+      ]
     }
   },
   {
@@ -1299,6 +2058,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:'webApplicationExtension} 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: ${3:'packageUri'}\n    dbType: 'None'\n    connectionString: ${4:'connectionString'}\n    setParameters: {\n      'IIS Web Application Name': ${5:'name'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-web-app-deploy"
+          }
+        }
+      ]
     }
   },
   {
@@ -1317,6 +2087,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:applicationGroup} 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'friendlyName'}\n    applicationGroupType: ${4|'Desktop','RemoteApp'|}\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${5:'REQUIRED'})\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-wvd-appgroup"
+          }
+        }
+      ]
     }
   },
   {
@@ -1335,6 +2116,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:hostPool} 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'hostpoolFriendlyName'}\n    hostPoolType: ${4|'Personal','Pooled'|}\n    loadBalancerType: ${5|'BreadthFirst','DepthFirst','Persistent'|}\n    preferredAppGroupType: ${6|'Desktop','RailApplications','None'|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-wvd-hostpool"
+          }
+        }
+      ]
     }
   },
   {
@@ -1353,6 +2145,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:workSpace} 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'friendlyName'}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-wvd-workspace"
+          }
+        }
+      ]
     }
   },
   {
@@ -1385,6 +2188,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} '${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "resource-child-defaults"
+          }
+        }
+      ]
     }
   },
   {
@@ -1403,6 +2217,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} '${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  $0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "resource-child-without-defaults"
+          }
+        }
+      ]
     }
   },
   {
@@ -1421,6 +2246,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} '${2:Provider/Type@Version}' = {\n  name: $3\n  location: $4\n  properties: {\n    $0\n  }\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "resource-defaults"
+          }
+        }
+      ]
     }
   },
   {
@@ -1439,6 +2275,17 @@
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} '${2:Provider/Type@Version}' = {\n  name: $3\n  $0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "resource-without-defaults"
+          }
+        }
+      ]
     }
   },
   {
@@ -1485,6 +2332,17 @@
     "textEdit": {
       "range": {},
       "newText": "var ${1:Identifier} = $0"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "var"
+          }
+        }
+      ]
     }
   }
 ]

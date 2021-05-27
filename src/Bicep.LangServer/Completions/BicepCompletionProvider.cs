@@ -17,6 +17,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -33,11 +34,13 @@ namespace Bicep.LanguageServer.Completions
 
         private IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
+        private readonly ITelemetryProvider TelemetryProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
+            this.TelemetryProvider = telemetryProvider;
         }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
@@ -82,10 +85,15 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
-                    yield return CreateContextualSnippetCompletion(resourceSnippet.Prefix,
+                    string prefix = resourceSnippet.Prefix;
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
+                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+
+                    yield return CreateContextualSnippetCompletion(prefix,
                                                                    resourceSnippet.Detail,
                                                                    resourceSnippet.Text,
                                                                    context.ReplacementRange,
+                                                                   command,
                                                                    resourceSnippet.CompletionPriority);
                 }
             }
@@ -217,7 +225,7 @@ namespace Bicep.LanguageServer.Completions
                     .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
                     .ToList();
             }
-            
+
             // if we do not have the namespace and type notation, we only return uniquie resource types without their api-versions
             // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
             // we still order by apiVersion first to have consistent indexes
@@ -396,10 +404,15 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet snippet in snippets)
                 {
-                    yield return CreateContextualSnippetCompletion(snippet!.Prefix,
+                    string prefix = snippet.Prefix;
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, typeSymbol.Name);
+                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+
+                    yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
+                        command,
                         snippet.CompletionPriority,
                         preselect: true);
                 }
@@ -415,10 +428,15 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (Snippet snippet in snippets)
                 {
-                    yield return CreateContextualSnippetCompletion(snippet!.Prefix,
+                    string prefix = snippet.Prefix;
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
+                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+
+                    yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
+                        command,
                         snippet.CompletionPriority,
                         preselect: true);
                 }
@@ -967,6 +985,19 @@ namespace Bicep.LanguageServer.Completions
         private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                 .WithSnippetEdit(replacementRange, snippet)
+                .WithDetail(detail)
+                .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
+                .WithSortText(GetSortText(label, priority))
+                .Preselect(preselect)
+                .Build();
+
+        /// <summary>
+        /// Creates a completion with a contextual snippet with command option. This will look like a snippet to the user.
+        /// </summary>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, Command command, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
+            CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                .WithSnippetEdit(replacementRange, snippet)
+                .WithCommand(command)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority))
