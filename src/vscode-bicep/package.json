@@ -70,6 +70,12 @@
         }
       }
     },
+    "jsonValidation": [
+      {
+        "fileMatch": "bicepconfig.json",
+        "url": "./schemas/bicepconfig.schema.json"
+      }
+    ],
     "languages": [
       {
         "id": "bicep",
@@ -81,6 +87,12 @@
           ".bicep"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "jsonc",
+        "filenames": [
+          "bicepconfig.json"
+        ]
       }
     ],
     "grammars": [
