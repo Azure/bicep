@@ -1,0 +1,195 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Bicep Configuration",
+    "definitions": {
+        "level": {
+            "title": "Diagnostic Level",
+            "description": "Type of diagnostic to display, defaults to warning",
+            "type": "string",
+            "default": "warning",
+            "enum": [
+                "off",
+                "info",
+                "warning",
+                "error"
+            ]
+        },
+        "rule": {
+            "type": "object",
+            "default": {
+                "level": "warning"
+            },
+            "properties": {
+                "level": {
+                    "$ref": "#/definitions/level"
+                }
+            },
+            "required": [
+                "level"
+            ]
+        }
+    },
+    "type": "object",
+    "default": {
+        "analyzers": {
+            "core": {
+                "enabled": true
+            }
+        }
+    },
+    "properties": {
+        "analyzers": {
+            "title": "Analyzers",
+            "type": "object",
+            "default": {
+                "core": {
+                    "enabled": true,
+                    "rules": {
+                        "no-hardcoded-env-urls": {
+                            "level": "warning"
+                        },
+                        "no-unused-params": {
+                            "level": "warning"
+                        },
+                        "no-unused-vars": {
+                            "level": "warning"
+                        },
+                        "prefer-interpolation": {
+                            "level": "warning"
+                        },
+                        "secure-parameter-default": {
+                            "level": "warning"
+                        },
+                        "simplify-interpolation": {
+                            "level": "warning"
+                        }
+                    }
+                }
+            },
+            "properties": {
+                "core": {
+                    "title": "Core Bicep Analyzer",
+                    "description": "Core analyzer built into bicep",
+                    "type": "object",
+                    "required": [
+                        "enabled"
+                    ],
+                    "properties": {
+                        "verbose": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "rules": {
+                            "additionalProperties": false,
+                            "properties": {
+                                "no-hardcoded-env-urls": {
+                                    "allOf": [
+                                        {
+                                            "description": "Do not hardcode environment URLs in your template. See https://aka.ms/bicep/linter/no-hardcoded-env-urls",
+                                            "type": "object",
+                                            "properties": {
+                                                "disallowedHosts": {
+                                                    "description": "Customize the list of hosts to disallow",
+                                                    "type": "array",
+                                                    "default": [
+                                                        "management.core.windows.net",
+                                                        "gallery.azure.com",
+                                                        "management.core.windows.net",
+                                                        "management.azure.com",
+                                                        "database.windows.net",
+                                                        "core.windows.net",
+                                                        "login.microsoftonline.com",
+                                                        "graph.windows.net",
+                                                        "trafficmanager.net",
+                                                        "vault.azure.net",
+                                                        "datalake.azure.net",
+                                                        "azuredatalakestore.net",
+                                                        "azuredatalakeanalytics.net",
+                                                        "vault.azure.net",
+                                                        "api.loganalytics.io",
+                                                        "api.loganalytics.iov1",
+                                                        "asazure.windows.net",
+                                                        "region.asazure.windows.net",
+                                                        "api.loganalytics.iov1",
+                                                        "api.loganalytics.io",
+                                                        "asazure.windows.net",
+                                                        "region.asazure.windows.net",
+                                                        "batch.core.windows.net"
+                                                    ],
+                                                    "items": {
+                                                        "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/disallowedhosts/items",
+                                                        "title": "Items",
+                                                        "type": "string",
+                                                        "default": "",
+                                                        "minLength": 1
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/definitions/rule"
+                                        }
+                                    ]
+                                },
+                                "no-unused-params": {
+                                    "allOf": [
+                                        {
+                                            "description": "No unused parameters. See https://aka.ms/bicep/linter/no-unused-params"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/rule"
+                                        }
+                                    ]
+                                },
+                                "no-unused-vars": {
+                                    "allOf": [
+                                        {
+                                            "description": "No unused variables. See https://aka.ms/bicep/linter/no-unused-vars"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/rule"
+                                        }
+                                    ]
+                                },
+                                "prefer-interpolation": {
+                                    "allOf": [
+                                        {
+                                            "description": "String interpolation should be used instead of the concat function. See https://aka.ms/bicep/linter/prefer-interpolation"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/rule"
+                                        }
+                                    ]
+                                },
+                                "secure-parameter-default": {
+                                    "allOf": [
+                                        {
+                                            "description": "Secure parameters should not have hardcoded defaults (except for empty or newGuid()). See https://aka.ms/bicep/linter/secure-parameter-default"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/rule"
+                                        }
+                                    ]
+                                },
+                                "simplify-interpolation": {
+                                    "allOf": [
+                                        {
+                                            "description": "It isn't necessary to use interpolation to reference a parameter or variable. See https://aka.ms/bicep/linter/simplify-interpolation"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/rule"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

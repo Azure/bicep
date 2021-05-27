@@ -1,4 +1,4 @@
-# Unused variable
+# No unused variables
 
 **Code**: no-unused-vars
 

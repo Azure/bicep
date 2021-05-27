@@ -22,3 +22,47 @@ The following example passes this test.
 ```bicep
 var AzureSchemaURL = environment().gallery
 ```
+
+## Configuration
+
+The set of URL hosts to disallow may be customized using the `disallowedHosts` property in the `bicepconfig.json` file as follows:
+
+```json
+{
+  "analyzers": {
+    "core": {
+      "enabled": true,
+      "rules": {
+        "no-hardcoded-env-urls": {
+          "level": "warning",
+          "disallowedHosts": [
+            "management.core.windows.net",
+            "gallery.azure.com",
+            "management.core.windows.net",
+            "management.azure.com",
+            "database.windows.net",
+            "core.windows.net",
+            "login.microsoftonline.com",
+            "graph.windows.net",
+            "trafficmanager.net",
+            "vault.azure.net",
+            "datalake.azure.net",
+            "azuredatalakestore.net",
+            "azuredatalakeanalytics.net",
+            "vault.azure.net",
+            "api.loganalytics.io",
+            "api.loganalytics.iov1",
+            "asazure.windows.net",
+            "region.asazure.windows.net",
+            "api.loganalytics.iov1",
+            "api.loganalytics.io",
+            "asazure.windows.net",
+            "region.asazure.windows.net",
+            "batch.core.windows.net"
+          ]
+        }
+      }
+    }
+  }
+}
+```

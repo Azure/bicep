@@ -27,4 +27,9 @@
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\vscode-bicep\schemas\bicepconfig.schema.json">
+      <Link>bicepconfig.schema.json</Link>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
