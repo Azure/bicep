@@ -35,9 +35,11 @@ namespace Bicep.LangServer.IntegrationTests
             var telemetryReceived = new TaskCompletionSource<TelemetryEventParams>();
 
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                options => options.OnTelemetryEvent(telemetry => {
-                    telemetryReceived.SetResult(telemetry);
-                }),
+                TestContext,
+                options => 
+                {
+                    options.OnTelemetryEvent(telemetry => telemetryReceived.SetResult(telemetry));
+                },
                 fileResolver: new InMemoryFileResolver(fileSystemDict));
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
@@ -67,11 +69,11 @@ namespace Bicep.LangServer.IntegrationTests
 
             TelemetryEventParams telemetryEventParams = await IntegrationTestHelper.WithTimeoutAsync(telemetryReceived.Task);
 
-            telemetryEventParams.Data.Keys.Count.Should().Be(2);
-            telemetryEventParams.Data.Keys.Should().Contain("eventName");
-            telemetryEventParams.Data.Keys.Should().Contain("properties");
-            telemetryEventParams.Data["eventName"].ToString().Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
-            telemetryEventParams.Data["properties"].ToString().Should().BeEquivalentToIgnoringNewlines(@"{
+            telemetryEventParams.ExtensionData.Keys.Count.Should().Be(2);
+            telemetryEventParams.ExtensionData.Keys.Should().Contain("eventName");
+            telemetryEventParams.ExtensionData.Keys.Should().Contain("properties");
+            telemetryEventParams.ExtensionData["eventName"].ToString().Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
+            telemetryEventParams.ExtensionData["properties"].ToString().Should().BeEquivalentToIgnoringNewlines(@"{
   ""name"": ""res-aks-cluster""
 }");
         }

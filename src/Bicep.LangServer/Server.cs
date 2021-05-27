@@ -17,8 +17,6 @@ using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
 
@@ -67,7 +65,6 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
-#pragma warning restore 0612
                     .WithHandler<BicepTelemetryHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 

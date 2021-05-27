@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Telemetry
 {
-    public class BicepTelemetryEvent : TelemetryEventParams
+    public record BicepTelemetryEvent : TelemetryEventParams
     {
         public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 

@@ -95,8 +95,8 @@ namespace Bicep.LanguageServer.Completions
                                                                    resourceSnippet.Detail,
                                                                    resourceSnippet.Text,
                                                                    context.ReplacementRange,
-                                                                   resourceSnippet.CompletionPriority)
-                        .WithCommand(command);
+                                                                   command,
+                                                                   resourceSnippet.CompletionPriority);
                 }
             }
 
@@ -416,9 +416,9 @@ namespace Bicep.LanguageServer.Completions
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
+                        command,
                         snippet.CompletionPriority,
-                        preselect: true)
-                        .WithCommand(command);
+                        preselect: true);
                 }
             }
         }
@@ -433,9 +433,8 @@ namespace Bicep.LanguageServer.Completions
                 foreach (Snippet snippet in snippets)
                 {
                     string prefix = snippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.ResourceBodySnippetInsertion);
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.Create(TelemetryConstants.EventNames.ModuleBodySnippetInsertion);
                     telemetryEvent.Set("name", prefix);
-                    telemetryEvent.Set("type", typeSymbol.Name);
 
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
@@ -443,9 +442,9 @@ namespace Bicep.LanguageServer.Completions
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
+                        command,
                         snippet.CompletionPriority,
-                        preselect: true)
-                        .WithCommand(command);
+                        preselect: true);
                 }
             }
         }
@@ -992,6 +991,19 @@ namespace Bicep.LanguageServer.Completions
         private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                 .WithSnippetEdit(replacementRange, snippet)
+                .WithDetail(detail)
+                .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
+                .WithSortText(GetSortText(label, priority))
+                .Preselect(preselect)
+                .Build();
+
+        /// <summary>
+        /// Creates a completion with a contextual snippet with command option. This will look like a snippet to the user.
+        /// </summary>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, Command command, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
+            CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                .WithSnippetEdit(replacementRange, snippet)
+                .WithCommand(command)
                 .WithDetail(detail)
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority))
