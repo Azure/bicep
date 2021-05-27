@@ -1,5 +1,4 @@
 /*
-//@[0:0) [linter-internal-error (Warning)] Analyzer 'core' encountered an unexpected exception. Rewrite to string interpolation not successful (CodeDescription: none) ||
   This tests the various cases of invalid expressions.
 */
 
@@ -300,8 +299,7 @@ var fakeFunc = red() + green() * orange()
 //@[33:39) [BCP082 (Error)] The name "orange" does not exist in the current context. Did you mean "range"? (CodeDescription: none) |orange|
 param fakeFuncP string = blue()
 //@[6:15) [no-unused-params (Warning)] Parameter is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |fakeFuncP|
-//@[23:44) [BCP161 (Info)] Parameter modifiers are deprecated and will be removed in a future release. Use decorators instead. (CodeDescription: bicep(https://aka.ms/BicepSpecParams)) |{\n  default: blue()\n}|
-//@[11:15) [BCP057 (Error)] The name "blue" does not exist in the current context. (CodeDescription: none) |blue|
+//@[25:29) [BCP057 (Error)] The name "blue" does not exist in the current context. (CodeDescription: none) |blue|
 
 // non-existent variable
 var fakeVar = concat(totallyFakeVar, 's')
@@ -535,7 +533,7 @@ var partialObject = {
 //@[3:3) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) ||
   3 : concat('s')
 //@[2:3) [BCP022 (Error)] Expected a property name at this location. (CodeDescription: none) |3|
-//@[6:17) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function.\nSee https://aka.ms/bicep/linter/prefer-interpolation |concat('s')|
+//@[6:17) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('s')|
   
   's' 
 //@[2:5) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'s'|
