@@ -97,10 +97,10 @@ resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2020-11-01' = {
         name: ${32:'name'}
         properties: {
           subnet: {
-            id: resourceId('${33:virtualNetworkResourceGroup}', 'Microsoft.Network/virtualNetworks/subnets', '${34:virtualNetworkName}', 'AzureFirewallSubnet')
+            id: ${33:'id'}
           }
           publicIPAddress: {
-            id: ${35:'id'}
+            id: ${34:'id'}
           }
         }
       }

@@ -12,7 +12,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' =
         name: 'name'
         properties: {
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork', 'Subnet-1')
+            id: 'id'
           }
         }
       }
@@ -22,7 +22,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' =
         name: 'name'
         properties: {
           publicIPAddress: {
-            id: resourceId('Microsoft.Network/publicIPAddresses', 'publicIPAddress')
+            id: 'id'
           }
         }
       }
@@ -55,10 +55,10 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' =
         name: 'name'
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', 'name', 'name')
+            id: 'id'
           }
           frontendPort: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', 'name', 'name')
+            id: 'id'
           }
           protocol: 'Http'
           sslCertificate: null
@@ -71,13 +71,13 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' =
         properties: {
           ruleType: 'Basic'
           httpListener: {
-            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', 'name', 'name')
+            id: 'id'
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'name', 'name')
+            id: 'id'
           }
           backendHttpSettings: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', 'name', 'name')
+            id: 'id'
           }
         }
       }

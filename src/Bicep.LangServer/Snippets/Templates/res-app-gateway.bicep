@@ -13,72 +13,72 @@ resource ${1:applicationGateway} 'Microsoft.Network/applicationGateways@2020-11-
         name: ${6:'name'}
         properties: {
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${7:'virtualNetwork'}, ${8:'Subnet-1'})
+            id: ${7:'id'}
           }
         }
       }
     ]
     frontendIPConfigurations: [
       {
-        name: ${9:'name'}
+        name: ${8:'name'}
         properties: {
           publicIPAddress: {
-            id: resourceId('Microsoft.Network/publicIPAddresses', ${10:'publicIPAddress'})
+            id: ${9:'id'}
           }
         }
       }
     ]
     frontendPorts: [
       {
-        name: ${11:'name'}
+        name: ${10:'name'}
         properties: {
-          port: ${12:'port'}
+          port: ${11:'port'}
         }
       }
     ]
     backendAddressPools: [
       {
-        name: ${13:'name'}
+        name: ${12:'name'}
       }
     ]
     backendHttpSettingsCollection: [
       {
-        name: ${14:'name'}
+        name: ${13:'name'}
         properties: {
-          port: ${15:'port'}
-          protocol: '${16|Http,Https|}'
+          port: ${14:'port'}
+          protocol: '${15|Http,Https|}'
           cookieBasedAffinity: 'Disabled'
         }
       }
     ]
     httpListeners: [
       {
-        name: ${17:'name'}
+        name: ${16:'name'}
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', ${2:'name'}, ${9:'name'})
+            id: ${17:'id'}
           }
           frontendPort: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', ${2:'name'}, ${11:'name'})
+            id: ${18:'id'}
           }
-          protocol: '${18|Http,Https|}'
+          protocol: '${19|Http,Https|}'
           sslCertificate: null
         }
       }
     ]
     requestRoutingRules: [
       {
-        name: ${19:'name'}
+        name: ${20:'name'}
         properties: {
-          ruleType: '${20|Basic,PathBasedRouting|}'
+          ruleType: '${21|Basic,PathBasedRouting|}'
           httpListener: {
-            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', ${2:'name'}, ${17:'name'})
+            id: ${22:'id'}
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', ${2:'name'}, ${13:'name'})
+            id: ${23:'id'}
           }
           backendHttpSettings: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', ${2:'name'}, ${14:'name'})
+            id: ${24:'id'}
           }
         }
       }

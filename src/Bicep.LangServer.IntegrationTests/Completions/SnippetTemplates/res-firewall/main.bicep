@@ -30,8 +30,7 @@
 // $30 = '80'
 // $31 = TCP
 // $32 = 'name'
-// $33 = virtualNetworkResourceGroup
-// $34 = virtualNetworkName
-// $35 = 'id'
+// $33 = 'id'
+// $34 = 'id'
 
 // Insert snippet here

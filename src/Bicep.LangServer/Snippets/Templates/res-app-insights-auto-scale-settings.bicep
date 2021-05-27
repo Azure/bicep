@@ -4,7 +4,7 @@ resource ${1:appInsightsAutoScaleSettings} 'Microsoft.Insights/autoscalesettings
   location: resourceGroup().location
   tags: {
     Application_Type: '${3|web,other|}'
-    'hidden-link:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}': 'Resource'
+    'hidden-link:${4:appServiceId}': 'Resource'
   }
   properties: {
     name: ${5:'name'}
@@ -20,7 +20,7 @@ resource ${1:appInsightsAutoScaleSettings} 'Microsoft.Insights/autoscalesettings
           {
             metricTrigger: {
               metricName: ${10:'name'}
-              metricResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}'
+              metricResourceUri: ${11:'metricResourceUri'}
               timeGrain: 'PT1M'
               statistic: 'Average'
               timeWindow: 'PT10M'
@@ -31,14 +31,14 @@ resource ${1:appInsightsAutoScaleSettings} 'Microsoft.Insights/autoscalesettings
             scaleAction: {
               direction: 'Increase'
               type: 'ChangeCount'
-              value:  ${11:'value'}
+              value:  ${12:'value'}
               cooldown: 'PT10M'
             }
           }
           {
             metricTrigger: {
-              metricName: ${12:'name'}
-              metricResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}'
+              metricName: ${13:'metricName'}
+              metricResourceUri: ${14:'metricResourceUri'}
               timeGrain: 'PT1M'
               statistic: 'Average'
               timeWindow: 'PT1H'
@@ -49,7 +49,7 @@ resource ${1:appInsightsAutoScaleSettings} 'Microsoft.Insights/autoscalesettings
             scaleAction: {
               direction: 'Decrease'
               type: 'ChangeCount'
-              value: ${13:'value'}
+              value: ${15:'value'}
               cooldown: 'PT1H'
             }
           }
@@ -57,6 +57,6 @@ resource ${1:appInsightsAutoScaleSettings} 'Microsoft.Insights/autoscalesettings
       }
     ]
     enabled: false
-    targetResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}'
+    targetResourceUri: ${16:'targetResourceUri'}
   }
 }

@@ -3,7 +3,7 @@ resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015
   location: resourceGroup().location
   tags: {
     Application_Type: 'web'
-    'hidden-link:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'
+    'hidden-link:appServiceId': 'Resource'
   }
   properties: {
     name: 'name'
@@ -19,7 +19,7 @@ resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015
           {
             metricTrigger: {
               metricName: 'name'
-              metricResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan'
+              metricResourceUri: 'metricResourceUri'
               timeGrain: 'PT1M'
               statistic: 'Average'
               timeWindow: 'PT10M'
@@ -36,8 +36,8 @@ resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015
           }
           {
             metricTrigger: {
-              metricName: 'name'
-              metricResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan'
+              metricName: 'metricName'
+              metricResourceUri: 'metricResourceUri'
               timeGrain: 'PT1M'
               statistic: 'Average'
               timeWindow: 'PT1H'
@@ -56,7 +56,7 @@ resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015
       }
     ]
     enabled: false
-    targetResourceUri: '${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan'
+    targetResourceUri: 'metricResourceUri'
   }
 }
 
