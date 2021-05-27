@@ -97,20 +97,18 @@ param malformedType2 44 = f
 
 // malformed type but type check should still happen
 //@[52:53) NewLine |\n|
-param malformedModifier 44 {
+@secure('s')
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) LeftParen |(|
+//@[8:11) StringComplete |'s'|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+param malformedModifier 44
 //@[0:5) Identifier |param|
 //@[6:23) Identifier |malformedModifier|
 //@[24:26) Integer |44|
-//@[27:28) LeftBrace |{|
-//@[28:29) NewLine |\n|
-  secure: 's'
-//@[2:8) Identifier |secure|
-//@[8:9) Colon |:|
-//@[10:13) StringComplete |'s'|
-//@[13:14) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[26:28) NewLine |\n\n|
 
 param myString2 string = 'string value'
 //@[0:5) Identifier |param|
@@ -389,26 +387,6 @@ param wrongType fluffyBunny = 'what\'s up doc?'
 
 // modifier on an invalid type
 //@[30:31) NewLine |\n|
-param someArray arra {
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |someArray|
-//@[16:20) Identifier |arra|
-//@[21:22) LeftBrace |{|
-//@[22:23) NewLine |\n|
-  minLength: 3
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:14) Integer |3|
-//@[14:15) NewLine |\n|
-  maxLength: 24
-//@[2:11) Identifier |maxLength|
-//@[11:12) Colon |:|
-//@[13:15) Integer |24|
-//@[15:16) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 @minLength(3)
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
@@ -423,60 +401,11 @@ param someArray arra {
 //@[11:13) Integer |24|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
-param someArrayWithDecorator arra
+param someArray arra
 //@[0:5) Identifier |param|
-//@[6:28) Identifier |someArrayWithDecorator|
-//@[29:33) Identifier |arra|
-//@[33:35) NewLine |\n\n|
-
-// duplicate modifier property
-//@[30:31) NewLine |\n|
-param duplicatedModifierProperty string {
-//@[0:5) Identifier |param|
-//@[6:32) Identifier |duplicatedModifierProperty|
-//@[33:39) Identifier |string|
-//@[40:41) LeftBrace |{|
-//@[41:42) NewLine |\n|
-  minLength: 3
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:14) Integer |3|
-//@[14:15) NewLine |\n|
-  minLength: 24
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:15) Integer |24|
-//@[15:16) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-// non-existent modifiers
-//@[25:26) NewLine |\n|
-param secureInt int {
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |secureInt|
-//@[16:19) Identifier |int|
-//@[20:21) LeftBrace |{|
-//@[21:22) NewLine |\n|
-  secure: true
-//@[2:8) Identifier |secure|
-//@[8:9) Colon |:|
-//@[10:14) TrueKeyword |true|
-//@[14:15) NewLine |\n|
-  minLength: 3
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:14) Integer |3|
-//@[14:15) NewLine |\n|
-  maxLength: 123
-//@[2:11) Identifier |maxLength|
-//@[11:12) Colon |:|
-//@[13:16) Integer |123|
-//@[16:17) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[6:15) Identifier |someArray|
+//@[16:20) Identifier |arra|
+//@[20:22) NewLine |\n\n|
 
 @secure()
 //@[0:1) At |@|
@@ -498,64 +427,14 @@ param secureInt int {
 //@[11:14) Integer |123|
 //@[14:15) RightParen |)|
 //@[15:16) NewLine |\n|
-param secureIntWithDecorator int
+param secureInt int
 //@[0:5) Identifier |param|
-//@[6:28) Identifier |secureIntWithDecorator|
-//@[29:32) Identifier |int|
-//@[32:34) NewLine |\n\n|
+//@[6:15) Identifier |secureInt|
+//@[16:19) Identifier |int|
+//@[19:21) NewLine |\n\n|
 
 // wrong modifier value types
 //@[29:30) NewLine |\n|
-param wrongIntModifier int {
-//@[0:5) Identifier |param|
-//@[6:22) Identifier |wrongIntModifier|
-//@[23:26) Identifier |int|
-//@[27:28) LeftBrace |{|
-//@[28:29) NewLine |\n|
-  default: true
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:15) TrueKeyword |true|
-//@[15:16) NewLine |\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) NewLine |\n|
-    'test'
-//@[4:10) StringComplete |'test'|
-//@[10:11) NewLine |\n|
-    true
-//@[4:8) TrueKeyword |true|
-//@[8:9) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-  minValue: {
-//@[2:10) Identifier |minValue|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:14) NewLine |\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
-  maxValue: [
-//@[2:10) Identifier |maxValue|
-//@[10:11) Colon |:|
-//@[12:13) LeftSquare |[|
-//@[13:14) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-  metadata: 'wrong'
-//@[2:10) Identifier |metadata|
-//@[10:11) Colon |:|
-//@[12:19) StringComplete |'wrong'|
-//@[19:20) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 @allowed([
 //@[0:1) At |@|
 //@[1:8) Identifier |allowed|
@@ -599,13 +478,13 @@ param wrongIntModifier int {
 //@[10:17) StringComplete |'wrong'|
 //@[17:18) RightParen |)|
 //@[18:19) NewLine |\n|
-param wrongIntModifierWithDecorator int = true
+param wrongIntModifier int = true
 //@[0:5) Identifier |param|
-//@[6:35) Identifier |wrongIntModifierWithDecorator|
-//@[36:39) Identifier |int|
-//@[40:41) Assignment |=|
-//@[42:46) TrueKeyword |true|
-//@[46:48) NewLine |\n\n|
+//@[6:22) Identifier |wrongIntModifier|
+//@[23:26) Identifier |int|
+//@[27:28) Assignment |=|
+//@[29:33) TrueKeyword |true|
+//@[33:35) NewLine |\n\n|
 
 @metadata(any([]))
 //@[0:1) At |@|
@@ -635,29 +514,6 @@ param fatalErrorInIssue1713
 
 // wrong metadata schema
 //@[24:25) NewLine |\n|
-param wrongMetadataSchema string {
-//@[0:5) Identifier |param|
-//@[6:25) Identifier |wrongMetadataSchema|
-//@[26:32) Identifier |string|
-//@[33:34) LeftBrace |{|
-//@[34:35) NewLine |\n|
-  metadata: {
-//@[2:10) Identifier |metadata|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:14) NewLine |\n|
-    description: true
-//@[4:15) Identifier |description|
-//@[15:16) Colon |:|
-//@[17:21) TrueKeyword |true|
-//@[21:22) NewLine |\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 @metadata({
 //@[0:1) At |@|
 //@[1:9) Identifier |metadata|
@@ -673,58 +529,14 @@ param wrongMetadataSchema string {
 //@[0:1) RightBrace |}|
 //@[1:2) RightParen |)|
 //@[2:3) NewLine |\n|
-param wrongMetadataSchemaWithDecorator string
+param wrongMetadataSchema string
 //@[0:5) Identifier |param|
-//@[6:38) Identifier |wrongMetadataSchemaWithDecorator|
-//@[39:45) Identifier |string|
-//@[45:47) NewLine |\n\n|
+//@[6:25) Identifier |wrongMetadataSchema|
+//@[26:32) Identifier |string|
+//@[32:34) NewLine |\n\n|
 
 // expression in modifier
 //@[25:26) NewLine |\n|
-param expressionInModifier string {
-//@[0:5) Identifier |param|
-//@[6:26) Identifier |expressionInModifier|
-//@[27:33) Identifier |string|
-//@[34:35) LeftBrace |{|
-//@[35:36) NewLine |\n|
-  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
-//@[60:61) NewLine |\n|
-  default: 2 + 3
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:12) Integer |2|
-//@[13:14) Plus |+|
-//@[15:16) Integer |3|
-//@[16:17) NewLine |\n|
-  maxLength: a + 2
-//@[2:11) Identifier |maxLength|
-//@[11:12) Colon |:|
-//@[13:14) Identifier |a|
-//@[15:16) Plus |+|
-//@[17:18) Integer |2|
-//@[18:19) NewLine |\n|
-  minLength: foo()
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:16) Identifier |foo|
-//@[16:17) LeftParen |(|
-//@[17:18) RightParen |)|
-//@[18:19) NewLine |\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) NewLine |\n|
-    i
-//@[4:5) Identifier |i|
-//@[5:6) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 @maxLength(a + 2)
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
@@ -756,56 +568,15 @@ param expressionInModifier string {
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:3) NewLine |\n|
-param expressionInModifierWithDecorator string = 2 + 3
+param expressionInModifier string = 2 + 3
 //@[0:5) Identifier |param|
-//@[6:39) Identifier |expressionInModifierWithDecorator|
-//@[40:46) Identifier |string|
-//@[47:48) Assignment |=|
-//@[49:50) Integer |2|
-//@[51:52) Plus |+|
-//@[53:54) Integer |3|
-//@[54:56) NewLine |\n\n|
-
-param nonCompileTimeConstant string {
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |nonCompileTimeConstant|
-//@[29:35) Identifier |string|
-//@[36:37) LeftBrace |{|
-//@[37:38) NewLine |\n|
-  maxLength: 2 + 3
-//@[2:11) Identifier |maxLength|
-//@[11:12) Colon |:|
-//@[13:14) Integer |2|
-//@[15:16) Plus |+|
-//@[17:18) Integer |3|
-//@[18:19) NewLine |\n|
-  minLength: length([])
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:19) Identifier |length|
-//@[19:20) LeftParen |(|
-//@[20:21) LeftSquare |[|
-//@[21:22) RightSquare |]|
-//@[22:23) RightParen |)|
-//@[23:24) NewLine |\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) NewLine |\n|
-    resourceGroup().id
-//@[4:17) Identifier |resourceGroup|
-//@[17:18) LeftParen |(|
-//@[18:19) RightParen |)|
-//@[19:20) Dot |.|
-//@[20:22) Identifier |id|
-//@[22:23) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[6:26) Identifier |expressionInModifier|
+//@[27:33) Identifier |string|
+//@[34:35) Assignment |=|
+//@[36:37) Integer |2|
+//@[38:39) Plus |+|
+//@[40:41) Integer |3|
+//@[41:43) NewLine |\n\n|
 
 @maxLength(2 + 3)
 //@[0:1) At |@|
@@ -844,28 +615,26 @@ param nonCompileTimeConstant string {
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:3) NewLine |\n|
-param nonCompileTimeConstantWithDecorator string
+param nonCompileTimeConstant string
 //@[0:5) Identifier |param|
-//@[6:41) Identifier |nonCompileTimeConstantWithDecorator|
-//@[42:48) Identifier |string|
-//@[48:51) NewLine |\n\n\n|
+//@[6:28) Identifier |nonCompileTimeConstant|
+//@[29:35) Identifier |string|
+//@[35:38) NewLine |\n\n\n|
 
 
-param emptyAllowedString string {
+@allowed([])
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:10) LeftSquare |[|
+//@[10:11) RightSquare |]|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+param emptyAllowedString string
 //@[0:5) Identifier |param|
 //@[6:24) Identifier |emptyAllowedString|
 //@[25:31) Identifier |string|
-//@[32:33) LeftBrace |{|
-//@[33:34) NewLine |\n|
-  allowed: []
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) RightSquare |]|
-//@[13:14) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[31:33) NewLine |\n\n|
 
 @allowed([])
 //@[0:1) At |@|
@@ -875,41 +644,11 @@ param emptyAllowedString string {
 //@[10:11) RightSquare |]|
 //@[11:12) RightParen |)|
 //@[12:13) NewLine |\n|
-param emptyAllowedStringWithDecorator string
-//@[0:5) Identifier |param|
-//@[6:37) Identifier |emptyAllowedStringWithDecorator|
-//@[38:44) Identifier |string|
-//@[44:46) NewLine |\n\n|
-
-param emptyAllowedInt int {
+param emptyAllowedInt int
 //@[0:5) Identifier |param|
 //@[6:21) Identifier |emptyAllowedInt|
 //@[22:25) Identifier |int|
-//@[26:27) LeftBrace |{|
-//@[27:28) NewLine |\n|
-  allowed: []
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) RightSquare |]|
-//@[13:14) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-@allowed([])
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) RightSquare |]|
-//@[11:12) RightParen |)|
-//@[12:13) NewLine |\n|
-param emptyAllowedIntWithDecorator int
-//@[0:5) Identifier |param|
-//@[6:34) Identifier |emptyAllowedIntWithDecorator|
-//@[35:38) Identifier |int|
-//@[38:40) NewLine |\n\n|
+//@[25:27) NewLine |\n\n|
 
 // 1-cycle in params
 //@[20:21) NewLine |\n|
@@ -938,119 +677,24 @@ param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 //@[37:58) Identifier |paramDefaultTwoCycle1|
 //@[58:60) NewLine |\n\n|
 
-// 1-cycle in modifier params
-//@[29:30) NewLine |\n|
-param paramModifierOneCycle string {
-//@[0:5) Identifier |param|
-//@[6:27) Identifier |paramModifierOneCycle|
-//@[28:34) Identifier |string|
-//@[35:36) LeftBrace |{|
-//@[36:37) NewLine |\n|
-  default: paramModifierOneCycle
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:32) Identifier |paramModifierOneCycle|
-//@[32:33) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-// 1-cycle in modifier with non-default property
-//@[48:49) NewLine |\n|
-param paramModifierSelfCycle string {
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |paramModifierSelfCycle|
-//@[29:35) Identifier |string|
-//@[36:37) LeftBrace |{|
-//@[37:38) NewLine |\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) NewLine |\n|
-    paramModifierSelfCycle
-//@[4:26) Identifier |paramModifierSelfCycle|
-//@[26:27) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 @allowed([
 //@[0:1) At |@|
 //@[1:8) Identifier |allowed|
 //@[8:9) LeftParen |(|
 //@[9:10) LeftSquare |[|
 //@[10:11) NewLine |\n|
-  paramModifierSelfCycleWithDecorator
-//@[2:37) Identifier |paramModifierSelfCycleWithDecorator|
-//@[37:38) NewLine |\n|
+  paramModifierSelfCycle
+//@[2:24) Identifier |paramModifierSelfCycle|
+//@[24:25) NewLine |\n|
 ])
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:3) NewLine |\n|
-param paramModifierSelfCycleWithDecorator string
+param paramModifierSelfCycle string
 //@[0:5) Identifier |param|
-//@[6:41) Identifier |paramModifierSelfCycleWithDecorator|
-//@[42:48) Identifier |string|
-//@[48:50) NewLine |\n\n|
-
-// 2-cycle in modifier params
-//@[29:30) NewLine |\n|
-param paramModifierTwoCycle1 string {
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |paramModifierTwoCycle1|
+//@[6:28) Identifier |paramModifierSelfCycle|
 //@[29:35) Identifier |string|
-//@[36:37) LeftBrace |{|
-//@[37:38) NewLine |\n|
-  default: paramModifierTwoCycle2
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:33) Identifier |paramModifierTwoCycle2|
-//@[33:34) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
-param paramModifierTwoCycle2 string {
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |paramModifierTwoCycle2|
-//@[29:35) Identifier |string|
-//@[36:37) LeftBrace |{|
-//@[37:38) NewLine |\n|
-  default: paramModifierTwoCycle1
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:33) Identifier |paramModifierTwoCycle1|
-//@[33:34) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-// 2-cycle mixed param syntaxes
-//@[31:32) NewLine |\n|
-param paramMixedTwoCycle1 string = paramMixedTwoCycle2
-//@[0:5) Identifier |param|
-//@[6:25) Identifier |paramMixedTwoCycle1|
-//@[26:32) Identifier |string|
-//@[33:34) Assignment |=|
-//@[35:54) Identifier |paramMixedTwoCycle2|
-//@[54:55) NewLine |\n|
-param paramMixedTwoCycle2 string {
-//@[0:5) Identifier |param|
-//@[6:25) Identifier |paramMixedTwoCycle2|
-//@[26:32) Identifier |string|
-//@[33:34) LeftBrace |{|
-//@[34:35) NewLine |\n|
-  default: paramMixedTwoCycle1
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:30) Identifier |paramMixedTwoCycle1|
-//@[30:31) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[35:37) NewLine |\n\n|
 
 // wrong types of "variable"/identifier access
 //@[46:47) NewLine |\n|
@@ -1094,23 +738,7 @@ param paramAccessingVar string = concat(sampleVar, 's')
 //@[49:50) Comma |,|
 //@[51:54) StringComplete |'s'|
 //@[54:55) RightParen |)|
-//@[55:56) NewLine |\n|
-param paramAccessingVar2 string {
-//@[0:5) Identifier |param|
-//@[6:24) Identifier |paramAccessingVar2|
-//@[25:31) Identifier |string|
-//@[32:33) LeftBrace |{|
-//@[33:34) NewLine |\n|
-  default: 'foo ${sampleVar} foo'
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:18) StringLeftPiece |'foo ${|
-//@[18:27) Identifier |sampleVar|
-//@[27:33) StringRightPiece |} foo'|
-//@[33:34) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[55:57) NewLine |\n\n|
 
 param paramAccessingResource string = sampleResource
 //@[0:5) Identifier |param|
@@ -1118,28 +746,7 @@ param paramAccessingResource string = sampleResource
 //@[29:35) Identifier |string|
 //@[36:37) Assignment |=|
 //@[38:52) Identifier |sampleResource|
-//@[52:53) NewLine |\n|
-param paramAccessingResource2 string {
-//@[0:5) Identifier |param|
-//@[6:29) Identifier |paramAccessingResource2|
-//@[30:36) Identifier |string|
-//@[37:38) LeftBrace |{|
-//@[38:39) NewLine |\n|
-  default: base64(sampleResource.properties.foo)
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:17) Identifier |base64|
-//@[17:18) LeftParen |(|
-//@[18:32) Identifier |sampleResource|
-//@[32:33) Dot |.|
-//@[33:43) Identifier |properties|
-//@[43:44) Dot |.|
-//@[44:47) Identifier |foo|
-//@[47:48) RightParen |)|
-//@[48:49) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[52:54) NewLine |\n\n|
 
 param paramAccessingOutput string = sampleOutput
 //@[0:5) Identifier |param|
@@ -1147,131 +754,13 @@ param paramAccessingOutput string = sampleOutput
 //@[27:33) Identifier |string|
 //@[34:35) Assignment |=|
 //@[36:48) Identifier |sampleOutput|
-//@[48:49) NewLine |\n|
-param paramAccessingOutput2 string {
-//@[0:5) Identifier |param|
-//@[6:27) Identifier |paramAccessingOutput2|
-//@[28:34) Identifier |string|
-//@[35:36) LeftBrace |{|
-//@[36:37) NewLine |\n|
-  default: sampleOutput
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:23) Identifier |sampleOutput|
-//@[23:24) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-param stringLiteral string {
-//@[0:5) Identifier |param|
-//@[6:19) Identifier |stringLiteral|
-//@[20:26) Identifier |string|
-//@[27:28) LeftBrace |{|
-//@[28:29) NewLine |\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) NewLine |\n|
-    'def'
-//@[4:9) StringComplete |'def'|
-//@[9:10) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-param stringLiteral2 string {
-//@[0:5) Identifier |param|
-//@[6:20) Identifier |stringLiteral2|
-//@[21:27) Identifier |string|
-//@[28:29) LeftBrace |{|
-//@[29:30) NewLine |\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) NewLine |\n|
-    'abc'
-//@[4:9) StringComplete |'abc'|
-//@[9:10) NewLine |\n|
-    'def'
-//@[4:9) StringComplete |'def'|
-//@[9:10) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-  default: stringLiteral
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:24) Identifier |stringLiteral|
-//@[24:25) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-param stringLiteral3 string {
-//@[0:5) Identifier |param|
-//@[6:20) Identifier |stringLiteral3|
-//@[21:27) Identifier |string|
-//@[28:29) LeftBrace |{|
-//@[29:30) NewLine |\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) NewLine |\n|
-    'abc'
-//@[4:9) StringComplete |'abc'|
-//@[9:10) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-  default: stringLiteral2
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:25) Identifier |stringLiteral2|
-//@[25:26) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[48:50) NewLine |\n\n|
 
 // #completionTest(6) -> empty
 //@[30:31) NewLine |\n|
 param 
 //@[0:5) Identifier |param|
 //@[6:8) NewLine |\n\n|
-
-param stringModifierCompletions string {
-//@[0:5) Identifier |param|
-//@[6:31) Identifier |stringModifierCompletions|
-//@[32:38) Identifier |string|
-//@[39:40) LeftBrace |{|
-//@[40:41) NewLine |\n|
-  // #completionTest(0,1,2) -> stringModifierProperties
-//@[55:56) NewLine |\n|
-  
-//@[2:3) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
-param intModifierCompletions int {
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |intModifierCompletions|
-//@[29:32) Identifier |int|
-//@[33:34) LeftBrace |{|
-//@[34:35) NewLine |\n|
-  // #completionTest(0,1,2) -> intModifierProperties
-//@[52:53) NewLine |\n|
-  
-//@[2:3) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
 
 // #completionTest(46,47) -> justSymbols
 //@[40:41) NewLine |\n|
@@ -1282,118 +771,8 @@ param defaultValueOneLinerCompletions string =
 //@[45:46) Assignment |=|
 //@[47:49) NewLine |\n\n|
 
-param defaultValueCompletions string {
-//@[0:5) Identifier |param|
-//@[6:29) Identifier |defaultValueCompletions|
-//@[30:36) Identifier |string|
-//@[37:38) LeftBrace |{|
-//@[38:39) NewLine |\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:13) NewLine |\n|
-    'one'
-//@[4:9) StringComplete |'one'|
-//@[9:10) NewLine |\n|
-    'two'
-//@[4:9) StringComplete |'two'|
-//@[9:10) NewLine |\n|
-    'three'
-//@[4:11) StringComplete |'three'|
-//@[11:12) NewLine |\n|
-    // #completionTest(0,1,2,3,4) -> oneTwoThree
-//@[48:49) NewLine |\n|
-    
-//@[4:5) NewLine |\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-  // #completionTest(10,11) -> oneTwoThreePlusSymbols
-//@[53:54) NewLine |\n|
-  default: 
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:12) NewLine |\n|
-  
-//@[2:3) NewLine |\n|
-  // #completionTest(9,10) -> booleanValues
-//@[43:44) NewLine |\n|
-  secure: 
-//@[2:8) Identifier |secure|
-//@[8:9) Colon |:|
-//@[10:12) NewLine |\n\n|
-
-  metadata: {
-//@[2:10) Identifier |metadata|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:14) NewLine |\n|
-    // #completionTest(0,1,2,3) -> description
-//@[46:47) NewLine |\n|
-    
-//@[4:5) NewLine |\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
-  // #completionTest(0,1,2) -> stringLengthConstraints
-//@[54:55) NewLine |\n|
-  
-//@[2:3) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 // invalid comma separator (array)
 //@[34:35) NewLine |\n|
-param commaOne string {
-//@[0:5) Identifier |param|
-//@[6:14) Identifier |commaOne|
-//@[15:21) Identifier |string|
-//@[22:23) LeftBrace |{|
-//@[23:24) NewLine |\n|
-    metadata: {
-//@[4:12) Identifier |metadata|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) NewLine |\n|
-      description: 'Name of Virtual Machine'
-//@[6:17) Identifier |description|
-//@[17:18) Colon |:|
-//@[19:44) StringComplete |'Name of Virtual Machine'|
-//@[44:45) NewLine |\n|
-    }
-//@[4:5) RightBrace |}|
-//@[5:6) NewLine |\n|
-    secure: true
-//@[4:10) Identifier |secure|
-//@[10:11) Colon |:|
-//@[12:16) TrueKeyword |true|
-//@[16:17) NewLine |\n|
-    allowed: [
-//@[4:11) Identifier |allowed|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:15) NewLine |\n|
-      'abc',
-//@[6:11) StringComplete |'abc'|
-//@[11:12) Comma |,|
-//@[12:13) NewLine |\n|
-      'def'
-//@[6:11) StringComplete |'def'|
-//@[11:12) NewLine |\n|
-    ]
-//@[4:5) RightSquare |]|
-//@[5:6) NewLine |\n|
-    default: 'abc'
-//@[4:11) Identifier |default|
-//@[11:12) Colon |:|
-//@[13:18) StringComplete |'abc'|
-//@[18:19) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 @metadata({
 //@[0:1) At |@|
 //@[1:9) Identifier |metadata|
@@ -1426,61 +805,11 @@ param commaOne string {
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:3) NewLine |\n|
-param commaOneWithDecorator string
+param commaOne string
 //@[0:5) Identifier |param|
-//@[6:27) Identifier |commaOneWithDecorator|
-//@[28:34) Identifier |string|
-//@[34:36) NewLine |\n\n|
-
-// invalid comma separator (object)
-//@[35:36) NewLine |\n|
-param commaTwo string {
-//@[0:5) Identifier |param|
-//@[6:14) Identifier |commaTwo|
+//@[6:14) Identifier |commaOne|
 //@[15:21) Identifier |string|
-//@[22:23) LeftBrace |{|
-//@[23:24) NewLine |\n|
-    metadata: {
-//@[4:12) Identifier |metadata|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) NewLine |\n|
-      description: 'Name of Virtual Machine'
-//@[6:17) Identifier |description|
-//@[17:18) Colon |:|
-//@[19:44) StringComplete |'Name of Virtual Machine'|
-//@[44:45) NewLine |\n|
-    },
-//@[4:5) RightBrace |}|
-//@[5:6) Comma |,|
-//@[6:7) NewLine |\n|
-    secure: true
-//@[4:10) Identifier |secure|
-//@[10:11) Colon |:|
-//@[12:16) TrueKeyword |true|
-//@[16:17) NewLine |\n|
-    allowed: [
-//@[4:11) Identifier |allowed|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:15) NewLine |\n|
-      'abc'
-//@[6:11) StringComplete |'abc'|
-//@[11:12) NewLine |\n|
-      'def'
-//@[6:11) StringComplete |'def'|
-//@[11:12) NewLine |\n|
-    ]
-//@[4:5) RightSquare |]|
-//@[5:6) NewLine |\n|
-    default: 'abc'
-//@[4:11) Identifier |default|
-//@[11:12) Colon |:|
-//@[13:18) StringComplete |'abc'|
-//@[18:19) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[21:23) NewLine |\n\n|
 
 @secure
 //@[0:1) At |@|
@@ -1543,22 +872,11 @@ param incompleteDecorators string
 //@[10:12) Integer |20|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
-param someString string {
+param someString string
 //@[0:5) Identifier |param|
 //@[6:16) Identifier |someString|
 //@[17:23) Identifier |string|
-//@[24:25) LeftBrace |{|
-//@[25:26) NewLine |\n|
-	// using decorators and modifier at the same time
-//@[50:51) NewLine |\n|
-    secure: true
-//@[4:10) Identifier |secure|
-//@[10:11) Colon |:|
-//@[12:16) TrueKeyword |true|
-//@[16:17) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[23:25) NewLine |\n\n|
 
 @allowed([
 //@[0:1) At |@|
@@ -1796,64 +1114,7 @@ param invalidLength string
 //@[0:5) Identifier |param|
 //@[6:19) Identifier |invalidLength|
 //@[20:26) Identifier |string|
-//@[26:29) NewLine |\n\n\n|
-
-
-param invalidPermutation array {
-//@[0:5) Identifier |param|
-//@[6:24) Identifier |invalidPermutation|
-//@[25:30) Identifier |array|
-//@[31:32) LeftBrace |{|
-//@[32:33) NewLine |\n|
-    default: [
-//@[4:11) Identifier |default|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:15) NewLine |\n|
-		'foobar'
-//@[2:10) StringComplete |'foobar'|
-//@[10:11) NewLine |\n|
-		true
-//@[2:6) TrueKeyword |true|
-//@[6:7) NewLine |\n|
-        100
-//@[8:11) Integer |100|
-//@[11:12) NewLine |\n|
-	]
-//@[1:2) RightSquare |]|
-//@[2:3) NewLine |\n|
-    allowed: [
-//@[4:11) Identifier |allowed|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:15) NewLine |\n|
-		'Microsoft.AnalysisServices/servers'
-//@[2:38) StringComplete |'Microsoft.AnalysisServices/servers'|
-//@[38:39) NewLine |\n|
-		'Microsoft.ApiManagement/service'
-//@[2:35) StringComplete |'Microsoft.ApiManagement/service'|
-//@[35:36) NewLine |\n|
-		'Microsoft.Network/applicationGateways'
-//@[2:41) StringComplete |'Microsoft.Network/applicationGateways'|
-//@[41:42) NewLine |\n|
-		'Microsoft.Automation/automationAccounts'
-//@[2:43) StringComplete |'Microsoft.Automation/automationAccounts'|
-//@[43:44) NewLine |\n|
-		'Microsoft.ContainerInstance/containerGroups'
-//@[2:47) StringComplete |'Microsoft.ContainerInstance/containerGroups'|
-//@[47:48) NewLine |\n|
-		'Microsoft.ContainerRegistry/registries'
-//@[2:42) StringComplete |'Microsoft.ContainerRegistry/registries'|
-//@[42:43) NewLine |\n|
-		'Microsoft.ContainerService/managedClusters'
-//@[2:46) StringComplete |'Microsoft.ContainerService/managedClusters'|
-//@[46:47) NewLine |\n|
-    ]
-//@[4:5) RightSquare |]|
-//@[5:6) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[26:28) NewLine |\n\n|
 
 @allowed([
 //@[0:1) At |@|
@@ -1886,13 +1147,13 @@ param invalidPermutation array {
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:3) NewLine |\n|
-param invalidPermutationWithDecorator array = [
+param invalidPermutation array = [
 //@[0:5) Identifier |param|
-//@[6:37) Identifier |invalidPermutationWithDecorator|
-//@[38:43) Identifier |array|
-//@[44:45) Assignment |=|
-//@[46:47) LeftSquare |[|
-//@[47:48) NewLine |\n|
+//@[6:24) Identifier |invalidPermutation|
+//@[25:30) Identifier |array|
+//@[31:32) Assignment |=|
+//@[33:34) LeftSquare |[|
+//@[34:35) NewLine |\n|
 	'foobar'
 //@[1:9) StringComplete |'foobar'|
 //@[9:10) NewLine |\n|
@@ -1905,54 +1166,6 @@ param invalidPermutationWithDecorator array = [
 ]
 //@[0:1) RightSquare |]|
 //@[1:3) NewLine |\n\n|
-
-param invalidDefaultWithAllowedArray array {
-//@[0:5) Identifier |param|
-//@[6:36) Identifier |invalidDefaultWithAllowedArray|
-//@[37:42) Identifier |array|
-//@[43:44) LeftBrace |{|
-//@[44:45) NewLine |\n|
-    default: true
-//@[4:11) Identifier |default|
-//@[11:12) Colon |:|
-//@[13:17) TrueKeyword |true|
-//@[17:18) NewLine |\n|
-    allowed: [
-//@[4:11) Identifier |allowed|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:15) NewLine |\n|
-		[
-//@[2:3) LeftSquare |[|
-//@[3:4) NewLine |\n|
-			'Microsoft.AnalysisServices/servers'
-//@[3:39) StringComplete |'Microsoft.AnalysisServices/servers'|
-//@[39:40) NewLine |\n|
-			'Microsoft.ApiManagement/service'
-//@[3:36) StringComplete |'Microsoft.ApiManagement/service'|
-//@[36:37) NewLine |\n|
-		]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-		[
-//@[2:3) LeftSquare |[|
-//@[3:4) NewLine |\n|
-			'Microsoft.Network/applicationGateways'
-//@[3:42) StringComplete |'Microsoft.Network/applicationGateways'|
-//@[42:43) NewLine |\n|
-			'Microsoft.Automation/automationAccounts'
-//@[3:44) StringComplete |'Microsoft.Automation/automationAccounts'|
-//@[44:45) NewLine |\n|
-		]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
-    ]
-//@[4:5) RightSquare |]|
-//@[5:6) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:4) NewLine |\n\n\n|
-
 
 @allowed([
 //@[0:1) At |@|

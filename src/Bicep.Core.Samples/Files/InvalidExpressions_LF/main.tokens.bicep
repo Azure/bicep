@@ -751,22 +751,15 @@ var fakeFunc = red() + green() * orange()
 //@[39:40) LeftParen |(|
 //@[40:41) RightParen |)|
 //@[41:42) NewLine |\n|
-param fakeFuncP string {
+param fakeFuncP string = blue()
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |fakeFuncP|
 //@[16:22) Identifier |string|
-//@[23:24) LeftBrace |{|
-//@[24:25) NewLine |\n|
-  default: blue()
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:15) Identifier |blue|
-//@[15:16) LeftParen |(|
-//@[16:17) RightParen |)|
-//@[17:18) NewLine |\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[23:24) Assignment |=|
+//@[25:29) Identifier |blue|
+//@[29:30) LeftParen |(|
+//@[30:31) RightParen |)|
+//@[31:33) NewLine |\n\n|
 
 // non-existent variable
 //@[24:25) NewLine |\n|

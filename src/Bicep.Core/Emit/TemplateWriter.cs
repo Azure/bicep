@@ -181,10 +181,8 @@ namespace Bicep.Core.Emit
 
         private void EmitParameter(JsonTextWriter jsonWriter, ParameterSymbol parameterSymbol, ExpressionEmitter emitter)
         {
-            // local function
-            static bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
-
-            if (!(SyntaxHelper.TryGetPrimitiveType(parameterSymbol.DeclaringParameter) is TypeSymbol primitiveType))
+            var declaringParameter = parameterSymbol.DeclaringParameter;
+            if (SyntaxHelper.TryGetPrimitiveType(declaringParameter) is not TypeSymbol primitiveType)
             {
                 // this should have been caught by the type checker long ago
                 throw new ArgumentException($"Unable to find primitive type for parameter {parameterSymbol.Name}");
@@ -192,58 +190,21 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteStartObject();
 
-            if (parameterSymbol.DeclaringParameter.Decorators.Any())
+            var parameterType = SyntaxFactory.CreateStringLiteral(primitiveType.Name);
+            var parameterObject = SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("type", parameterType).AsEnumerable());
+
+            if (declaringParameter.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
             {
-                var parameterType = SyntaxFactory.CreateStringLiteral(primitiveType.Name);
-                var parameterObject = SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("type", parameterType).AsEnumerable());
-
-                if (parameterSymbol.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
-                {
-                    parameterObject = parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
-                }
-
-                parameterObject = EvaluateDecorators(parameterSymbol.DeclaringParameter, parameterObject, primitiveType);
-
-                foreach (var property in parameterObject.Properties)
-                {
-                    if (property.TryGetKeyText() is string propertyName)
-                    {
-                        emitter.EmitProperty(propertyName, property.Value);
-                    }
-                }
+                parameterObject = parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
             }
-            else
+
+            parameterObject = EvaluateDecorators(declaringParameter, parameterObject, primitiveType);
+
+            foreach (var property in parameterObject.Properties)
             {
-                // TODO: remove this before the 0.3 release.
-                switch (parameterSymbol.Modifier)
+                if (property.TryGetKeyText() is string propertyName)
                 {
-                    case null:
-                        emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, secure: false));
-
-                        break;
-
-                    case ParameterDefaultValueSyntax defaultValueSyntax:
-                        emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, secure: false));
-                        emitter.EmitProperty("defaultValue", defaultValueSyntax.DefaultValue);
-
-                        break;
-
-                    case ObjectSyntax modifierSyntax:
-                        // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
-                        var properties = modifierSyntax.ToNamedPropertyValueDictionary();
-
-                        emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, IsSecure(properties.TryGetValue("secure"))));
-
-                        // relying on validation here as well (not all of the properties are valid in all contexts)
-                        foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
-                        {
-                            emitter.EmitOptionalPropertyExpression(modifierPropertyName, properties.TryGetValue(modifierPropertyName));
-                        }
-
-                        emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue(LanguageConstants.ParameterDefaultPropertyName));
-                        emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue(LanguageConstants.ParameterAllowedPropertyName));
-
-                        break;
+                    emitter.EmitProperty(propertyName, property.Value);
                 }
             }
 

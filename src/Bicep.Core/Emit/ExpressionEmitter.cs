@@ -318,39 +318,52 @@ namespace Bicep.Core.Emit
         {
             if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison))
             {
-                var objectSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
-                if (objectSymbol is ResourceSymbol resource
-                    && string.Equals(resource.GetResourceTypeReference().FullyQualifiedType, "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
+                var objectSymbol = instanceFunctionCall.BaseExpression switch
                 {
-                    writer.WritePropertyName("reference");
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("keyVault");
-                    writer.WriteStartObject();
+                    ArrayAccessSyntax arrayAccessSyntax => context.SemanticModel.GetSymbolInfo(arrayAccessSyntax.BaseExpression),
+                    _ => context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression)
+                };
 
-                    writer.WritePropertyName("id");
-                    var keyVaultId = converter.GetFullyQualifiedResourceId(resource);
-                    var keyVaultIdSerialised = ExpressionSerializer.SerializeExpression(keyVaultId);
-                    writer.WriteValue(keyVaultIdSerialised);
-
-                    writer.WriteEndObject(); // keyVault
-
-                    writer.WritePropertyName("secretName");
-                    var secretName = converter.ConvertExpression(instanceFunctionCall.Arguments[0].Expression);
-                    var secretNameSerialised = ExpressionSerializer.SerializeExpression(secretName);
-                    writer.WriteValue(secretNameSerialised);
-
-                    if (instanceFunctionCall.Arguments.Length > 1)
-                    {
-                        writer.WritePropertyName("secretVersion");
-                        var secretVersion = converter.ConvertExpression(instanceFunctionCall.Arguments[1].Expression);
-                        var secretVersionSerialised = ExpressionSerializer.SerializeExpression(secretVersion);
-                        writer.WriteValue(secretVersionSerialised);
-                    }
-                    writer.WriteEndObject(); // reference
-
-                    return;
+                if (objectSymbol is not ResourceSymbol resource ||
+                    !string.Equals(resource.GetResourceTypeReference().FullyQualifiedType, "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
                 }
-                throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
+
+                var keyVaultId = instanceFunctionCall.BaseExpression switch
+                {
+                    ArrayAccessSyntax arrayAccessSyntax => converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resource), arrayAccessSyntax.IndexExpression, instanceFunctionCall)
+                                                                    .GetFullyQualifiedResourceId(resource),
+                    _ => converter.GetFullyQualifiedResourceId(resource)
+                };
+
+                writer.WritePropertyName("reference");
+                writer.WriteStartObject();
+                writer.WritePropertyName("keyVault");
+                writer.WriteStartObject();
+
+                writer.WritePropertyName("id");
+
+                var keyVaultIdSerialised = ExpressionSerializer.SerializeExpression(keyVaultId);
+                writer.WriteValue(keyVaultIdSerialised);
+
+                writer.WriteEndObject(); // keyVault
+
+                writer.WritePropertyName("secretName");
+                var secretName = converter.ConvertExpression(instanceFunctionCall.Arguments[0].Expression);
+                var secretNameSerialised = ExpressionSerializer.SerializeExpression(secretName);
+                writer.WriteValue(secretNameSerialised);
+
+                if (instanceFunctionCall.Arguments.Length > 1)
+                {
+                    writer.WritePropertyName("secretVersion");
+                    var secretVersion = converter.ConvertExpression(instanceFunctionCall.Arguments[1].Expression);
+                    var secretVersionSerialised = ExpressionSerializer.SerializeExpression(secretVersion);
+                    writer.WriteValue(secretVersionSerialised);
+                }
+                writer.WriteEndObject(); // reference
+
+                return;
             }
             EmitProperty("value", syntax);
         }

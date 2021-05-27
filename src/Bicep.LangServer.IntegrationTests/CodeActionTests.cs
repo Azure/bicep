@@ -3,10 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.LanguageServer.Extensions;
@@ -29,8 +31,13 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task RequestingCodeActionWithFixableDiagnosticsShouldProduceQuickFixes(DataSet dataSet)
         {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
+            // ensure all files (e.g. modules) are present locally
+            string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext);
+            var entryPoint = Path.Combine(basePath, "main.bicep");
+            var uri = DocumentUri.FromFileSystemPath(entryPoint);
+
+            // start language server
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, fileResolver: new FileResolver());
 
             // construct a parallel compilation
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);

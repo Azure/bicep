@@ -299,13 +299,6 @@ namespace Bicep.Core.TypeSystem
 
                 if (syntax.Modifier != null)
                 {
-                    if (syntax.Modifier is ObjectSyntax modifierSyntax)
-                    {
-                        diagnostics.Write(syntax.Decorators.Any()
-                            ? DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether()
-                            : DiagnosticBuilder.ForPosition(modifierSyntax).ParameterModifiersDeprecated());
-                    }
-
                     diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
                 }
 
@@ -337,12 +330,6 @@ namespace Bicep.Core.TypeSystem
                 {
                     case ParameterDefaultValueSyntax defaultValueSyntax:
                         diagnostics.WriteMultiple(ValidateDefaultValue(defaultValueSyntax, assignedType));
-                        break;
-
-                    case ObjectSyntax modifierSyntax:
-                        var modifierType = LanguageConstants.CreateParameterModifierType(declaredType, assignedType);
-                        // we don't need to actually use the narrowed type; just need to use this to collect assignment diagnostics
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, modifierSyntax, modifierType);
                         break;
                 }
 

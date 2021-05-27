@@ -140,14 +140,6 @@ targetScope   =
 
 param   foo string
 param foo   int
-param foo string {
-} /* skipped trivia */   something
-
-// Broken.
-param foo string {
-    allowed [  ]
-}
-
 
 // Skipped trivia
 ###
@@ -213,12 +205,6 @@ targetScope   =
 
 param foo string
 param foo int
-param foo string {} /* skipped trivia */   something
-
-// Broken.
-param foo string {
-    allowed [  ]
-}
 
 // Skipped trivia
 ###

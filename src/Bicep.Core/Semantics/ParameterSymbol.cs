@@ -12,15 +12,12 @@ namespace Bicep.Core.Semantics
 {
     public class ParameterSymbol : DeclaredSymbol
     {
-        public ParameterSymbol(ISymbolContext context, string name, ParameterDeclarationSyntax declaringSyntax, SyntaxBase? modifier)
+        public ParameterSymbol(ISymbolContext context, string name, ParameterDeclarationSyntax declaringSyntax)
             : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
-            this.Modifier = modifier;
         }
 
         public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax) this.DeclaringSyntax;
-
-        public SyntaxBase? Modifier { get; }
 
         public override SymbolKind Kind => SymbolKind.Parameter;
 
