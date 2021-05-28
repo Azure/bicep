@@ -4,6 +4,34 @@
         "description": "000/01-hello-world"
     },
     {
+        "filePath": "000/10-string-functions/main.bicep",
+        "description": "000/10-string-functions"
+    },
+    {
+        "filePath": "000/11-multiline-strings/main.bicep",
+        "description": "000/11-multiline-strings"
+    },
+    {
+        "filePath": "000/20-array-loop/main.bicep",
+        "description": "000/20-array-loop"
+    },
+    {
+        "filePath": "000/21-array-lookup/main.bicep",
+        "description": "000/21-array-lookup"
+    },
+    {
+        "filePath": "000/22-array-lookup-complex/main.bicep",
+        "description": "000/22-array-lookup-complex"
+    },
+    {
+        "filePath": "000/30-json-object-simple/main.bicep",
+        "description": "000/30-json-object-simple"
+    },
+    {
+        "filePath": "000/31-json-object-complex/main.bicep",
+        "description": "000/31-json-object-complex"
+    },
+    {
         "filePath": "101/1vm-2nics-2subnets-1vnet/main.bicep",
         "description": "101/1vm-2nics-2subnets-1vnet"
     },
