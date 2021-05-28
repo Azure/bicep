@@ -533,7 +533,6 @@ var partialObject = {
 //@[3:3) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) ||
   3 : concat('s')
 //@[2:3) [BCP022 (Error)] Expected a property name at this location. (CodeDescription: none) |3|
-//@[6:17) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('s')|
   
   's' 
 //@[2:5) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'s'|
