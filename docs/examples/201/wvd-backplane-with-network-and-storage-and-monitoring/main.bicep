@@ -28,6 +28,22 @@ param storageaccountkind string = 'FileStorage'
 param storgeaccountglobalRedundancy string = 'Premium_LRS'
 param fileshareFolderName string = 'profilecontainers'
 
+//Set Peering Hub RG and VNet target parameters
+param hubrg string = 'ExistingHubRGName' //Enter the name of the existing Hub/Identity vNet Resource Group 
+param hubvnet string = 'ExistingHubvnetName' //Enter the name of the existing Hub vNet name
+
+//Get Existing Hub Resource Group Details
+resource hubresourcegroup 'Microsoft.Resources/resourceGroups@2020-06-01' existing = {
+  name: hubrg
+  scope: subscription()
+}
+
+//Get Existing Hub VNet Details
+resource hubsourcevnet 'Microsoft.Network/virtualNetworks@2020-11-01' existing = {
+  name: hubvnet
+  scope: hubresourcegroup
+}
+
 //Create Resource Groups
 resource rgwvd 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: '${resourceGroupPrefrix}BACKPLANE'
@@ -104,5 +120,25 @@ module pep './wvd-fileservices-privateendpoint-module.bicep' = {
     storageAccountId: wvdFileServices.outputs.storageAccountId
     vnetId: wvdnetwork.outputs.vnetId
     subnetId: wvdnetwork.outputs.subnetId
+  }
+}
+
+//Create Peering from WVD vNet to Hub vNet
+module wvdpeering './wvd-peering-from-vnet-to-hub-module.bicep' = {
+  name: '${wvdnetwork.name}peerto${hubsourcevnet.name}'
+  scope: rgnetw
+  params:{
+    peeringnamefromwvdvnet : '${vnetName}/${vnetName}-to-${hubsourcevnet.name}'
+    hubvnetid : hubsourcevnet.id
+  }
+}
+
+//Create Peering from Hub vNet to WVD vNet
+module hubpeering './wvd-peering-from-hub-to-vnet-module.bicep' = {
+  name: '${hubsourcevnet.name}peerto${wvdnetwork.name}'
+  scope: hubresourcegroup
+  params:{
+    peeringnamefromhubvnet : '${hubsourcevnet.name}/${hubsourcevnet.name}-to-${vnetName}'
+    wvdvnetid : wvdnetwork.outputs.vnetId
   }
 }

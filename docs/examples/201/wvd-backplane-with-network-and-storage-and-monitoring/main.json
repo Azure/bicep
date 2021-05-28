@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "6314278475007582369"
+      "version": "0.3.539.46024",
+      "templateHash": "15677362214793058031"
     }
   },
   "parameters": {
@@ -63,11 +63,11 @@
     },
     "vnetaddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/15"
+      "defaultValue": "10.60.0.0/15"
     },
     "subnetPrefix": {
       "type": "string",
-      "defaultValue": "10.0.1.0/24"
+      "defaultValue": "10.60.1.0/24"
     },
     "vnetLocation": {
       "type": "string",
@@ -83,7 +83,7 @@
     },
     "storageaccountName": {
       "type": "string",
-      "defaultValue": "bicepsa"
+      "defaultValue": "bicepsasmb2132"
     },
     "storageaccountkind": {
       "type": "string",
@@ -96,6 +96,14 @@
     "fileshareFolderName": {
       "type": "string",
       "defaultValue": "profilecontainers"
+    },
+    "hubrg": {
+      "type": "string",
+      "defaultValue": "AzDemoSB-Identity-rg"
+    },
+    "hubvnet": {
+      "type": "string",
+      "defaultValue": "Identity-vnet"
     }
   },
   "functions": [],
@@ -184,8 +192,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "15797586949599757778"
+              "version": "0.3.539.46024",
+              "templateHash": "5384349523331205440"
             }
           },
           "parameters": {
@@ -327,8 +335,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "dev",
-                      "templateHash": "8750382069822554676"
+                      "version": "0.3.539.46024",
+                      "templateHash": "5251152976212156215"
                     }
                   },
                   "parameters": {
@@ -396,8 +404,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "dev",
-                              "templateHash": "6360399044046989416"
+                              "version": "0.3.539.46024",
+                              "templateHash": "5005998212056445527"
                             }
                           },
                           "parameters": {
@@ -527,8 +535,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "14974550603307173803"
+              "version": "0.3.539.46024",
+              "templateHash": "12530551007580652177"
             }
           },
           "parameters": {
@@ -624,8 +632,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "10122142263707335383"
+              "version": "0.3.539.46024",
+              "templateHash": "18134788139474416411"
             }
           },
           "parameters": {
@@ -717,8 +725,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "12847428002032474568"
+              "version": "0.3.539.46024",
+              "templateHash": "6388191910784356263"
             }
           },
           "parameters": {
@@ -817,6 +825,125 @@
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}NETWORK', parameters('resourceGroupPrefrix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdFileServices')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdnetwork')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}peerto{1}', 'wvdnetwork', parameters('hubvnet'))]",
+      "resourceGroup": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "peeringnamefromwvdvnet": {
+            "value": "[format('{0}/{1}-to-{2}', parameters('vnetName'), parameters('vnetName'), parameters('hubvnet'))]"
+          },
+          "hubVnetID": {
+            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubrg')), 'Microsoft.Network/virtualNetworks', parameters('hubvnet'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.3.539.46024",
+              "templateHash": "5852103765110730323"
+            }
+          },
+          "parameters": {
+            "hubVnetID": {
+              "type": "string"
+            },
+            "peeringnamefromwvdvnet": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2020-05-01",
+              "name": "[parameters('peeringnamefromwvdvnet')]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[parameters('hubVnetID')]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}NETWORK', parameters('resourceGroupPrefrix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdnetwork')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}peerto{1}', parameters('hubvnet'), 'wvdnetwork')]",
+      "resourceGroup": "[parameters('hubrg')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "peeringnamefromhubvnet": {
+            "value": "[format('{0}/{1}-to-{2}', parameters('hubvnet'), parameters('hubvnet'), parameters('vnetName'))]"
+          },
+          "wvdvnetID": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdnetwork'), '2019-10-01').outputs.vnetId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.3.539.46024",
+              "templateHash": "7169430765622565429"
+            }
+          },
+          "parameters": {
+            "wvdvnetID": {
+              "type": "string"
+            },
+            "peeringnamefromhubvnet": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2020-05-01",
+              "name": "[parameters('peeringnamefromhubvnet')]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[parameters('wvdvnetID')]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdnetwork')]"
       ]
     }
