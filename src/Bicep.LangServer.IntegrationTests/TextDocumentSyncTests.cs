@@ -47,7 +47,8 @@ randomToken
             response.Diagnostics.Should().SatisfyRespectively(
                 d => {
                     d.Range.Should().HaveRange((1, 6), (1, 13));
-                    d.Should().HaveCodeAndSeverity(ParametersMustBeUsedRule.Code, DiagnosticSeverity.Warning);
+                    // note documentation pretty printing moves Uri to code for output
+                    d.Should().HaveCodeAndSeverity(new ParametersMustBeUsedRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
                 },
                 d => {
                     d.Range.Should().HaveRange((1, 23), (1, 24));
@@ -77,7 +78,8 @@ randomToken
             response.Diagnostics.Should().SatisfyRespectively(
                 d => {
                     d.Range.Should().HaveRange((1, 6), (1, 13));
-                    d.Should().HaveCodeAndSeverity(ParametersMustBeUsedRule.Code, DiagnosticSeverity.Warning);
+                    // documentation provided with linter sets code to uri for pretty link print outs
+                    d.Should().HaveCodeAndSeverity(new ParametersMustBeUsedRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
                 },
                 d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));

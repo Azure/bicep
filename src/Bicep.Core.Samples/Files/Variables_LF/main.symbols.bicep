@@ -301,7 +301,7 @@ var isTrue = sys.max(1, 2) == 3
 var isFalse = !isTrue
 //@[4:11) Variable isFalse. Type: bool. Declaration start char: 0, length: 21
 var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
-//@[4:12) Variable someText. Type: 'someText' | string. Declaration start char: 0, length: 74
+//@[4:12) Variable someText. Type: string. Declaration start char: 0, length: 74
 
 // Bicep functions that cannot be converted into ARM functions
 var scopesWithoutArmRepresentation = {

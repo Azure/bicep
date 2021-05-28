@@ -147,10 +147,6 @@
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Secure parameters should not have hardcoded defaults (except for empty or newGuid()).</value>
   </data>
-  <data name="SeeDocLinkFormat" xml:space="preserve">
-    <value>See {0}</value>
-    <comment>{0} is hyperlink to docs </comment>
-  </data>
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
   </data>
