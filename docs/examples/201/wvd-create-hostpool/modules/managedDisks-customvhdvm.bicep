@@ -260,7 +260,7 @@ resource vm_DSC 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = [for
   ]
 }]
 
-resource vm_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = [for i in range(0, rdshNumberOfInstances): if(aadJoin && !intune) {
+resource vm_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = [for i in range(0, rdshNumberOfInstances): if (aadJoin && !intune) {
   name: '${rdshPrefix}${(i + vmInitialNumber)}/AADLoginForWindows'
   location: location
   properties: {
@@ -274,7 +274,7 @@ resource vm_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@201
   ]
 }]
 
-resource vm_AADLoginForWindowsWithIntune 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = [for i in range(0, rdshNumberOfInstances): if(aadJoin && intune) {
+resource vm_AADLoginForWindowsWithIntune 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = [for i in range(0, rdshNumberOfInstances): if (aadJoin && intune) {
   name: '${rdshPrefix}${(i + vmInitialNumber)}/AADLoginForWindowsWithIntune'
   location: location
   properties: {
@@ -291,7 +291,7 @@ resource vm_AADLoginForWindowsWithIntune 'Microsoft.Compute/virtualMachines/exte
   ]
 }]
 
-resource vm_joindomain 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = [for i in range(0, rdshNumberOfInstances): if(!aadJoin) {
+resource vm_joindomain 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = [for i in range(0, rdshNumberOfInstances): if (!aadJoin) {
   name: '${rdshPrefix}${(i + vmInitialNumber)}/joindomain'
   location: location
   properties: {
