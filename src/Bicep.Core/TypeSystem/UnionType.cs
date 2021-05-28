@@ -23,16 +23,37 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol Create(IEnumerable<ITypeReference> unionMembers)
         {
             // flatten and then de-duplicate members
-            var finalMembers = FlattenMembers(unionMembers)
+            var flattenedMembers = FlattenMembers(unionMembers)
                 .Distinct()
                 .OrderBy(m => m.Type.Name, StringComparer.Ordinal)
                 .ToImmutableArray();
 
-            return finalMembers.Length switch
+            if(flattenedMembers.Any(member => member is AnyType))
+            {
+                // a union type with "| any" is the same as "any" type
+                return LanguageConstants.Any;
+            }
+
+            IEnumerable<ITypeReference> intermediateMembers = flattenedMembers;
+            if (flattenedMembers.Any(member => member.Type == LanguageConstants.String))
+            {
+                // the union has the base "string" type, so we can drop all string literal types from it
+                intermediateMembers = intermediateMembers.Where(member => member.Type is not StringLiteralType);
+            }
+
+            if(flattenedMembers.Any(member => member.Type == LanguageConstants.Array))
+            {
+                // the union has the base "array" type, so we can drop any more specific array types
+                intermediateMembers = intermediateMembers.Where(member => member.Type is not ArrayType || member.Type == LanguageConstants.Array);
+            }
+
+            var normalizedMembers = intermediateMembers.ToImmutableArray();
+
+            return normalizedMembers.Length switch
             {
                 0 => new UnionType("never", ImmutableArray<ITypeReference>.Empty),
-                1 => finalMembers[0].Type,
-                _ => new UnionType(FormatName(finalMembers), finalMembers)
+                1 => normalizedMembers[0].Type,
+                _ => new UnionType(FormatName(normalizedMembers), normalizedMembers)
             };
         }
 

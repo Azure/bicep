@@ -2220,5 +2220,57 @@ resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2019-1
                 ("BCP177",DiagnosticLevel.Error,"The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of importPipeline are \"apiVersion\", \"id\", \"name\", \"type\".")
             });
         }
+
+        [TestMethod]
+        public void Test_Issue2578()
+        {
+            var result = CompilationHelper.Compile(
+                ("simple.bicep", @"
+param hello string
+output hello string = hello
+"),
+                ("main.bicep", @"
+var v = {
+  hello: 's'
+}
+
+module simple 'simple.bicep' = {
+  name: 's2'
+  params: v
+}
+"));
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP183", DiagnosticLevel.Error, "The value of the module \"params\" property must be an object literal.")
+            });
+        }
+
+        [TestMethod]
+        public void Test_Issue2578_ParseError()
+        {
+            var result = CompilationHelper.Compile(
+                ("simple.bicep", @"
+param hello string
+output hello string = hello
+"),
+                ("main.bicep", @"
+var v = {
+  hello: 's'
+}
+
+module simple 'simple.bicep' = {
+  name: 's2'
+  params: 
+}
+
+output v object = v
+"));
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.")
+            });
+
+            result.Should().NotHaveDiagnosticsWithCodes(new[] { "BCP183" });
+        }
     }
 }

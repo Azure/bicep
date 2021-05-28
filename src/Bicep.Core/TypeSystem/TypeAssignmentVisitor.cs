@@ -620,7 +620,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var aggregatedItemType = UnionType.Create(itemTypes);
-                if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never)
+                if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never || aggregatedItemType.TypeKind == TypeKind.Any)
                 {
                     // array contains a mix of item types or is empty
                     // assume array of any for now

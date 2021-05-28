@@ -47,21 +47,22 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             {
-                if (syntax.NameEquals(concatFunction) && !syntax.GetParseDiagnostics().Any())
+                // must have more than 1 argument to use interpolation
+                if (syntax.NameEquals(concatFunction)
+                   && syntax.Arguments.Length > 1
+                   && !syntax.GetParseDiagnostics().Any())
                 {
                     // We should only suggest rewriting concat() calls that result in a string (concat can also operate on and
                     // return arrays)
                     var resultType = this.model.GetTypeInfo(syntax);
                     if (resultType is not AnyType && TypeValidator.AreTypesAssignable(resultType, LanguageConstants.String))
                     {
+                        if (CreateFix(syntax) is CodeFix fix)
                         {
-                            if (CreateFix(syntax) is CodeFix fix)
-                            {
-                                this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(syntax.Span, fix));
+                            this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(syntax.Span, fix));
 
-                                // Only report on the top-most string-valued concat call
-                                return;
-                            }
+                            // Only report on the top-most string-valued concat call
+                            return;
                         }
                     }
                 }

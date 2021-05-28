@@ -1073,6 +1073,11 @@ namespace Bicep.Core.Diagnostics
             private static string BuildAccessiblePropertiesClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames) => accessedSymbolName is not null && accessiblePropertyNames is not null
                 ? $" Accessible properties of {accessedSymbolName} are {ToQuotedString(accessiblePropertyNames.OrderBy(s => s))}."
                 : string.Empty;
+
+            public ErrorDiagnostic ModuleParametersPropertyRequiresObjectLiteral() => new(
+                TextSpan,
+                "BCP183",
+                $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
