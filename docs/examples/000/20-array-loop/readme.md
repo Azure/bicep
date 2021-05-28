@@ -6,7 +6,6 @@ This bicep sample demonstrates array iterations.
 
 This bicep file iterates through an array and references items in three ways.
 
-
 ## Output
 
 The output of the deployment should be:
