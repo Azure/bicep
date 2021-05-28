@@ -178,7 +178,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Variable &quot;{0}&quot; is declared but never used.
+        ///   Looks up a localized string similar to Variable &quot;{0}&quot; is declared but never used..
         /// </summary>
         internal static string UnusedVariableRuleMessageFormat {
             get {
