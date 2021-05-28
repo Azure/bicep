@@ -25,7 +25,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         private ConfigHelper configHelper = new ConfigHelper();
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
-        private ImmutableArray<IBicepAnalyzerDiagnostic> RuleCreationErrors;
+        private ImmutableArray<IDiagnostic> RuleCreationErrors;
 
         // TODO: This should be controlled by a core component, not an analyzer
         public const string FailedRuleCode = "linter-internal-error";
@@ -38,9 +38,9 @@ namespace Bicep.Core.Analyzers.Linter
         private bool LinterEnabled => this.configHelper.GetValue(LinterEnabledSetting, true);
         private bool LinterVerbose => this.configHelper.GetValue(LinterVerboseSetting, true);
 
-        private (ImmutableArray<IBicepAnalyzerRule> rules, ImmutableArray<IBicepAnalyzerDiagnostic> errors) CreateLinterRules()
+        private (ImmutableArray<IBicepAnalyzerRule> rules, ImmutableArray<IDiagnostic> errors) CreateLinterRules()
         {
-            List<IBicepAnalyzerDiagnostic> errors = new List<IBicepAnalyzerDiagnostic>();
+            List<IDiagnostic> errors = new List<IDiagnostic>();
             List<IBicepAnalyzerRule> rules = new List<IBicepAnalyzerRule>();
 
             var ruleTypes = Assembly.GetExecutingAssembly()
@@ -71,15 +71,15 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => RuleSet;
 
-        public IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel) => Analyze(semanticModel, default);
+        public IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel) => Analyze(semanticModel, default);
 
-        internal IEnumerable<IBicepAnalyzerDiagnostic> Analyze(SemanticModel semanticModel, ConfigHelper? overrideConfig = default)
+        internal IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel, ConfigHelper? overrideConfig = default)
         {
             // check for configuration overrides
             /// typically only used in unit tests
             var configHelp = overrideConfig ?? this.configHelper;
 
-            var diagnostics = new List<IBicepAnalyzerDiagnostic>();
+            var diagnostics = new List<IDiagnostic>();
 
             try
             {
@@ -115,23 +115,25 @@ namespace Bicep.Core.Analyzers.Linter
                                 new TextSpan(0, 0),
                                 DiagnosticLevel.Info,
                                 "Linter Disabled",
-                                string.Format(CoreResources.LinterDisabledFormatMessage, this.configHelper.CustomSettingsFileName)));
+                                string.Format(CoreResources.LinterDisabledFormatMessage, this.configHelper.CustomSettingsFileName),
+                                null, null));
                 }
             }
             return diagnostics;
         }
 
-        private IBicepAnalyzerDiagnostic GetConfigurationDiagnostic()
+        private IDiagnostic GetConfigurationDiagnostic()
         {
             var configMessage = this.configHelper.CustomSettingsFileName == default ?
                                     CoreResources.BicepConfigNoCustomSettingsMessage
                                     : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, this.configHelper.CustomSettingsFileName);
 
             return new AnalyzerDiagnostic(AnalyzerName,
-                                                    new TextSpan(0, 0),
-                                                    DiagnosticLevel.Info,
-                                                    "Bicep Linter Configuration",
-                                                    configMessage);
+                                            new TextSpan(0, 0),
+                                            DiagnosticLevel.Info,
+                                            "Bicep Linter Configuration",
+                                            configMessage,
+                                            null, null);
         }
 
         /// <summary>
@@ -144,7 +146,7 @@ namespace Bicep.Core.Analyzers.Linter
             this.configHelper = overrideConfig;
         }
 
-        internal IBicepAnalyzerDiagnostic CreateInternalErrorDiagnostic(string analyzerName, string message)
+        internal IDiagnostic CreateInternalErrorDiagnostic(string analyzerName, string message)
         {
             return new AnalyzerDiagnostic(
                     analyzerName,
@@ -152,6 +154,7 @@ namespace Bicep.Core.Analyzers.Linter
                     DiagnosticLevel.Warning,
                     LinterAnalyzer.FailedRuleCode,
                     message,
+                    null,
                     null);
         }
     }

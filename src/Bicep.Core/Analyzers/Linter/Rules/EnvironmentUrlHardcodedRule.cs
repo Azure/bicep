@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -23,7 +22,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public EnvironmentUrlHardcodedRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/no-hardcoded-env-urls")
+            docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
         {
         }
 
@@ -37,7 +36,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         protected override string FormatMessage(params object[] values)
             => string.Format("{0} Found this disallowed host: \"{1}\"", this.Description, values.First());
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             if (this.DisallowedHosts != null && this.DisallowedHosts.Any())
             {
@@ -46,7 +45,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.span, entry.host));
             }
 
-            return Enumerable.Empty<IBicepAnalyzerDiagnostic>();
+            return Enumerable.Empty<IDiagnostic>();
         }
 
         private class Visitor : SyntaxVisitor
