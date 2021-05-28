@@ -10,8 +10,8 @@
   },
   "functions": [],
   "variables": {
-    "List": "a,b,c,d",
-    "arrayFromString": "[split(variables('List'), ',')]",
+    "list": "a,b,c,d",
+    "arrayFromString": "[split(variables('list'), ',')]",
     "find": "findThisInString",
     "found": "[contains(variables('find'), 'This')]",
     "index": "[indexOf(variables('find'), 'This')]",

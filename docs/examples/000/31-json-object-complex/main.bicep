@@ -1,6 +1,6 @@
 //Json object samples
 
-var RouteArray = [
+var routeArray = [
   'OnPrem1'
   'OnPrem2'
 ]
@@ -21,9 +21,9 @@ var jsonString = '''
 '''
 var jsonArray = json(jsonString)
 
-output routeArray array = [for (name, i) in RouteArray: {
+output routeArray array = [for (name, i) in routeArray: {
   name: name
-  AddressPrefix: jsonArray['${name}'].AddressPrefix
-  NextHopType: jsonArray['${name}'].NextHopType
-  NextHopIpAddress: jsonArray['${name}'].NextHopIpAddress
+  AddressPrefix: jsonArray[name].AddressPrefix
+  NextHopType: jsonArray[name].NextHopType
+  NextHopIpAddress: jsonArray[name].NextHopIpAddress
 }]

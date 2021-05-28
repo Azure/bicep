@@ -10,7 +10,7 @@
   },
   "functions": [],
   "variables": {
-    "SubnetArray": [
+    "subnetArray": [
       "GatewaySubnet",
       "AzureBastionSubnet",
       "AzureFirewallSubnet",
@@ -18,7 +18,7 @@
       "appsubnet",
       "sqlsubnet"
     ],
-    "SubnetObj": {
+    "subnetObj": {
       "GatewaySubnet": {
         "NSG": false,
         "RouteTable": true,
@@ -56,12 +56,12 @@
     "bicepObject": {
       "type": "array",
       "copy": {
-        "count": "[length(variables('SubnetArray'))]",
+        "count": "[length(variables('subnetArray'))]",
         "input": {
-          "name": "[variables('SubnetArray')[copyIndex()]]",
-          "AddressSpace": "[variables('SubnetObj')[variables('SubnetArray')[copyIndex()]].AddressSpace]",
-          "NSG": "[variables('SubnetObj')[variables('SubnetArray')[copyIndex()]].NSG]",
-          "RouteTable": "[variables('SubnetObj')[variables('SubnetArray')[copyIndex()]].RouteTable]"
+          "name": "[variables('subnetArray')[copyIndex()]]",
+          "AddressSpace": "[variables('subnetObj')[variables('subnetArray')[copyIndex()]].AddressSpace]",
+          "NSG": "[variables('subnetObj')[variables('subnetArray')[copyIndex()]].NSG]",
+          "RouteTable": "[variables('subnetObj')[variables('subnetArray')[copyIndex()]].RouteTable]"
         }
       }
     }

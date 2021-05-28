@@ -23,7 +23,7 @@ var regionToTimezone = {
   westus2: 'Pacific Standard Time'
 }
 //Lookup the timezone in the object hash
-var timezone = regionToTimezone['${azRegion}']
+var timezone = regionToTimezone[azRegion]
 
 output AzRegion string = azRegion
 output Timezone string = timezone

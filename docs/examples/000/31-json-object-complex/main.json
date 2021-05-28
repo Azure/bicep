@@ -10,7 +10,7 @@
   },
   "functions": [],
   "variables": {
-    "RouteArray": [
+    "routeArray": [
       "OnPrem1",
       "OnPrem2"
     ],
@@ -19,15 +19,15 @@
   },
   "resources": [],
   "outputs": {
-    "RouteArray": {
+    "routeArray": {
       "type": "array",
       "copy": {
-        "count": "[length(variables('RouteArray'))]",
+        "count": "[length(variables('routeArray'))]",
         "input": {
-          "name": "[variables('RouteArray')[copyIndex()]]",
-          "AddressPrefix": "[variables('jsonArray')[variables('RouteArray')[copyIndex()]].AddressPrefix]",
-          "NextHopType": "[variables('jsonArray')[variables('RouteArray')[copyIndex()]].NextHopType]",
-          "NextHopIpAddress": "[variables('jsonArray')[variables('RouteArray')[copyIndex()]].NextHopIpAddress]"
+          "name": "[variables('routeArray')[copyIndex()]]",
+          "AddressPrefix": "[variables('jsonArray')[variables('routeArray')[copyIndex()]].AddressPrefix]",
+          "NextHopType": "[variables('jsonArray')[variables('routeArray')[copyIndex()]].NextHopType]",
+          "NextHopIpAddress": "[variables('jsonArray')[variables('routeArray')[copyIndex()]].NextHopIpAddress]"
         }
       }
     }

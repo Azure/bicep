@@ -44,7 +44,7 @@ var subnetObj = {
 
 output bicepObject array = [for (name, i) in subnetArray: {
   name: subnetArray[i]
-  AddressSpace: subnetObj['${subnetArray[i]}'].AddressSpace
-  NSG: subnetObj['${subnetArray[i]}'].NSG
-  RouteTable: subnetObj['${subnetArray[i]}'].RouteTable
+  AddressSpace: subnetObj[subnetArray[i]].AddressSpace
+  NSG: subnetObj[subnetArray[i]].NSG
+  RouteTable: subnetObj[subnetArray[i]].RouteTable
 }]
