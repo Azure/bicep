@@ -4,10 +4,6 @@
         "description": "000/01-hello-world"
     },
     {
-        "filePath": "000/10-hello-world/main.bicep",
-        "description": "000/01-hello-world"
-    },
-    {
         "filePath": "000/10-string-functions/main.bicep",
         "description": "000/10-string-functions"
     },
