@@ -24,7 +24,7 @@
 		<PackageReference Include="Azure.Deployments.Expression" Version="1.0.173" />
 		<PackageReference Include="Azure.Deployments.Core" Version="1.0.173" />
 		<PackageReference Include="Azure.Bicep.Types" Version="0.1.112" />
-		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.112" />
+		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.156" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CoreResources.Designer.cs">
