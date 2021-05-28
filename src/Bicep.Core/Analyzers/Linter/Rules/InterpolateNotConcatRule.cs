@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -12,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -23,10 +21,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public InterpolateNotConcatRule() : base(
             code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/prefer-interpolation")
+            docUri: new Uri("https://aka.ms/bicep/linter/prefer-interpolation"))
         { }
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var visitor = new Visitor(this, model);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);
@@ -35,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class Visitor : SyntaxVisitor
         {
-            public List<IBicepAnalyzerDiagnostic> diagnostics = new List<IBicepAnalyzerDiagnostic>();
+            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
 
             private const string concatFunction = "concat";
             private readonly InterpolateNotConcatRule parent;

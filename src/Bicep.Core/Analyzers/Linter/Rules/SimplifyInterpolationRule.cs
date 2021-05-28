@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -19,10 +19,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SimplifyInterpolationRule() : base(
             code: Code,
             description: CoreResources.SimplifyInterpolationRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/simplify-interpolation")
+            docUri: new System.Uri("https://aka.ms/bicep/linter/simplify-interpolation"))
         { }
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var spanFixes = new Dictionary<TextSpan, CodeFix>();
             var visitor = new Visitor(spanFixes, model);
