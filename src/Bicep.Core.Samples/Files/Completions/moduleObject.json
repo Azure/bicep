@@ -83,6 +83,17 @@
     "textEdit": {
       "range": {},
       "newText": "{\n\t$0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "Properties": {
+            "name": "{}"
+          },
+          "EventName": "ModuleBodySnippetInsertion"
+        }
+      ]
     }
   }
 ]

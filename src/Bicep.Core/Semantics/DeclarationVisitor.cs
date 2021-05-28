@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
         {
             base.VisitParameterDeclarationSyntax(syntax);
 
-            var symbol = new ParameterSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Modifier);
+            var symbol = new ParameterSymbol(this.context, syntax.Name.IdentifierName, syntax);
             DeclareSymbol(symbol);
         }
 

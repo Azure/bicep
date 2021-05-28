@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -33,9 +34,9 @@ namespace Bicep.Core.Semantics
         public SemanticModel GetSemanticModel(SyntaxTree syntaxTree)
             => this.lazySemanticModelLookup[syntaxTree].Value;
 
-        public IReadOnlyDictionary<SyntaxTree, IEnumerable<Diagnostic>> GetAllDiagnosticsBySyntaxTree()
+        public IReadOnlyDictionary<SyntaxTree, IEnumerable<IDiagnostic>> GetAllDiagnosticsBySyntaxTree(ConfigHelper? overrideConfig = default)
             => SyntaxTreeGrouping.SyntaxTrees.ToDictionary(
                 syntaxTree => syntaxTree,
-                syntaxTree => GetSemanticModel(syntaxTree).GetAllDiagnostics());
+                syntaxTree => GetSemanticModel(syntaxTree).GetAllDiagnostics(overrideConfig));
     }
 }

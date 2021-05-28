@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -33,6 +34,7 @@ param l
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
+                (ParametersMustBeUsedRule.Code, DiagnosticLevel.Warning, new ParametersMustBeUsedRule().GetMessage()),
                 ("BCP014", DiagnosticLevel.Error, "Expected a parameter type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
             });
         }
@@ -172,10 +174,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
                 ("main.bicep", @"
 targetScope = 'subscription'
 
-param azRegion string {
-  default: 'southcentralus'
-}
-
+param azRegion string = 'southcentralus'
 param vNetAddressPrefix string = '10.1.0.0/24'
 param GatewayAddressPrefix string = '10.1.0.0/27'
 param AppAddressPrefix string = '10.1.0.128/26'
@@ -361,7 +360,9 @@ var issue = true ? {
 } : {}
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage())
+                });
             result.Template.Should().HaveValueAtPath("$.variables.issue", "[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
         }
 
@@ -905,6 +906,7 @@ var foo = 42
             result.Should().HaveDiagnostics(new[] {
                 ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
                 ("BCP057", DiagnosticLevel.Error, "The name \"w\" does not exist in the current context."),
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
             });
         }
 
@@ -926,7 +928,10 @@ output singleResource object = singleResource
 output allResources array = allResources.resourceTypes
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+                    (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+                });
             result.Template.Should().HaveValueAtPath("$.variables['singleResource']", "[providers('Microsoft.Insights', 'components')]");
             result.Template.Should().HaveValueAtPath("$.variables['firstApiVersion']", "[variables('singleResource').apiVersions[0]]");
             result.Template.Should().HaveValueAtPath("$.variables['allResources']", "[providers('Microsoft.Insights')]");
@@ -959,6 +964,7 @@ output bar int = 42
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
             });
         }
 
@@ -984,7 +990,7 @@ resource eventGridSubscription 'Microsoft.EventGrid/topics/providers/eventSubscr
             // verify the template still compiles
             result.Template.Should().NotBeNull();
             result.Should().HaveDiagnostics(new[] {
-                ("BCP174", DiagnosticLevel.Warning, "Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property. See https://aka.ms/BicepScopes for more information."),
+                ("BCP174", DiagnosticLevel.Warning, "Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property."),
             });
 
             result = CompilationHelper.Compile(@"
@@ -1031,7 +1037,7 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
         // https://github.com/azure/bicep/issues/657
         public void Test_Issue657_discriminators()
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
@@ -1129,7 +1135,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
         // https://github.com/azure/bicep/issues/657
         public void Test_Issue657_enum()
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 new ResourceType(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
@@ -1284,7 +1290,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1324,7 +1330,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', 'asdfasdf')]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1369,7 +1375,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray { 
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Authorization/roleAssignments')].dependsOn", new JArray {
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'asdfsdf')]",
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('vnets')[copyIndex()])]", // dependsOn should include the virtualNetwork parent resource
             });
@@ -1457,13 +1463,16 @@ output providerOutput object = {
                 }
             };
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with {
-                Metadata = new() {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            {
+                Metadata = new()
+                {
                     ["providers"] = JToken.FromObject(providersMetadata),
                 }
             });
 
-            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject {
+            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject
+            {
                 ["namespace"] = "Microsoft.Web",
                 ["resourceTypes"] = new JArray {
                     new JObject {
@@ -1474,7 +1483,8 @@ output providerOutput object = {
                 }
             });
 
-            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.otherThing", new JObject {
+            evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.otherThing", new JObject
+            {
                 ["resourceType"] = "sites",
                 ["locations"] = new JArray { "West US", "East US" },
                 ["apiVersions"] = new JArray { "2019-01-01", "2020-01-01" },
@@ -1509,8 +1519,10 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
                 }
             };
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with {
-                Metadata = new() {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            {
+                Metadata = new()
+                {
                     ["providers"] = JToken.FromObject(providersMetadata),
                 }
             });
@@ -1545,7 +1557,9 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 }]
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[]{
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+            });
             result.Template.Should().NotBeNull();
         }
 
@@ -1557,7 +1571,7 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
   name: 'myVM'
   location: 'westus'
-  
+
   resource vmExt 'extensions' = {
     name: 'myVMExtension'
     location: 'westus'
@@ -1784,9 +1798,9 @@ output tagsoutput object = {
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"myTag1\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
                 ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
@@ -1799,7 +1813,7 @@ output tagsoutput object = {
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'myVM'
   location: 'westus'
-  
+
   resource vmExts 'extensions' = [for vmExtName in []: {
     name: vmExtName
     location: 'westus'
@@ -1915,11 +1929,12 @@ resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12
 @sys.allowed([
   'apple'
   'banana'
-]) 
+])
 param foo string = 'peach'
 ");
 
             result.Should().HaveDiagnostics(new[] {
+                (ParametersMustBeUsedRule.Code, DiagnosticLevel.Warning, new ParametersMustBeUsedRule().GetMessage()),
                 ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
             });
         }
@@ -1990,7 +2005,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
             result.Should().HaveDiagnostics(new[] {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"nameCopy\" -> \"name\")."),
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
-                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\").")
             });
         }
 
@@ -1999,13 +2014,16 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
         public void Test_Issue2624()
         {
             var result = CompilationHelper.Compile(@"
-var foo = az.listKeys('foo', '2012-02-01')[0].value 
+var foo = az.listKeys('foo', '2012-02-01')[0].value
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+            });
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/449
         public void Test_Issue449_PositiveCase()
         {
             var result = CompilationHelper.Compile(@"
@@ -2021,6 +2039,7 @@ resource pubipv4 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/449
         public void Test_Issue449_NegativeCase()
         {
             var result = CompilationHelper.Compile(@"
@@ -2055,6 +2074,7 @@ resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/2248
         public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression()
         {
             var result = CompilationHelper.Compile(@"
@@ -2070,10 +2090,13 @@ var prodLocations = [
 var locations = isProdLike ? prodLocations : testLocations
 var primaryLocation = locations[0]
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+            });
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/2248
         public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression_NegativeCase()
         {
             var result = CompilationHelper.Compile(@"
@@ -2081,12 +2104,14 @@ var foos = true ? true : []
 var primaryFoo = foos[0]
 ");
             result.Should().HaveDiagnostics(new[]
-{
+            {
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
                 ("BCP076",DiagnosticLevel.Error,"Cannot index over expression of type \"array | bool\". Arrays or objects are required.")
             });
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/2248
         public void Test_Issue2248_UnionTypeInPropertyAccessBaseExpression()
         {
             var result = CompilationHelper.Compile(@"
@@ -2094,14 +2119,158 @@ param input object
 param which bool
 
 var default = {
-  
+
 }
 
 var chosenOne = which ? input : default
 
 var p = chosenOne.foo
 ");
+            result.Should().HaveDiagnostics(new[] {
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/2695
+        public void Test_Issue2695()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'managementGroup'
+
+module mgDeploy 'managementGroup.bicep' = {
+  name: 'mgDeploy'
+  params: {    
+  }
+  scope: managementGroup('test')
+}
+"),
+                ("managementGroup.bicep", @"
+targetScope = 'managementGroup'
+
+resource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
+  name: 'policy-assignment-01'
+  properties: {
+    policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/10ee2ea2-fb4d-45b8-a7e9-a2e770044cd9'
+    displayName: 'Sample policy assignment'
+    description: 'Sample policy'
+    enforcementMode: 'Default'    
+  }
+}
+"));
+
             result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2622
+        public void Test_Issue2622()
+        {
+            var result = CompilationHelper.Compile(@"
+resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
+  // Runtime error. This should be blocked.
+  name: listKeys('foo', '2012-01-01')[0].value
+  location: resourceGroup().location
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    dnsSettings: {
+      domainNameLabel: 'dnsname'
+    }
+  }
+}
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP120",DiagnosticLevel.Error,"The property \"name\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.")
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2291
+        public void Test_Issue2291()
+        {
+            var result = CompilationHelper.Compile(@"
+resource registry 'Microsoft.ContainerRegistry/registries@2019-12-01-preview' existing = {
+  name: 'foo'
+  resource importPipeline 'importPipelines' existing = {
+    name: 'import'
+  }
+}
+
+resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2019-12-01-preview' = [for index in range(0, 3): if(registry::importPipeline.properties.trigger.sourceTrigger.status == 'Disabled') {
+  parent: registry
+  name: 'bar${index}'
+  properties: {
+    request: {
+      pipelineResourceId: registry::importPipeline.id
+      artifacts: []
+      source: {
+        type: 'AzureStorageBlob'
+        name: 'blobBaseName_${index}'
+      }
+      catalogDigest: ''
+    }
+    forceUpdateTag: ''
+  }
+}]
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP177",DiagnosticLevel.Error,"The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of importPipeline are \"apiVersion\", \"id\", \"name\", \"type\".")
+            });
+        }
+
+        [TestMethod]
+        public void Test_Issue2578()
+        {
+            var result = CompilationHelper.Compile(
+                ("simple.bicep", @"
+param hello string
+output hello string = hello
+"),
+                ("main.bicep", @"
+var v = {
+  hello: 's'
+}
+
+module simple 'simple.bicep' = {
+  name: 's2'
+  params: v
+}
+"));
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP183", DiagnosticLevel.Error, "The value of the module \"params\" property must be an object literal.")
+            });
+        }
+
+        [TestMethod]
+        public void Test_Issue2578_ParseError()
+        {
+            var result = CompilationHelper.Compile(
+                ("simple.bicep", @"
+param hello string
+output hello string = hello
+"),
+                ("main.bicep", @"
+var v = {
+  hello: 's'
+}
+
+module simple 'simple.bicep' = {
+  name: 's2'
+  params: 
+}
+
+output v object = v
+"));
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.")
+            });
+
+            result.Should().NotHaveDiagnosticsWithCodes(new[] { "BCP183" });
         }
     }
 }

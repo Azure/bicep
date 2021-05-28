@@ -27,6 +27,7 @@ resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [for mg
 
 resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (mg, index) in managementGroups: {
   name: concat(mg.name, '-one-', index)
+//@[8:39) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(mg.name, '-one-', index)|
   properties: {
     displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1) (index ${index})'
   }
@@ -37,6 +38,7 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (m
 
 resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for mg in managementGroups: {
   name: concat(mg.name, '-two')
+//@[8:31) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(mg.name, '-two')|
   properties: {
     displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 2)'
   }

@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -93,7 +94,7 @@ namespace Bicep.Cli.IntegrationTests
             output.Should().BeEmpty();
 
             error.Should().NotBeEmpty();
-            error.Should().Be($"Unrecognized arguments 'wrong fake broken' specified. Use 'bicep --help' to view available options.{Environment.NewLine}");
+            error.Should().Be($"Unrecognized arguments \"wrong fake broken\" specified. Use \"bicep --help\" to view available options.{Environment.NewLine}");
         }
 
         [TestMethod]
@@ -112,6 +113,8 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().Be($"The input file path was not specified{Environment.NewLine}");
         }
 
+
+        // TODO: handle variant linter messaging for each data test
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileShouldProduceExpectedTemplate(DataSet dataSet)

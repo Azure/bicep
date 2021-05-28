@@ -490,19 +490,6 @@ namespace Bicep.Core.TypeSystem
                     // (discriminators have already been resolved when declared type was determined for the for-expression
                     return TryCreateAssignment(arrayType.Item.Type, syntax, forParentTypeAssignment.Flags);
 
-                case ParameterDeclarationSyntax parameterDeclaration:
-                    if (!object.ReferenceEquals(parameterDeclaration.Modifier, syntax) ||
-                        GetDeclaredTypeAssignment(parent)?.Reference.Type is not {} paramParent)
-                    {
-                        return null;
-                    }
-
-                    // the object is a modifier of a parameter type
-                    // the declared type should be the appropriate modifier type
-                    // however we need the parameter's assigned type to determine the modifier type
-                    var parameterAssignedType = parameterDeclaration.GetAssignedType(this.typeManager, null);
-                    return TryCreateAssignment(LanguageConstants.CreateParameterModifierType(paramParent, parameterAssignedType), syntax);
-
                 case ObjectPropertySyntax:
                     if (GetDeclaredTypeAssignment(parent) is not {} objectPropertyAssignment ||
                         objectPropertyAssignment.Reference.Type is not {} objectPropertyParent)

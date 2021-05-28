@@ -19,6 +19,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.Analyzers.Linter.Rules;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -26,6 +27,9 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class FileWatcherTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         private static void SendDidChangeWatchedFiles(ILanguageClient client, params (DocumentUri documentUri, FileChangeType changeType)[] changes)
         {
             var fileChanges = new Container<FileEvent>(changes.Select(x => new FileEvent
@@ -46,7 +50,8 @@ namespace Bicep.LangServer.IntegrationTests
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                options => 
+                this.TestContext,
+                options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
@@ -83,7 +88,8 @@ param requiredIpnut string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
-                diagsParams.Diagnostics.Should().BeEmpty();
+                // note that linter diagnostics do a fix up on the "Code" so check the expected documentation Uri
+                diagsParams.Diagnostics.Should().Contain(x => x.CodeDescription!.Href == new ParametersMustBeUsedRule().Uri);
 
                 diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -100,7 +106,8 @@ param requiredInput string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
-                diagsParams.Diagnostics.Should().BeEmpty();
+                // note that linter diagnostics do a fix up on the "Code" so check the expected documentation Uri
+                diagsParams.Diagnostics.Should().Contain(x => x.CodeDescription!.Href == new ParametersMustBeUsedRule().Uri);
 
                 diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -123,7 +130,8 @@ param requiredInput string
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                options => 
+                this.TestContext,
+                options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
@@ -189,7 +197,8 @@ param requiredIpnut string
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                options => 
+                this.TestContext,
+                options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },

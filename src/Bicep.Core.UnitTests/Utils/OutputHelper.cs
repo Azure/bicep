@@ -62,7 +62,7 @@ namespace Bicep.Core.UnitTests.Utils
             return EscapeWhitespace(spanText);
         }
 
-        public static string GetDiagLoggingString(string sourceText, string outputDirectory, Diagnostic diagnostic)
+        public static string GetDiagLoggingString(string sourceText, string outputDirectory, IDiagnostic diagnostic)
         {
             var spanText = GetSpanText(sourceText, diagnostic);
             var message = diagnostic.Message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}/");
@@ -71,7 +71,13 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 message = Regex.Replace(message, @"'\${TEST_OUTPUT_DIR}.*?'", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));
             }
-            return $"[{diagnostic.Code} ({diagnostic.Level})] {message} |{spanText}|";
+
+            var docLink = diagnostic.Uri == null
+                ? "none"
+                : $"{diagnostic.Source}({diagnostic.Uri.AbsoluteUri})";
+
+
+            return $"[{diagnostic.Code} ({diagnostic.Level})] {message} (CodeDescription: {docLink}) |{spanText}|";
         }
     }
 }

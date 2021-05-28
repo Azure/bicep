@@ -17,7 +17,7 @@ namespace Bicep.Core.Parsing
     {
         private readonly TokenReader reader;
 
-        private readonly ImmutableArray<Diagnostic> lexerDiagnostics;
+        private readonly ImmutableArray<IDiagnostic> lexerDiagnostics;
 
         public Parser(string text)
         {
@@ -247,9 +247,6 @@ namespace Bicep.Core.Parsing
 
                         // default value is specified
                         TokenType.Assignment => this.ParameterDefaultValue(),
-
-                        // modifier is specified
-                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
 
                         _ => throw new ExpectedTokenException(current, b => b.ExpectedParameterContinuation())
                     };
@@ -809,7 +806,7 @@ namespace Bicep.Core.Parsing
 
             if (stringValue is null)
             {
-                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<Diagnostic>());
+                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<IDiagnostic>());
             }
 
             return new StringSyntax(token.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), stringValue.AsEnumerable());
@@ -857,7 +854,7 @@ namespace Bicep.Core.Parsing
                         // Things start to get hairy to build the string if we return an uneven number of tokens and expressions.
                         // Rather than trying to add two expression nodes, combine them.
                         var combined = new[] { interpExpression, skippedSyntax };
-                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined, Enumerable.Empty<Diagnostic>());
+                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined, Enumerable.Empty<IDiagnostic>());
                     }
 
                     tokensOrSyntax.Add(interpExpression);
@@ -916,7 +913,7 @@ namespace Bicep.Core.Parsing
                 {
                     // This error-handling is just for cases where we were completely unable to interpret the string.
                     var span = TextSpan.BetweenInclusiveAndExclusive(startToken, reader.Peek());
-                    return new SkippedTriviaSyntax(span, tokensOrSyntax, Enumerable.Empty<Diagnostic>());
+                    return new SkippedTriviaSyntax(span, tokensOrSyntax, Enumerable.Empty<IDiagnostic>());
                 }
 
                 return null;

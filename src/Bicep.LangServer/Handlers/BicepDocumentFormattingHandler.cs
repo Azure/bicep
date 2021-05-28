@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +11,16 @@ using Bicep.Core.PrettyPrint.Options;
 using Microsoft.Extensions.Logging;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentFormattingHandler : DocumentFormattingHandler
+    public class BicepDocumentFormattingHandler : DocumentFormattingHandlerBase
     {
         private readonly ILogger<BicepDocumentSymbolHandler> logger;
         private readonly ICompilationManager compilationManager;
 
         public BicepDocumentFormattingHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager)
-            : base(CreateRegistrationOptions())
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
@@ -58,10 +58,9 @@ namespace Bicep.LanguageServer.Handlers
             }));
         }
 
-        private static DocumentFormattingRegistrationOptions CreateRegistrationOptions() =>
-            new DocumentFormattingRegistrationOptions
-            {
-                DocumentSelector = DocumentSelectorFactory.Create()
-            };
+        protected override DocumentFormattingRegistrationOptions CreateRegistrationOptions(DocumentFormattingCapability capability, ClientCapabilities clientCapabilities) => new()
+        {
+            DocumentSelector = DocumentSelectorFactory.Create()
+        };
     }
 }

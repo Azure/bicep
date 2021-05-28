@@ -126,16 +126,6 @@ namespace Bicep.Core.Emit
                     this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).ForExpressionsNotSupportedHere());
                     break;
 
-                case true when this.activeLoopCapableTopLevelDeclaration is VariableDeclarationSyntax variable && InlineDependencyVisitor.ShouldInlineVariable(this.semanticModel, variable, out var variableChain):
-                    // this is a loop variable that has a dependency on functions that are not supported in JSON variables
-                    // we are initially blocking this because not all cases can be generated in the JSON
-                    
-                    // unable to get a detailed variable dependency chain
-                    // log a generic error instead and put it on the "for" keyword
-                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).VariableLoopsRuntimeDependencyNotAllowed(variableChain));
-
-                    break;
-
                 case null:
                     // this is a property loop
                     this.propertyLoopCount += 1;

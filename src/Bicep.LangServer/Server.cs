@@ -15,6 +15,7 @@ using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
@@ -47,7 +48,7 @@ namespace Bicep.LanguageServer
         private Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
             BicepDeploymentsInterop.Initialize();
-            server = OmniSharp.Extensions.LanguageServer.Server.LanguageServer.PreInit(options =>
+            server = OmnisharpLanguageServer.PreInit(options =>
             {
                 options
                     .WithHandler<BicepTextDocumentSyncHandler>()
@@ -63,9 +64,8 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepCodeActionHandler>()
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
-#pragma warning disable 0612 // disable 'obsolete' warning for proposed LSP feature
                     .WithHandler<BicepSemanticTokensHandler>()
-#pragma warning restore 0612
+                    .WithHandler<BicepTelemetryHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 
                 onOptionsFunc(options);
@@ -86,6 +86,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider());
             services.AddSingleton<IFileResolver>(services => creationOptions.FileResolver ?? new FileResolver());
+            services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();

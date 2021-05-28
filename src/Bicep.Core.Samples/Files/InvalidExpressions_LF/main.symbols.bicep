@@ -187,10 +187,8 @@ output funcvarout array = padLeft
 // non-existent function
 var fakeFunc = red() + green() * orange()
 //@[4:12) Variable fakeFunc. Type: error. Declaration start char: 0, length: 41
-param fakeFuncP string {
-//@[6:15) Parameter fakeFuncP. Type: string. Declaration start char: 0, length: 44
-  default: blue()
-}
+param fakeFuncP string = blue()
+//@[6:15) Parameter fakeFuncP. Type: string. Declaration start char: 0, length: 31
 
 // non-existent variable
 var fakeVar = concat(totallyFakeVar, 's')

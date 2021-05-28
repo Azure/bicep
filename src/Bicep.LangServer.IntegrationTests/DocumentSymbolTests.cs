@@ -17,13 +17,16 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class DocumentSymbolTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         public async Task RequestDocumentSymbol_should_return_full_symbol_list()
         {
             var documentUri = DocumentUri.From("/template.bicep");
             var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(options => 
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(this.TestContext, options => 
             {
                 options.OnPublishDiagnostics(diags => {
                     diagsReceived.SetResult(diags);

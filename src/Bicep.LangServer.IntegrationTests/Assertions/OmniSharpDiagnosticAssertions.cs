@@ -7,24 +7,24 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests.Assertions
 {
-    public static class DiagnosticExtensions 
+    public static class OmniSharpDiagnosticExtensions 
     {
-        public static DiagnosticAssertions Should(this Diagnostic instance)
+        public static OmniSharpDiagnosticAssertions Should(this Diagnostic instance)
         {
-            return new DiagnosticAssertions(instance); 
+            return new OmniSharpDiagnosticAssertions(instance); 
         }
     }
 
-    public class DiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, DiagnosticAssertions>
+    public class OmniSharpDiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, OmniSharpDiagnosticAssertions>
     {
-        public DiagnosticAssertions(Diagnostic instance)
+        public OmniSharpDiagnosticAssertions(Diagnostic instance)
         {
             Subject = instance;
         }
 
         protected override string Identifier => "diagnostic";
 
-        public AndConstraint<DiagnosticAssertions> HaveCodeAndSeverity(string code, DiagnosticSeverity severity, string because = "", params object[] becauseArgs)
+        public AndConstraint<OmniSharpDiagnosticAssertions> HaveCodeAndSeverity(string code, DiagnosticSeverity severity, string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
@@ -40,7 +40,7 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
                 .ForCondition(x => x == severity)
                 .FailWith("Expected severity to be '{0}' but it was '{1}'", _ => severity, x => x);
 
-            return new AndConstraint<DiagnosticAssertions>(this);
+            return new AndConstraint<OmniSharpDiagnosticAssertions>(this);
         }
     }
 }
