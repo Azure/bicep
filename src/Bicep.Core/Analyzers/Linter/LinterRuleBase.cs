@@ -45,7 +45,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        protected virtual string FormatMessage(params object[] values) => this.Description;
+        public virtual string FormatMessage(params object[] values) => this.Description;
 
         public virtual void Configure(IConfigurationRoot config)
         {
