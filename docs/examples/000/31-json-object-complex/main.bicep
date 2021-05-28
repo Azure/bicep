@@ -21,7 +21,7 @@ var jsonString = '''
 '''
 var jsonArray = json(jsonString)
 
-output RouteArray array = [for (name, i) in RouteArray: {
+output routeArray array = [for (name, i) in RouteArray: {
   name: name
   AddressPrefix: jsonArray['${name}'].AddressPrefix
   NextHopType: jsonArray['${name}'].NextHopType

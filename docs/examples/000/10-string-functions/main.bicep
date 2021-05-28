@@ -1,6 +1,6 @@
 //Multiline string samples
-var List = 'a,b,c,d'
-var arrayFromString = split(List, ',')
+var list = 'a,b,c,d'
+var arrayFromString = split(list, ',')
 
 var find = 'findThisInString'
 var found = contains(find, 'This')
