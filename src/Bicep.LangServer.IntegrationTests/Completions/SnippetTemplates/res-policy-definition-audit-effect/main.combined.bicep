@@ -1,4 +1,3 @@
-targetScope = 'subscription'
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
   name: 'name'
   properties: {
@@ -9,7 +8,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
     metadata: {
       version: '0.1.0'
       category: 'category'
-      source: 'sourceRepoName'
+      source: 'source'
     }
     parameters: {
       parameterName: {
@@ -25,7 +24,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
       if: {
         allOf: [
           {
-            field: 'fieldName'
+            field: 'field'
             equals: 'conditionValue'
           }
         ]
@@ -36,3 +35,4 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
     }
   }
 }
+
