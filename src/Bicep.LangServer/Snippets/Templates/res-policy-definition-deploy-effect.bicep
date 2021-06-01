@@ -49,7 +49,7 @@ resource ${1:policyDefinition} 'Microsoft.Authorization/policyDefinitions@2020-0
             properties: {
               mode: ${25|'incremental','complete'|}
               template: {
-                '$schema': ${26:'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'}
+                '$schema': ${26:'schema'}
                 contentVersion: ${27:'1.0.0.0'}
                 parameters: {
                   ${28:parameterName}: {
