@@ -61,12 +61,12 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
             result.Should().HaveDiagnostics(new[]
             {
                 (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
-                ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of dnsZone are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of storageAccounts are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of aRecord are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                ("BCP182", DiagnosticLevel.Error, "The for-body of the variable \"foo\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of appPlan are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                ("BCP182", DiagnosticLevel.Error, "The for-body of the variable \"foo\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"bar\" -> \"aRecord\"). Accessible properties of aRecord are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of aRecord are \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of dnsZone which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of storageAccounts which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of aRecord which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP182", DiagnosticLevel.Error, "This expression is being used in the for-body of the variable \"foo\", which requires values that can be calculated at the start of the deployment. Properties of appPlan which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP182", DiagnosticLevel.Error, "This expression is being used in the for-body of the variable \"foo\", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"bar\" -> \"aRecord\"). Properties of aRecord which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP177", DiagnosticLevel.Error, "This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment. Properties of aRecord which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
 
@@ -94,8 +94,8 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of dnsZone are \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Web/serverfarms\" type, which requires a value that can be calculated at the start of the deployment."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Web/serverfarms\" type, which requires a value that can be calculated at the start of the deployment. Properties of dnsZone which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
     }
