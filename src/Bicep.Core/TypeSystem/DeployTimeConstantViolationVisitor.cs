@@ -33,10 +33,18 @@ namespace Bicep.Core.TypeSystem
             var accessedSymbolName = accessedSymbol?.Name;
             var accessiblePropertyNames = GetAccessiblePropertyNames(accessedSymbol, accessedObjectType);
 
+            var containerObjectSyntax = this.DeployTimeConstantContainer is ObjectPropertySyntax
+                ? this.SemanticModel.Binder.GetParent(this.DeployTimeConstantContainer) as ObjectSyntax
+                : null;
+            var containerObjectType = containerObjectSyntax is not null
+                ? this.SemanticModel.TypeManager.GetDeclaredType(containerObjectSyntax)
+                : null; 
+
             var diagnosticBuilder = DiagnosticBuilder.ForPosition(errorSyntax);
             var diagnostic = this.DeployTimeConstantContainer switch
             {
-                ObjectPropertySyntax propertySyntax when propertySyntax.TryGetKeyText() is { } propertyName => diagnosticBuilder.RuntimeValueNotAllowedInProperty(propertyName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+                ObjectPropertySyntax propertySyntax when propertySyntax.TryGetKeyText() is { } propertyName =>
+                    diagnosticBuilder.RuntimeValueNotAllowedInProperty(propertyName, containerObjectType?.Name, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
                 IfConditionSyntax => diagnosticBuilder.RuntimeValueNotAllowedInIfConditionExpression(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
 
                 // Corner case: the runtime value is in the for-body of a variable declaration.

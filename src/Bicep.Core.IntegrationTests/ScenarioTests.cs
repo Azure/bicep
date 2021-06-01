@@ -527,7 +527,7 @@ resource redis 'Microsoft.Cache/Redis@2019-07-01' = {
 
             result.Template.Should().NotHaveValue();
             result.Should().HaveDiagnostics(new[] {
-                ("BCP120", DiagnosticLevel.Error, "The property \"scope\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"appResGrp\" -> \"rg\"). Accessible properties of rg are \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"scope\" property of the \"module\" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"appResGrp\" -> \"rg\"). Properties of rg which can be calculated at the start include \"name\"."),
             });
         }
 
@@ -1647,7 +1647,7 @@ resource my_interface 'Microsoft.Network/networkInterfaces@2015-05-01-preview' =
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP120", DiagnosticLevel.Error, "The property \"location\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"location\" property of the \"Microsoft.Network/networkInterfaces\" type, which requires a value that can be calculated at the start of the deployment. Properties of vnet which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
 
@@ -1797,11 +1797,11 @@ output tagsoutput object = {
 "));
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"tags\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of tags are \"name\"."),
-                ("BCP120", DiagnosticLevel.Error, "The property \"zones\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vwan are \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Network/virtualWans\" type, which requires a value that can be calculated at the start of the deployment. Properties of tags which can be calculated at the start include \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Network/virtualWans\" type, which requires a value that can be calculated at the start of the deployment. Properties of tags which can be calculated at the start include \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Network/networkSecurityGroups\" type, which requires a value that can be calculated at the start of the deployment. Properties of tags which can be calculated at the start include \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Network/networkSecurityGroups\" type, which requires a value that can be calculated at the start of the deployment. Properties of tags which can be calculated at the start include \"name\"."),
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"zones\" property of the \"Microsoft.Network/publicIPAddresses\" type, which requires a value that can be calculated at the start of the deployment. Properties of vwan which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }
 
@@ -1846,7 +1846,7 @@ output snetIds array = [for subnet in vnet.properties.subnets: {
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of vnet are \"apiVersion\", \"id\", \"name\", \"type\".")
+                ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of vnet which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\".")
             });
         }
 
@@ -1882,8 +1882,8 @@ resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.f
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
-                ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"test\" -> \"rg\"). Accessible properties of rg are \"apiVersion\", \"id\", \"name\", \"type\"."),
-                ("BCP177", DiagnosticLevel.Error, "The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of rg2 are \"apiVersion\", \"id\", \"name\", \"type\".")
+                ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"test\" -> \"rg\"). Properties of rg which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP177", DiagnosticLevel.Error, "This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment. Properties of rg2 which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\".")
             });
         }
 
@@ -1977,10 +1977,10 @@ output storageAccount object = {
 "));
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listSecrets\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
-                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listSecrets\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
-                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
-                ("BCP181", DiagnosticLevel.Error, "The arguments of function \"listKeys\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of stgModule are \"name\"."),
+                ("BCP181", DiagnosticLevel.Error, "This expression is being used in an argument of the function \"listSecrets\", which requires a value that can be calculated at the start of the deployment. Properties of stgModule which can be calculated at the start include \"name\"."),
+                ("BCP181", DiagnosticLevel.Error, "This expression is being used in an argument of the function \"listSecrets\", which requires a value that can be calculated at the start of the deployment. Properties of stgModule which can be calculated at the start include \"name\"."),
+                ("BCP181", DiagnosticLevel.Error, "This expression is being used in an argument of the function \"listKeys\", which requires a value that can be calculated at the start of the deployment. Properties of stgModule which can be calculated at the start include \"name\"."),
+                ("BCP181", DiagnosticLevel.Error, "This expression is being used in an argument of the function \"listKeys\", which requires a value that can be calculated at the start of the deployment. Properties of stgModule which can be calculated at the start include \"name\"."),
             });
         }
 
@@ -2182,7 +2182,7 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP120",DiagnosticLevel.Error,"The property \"name\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.")
+                ("BCP120",DiagnosticLevel.Error,"This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Network/publicIPAddresses\" type, which requires a value that can be calculated at the start of the deployment.")
             });
         }
 
@@ -2217,7 +2217,7 @@ resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2019-1
 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP177",DiagnosticLevel.Error,"The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of importPipeline are \"apiVersion\", \"id\", \"name\", \"type\".")
+                ("BCP177",DiagnosticLevel.Error,"This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment. Properties of importPipeline which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\".")
             });
         }
 

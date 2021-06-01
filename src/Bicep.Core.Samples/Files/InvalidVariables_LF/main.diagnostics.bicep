@@ -332,10 +332,10 @@ var indirection = keys
 
 var runtimeLoop = [for (item, index) in []: indirection]
 //@[4:15) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |runtimeLoop|
-//@[44:55) [BCP182 (Error)] The for-body of the variable "runtimeLoop" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("indirection" -> "keys" -> "listKeys"). (CodeDescription: none) |indirection|
+//@[44:55) [BCP182 (Error)] This expression is being used in the for-body of the variable "runtimeLoop", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("indirection" -> "keys" -> "listKeys"). (CodeDescription: none) |indirection|
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 //@[4:16) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |runtimeLoop2|
-//@[41:52) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("indirection" -> "keys" -> "listKeys"). (CodeDescription: none) |indirection|
+//@[41:52) [BCP178 (Error)] This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("indirection" -> "keys" -> "listKeys"). (CodeDescription: none) |indirection|
 
 var zoneInput = []
 resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
@@ -347,12 +347,12 @@ var inlinedVariable = zones[0].properties.zoneType
 var runtimeLoop3 = [for (zone, i) in zoneInput: {
 //@[4:16) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |runtimeLoop3|
   a: inlinedVariable
-//@[5:20) [BCP182 (Error)] The for-body of the variable "runtimeLoop3" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("inlinedVariable" -> "zones"). Accessible properties of zones are "apiVersion", "id", "name", "type". (CodeDescription: none) |inlinedVariable|
+//@[5:20) [BCP182 (Error)] This expression is being used in the for-body of the variable "runtimeLoop3", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("inlinedVariable" -> "zones"). Properties of zones which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |inlinedVariable|
 }]
 
 var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
 //@[4:16) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |runtimeLoop4|
-//@[37:56) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of zones are "apiVersion", "id", "name", "type". (CodeDescription: none) |zones[0].properties|
+//@[37:56) [BCP178 (Error)] This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of zones which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |zones[0].properties|
   a: 0
 }]
 
@@ -367,7 +367,7 @@ var myRef = [
 ]
 var runtimeLoop5 = [for (item, index) in myRef: 's']
 //@[4:16) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |runtimeLoop5|
-//@[41:46) [BCP178 (Error)] The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("myRef" -> "evenMoreIndirection" -> "moreIndirection" -> "reference"). (CodeDescription: none) |myRef|
+//@[41:46) [BCP178 (Error)] This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("myRef" -> "evenMoreIndirection" -> "moreIndirection" -> "reference"). (CodeDescription: none) |myRef|
 
 // cannot use loops in expressions
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
