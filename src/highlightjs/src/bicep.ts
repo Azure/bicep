@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as highlight from 'highlight.js';
+import { Mode, Language, HLJSApi } from 'highlight.js';
 
 const bounded = (text: string) => `\\b${text}\\b`;
 const after = (regex: string) => `(?<=${regex})`;
@@ -168,7 +168,7 @@ expression.variants = [
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function(hljs: typeof highlight | undefined): Language {
+export default function(hljs?: HLJSApi): Language {
   return {
     aliases: ['bicep'],
     case_insensitive: true,

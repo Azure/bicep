@@ -288,32 +288,32 @@ module runtimeValidModule1 'empty.bicep' = {
 
 module runtimeInvalidModule1 'empty.bicep' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
+//@[8:33) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
 }
 
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['location']|
+//@[8:36) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
   name: runtimeValidRes1.sku.name
-//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.sku|
+//@[8:28) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.sku|
 }
 
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
-//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.sku|
+//@[8:28) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.sku|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
-//@[8:31) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['sku']|
+//@[8:31) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['sku']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
-//@[8:31) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['sku']|
+//@[8:31) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['sku']|
 }
 
 module singleModuleForRuntimeCheck 'modulea.bicep' = {
@@ -328,7 +328,7 @@ module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
 //@[7:32) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |moduleLoopForRuntimeCheck|
 //@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (CodeDescription: none) |moduleLoopForRuntimeCheck|
   name: moduleRuntimeCheck2
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Accessible properties of singleModuleForRuntimeCheck are "name". (CodeDescription: none) |moduleRuntimeCheck2|
+//@[8:27) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Properties of singleModuleForRuntimeCheck which can be calculated at the start include "name". (CodeDescription: none) |moduleRuntimeCheck2|
 }]
 
 var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
@@ -337,7 +337,7 @@ module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
 //@[7:33) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |moduleLoopForRuntimeCheck2|
 //@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (CodeDescription: none) |moduleLoopForRuntimeCheck2|
   name: moduleRuntimeCheck4
-//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Accessible properties of moduleLoopForRuntimeCheck are "name". (CodeDescription: none) |moduleRuntimeCheck4|
+//@[8:27) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Properties of moduleLoopForRuntimeCheck which can be calculated at the start include "name". (CodeDescription: none) |moduleRuntimeCheck4|
 }]
 
 module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
@@ -345,8 +345,8 @@ module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
 //@[7:33) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (CodeDescription: none) |moduleLoopForRuntimeCheck3|
   name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
 //@[8:119) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )|
-//@[15:51) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". (CodeDescription: none) |moduleLoopForRuntimeCheck[1].outputs|
-//@[67:103) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of moduleLoopForRuntimeCheck are "name". (CodeDescription: none) |moduleLoopForRuntimeCheck[1].outputs|
+//@[15:51) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of moduleLoopForRuntimeCheck which can be calculated at the start include "name". (CodeDescription: none) |moduleLoopForRuntimeCheck[1].outputs|
+//@[67:103) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of moduleLoopForRuntimeCheck which can be calculated at the start include "name". (CodeDescription: none) |moduleLoopForRuntimeCheck[1].outputs|
 }]
 
 module moduleWithDuplicateName1 './empty.bicep' = {
