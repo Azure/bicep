@@ -6,7 +6,7 @@ import { readFile, writeFile } from 'fs/promises';
 import path, { dirname, basename, extname } from 'path';
 import { env } from 'process';
 import { spawnSync } from 'child_process';
-import * as highlight from 'highlight.js';
+import hljs from 'highlight.js';
 import bicep, { default as bicepLanguage } from '../src/bicep';
 
 async function writeBaseline(filePath: string) {
@@ -19,8 +19,8 @@ async function writeBaseline(filePath: string) {
     diffBefore = await readFile(baselineFilePath, { encoding: 'utf-8' });
   } catch {} // ignore and create the baseline file anyway
 
-  highlight.registerLanguage('bicep', bicepLanguage);
-  const result = highlight.highlight(bicepFile, { language: 'bicep' });
+  hljs.registerLanguage('bicep', bicepLanguage);
+  const result = hljs.highlight(bicepFile, { language: 'bicep' });
   const diffAfter = `
 <html>
   <head>
