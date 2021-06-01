@@ -1,4 +1,3 @@
-targetScope = 'subscription'
 resource policySetDefinition 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {
   name: 'name'
   properties: {

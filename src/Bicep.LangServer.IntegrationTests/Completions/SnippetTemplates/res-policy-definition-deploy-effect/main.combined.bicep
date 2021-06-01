@@ -1,4 +1,3 @@
-targetScope = 'subscription'
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
   name: 'name'
   properties: {
@@ -48,7 +47,6 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
           deployment: {
             properties: {
               mode: 'incremental'
-//@[19:100) [no-hardcoded-env-urls (Warning)] Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. Found this disallowed host: "management.azure.com" (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-env-urls)) | 'incremental'\r\n              template: {\r\n                '$schema': 'https://sc|
               template: {
                 '$schema': 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
                 contentVersion: '1.0.0.0'
@@ -61,6 +59,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
                     }
                   }
                 }
+//@[3:84) [no-hardcoded-env-urls (Warning)] Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. Found this disallowed host: "management.azure.com" (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-env-urls)) |             }\r\n                variables: {}\r\n                resources: [\r\n    |
                 variables: {}
                 resources: [
                   {
