@@ -60,7 +60,7 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
 ");
             result.Should().HaveDiagnostics(new[]
             {
-                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage()),
+                (UnusedVariableRule.Code, DiagnosticLevel.Warning, new UnusedVariableRule().GetMessage("foo")),
                 ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of dnsZone are \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of storageAccounts are \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP178", DiagnosticLevel.Error, "The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of aRecord are \"apiVersion\", \"id\", \"name\", \"type\"."),

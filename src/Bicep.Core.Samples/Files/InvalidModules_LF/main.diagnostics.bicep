@@ -172,22 +172,22 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
 
 // #completionTest(55) -> moduleATopLevelPropertyAccess
 var modulePropertyAccessCompletions = modAEmptyInputs.o
-//@[4:35) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |modulePropertyAccessCompletions|
+//@[4:35) [no-unused-vars (Warning)] Variable "modulePropertyAccessCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |modulePropertyAccessCompletions|
 //@[54:55) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". (CodeDescription: none) |o|
 
 // #completionTest(81) -> moduleAWithConditionTopLevelPropertyAccess
 var moduleWithConditionPropertyAccessCompletions = modAEmptyInputsWithCondition.o
-//@[4:48) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |moduleWithConditionPropertyAccessCompletions|
+//@[4:48) [no-unused-vars (Warning)] Variable "moduleWithConditionPropertyAccessCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |moduleWithConditionPropertyAccessCompletions|
 //@[80:81) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". (CodeDescription: none) |o|
 
 // #completionTest(56) -> moduleAOutputs
 var moduleOutputsCompletions = modAEmptyInputs.outputs.s
-//@[4:28) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |moduleOutputsCompletions|
+//@[4:28) [no-unused-vars (Warning)] Variable "moduleOutputsCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |moduleOutputsCompletions|
 //@[55:56) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (CodeDescription: none) |s|
 
 // #completionTest(82) -> moduleAWithConditionOutputs
 var moduleWithConditionOutputsCompletions = modAEmptyInputsWithCondition.outputs.s
-//@[4:41) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |moduleWithConditionOutputsCompletions|
+//@[4:41) [no-unused-vars (Warning)] Variable "moduleWithConditionOutputsCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |moduleWithConditionOutputsCompletions|
 //@[81:82) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (CodeDescription: none) |s|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
@@ -204,7 +204,7 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 }
 
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
-//@[4:21) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |unspecifiedOutput|
+//@[4:21) [no-unused-vars (Warning)] Variable "unspecifiedOutput" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |unspecifiedOutput|
 //@[54:58) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (CodeDescription: none) |test|
 
 module modCycle './cycle.bicep' = {
@@ -571,12 +571,12 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 
 // #completionTest(100) -> moduleAOutputs
 var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilteredLoops[0].outputs.
-//@[4:50) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |propertyAccessCompletionsForFilteredModuleLoop|
+//@[4:50) [no-unused-vars (Warning)] Variable "propertyAccessCompletionsForFilteredModuleLoop" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |propertyAccessCompletionsForFilteredModuleLoop|
 //@[100:100) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'
-//@[4:22) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |evenMoreDuplicates|
+//@[4:22) [no-unused-vars (Warning)] Variable "evenMoreDuplicates" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |evenMoreDuplicates|
 module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
 //@[7:24) [BCP179 (Warning)] The loop item variable "evenMoreDuplicates" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |nonexistentArrays|
 //@[70:86) [BCP057 (Error)] The name "alsoDoesNotExist" does not exist in the current context. (CodeDescription: none) |alsoDoesNotExist|
