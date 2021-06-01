@@ -33,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                     .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
-        protected override string FormatMessage(params object[] values)
+        public override string FormatMessage(params object[] values)
             => string.Format("{0} Found this disallowed host: \"{1}\"", this.Description, values.First());
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)

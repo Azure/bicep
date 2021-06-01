@@ -1,13 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -17,8 +9,12 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
 
 namespace Bicep.Core.IntegrationTests.Semantics
 {

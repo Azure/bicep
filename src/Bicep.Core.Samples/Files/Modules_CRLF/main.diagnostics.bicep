@@ -173,7 +173,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
 var duplicateAcrossScopes = 'hello'
-//@[4:25) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |duplicateAcrossScopes|
+//@[4:25) [no-unused-vars (Warning)] Variable "duplicateAcrossScopes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |duplicateAcrossScopes|
 module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
   name: 'hello-${duplicateAcrossScopes}'
   params: {
@@ -185,9 +185,9 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 }]
 
 var someDuplicate = true
-//@[4:17) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |someDuplicate|
+//@[4:17) [no-unused-vars (Warning)] Variable "someDuplicate" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |someDuplicate|
 var otherDuplicate = false
-//@[4:18) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |otherDuplicate|
+//@[4:18) [no-unused-vars (Warning)] Variable "otherDuplicate" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |otherDuplicate|
 module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
   name: 'hello-${someDuplicate}'
   params: {
