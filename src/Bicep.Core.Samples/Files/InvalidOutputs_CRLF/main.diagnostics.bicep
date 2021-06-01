@@ -8,7 +8,7 @@ output
 //@[7:7) [BCP016 (Error)] Expected an output identifier at this location. (CodeDescription: none) ||
 
 var testSymbol = 42
-//@[4:14) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testSymbol|
+//@[4:14) [no-unused-vars (Warning)] Variable "testSymbol" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testSymbol|
 
 // #completionTest(28,29) -> symbols
 output missingValueAndType = 
@@ -191,7 +191,7 @@ output deeper bool = true ? -true : (14 && 's') + 10
 
 output myOutput string = 'hello'
 var attemptToReferenceAnOutput = myOutput
-//@[4:30) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |attemptToReferenceAnOutput|
+//@[4:30) [no-unused-vars (Warning)] Variable "attemptToReferenceAnOutput" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |attemptToReferenceAnOutput|
 //@[33:41) [BCP058 (Error)] The name "myOutput" is an output. Outputs cannot be referenced in expressions. (CodeDescription: none) |myOutput|
 
 @sys.maxValue(20)

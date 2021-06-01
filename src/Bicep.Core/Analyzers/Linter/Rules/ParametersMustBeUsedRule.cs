@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System.Collections.Generic;
@@ -19,6 +20,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
+        public override string FormatMessage(params object[] values)
+        {
+            return string.Format(CoreResources.ParameterMustBeUsedRuleMessageFormat, values);
+        }
+
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             // parameters must have at least two references
@@ -27,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var unreferencedParams = model.Root.ParameterDeclarations
                                     .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
 
-            return unreferencedParams.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span));
+            return unreferencedParams.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, param.Name));
         }
     }
 }
