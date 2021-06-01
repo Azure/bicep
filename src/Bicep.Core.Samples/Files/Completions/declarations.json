@@ -1463,6 +1463,180 @@
     }
   },
   {
+    "label": "res-policy-assignment",
+    "kind": "snippet",
+    "detail": "",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: 'name'\n  location: 'location'\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    displayName: 'displayName'\n    description: 'description'\n    enforcementMode: 'Default'\n    metadata: {\n      source: 'source'\n      version: '0.1.0'\n    }\n    policyDefinitionId: 'policyDefinitionId'\n    parameters: {\n      parameterName: {\n        value: 'value'\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: 'message'\n      }\n      {\n        message: 'message'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-assignment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:policyAssignment} 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: ${2:'name'}\n  location: ${3:'location'}\n  identity: {\n    type: ${4|'SystemAssigned','None'|}\n  }\n  properties: {\n    displayName: ${5:'displayName'}\n    description: ${6:'description'}\n    enforcementMode: ${7|'Default','DoNotEnforce'|}\n    metadata: {\n      source: ${8:'source'}\n      version: ${9:'0.1.0'}\n    }\n    policyDefinitionId: ${10:'policyDefinitionId'}\n    parameters: {\n      ${11:parameterName}: {\n        value: ${12:'value'}\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: ${13:'message'}\n      }\n      {\n        message: ${14:'message'}\n        policyDefinitionReferenceId: ${15:'policyDefinitionReferenceId'}\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policy-assignment"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-policy-definition-audit-effect",
+    "kind": "snippet",
+    "detail": "Policy Definition",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n      }\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-definition-audit-effect",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:policyDefinition} 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    policyType: ${4:'Custom'}\n    mode: ${5|'All','Indexed'|}\n    description: ${6:'description'}\n    metadata: {\n      version: ${7:'0.1.0'}\n      category: ${8:'category'}\n      source: ${9:'source'}\n    }\n    parameters: {\n      ${10:parameterName}: {\n        type: ${11|'String','Array'|}\n        defaultValue: ${12:'defaultValue'}\n        metadata: {\n          displayName: ${13:'displayName'}\n          description: ${14:'description'}\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        ${15|allOf,anyOf|}: [\n          {\n            field: ${16:'field'}\n            ${17|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}: ${18:'conditionValue'}\n          }\n        ]\n      }\n      then: {\n        effect: ${19|'Audit','AuditIfNotExists','Deny','DeployIfNotExists','Disabled','Modify'|}\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policy-definition-audit-effect"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-policy-definition-deploy-effect",
+    "kind": "snippet",
+    "detail": "Policy Definition",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n        details: {\n          roleDefinitionIds: [\n            'roleDefinitionIds'\n          ]\n          type: 'type'\n          existenceCondition: {\n            allOf: [\n              {\n                field: 'field'\n                equals: 'conditionValue'\n              }\n            ]\n          }\n          deployment: {\n            properties: {\n              mode: 'incremental'\n              template: {\n                '$schema': 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'\n                contentVersion: '1.0.0.0'\n                parameters: {\n                  parameterName: {\n                    type: 'String'\n                    metadata: {\n                      displayName: 'displayName'\n                      description: 'description'\n                    }\n                  }\n                }\n                variables: {}\n                resources: [\n                  {\n                    name: 'name'\n                    type: 'type'\n                    apiVersion: 'apiVersion'\n                    location: 'location'\n                    properties: {}\n                  }\n                ]\n              }\n              parameters: {\n                parameterName: {\n                  value: 'value'\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-definition-deploy-effect",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:policyDefinition} 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    policyType: ${4:'Custom'}\n    mode: ${5|'All','Indexed'|}\n    description: ${6:'description'}\n    metadata: {\n      version: ${7:'0.1.0'}\n      category: ${8:'category'}\n      source: ${9:'source'}\n    }\n    parameters: {\n      ${10:parameterName}: {\n        type: ${11|'String','Array'|}\n        defaultValue: ${12:'defaultValue'}\n        metadata: {\n          displayName: ${13:'displayName'}\n          description: ${14:'description'}\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        ${15|allOf,anyOf|}: [\n          {\n            field: ${16:'field'}\n            ${17|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}: ${18:'conditionValue'}\n          }\n        ]\n      }\n      then: {\n        effect: ${19|'Audit','AuditIfNotExists','Deny','DeployIfNotExists','Disabled','Modify'|}\n        details: {\n          roleDefinitionIds: [\n            ${20:'roleDefinitionIds'}\n          ]\n          type: ${21:'type'}\n          existenceCondition: {\n            allOf: [\n              {\n                field: ${22:'field'}\n                ${23|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}: ${24:'conditionValue'}\n              }\n            ]\n          }\n          deployment: {\n            properties: {\n              mode: ${25|'incremental','complete'|}\n              template: {\n                '$schema': ${26:'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'}\n                contentVersion: ${27:'1.0.0.0'}\n                parameters: {\n                  ${28:parameterName}: {\n                    type: ${29|'String','Array'|}\n                    metadata: {\n                      displayName: ${30:'displayName'}\n                      description: ${31:'description'}\n                    }\n                  }\n                }\n                variables: {}\n                resources: [\n                  {\n                    name: ${32:'name'}\n                    type: ${33:'type'}\n                    apiVersion: ${34:'apiVersion'}\n                    location: ${35:'location'}\n                    properties: {}\n                  }\n                ]\n              }\n              parameters: {\n                ${36:parameterName}: {\n                  value: ${37:'value'}\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policy-definition-deploy-effect"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-policy-definition-modify-effect",
+    "kind": "snippet",
+    "detail": "Policy Definition",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n        details: {\n          roleDefinitionIds: [\n            'roleDefinitionIds'\n          ]\n          operations: [\n            {\n              operation: 'add'\n              field: 'field'\n              value: 'value'\n            }\n          ]\n        }\n      }\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-definition-modify-effect",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:policyDefinition} 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    policyType: ${4:'Custom'}\n    mode: ${5|'All','Indexed'|}\n    description: ${6:'description'}\n    metadata: {\n      version: ${7:'0.1.0'}\n      category: ${8:'category'}\n      source: ${9:'source'}\n    }\n    parameters: {\n      ${10:parameterName}: {\n        type: ${11|'String','Array'|}\n        defaultValue: ${12:'defaultValue'}\n        metadata: {\n          displayName: ${13:'displayName'}\n          description: ${14:'description'}\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        ${15|allOf,anyOf|}: [\n          {\n            field: ${16:'field'}\n            ${17|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}: ${18:'conditionValue'}\n          }\n        ]\n      }\n      then: {\n        effect: ${19|'Audit','AuditIfNotExists','Deny','DeployIfNotExists','Disabled','Modify'|}\n        details: {\n          roleDefinitionIds: [\n            ${20:'roleDefinitionIds'}\n          ]\n          operations: [\n            {\n              operation: ${21|'add','addOrReplace'|}\n              field: ${22:'field'}\n              value: ${23:'value'}\n            }\n          ]\n        }\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policy-definition-modify-effect"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-policy-exemption",
+    "kind": "snippet",
+    "detail": "olicy Exemption",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {\n  name: 'name'\n  properties: {\n    policyAssignmentId: 'policyAssignmentId'\n    policyDefinitionReferenceIds: [\n      'policyDefinitionReferenceIds'\n    ]\n    exemptionCategory: 'Mitigated'\n    expiresOn: 'expiresOn'\n    displayName: 'displayName'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      source: 'source'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-exemption",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:policyExemption} 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {\n  name: ${2:'name'}\n  properties: {\n    policyAssignmentId: ${3:'policyAssignmentId'}\n    policyDefinitionReferenceIds: [\n      ${4:'policyDefinitionReferenceIds'}\n    ]\n    exemptionCategory: ${5|'Mitigated','Waiver'|}\n    expiresOn: ${6:'expiresOn'}\n    displayName: ${7:'displayName'}\n    description: ${8:'description'}\n    metadata: {\n      version: ${9:'0.1.0'}\n      source: ${10:'source'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policy-exemption"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-policyset-definition",
+    "kind": "snippet",
+    "detail": "PolicySet Definition",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource policySetDefinition 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyDefinitions: [\n      {\n        policyDefinitionId: 'policyDefinitionId'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n        parameters: {\n          parameterName: {\n            value: 'value'\n          }\n        }\n      }\n      {\n        policyDefinitionId: 'policyDefinitionId'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n        parameters: {\n          parameterName: {\n            value: 'value'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policyset-definition",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:policySetDefinition} 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    policyType: ${4:'Custom'}\n    description: ${5:'description'}\n    metadata: {\n      version: ${6:'0.1.0'}\n      category: ${7:'category'}\n      source: ${8:'source'}\n    }\n    parameters: {\n      ${9:parameterName}: {\n        type: ${10|'String','Array'|}\n        metadata: {\n          displayName: ${11:'displayName'}\n          description: ${12:'description'}\n        }\n      }\n    }\n    policyDefinitions: [\n      {\n        policyDefinitionId: ${13:'policyDefinitionId'}\n        policyDefinitionReferenceId: ${14:'policyDefinitionReferenceId'}\n        parameters: {\n          ${15:parameterName}: {\n            value: ${16:'value'}\n          }\n        }\n      }\n      {\n        policyDefinitionId: ${17:'policyDefinitionId'}\n        policyDefinitionReferenceId: ${18:'policyDefinitionReferenceId'}\n        parameters: {\n          ${19:parameterName}: {\n            value: ${20:'value'}\n          }\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policyset-definition"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-recovery-service-vault",
     "kind": "snippet",
     "detail": "Recovery Service Vault",

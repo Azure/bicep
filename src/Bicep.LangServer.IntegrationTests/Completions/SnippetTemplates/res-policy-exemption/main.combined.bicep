@@ -15,3 +15,4 @@ resource policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-pr
     }
   }
 }
+
