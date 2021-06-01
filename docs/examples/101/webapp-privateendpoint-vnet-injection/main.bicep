@@ -29,35 +29,35 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
         virtualNetwork_CIDR
       ]
     }
-  }
-}
-
-resource subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
-  name: '${virtualNetwork.name}/${subnet1Name}'
-  properties: {
-    addressPrefix: subnet1_CIDR
-    privateEndpointNetworkPolicies: 'Disabled'
-  }
-}
-
-resource subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
-  name: '${virtualNetwork.name}/${subnet2Name}'
-  properties: {
-    addressPrefix: subnet2_CIDR
-    delegations: [
+    subnets: [
       {
-        name: 'delegation'
+        name: subnet1Name
         properties: {
-          serviceName: 'Microsoft.Web/serverfarms'
+          addressPrefix: subnet1_CIDR
+          privateEndpointNetworkPolicies: 'Disabled'
         }
       }
-    ]
-    privateEndpointNetworkPolicies: 'Enabled'
+      {
+        name: subnet2Name
+        properties: {
+          addressPrefix: subnet2_CIDR
+          delegations: [
+            {
+              name: 'delegation'
+              properties: {
+                serviceName: 'Microsoft.Web/serverfarms'
+              }
+            }
+          ]
+          privateEndpointNetworkPolicies: 'Enabled'
+          }                
+        }
+    ]    
   }
-  dependsOn: [
-    subnet1
-  ]
 }
+
+
+
 
 resource serverFarm 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: serverFarmName
@@ -130,7 +130,7 @@ resource webApp2Binding 'Microsoft.Web/sites/hostNameBindings@2019-08-01' = {
 resource webApp2NetworkConfig 'Microsoft.Web/sites/networkConfig@2020-06-01' = {
   name: '${webApp2.name}/VirtualNetwork'
   properties: {
-    subnetResourceId: subnet2.id
+    subnetResourceId: virtualNetwork.properties.subnets[1].id
   }
 }
 
@@ -139,7 +139,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-06-01' = {
   location: location
   properties: {
     subnet: {
-      id: subnet1.id
+      id: virtualNetwork.properties.subnets[0].id
     }
     privateLinkServiceConnections: [
       {
