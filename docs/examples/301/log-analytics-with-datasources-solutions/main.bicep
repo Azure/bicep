@@ -31,8 +31,8 @@ param diagnosticStorageAccountName string = ''
 @description('Storage account resourceop. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountResourceGroup string = ''
 
-var lockName = concat(logAnalyticsWorkspace.name, '-lck')
-var diagnosticsName = concat(logAnalyticsWorkspace.name, '-dgs')
+var lockName = '${logAnalyticsWorkspace.name}-lck'
+var diagnosticsName = '${logAnalyticsWorkspace.name}-dgs'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: name
@@ -46,13 +46,13 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08
 }
 
 resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = [for solution in solutions: {
-  name: concat(solution.name, '(', logAnalyticsWorkspace.name, ')')
+  name: '${solution.name}(${logAnalyticsWorkspace.name})'
   location: location
   properties: {
     workspaceResourceId: logAnalyticsWorkspace.id
   }
   plan: {
-    name: concat(solution.name, '(', logAnalyticsWorkspace.name, ')')
+    name: '${solution.name}(${logAnalyticsWorkspace.name})'
     product: solution.product
     publisher: solution.publisher
     promotionCode: solution.promotionCode
@@ -60,14 +60,14 @@ resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11
 }]
 
 resource logAnalyticsAutomation 'Microsoft.OperationalInsights/workspaces/linkedServices@2020-08-01' = if (!empty(automationAccountName)) {
-  name: concat(logAnalyticsWorkspace.name, '/Automation')
+  name: '${logAnalyticsWorkspace.name}/Automation'
   properties: {
     resourceId: resourceId('Microsoft.Automation/automationAccounts', automationAccountName)
   }
 }
 
 resource logAnalyticsDataSource 'Microsoft.OperationalInsights/workspaces/dataSources@2020-08-01' = [for dataSource in dataSources: {
-  name: concat(logAnalyticsWorkspace.name, '/', dataSource.name)
+  name: '${logAnalyticsWorkspace.name}/${dataSource.name}'
   kind: dataSource.kind
   properties: dataSource.properties
 }]

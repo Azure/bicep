@@ -558,5 +558,9 @@
     {
         "filePath": "301/sql-database-with-management/main.bicep",
         "description": "301/sql-database-with-management"
+    },
+    {
+        "filePath": "301/log-analytics-with-datasources-solutions/main.bicep",
+        "description": "301/log-analytics-with-datasources-solutions"
     }
 ]
