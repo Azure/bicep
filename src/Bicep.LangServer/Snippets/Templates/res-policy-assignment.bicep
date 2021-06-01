@@ -1,4 +1,3 @@
-targetScope = 'subscription'
 // Policy Assignment
 resource ${1:policyAssignment} 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: ${2:'name'}
