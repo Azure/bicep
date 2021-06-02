@@ -4,8 +4,9 @@ import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 import { version as buildVersion } from './package.json';
 import path from 'path';
 import exampleIndex from '../../docs/examples/index.json';
+import { Configuration } from 'webpack';
 
-module.exports = {
+const config: Configuration = {
   entry: {
     "main": './src/index.tsx',
   },
@@ -49,10 +50,10 @@ module.exports = {
       languages: ['json']
     }),
   ],
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    compress: true,
-    open: true,
-    port: 9000
-  }
+  optimization: {
+    // to avoid minimizing files under _framework (Blazor JS files), just turn off minification entirely.
+    minimize: false,
+  },
 };
+
+module.exports = config;
