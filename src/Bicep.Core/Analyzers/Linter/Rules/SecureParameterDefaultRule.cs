@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System.Collections.Generic;
@@ -17,13 +17,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SecureParameterDefaultRule() : base(
             code: Code,
             description: CoreResources.SecureParameterDefaultRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/secure-parameter-default")
+            docUri: new System.Uri("https://aka.ms/bicep/linter/secure-parameter-default"))
         { }
 
-        override public IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var defaultValueSyntaxes = model.Root.ParameterDeclarations.Where(p => p.IsSecure())
-                .Select(p => p.Modifier as ParameterDefaultValueSyntax)
+                .Select(p => p.DeclaringParameter.Modifier as ParameterDefaultValueSyntax)
                 .OfType<ParameterDefaultValueSyntax>(); // this eliminates nulls (when there's no default value)
 
             foreach (var defaultValueSyntax in defaultValueSyntaxes)

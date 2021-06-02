@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -23,7 +22,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public EnvironmentUrlHardcodedRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/no-hardcoded-env-urls")
+            docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
         {
         }
 
@@ -34,47 +33,57 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                     .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
-        protected override string FormatMessage(params object[] values)
-            => string.Format("{0} -- Found: [{1}]", this.Description, values.First());
+        public override string FormatMessage(params object[] values)
+            => string.Format("{0} Found this disallowed host: \"{1}\"", this.Description, values.First());
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             if (this.DisallowedHosts != null && this.DisallowedHosts.Any())
             {
-                var spansToMark = new Dictionary<TextSpan, List<string>>();
-                var visitor = new Visitor(spansToMark, this.DisallowedHosts);
+                var visitor = new Visitor(this.DisallowedHosts);
                 visitor.Visit(model.SyntaxTree.ProgramSyntax);
-
-                foreach (var kvp in spansToMark)
-                {
-                    var span = kvp.Key;
-                    foreach (var hosts in kvp.Value)
-                    {
-                        yield return CreateDiagnosticForSpan(span, hosts);
-                    }
-                }
+                return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.span, entry.host));
             }
+
+            return Enumerable.Empty<IDiagnostic>();
         }
 
         private class Visitor : SyntaxVisitor
         {
-            private readonly Dictionary<TextSpan, List<string>> hostsFound;
+            public readonly List<(string host, TextSpan span)> DisallowedHostSpans = new List<(string host, TextSpan span)>();
+
             private readonly ImmutableHashSet<string> disallowedHosts;
 
-            public Visitor(Dictionary<TextSpan, List<string>> hostsFound, ImmutableHashSet<string> disallowedHosts)
+            public Visitor(ImmutableHashSet<string> disallowedHosts)
             {
-                this.hostsFound = hostsFound;
                 this.disallowedHosts = disallowedHosts;
             }
 
             public override void VisitStringSyntax(StringSyntax syntax)
             {
-                var disallowed = syntax.SegmentValues.Where(s => this.disallowedHosts.Contains(s));
-                if (disallowed.Any())
+                var disallowedHost = syntax.SegmentValues.Select(s => FindEnvironmentUrlInString(s))
+                    .Where(span => span != null)
+                    .FirstOrDefault();
+                if (disallowedHost != null)
                 {
-                    this.hostsFound[syntax.Span] = disallowed.ToList();
+                    this.DisallowedHostSpans.Add((disallowedHost, syntax.Span));
                 }
+
                 base.VisitStringSyntax(syntax);
+            }
+
+            private string? FindEnvironmentUrlInString(string str)
+            {
+                foreach (var host in this.disallowedHosts)
+                {
+                    var index = str.IndexOf(host, StringComparison.InvariantCultureIgnoreCase);
+                    if (index >= 0)
+                    {
+                        return host;
+                    }
+                };
+
+                return null;
             }
         }
 

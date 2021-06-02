@@ -8,13 +8,49 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000000",
+    "sortText": "00000002",
     "filterText": "'Microsoft.Resources/templateSpecs@2019-06-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'Microsoft.Resources/templateSpecs@2019-06-01-preview'"
+    }
+  },
+  {
+    "label": "2021-03-01-preview",
+    "kind": "class",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Namespace: `Microsoft.Resources`  \nType: `templateSpecs`  \nAPI Version: `2021-03-01-preview`"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "00000001",
+    "filterText": "'Microsoft.Resources/templateSpecs@2021-03-01-preview'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'Microsoft.Resources/templateSpecs@2021-03-01-preview'"
+    }
+  },
+  {
+    "label": "2021-05-01",
+    "kind": "class",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Namespace: `Microsoft.Resources`  \nType: `templateSpecs`  \nAPI Version: `2021-05-01`"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "00000000",
+    "filterText": "'Microsoft.Resources/templateSpecs@2021-05-01'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'Microsoft.Resources/templateSpecs@2021-05-01'"
     }
   }
 ]

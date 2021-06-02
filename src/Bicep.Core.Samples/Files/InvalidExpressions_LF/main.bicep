@@ -119,9 +119,7 @@ output funcvarout array = padLeft
 
 // non-existent function
 var fakeFunc = red() + green() * orange()
-param fakeFuncP string {
-  default: blue()
-}
+param fakeFuncP string = blue()
 
 // non-existent variable
 var fakeVar = concat(totallyFakeVar, 's')

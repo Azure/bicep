@@ -189,7 +189,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0
   }
   dependsOn: [
     resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
-//@[4:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
+//@[4:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
     availabilitySetName
   ]
 }]

@@ -17,7 +17,7 @@ resource dataLakeStoreName_resource 'Microsoft.DataLakeStore/accounts@2016-11-01
   location: location
   properties: {
     encryptionConfig: {
-//@[4:20) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "type". |encryptionConfig|
+//@[4:20) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "type". (CodeDescription: none) |encryptionConfig|
       keyVaultMetaInfo: {
         keyVaultResourceId: resourceId_parameters_keyVaultResourceGroupName_Microsoft_KeyVault_vaults_parameters_keyVaultName
         encryptionKeyName: keyName

@@ -144,12 +144,12 @@
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>Parameter is declared but never used.</value>
   </data>
+  <data name="ParameterMustBeUsedRuleMessageFormat" xml:space="preserve">
+    <value>Parameter "{0}" is declared but never used.</value>
+    <comment>{0} is the paramenter name</comment>
+  </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Secure parameters should not have hardcoded defaults (except for empty or newGuid()).</value>
-  </data>
-  <data name="SeeDocLinkFormat" xml:space="preserve">
-    <value>See {0}</value>
-    <comment>{0} is hyperlink to docs </comment>
   </data>
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
@@ -159,5 +159,9 @@
   </data>
   <data name="UnusedVariableRuleDescription" xml:space="preserve">
     <value>Variable is declared but never used.</value>
+  </data>
+  <data name="UnusedVariableRuleMessageFormat" xml:space="preserve">
+    <value>Variable "{0}" is declared but never used.</value>
+    <comment>.</comment>
   </data>
 </root>

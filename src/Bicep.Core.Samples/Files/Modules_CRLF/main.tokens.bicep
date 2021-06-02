@@ -1640,5 +1640,212 @@ module secureModule2 'child/secureParams.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+//looped module with looped existing resource (Issue #2862)
+//@[59:61) NewLine |\r\n|
+var vaults = [
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |vaults|
+//@[11:12) Assignment |=|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+  {
+//@[2:3) LeftBrace |{|
+//@[3:5) NewLine |\r\n|
+    vaultName: 'test-1-kv'
+//@[4:13) Identifier |vaultName|
+//@[13:14) Colon |:|
+//@[15:26) StringComplete |'test-1-kv'|
+//@[26:28) NewLine |\r\n|
+    vaultRG: 'test-1-rg'
+//@[4:11) Identifier |vaultRG|
+//@[11:12) Colon |:|
+//@[13:24) StringComplete |'test-1-rg'|
+//@[24:26) NewLine |\r\n|
+    vaultSub: 'abcd-efgh'
+//@[4:12) Identifier |vaultSub|
+//@[12:13) Colon |:|
+//@[14:25) StringComplete |'abcd-efgh'|
+//@[25:27) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  {
+//@[2:3) LeftBrace |{|
+//@[3:5) NewLine |\r\n|
+    vaultName: 'test-2-kv'
+//@[4:13) Identifier |vaultName|
+//@[13:14) Colon |:|
+//@[15:26) StringComplete |'test-2-kv'|
+//@[26:28) NewLine |\r\n|
+    vaultRG: 'test-2-rg'
+//@[4:11) Identifier |vaultRG|
+//@[11:12) Colon |:|
+//@[13:24) StringComplete |'test-2-rg'|
+//@[24:26) NewLine |\r\n|
+    vaultSub: 'ijkl-1adg1'
+//@[4:12) Identifier |vaultSub|
+//@[12:13) Colon |:|
+//@[14:26) StringComplete |'ijkl-1adg1'|
+//@[26:28) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:3) NewLine |\r\n|
+var secrets = [
+//@[0:3) Identifier |var|
+//@[4:11) Identifier |secrets|
+//@[12:13) Assignment |=|
+//@[14:15) LeftSquare |[|
+//@[15:17) NewLine |\r\n|
+  {
+//@[2:3) LeftBrace |{|
+//@[3:5) NewLine |\r\n|
+    name: 'secret01'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:20) StringComplete |'secret01'|
+//@[20:22) NewLine |\r\n|
+    version: 'versionA'
+//@[4:11) Identifier |version|
+//@[11:12) Colon |:|
+//@[13:23) StringComplete |'versionA'|
+//@[23:25) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  {
+//@[2:3) LeftBrace |{|
+//@[3:5) NewLine |\r\n|
+    name: 'secret02'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:20) StringComplete |'secret02'|
+//@[20:22) NewLine |\r\n|
+    version: 'versionB'
+//@[4:11) Identifier |version|
+//@[11:12) Colon |:|
+//@[13:23) StringComplete |'versionB'|
+//@[23:25) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault in vaults: {
+//@[0:8) Identifier |resource|
+//@[9:17) Identifier |loopedKv|
+//@[18:56) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[57:65) Identifier |existing|
+//@[66:67) Assignment |=|
+//@[68:69) LeftSquare |[|
+//@[69:72) Identifier |for|
+//@[73:78) Identifier |vault|
+//@[79:81) Identifier |in|
+//@[82:88) Identifier |vaults|
+//@[88:89) Colon |:|
+//@[90:91) LeftBrace |{|
+//@[91:93) NewLine |\r\n|
+  name: vault.vaultName
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:13) Identifier |vault|
+//@[13:14) Dot |.|
+//@[14:23) Identifier |vaultName|
+//@[23:25) NewLine |\r\n|
+  scope: resourceGroup(vault.vaultSub, vault.vaultRG)
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:22) Identifier |resourceGroup|
+//@[22:23) LeftParen |(|
+//@[23:28) Identifier |vault|
+//@[28:29) Dot |.|
+//@[29:37) Identifier |vaultSub|
+//@[37:38) Comma |,|
+//@[39:44) Identifier |vault|
+//@[44:45) Dot |.|
+//@[45:52) Identifier |vaultRG|
+//@[52:53) RightParen |)|
+//@[53:55) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secrets: {
+//@[0:6) Identifier |module|
+//@[7:25) Identifier |secureModuleLooped|
+//@[26:52) StringComplete |'child/secureParams.bicep'|
+//@[53:54) Assignment |=|
+//@[55:56) LeftSquare |[|
+//@[56:59) Identifier |for|
+//@[60:61) LeftParen |(|
+//@[61:67) Identifier |secret|
+//@[67:68) Comma |,|
+//@[69:70) Identifier |i|
+//@[70:71) RightParen |)|
+//@[72:74) Identifier |in|
+//@[75:82) Identifier |secrets|
+//@[82:83) Colon |:|
+//@[84:85) LeftBrace |{|
+//@[85:87) NewLine |\r\n|
+  name: 'secureModuleLooped-${i}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:30) StringLeftPiece |'secureModuleLooped-${|
+//@[30:31) Identifier |i|
+//@[31:33) StringRightPiece |}'|
+//@[33:35) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    secureStringParam1: loopedKv[i].getSecret(secret.name)
+//@[4:22) Identifier |secureStringParam1|
+//@[22:23) Colon |:|
+//@[24:32) Identifier |loopedKv|
+//@[32:33) LeftSquare |[|
+//@[33:34) Identifier |i|
+//@[34:35) RightSquare |]|
+//@[35:36) Dot |.|
+//@[36:45) Identifier |getSecret|
+//@[45:46) LeftParen |(|
+//@[46:52) Identifier |secret|
+//@[52:53) Dot |.|
+//@[53:57) Identifier |name|
+//@[57:58) RightParen |)|
+//@[58:60) NewLine |\r\n|
+    secureStringParam2: loopedKv[i].getSecret(secret.name, secret.version)
+//@[4:22) Identifier |secureStringParam2|
+//@[22:23) Colon |:|
+//@[24:32) Identifier |loopedKv|
+//@[32:33) LeftSquare |[|
+//@[33:34) Identifier |i|
+//@[34:35) RightSquare |]|
+//@[35:36) Dot |.|
+//@[36:45) Identifier |getSecret|
+//@[45:46) LeftParen |(|
+//@[46:52) Identifier |secret|
+//@[52:53) Dot |.|
+//@[53:57) Identifier |name|
+//@[57:58) Comma |,|
+//@[59:65) Identifier |secret|
+//@[65:66) Dot |.|
+//@[66:73) Identifier |version|
+//@[73:74) RightParen |)|
+//@[74:76) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:8) NewLine |\r\n\r\n\r\n|
+
+
 // END: Key Vault Secret Reference
 //@[34:34) EndOfFile ||

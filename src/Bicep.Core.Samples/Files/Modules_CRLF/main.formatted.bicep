@@ -281,4 +281,41 @@ module secureModule2 'child/secureParams.bicep' = {
   }
 }
 
+//looped module with looped existing resource (Issue #2862)
+var vaults = [
+  {
+    vaultName: 'test-1-kv'
+    vaultRG: 'test-1-rg'
+    vaultSub: 'abcd-efgh'
+  }
+  {
+    vaultName: 'test-2-kv'
+    vaultRG: 'test-2-rg'
+    vaultSub: 'ijkl-1adg1'
+  }
+]
+var secrets = [
+  {
+    name: 'secret01'
+    version: 'versionA'
+  }
+  {
+    name: 'secret02'
+    version: 'versionB'
+  }
+]
+
+resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault in vaults: {
+  name: vault.vaultName
+  scope: resourceGroup(vault.vaultSub, vault.vaultRG)
+}]
+
+module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secrets: {
+  name: 'secureModuleLooped-${i}'
+  params: {
+    secureStringParam1: loopedKv[i].getSecret(secret.name)
+    secureStringParam2: loopedKv[i].getSecret(secret.name, secret.version)
+  }
+}]
+
 // END: Key Vault Secret Reference

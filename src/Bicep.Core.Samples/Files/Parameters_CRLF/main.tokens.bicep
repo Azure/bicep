@@ -170,136 +170,36 @@ param myArrayParam array = [
 //@[0:1) RightSquare |]|
 //@[1:5) NewLine |\r\n\r\n|
 
-// alternative array parameter
-//@[30:32) NewLine |\r\n|
-param myAlternativeArrayParam array {
-//@[0:5) Identifier |param|
-//@[6:29) Identifier |myAlternativeArrayParam|
-//@[30:35) Identifier |array|
-//@[36:37) LeftBrace |{|
-//@[37:39) NewLine |\r\n|
-  default: [
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:14) NewLine |\r\n|
-    'a'
-//@[4:7) StringComplete |'a'|
-//@[7:9) NewLine |\r\n|
-    'b'
-//@[4:7) StringComplete |'b'|
-//@[7:9) NewLine |\r\n|
-    'c'
-//@[4:7) StringComplete |'c'|
-//@[7:9) NewLine |\r\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 // secure string
 //@[16:18) NewLine |\r\n|
-param password string {
+@secure()
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:11) NewLine |\r\n|
+param password string
 //@[0:5) Identifier |param|
 //@[6:14) Identifier |password|
 //@[15:21) Identifier |string|
-//@[22:23) LeftBrace |{|
-//@[23:25) NewLine |\r\n|
-  secure: true
-//@[2:8) Identifier |secure|
-//@[8:9) Colon |:|
-//@[10:14) TrueKeyword |true|
-//@[14:16) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
-@secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:11) NewLine |\r\n|
-param passwordWithDecorator string
-//@[0:5) Identifier |param|
-//@[6:27) Identifier |passwordWithDecorator|
-//@[28:34) Identifier |string|
-//@[34:38) NewLine |\r\n\r\n|
-
-// non-secure string
-//@[20:22) NewLine |\r\n|
-param nonSecure string {
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |nonSecure|
-//@[16:22) Identifier |string|
-//@[23:24) LeftBrace |{|
-//@[24:26) NewLine |\r\n|
-  secure: false
-//@[2:8) Identifier |secure|
-//@[8:9) Colon |:|
-//@[10:15) FalseKeyword |false|
-//@[15:17) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[21:25) NewLine |\r\n\r\n|
 
 // secure object
 //@[16:18) NewLine |\r\n|
-param secretObject object {
-//@[0:5) Identifier |param|
-//@[6:18) Identifier |secretObject|
-//@[19:25) Identifier |object|
-//@[26:27) LeftBrace |{|
-//@[27:29) NewLine |\r\n|
-  secure: true
-//@[2:8) Identifier |secure|
-//@[8:9) Colon |:|
-//@[10:14) TrueKeyword |true|
-//@[14:16) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 @secure()
 //@[0:1) At |@|
 //@[1:7) Identifier |secure|
 //@[7:8) LeftParen |(|
 //@[8:9) RightParen |)|
 //@[9:11) NewLine |\r\n|
-param secretObjectWithDecorator object
+param secretObject object
 //@[0:5) Identifier |param|
-//@[6:31) Identifier |secretObjectWithDecorator|
-//@[32:38) Identifier |object|
-//@[38:42) NewLine |\r\n\r\n|
+//@[6:18) Identifier |secretObject|
+//@[19:25) Identifier |object|
+//@[25:29) NewLine |\r\n\r\n|
 
 // enum parameter
 //@[17:19) NewLine |\r\n|
-param storageSku string {
-//@[0:5) Identifier |param|
-//@[6:16) Identifier |storageSku|
-//@[17:23) Identifier |string|
-//@[24:25) LeftBrace |{|
-//@[25:27) NewLine |\r\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:14) NewLine |\r\n|
-    'Standard_LRS'
-//@[4:18) StringComplete |'Standard_LRS'|
-//@[18:20) NewLine |\r\n|
-    'Standard_GRS'
-//@[4:18) StringComplete |'Standard_GRS'|
-//@[18:20) NewLine |\r\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 @allowed([
 //@[0:1) At |@|
 //@[1:8) Identifier |allowed|
@@ -316,76 +216,36 @@ param storageSku string {
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:4) NewLine |\r\n|
-param storageSkuWithDecorator string
+param storageSku string
 //@[0:5) Identifier |param|
-//@[6:29) Identifier |storageSkuWithDecorator|
-//@[30:36) Identifier |string|
-//@[36:40) NewLine |\r\n\r\n|
+//@[6:16) Identifier |storageSku|
+//@[17:23) Identifier |string|
+//@[23:27) NewLine |\r\n\r\n|
 
 // length constraint on a string
 //@[32:34) NewLine |\r\n|
-param storageName string {
+@minLength(3)
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Integer |3|
+//@[12:13) RightParen |)|
+//@[13:15) NewLine |\r\n|
+@maxLength(24)
+//@[0:1) At |@|
+//@[1:10) Identifier |maxLength|
+//@[10:11) LeftParen |(|
+//@[11:13) Integer |24|
+//@[13:14) RightParen |)|
+//@[14:16) NewLine |\r\n|
+param storageName string
 //@[0:5) Identifier |param|
 //@[6:17) Identifier |storageName|
 //@[18:24) Identifier |string|
-//@[25:26) LeftBrace |{|
-//@[26:28) NewLine |\r\n|
-  minLength: 3
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:14) Integer |3|
-//@[14:16) NewLine |\r\n|
-  maxLength: 24
-//@[2:11) Identifier |maxLength|
-//@[11:12) Colon |:|
-//@[13:15) Integer |24|
-//@[15:17) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
-@minLength(3)
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |3|
-//@[12:13) RightParen |)|
-//@[13:15) NewLine |\r\n|
-@maxLength(24)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:13) Integer |24|
-//@[13:14) RightParen |)|
-//@[14:16) NewLine |\r\n|
-param storageNameWithDecorator string
-//@[0:5) Identifier |param|
-//@[6:30) Identifier |storageNameWithDecorator|
-//@[31:37) Identifier |string|
-//@[37:41) NewLine |\r\n\r\n|
+//@[24:28) NewLine |\r\n\r\n|
 
 // length constraint on an array
 //@[32:34) NewLine |\r\n|
-param someArray array {
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |someArray|
-//@[16:21) Identifier |array|
-//@[22:23) LeftBrace |{|
-//@[23:25) NewLine |\r\n|
-  minLength: 3
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:14) Integer |3|
-//@[14:16) NewLine |\r\n|
-  maxLength: 24
-//@[2:11) Identifier |maxLength|
-//@[11:12) Colon |:|
-//@[13:15) Integer |24|
-//@[15:17) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 @minLength(3)
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
@@ -400,32 +260,14 @@ param someArray array {
 //@[11:13) Integer |24|
 //@[13:14) RightParen |)|
 //@[14:16) NewLine |\r\n|
-param someArrayWithDecorator array
+param someArray array
 //@[0:5) Identifier |param|
-//@[6:28) Identifier |someArrayWithDecorator|
-//@[29:34) Identifier |array|
-//@[34:38) NewLine |\r\n\r\n|
+//@[6:15) Identifier |someArray|
+//@[16:21) Identifier |array|
+//@[21:25) NewLine |\r\n\r\n|
 
 // empty metadata
 //@[17:19) NewLine |\r\n|
-param emptyMetadata string {
-//@[0:5) Identifier |param|
-//@[6:19) Identifier |emptyMetadata|
-//@[20:26) Identifier |string|
-//@[27:28) LeftBrace |{|
-//@[28:30) NewLine |\r\n|
-  metadata: {
-//@[2:10) Identifier |metadata|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:15) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 @metadata({})
 //@[0:1) At |@|
 //@[1:9) Identifier |metadata|
@@ -434,37 +276,14 @@ param emptyMetadata string {
 //@[11:12) RightBrace |}|
 //@[12:13) RightParen |)|
 //@[13:15) NewLine |\r\n|
-param emptyMetadataWithDecorator string
+param emptyMetadata string
 //@[0:5) Identifier |param|
-//@[6:32) Identifier |emptyMetadataWithDecorator|
-//@[33:39) Identifier |string|
-//@[39:43) NewLine |\r\n\r\n|
+//@[6:19) Identifier |emptyMetadata|
+//@[20:26) Identifier |string|
+//@[26:30) NewLine |\r\n\r\n|
 
 // description
 //@[14:16) NewLine |\r\n|
-param description string {
-//@[0:5) Identifier |param|
-//@[6:17) Identifier |description|
-//@[18:24) Identifier |string|
-//@[25:26) LeftBrace |{|
-//@[26:28) NewLine |\r\n|
-  metadata: {
-//@[2:10) Identifier |metadata|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:15) NewLine |\r\n|
-    description: 'my description'
-//@[4:15) Identifier |description|
-//@[15:16) Colon |:|
-//@[17:33) StringComplete |'my description'|
-//@[33:35) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 @metadata({
 //@[0:1) At |@|
 //@[1:9) Identifier |metadata|
@@ -480,11 +299,11 @@ param description string {
 //@[0:1) RightBrace |}|
 //@[1:2) RightParen |)|
 //@[2:4) NewLine |\r\n|
-param descriptionWithDecorator string
+param description string
 //@[0:5) Identifier |param|
-//@[6:30) Identifier |descriptionWithDecorator|
-//@[31:37) Identifier |string|
-//@[37:41) NewLine |\r\n\r\n|
+//@[6:17) Identifier |description|
+//@[18:24) Identifier |string|
+//@[24:28) NewLine |\r\n\r\n|
 
 @sys.description('my description')
 //@[0:1) At |@|
@@ -495,68 +314,14 @@ param descriptionWithDecorator string
 //@[17:33) StringComplete |'my description'|
 //@[33:34) RightParen |)|
 //@[34:36) NewLine |\r\n|
-param descriptionWithDecorator2 string
+param description2 string
 //@[0:5) Identifier |param|
-//@[6:31) Identifier |descriptionWithDecorator2|
-//@[32:38) Identifier |string|
-//@[38:42) NewLine |\r\n\r\n|
+//@[6:18) Identifier |description2|
+//@[19:25) Identifier |string|
+//@[25:29) NewLine |\r\n\r\n|
 
 // random extra metadata
 //@[24:26) NewLine |\r\n|
-param additionalMetadata string {
-//@[0:5) Identifier |param|
-//@[6:24) Identifier |additionalMetadata|
-//@[25:31) Identifier |string|
-//@[32:33) LeftBrace |{|
-//@[33:35) NewLine |\r\n|
-  metadata: {
-//@[2:10) Identifier |metadata|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:15) NewLine |\r\n|
-    description: 'my description'
-//@[4:15) Identifier |description|
-//@[15:16) Colon |:|
-//@[17:33) StringComplete |'my description'|
-//@[33:35) NewLine |\r\n|
-    a: 1
-//@[4:5) Identifier |a|
-//@[5:6) Colon |:|
-//@[7:8) Integer |1|
-//@[8:10) NewLine |\r\n|
-    b: true
-//@[4:5) Identifier |b|
-//@[5:6) Colon |:|
-//@[7:11) TrueKeyword |true|
-//@[11:13) NewLine |\r\n|
-    c: [
-//@[4:5) Identifier |c|
-//@[5:6) Colon |:|
-//@[7:8) LeftSquare |[|
-//@[8:10) NewLine |\r\n|
-    ]
-//@[4:5) RightSquare |]|
-//@[5:7) NewLine |\r\n|
-    d: {
-//@[4:5) Identifier |d|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[8:10) NewLine |\r\n|
-      test: 'abc'
-//@[6:10) Identifier |test|
-//@[10:11) Colon |:|
-//@[12:17) StringComplete |'abc'|
-//@[17:19) NewLine |\r\n|
-    }
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 @metadata({
 //@[0:1) At |@|
 //@[1:9) Identifier |metadata|
@@ -603,74 +368,14 @@ param additionalMetadata string {
 //@[0:1) RightBrace |}|
 //@[1:2) RightParen |)|
 //@[2:4) NewLine |\r\n|
-param additionalMetadataWithDecorator string
+param additionalMetadata string
 //@[0:5) Identifier |param|
-//@[6:37) Identifier |additionalMetadataWithDecorator|
-//@[38:44) Identifier |string|
-//@[44:48) NewLine |\r\n\r\n|
+//@[6:24) Identifier |additionalMetadata|
+//@[25:31) Identifier |string|
+//@[31:35) NewLine |\r\n\r\n|
 
 // all modifiers together
 //@[25:27) NewLine |\r\n|
-param someParameter string {
-//@[0:5) Identifier |param|
-//@[6:19) Identifier |someParameter|
-//@[20:26) Identifier |string|
-//@[27:28) LeftBrace |{|
-//@[28:30) NewLine |\r\n|
-  secure: true
-//@[2:8) Identifier |secure|
-//@[8:9) Colon |:|
-//@[10:14) TrueKeyword |true|
-//@[14:16) NewLine |\r\n|
-  minLength: 3
-//@[2:11) Identifier |minLength|
-//@[11:12) Colon |:|
-//@[13:14) Integer |3|
-//@[14:16) NewLine |\r\n|
-  maxLength: 24
-//@[2:11) Identifier |maxLength|
-//@[11:12) Colon |:|
-//@[13:15) Integer |24|
-//@[15:17) NewLine |\r\n|
-  default: 'one'
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:16) StringComplete |'one'|
-//@[16:18) NewLine |\r\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:14) NewLine |\r\n|
-    'one'
-//@[4:9) StringComplete |'one'|
-//@[9:11) NewLine |\r\n|
-    'two'
-//@[4:9) StringComplete |'two'|
-//@[9:11) NewLine |\r\n|
-    'three'
-//@[4:11) StringComplete |'three'|
-//@[11:13) NewLine |\r\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
-  metadata: {
-//@[2:10) Identifier |metadata|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:15) NewLine |\r\n|
-    description: 'Name of the storage account'
-//@[4:15) Identifier |description|
-//@[15:16) Colon |:|
-//@[17:46) StringComplete |'Name of the storage account'|
-//@[46:48) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
 @secure()
 //@[0:1) At |@|
 //@[1:7) Identifier |secure|
@@ -725,34 +430,11 @@ param someParameter string {
 //@[0:1) RightBrace |}|
 //@[1:2) RightParen |)|
 //@[2:4) NewLine |\r\n|
-param someParameterWithDecorator string
+param someParameter string
 //@[0:5) Identifier |param|
-//@[6:32) Identifier |someParameterWithDecorator|
-//@[33:39) Identifier |string|
-//@[39:43) NewLine |\r\n\r\n|
-
-param defaultValueExpression int {
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |defaultValueExpression|
-//@[29:32) Identifier |int|
-//@[33:34) LeftBrace |{|
-//@[34:36) NewLine |\r\n|
-  default: true ? 4 + 2*3 : 0
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:15) TrueKeyword |true|
-//@[16:17) Question |?|
-//@[18:19) Integer |4|
-//@[20:21) Plus |+|
-//@[22:23) Integer |2|
-//@[23:24) Asterisk |*|
-//@[24:25) Integer |3|
-//@[26:27) Colon |:|
-//@[28:29) Integer |0|
-//@[29:31) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[6:19) Identifier |someParameter|
+//@[20:26) Identifier |string|
+//@[26:30) NewLine |\r\n\r\n|
 
 param defaultExpression bool = 18 != (true || false)
 //@[0:5) Identifier |param|
@@ -767,62 +449,6 @@ param defaultExpression bool = 18 != (true || false)
 //@[46:51) FalseKeyword |false|
 //@[51:52) RightParen |)|
 //@[52:56) NewLine |\r\n\r\n|
-
-param stringLiteral string {
-//@[0:5) Identifier |param|
-//@[6:19) Identifier |stringLiteral|
-//@[20:26) Identifier |string|
-//@[27:28) LeftBrace |{|
-//@[28:30) NewLine |\r\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:14) NewLine |\r\n|
-    'abc'
-//@[4:9) StringComplete |'abc'|
-//@[9:11) NewLine |\r\n|
-    'def'
-//@[4:9) StringComplete |'def'|
-//@[9:11) NewLine |\r\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
-
-param stringLiteralWithAllowedValuesSuperset string {
-//@[0:5) Identifier |param|
-//@[6:44) Identifier |stringLiteralWithAllowedValuesSuperset|
-//@[45:51) Identifier |string|
-//@[52:53) LeftBrace |{|
-//@[53:55) NewLine |\r\n|
-  allowed: [
-//@[2:9) Identifier |allowed|
-//@[9:10) Colon |:|
-//@[11:12) LeftSquare |[|
-//@[12:14) NewLine |\r\n|
-    'abc'
-//@[4:9) StringComplete |'abc'|
-//@[9:11) NewLine |\r\n|
-    'def'
-//@[4:9) StringComplete |'def'|
-//@[9:11) NewLine |\r\n|
-    'ghi'
-//@[4:9) StringComplete |'ghi'|
-//@[9:11) NewLine |\r\n|
-  ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
-  default: stringLiteral
-//@[2:9) Identifier |default|
-//@[9:10) Colon |:|
-//@[11:24) Identifier |stringLiteral|
-//@[24:26) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
 
 @allowed([
 //@[0:1) At |@|
@@ -840,11 +466,11 @@ param stringLiteralWithAllowedValuesSuperset string {
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:4) NewLine |\r\n|
-param stringLiteralWithDecorator string
+param stringLiteral string
 //@[0:5) Identifier |param|
-//@[6:32) Identifier |stringLiteralWithDecorator|
-//@[33:39) Identifier |string|
-//@[39:43) NewLine |\r\n\r\n|
+//@[6:19) Identifier |stringLiteral|
+//@[20:26) Identifier |string|
+//@[26:30) NewLine |\r\n\r\n|
 
 @allowed([
 //@[0:1) At |@|
@@ -865,13 +491,13 @@ param stringLiteralWithDecorator string
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:4) NewLine |\r\n|
-param stringLiteralWithDecoratorWithAllowedValuesSuperset string = stringLiteralWithDecorator
+param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 //@[0:5) Identifier |param|
-//@[6:57) Identifier |stringLiteralWithDecoratorWithAllowedValuesSuperset|
-//@[58:64) Identifier |string|
-//@[65:66) Assignment |=|
-//@[67:93) Identifier |stringLiteralWithDecorator|
-//@[93:97) NewLine |\r\n\r\n|
+//@[6:44) Identifier |stringLiteralWithAllowedValuesSuperset|
+//@[45:51) Identifier |string|
+//@[52:53) Assignment |=|
+//@[54:67) Identifier |stringLiteral|
+//@[67:71) NewLine |\r\n\r\n|
 
 @secure()
 //@[0:1) At |@|
@@ -953,30 +579,6 @@ param negativeValues int
 //@[6:20) Identifier |negativeValues|
 //@[21:24) Identifier |int|
 //@[24:28) NewLine |\r\n\r\n|
-
-// negative integer literals in modifiers
-//@[41:43) NewLine |\r\n|
-param negativeModifiers int {
-//@[0:5) Identifier |param|
-//@[6:23) Identifier |negativeModifiers|
-//@[24:27) Identifier |int|
-//@[28:29) LeftBrace |{|
-//@[29:31) NewLine |\r\n|
-  minValue: -100
-//@[2:10) Identifier |minValue|
-//@[10:11) Colon |:|
-//@[12:13) Minus |-|
-//@[13:16) Integer |100|
-//@[16:18) NewLine |\r\n|
-  maxValue: -33
-//@[2:10) Identifier |maxValue|
-//@[10:11) Colon |:|
-//@[12:13) Minus |-|
-//@[13:15) Integer |33|
-//@[15:17) NewLine |\r\n|
-}
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
 
 @sys.description('A boolean.')
 //@[0:1) At |@|

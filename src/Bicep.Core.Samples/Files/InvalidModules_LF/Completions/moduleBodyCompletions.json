@@ -83,6 +83,17 @@
     "textEdit": {
       "range": {},
       "newText": "{\n\tname: $1\n\tparams: {\n\t\tarrayParam: $2\n\t\tobjParam: {\n\t\t}\n\t\tstringParamB: $3\n\t}\n\t$0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "Properties": {
+            "name": "required-properties"
+          },
+          "EventName": "ModuleBodySnippetInsertion"
+        }
+      ]
     }
   },
   {
@@ -101,6 +112,17 @@
     "textEdit": {
       "range": {},
       "newText": "{\n\t$0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "Properties": {
+            "name": "{}"
+          },
+          "EventName": "ModuleBodySnippetInsertion"
+        }
+      ]
     }
   }
 ]

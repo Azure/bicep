@@ -8,13 +8,11 @@ param myInt int
 param myBool bool
 
 // parameters with default value
-param myString2 string = 'strin${2}g value'
+param myString2 string = 'string value'
 param myInt2 int = 42
 param myTruth bool = true
 param myFalsehood bool = false
-param myEscapedString string = 'First line\nSecond\ttabbed\tline'
-param myNewGuid string = newGuid()
-param myUtcTime string = utcNow()
+param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
 param foo object = {
@@ -38,10 +36,6 @@ param foo object = {
       a: 'b'
     }
   ]
-  test: {
-    time: utcNow('u')
-    guid: newGuid()
-  }
 }
 
 // array default value
@@ -51,138 +45,58 @@ param myArrayParam array = [
   'c'
 ]
 
-// alternative array parameter
-param myAlternativeArrayParam array {
-  default: [
-    'a'
-    'b'
-    'c'
-    newGuid()
-    utcNow()
-  ]
-}
-
 // secure string
-param password string {
-  secure: true
-}
-
 @secure()
-param passwordWithDecorator string
-
-// non-secure string
-param nonSecure string {
-  secure: false
-}
+param password string
 
 // secure object
-param secretObject object {
-  secure: true
-}
-
 @secure()
-param secureObjectWithDecorator object
+param secretObject object
 
 // enum parameter
-param storageSku string {
-  allowed: [
-    'Standard_LRS'
-    'Standard_GRS'
-  ]
-}
-
-@  allowed([
-'Standard_LRS'
-'Standard_GRS'
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
 ])
-param storageSkuWithDecorator string
+param storageSku string
 
 // length constraint on a string
-param storageName string {
-  minLength: 3
-  maxLength: 24
-}
-
 @minLength(3)
 @maxLength(24)
-param storageNameWithDecorator string
+param storageName string
 
 // length constraint on an array
-param someArray array {
-  minLength: 3
-  maxLength: 24
-}
-
 @minLength(3)
 @maxLength(24)
-param someArrayWithDecorator array
+param someArray array
 
 // empty metadata
-param emptyMetadata string {
-  metadata: {
-  }
-}
-
 @metadata({})
-param emptyMetadataWithDecorator string
+param emptyMetadata string
 
 // description
-param description string {
-  metadata: {
-    description: 'my description'
-  }
-}
-
 @metadata({
   description: 'my description'
 })
-param descriptionWithDecorator string
+param description string
 
 @sys.description('my description')
-param descriptionWithDecorator2 string
+param description2 string
 
 // random extra metadata
-param additionalMetadata string {
-  metadata: {
-    description: 'my description'
-    a: 1
-    b: true
-    c: [
-    ]
-    d: {
-      test: 'abc'
-    }
-  }
-}
-
 @metadata({
-	description: 'my description'
-	a: 1
-	b: true
-	c: [
-	]
-	d: {
-	  test: 'abc'
-	}
+  description: 'my description'
+  a: 1
+  b: true
+  c: [
+  ]
+  d: {
+    test: 'abc'
+  }
 })
-param additionalMetadataWithDecorator string
+param additionalMetadata string
 
 // all modifiers together
-param someParameter string {
-  secure: true
-  minLength: 3
-  maxLength: 24
-  default: 'one'
-  allowed: [
-    'one'
-    'two'
-    'three'
-  ]
-  metadata: {
-    description: 'Name of the storage account'
-  }
-}
-
 @secure()
 @minLength(3)
 @maxLength(24)
@@ -194,13 +108,22 @@ param someParameter string {
 @metadata({
   description: 'Name of the storage account'
 })
-param someParameterWithDecorator string = 'one'
-
-param defaultValueExpression int {
-  default: true ? 4 + 2*3 : 0
-}
+param someParameter string
 
 param defaultExpression bool = 18 != (true || false)
+
+@allowed([
+  'abc'
+  'def'
+])
+param stringLiteral string
+
+@allowed([
+  'abc'
+  'def'
+  'ghi'
+])
+param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 
 @secure()
 @minLength(2)
@@ -219,17 +142,6 @@ param decoratedInt int = 123
 @maxValue(-3)
 param negativeValues int
 
-// negative zeros are valid lengths
-@minLength(-0)
-@maxLength(-0)
-param negativeZeros string
-
-// negative integer literals in modifiers
-param negativeModifiers int {
-  minValue: -100
-  maxValue: -33
-}
-
 @sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'
@@ -240,79 +152,38 @@ param negativeModifiers int {
         123
     ]
 })
-param decoratedBool bool
+param decoratedBool bool = (true && false) != true
 
 @secure()
 param decoratedObject object = {
-  location: 'westus'
+  enabled: true
+  name: 'this is my object'
+  priority: 3
+  info: {
+    a: 'b'
+  }
+  empty: {
+  }
+  array: [
+    'string item'
+    12
+    true
+    [
+      'inner'
+      false
+    ]
+    {
+      a: 'b'
+    }
+  ]
 }
 
-
-@metadata({
+@sys.metadata({
     description: 'An array.'
 })
-@maxLength(20)
+@sys.maxLength(20)
 @sys.description('I will be overrode.')
-param decoratedArray array
-
-param allowedPermutation array {
-    default: [
-		'Microsoft.AnalysisServices/servers'
-		'Microsoft.ContainerRegistry/registries'
-	]
-    allowed: [
-		'Microsoft.AnalysisServices/servers'
-		'Microsoft.ApiManagement/service'
-		'Microsoft.Network/applicationGateways'
-		'Microsoft.Automation/automationAccounts'
-		'Microsoft.ContainerInstance/containerGroups'
-		'Microsoft.ContainerRegistry/registries'
-		'Microsoft.ContainerService/managedClusters'
-    ]
-}
-
-@allowed([
-	'Microsoft.AnalysisServices/servers'
-	'Microsoft.ApiManagement/service'
-	'Microsoft.Network/applicationGateways'
-	'Microsoft.Automation/automationAccounts'
-	'Microsoft.ContainerInstance/containerGroups'
-	'Microsoft.ContainerRegistry/registries'
-	'Microsoft.ContainerService/managedClusters'
-])
-param allowedPermutationWithDecorator array = [
-	'Microsoft.AnalysisServices/servers'
-	'Microsoft.ContainerRegistry/registries'
-]
-
-param allowedArray array {
-    default: [
-		'Microsoft.AnalysisServices/servers'
-		'Microsoft.ApiManagement/service'
-	]
-    allowed: [
-		[
-			'Microsoft.AnalysisServices/servers'
-			'Microsoft.ApiManagement/service'
-		]
-		[
-			'Microsoft.Network/applicationGateways'
-			'Microsoft.Automation/automationAccounts'
-		]
-    ]
-}
-
-@allowed([
-	[
-		'Microsoft.AnalysisServices/servers'
-		'Microsoft.ApiManagement/service'
-	]
-	[
-		'Microsoft.Network/applicationGateways'
-		'Microsoft.Automation/automationAccounts'
-	]
-])
-param allowedArrayWithDecorator array = [
-	'Microsoft.AnalysisServices/servers'
-	'Microsoft.ApiManagement/service'
+param decoratedArray array = [
+    utcNow()
+    newGuid()
 ]

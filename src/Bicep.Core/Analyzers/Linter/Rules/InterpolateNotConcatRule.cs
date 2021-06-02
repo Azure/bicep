@@ -1,17 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -22,38 +21,49 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public InterpolateNotConcatRule() : base(
             code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
-            docUri: "https://aka.ms/bicep/linter/prefer-interpolation")
+            docUri: new Uri("https://aka.ms/bicep/linter/prefer-interpolation"))
         { }
 
-        public override IEnumerable<IBicepAnalyzerDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            var visitor = new Visitor(this);
+            var visitor = new Visitor(this, model);
             visitor.Visit(model.SyntaxTree.ProgramSyntax);
             return visitor.diagnostics;
         }
 
         private class Visitor : SyntaxVisitor
         {
-            public List<IBicepAnalyzerDiagnostic> diagnostics = new List<IBicepAnalyzerDiagnostic>();
+            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
 
             private const string concatFunction = "concat";
-            private InterpolateNotConcatRule parent;
+            private readonly InterpolateNotConcatRule parent;
+            private readonly SemanticModel model;
 
-            public Visitor(InterpolateNotConcatRule parent)
+            public Visitor(InterpolateNotConcatRule parent, SemanticModel model)
             {
                 this.parent = parent;
+                this.model = model;
             }
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             {
-                if (syntax.NameEquals(concatFunction))
+                // must have more than 1 argument to use interpolation
+                if (syntax.NameEquals(concatFunction)
+                   && syntax.Arguments.Length > 1
+                   && !syntax.GetParseDiagnostics().Any())
                 {
-                    if (CreateFix(syntax) is CodeFix fix)
+                    // We should only suggest rewriting concat() calls that result in a string (concat can also operate on and
+                    // return arrays)
+                    var resultType = this.model.GetTypeInfo(syntax);
+                    if (resultType is not AnyType && TypeValidator.AreTypesAssignable(resultType, LanguageConstants.String))
                     {
-                        this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(syntax.Span, fix));
+                        if (CreateFix(syntax) is CodeFix fix)
+                        {
+                            this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(syntax.Span, fix));
 
-                        // Only report on the top-most concat call
-                        return;
+                            // Only report on the top-most string-valued concat call
+                            return;
+                        }
                     }
                 }
 

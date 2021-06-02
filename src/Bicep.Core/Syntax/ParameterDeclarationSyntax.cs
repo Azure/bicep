@@ -21,7 +21,7 @@ namespace Bicep.Core.Syntax
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(type, nameof(type), typeof(TypeSyntax), typeof(SkippedTriviaSyntax));
-            AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
+            AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(SkippedTriviaSyntax));
 
             this.Keyword = keyword;
             this.Name = name;
@@ -65,12 +65,9 @@ namespace Bicep.Core.Syntax
 
         public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax)
         {
-            static bool IsBooleanTrue(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
-
             var assignedType = this.GetDeclaredType();
 
             // TODO: remove SyntaxHelper.TryGetAllowedSyntax when we drop parameter modifiers support.
-            allowedSyntax ??= SyntaxHelper.TryGetAllowedSyntax(this);
             if (allowedSyntax is not null && !allowedSyntax.Items.Any())
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(allowedSyntax).AllowedMustContainItems());
@@ -84,23 +81,11 @@ namespace Bicep.Core.Syntax
                 {
                     assignedType = UnionType.Create(allowedItemTypes);
                 }
-                else if (Modifier is ObjectSyntax modifierSyntax && IsBooleanTrue(modifierSyntax.SafeGetPropertyByName(LanguageConstants.ParameterSecurePropertyName)?.Value))
-                {
-                    assignedType = LanguageConstants.SecureString;
-                }
                 else
                 {
                     // In order to support assignment for a generic string to enum-typed properties (which generally is forbidden),
                     // we need to relax the validation for string parameters without 'allowed' values specified.
                     assignedType = LanguageConstants.LooseString;
-                }
-            }
-
-            if (ReferenceEquals(assignedType, LanguageConstants.Object))
-            {
-                if (Modifier is ObjectSyntax modifierSyntax && IsBooleanTrue(modifierSyntax.SafeGetPropertyByName(LanguageConstants.ParameterSecurePropertyName)?.Value))
-                {                    
-                    assignedType = LanguageConstants.SecureObject;
                 }
             }
 

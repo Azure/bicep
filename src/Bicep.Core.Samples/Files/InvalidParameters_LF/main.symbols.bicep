@@ -48,10 +48,9 @@ param malformedType2 44 = f
 //@[6:20) Parameter malformedType2. Type: any. Declaration start char: 0, length: 27
 
 // malformed type but type check should still happen
-param malformedModifier 44 {
-//@[6:23) Parameter malformedModifier. Type: any. Declaration start char: 0, length: 44
-  secure: 's'
-}
+@secure('s')
+param malformedModifier 44
+//@[6:23) Parameter malformedModifier. Type: any. Declaration start char: 0, length: 39
 
 param myString2 string = 'string value'
 //@[6:15) Parameter myString2. Type: string. Declaration start char: 0, length: 39
@@ -137,53 +136,18 @@ param wrongType fluffyBunny = 'what\'s up doc?'
 //@[6:15) Parameter wrongType. Type: error. Declaration start char: 0, length: 47
 
 // modifier on an invalid type
-param someArray arra {
-//@[6:15) Parameter someArray. Type: error. Declaration start char: 0, length: 55
-  minLength: 3
-  maxLength: 24
-}
-
 @minLength(3)
 @maxLength(24)
-param someArrayWithDecorator arra
-//@[6:28) Parameter someArrayWithDecorator. Type: error. Declaration start char: 0, length: 62
-
-// duplicate modifier property
-param duplicatedModifierProperty string {
-//@[6:32) Parameter duplicatedModifierProperty. Type: string. Declaration start char: 0, length: 74
-  minLength: 3
-  minLength: 24
-}
-
-// non-existent modifiers
-param secureInt int {
-//@[6:15) Parameter secureInt. Type: int. Declaration start char: 0, length: 70
-  secure: true
-  minLength: 3
-  maxLength: 123
-}
+param someArray arra
+//@[6:15) Parameter someArray. Type: error. Declaration start char: 0, length: 49
 
 @secure()
 @minLength(3)
 @maxLength(123)
-param secureIntWithDecorator int
-//@[6:28) Parameter secureIntWithDecorator. Type: int. Declaration start char: 0, length: 72
+param secureInt int
+//@[6:15) Parameter secureInt. Type: int. Declaration start char: 0, length: 59
 
 // wrong modifier value types
-param wrongIntModifier int {
-//@[6:22) Parameter wrongIntModifier. Type: int. Declaration start char: 0, length: 139
-  default: true
-  allowed: [
-    'test'
-    true
-  ]
-  minValue: {
-  }
-  maxValue: [
-  ]
-  metadata: 'wrong'
-}
-
 @allowed([
   'test'
   true
@@ -193,8 +157,8 @@ param wrongIntModifier int {
 @maxValue([
 ])
 @metadata('wrong')
-param wrongIntModifierWithDecorator int = true
-//@[6:35) Parameter wrongIntModifierWithDecorator. Type: int. Declaration start char: 0, length: 125
+param wrongIntModifier int = true
+//@[6:22) Parameter wrongIntModifier. Type: int. Declaration start char: 0, length: 112
 
 @metadata(any([]))
 @allowed(any(2))
@@ -202,74 +166,37 @@ param fatalErrorInIssue1713
 //@[6:27) Parameter fatalErrorInIssue1713. Type: any. Declaration start char: 0, length: 63
 
 // wrong metadata schema
-param wrongMetadataSchema string {
-//@[6:25) Parameter wrongMetadataSchema. Type: string. Declaration start char: 0, length: 76
-  metadata: {
-    description: true
-  }
-}
-
 @metadata({
   description: true
 })
-param wrongMetadataSchemaWithDecorator string
-//@[6:38) Parameter wrongMetadataSchemaWithDecorator. Type: string. Declaration start char: 0, length: 80
+param wrongMetadataSchema string
+//@[6:25) Parameter wrongMetadataSchema. Type: string. Declaration start char: 0, length: 67
 
 // expression in modifier
-param expressionInModifier string {
-//@[6:26) Parameter expressionInModifier. Type: string. Declaration start char: 0, length: 176
-  // #completionTest(10) -> symbolsPlusParamDefaultFunctions
-  default: 2 + 3
-  maxLength: a + 2
-  minLength: foo()
-  allowed: [
-    i
-  ]
-}
-
 @maxLength(a + 2)
 @minLength(foo())
 @allowed([
   i
 ])
-param expressionInModifierWithDecorator string = 2 + 3
-//@[6:39) Parameter expressionInModifierWithDecorator. Type: string. Declaration start char: 0, length: 108
-
-param nonCompileTimeConstant string {
-//@[6:28) Parameter nonCompileTimeConstant. Type: string. Declaration start char: 0, length: 122
-  maxLength: 2 + 3
-  minLength: length([])
-  allowed: [
-    resourceGroup().id
-  ]
-}
+param expressionInModifier string = 2 + 3
+//@[6:26) Parameter expressionInModifier. Type: string. Declaration start char: 0, length: 95
 
 @maxLength(2 + 3)
 @minLength(length([]))
 @allowed([
   resourceGroup().id
 ])
-param nonCompileTimeConstantWithDecorator string
-//@[6:41) Parameter nonCompileTimeConstantWithDecorator. Type: string. Declaration start char: 0, length: 124
+param nonCompileTimeConstant string
+//@[6:28) Parameter nonCompileTimeConstant. Type: string. Declaration start char: 0, length: 111
 
-
-param emptyAllowedString string {
-//@[6:24) Parameter emptyAllowedString. Type: error. Declaration start char: 0, length: 49
-  allowed: []
-}
 
 @allowed([])
-param emptyAllowedStringWithDecorator string
-//@[6:37) Parameter emptyAllowedStringWithDecorator. Type: error. Declaration start char: 0, length: 57
-
-param emptyAllowedInt int {
-//@[6:21) Parameter emptyAllowedInt. Type: error. Declaration start char: 0, length: 43
-  allowed: []
-}
+param emptyAllowedString string
+//@[6:24) Parameter emptyAllowedString. Type: error. Declaration start char: 0, length: 44
 
 @allowed([])
-param emptyAllowedIntWithDecorator int
-//@[6:34) Parameter emptyAllowedIntWithDecorator. Type: error. Declaration start char: 0, length: 51
+param emptyAllowedInt int
+//@[6:21) Parameter emptyAllowedInt. Type: error. Declaration start char: 0, length: 38
 
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
@@ -281,43 +208,11 @@ param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
 param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 //@[6:27) Parameter paramDefaultTwoCycle2. Type: string. Declaration start char: 0, length: 58
 
-// 1-cycle in modifier params
-param paramModifierOneCycle string {
-//@[6:27) Parameter paramModifierOneCycle. Type: string. Declaration start char: 0, length: 71
-  default: paramModifierOneCycle
-}
-
-// 1-cycle in modifier with non-default property
-param paramModifierSelfCycle string {
-//@[6:28) Parameter paramModifierSelfCycle. Type: string. Declaration start char: 0, length: 83
-  allowed: [
-    paramModifierSelfCycle
-  ]
-}
-
 @allowed([
-  paramModifierSelfCycleWithDecorator
+  paramModifierSelfCycle
 ])
-param paramModifierSelfCycleWithDecorator string
-//@[6:41) Parameter paramModifierSelfCycleWithDecorator. Type: string. Declaration start char: 0, length: 100
-
-// 2-cycle in modifier params
-param paramModifierTwoCycle1 string {
-//@[6:28) Parameter paramModifierTwoCycle1. Type: string. Declaration start char: 0, length: 73
-  default: paramModifierTwoCycle2
-}
-param paramModifierTwoCycle2 string {
-//@[6:28) Parameter paramModifierTwoCycle2. Type: string. Declaration start char: 0, length: 73
-  default: paramModifierTwoCycle1
-}
-
-// 2-cycle mixed param syntaxes
-param paramMixedTwoCycle1 string = paramMixedTwoCycle2
-//@[6:25) Parameter paramMixedTwoCycle1. Type: string. Declaration start char: 0, length: 54
-param paramMixedTwoCycle2 string {
-//@[6:25) Parameter paramMixedTwoCycle2. Type: string. Declaration start char: 0, length: 67
-  default: paramMixedTwoCycle1
-}
+param paramModifierSelfCycle string
+//@[6:28) Parameter paramModifierSelfCycle. Type: string. Declaration start char: 0, length: 74
 
 // wrong types of "variable"/identifier access
 var sampleVar = 'sample'
@@ -331,106 +226,22 @@ output sampleOutput string = 'hello'
 
 param paramAccessingVar string = concat(sampleVar, 's')
 //@[6:23) Parameter paramAccessingVar. Type: string. Declaration start char: 0, length: 55
-param paramAccessingVar2 string {
-//@[6:24) Parameter paramAccessingVar2. Type: string. Declaration start char: 0, length: 69
-  default: 'foo ${sampleVar} foo'
-}
 
 param paramAccessingResource string = sampleResource
 //@[6:28) Parameter paramAccessingResource. Type: string. Declaration start char: 0, length: 52
-param paramAccessingResource2 string {
-//@[6:29) Parameter paramAccessingResource2. Type: string. Declaration start char: 0, length: 89
-  default: base64(sampleResource.properties.foo)
-}
 
 param paramAccessingOutput string = sampleOutput
 //@[6:26) Parameter paramAccessingOutput. Type: string. Declaration start char: 0, length: 48
-param paramAccessingOutput2 string {
-//@[6:27) Parameter paramAccessingOutput2. Type: string. Declaration start char: 0, length: 62
-  default: sampleOutput
-}
-
-param stringLiteral string {
-//@[6:19) Parameter stringLiteral. Type: 'def'. Declaration start char: 0, length: 57
-  allowed: [
-    'def'
-  ]
-}
-
-param stringLiteral2 string {
-//@[6:20) Parameter stringLiteral2. Type: 'abc' | 'def'. Declaration start char: 0, length: 93
-  allowed: [
-    'abc'
-    'def'
-  ]
-  default: stringLiteral
-}
-
-param stringLiteral3 string {
-//@[6:20) Parameter stringLiteral3. Type: 'abc'. Declaration start char: 0, length: 84
-  allowed: [
-    'abc'
-  ]
-  default: stringLiteral2
-}
 
 // #completionTest(6) -> empty
 param 
 //@[6:6) Parameter <missing>. Type: any. Declaration start char: 0, length: 6
 
-param stringModifierCompletions string {
-//@[6:31) Parameter stringModifierCompletions. Type: string. Declaration start char: 0, length: 101
-  // #completionTest(0,1,2) -> stringModifierProperties
-  
-}
-
-param intModifierCompletions int {
-//@[6:28) Parameter intModifierCompletions. Type: int. Declaration start char: 0, length: 92
-  // #completionTest(0,1,2) -> intModifierProperties
-  
-}
-
 // #completionTest(46,47) -> justSymbols
 param defaultValueOneLinerCompletions string = 
 //@[6:37) Parameter defaultValueOneLinerCompletions. Type: string. Declaration start char: 0, length: 47
 
-param defaultValueCompletions string {
-//@[6:29) Parameter defaultValueCompletions. Type: 'one' | 'three' | 'two'. Declaration start char: 0, length: 396
-  allowed: [
-    'one'
-    'two'
-    'three'
-    // #completionTest(0,1,2,3,4) -> oneTwoThree
-    
-  ]
-  // #completionTest(10,11) -> oneTwoThreePlusSymbols
-  default: 
-  
-  // #completionTest(9,10) -> booleanValues
-  secure: 
-
-  metadata: {
-    // #completionTest(0,1,2,3) -> description
-    
-  }
-  // #completionTest(0,1,2) -> stringLengthConstraints
-  
-}
-
 // invalid comma separator (array)
-param commaOne string {
-//@[6:14) Parameter commaOne. Type: 'abc' | 'def'. Declaration start char: 0, length: 174
-    metadata: {
-      description: 'Name of Virtual Machine'
-    }
-    secure: true
-    allowed: [
-      'abc',
-      'def'
-    ]
-    default: 'abc'
-}
-
 @metadata({
   description: 'Name of Virtual Machine'
 })
@@ -438,22 +249,8 @@ param commaOne string {
   'abc',
   'def'
 ])
-param commaOneWithDecorator string
-//@[6:27) Parameter commaOneWithDecorator. Type: 'abc' | 'def'. Declaration start char: 0, length: 121
-
-// invalid comma separator (object)
-param commaTwo string {
-//@[6:14) Parameter commaTwo. Type: 'abc' | 'def'. Declaration start char: 0, length: 174
-    metadata: {
-      description: 'Name of Virtual Machine'
-    },
-    secure: true
-    allowed: [
-      'abc'
-      'def'
-    ]
-    default: 'abc'
-}
+param commaOne string
+//@[6:14) Parameter commaOne. Type: 'abc' | 'def'. Declaration start char: 0, length: 108
 
 @secure
 @
@@ -468,11 +265,8 @@ param incompleteDecorators string
 @secure()
 // wrong target type
 @minValue(20)
-param someString string {
-//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 176
-	// using decorators and modifier at the same time
-    secure: true
-}
+param someString string
+//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 104
 
 @allowed([
     true
@@ -529,25 +323,6 @@ param duplicateDecorators string
 param invalidLength string
 //@[6:19) Parameter invalidLength. Type: string. Declaration start char: 0, length: 58
 
-
-param invalidPermutation array {
-//@[6:24) Parameter invalidPermutation. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 402
-    default: [
-		'foobar'
-		true
-        100
-	]
-    allowed: [
-		'Microsoft.AnalysisServices/servers'
-		'Microsoft.ApiManagement/service'
-		'Microsoft.Network/applicationGateways'
-		'Microsoft.Automation/automationAccounts'
-		'Microsoft.ContainerInstance/containerGroups'
-		'Microsoft.ContainerRegistry/registries'
-		'Microsoft.ContainerService/managedClusters'
-    ]
-}
-
 @allowed([
 	'Microsoft.AnalysisServices/servers'
 	'Microsoft.ApiManagement/service'
@@ -557,28 +332,12 @@ param invalidPermutation array {
 	'Microsoft.ContainerRegistry/registries'
 	'Microsoft.ContainerService/managedClusters'
 ])
-param invalidPermutationWithDecorator array = [
-//@[6:37) Parameter invalidPermutationWithDecorator. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 379
+param invalidPermutation array = [
+//@[6:24) Parameter invalidPermutation. Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]. Declaration start char: 0, length: 366
 	'foobar'
 	true
     100
 ]
-
-param invalidDefaultWithAllowedArray array {
-//@[6:36) Parameter invalidDefaultWithAllowedArray. Type: array. Declaration start char: 0, length: 266
-    default: true
-    allowed: [
-		[
-			'Microsoft.AnalysisServices/servers'
-			'Microsoft.ApiManagement/service'
-		]
-		[
-			'Microsoft.Network/applicationGateways'
-			'Microsoft.Automation/automationAccounts'
-		]
-    ]
-}
-
 
 @allowed([
 	[

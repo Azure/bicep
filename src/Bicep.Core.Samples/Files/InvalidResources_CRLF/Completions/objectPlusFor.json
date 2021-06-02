@@ -83,6 +83,18 @@
     "textEdit": {
       "range": {},
       "newText": "{\n\tname: $1\n\tlocation: $2\n\t$0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "Properties": {
+            "name": "required-properties",
+            "type": "Microsoft.Network/dnsZones@2018-05-01"
+          },
+          "EventName": "ResourceBodySnippetInsertion"
+        }
+      ]
     }
   },
   {
@@ -101,6 +113,18 @@
     "textEdit": {
       "range": {},
       "newText": "{\n  name: ${2:'name'}\n  location: 'global'\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "Properties": {
+            "name": "snippet",
+            "type": "Microsoft.Network/dnsZones@2018-05-01"
+          },
+          "EventName": "ResourceBodySnippetInsertion"
+        }
+      ]
     }
   },
   {
@@ -119,6 +143,18 @@
     "textEdit": {
       "range": {},
       "newText": "{\n\t$0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "Properties": {
+            "name": "{}",
+            "type": "Microsoft.Network/dnsZones@2018-05-01"
+          },
+          "EventName": "ResourceBodySnippetInsertion"
+        }
+      ]
     }
   }
 ]

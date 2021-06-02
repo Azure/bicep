@@ -50,7 +50,7 @@ var arrayVar = [
 var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'
 
 resource foo_bar 'Foo.Rp/bar@2019-06-01' = if (false) {
-//@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. |'Foo.Rp/bar@2019-06-01'|
+//@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   name: '${foo}bar'
   location: 'westus'
   properties: {
@@ -59,7 +59,7 @@ resource foo_bar 'Foo.Rp/bar@2019-06-01' = if (false) {
 }
 
 resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
-//@[13:36) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. |'Foo.Rp/bar@2019-06-01'|
+//@[13:36) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   name: 'baz'
   location: 'westus'
   dependsOn: [
@@ -70,22 +70,22 @@ resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
 module module1Deploy 'nested/module1.bicep' = if ((1 + 2) == 3) {
   name: 'module1Deploy'
   params: {
-//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". |params|
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
     location: location
-//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |location|
+//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |location|
     objectParam: objectVar
-//@[4:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |objectParam|
+//@[4:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |objectParam|
     arrayParam: arrayVar
-//@[4:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". |arrayParam|
+//@[4:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |arrayParam|
   }
 }
 
 module module2Deploy 'nested/module2.bicep' = if ((1 + 2) == 3) {
   name: 'module2Deploy'
   params: {
-//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". |params|
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|
     location: location
-//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". |location|
+//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: none) |location|
     objectParam: objectVar
     arrayParam: arrayVar
   }

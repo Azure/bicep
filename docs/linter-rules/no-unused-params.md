@@ -1,4 +1,4 @@
-# Parameters must be used
+# No unused parameters
 
 **Code**: no-unused-params
 
