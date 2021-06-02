@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "2644735544549467290"
+      "version": "0.4.8.47164",
+      "templateHash": "11523547095965863865"
     }
   },
   "parameters": {
@@ -90,7 +90,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Storage account resourceop. Only required if enableDiagnostics is set to true."
+        "description": "Storage account resource group. Only required if enableDiagnostics is set to true."
       }
     }
   },
@@ -138,7 +138,7 @@
       "condition": "[not(empty(parameters('automationAccountName')))]",
       "type": "Microsoft.OperationalInsights/workspaces/linkedServices",
       "apiVersion": "2020-08-01",
-      "name": "[format('{0}/Automation', parameters('name'))]",
+      "name": "[format('{0}/{1}', parameters('name'), 'Automation')]",
       "properties": {
         "resourceId": "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
       },
