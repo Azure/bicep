@@ -88,14 +88,6 @@
                     }
                 ]
             }
-        },
-        "password": {
-            "reference": {
-                "keyVault": {
-                    "id": "<REPLACE ME>"
-                },
-                "secretName": "<REPLACE ME>"
-            }
         }
     }
 }

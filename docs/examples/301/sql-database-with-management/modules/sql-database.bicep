@@ -17,45 +17,23 @@ resource sqlDb 'Microsoft.Sql/servers/databases@2020-02-02-preview' = {
   properties: {
     zoneRedundant: sqlDatabase.zoneRedundant
     collation: sqlDatabase.collation
-    maxSizeBytes: sqlDatabase.dataMaxSize == 0 ? any(null) : 1024 * 1024 * 1024 * sqlDatabase.dataMaxSize
+    maxSizeBytes: sqlDatabase.dataMaxSize == 0 ? null : 1024 * 1024 * 1024 * sqlDatabase.dataMaxSize
     licenseType: sqlDatabase.hybridBenefit ? 'BasePrice' : 'LicenseIncluded'
     readScale: sqlDatabase.readReplicas == 0 ? 'Disabled' : 'Enabled'
     readReplicaCount: sqlDatabase.readReplicas
-    minCapacity: sqlDatabase.minimumCores == 0 ? any('') : any(string(sqlDatabase.minimumCores))
-    autoPauseDelay: sqlDatabase.autoPauseDelay == 0 ? any('') : any(string(sqlDatabase.autoPauseDelay))
+    minCapacity: sqlDatabase.minimumCores == 0 ? null : sqlDatabase.minimumCores
+    autoPauseDelay: sqlDatabase.autoPauseDelay == 0 ? null : sqlDatabase.autoPauseDelay
   }
 }
 
-module transparentDataEncryption 'transparent-data-encryption.bicep' = {
-  dependsOn: [
-    sqlDb
-  ]
-  name: 'transparentDataEncryption-${uniqueString(sqlServerName, sqlDatabase.name)}'
-  params: {
-    sqlDatabase: sqlDatabase
-    sqlServerName: sqlServerName
+// Transparent Data Encryption
+resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
+  name: 'current'
+  parent: sqlDb
+  properties: {
+    status: sqlDatabase.dataEncryption
   }
 }
-
-// Works
-//resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
-//  dependsOn: [
-//    sqlDb
-//  ]
-//  name: '${sqlServerName}/${sqlDatabase.name}/current'
-//  properties: {
-//    status: sqlDatabase.dataEncryption
-//  }
-//}
-
-// Does not work
-//resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
-//  name: 'current'
-//  parent: sqlDb
-//  properties: {
-//    status: sqlDatabase.dataEncryption
-//  }
-//}
 
 // Short term backup
 module shortTermBackup 'short-term-backup.bicep' = if (!(sqlDatabase.shortTermBackupRetention == 0)) {
@@ -71,7 +49,7 @@ module shortTermBackup 'short-term-backup.bicep' = if (!(sqlDatabase.shortTermBa
 }
 
 // Long term backup
-resource longTermBackup 'Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies@2020-08-01-preview' = if (sqlDatabase.longTermBackup.enabled) {
+resource longTermBackup 'Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies@2021-02-01-preview' = if (sqlDatabase.longTermBackup.enabled) {
   dependsOn: [
     transparentDataEncryption
     shortTermBackup
@@ -100,14 +78,14 @@ module azureDefender 'azure-defender.bicep' = {
 }
 
 // Get existing storage account
-resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccounts@2021-01-01' existing = if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
+resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccounts@2021-04-01' existing = if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
   scope: resourceGroup(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName)
   name: sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
 }
 
 // Vulnerability Assessments
 // Can be enabled only if Azure Defender is enabled as well
-resource vulnerabilityAssessments 'Microsoft.Sql/servers/databases/vulnerabilityAssessments@2020-08-01-preview' = if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
+resource vulnerabilityAssessments 'Microsoft.Sql/servers/databases/vulnerabilityAssessments@2021-02-01-preview' = if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
   dependsOn: [
     transparentDataEncryption
     azureDefender
@@ -120,7 +98,7 @@ resource vulnerabilityAssessments 'Microsoft.Sql/servers/databases/vulnerability
       emailSubscriptionAdmins: sqlDatabase.azureDefender.vulnerabilityAssessments.emailSubscriptionAdmins
       emails: sqlDatabase.azureDefender.vulnerabilityAssessments.emails
     }
-    storageContainerPath: !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name) ? concat(storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob, sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.containerName) : ''
+    storageContainerPath: !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name) ? '${storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob}${sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.containerName}' : ''
     storageAccountAccessKey: !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name) ? listKeys(storageAccountVulnerabilityAssessments.id, storageAccountVulnerabilityAssessments.apiVersion).keys[0].value : ''
   }
 }
@@ -145,7 +123,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10
 }
 
 // Sends audit logs to Log Analytics Workspace
-resource auditDiagnosticSetings 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (sqlDatabase.diagnosticLogsAndMetrics.auditLogs) {
+resource auditDiagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (sqlDatabase.diagnosticLogsAndMetrics.auditLogs) {
   dependsOn: [
     transparentDataEncryption
     auditSettings
@@ -164,7 +142,7 @@ resource auditDiagnosticSetings 'microsoft.insights/diagnosticSettings@2017-05-0
 }
 
 // Send other logs and metrics to Log Analytics
-resource diagnosticSetings 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (!empty(sqlDatabase.diagnosticLogsAndMetrics.name)) {
+resource diagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (!empty(sqlDatabase.diagnosticLogsAndMetrics.name)) {
   dependsOn: [
     transparentDataEncryption
   ]
