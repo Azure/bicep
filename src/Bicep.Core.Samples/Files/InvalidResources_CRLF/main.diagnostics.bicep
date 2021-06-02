@@ -246,10 +246,10 @@ resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10
 
 // unsupported resource ref
 var resrefvar = bar.name
-//@[4:13) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resrefvar|
+//@[4:13) [no-unused-vars (Warning)] Variable "resrefvar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resrefvar|
 
 param resrefpar string = foo.id
-//@[6:15) [no-unused-params (Warning)] Parameter is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |resrefpar|
+//@[6:15) [no-unused-params (Warning)] Parameter "resrefpar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |resrefpar|
 //@[25:28) [BCP062 (Error)] The referenced declaration with name "foo" is not valid. (CodeDescription: none) |foo|
 //@[25:28) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. (CodeDescription: none) |foo|
 
@@ -365,17 +365,17 @@ resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
+//@[8:33) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
 }
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['location']|
+//@[8:36) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['location']|
 }
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: runtimeValidRes1.properties.evictionPolicy
-//@[8:35) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.properties|
+//@[8:35) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "AzureCLI" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.properties|
   kind:'AzureCLI'
   location: 'eastus'
   properties: {
@@ -386,35 +386,35 @@ resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties'].evictionPolicy
-//@[8:38) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['properties']|
+//@[8:38) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['properties']|
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties']['evictionPolicy']
-//@[8:38) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['properties']|
+//@[8:38) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['properties']|
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.properties['evictionPolicy']
-//@[8:35) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.properties|
+//@[8:35) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.properties|
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2.properties.azCliVersion
-//@[8:35) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2.properties|
+//@[8:35) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2.properties|
 }
 
 var magicString1 = 'location'
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString1}']
-//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['${magicString1}']|
+//@[8:43) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['${magicString1}']|
 }
 
 // note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
 var magicString2 = 'name'
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString2}']
-//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['${magicString2}']|
+//@[8:43) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['${magicString2}']|
 }
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -424,26 +424,26 @@ resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@202
 
 resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: validModule.params['name']
-//@[8:26) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". (CodeDescription: none) |validModule.params|
+//@[8:26) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of validModule which can be calculated at the start include "name". (CodeDescription: none) |validModule.params|
 //@[20:26) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. (CodeDescription: none) |params|
 }
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
 //@[8:143) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)|
-//@[15:40) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
-//@[42:70) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['location']|
-//@[72:104) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalidRes3['properties']|
-//@[119:137) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". (CodeDescription: none) |validModule.params|
+//@[15:40) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
+//@[42:70) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['location']|
+//@[72:104) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeInvalidRes3 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalidRes3['properties']|
+//@[119:137) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of validModule which can be calculated at the start include "name". (CodeDescription: none) |validModule.params|
 //@[131:137) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. (CodeDescription: none) |params|
 }
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
-//@[11:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
-//@[39:67) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['location']|
-//@[70:99) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalidRes3.properties|
-//@[118:139) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". (CodeDescription: none) |validModule['params']|
+//@[11:36) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
+//@[39:67) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['location']|
+//@[70:99) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeInvalidRes3 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalidRes3.properties|
+//@[118:139) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of validModule which can be calculated at the start include "name". (CodeDescription: none) |validModule['params']|
 //@[130:138) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. (CodeDescription: none) |'params'|
 }
 
@@ -471,32 +471,32 @@ var runtimeValid = {
 
 resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo1
-//@[8:22) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
+//@[8:22) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
 }
 
 resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo2
-//@[8:22) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
+//@[8:22) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
 }
 
 resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo3.properties.azCliVersion
-//@[8:22) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
+//@[8:22) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
 }
 
 // Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
 resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo4
-//@[8:22) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
+//@[8:22) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
 }
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
 //@[8:129) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)|
-//@[15:29) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
-//@[36:66) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['properties']|
-//@[84:109) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
-//@[113:124) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimefoo4|
+//@[15:29) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
+//@[36:66) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['properties']|
+//@[84:109) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
+//@[113:124) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimefoo4|
 }
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -527,21 +527,21 @@ var runtimeCheckVar2 = runtimeCheckVar
 
 resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: runtimeCheckVar2
-//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeCheckVar2|
+//@[8:24) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeCheckVar2|
   location: 'test'
 }
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
 //@[9:29) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck2|
   name: runtimeCheckVar2
-//@[8:24) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeCheckVar2|
+//@[8:24) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeCheckVar2|
   location: 'test'
 }]
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
 //@[9:29) [BCP179 (Warning)] The loop item variable "otherThing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck3|
   name: loopForRuntimeCheck[0].properties.zoneType
-//@[8:41) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". (CodeDescription: none) |loopForRuntimeCheck[0].properties|
+//@[8:41) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |loopForRuntimeCheck[0].properties|
   location: 'test'
 }]
 
@@ -550,7 +550,7 @@ var varForRuntimeCheck4b = varForRuntimeCheck4a
 resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
 //@[9:29) [BCP179 (Warning)] The loop item variable "otherThing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck4|
   name: varForRuntimeCheck4b
-//@[8:28) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Accessible properties of loopForRuntimeCheck are "apiVersion", "id", "name", "type". (CodeDescription: none) |varForRuntimeCheck4b|
+//@[8:28) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |varForRuntimeCheck4b|
   location: 'test'
 }]
 
@@ -638,15 +638,15 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 }
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
-//@[4:43) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions|
+//@[4:43) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions|
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
-//@[4:44) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions2|
+//@[4:44) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions2|
 //@[76:76) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
 var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
-//@[4:44) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions3|
+//@[4:44) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions3|
 //@[76:76) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (CodeDescription: none) ||
 
 /*
@@ -659,15 +659,15 @@ resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@
 }
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
-//@[4:46) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions_if|
+//@[4:46) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions_if|
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_if = discriminatorKeyValueMissing_if.
-//@[4:47) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions2_if|
+//@[4:47) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions2_if|
 //@[82:82) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(82) -> missingDiscriminatorPropertyIndexPlusSymbols_if
 var discriminatorKeyValueMissingCompletions3_if = discriminatorKeyValueMissing_if[]
-//@[4:47) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions3_if|
+//@[4:47) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions3_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions3_if|
 //@[82:82) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (CodeDescription: none) ||
 
 /*
@@ -681,21 +681,21 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
-//@[4:35) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceListIsNotSingleResource|
+//@[4:35) [no-unused-vars (Warning)] Variable "resourceListIsNotSingleResource" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceListIsNotSingleResource|
 //@[38:70) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for|
 //@[71:75) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. (CodeDescription: none) |kind|
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_for = discriminatorKeyValueMissing_for[0].p
-//@[4:47) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions_for|
+//@[4:47) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions_for|
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_for = discriminatorKeyValueMissing_for[0].
-//@[4:48) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions2_for|
+//@[4:48) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions2_for|
 //@[87:87) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(87) -> missingDiscriminatorPropertyIndexPlusSymbols_for
 var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_for[0][]
-//@[4:48) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions3_for|
+//@[4:48) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions3_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions3_for|
 //@[87:87) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (CodeDescription: none) ||
 
 /*
@@ -709,21 +709,21 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
-//@[4:38) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceListIsNotSingleResource_if|
+//@[4:38) [no-unused-vars (Warning)] Variable "resourceListIsNotSingleResource_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceListIsNotSingleResource_if|
 //@[41:76) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for_if|
 //@[77:81) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. (CodeDescription: none) |kind|
 
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
-//@[4:50) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions_for_if|
+//@[4:50) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions_for_if|
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
-//@[4:51) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions2_for_if|
+//@[4:51) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions2_for_if|
 //@[93:93) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(93) -> missingDiscriminatorPropertyIndexPlusSymbols_for_if
 var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissing_for_if[0][]
-//@[4:51) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions3_for_if|
+//@[4:51) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions3_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeyValueMissingCompletions3_for_if|
 //@[93:93) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (CodeDescription: none) ||
 
 /*
@@ -742,16 +742,16 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 // #completionTest(75) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
-//@[4:37) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions|
+//@[4:37) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions|
 //@[74:75) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(75) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
-//@[4:38) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions2|
+//@[4:38) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions2|
 //@[75:75) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(75) -> cliPropertyAccessIndexesPlusSymbols
 var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
-//@[4:38) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions3|
+//@[4:38) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions3|
 //@[75:75) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (CodeDescription: none) ||
 
 /*
@@ -770,16 +770,16 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 }
 // #completionTest(81) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_if = discriminatorKeySetOne_if.properties.a
-//@[4:40) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions_if|
+//@[4:40) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions_if|
 //@[80:81) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(81) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2_if = discriminatorKeySetOne_if.properties.
-//@[4:41) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions2_if|
+//@[4:41) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions2_if|
 //@[81:81) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(81) -> cliPropertyAccessIndexesPlusSymbols_if
 var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties[]
-//@[4:41) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions3_if|
+//@[4:41) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions3_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions3_if|
 //@[81:81) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (CodeDescription: none) ||
 
 /*
@@ -798,16 +798,16 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 }]
 // #completionTest(86) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_for = discriminatorKeySetOne_for[0].properties.a
-//@[4:41) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions_for|
+//@[4:41) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions_for|
 //@[85:86) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(94) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2_for = discriminatorKeySetOne_for[any(true)].properties.
-//@[4:42) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions2_for|
+//@[4:42) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions2_for|
 //@[94:94) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(86) -> cliPropertyAccessIndexesPlusSymbols_for
 var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].properties[]
-//@[4:42) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions3_for|
+//@[4:42) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions3_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions3_for|
 //@[86:86) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (CodeDescription: none) ||
 
 /*
@@ -826,16 +826,16 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 }]
 // #completionTest(92) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_for_if = discriminatorKeySetOne_for_if[0].properties.a
-//@[4:44) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions_for_if|
+//@[4:44) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions_for_if|
 //@[91:92) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(100) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2_for_if = discriminatorKeySetOne_for_if[any(true)].properties.
-//@[4:45) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions2_for_if|
+//@[4:45) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions2_for_if|
 //@[100:100) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(92) -> cliPropertyAccessIndexesPlusSymbols_for_if
 var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1].properties[]
-//@[4:45) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions3_for_if|
+//@[4:45) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions3_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetOneCompletions3_for_if|
 //@[92:92) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (CodeDescription: none) ||
 
 
@@ -855,20 +855,20 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 // #completionTest(75) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
-//@[4:37) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions|
+//@[4:37) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions|
 //@[74:75) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(75) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
-//@[4:38) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions2|
+//@[4:38) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletions2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions2|
 //@[75:75) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
-//@[4:49) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer|
+//@[4:49) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer|
 //@[89:90) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
-//@[4:50) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2|
+//@[4:50) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2|
 //@[90:90) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 /*
@@ -887,20 +887,20 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 }
 // #completionTest(81) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions_if = discriminatorKeySetTwo_if.properties.a
-//@[4:40) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions_if|
+//@[4:40) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletions_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions_if|
 //@[80:81) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(81) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions2_if = discriminatorKeySetTwo_if.properties.
-//@[4:41) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions2_if|
+//@[4:41) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletions2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions2_if|
 //@[81:81) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(96) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_if = discriminatorKeySetTwo_if['properties'].a
-//@[4:52) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_if|
+//@[4:52) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_if|
 //@[95:96) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(96) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_if['properties'].
-//@[4:53) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_if|
+//@[4:53) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_if|
 //@[96:96) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 
@@ -920,20 +920,20 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 }]
 // #completionTest(86) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions_for = discriminatorKeySetTwo_for[0].properties.a
-//@[4:41) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions_for|
+//@[4:41) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletions_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions_for|
 //@[85:86) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(86) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions2_for = discriminatorKeySetTwo_for[0].properties.
-//@[4:42) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions2_for|
+//@[4:42) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletions2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions2_for|
 //@[86:86) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(101) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_for = discriminatorKeySetTwo_for[0]['properties'].a
-//@[4:53) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_for|
+//@[4:53) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_for|
 //@[100:101) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(101) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_for[0]['properties'].
-//@[4:54) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_for|
+//@[4:54) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_for|
 //@[101:101) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 
@@ -953,20 +953,20 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 }]
 // #completionTest(92) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions_for_if = discriminatorKeySetTwo_for_if[0].properties.a
-//@[4:44) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions_for_if|
+//@[4:44) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletions_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions_for_if|
 //@[91:92) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(92) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions2_for_if = discriminatorKeySetTwo_for_if[0].properties.
-//@[4:45) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions2_for_if|
+//@[4:45) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletions2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletions2_for_if|
 //@[92:92) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(107) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_for_if = discriminatorKeySetTwo_for_if[0]['properties'].a
-//@[4:56) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
+//@[4:56) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
 //@[106:107) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(107) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetTwo_for_if[0]['properties'].
-//@[4:57) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
+//@[4:57) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
 //@[107:107) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 
@@ -981,7 +981,7 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 
 var mock = incorrectPropertiesKey.p
-//@[4:8) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mock|
+//@[4:8) [no-unused-vars (Warning)] Variable "mock" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mock|
 //@[34:35) [BCP053 (Error)] The type "AzureCLI" does not contain property "p". Available properties include "apiVersion", "id", "identity", "kind", "location", "name", "properties", "systemData", "tags", "type". (CodeDescription: none) |p|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -1038,11 +1038,11 @@ resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
-//@[4:23) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |letsAccessTheDashes|
+//@[4:23) [no-unused-vars (Warning)] Variable "letsAccessTheDashes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |letsAccessTheDashes|
 //@[77:78) [BCP053 (Warning)] The type "schemas:30_autoScalerProfile" does not contain property "s". Available properties include "balance-similar-node-groups", "expander", "max-empty-bulk-delete", "max-graceful-termination-sec", "max-total-unready-percentage", "new-pod-scale-up-delay", "ok-total-unready-count", "scale-down-delay-after-add", "scale-down-delay-after-delete", "scale-down-delay-after-failure", "scale-down-unneeded-time", "scale-down-unready-time", "scale-down-utilization-threshold", "scan-interval", "skip-nodes-with-local-storage", "skip-nodes-with-system-pods". (CodeDescription: none) |s|
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
-//@[4:24) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |letsAccessTheDashes2|
+//@[4:24) [no-unused-vars (Warning)] Variable "letsAccessTheDashes2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |letsAccessTheDashes2|
 //@[78:78) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 /* 
@@ -1060,15 +1060,15 @@ resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@20
 }
 // #completionTest(90) -> createMode
 var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
-//@[4:44) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions|
+//@[4:44) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions|
 // #completionTest(92) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
-//@[4:45) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2|
+//@[4:45) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2|
 //@[92:92) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(94) -> createModeIndexPlusSymbols
 var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
-//@[4:49) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyIndexCompletions|
+//@[4:49) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyIndexCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyIndexCompletions|
 
 /* 
 Nested discriminator missing key (conditional)
@@ -1085,15 +1085,15 @@ resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts
 }
 // #completionTest(96) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_if = nestedDiscriminatorMissingKey_if.properties.cr
-//@[4:47) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions_if|
+//@[4:47) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions_if|
 // #completionTest(98) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey_if['properties'].
-//@[4:48) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_if|
+//@[4:48) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_if|
 //@[98:98) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(100) -> createModeIndexPlusSymbols_if
 var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissingKey_if.properties['']
-//@[4:52) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyIndexCompletions_if|
+//@[4:52) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyIndexCompletions_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyIndexCompletions_if|
 
 /* 
 Nested discriminator missing key (loop)
@@ -1111,15 +1111,15 @@ resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccount
 }]
 // #completionTest(101) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_for = nestedDiscriminatorMissingKey_for[0].properties.cr
-//@[4:48) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions_for|
+//@[4:48) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions_for|
 // #completionTest(103) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_for = nestedDiscriminatorMissingKey_for[0]['properties'].
-//@[4:49) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_for|
+//@[4:49) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_for|
 //@[103:103) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(105) -> createModeIndexPlusSymbols_for
 var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissingKey_for[0].properties['']
-//@[4:53) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyIndexCompletions_for|
+//@[4:53) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyIndexCompletions_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyIndexCompletions_for|
 
 
 /* 
@@ -1138,15 +1138,15 @@ resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAcco
 }]
 // #completionTest(107) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties.cr
-//@[4:51) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions_for_if|
+//@[4:51) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions_for_if|
 // #completionTest(109) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_for_if = nestedDiscriminatorMissingKey_for_if[0]['properties'].
-//@[4:52) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_for_if|
+//@[4:52) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_for_if|
 //@[109:109) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(111) -> createModeIndexPlusSymbols_for_if
 var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties['']
-//@[4:56) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyIndexCompletions_for_if|
+//@[4:56) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyIndexCompletions_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyIndexCompletions_for_if|
 
 
 /*
@@ -1164,24 +1164,24 @@ resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-p
 }
 // #completionTest(69) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
-//@[4:34) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions|
+//@[4:34) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions|
 //@[68:69) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(73) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
-//@[4:35) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2|
+//@[4:35) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2|
 //@[72:73) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(69) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
-//@[4:35) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions3|
+//@[4:35) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions3|
 //@[69:69) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 // #completionTest(72) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
-//@[4:35) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4|
+//@[4:35) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4|
 //@[72:72) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(79) -> defaultCreateModeIndexes
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
-//@[4:44) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorArrayIndexCompletions|
+//@[4:44) [no-unused-vars (Warning)] Variable "nestedDiscriminatorArrayIndexCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorArrayIndexCompletions|
 //@[78:79) [BCP057 (Error)] The name "a" does not exist in the current context. (CodeDescription: none) |a|
 
 /*
@@ -1199,24 +1199,24 @@ resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-0
 }
 // #completionTest(75) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_if = nestedDiscriminator_if.properties.a
-//@[4:37) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions_if|
+//@[4:37) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions_if|
 //@[74:75) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(79) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_if = nestedDiscriminator_if['properties'].a
-//@[4:38) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_if|
+//@[4:38) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_if|
 //@[78:79) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(75) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_if = nestedDiscriminator_if.properties.
-//@[4:38) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions3_if|
+//@[4:38) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions3_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions3_if|
 //@[75:75) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 // #completionTest(78) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_if = nestedDiscriminator_if['properties'].
-//@[4:38) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_if|
+//@[4:38) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions4_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_if|
 //@[78:78) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(85) -> defaultCreateModeIndexes_if
 var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.properties[a]
-//@[4:47) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorArrayIndexCompletions_if|
+//@[4:47) [no-unused-vars (Warning)] Variable "nestedDiscriminatorArrayIndexCompletions_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorArrayIndexCompletions_if|
 //@[84:85) [BCP057 (Error)] The name "a" does not exist in the current context. (CodeDescription: none) |a|
 
 
@@ -1236,24 +1236,24 @@ resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-
 }]
 // #completionTest(80) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_for = nestedDiscriminator_for[0].properties.a
-//@[4:38) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions_for|
+//@[4:38) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions_for|
 //@[79:80) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(84) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_for = nestedDiscriminator_for[0]['properties'].a
-//@[4:39) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_for|
+//@[4:39) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_for|
 //@[83:84) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(80) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_for = nestedDiscriminator_for[0].properties.
-//@[4:39) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions3_for|
+//@[4:39) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions3_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions3_for|
 //@[80:80) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 // #completionTest(83) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_for = nestedDiscriminator_for[0]['properties'].
-//@[4:39) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_for|
+//@[4:39) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions4_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_for|
 //@[83:83) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(90) -> defaultCreateModeIndexes_for
 var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].properties[a]
-//@[4:48) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorArrayIndexCompletions_for|
+//@[4:48) [no-unused-vars (Warning)] Variable "nestedDiscriminatorArrayIndexCompletions_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorArrayIndexCompletions_for|
 //@[89:90) [BCP057 (Error)] The name "a" does not exist in the current context. (CodeDescription: none) |a|
 
 
@@ -1273,24 +1273,24 @@ resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-
 }]
 // #completionTest(86) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].properties.a
-//@[4:41) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions_for_if|
+//@[4:41) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions_for_if|
 //@[85:86) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(90) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_for_if = nestedDiscriminator_for_if[0]['properties'].a
-//@[4:42) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_for_if|
+//@[4:42) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_for_if|
 //@[89:90) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(86) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].properties.
-//@[4:42) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions3_for_if|
+//@[4:42) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions3_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions3_for_if|
 //@[86:86) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 // #completionTest(89) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['properties'].
-//@[4:42) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_for_if|
+//@[4:42) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions4_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_for_if|
 //@[89:89) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(96) -> defaultCreateModeIndexes_for_if
 var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
-//@[4:51) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorArrayIndexCompletions_for_if|
+//@[4:51) [no-unused-vars (Warning)] Variable "nestedDiscriminatorArrayIndexCompletions_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorArrayIndexCompletions_for_if|
 //@[95:96) [BCP057 (Error)] The name "a" does not exist in the current context. (CodeDescription: none) |a|
 
 
@@ -1308,7 +1308,7 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 // this validates that we can get nested property access completions on a conditional resource
 //#completionTest(56) -> vmProperties
 var sigh = nestedPropertyAccessOnConditional.properties.
-//@[4:8) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sigh|
+//@[4:8) [no-unused-vars (Warning)] Variable "sigh" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sigh|
 //@[56:56) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 /*
@@ -1688,7 +1688,7 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 }]
 
 var directRefViaVar = premiumStorages
-//@[4:19) [no-unused-vars (Warning)] Variable is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |directRefViaVar|
+//@[4:19) [no-unused-vars (Warning)] Variable "directRefViaVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |directRefViaVar|
 //@[22:37) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
 output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[40:55) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
@@ -1922,7 +1922,7 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
     parent: existingResProperty
     name: 'myExt'
     location: existingResProperty.location
-//@[14:42) [BCP120 (Error)] The property "location" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of existingResProperty are "apiVersion", "id", "name", "type". (CodeDescription: none) |existingResProperty.location|
+//@[14:42) [BCP120 (Error)] This expression is being used in an assignment to the "location" property of the "Microsoft.Compute/virtualMachines/extensions" type, which requires a value that can be calculated at the start of the deployment. Properties of existingResProperty which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |existingResProperty.location|
 }
 
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {

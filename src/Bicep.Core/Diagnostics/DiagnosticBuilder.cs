@@ -33,6 +33,14 @@ namespace Bicep.Core.Diagnostics
             private static string ToQuotedString(IEnumerable<string> elements)
                 => elements.Any() ? $"\"{elements.ConcatString("\", \"")}\"" : "";
 
+            private static string BuildVariableDependencyChainClause(IEnumerable<string>? variableDependencyChain) => variableDependencyChain is not null
+                ? $" You are referencing a variable which cannot be calculated at the start (\"{string.Join("\" -> \"", variableDependencyChain)}\")."
+                : string.Empty;
+
+            private static string BuildAccessiblePropertiesClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames) => accessedSymbolName is not null && accessiblePropertyNames is not null
+                ? $" Properties of {accessedSymbolName} which can be calculated at the start include {ToQuotedString(accessiblePropertyNames.OrderBy(s => s))}."
+                : string.Empty;
+
             public ErrorDiagnostic UnrecognizedToken(string token) => new(
                 TextSpan,
                 "BCP001",
@@ -728,15 +736,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP119",
                 $"Unsupported scope for extension resource deployment. Expected a resource reference.");
 
-            public Diagnostic RuntimeValueNotAllowedInProperty(string property, string? accessedSymbol, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            public Diagnostic RuntimeValueNotAllowedInProperty(string propertyName, string? objectTypeName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
-                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbol, accessiblePropertyNames);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
                 return new ErrorDiagnostic(
                     TextSpan,
                     "BCP120",
-                    $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}{accessiblePropertiesClause}");
+                    $"This expression is being used in an assignment to the \"{propertyName}\" property of the \"{objectTypeName}\" type, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
@@ -1017,7 +1025,7 @@ namespace Bicep.Core.Diagnostics
                 return new ErrorDiagnostic(
                     TextSpan,
                     "BCP177",
-                    $"The if-condition expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}{accessiblePropertiesClause}");
+                    $"This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
             public ErrorDiagnostic RuntimeValueNotAllowedInForExpression(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
@@ -1028,7 +1036,7 @@ namespace Bicep.Core.Diagnostics
                 return new ErrorDiagnostic(
                     TextSpan,
                     "BCP178",
-                    $"The for-expression must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}{accessiblePropertiesClause}");
+                    $"This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
             public Diagnostic ForExpressionContainsLoopInvariants(string itemVariableName, string? indexVariableName, IEnumerable<string> expectedVariantProperties) => new(
@@ -1047,12 +1055,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic RuntimeValueNotAllowedInRunTimeFunctionArguments(string functionName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
-                var accessiblePropertyClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
                 return new ErrorDiagnostic(
                     TextSpan,
                     "BCP181",
-                    $"The arguments of function \"{functionName}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}{accessiblePropertyClause}");
+                    $"This expression is being used in an argument of the function \"{functionName}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
             public ErrorDiagnostic RuntimeValueNotAllowedInVariableForBody(string variableName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
@@ -1063,16 +1071,8 @@ namespace Bicep.Core.Diagnostics
                 return new ErrorDiagnostic(
                     TextSpan,
                     "BCP182",
-                    $"The for-body of the variable \"{variableName}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated.{variableDependencyChainClause}{accessiblePropertiesClause}");
+                    $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
-
-            private static string BuildVariableDependencyChainClause(IEnumerable<string>? variableDependencyChain) => variableDependencyChain is not null
-                ? $" You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\")."
-                : string.Empty;
-
-            private static string BuildAccessiblePropertiesClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames) => accessedSymbolName is not null && accessiblePropertyNames is not null
-                ? $" Accessible properties of {accessedSymbolName} are {ToQuotedString(accessiblePropertyNames.OrderBy(s => s))}."
-                : string.Empty;
 
             public ErrorDiagnostic ModuleParametersPropertyRequiresObjectLiteral() => new(
                 TextSpan,

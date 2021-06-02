@@ -1,5 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Parsing;
+using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -8,10 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Bicep.Core.Parsing;
-using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.Samples
 {

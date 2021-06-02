@@ -20,6 +20,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
+
+        public override string FormatMessage(params object[] values)
+        {
+            return string.Format(CoreResources.UnusedVariableRuleMessageFormat, values);
+        }
+
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             // TODO: Performance: Use a visitor to visit VariableAccesssyntax and collects the non-error symbols into a list.
@@ -32,7 +38,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var sym in unreferencedVariables)
             {
-                yield return CreateDiagnosticForSpan(sym.NameSyntax.Span);
+                yield return CreateDiagnosticForSpan(sym.NameSyntax.Span, sym.Name);
             }
 
             // TODO: This will not find local variables because they are not in the top-level scope.
@@ -45,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var sym in unreferencedLocalVariables)
             {
-                yield return CreateDiagnosticForSpan(sym.NameSyntax.Span);
+                yield return CreateDiagnosticForSpan(sym.NameSyntax.Span, sym.Name);
             }
         }
     }
