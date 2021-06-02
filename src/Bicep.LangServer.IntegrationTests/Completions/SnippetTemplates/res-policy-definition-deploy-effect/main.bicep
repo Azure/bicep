@@ -35,5 +35,5 @@
 // $35 = 'location'
 // $36 = parameterName
 // $37 = 'value'
-
+targetScope = 'subscription'
 // Insert snippet here

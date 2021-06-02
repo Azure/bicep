@@ -17,5 +17,5 @@
 // $17 = equals
 // $18 = 'conditionValue'
 // $19 = 'Audit'
-
+targetScope = 'subscription'
 // Insert snippet here

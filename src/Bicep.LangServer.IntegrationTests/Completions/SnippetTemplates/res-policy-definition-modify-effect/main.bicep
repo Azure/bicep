@@ -21,5 +21,5 @@
 // $21 = 'addOrReplace'
 // $22 = 'field'
 // $23 = 'value'
-
+targetScope = 'subscription'
 // Insert snippet here

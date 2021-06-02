@@ -18,5 +18,5 @@
 // $18 = 'policyDefinitionReferenceId'
 // $19 = parameterName
 // $20 = 'value'
-
+targetScope = 'subscription'
 // Insert snippet here
