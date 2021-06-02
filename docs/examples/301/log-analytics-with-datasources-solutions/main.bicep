@@ -1,5 +1,6 @@
 @description('Location of the workspace')
 param location string = resourceGroup().location
+
 @description('Name of the workspace')
 param name string
 @allowed([
@@ -10,25 +11,34 @@ param name string
   'Standard'
   'Premium'
 ])
+
 @description('Sku of the workspace')
 param sku string
+
 @description('The workspace data retention in days, between 30 and 730')
 @minValue(7)
 @maxValue(730)
 param retentionInDays int
+
 @description('Solutions to add to workspace')
 param solutions array = []
+
 @description('Name of automation account to link to workspace')
 param automationAccountName string = ''
+
 @description('Datasources to add to workspace')
 param dataSources array = []
+
 @description('Enable lock to prevent accidental deletion')
 param enableDeleteLock bool = false
+
 @description('Enable diagnostic logs')
 param enableDiagnostics bool = false
+
 @description('Storage account name. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountName string = ''
-@description('Storage account resourceop. Only required if enableDiagnostics is set to true.')
+
+@description('Storage account resource group. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountResourceGroup string = ''
 
 var lockName = '${logAnalyticsWorkspace.name}-lck'
@@ -60,21 +70,24 @@ resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11
 }]
 
 resource logAnalyticsAutomation 'Microsoft.OperationalInsights/workspaces/linkedServices@2020-08-01' = if (!empty(automationAccountName)) {
-  name: '${logAnalyticsWorkspace.name}/Automation'
+  parent: logAnalyticsWorkspace
+  name: 'Automation'
   properties: {
     resourceId: resourceId('Microsoft.Automation/automationAccounts', automationAccountName)
   }
 }
 
 resource logAnalyticsDataSource 'Microsoft.OperationalInsights/workspaces/dataSources@2020-08-01' = [for dataSource in dataSources: {
-  name: '${logAnalyticsWorkspace.name}/${dataSource.name}'
+  parent: logAnalyticsWorkspace
+  name: dataSource.name
   kind: dataSource.kind
   properties: dataSource.properties
 }]
 
 resource lock 'Microsoft.Authorization/locks@2016-09-01' = if (enableDeleteLock) {
-  name: lockName
   scope: logAnalyticsWorkspace
+
+  name: lockName
   properties: {
     level: 'CanNotDelete'
   }
