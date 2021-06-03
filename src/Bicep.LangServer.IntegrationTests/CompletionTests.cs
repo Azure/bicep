@@ -586,7 +586,7 @@ var obj2 = {| }
 var obj3 = |{ |}
 var obj4 = { | }|
 var obj5 = {|
-  | prop: true |
+  | prop: | true |
 |}
 var obj6 = { |
   prop  | : false
@@ -596,7 +596,7 @@ var obj6 = { |
         }
 
         [TestMethod]
-        public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldBeInserted_ReturnsEmptyCompletions()
+        public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
 var arr1 = [|]
@@ -615,7 +615,7 @@ var arr6 = [ |
         }
 
         [TestMethod]
-        public async Task RequestCompletionsInExpressions_AtPositionsWhereNodeShouldBeInserted_ReturnsEmptyCompletions()
+        public async Task RequestCompletionsInExpressions_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
 var unary = |! | true
@@ -624,6 +624,36 @@ var ternary = true | |?| | 'yes' | |:| | 'no'
 ";
             await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
         }
+
+        [TestMethod]
+        public async Task RequestCompletionsInTopLevelDeclarations_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+|param foo string
+v|ar expr = 1 + 2
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInObjectValues_InStringSegments_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var v2 = 'V2'
+
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: 'name'
+  location: resourceGroup().location
+  kind: 'S|torage${v2}'
+  sku: {
+    name: 'Premium_LRS'
+    tier: 'Premium'
+  }
+}
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
 
         [TestMethod]
         public async Task RequestCompletions_MatchingNodeIsBooleanOrIntegerOrNullLiteral_ReturnsEmptyCompletions()

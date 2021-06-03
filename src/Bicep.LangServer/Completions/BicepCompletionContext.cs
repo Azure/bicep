@@ -251,7 +251,7 @@ namespace Bicep.LanguageServer.Completions
                 var node = matchingNodes[^2];
 
                 switch (node)
-                {
+            {
                     case ProgramSyntax programSyntax:
                         // the token at current position is inside a program node
                         // we're in a declaration if one of the following conditions is met:
@@ -267,11 +267,12 @@ namespace Bicep.LanguageServer.Completions
                         return token.Type == TokenType.Identifier && matchingNodes[^3] is ProgramSyntax;
 
                     case ITopLevelNamedDeclarationSyntax declaration:
-                        // we are in a fully or partially parsed declaration
+                        // we are in a partially parsed declaration which only contains a keyword
                         // whether we are in a declaration context depends on whether our offset is within the keyword token
                         // (by using exclusive span containment, the cursor position at the end of a keyword token
                         // result counts as being outside of the declaration context)
-                        return declaration.Keyword.Span.Contains(offset);
+                        return declaration.Name.IdentifierName.Equals(LanguageConstants.MissingName, LanguageConstants.IdentifierComparison) &&
+                            declaration.Keyword.Span.Contains(offset);
                 }
             }
 
@@ -398,11 +399,11 @@ namespace Bicep.LanguageServer.Completions
                 if (
                     // the cursor position may be in the trivia following the colon that follows the property name
                     // if that's the case, the offset should match the end of the property span exactly
-                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => property.Colon is not SkippedTriviaSyntax && offset >= property.Colon.GetEndPosition()) ||
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => property.Colon is not SkippedTriviaSyntax && offset >= property.Colon.GetEndPosition() && property.Value is SkippedTriviaSyntax) ||
                     // the cursor position is after the colon that follows the property name
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset>= token.GetEndPosition()) ||
-                    // the cursor is inside a string value of the property
-                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax)) ||
+                    // the cursor is inside a string value of the property that is not interpolated
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax) && !stringSyntax.Expressions.Any()) ||
                     // the cursor could is a partial or full identifier
                     // which will present as either a keyword or identifier token
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (property, variableAccess, identifier, token) => ReferenceEquals(property.Value, variableAccess)))
