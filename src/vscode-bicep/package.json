@@ -199,7 +199,7 @@
     "@types/cytoscape": "^3.14.15",
     "@types/jest": "^26.0.23",
     "@types/mocha": "^8.2.2",
-    "@types/node": "^15.6.1",
+    "@types/node": "^15.9.0",
     "@types/react": "^17.0.9",
     "@types/react-dom": "^17.0.6",
     "@types/react-test-renderer": "^17.0.1",
