@@ -1495,7 +1495,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 // property loops cannot be nested (even more nesting)
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[88:95) Local account. Type: any. Declaration start char: 88, length: 7
-//@[9:33) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 687
+//@[9:33) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 634
   name: account.name
   location: account.location
   sku: {
@@ -1503,11 +1503,10 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   }
   kind: 'StorageV2'
   properties: {
-    // #completionTest(17) -> symbolsPlusAccount
     networkAcls:  {
       virtualNetworkRules: [for rule in []: {
 //@[32:36) Local rule. Type: any. Declaration start char: 32, length: 4
-        // #completionTest(12,15,31) -> symbolsPlusRule
+        // #completionTest(15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
 //@[20:25) Local state. Type: any. Declaration start char: 20, length: 5
