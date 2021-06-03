@@ -1144,6 +1144,35 @@
     }
   },
   {
+    "label": "res-expressroute-circuit",
+    "kind": "snippet",
+    "detail": "ExpressRoute Circuit",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku:{\n    family: 'MeteredData'\n    tier: 'Local'\n    name: 'Local_MeteredData'\n  }\n  properties:{\n    serviceProviderProperties:{\n      bandwidthInMbps: 50\n        peeringLocation: 'Amsterdam'\n      serviceProviderName: 'Telia Carrier'\n    }\n    allowClassicOperations:true\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-expressroute-circuit",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2020-11-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  sku:{\n    family: ${2|'MeteredData','UnlimitedData'|}\n    tier: ${3|'Local','Standard','Premium'|}\n    name: ${4|'Local_MeteredData','Standard_MeteredData','Premium_MeteredData','Basic_UnlimitedData','Local_UnlimitedData','Standard_UnlimitedData','Premium_UnlimitedData'|}\n  }\n  properties:{\n    serviceProviderProperties:{\n      bandwidthInMbps: ${5|50,100,200,500,1000,2000,5000,10000|}\n        peeringLocation: ${6:'Amsterdam'}\n      serviceProviderName: ${7:'Telia Carrier'}\n    }\n    allowClassicOperations:${8|true,false|}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-expressroute-circuit"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-firewall",
     "kind": "snippet",
     "detail": "Azure Firewall",
