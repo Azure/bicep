@@ -48,7 +48,7 @@ resource gallerydef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
 resource galleryassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(resourceGroup().id, gallerydef.id, managedidentity.id)
   properties: {
-   roleDefinitionId: gallerydef.id
+    roleDefinitionId: gallerydef.id
     principalId: managedidentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
@@ -64,11 +64,11 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
     userIdentity: 'enabled'
   }
   identity: {
-   type: 'UserAssigned'
-   userAssignedIdentities: {
-    '${managedidentity.id}' :{}
-   } 
-}
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${managedidentity.id}': {}
+    }
+  }
   properties: {
     buildTimeoutInMinutes: 120
     vmProfile: {
@@ -121,7 +121,7 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
       {
         type: 'SharedImage'
         galleryImageId: galleryImageId
-        runOutputName:  outputname
+        runOutputName: outputname
         artifactTags: {
           source: 'wvd10'
           baseosimg: 'windows10'
@@ -141,7 +141,7 @@ resource aibdef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = i
     permissions: [
       {
         actions: [
-          'Microsoft.VirtualMachineImages/imageTemplates/Run/action' 
+          'Microsoft.VirtualMachineImages/imageTemplates/Run/action'
           'Microsoft.Storage/storageAccounts/*'
           'Microsoft.ContainerInstance/containerGroups/*'
           'Microsoft.Resources/deployments/*'
@@ -159,7 +159,7 @@ resource aibdef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = i
 resource aibrunnerassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (InvokeRunImageBuildThroughDeploymentScript) {
   name: guid(resourceGroup().id, aibdef.id, managedidentity.id)
   properties: {
-   roleDefinitionId: aibdef.id
+    roleDefinitionId: aibdef.id
     principalId: managedidentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
@@ -169,7 +169,7 @@ resource aibrunnerassignment 'Microsoft.Authorization/roleAssignments@2020-04-01
 resource miorole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (InvokeRunImageBuildThroughDeploymentScript) {
   name: guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', managedidentity.id)
   properties: {
-   roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
+    roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
     principalId: managedidentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
