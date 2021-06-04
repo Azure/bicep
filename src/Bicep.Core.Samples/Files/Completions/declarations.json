@@ -1666,18 +1666,6 @@
     }
   },
   {
-<<<<<<< HEAD
-    "label": "res-policy-assignment",
-    "kind": "snippet",
-    "detail": "Policy Assignment",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: 'name'\n  location: 'location'\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    displayName: 'displayName'\n    description: 'description'\n    enforcementMode: 'Default'\n    metadata: {\n      source: 'source'\n      version: '0.1.0'\n    }\n    policyDefinitionId: 'policyDefinitionId'\n    parameters: {\n      parameterName: {\n        value: 'value'\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: 'message'\n      }\n      {\n        message: 'message'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n      }\n    ]\n  }\n}\n\n```"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_res-policy-assignment",
-=======
     "label": "res-plan",
     "kind": "snippet",
     "detail": "Application Service Plan (Server Farm)",
@@ -1688,16 +1676,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-plan",
->>>>>>> origin/main
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-<<<<<<< HEAD
-      "newText": "resource ${1:policyAssignment} 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: ${2:'name'}\n  location: ${3:'location'}\n  identity: {\n    type: ${4|'SystemAssigned','None'|}\n  }\n  properties: {\n    displayName: ${5:'displayName'}\n    description: ${6:'description'}\n    enforcementMode: ${7|'Default','DoNotEnforce'|}\n    metadata: {\n      source: ${8:'source'}\n      version: ${9:'0.1.0'}\n    }\n    policyDefinitionId: ${10:'policyDefinitionId'}\n    parameters: {\n      ${11:parameterName}: {\n        value: ${12:'value'}\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: ${13:'message'}\n      }\n      {\n        message: ${14:'message'}\n        policyDefinitionReferenceId: ${15:'policyDefinitionReferenceId'}\n      }\n    ]\n  }\n}\n"
-=======
       "newText": "resource ${1:appServicePlan} 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3:'name'}\n    capacity: ${4:capacity}\n  }\n}\n"
->>>>>>> origin/main
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -1705,7 +1688,35 @@
         {
           "EventName": "TopLevelDeclarationSnippetInsertion",
           "Properties": {
-<<<<<<< HEAD
+            "name": "res-plan"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-policy-assignment",
+    "kind": "snippet",
+    "detail": "Policy Assignment",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: 'name'\n  location: 'location'\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    displayName: 'displayName'\n    description: 'description'\n    enforcementMode: 'Default'\n    metadata: {\n      source: 'source'\n      version: '0.1.0'\n    }\n    policyDefinitionId: 'policyDefinitionId'\n    parameters: {\n      parameterName: {\n        value: 'value'\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: 'message'\n      }\n      {\n        message: 'message'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-assignment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:policyAssignment} 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: ${2:'name'}\n  location: ${3:'location'}\n  identity: {\n    type: ${4|'SystemAssigned','None'|}\n  }\n  properties: {\n    displayName: ${5:'displayName'}\n    description: ${6:'description'}\n    enforcementMode: ${7|'Default','DoNotEnforce'|}\n    metadata: {\n      source: ${8:'source'}\n      version: ${9:'0.1.0'}\n    }\n    policyDefinitionId: ${10:'policyDefinitionId'}\n    parameters: {\n      ${11:parameterName}: {\n        value: ${12:'value'}\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: ${13:'message'}\n      }\n      {\n        message: ${14:'message'}\n        policyDefinitionReferenceId: ${15:'policyDefinitionReferenceId'}\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
             "name": "res-policy-assignment"
           }
         }
@@ -1881,9 +1892,6 @@
           "EventName": "TopLevelDeclarationSnippetInsertion",
           "Properties": {
             "name": "res-policyset-definition"
-=======
-            "name": "res-plan"
->>>>>>> origin/main
           }
         }
       ]
