@@ -2,7 +2,7 @@ param sqlDatabase object
 param sqlServerName string
 
 // Azure Defender
-resource azureDefender 'Microsoft.Sql/servers/databases/securityAlertPolicies@2020-08-01-preview' = {
+resource azureDefender 'Microsoft.Sql/servers/databases/securityAlertPolicies@2021-02-01-preview' = {
   name: '${sqlServerName}/${sqlDatabase.name}/Default'
   properties: {
     state: sqlDatabase.azureDefender.enabled ? 'Enabled' : 'Disabled'

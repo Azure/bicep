@@ -4,7 +4,7 @@ param sqlFirewallRule object
 @description('The name of the SQL Logical server.')
 param sqlServerName string
 
-resource firewallRule 'Microsoft.Sql/servers/firewallRules@2020-08-01-preview' = {
+resource firewallRule 'Microsoft.Sql/servers/firewallRules@2021-02-01-preview' = {
   name: '${sqlServerName}/${sqlFirewallRule.name}'
   properties: {
     startIpAddress: sqlFirewallRule.startIpAddress

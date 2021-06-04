@@ -151,9 +151,9 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         {
             SnippetsProvider snippetsProvider = new SnippetsProvider();
             TypeSymbol typeSymbol = new ResourceType(
-                    ResourceTypeReference.Parse("Microsoft.Network/dnsZones@2018-05-01"),
+                    ResourceTypeReference.Parse("Microsoft.DataLakeStore/accounts@2016-11-01"),
                     ResourceScope.ResourceGroup,
-                    CreateObjectType("Microsoft.Network/dnsZones@2018-05-01",
+                    CreateObjectType("Microsoft.DataLakeStore/accounts@2016-11-01",
                     ("name", LanguageConstants.String, TypePropertyFlags.Required),
                     ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
@@ -170,11 +170,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 x =>
                 {
                     x.Prefix.Should().Be("snippet");
-                    x.Detail.Should().Be("DNS Zone");
+                    x.Detail.Should().Be("Data Lake Store Account");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
   name: ${2:'name'}
-  location: 'global'
+  location: resourceGroup().location
+  properties: {
+    newTier: ${3|'Consumption','Commitment_1TB','Commitment_10TB','Commitment_100TB','Commitment_500TB','Commitment_1PB','Commitment_5PB'|}
+    encryptionState: ${4|'Enabled','Disabled'|}
+  }
 }
 ");
                 },

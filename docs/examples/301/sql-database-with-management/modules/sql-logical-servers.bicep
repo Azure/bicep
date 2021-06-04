@@ -2,9 +2,6 @@
 param sqlLogicalServers array
 param tags object
 
-@secure()
-param password string
-
 var defaultSqlLogicalServerProperties = {
   name: ''
   tags: {}
@@ -53,11 +50,16 @@ var defaultSqlLogicalServerProperties = {
   databases: []
 }
 
+resource sqlPassKeyVaults 'Microsoft.KeyVault/vaults@2021-04-01-preview' existing = [for keyVault in sqlLogicalServers: {
+  name: keyVault.passwordFromKeyVault.name
+  scope: resourceGroup(union(defaultSqlLogicalServerProperties, keyVault).passwordFromKeyVault.subscriptionId, keyVault.passwordFromKeyVault.resourceGroupName)
+}]
+
 module sqlLogicalServer 'sql-logical-server.bicep' = [for (sqlLogicalServer, index) in sqlLogicalServers: {
   name: 'sqlLogicalServer-${index}'
   params: {
     sqlLogicalServer: union(defaultSqlLogicalServerProperties, sqlLogicalServer)
-    password: password
+    password: sqlPassKeyVaults[index].getSecret(sqlLogicalServer.passwordFromKeyVault.secretName)
     tags: union(tags, union(defaultSqlLogicalServerProperties, sqlLogicalServer).tags)
   }
 }]
