@@ -1,3 +1,9 @@
+// $1 = 'name'
+// $2 = webApplicationExtension
+// $3 = 'packageUri'
+// $4 = 'connectionString'
+// $5 = 'name'
+
 resource webApplication 'Microsoft.Web/sites@2020-12-01' = {
   name: 'name'
   location: resourceGroup().location
@@ -15,4 +21,5 @@ resource webApplicationExtension 'Microsoft.Web/sites/extensions@2020-12-01' = {
     }
   }
 }
+// Insert snippet here
 

@@ -1,3 +1,16 @@
+// $1 = networkSecurityGroup
+// $2 = 'name'
+// $3 = 'nsgRule'
+// $4 = 'description'
+// $5 = 'Tcp'
+// $6 = '5'
+// $7 = '*'
+// $8 = '*'
+// $9 = '*'
+// $10 = 'Allow'
+// $11 = 100
+// $12 = 'Inbound'
+
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
   name: 'name'
   location: resourceGroup().location
@@ -20,4 +33,5 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-0
     ]
   }
 }
+// Insert snippet here
 

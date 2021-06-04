@@ -1,2 +1,6 @@
-param testParam int
+// $1 = testParam
+// $2 = int
+
+param testParam int// Insert snippet here
 //@[6:15) [no-unused-params (Warning)] Parameter "testParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |testParam|
+

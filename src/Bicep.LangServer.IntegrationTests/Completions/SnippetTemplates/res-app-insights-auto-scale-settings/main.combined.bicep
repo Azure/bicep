@@ -1,3 +1,20 @@
+// $1 = appInsightsAutoScaleSettings
+// $2 = 'name'
+// $3 = web
+// $4 = appServiceId
+// $5 = 'name'
+// $6 = 'name'
+// $7 = 'minimum'
+// $8 = 'maximum'
+// $9 = 'default'
+// $10 = 'name'
+// $11 = 'metricResourceUri'
+// $12 = 'value'
+// $13 = 'metricName'
+// $14 = 'metricResourceUri'
+// $15 = 'value'
+// $16 = 'metricResourceUri'
+
 resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
   name: 'name'
   location: resourceGroup().location
@@ -59,4 +76,5 @@ resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015
     targetResourceUri: 'metricResourceUri'
   }
 }
+// Insert snippet here
 

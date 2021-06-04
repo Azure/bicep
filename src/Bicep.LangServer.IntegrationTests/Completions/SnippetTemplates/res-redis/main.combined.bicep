@@ -1,3 +1,6 @@
+// $1 = redisCache
+// $2 = 'name'
+
 resource redisCache 'Microsoft.Cache/Redis@2019-07-01' = {
   name: 'name'
   location: resourceGroup().location
@@ -9,4 +12,5 @@ resource redisCache 'Microsoft.Cache/Redis@2019-07-01' = {
     }
   }
 }
+// Insert snippet here
 

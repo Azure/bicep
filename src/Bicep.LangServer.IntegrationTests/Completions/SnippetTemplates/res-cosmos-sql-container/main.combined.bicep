@@ -1,3 +1,17 @@
+// $1 = 'accountName/sql/databaseName'
+// $2 = 'id'
+// $3 = sqlContainerName
+// $4 = 'name'
+// $5 = 'id'
+// $6 = 'paths'
+// $7 = Hash
+// $8 = Consistent
+// $9 = 'path'
+// $10 = Hash
+// $11 = String
+// $12 = -1
+// $13 = 'path'
+
 resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
   name: 'accountName/sql/databaseName'
   properties: {
@@ -44,4 +58,5 @@ resource sqlContainerName 'Microsoft.DocumentDb/databaseAccounts/apis/databases/
     options: {}
   }
 }
+// Insert snippet here
 
