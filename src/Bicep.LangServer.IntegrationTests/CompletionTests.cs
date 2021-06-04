@@ -82,6 +82,7 @@ namespace Bicep.LangServer.IntegrationTests
             File.Exists(bicepFileName).Should().BeTrue($"Snippet placeholder file \"{bicepSourceFileName}\" should be checked in");
 
             var bicepContents = await File.ReadAllTextAsync(bicepFileName);
+            bicepContents = StringUtils.ReplaceNewlines(bicepContents, "\n");
             var cursor = bicepContents.IndexOf("// Insert snippet here");
 
             // Request the expected completion from the server, and ensure it is unique + valid
@@ -107,7 +108,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var compilation = new Compilation(TypeProvider, syntaxTreeGrouping);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, Environment.NewLine, diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
+                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
                 File.WriteAllText(combinedFileName + ".actual", sourceTextWithDiags);
 
                 sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
