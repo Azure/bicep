@@ -80,13 +80,20 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileName = Path.Combine(outputDirectory, "main.bicep");
             var bicepSourceFileName = Path.Combine("src", "Bicep.LangServer.IntegrationTests", pathPrefix, Path.GetRelativePath(outputDirectory, bicepFileName));
             File.Exists(bicepFileName).Should().BeTrue($"Snippet placeholder file \"{bicepSourceFileName}\" should be checked in");
+
             var bicepContents = await File.ReadAllTextAsync(bicepFileName);
+            bicepContents = StringUtils.ReplaceNewlines(bicepContents, "\n");
+            var cursor = bicepContents.IndexOf("// Insert snippet here");
 
             // Request the expected completion from the server, and ensure it is unique + valid
-            var completionText = await RequestSnippetCompletion(bicepFileName, completionData, bicepContents);
+            var completionText = await RequestSnippetCompletion(bicepFileName, completionData, bicepContents, cursor);
 
             // Replace all the placeholders with values from the placeholder file
             var replacementContents = SnippetCompletionTestHelper.GetSnippetTextAfterPlaceholderReplacements(completionText, bicepContents);
+
+            var bicepContentsReplaced = bicepContents.Substring(0, cursor) +
+                replacementContents +
+                bicepContents.Substring(cursor);
 
             using (new AssertionScope())
             {
@@ -96,12 +103,12 @@ namespace Bicep.LangServer.IntegrationTests
 
                 var combinedFileUri = PathHelper.FilePathToFileUrl(combinedFileName);
                 var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(new Dictionary<Uri, string> {
-                    [combinedFileUri] = replacementContents,
+                    [combinedFileUri] = bicepContentsReplaced,
                 }, combinedFileUri);
                 var compilation = new Compilation(TypeProvider, syntaxTreeGrouping);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(replacementContents, Environment.NewLine, diagnostics, diag => OutputHelper.GetDiagLoggingString(replacementContents, outputDirectory, diag));
+                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
                 File.WriteAllText(combinedFileName + ".actual", sourceTextWithDiags);
 
                 sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
@@ -112,7 +119,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile)
+        private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile, int cursor)
         {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
             var syntaxTree = SyntaxTree.Create(documentUri.ToUri(), placeholderFile);
@@ -124,7 +131,6 @@ namespace Bicep.LangServer.IntegrationTests
                 null,
                 TypeProvider);
 
-            var cursor = placeholderFile.IndexOf("// Insert snippet here");
             var completions = await client.RequestCompletion(new CompletionParams
             {
                 TextDocument = documentUri,

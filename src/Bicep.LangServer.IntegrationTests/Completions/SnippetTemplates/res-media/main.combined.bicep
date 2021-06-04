@@ -1,3 +1,8 @@
+// $1 = mediaServices
+// $2 = 'name'
+// $3 = 'mediaServiceStorageAccount'
+// $4 = Primary
+
 resource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {
   name: 'name'
   location: resourceGroup().location
@@ -10,4 +15,5 @@ resource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {
     ]
   }
 }
+// Insert snippet here
 

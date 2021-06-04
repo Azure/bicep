@@ -1,3 +1,11 @@
+// $1 = 'name'
+// $2 = automationCertificate
+// $3 = 'name'
+// $4 = 'base64Value'
+// $5 = 'description'
+// $6 = 'thumbprint'
+// $7 = true
+
 resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'
 }
@@ -12,4 +20,5 @@ resource automationCertificate 'Microsoft.Automation/automationAccounts/certific
     isExportable: true
   }
 }
+// Insert snippet here
 

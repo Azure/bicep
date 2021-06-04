@@ -1,3 +1,15 @@
+// $1 = virtualNetworkGateway
+// $2 = 'name'
+// $3 = 'name'
+// $4 = 'virtualNetwork'
+// $5 = 'subnet'
+// $6 = 'publicIPAddress'
+// $7 = Basic
+// $8 = Basic
+// $9 = Vpn
+// $10 = PolicyBased
+// $11 = true
+
 resource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {
   name: 'name'
   location: resourceGroup().location
@@ -25,4 +37,5 @@ resource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11
     enableBgp: true
   }
 }
+// Insert snippet here
 

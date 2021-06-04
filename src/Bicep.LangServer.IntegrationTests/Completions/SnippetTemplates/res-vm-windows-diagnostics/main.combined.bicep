@@ -1,3 +1,10 @@
+// $1 = windowsVMDiagnostics
+// $2 = 'windowsVM/Diagnostics'
+// $3 = 'storageAccount'
+// $4 = 'storageAccountName'
+// $5 = 'storageAccountKey'
+// $6 = 'storageAccountEndPoint'
+
 resource windowsVMDiagnostics 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   name: 'windowsVM/Diagnostics'
   location: resourceGroup().location
@@ -17,4 +24,5 @@ resource windowsVMDiagnostics 'Microsoft.Compute/virtualMachines/extensions@2020
     }
   }
 }
+// Insert snippet here
 
