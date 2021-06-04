@@ -15,13 +15,13 @@ using System.Linq;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class InterpolateNotConcatRuleTests : LinterRuleTestsBase
+    public class PreferInterpolationRuleTests : LinterRuleTestsBase
     {
         private void ExpectPass(string text)
         {
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
-                var errors = GetDiagnostics(InterpolateNotConcatRule.Code, text);
+                var errors = GetDiagnostics(PreferInterpolationRule.Code, text);
                 errors.Should().HaveCount(0, $"expecting linter rule to pass");
             }
         }
@@ -35,7 +35,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
-                var errors = GetDiagnostics(InterpolateNotConcatRule.Code, text);
+                var errors = GetDiagnostics(PreferInterpolationRule.Code, text);
                 errors.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
 
                 errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);

@@ -11,13 +11,13 @@ using System.Linq;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class UnusedVariableRuleTests : LinterRuleTestsBase
+    public class NoUnusedVariablesRuleTests : LinterRuleTestsBase
     {
 
         [TestMethod]
         public void VariableNameInFormattedMessage()
         {
-            var ruleToTest = new UnusedVariableRule();
+            var ruleToTest = new NoUnusedVariablesRule();
             ruleToTest.GetMessage(nameof(ruleToTest)).Should().Be($"Variable \"{nameof(ruleToTest)}\" is declared but never used.");
         }
 
@@ -25,10 +25,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
-                var errors = GetDiagnostics(UnusedVariableRule.Code, text);
+                var errors = GetDiagnostics(NoUnusedVariablesRule.Code, text);
                 if (unusedVars.Any())
                 {
-                    var rule = new UnusedVariableRule();
+                    var rule = new NoUnusedVariablesRule();
                     string[] expectedMessages = unusedVars.Select(p => rule.GetMessage(p)).ToArray();
                     errors.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
                 }

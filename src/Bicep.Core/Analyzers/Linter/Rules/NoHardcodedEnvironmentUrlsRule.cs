@@ -13,13 +13,13 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class EnvironmentUrlHardcodedRule : LinterRuleBase
+    public sealed class NoHardcodedEnvironmentUrlsRule : LinterRuleBase
     {
         public new const string Code = "no-hardcoded-env-urls";
 
         private ImmutableHashSet<string>? DisallowedHosts;
 
-        public EnvironmentUrlHardcodedRule() : base(
+        public NoHardcodedEnvironmentUrlsRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
