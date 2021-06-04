@@ -94,7 +94,10 @@ namespace Bicep.LangServer.IntegrationTests
                 var combinedSourceFileName = Path.Combine("src", "Bicep.LangServer.IntegrationTests", pathPrefix, Path.GetRelativePath(outputDirectory, combinedFileName));
                 File.Exists(combinedFileName).Should().BeTrue($"Combined snippet file \"{combinedSourceFileName}\" should be checked in");
 
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(combinedFileName));
+                var combinedFileUri = PathHelper.FilePathToFileUrl(combinedFileName);
+                var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(new Dictionary<Uri, string> {
+                    [combinedFileUri] = replacementContents,
+                }, combinedFileUri);
                 var compilation = new Compilation(TypeProvider, syntaxTreeGrouping);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
