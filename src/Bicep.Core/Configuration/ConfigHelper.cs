@@ -50,7 +50,7 @@ namespace Bicep.Core.Configuration
                 // last added json settings take precedent - add local settings last
                 if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
                 {
-                    configBuilder.AddJsonFile(localConfig, true, true);
+                    configBuilder.AddJsonFile(localConfig, true, false);
                     this.CustomSettingsFileName = localConfig;
                 }
                 else
