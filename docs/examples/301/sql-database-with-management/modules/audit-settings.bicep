@@ -8,7 +8,7 @@ var defaultAuditActionsAndGroups = [
 ]
 
 // Audit settings need for enabling auditing to Log Analytics workspace
-resource auditSettings 'Microsoft.Sql/servers/databases/auditingSettings@2020-08-01-preview' = {
+resource auditSettings 'Microsoft.Sql/servers/databases/auditingSettings@2021-02-01-preview' = {
   name: '${sqlServerName}/${sqlDatabase.name}/Default'
   properties: {
     state: sqlDatabase.diagnosticLogsAndMetrics.auditLogs ? 'Enabled' : 'Disabled'

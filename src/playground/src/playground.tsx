@@ -98,7 +98,7 @@ export const Playground : React.FC = () => {
     <input type="file" ref={uploadInputRef} style={{ display: 'none' }} onChange={e => handleDecompileClick(e.currentTarget.files[0])} accept="application/json" multiple={false} />
     <Navbar bg="dark" variant="dark">
       <Navbar.Brand>Bicep Playground</Navbar.Brand>
-      <Nav className="ml-auto">
+      <Nav className="ms-auto">
         <OverlayTrigger placement="bottom" overlay={createTooltip('Copy a shareable link to clipboard')}>
           <Button size="sm" variant="primary" className="mx-1" onClick={handlCopyClick}>{copied ? 'Copied' : 'Copy Link'}</Button>
         </OverlayTrigger>
