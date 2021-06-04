@@ -153,24 +153,32 @@ namespace Bicep.Core.Emit
                 {
                     // try to detect cases where someone has applied top-level resource declaration naming to a nested/parent resource
                     // e.g. '{parent.name}/child' or 'parent/child'
-                    if (resourceNameString.SegmentValues.Any(v => v.IndexOf('/') > -1))
+                    if (resourceNameString.SegmentValues.Any(v => v.Contains('/')))
                     {
                         diagnosticWriter.Write(resourceName, x => x.ChildResourceNameContainsQualifiers());
                     }
                 }
                 else
                 {
-                    if (resourceNameString.TryGetLiteralValue() is {} typeString)
+                    var slashCount = resourceNameString.SegmentValues.Sum(x => x.Count(y => y == '/'));
+                    var expectedSlashCount = resourceType.TypeReference.Types.Length - 1;
+
+                    // Try to detect cases where someone has applied nested/parent resource declaration naming to a top-level resource - e.g. 'child'.
+                    if (resourceNameString.IsInterpolated())
                     {
-                        // try to detect cases where someone has applied nested/parent resource declaration naming to a top-level resource - e.g. 'child'.
-                        // this unfortunately limits us to only validating uninterpolated strings, as we can't do analysis on the number of '/' characters
-                        // being pulled in from variables.
-                        
-                        var slashCount = typeString.Count(x => x == '/');
-                        var expectedSlashCount = resourceType.TypeReference.Types.Length - 1;
+                        // This is best-effort for interpolated strings, as variables may pull in additional '/' characters.
+                        // So we can only accurately show a diagnostic if there are TOO MANY '/' characters.
+                        if (slashCount > expectedSlashCount)
+                        {   
+                            diagnosticWriter.Write(resourceName, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                        }
+                    }
+                    else
+                    {
+                        // We know exactly how many '/' characters must be present, because we have a string literal. So expect an exact match.
                         if (slashCount != expectedSlashCount)
                         {
-                            diagnosticWriter.Write(resourceName, x => x.TopLevelChildResourceNameMissingQualifiers(expectedSlashCount));
+                            diagnosticWriter.Write(resourceName, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                 }
