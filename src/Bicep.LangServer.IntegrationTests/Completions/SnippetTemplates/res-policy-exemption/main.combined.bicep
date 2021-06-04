@@ -1,3 +1,14 @@
+// $1 = policyExemption
+// $2 = 'name'
+// $3 = 'policyAssignmentId'
+// $4 = 'policyDefinitionReferenceIds'
+// $5 = 'Waiver'
+// $6 = 'expiresOn'
+// $7 = 'displayName'
+// $8 = 'description'
+// $9 = '0.1.0'
+// $10 = 'source'
+
 resource policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {
   name: 'name'
   properties: {
@@ -15,4 +26,5 @@ resource policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-pr
     }
   }
 }
+// Insert snippet here
 

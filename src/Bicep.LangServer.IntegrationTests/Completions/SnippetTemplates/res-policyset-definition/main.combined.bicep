@@ -1,5 +1,25 @@
+// $1 = policySetDefinition
+// $2 = 'name'
+// $3 = 'displayName'
+// $4 = 'Custom'
+// $5 = 'description'
+// $6 = '0.1.0'
+// $7 = 'category'
+// $8 = 'source'
+// $9 = parameterName
+// $10 = 'String'
+// $11 = 'displayName'
+// $12 = 'description'
+// $13 = 'policyDefinitionId'
+// $14 = 'policyDefinitionReferenceId'
+// $15 = parameterName
+// $16 = 'value'
+// $17 = 'policyDefinitionId'
+// $18 = 'policyDefinitionReferenceId'
+// $19 = parameterName
+// $20 = 'value'
+targetScope = 'subscription'
 resource policySetDefinition 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {
-//@[89:1023) [BCP135 (Error)] Scope "resourceGroup" is not valid for this resource type. Permitted scopes: "managementGroup", "subscription". (CodeDescription: none) |{\r\n  name: 'name'\r\n  properties: {\r\n    displayName: 'displayName'\r\n    policyType: 'Custom'\r\n    description: 'description'\r\n    metadata: {\r\n      version: '0.1.0'\r\n      category: 'category'\r\n      source: 'source'\r\n    }\r\n    parameters: {\r\n      parameterName: {\r\n        type: 'String'\r\n        metadata: {\r\n          displayName: 'displayName'\r\n          description: 'description'\r\n        }\r\n      }\r\n    }\r\n    policyDefinitions: [\r\n      {\r\n        policyDefinitionId: 'policyDefinitionId'\r\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\r\n        parameters: {\r\n          parameterName: {\r\n            value: 'value'\r\n          }\r\n        }\r\n      }\r\n      {\r\n        policyDefinitionId: 'policyDefinitionId'\r\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\r\n        parameters: {\r\n          parameterName: {\r\n            value: 'value'\r\n          }\r\n        }\r\n      }\r\n    ]\r\n  }\r\n}|
   name: 'name'
   properties: {
     displayName: 'displayName'
@@ -41,4 +61,5 @@ resource policySetDefinition 'Microsoft.Authorization/policySetDefinitions@2020-
     ]
   }
 }
+// Insert snippet here
 

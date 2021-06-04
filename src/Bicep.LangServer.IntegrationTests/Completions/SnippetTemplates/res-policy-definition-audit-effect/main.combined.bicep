@@ -1,5 +1,24 @@
+// $1 = policyDefinition
+// $2 = 'name'
+// $3 = 'displayName'
+// $4 = 'Custom'
+// $5 = 'All'
+// $6 = 'description'
+// $7 = '0.1.0'
+// $8 = 'category'
+// $9 = 'source'
+// $10 = parameterName
+// $11 = 'String'
+// $12 = 'defaultValue'
+// $13 = 'displayName'
+// $14 = 'description'
+// $15 = allOf
+// $16 = 'field'
+// $17 = equals
+// $18 = 'conditionValue'
+// $19 = 'Audit'
+targetScope = 'subscription'
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
-//@[83:779) [BCP135 (Error)] Scope "resourceGroup" is not valid for this resource type. Permitted scopes: "managementGroup", "subscription". (CodeDescription: none) |{\r\n  name: 'name'\r\n  properties: {\r\n    displayName: 'displayName'\r\n    policyType: 'Custom'\r\n    mode: 'All'\r\n    description: 'description'\r\n    metadata: {\r\n      version: '0.1.0'\r\n      category: 'category'\r\n      source: 'source'\r\n    }\r\n    parameters: {\r\n      parameterName: {\r\n        type: 'String'\r\n        defaultValue: 'defaultValue'\r\n        metadata: {\r\n          displayName: 'displayName'\r\n          description: 'description'\r\n        }\r\n      }\r\n    }\r\n    policyRule: {\r\n      if: {\r\n        allOf: [\r\n          {\r\n            field: 'field'\r\n            equals: 'conditionValue'\r\n          }\r\n        ]\r\n      }\r\n      then: {\r\n        effect: 'Audit'\r\n      }\r\n    }\r\n  }\r\n}|
   name: 'name'
   properties: {
     displayName: 'displayName'
@@ -36,4 +55,5 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
     }
   }
 }
+// Insert snippet here
 
