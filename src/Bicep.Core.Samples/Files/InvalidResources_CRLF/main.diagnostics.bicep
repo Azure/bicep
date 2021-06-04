@@ -1638,10 +1638,9 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   }
   kind: 'StorageV2'
   properties: {
-    // #completionTest(17) -> symbolsPlusAccount
     networkAcls:  {
       virtualNetworkRules: [for rule in []: {
-        // #completionTest(12,15,31) -> symbolsPlusRule
+        // #completionTest(15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
 //@[16:19) [BCP142 (Error)] Property value for-expressions cannot be nested. (CodeDescription: none) |for|
