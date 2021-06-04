@@ -980,10 +980,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP168",
                 $"Length must not be a negative value.");
 
-            public ErrorDiagnostic TopLevelChildResourceNameMissingQualifiers(int expectedSlashCount) => new(
+            public ErrorDiagnostic TopLevelChildResourceNameIncorrectQualifierCount(int expectedSlashCount) => new(
                 TextSpan,
                 "BCP169",
-                $"Expected resource name to contain {expectedSlashCount} \"/\" characters. The number of name segments must match the number of segments in the resource type.");
+                $"Expected resource name to contain {expectedSlashCount} \"/\" character(s). The number of name segments must match the number of segments in the resource type.");
 
             public ErrorDiagnostic ChildResourceNameContainsQualifiers() => new(
                 TextSpan,

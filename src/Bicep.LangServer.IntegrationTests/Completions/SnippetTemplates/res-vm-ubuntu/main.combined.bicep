@@ -1,3 +1,12 @@
+// $1 = ubuntuVM
+// $2 = 'name'
+// $3 = 'computerName'
+// $4 = 'adminUsername'
+// $5 = 'adminPassword'
+// $6 = 'name'
+// $7 = 'id'
+// $8 = 'storageUri'
+
 resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
   location: resourceGroup().location
@@ -38,4 +47,5 @@ resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
     }
   }
 }
+// Insert snippet here
 

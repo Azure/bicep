@@ -80,13 +80,20 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileName = Path.Combine(outputDirectory, "main.bicep");
             var bicepSourceFileName = Path.Combine("src", "Bicep.LangServer.IntegrationTests", pathPrefix, Path.GetRelativePath(outputDirectory, bicepFileName));
             File.Exists(bicepFileName).Should().BeTrue($"Snippet placeholder file \"{bicepSourceFileName}\" should be checked in");
+
             var bicepContents = await File.ReadAllTextAsync(bicepFileName);
+            bicepContents = StringUtils.ReplaceNewlines(bicepContents, "\n");
+            var cursor = bicepContents.IndexOf("// Insert snippet here");
 
             // Request the expected completion from the server, and ensure it is unique + valid
-            var completionText = await RequestSnippetCompletion(bicepFileName, completionData, bicepContents);
+            var completionText = await RequestSnippetCompletion(bicepFileName, completionData, bicepContents, cursor);
 
             // Replace all the placeholders with values from the placeholder file
             var replacementContents = SnippetCompletionTestHelper.GetSnippetTextAfterPlaceholderReplacements(completionText, bicepContents);
+
+            var bicepContentsReplaced = bicepContents.Substring(0, cursor) +
+                replacementContents +
+                bicepContents.Substring(cursor);
 
             using (new AssertionScope())
             {
@@ -94,11 +101,14 @@ namespace Bicep.LangServer.IntegrationTests
                 var combinedSourceFileName = Path.Combine("src", "Bicep.LangServer.IntegrationTests", pathPrefix, Path.GetRelativePath(outputDirectory, combinedFileName));
                 File.Exists(combinedFileName).Should().BeTrue($"Combined snippet file \"{combinedSourceFileName}\" should be checked in");
 
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(combinedFileName));
+                var combinedFileUri = PathHelper.FilePathToFileUrl(combinedFileName);
+                var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(new Dictionary<Uri, string> {
+                    [combinedFileUri] = bicepContentsReplaced,
+                }, combinedFileUri);
                 var compilation = new Compilation(TypeProvider, syntaxTreeGrouping);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(replacementContents, Environment.NewLine, diagnostics, diag => OutputHelper.GetDiagLoggingString(replacementContents, outputDirectory, diag));
+                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
                 File.WriteAllText(combinedFileName + ".actual", sourceTextWithDiags);
 
                 sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
@@ -109,7 +119,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile)
+        private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile, int cursor)
         {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
             var syntaxTree = SyntaxTree.Create(documentUri.ToUri(), placeholderFile);
@@ -121,7 +131,6 @@ namespace Bicep.LangServer.IntegrationTests
                 null,
                 TypeProvider);
 
-            var cursor = placeholderFile.IndexOf("// Insert snippet here");
             var completions = await client.RequestCompletion(new CompletionParams
             {
                 TextDocument = documentUri,
@@ -586,7 +595,7 @@ var obj2 = {| }
 var obj3 = |{ |}
 var obj4 = { | }|
 var obj5 = {|
-  | prop: true |
+  | prop: | true |
 |}
 var obj6 = { |
   prop  | : false
@@ -596,7 +605,7 @@ var obj6 = { |
         }
 
         [TestMethod]
-        public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldBeInserted_ReturnsEmptyCompletions()
+        public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
 var arr1 = [|]
@@ -615,7 +624,7 @@ var arr6 = [ |
         }
 
         [TestMethod]
-        public async Task RequestCompletionsInExpressions_AtPositionsWhereNodeShouldBeInserted_ReturnsEmptyCompletions()
+        public async Task RequestCompletionsInExpressions_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
 var unary = |! | true
@@ -624,6 +633,36 @@ var ternary = true | |?| | 'yes' | |:| | 'no'
 ";
             await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
         }
+
+        [TestMethod]
+        public async Task RequestCompletionsInTopLevelDeclarations_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+|param foo string
+v|ar expr = 1 + 2
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
+        [TestMethod]
+        public async Task RequestCompletionsInObjectValues_InStringSegments_ReturnsEmptyCompletions()
+        {
+            var fileWithCursors = @"
+var v2 = 'V2'
+
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: 'name'
+  location: resourceGroup().location
+  kind: 'S|torage${v2}'
+  sku: {
+    name: 'Premium_LRS'
+    tier: 'Premium'
+  }
+}
+";
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
+        }
+
 
         [TestMethod]
         public async Task RequestCompletions_MatchingNodeIsBooleanOrIntegerOrNullLiteral_ReturnsEmptyCompletions()

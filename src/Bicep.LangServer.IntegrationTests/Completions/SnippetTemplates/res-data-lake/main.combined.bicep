@@ -1,3 +1,8 @@
+// $1 = dataLakeStore
+// $2 = 'name'
+// $3 = 'Consumption'
+// $4 = 'Enabled'
+
 resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
   name: 'name'
   location: resourceGroup().location
@@ -6,4 +11,5 @@ resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
     encryptionState: 'Enabled'
   }
 }
+// Insert snippet here
 

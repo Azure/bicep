@@ -1638,10 +1638,9 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   }
   kind: 'StorageV2'
   properties: {
-    // #completionTest(17) -> symbolsPlusAccount
     networkAcls:  {
       virtualNetworkRules: [for rule in []: {
-        // #completionTest(12,15,31) -> symbolsPlusRule
+        // #completionTest(15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
 //@[16:19) [BCP142 (Error)] Property value for-expressions cannot be nested. (CodeDescription: none) |for|
@@ -1907,7 +1906,7 @@ resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1/res2'
-//@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" characters. The number of name segments must match the number of segments in the resource type. (CodeDescription: none) |'res1/res2'|
+//@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" character(s). The number of name segments must match the number of segments in the resource type. (CodeDescription: none) |'res1/res2'|
 }
 
 resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {

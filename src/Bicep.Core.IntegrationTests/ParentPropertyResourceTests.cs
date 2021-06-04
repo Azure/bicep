@@ -377,7 +377,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 0 \"/\" characters. The number of name segments must match the number of segments in the resource type."),
+                  ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 0 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
                 });
             }
 
@@ -391,9 +391,41 @@ resource res1 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" characters. The number of name segments must match the number of segments in the resource type."),
+                  ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
                 });
             }
+        }
+
+        [TestMethod]
+        public void Top_level_resource_should_have_appropriate_number_of_slashes_in_interpolated_names()
+        {
+
+            var result = CompilationHelper.Compile(TestTypeHelper.CreateEmptyProvider(),
+                ("main.bicep", @"
+param p1 string
+
+resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+  name: '${p1}/res2'
+}
+"));
+
+            // There are definitely too many '/' characters in the name - we should return an error.
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new [] {
+                ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 0 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
+            });
+
+            result = CompilationHelper.Compile(TestTypeHelper.CreateEmptyProvider(),
+                ("main.bicep", @"
+param p1 string
+
+resource res1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+  name: 'a${p1}b'
+}
+"));
+
+            // The name requires a single '/' character to be valid, but we cannot be sure that 'p1' doesn't contain it - we should not return an error.
+            result.Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
