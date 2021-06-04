@@ -1907,7 +1907,7 @@ resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1/res2'
-//@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" characters. The number of name segments must match the number of segments in the resource type. (CodeDescription: none) |'res1/res2'|
+//@[8:19) [BCP169 (Error)] Expected resource name to contain 0 "/" character(s). The number of name segments must match the number of segments in the resource type. (CodeDescription: none) |'res1/res2'|
 }
 
 resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
