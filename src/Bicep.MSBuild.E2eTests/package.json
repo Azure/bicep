@@ -8,7 +8,7 @@
     "@typescript-eslint/eslint-plugin": "^4.26.0",
     "@typescript-eslint/parser": "^4.26.0",
     "cross-spawn": "^7.0.3",
-    "jest": "^27.0.3",
+    "jest": "^27.0.4",
     "prettier": "^2.3.0",
     "typescript": "^4.3.2",
     "eslint": "^7.27.0",
