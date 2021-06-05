@@ -14,7 +14,7 @@
   "private": true,
   "devDependencies": {
     "@types/copy-webpack-plugin": "^8.0.0",
-    "@types/node": "^15.9.0",
+    "@types/node": "^15.12.0",
     "@types/pako": "^1.0.1",
     "@types/react": "^17.0.9",
     "@types/react-dom": "^17.0.6",
@@ -44,7 +44,7 @@
     "monaco-editor": "^0.24.0",
     "pako": "^2.0.3",
     "react": "^17.0.2",
-    "react-bootstrap": "^1.6.0",
+    "react-bootstrap": "^1.6.1",
     "react-dom": "^17.0.2",
     "react-monaco-editor": "^0.43.0"
   }

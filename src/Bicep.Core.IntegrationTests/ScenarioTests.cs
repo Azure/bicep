@@ -2272,5 +2272,24 @@ output v object = v
 
             result.Should().NotHaveDiagnosticsWithCodes(new[] { "BCP183" });
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/2895
+        public void Test_Issue2895()
+        {
+            var result = CompilationHelper.Compile(@"
+param vnetName string
+param subnetName string
+param vnetResourceGroupName string
+
+resource subnetRef 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
+  name: '${vnetName}/subnets/${subnetName}'
+  scope: resourceGroup(vnetResourceGroupName)
+}
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
+            });
+        }
     }
 }

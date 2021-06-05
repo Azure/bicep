@@ -1,3 +1,10 @@
+// $1 = 'name'
+// $2 = automationVariable
+// $3 = 'name'
+// $4 = 'value'
+// $5 = 'description'
+// $6 = true
+
 resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'
 }
@@ -11,4 +18,5 @@ resource automationVariable 'Microsoft.Automation/automationAccounts/variables@2
     isEncrypted: true
   }
 }
+// Insert snippet here
 
