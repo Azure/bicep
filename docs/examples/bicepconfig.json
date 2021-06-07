@@ -1,8 +1,6 @@
 {
   "analyzers": {
     "core": {
-      "verbose": true,
-      "enabled": true,
       "rules": {
         "no-hardcoded-env-urls": {
           "level": "warning"
