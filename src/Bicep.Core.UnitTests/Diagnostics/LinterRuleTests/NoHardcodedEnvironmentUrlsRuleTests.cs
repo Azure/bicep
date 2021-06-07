@@ -15,13 +15,13 @@ using System.Linq;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class EnvironmentUrlHardcodedRuleTests : LinterRuleTestsBase
+    public class NoHardcodedEnvironmentUrlsRuleTests : LinterRuleTestsBase
     {
         private void CompileAndTest(string text, int expectedDiagnosticCount)
         {
             using (new AssertionScope($"linter errors for this code:\n{text}\n"))
             {
-                var errors = GetDiagnostics(EnvironmentUrlHardcodedRule.Code, text);
+                var errors = GetDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text);
                 errors.Should().HaveCount(expectedDiagnosticCount);
             }
         }
