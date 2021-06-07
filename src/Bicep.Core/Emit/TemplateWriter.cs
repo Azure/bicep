@@ -9,6 +9,7 @@ using System.Linq;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Json;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Templates.Schema;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -92,17 +93,18 @@ namespace Bicep.Core.Emit
 
         public void Write(JsonTextWriter writer)
         {
-            JToken template = GenerateTemplateWithoutHash();
-            var templateHash = TemplateHelpers.ComputeTemplateHash(template);
-            if (template.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
+            // Template is used for calcualting template hash, template jtoken is used for writing to file.
+            var (template, templateJToken) = GenerateTemplateWithoutHash();
+            var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());
+            if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
             {
                 throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
             }
             generatorObject.Add("templateHash", templateHash);
-            template.WriteTo(writer);
+            templateJToken.WriteTo(writer);
         }
 
-        private JToken GenerateTemplateWithoutHash()
+        private (Template, JToken) GenerateTemplateWithoutHash()
         {
             // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject
             // instead of writing to a JsonWriter and converting it to JToken at the end
@@ -132,7 +134,8 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
 
-            return stringWriter.ToString().FromJson<JToken>();
+            var content = stringWriter.ToString();
+            return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
         private void EmitParametersIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
