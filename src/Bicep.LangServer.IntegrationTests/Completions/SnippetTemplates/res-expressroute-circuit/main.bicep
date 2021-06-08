@@ -1,10 +1,11 @@
-// $1 = 'expressRouteCircuit'
-// $2 = 'MeteredData'
-// $3 = 'Local'
-// $4 = 'Local_MeteredData'
-// $5 = 50
-// $6 = 'Amsterdam'
-// $7 = 'Telia Carrier'
-// $8 = false
+// $1 = expressRouteCircuit
+// $2 = 'name'
+// $3 = 'MeteredData'
+// $4 = 'Local'
+// $5 = 'Local_MeteredData'
+// $6 = 50
+// $7 = 'Amsterdam'
+// $8 = 'Telia Carrier'
+// $9 = false
 
 // Insert snippet here

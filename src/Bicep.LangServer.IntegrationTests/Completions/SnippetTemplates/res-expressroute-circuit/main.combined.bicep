@@ -1,18 +1,17 @@
 resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2020-11-01' = {
-  name: 'expressRouteCircuit'
+  name: 'name'
   location: resourceGroup().location
-  sku:{
-    family: 'MeteredData'
-    tier: 'Local'
-    name: 'Local_MeteredData'
+  sku: {
+    family: 'MeteredData'
+    tier: 'Local'
+    name: 'Local_MeteredData'
   }
-  properties:{
-    serviceProviderProperties:{
-      bandwidthInMbps: 50
-        peeringLocation: 'Amsterdam'
-      serviceProviderName: 'Telia Carrier'
+  properties: {
+    serviceProviderProperties: {
+      bandwidthInMbps: 50
+      peeringLocation: 'Amsterdam'
+      serviceProviderName: 'Telia Carrier'
     }
-    allowClassicOperations:false
+    allowClassicOperations: false
   }
 }
-
