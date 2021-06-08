@@ -10,7 +10,7 @@ namespace Bicep.LanguageServer
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static async Task Main()
             => await RunWithCancellationAsync(async cancellationToken =>
             {
                 // the server uses JSON-RPC over stdin & stdout to communicate,
