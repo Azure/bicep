@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -175,7 +176,8 @@ namespace Bicep.LanguageServer.Snippets
             }
 
             string path = Path.GetFullPath(manifestResourceName);
-            SyntaxTree syntaxTree = SyntaxTree.Create(new Uri(path), template);
+            Uri uri = PathHelper.FilePathToFileUrl(path);
+            SyntaxTree syntaxTree = SyntaxTree.Create(uri, template);
             SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
                 syntaxTree,
                 ImmutableHashSet.Create(syntaxTree),
