@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
+using System.Runtime;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.CommandLine.Arguments;
 using Bicep.Cli.Logging;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -37,6 +39,10 @@ namespace Bicep.Cli
 
         public static int Main(string[] args)
         {
+            string profilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), LanguageConstants.LanguageId);
+            Directory.CreateDirectory(profilePath);
+            ProfileOptimization.SetProfileRoot(profilePath);
+            ProfileOptimization.StartProfile("bicep.profile");
             Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
             BicepDeploymentsInterop.Initialize();
