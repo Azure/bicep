@@ -220,6 +220,10 @@
           "System.Runtime.CompilerServices.Unsafe": "4.5.3"
         }
       }
-    }
+    },
+    ".NETStandard,Version=v2.1/linux-musl-x64": {},
+    ".NETStandard,Version=v2.1/linux-x64": {},
+    ".NETStandard,Version=v2.1/osx-x64": {},
+    ".NETStandard,Version=v2.1/win-x64": {}
   }
 }

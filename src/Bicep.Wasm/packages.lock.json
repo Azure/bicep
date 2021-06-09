@@ -292,6 +292,10 @@
         }
       }
     },
-    ".NETCoreApp,Version=v5.0/browser-wasm": {}
+    ".NETCoreApp,Version=v5.0/browser-wasm": {},
+    ".NETCoreApp,Version=v5.0/linux-musl-x64": {},
+    ".NETCoreApp,Version=v5.0/linux-x64": {},
+    ".NETCoreApp,Version=v5.0/osx-x64": {},
+    ".NETCoreApp,Version=v5.0/win-x64": {}
   }
 }
