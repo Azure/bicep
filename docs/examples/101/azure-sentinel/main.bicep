@@ -11,6 +11,7 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
     }
   }
 }
+
 resource solution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
   name: 'SecurityInsights(${workspace.name})'
   location: location
