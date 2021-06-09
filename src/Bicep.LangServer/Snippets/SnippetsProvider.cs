@@ -175,9 +175,9 @@ namespace Bicep.LanguageServer.Snippets
                 return ImmutableDictionary.Create<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
             }
 
-            string path = Path.GetFullPath(manifestResourceName);
-            Uri uri = PathHelper.FilePathToFileUrl(path);
-            SyntaxTree syntaxTree = SyntaxTree.Create(uri, template);
+            // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid 
+            // cross platform issues, we'll provide a placeholder uri.
+            SyntaxTree syntaxTree = SyntaxTree.Create(new Uri("inmemory://snippet.bicep"), template);
             SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
                 syntaxTree,
                 ImmutableHashSet.Create(syntaxTree),
