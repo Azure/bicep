@@ -1,15 +1,21 @@
-param systemName string = uniqueString(resourceGroup().id)
+@description('Data Factory Name')
+param dataFactoryName string = 'datafactory${uniqueString(resourceGroup().id)}'
+
+@description('Location of the data factory. Currently, only East US, East US 2, and West Europe are supported.')
 param location string = resourceGroup().location
 
-var dataFactoryName = 'df${systemName}'
-var storageAccountName = 'sa${systemName}'
-var blobContainerName = 'blob${systemName}'
-var pipelineName = 'pipe${systemName}'
+@description('Name of the Azure storage account that contains the input/output data.')
+param storageAccountName string = 'storage${uniqueString(resourceGroup().id)}'
+
+@description('Name of the blob container in the Azure Storage account.')
+param blobContainerName string = 'blob${uniqueString(resourceGroup().id)}'
+
 var dataFactoryLinkedServiceName = 'ArmtemplateStorageLinkedService'
 var DataFactoryDataSetInName = 'ArmtemplateTestDatasetIn'
 var DataFactoryDataSetOutName = 'ArmtemplateTestDatasetOut'
+var pipelineName = 'ArmtemplateSampleCopyPipeline'
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -18,7 +24,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' =
   kind: 'StorageV2'
 }
 
-resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2020-08-01-preview' = {
+resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
   name: '${storageAccount.name}/default/${blobContainerName}'
 }
 
@@ -31,7 +37,8 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
 }
 
 resource dataFactoryLinkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-  name: '${dataFactory.name}/${dataFactoryLinkedServiceName}'
+  parent: dataFactory
+  name: dataFactoryLinkedServiceName
   properties: {
     type: 'AzureBlobStorage'
     typeProperties: {
@@ -41,7 +48,8 @@ resource dataFactoryLinkedService 'Microsoft.DataFactory/factories/linkedservice
 }
 
 resource dataFactoryDataSetIn 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
-  name: '${dataFactory.name}/${DataFactoryDataSetInName}'
+  parent: dataFactory
+  name: DataFactoryDataSetInName
   properties: {
     linkedServiceName: {
       referenceName: dataFactoryLinkedServiceName
@@ -57,12 +65,17 @@ resource dataFactoryDataSetIn 'Microsoft.DataFactory/factories/datasets@2018-06-
       }
     }
   }
+  dependsOn: [
+    dataFactoryLinkedService
+  ]
 }
+
 resource dataFactoryDataSetOut 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
-  name: '${dataFactory.name}/${DataFactoryDataSetOutName}'
+  parent: dataFactory
+  name: DataFactoryDataSetOutName
   properties: {
     linkedServiceName: {
-      referenceName: dataFactoryLinkedServiceName
+      referenceName: dataFactoryLinkedService.name
       type: 'LinkedServiceReference'
     }
     type: 'Binary'
@@ -77,7 +90,8 @@ resource dataFactoryDataSetOut 'Microsoft.DataFactory/factories/datasets@2018-06
 }
 
 resource dataFactoryPipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${dataFactory.name}/${pipelineName}'
+  parent: dataFactory
+  name: pipelineName
   properties: {
     activities: [
       any({
@@ -110,14 +124,12 @@ resource dataFactoryPipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-
           {
             referenceName: DataFactoryDataSetInName
             type: 'DatasetReference'
-            properties: {}
           }
         ]
         outputs: [
           {
             referenceName: DataFactoryDataSetOutName
             type: 'DatasetReference'
-            properties: {}
           }
         ]
       })
