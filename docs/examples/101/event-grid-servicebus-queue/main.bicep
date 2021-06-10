@@ -1,7 +1,16 @@
+@description('Name of the Service Bus namespace')
 param serviceBusNamespaceName string
+
+@description('Name of the Queue')
 param serviceBusQueueName string
+
+@description('The name of the Event Grid custom topic.')
 param eventGridTopicName string
+
+@description('The name of the Event Grid custom topic\'s subscription.')
 param eventGridSubscriptionName string
+
+@description('The location in which the Event Grid resources should be deployed.')
 param location string = resourceGroup().location
 
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2018-01-01-preview' = {
@@ -35,8 +44,8 @@ resource eventGridTopic 'Microsoft.EventGrid/topics@2020-06-01' = {
 }
 
 resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-01' = {
-  name: eventGridSubscriptionName
   scope: eventGridTopic
+  name: eventGridSubscriptionName
   properties: {
     destination: {
       endpointType: 'ServiceBusQueue'
