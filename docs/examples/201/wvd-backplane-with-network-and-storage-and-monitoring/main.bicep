@@ -57,7 +57,7 @@ resource rdmon 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: '${resourceGroupPrefrix}MONITOR'
   location: 'westeurope'
 }
-resource rgsig 'Microsoft.Resources/resourceGroups@2020-06-01'  = {
+resource rgsig 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: '${resourceGroupPrefrix}SIG'
   location: 'westeurope'
 }
@@ -135,8 +135,7 @@ module wvdsig './wvd-sig-module.bicep' = {
     imageDefinitionName: imageDefinitionName
     imageOffer: imageOffer
     imageSKU: imageSKU
-
-       }
+  }
 }
 
 //Create AIB Image and optionally build and add version to SIG Definition
@@ -151,6 +150,5 @@ module wvdaib './wvd-image-builder-module.bicep' = {
     imageSKU: imageSKU
     galleryImageId: wvdsig.outputs.wvdidoutput
     InvokeRunImageBuildThroughDeploymentScript: InvokeRunImageBuildThroughDeploymentScript
-
-     }
+  }
 }
