@@ -1,15 +1,32 @@
+@description('Location for all resources.')
 param location string = resourceGroup().location
-param virtualNetworkName string = 'Vnet'
+
+@description('Virtual network name')
+param virtualNetworkName string
+
+@description('Cosmos DB account name (must be lower-case)')
+@maxLength(44)
 param accountName string
 
 @allowed([
   'Enabled'
   'Disabled'
 ])
+@description('Enable public network traffic to access the account; if set to Disabled, public network traffic will be blocked even before the private endpoint is created')
 param publicNetworkAccess string = 'Enabled'
+
+@description('Private endpoint name')
 param privateEndpointName string
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+var locations = [
+  {
+    locationName: location
+    failoverPriority: 0
+    isZoneRedundant: false
+  }
+]
+
+resource virtualNetwork 'Microsoft.Network/VirtualNetworks@2020-06-01' = {
   name: virtualNetworkName
   location: location
   properties: {
@@ -30,22 +47,15 @@ resource subNet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   }
 }
 
-resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2021-01-15' = {
   name: accountName
   location: location
   kind: 'GlobalDocumentDB'
   properties: {
-    createMode: 'Default'
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'
     }
-    locations: [
-      {
-        locationName: location
-        failoverPriority: 0
-        isZoneRedundant: false
-      }
-    ]
+    locations: locations
     databaseAccountOfferType: 'Standard'
     enableAutomaticFailover: false
     enableMultipleWriteLocations: false
