@@ -12,9 +12,8 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2020-11-02-previe
 }
 
 //Create diagnostic settings for WVD Objects
-resource wvdhpds 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
-  scope: hostPool
-
+resource wvdhpds 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+  scope:hostPool
   name: 'hostpool-diag'
   properties: {
     workspaceId: logAnalyticsWorkspaceID
@@ -43,9 +42,8 @@ resource wvdhpds 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
   }
 }
 
-resource wvdwsds 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
-  scope: hostPool
-
+resource wvdwsds 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+  scope:workspace
   name: 'workspacepool-diag'
   properties: {
     workspaceId: logAnalyticsWorkspaceID

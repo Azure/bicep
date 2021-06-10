@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "3767956074323682348"
+      "version": "0.4.1.14562",
+      "templateHash": "10836905888303745746"
     }
   },
   "parameters": {
@@ -51,8 +51,7 @@
       "type": "string"
     },
     "logAnalyticslocation": {
-      "type": "string",
-      "defaultValue": "westeurope"
+      "type": "string"
     },
     "logAnalyticsWorkspaceSku": {
       "type": "string",
@@ -134,9 +133,6 @@
           "workspaceName": {
             "value": "[parameters('workspaceName')]"
           },
-          "logAnalyticsResourceGroup": {
-            "value": "[parameters('logAnalyticsResourceGroup')]"
-          },
           "wvdBackplaneResourceGroup": {
             "value": "[parameters('wvdBackplaneResourceGroup')]"
           }
@@ -147,8 +143,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "9997609816176615400"
+              "version": "0.4.1.14562",
+              "templateHash": "2717219523592077612"
             }
           },
           "parameters": {
@@ -167,9 +163,6 @@
               "type": "string"
             },
             "workspaceName": {
-              "type": "string"
-            },
-            "logAnalyticsResourceGroup": {
               "type": "string"
             },
             "wvdBackplaneResourceGroup": {
@@ -216,8 +209,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "dev",
-                      "templateHash": "6082030172290952535"
+                      "version": "0.4.1.14562",
+                      "templateHash": "4612671530529184096"
                     }
                   },
                   "parameters": {
@@ -267,7 +260,7 @@
                     {
                       "type": "microsoft.insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
-                      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+                      "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
                       "name": "workspacepool-diag",
                       "properties": {
                         "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",

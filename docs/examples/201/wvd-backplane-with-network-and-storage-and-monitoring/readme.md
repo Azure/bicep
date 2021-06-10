@@ -23,8 +23,11 @@ products:
 | `wvd-backplane-module.bicep`     | Bicep module that creates WVD Hostpool, AppGroup and Workspace                 |
 | `wvd-network-module.bicep`       | Bicep module that creates a vnet and subnet                                    |
 | `wvd-fileservices-module.bicep`  | Bicep module that creates a storage account and file share                     |
+| `wvd-fileservices-privateendpoint-module.bicep`         | Bicep module to configure PE and Private DNS for Storage Account to WVD VNET            |
 | `wvd-LogAnalytics.bicep`         | Bicep module that creates a log analytics workspace                            |
 | `wvd-monitor-diag.bicep`         | Bicep module that configured diagnostic settings for WVD components            |
+| `wvd-sig-module.bicep`         | Bicep module that creates Shared Image Gallery            |
+| `wvd-image-builder-module.bicep`         | Bicep module that configures Azure Image builder and creates template. (Option to run a deployment script to start image build off)            |
 | `main.json`                      | The JSON result after transpiling 1. Deploy-Modules.bicep                      |
 
 
@@ -60,6 +63,12 @@ This Bicep Module creates File Services components in Azure. The following objec
  - File Share
  This Bicep module can be run separatly or as part of main.bicep
 
+## wvd-fileservices-privateendpoint-module.bicep
+This Bicep Module creates a File Services Private Endpoint in Azure connected to the WVD VNET. The following objects are created.
+ - Private Endpoint
+ - Private DNS Zone Group
+ - Private DNS Zone
+ This Bicep module can be run separatly or as part of main.bicep
   ## wvd-LogAnalytics.bicep
 This Bicep Module creates Log Analytics components in Azure. The following objects are created.
  - Log Analytics Workspace
@@ -70,6 +79,28 @@ This Bicep Module configures Log Analytics diagnostics settings for WVD componen
 are configured for Log Analytics
  - Workspace
  - Hostpool
+ This Bicep module can be run separatly or as part of main.bicep
+
+  ## wvd-sig-module.bicep
+This Bicep Module creates a Shared Image Gallery and Image Definition. The following objects
+are created
+ - Shared Image Gallery
+ - Shared Image Gallery Image Definition
+ This Bicep module can be run separatly or as part of main.bicep
+
+  ## wvd-image-builder-module.bicep
+This Bicep Module creates components to run Azure Image Builder and update the Shared Image Gallery Image Definition. 
+The following objects are created
+ - User Assigned Managed Identity (UAMI)
+ - Role for the UAMI to Modify Gallery and Template Images
+ - Image Template - Optional Customisations to run Optimization and Teams install Powershell scripts (Uncomment if needed)
+ 
+ Optional
+ If parameter InvokeRunImageBuildThroughDeploymentScript in main.bicep is set to True then the following will be triggered:
+ - Additional Role definitions created and assigned to UAMI to be able to run Image Template builds, become a managed identity operator and create the relevant container and storage accounts needed to run a script deployment using the Microsoft.Resources/deploymentScripts provider.
+ - Using the Microsoft.Resources/deploymentScripts provider, runs a Powershell script to start the build of the AIB Image and upload the image once complete to the SIG definition created earlier.
+ 
+ - Shared Image Gallery Image Definition
  This Bicep module can be run separatly or as part of main.bicep
 
 ## main.json

@@ -4,14 +4,14 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "11359296141017610569"
+      "version": "0.4.1.14562",
+      "templateHash": "13046527719171275834"
     }
   },
   "parameters": {
     "resourceGroupPrefrix": {
       "type": "string",
-      "defaultValue": "NINJA-WE-P-RG-WVD-BICEP-WVD-"
+      "defaultValue": "BICEP-WVD-RG-"
     },
     "hostpoolName": {
       "type": "string",
@@ -55,7 +55,11 @@
     },
     "logAnalyticsWorkspaceName": {
       "type": "string",
-      "defaultValue": "myNinjaBicepLAWorkspace"
+      "defaultValue": "BicepLAWorkspace"
+    },
+    "logAnalyticslocation": {
+      "type": "string",
+      "defaultValue": "westeurope"
     },
     "vnetName": {
       "type": "string",
@@ -83,7 +87,7 @@
     },
     "storageaccountName": {
       "type": "string",
-      "defaultValue": "bicepsa"
+      "defaultValue": "[format('bicepsa{0}', string(5))]"
     },
     "storageaccountkind": {
       "type": "string",
@@ -201,6 +205,9 @@
           "logAnalyticsWorkspaceName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
+          "logAnalyticslocation": {
+            "value": "[parameters('logAnalyticslocation')]"
+          },
           "logAnalyticsResourceGroup": {
             "value": "[format('{0}MONITOR', parameters('resourceGroupPrefrix'))]"
           },
@@ -214,8 +221,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "3767956074323682348"
+              "version": "0.4.1.14562",
+              "templateHash": "10836905888303745746"
             }
           },
           "parameters": {
@@ -261,8 +268,7 @@
               "type": "string"
             },
             "logAnalyticslocation": {
-              "type": "string",
-              "defaultValue": "westeurope"
+              "type": "string"
             },
             "logAnalyticsWorkspaceSku": {
               "type": "string",
@@ -344,9 +350,6 @@
                   "workspaceName": {
                     "value": "[parameters('workspaceName')]"
                   },
-                  "logAnalyticsResourceGroup": {
-                    "value": "[parameters('logAnalyticsResourceGroup')]"
-                  },
                   "wvdBackplaneResourceGroup": {
                     "value": "[parameters('wvdBackplaneResourceGroup')]"
                   }
@@ -357,8 +360,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "dev",
-                      "templateHash": "9997609816176615400"
+                      "version": "0.4.1.14562",
+                      "templateHash": "2717219523592077612"
                     }
                   },
                   "parameters": {
@@ -377,9 +380,6 @@
                       "type": "string"
                     },
                     "workspaceName": {
-                      "type": "string"
-                    },
-                    "logAnalyticsResourceGroup": {
                       "type": "string"
                     },
                     "wvdBackplaneResourceGroup": {
@@ -426,8 +426,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "dev",
-                              "templateHash": "6082030172290952535"
+                              "version": "0.4.1.14562",
+                              "templateHash": "4612671530529184096"
                             }
                           },
                           "parameters": {
@@ -477,7 +477,7 @@
                             {
                               "type": "microsoft.insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
-                              "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+                              "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
                               "name": "workspacepool-diag",
                               "properties": {
                                 "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
@@ -557,8 +557,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "14974550603307173803"
+              "version": "0.4.1.14562",
+              "templateHash": "11349244562366094657"
             }
           },
           "parameters": {
@@ -654,8 +654,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "10122142263707335383"
+              "version": "0.4.1.14562",
+              "templateHash": "3987993707893160562"
             }
           },
           "parameters": {
@@ -747,8 +747,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "12847428002032474568"
+              "version": "0.4.1.14562",
+              "templateHash": "13756096927300783587"
             }
           },
           "parameters": {
@@ -886,8 +886,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "13198127151453916452"
+              "version": "0.4.1.14562",
+              "templateHash": "5073079281495202193"
             }
           },
           "parameters": {
@@ -972,6 +972,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "roleNameGalleryImage": {
+            "value": "BicepSIGRole"
+          },
           "siglocation": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}SIG', parameters('resourceGroupPrefrix'))), '2020-06-01', 'full').location]"
           },
@@ -997,8 +1000,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "17714227319258150588"
+              "version": "0.4.1.14562",
+              "templateHash": "8116026265092697619"
             }
           },
           "parameters": {
@@ -1006,8 +1009,7 @@
               "type": "string"
             },
             "roleNameGalleryImage": {
-              "type": "string",
-              "defaultValue": "[format('{0}{1}', 'BicepSIG', utcNow())]"
+              "type": "string"
             },
             "roleNameAIBCustom": {
               "type": "string",
@@ -1125,30 +1127,6 @@
                   "version": "latest"
                 },
                 "customize": [
-                  {
-                    "type": "PowerShell",
-                    "name": "OptimizeOS",
-                    "runElevated": true,
-                    "runAsSystem": true,
-                    "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1"
-                  },
-                  {
-                    "type": "WindowsRestart",
-                    "restartCheckCommand": "write-host 'restarting post Optimizations'",
-                    "restartTimeout": "5m"
-                  },
-                  {
-                    "type": "PowerShell",
-                    "name": "Install Teams",
-                    "runElevated": true,
-                    "runAsSystem": true,
-                    "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/2_installTeams.ps1"
-                  },
-                  {
-                    "type": "WindowsRestart",
-                    "restartCheckCommand": "write-host 'restarting post Teams Install'",
-                    "restartTimeout": "5m"
-                  },
                   {
                     "type": "WindowsUpdate",
                     "searchCriteria": "IsInstalled=0",

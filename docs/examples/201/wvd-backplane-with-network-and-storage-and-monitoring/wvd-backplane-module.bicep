@@ -11,7 +11,7 @@ param wvdbackplanelocation string = 'eastus'
 param hostPoolType string = 'pooled'
 param loadBalancerType string = 'BreadthFirst'
 param logAnalyticsWorkspaceName string
-param logAnalyticslocation string = 'westeurope'
+param logAnalyticslocation string
 param logAnalyticsWorkspaceSku string = 'pergb2018'
 param logAnalyticsResourceGroup string
 param wvdBackplaneResourceGroup string
@@ -61,7 +61,6 @@ module wvdmonitor './wvd-LogAnalytics.bicep' = {
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     hostpoolName: hp.name
     workspaceName: ws.name
-    logAnalyticsResourceGroup: logAnalyticsResourceGroup
     wvdBackplaneResourceGroup: wvdBackplaneResourceGroup
   }
 }

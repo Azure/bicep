@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 //Define WVD deployment parameters
-param resourceGroupPrefrix string = 'NINJA-WE-P-RG-WVD-BICEP-WVD-'
+param resourceGroupPrefrix string = 'BICEP-WVD-RG-'
 param hostpoolName string = 'myBicepHostpool'
 param hostpoolFriendlyName string = 'My Bicep deployed Hostpool'
 param appgroupName string = 'myBicepAppGroup'
@@ -12,7 +12,8 @@ param preferredAppGroupType string = 'Desktop'
 param wvdbackplanelocation string = 'eastus'
 param hostPoolType string = 'pooled'
 param loadBalancerType string = 'BreadthFirst'
-param logAnalyticsWorkspaceName string = 'myNinjaBicepLAWorkspace'
+param logAnalyticsWorkspaceName string = 'BicepLAWorkspace'
+param logAnalyticslocation string = 'westeurope'
 
 //Define Networking deployment parameters
 param vnetName string = 'bicep-vnet'
@@ -23,7 +24,7 @@ param subnetName string = 'bicep-subnet'
 
 //Define Azure Files deployment parameters
 param storageaccountlocation string = 'westeurope'
-param storageaccountName string = 'bicepsa'
+param storageaccountName string = 'bicepsa${string(5)}'
 param storageaccountkind string = 'FileStorage'
 param storgeaccountglobalRedundancy string = 'Premium_LRS'
 param fileshareFolderName string = 'profilecontainers'
@@ -56,7 +57,7 @@ resource rdmon 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: '${resourceGroupPrefrix}MONITOR'
   location: 'westeurope'
 }
-resource rgsig 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+resource rgsig 'Microsoft.Resources/resourceGroups@2020-06-01'  = {
   name: '${resourceGroupPrefrix}SIG'
   location: 'westeurope'
 }
@@ -78,6 +79,7 @@ module wvdbackplane './wvd-backplane-module.bicep' = {
     hostPoolType: hostPoolType
     loadBalancerType: loadBalancerType
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    logAnalyticslocation: logAnalyticslocation
     logAnalyticsResourceGroup: rdmon.name
     wvdBackplaneResourceGroup: rgwvd.name
   }
@@ -133,7 +135,8 @@ module wvdsig './wvd-sig-module.bicep' = {
     imageDefinitionName: imageDefinitionName
     imageOffer: imageOffer
     imageSKU: imageSKU
-  }
+
+       }
 }
 
 //Create AIB Image and optionally build and add version to SIG Definition
@@ -141,11 +144,13 @@ module wvdaib './wvd-image-builder-module.bicep' = {
   name: 'wvdimagebuilder${wvdsig.name}'
   scope: rgsig
   params: {
+    roleNameGalleryImage: '${'BicepSIGRole'}'
     siglocation: rgsig.location
     imagePublisher: imagePublisher
     imageOffer: imageOffer
     imageSKU: imageSKU
     galleryImageId: wvdsig.outputs.wvdidoutput
     InvokeRunImageBuildThroughDeploymentScript: InvokeRunImageBuildThroughDeploymentScript
-  }
+
+     }
 }

@@ -4,10 +4,9 @@ param logAnalyticslocation string = 'westeurope'
 param logAnalyticsWorkspaceSku string = 'pergb2018'
 param hostpoolName string
 param workspaceName string
-param logAnalyticsResourceGroup string
 param wvdBackplaneResourceGroup string
 
-//Creaye Log Analytics Workspace
+//Create Log Analytics Workspace
 resource wvdla 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsWorkspaceName
   location: logAnalyticslocation

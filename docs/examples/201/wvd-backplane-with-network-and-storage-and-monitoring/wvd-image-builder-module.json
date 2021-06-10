@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "17714227319258150588"
+      "version": "0.4.1.14562",
+      "templateHash": "8116026265092697619"
     }
   },
   "parameters": {
@@ -13,8 +13,7 @@
       "type": "string"
     },
     "roleNameGalleryImage": {
-      "type": "string",
-      "defaultValue": "[format('{0}{1}', 'BicepSIG', utcNow())]"
+      "type": "string"
     },
     "roleNameAIBCustom": {
       "type": "string",
@@ -132,30 +131,6 @@
           "version": "latest"
         },
         "customize": [
-          {
-            "type": "PowerShell",
-            "name": "OptimizeOS",
-            "runElevated": true,
-            "runAsSystem": true,
-            "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1"
-          },
-          {
-            "type": "WindowsRestart",
-            "restartCheckCommand": "write-host 'restarting post Optimizations'",
-            "restartTimeout": "5m"
-          },
-          {
-            "type": "PowerShell",
-            "name": "Install Teams",
-            "runElevated": true,
-            "runAsSystem": true,
-            "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/2_installTeams.ps1"
-          },
-          {
-            "type": "WindowsRestart",
-            "restartCheckCommand": "write-host 'restarting post Teams Install'",
-            "restartTimeout": "5m"
-          },
           {
             "type": "WindowsUpdate",
             "searchCriteria": "IsInstalled=0",
