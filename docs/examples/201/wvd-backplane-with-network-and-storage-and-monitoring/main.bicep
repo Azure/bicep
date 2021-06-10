@@ -24,7 +24,7 @@ param subnetName string = 'bicep-subnet'
 
 //Define Azure Files deployment parameters
 param storageaccountlocation string = 'westeurope'
-param storageaccountName string = 'bicepsa${string(5)}'
+param storageaccountName string = 'bicepsa' //Make unique before running
 param storageaccountkind string = 'FileStorage'
 param storgeaccountglobalRedundancy string = 'Premium_LRS'
 param fileshareFolderName string = 'profilecontainers'
