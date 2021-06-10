@@ -33,13 +33,17 @@ products:
 
 ## main.bicep
 This main bicep file creates a WVD environment in Azure, based on Bicep 0.2 creating Resource Groups, WVD Backplane
-components, Vnet with Subnet, Storage container with FileShare and Log Analytics Workspace. This main bicep files
-calls the bicep modules as outlined below.
+components, Vnet with Subnet, Storage container with FileShare, Storage Private Endpoint, Log Analytics Workspace, Shared Image Gallery and Azure Image Builder Template. 
+This main bicep file calls the bicep modules as outlined below.
  - wvd-backplane-module.bicep
  - wvd-network-module.bicep
  - wvd-fileservices-module.bicep
+ - wvd-fileservices-privateendpoint-module.bicep
  - wvd-LogAnalytics.bicep
  - wvd-monitor-diag.bicep
+ - wvd-sig-module.bicep
+ - wvd-image-builder-module.bicep
+ 
 
 The bicep file is based on Bicep 0.2
 
