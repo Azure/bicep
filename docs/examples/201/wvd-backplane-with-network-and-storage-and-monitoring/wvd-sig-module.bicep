@@ -5,7 +5,6 @@ param imageDefinitionName string
 param imageOffer string
 param imageSKU string
 
-
 //Create Shared Image Gallery
 resource wvdsig 'Microsoft.Compute/galleries@2020-09-30' = {
   name: sigName
