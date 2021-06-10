@@ -7,7 +7,6 @@ param accountName string
   'Disabled'
 ])
 param publicNetworkAccess string = 'Enabled'
-
 param privateEndpointName string
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
@@ -23,7 +22,8 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 }
 
 resource subNet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
-  name: '${virtualNetwork.name}/default'
+  parent: virtualNetwork
+  name: 'default'
   properties: {
     addressPrefix: '172.20.0.0/24'
     privateEndpointNetworkPolicies: 'Disabled'
