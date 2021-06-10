@@ -10,10 +10,10 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class ParametersMustBeUsedRule : LinterRuleBase
+    public sealed class NoUnusedParametersRule : LinterRuleBase
     {
         public new const string Code = "no-unused-params";
-        public ParametersMustBeUsedRule() : base(
+        public NoUnusedParametersRule() : base(
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
             docUri: new System.Uri("https://aka.ms/bicep/linter/no-unused-params"),

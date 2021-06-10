@@ -14,11 +14,11 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class InterpolateNotConcatRule : LinterRuleBase
+    public sealed class PreferInterpolationRule : LinterRuleBase
     {
         public new const string Code = "prefer-interpolation";
 
-        public InterpolateNotConcatRule() : base(
+        public PreferInterpolationRule() : base(
             code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
             docUri: new Uri("https://aka.ms/bicep/linter/prefer-interpolation"))
@@ -36,10 +36,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
 
             private const string concatFunction = "concat";
-            private readonly InterpolateNotConcatRule parent;
+            private readonly PreferInterpolationRule parent;
             private readonly SemanticModel model;
 
-            public Visitor(InterpolateNotConcatRule parent, SemanticModel model)
+            public Visitor(PreferInterpolationRule parent, SemanticModel model)
             {
                 this.parent = parent;
                 this.model = model;

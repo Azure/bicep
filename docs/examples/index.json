@@ -562,5 +562,9 @@
     {
         "filePath": "301/log-analytics-with-datasources-solutions/main.bicep",
         "description": "301/log-analytics-with-datasources-solutions"
+    },
+    {
+        "filePath": "301/automation-account-import-runbooks-and-modules/main.bicep",
+        "description": "301/automation-account-import-runbooks-and-modules"
     }
 ]

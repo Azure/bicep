@@ -1,3 +1,13 @@
+// $1 = 'name'
+// $2 = automationRunbook
+// $3 = 'name'
+// $4 = true
+// $5 = true
+// $6 = Script
+// $7 = 'uri'
+// $8 = '1.0.0.0'
+// $9 = 'description'
+
 resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'
 }
@@ -17,4 +27,5 @@ resource automationRunbook 'Microsoft.Automation/automationAccounts/runbooks@201
     description: 'description'
   }
 }
+// Insert snippet here
 

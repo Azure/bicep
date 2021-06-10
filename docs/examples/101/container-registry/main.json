@@ -5,15 +5,14 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15396773285907426422"
+      "templateHash": "11503319080602537143"
     }
   },
   "parameters": {
     "acrName": {
       "type": "string",
-      "defaultValue": "[format('acr001{0}', uniqueString(resourceGroup().id))]",
       "metadata": {
-        "description": "Specifies the name of the azure container registry."
+        "description": "Name of the azure container registry (must be globally unique)"
       },
       "maxLength": 50,
       "minLength": 5
@@ -22,14 +21,14 @@
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Enable admin user that have push / pull permission to the registry."
+        "description": "Enable an admin user that has push/pull permission to the registry."
       }
     },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
       "metadata": {
-        "description": "Specifies the Azure location where the container registry should be created."
+        "description": "Location for all resources."
       }
     },
     "acrSku": {
@@ -52,6 +51,10 @@
       "apiVersion": "2019-12-01-preview",
       "name": "[parameters('acrName')]",
       "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Container Registry",
+        "container.registry": "[parameters('acrName')]"
+      },
       "sku": {
         "name": "[parameters('acrSku')]"
       },

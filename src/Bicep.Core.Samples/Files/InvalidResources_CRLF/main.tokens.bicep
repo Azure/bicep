@@ -5534,8 +5534,6 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[12:13) Colon |:|
 //@[14:15) LeftBrace |{|
 //@[15:17) NewLine |\r\n|
-    // #completionTest(17) -> symbolsPlusAccount
-//@[48:50) NewLine |\r\n|
     networkAcls:  {
 //@[4:15) Identifier |networkAcls|
 //@[15:16) Colon |:|
@@ -5553,8 +5551,8 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[42:43) Colon |:|
 //@[44:45) LeftBrace |{|
 //@[45:47) NewLine |\r\n|
-        // #completionTest(12,15,31) -> symbolsPlusRule
-//@[55:57) NewLine |\r\n|
+        // #completionTest(15,31) -> symbolsPlusRule
+//@[52:54) NewLine |\r\n|
         id: '${account.name}-${account.location}'
 //@[8:10) Identifier |id|
 //@[10:11) Colon |:|

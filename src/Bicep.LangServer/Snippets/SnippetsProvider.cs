@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -174,8 +175,9 @@ namespace Bicep.LanguageServer.Snippets
                 return ImmutableDictionary.Create<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
             }
 
-            string path = Path.GetFullPath(manifestResourceName);
-            SyntaxTree syntaxTree = SyntaxTree.Create(new Uri(path), template);
+            // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid 
+            // cross platform issues, we'll provide a placeholder uri.
+            SyntaxTree syntaxTree = SyntaxTree.Create(new Uri("inmemory://snippet.bicep"), template);
             SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
                 syntaxTree,
                 ImmutableHashSet.Create(syntaxTree),

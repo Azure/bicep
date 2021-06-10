@@ -50,7 +50,9 @@ namespace Bicep.Core.Configuration
                 // last added json settings take precedent - add local settings last
                 if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
                 {
-                    configBuilder.AddJsonFile(localConfig, true, true);
+                    // we must set reloadOnChange to false here - if it set to true, then ConfigurationBuilder will initialize 
+                    // a FileSystem.Watcher instance - which has severe performance impact on non-Windows OSes (https://github.com/dotnet/runtime/issues/42036)
+                    configBuilder.AddJsonFile(localConfig, optional: true, reloadOnChange: false);
                     this.CustomSettingsFileName = localConfig;
                 }
                 else
