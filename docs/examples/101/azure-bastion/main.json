@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10553928772153811630"
+      "templateHash": "8065842825945648961"
     }
   },
   "parameters": {
@@ -26,13 +26,13 @@
     "vnetNewOrExisting": {
       "type": "string",
       "defaultValue": "new",
-      "metadata": {
-        "description": "Specify whether to provision new vnet or deploy to existing vnet"
-      },
       "allowedValues": [
         "new",
         "existing"
-      ]
+      ],
+      "metadata": {
+        "description": "Specify whether to provision new vnet or deploy to existing vnet"
+      }
     },
     "bastionSubnetIpPrefix": {
       "type": "string",
