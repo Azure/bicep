@@ -99,12 +99,14 @@ The following objects are created
  - Role for the UAMI to Modify Gallery and Template Images
  - Image Template - Optional Customisations to run Optimization and Teams install Powershell scripts (Uncomment if needed)
  
- Optional
+ Optional (Experimental)
  If parameter InvokeRunImageBuildThroughDeploymentScript in main.bicep is set to True then the following will be triggered:
  - Additional Role definitions created and assigned to UAMI to be able to run Image Template builds, become a managed identity operator and create the relevant container and storage accounts needed to run a script deployment using the Microsoft.Resources/deploymentScripts provider.
- - Using the Microsoft.Resources/deploymentScripts provider, runs a Powershell script to start the build of the AIB Image and upload the image once complete to the SIG definition created earlier.
+ - Using the Microsoft.Resources/deploymentScripts provider, spins up a container and storage account and runs a Powershell script to start the build of the AIB Image and upload the image once complete to the SIG definition created earlier.
+
+ This process may leave some orphaned Resource Groups from Image Builder in your Subscription usually prefixed 'IT_SIGRESOUCEGROUPNAME'. Make sure to delete if not required.
  
- - Shared Image Gallery Image Definition
+ 
  This Bicep module can be run separatly or as part of main.bicep
 
 ## main.json
