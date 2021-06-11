@@ -91,7 +91,7 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
       sku: imageSKU
       version: 'latest'
     }
-      /* Uncomment if you wish to run OS Optimize Script, Teams Installer and Windows Updates
+    /* Uncomment if you wish to run OS Optimize Script, Teams Installer and Windows Updates
     customize: [
       {
         type: 'PowerShell'
