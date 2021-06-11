@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2119250037277972635"
+      "templateHash": "7152076204828445146"
     }
   },
   "parameters": {
@@ -44,14 +44,14 @@
     "storageAccountType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
-      "metadata": {
-        "description": "Storage Account type"
-      },
       "allowedValues": [
         "Standard_LRS",
         "Standard_GRS",
         "Standard_RAGRS"
-      ]
+      ],
+      "metadata": {
+        "description": "Storage Account type"
+      }
     },
     "vnetName": {
       "type": "string",
