@@ -460,7 +460,7 @@ namespace Bicep.Decompiler
                             // we might be dealing with an array
                             break;
                         }
-                    
+
                         baseSyntax = TryParseStringExpression(expression);
                         break;
                     }
@@ -622,7 +622,9 @@ namespace Bicep.Decompiler
         {
             var decoratorsAndNewLines = new List<SyntaxBase>();
 
-            foreach (var parameterPropertyName in new[] { "minValue", "maxValue", "minLength", "maxLength", "allowedValues", "metadata" })
+            // Metadata/description should be first so users see what the parameter is for before
+            // seeing informationi such as a long list of allowed values
+            foreach (var parameterPropertyName in new[] { "metadata", "minValue", "maxValue", "minLength", "maxLength", "allowedValues" })
             {
                 if (TryParseJToken(value.Value?[parameterPropertyName]) is SyntaxBase expression)
                 {
