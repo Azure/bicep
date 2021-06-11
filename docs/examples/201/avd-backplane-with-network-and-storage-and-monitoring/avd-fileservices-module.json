@@ -4,14 +4,13 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "10122142263707335383"
+      "version": "0.4.1.14562",
+      "templateHash": "15643128858186186395"
     }
   },
   "parameters": {
     "storageaccountlocation": {
-      "type": "string",
-      "defaultValue": "westeurope"
+      "type": "string"
     },
     "storageaccountName": {
       "type": "string"

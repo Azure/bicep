@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "13198127151453916452"
+      "version": "0.4.1.14562",
+      "templateHash": "1461155323732828828"
     }
   },
   "parameters": {
@@ -68,7 +68,7 @@
     }
   ],
   "outputs": {
-    "wvdidoutput": {
+    "avdidoutput": {
       "type": "string",
       "value": "[resourceId('Microsoft.Compute/galleries/images', split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[0], split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[1])]"
     }

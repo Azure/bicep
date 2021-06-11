@@ -6,14 +6,14 @@ param imageOffer string
 param imageSKU string
 
 //Create Shared Image Gallery
-resource wvdsig 'Microsoft.Compute/galleries@2020-09-30' = {
+resource avdsig 'Microsoft.Compute/galleries@2020-09-30' = {
   name: sigName
   location: sigLocation
 }
 
 // Create SIG Image Definition
-resource wvdid 'Microsoft.Compute/galleries/images@2019-07-01' = {
-  name: '${wvdsig.name}/${imageDefinitionName}'
+resource avdid 'Microsoft.Compute/galleries/images@2019-07-01' = {
+  name: '${avdsig.name}/${imageDefinitionName}'
   location: sigLocation
   properties: {
     osType: 'Windows'
@@ -38,4 +38,4 @@ resource wvdid 'Microsoft.Compute/galleries/images@2019-07-01' = {
   tags: {}
 }
 
-output wvdidoutput string = wvdid.id
+output avdidoutput string = avdid.id

@@ -1,9 +1,9 @@
 param siglocation string
-param roleNameGalleryImage string = '${'BicepSIG'}${utcNow()}'
+param roleNameGalleryImage string
 param roleNameAIBCustom string = '${'BicepAIB'}${utcNow()}'
 param uamiName string = '${'AIBUser'}${utcNow()}'
 param uamiId string = resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', uamiName)
-param imageTemplateName string = '${'WVDBicep'}${utcNow()}'
+param imageTemplateName string = '${'AVDBicep'}${utcNow()}'
 param outputname string = uniqueString(resourceGroup().name)
 param galleryImageId string
 param imagePublisher string
@@ -42,7 +42,12 @@ resource gallerydef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
       resourceGroup().id
     ]
   }
+  dependsOn: [
+    managedidentity
+  ]
 }
+
+output sigid string = gallerydef.properties.roleName
 
 // Map Standard SIG Custom Role Assignment to Managed Identity
 resource galleryassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
@@ -52,6 +57,9 @@ resource galleryassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-p
     principalId: managedidentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
+  dependsOn: [
+    gallerydef
+  ]
 }
 
 // Create Image Template in SIG Resource Group
@@ -62,6 +70,7 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
   tags: {
     imagebuilderTemplate: 'AzureImageBuilderSIG'
     userIdentity: 'enabled'
+    UAMIRole: gallerydef.id
   }
   identity: {
     type: 'UserAssigned'
@@ -70,7 +79,7 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
     }
   }
   properties: {
-    buildTimeoutInMinutes: 120
+    buildTimeoutInMinutes: 180
     vmProfile: {
       vmSize: 'Standard_D2_v2'
       osDiskSizeGB: 127
@@ -82,13 +91,14 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
       sku: imageSKU
       version: 'latest'
     }
+      /* Uncomment if you wish to run OS Optimize Script, Teams Installer and Windows Updates
     customize: [
       {
         type: 'PowerShell'
         name: 'OptimizeOS'
         runElevated: true
         runAsSystem: true
-        scriptUri: 'https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1'
+        scriptUri: 'https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_AVD/1_Optimize_OS_for_AVD.ps1'
       }
       {
         type: 'WindowsRestart'
@@ -100,7 +110,7 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
         name: 'Install Teams'
         runElevated: true
         runAsSystem: true
-        scriptUri: 'https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/2_installTeams.ps1'
+        scriptUri: 'https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_AVD/2_installTeams.ps1'
       }
       {
         type: 'WindowsRestart'
@@ -117,19 +127,23 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
         updateLimit: 40
       }
     ]
+    */
     distribute: [
       {
         type: 'SharedImage'
         galleryImageId: galleryImageId
         runOutputName: outputname
         artifactTags: {
-          source: 'wvd10'
+          source: 'avd10'
           baseosimg: 'windows10'
         }
         replicationRegions: []
       }
     ]
   }
+  dependsOn: [
+    galleryassignment
+  ]
 }
 
 //Create Role Definition with Image Builder to run Image Build and execute container cli script

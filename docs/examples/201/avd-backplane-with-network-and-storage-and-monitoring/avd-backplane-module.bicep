@@ -1,4 +1,4 @@
-//Define WVD deployment parameters
+//Define AVD deployment parameters
 param hostpoolName string
 param hostpoolFriendlyName string
 param appgroupName string
@@ -7,19 +7,19 @@ param workspaceName string
 param workspaceNameFriendlyName string
 param applicationgrouptype string = 'Desktop'
 param preferredAppGroupType string = 'Desktop'
-param wvdbackplanelocation string = 'eastus'
+param avdbackplanelocation string = 'eastus'
 param hostPoolType string = 'pooled'
 param loadBalancerType string = 'BreadthFirst'
 param logAnalyticsWorkspaceName string
-param logAnalyticslocation string = 'westeurope'
+param logAnalyticslocation string
 param logAnalyticsWorkspaceSku string = 'pergb2018'
 param logAnalyticsResourceGroup string
-param wvdBackplaneResourceGroup string
+param avdBackplaneResourceGroup string
 
-//Create WVD Hostpool
+//Create AVD Hostpool
 resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
   name: hostpoolName
-  location: wvdbackplanelocation
+  location: avdbackplanelocation
   properties: {
     friendlyName: hostpoolFriendlyName
     hostPoolType: hostPoolType
@@ -28,10 +28,10 @@ resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
   }
 }
 
-//Create WVD AppGroup
+//Create AVD AppGroup
 resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
   name: appgroupName
-  location: wvdbackplanelocation
+  location: avdbackplanelocation
   properties: {
     friendlyName: appgroupNameFriendlyName
     applicationGroupType: applicationgrouptype
@@ -39,10 +39,10 @@ resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-previe
   }
 }
 
-//Create WVD Workspace
+//Create AVD Workspace
 resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
   name: workspaceName
-  location: wvdbackplanelocation
+  location: avdbackplanelocation
   properties: {
     friendlyName: workspaceNameFriendlyName
     applicationGroupReferences: [
@@ -52,7 +52,7 @@ resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
 }
 
 //Create Azure Log Analytics Workspace
-module wvdmonitor './wvd-LogAnalytics.bicep' = {
+module avdmonitor './avd-LogAnalytics.bicep' = {
   name: 'LAWorkspace'
   scope: resourceGroup(logAnalyticsResourceGroup)
   params: {
@@ -61,7 +61,6 @@ module wvdmonitor './wvd-LogAnalytics.bicep' = {
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     hostpoolName: hp.name
     workspaceName: ws.name
-    logAnalyticsResourceGroup: logAnalyticsResourceGroup
-    wvdBackplaneResourceGroup: wvdBackplaneResourceGroup
+    avdBackplaneResourceGroup: avdBackplaneResourceGroup
   }
 }

@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "17714227319258150588"
+      "version": "0.4.1.14562",
+      "templateHash": "4651884188456619268"
     }
   },
   "parameters": {
@@ -13,8 +13,7 @@
       "type": "string"
     },
     "roleNameGalleryImage": {
-      "type": "string",
-      "defaultValue": "[format('{0}{1}', 'BicepSIG', utcNow())]"
+      "type": "string"
     },
     "roleNameAIBCustom": {
       "type": "string",
@@ -30,7 +29,7 @@
     },
     "imageTemplateName": {
       "type": "string",
-      "defaultValue": "[format('{0}{1}', 'WVDBicep', utcNow())]"
+      "defaultValue": "[format('{0}{1}', 'AVDBicep', utcNow())]"
     },
     "outputname": {
       "type": "string",
@@ -87,7 +86,10 @@
         "assignableScopes": [
           "[resourceGroup().id]"
         ]
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
+      ]
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
@@ -110,7 +112,8 @@
       "location": "[parameters('siglocation')]",
       "tags": {
         "imagebuilderTemplate": "AzureImageBuilderSIG",
-        "userIdentity": "enabled"
+        "userIdentity": "enabled",
+        "UAMIRole": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]"
       },
       "identity": {
         "type": "UserAssigned",
@@ -119,7 +122,7 @@
         }
       },
       "properties": {
-        "buildTimeoutInMinutes": 120,
+        "buildTimeoutInMinutes": 180,
         "vmProfile": {
           "vmSize": "Standard_D2_v2",
           "osDiskSizeGB": 127
@@ -131,48 +134,13 @@
           "sku": "[parameters('imageSKU')]",
           "version": "latest"
         },
-        "customize": [
-          {
-            "type": "PowerShell",
-            "name": "OptimizeOS",
-            "runElevated": true,
-            "runAsSystem": true,
-            "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1"
-          },
-          {
-            "type": "WindowsRestart",
-            "restartCheckCommand": "write-host 'restarting post Optimizations'",
-            "restartTimeout": "5m"
-          },
-          {
-            "type": "PowerShell",
-            "name": "Install Teams",
-            "runElevated": true,
-            "runAsSystem": true,
-            "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/2_installTeams.ps1"
-          },
-          {
-            "type": "WindowsRestart",
-            "restartCheckCommand": "write-host 'restarting post Teams Install'",
-            "restartTimeout": "5m"
-          },
-          {
-            "type": "WindowsUpdate",
-            "searchCriteria": "IsInstalled=0",
-            "filters": [
-              "exclude:$_.Title -like '*Preview*'",
-              "include:$true"
-            ],
-            "updateLimit": 40
-          }
-        ],
         "distribute": [
           {
             "type": "SharedImage",
             "galleryImageId": "[parameters('galleryImageId')]",
             "runOutputName": "[parameters('outputname')]",
             "artifactTags": {
-              "source": "wvd10",
+              "source": "avd10",
               "baseosimg": "windows10"
             },
             "replicationRegions": []
@@ -180,6 +148,8 @@
         ]
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))))]",
+        "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
       ]
     },
@@ -262,5 +232,11 @@
         "[resourceId('Microsoft.VirtualMachineImages/imageTemplates', parameters('imageTemplateName'))]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "sigid": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))).roleName]"
+    }
+  }
 }

@@ -4,14 +4,14 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "11359296141017610569"
+      "version": "0.4.1.14562",
+      "templateHash": "12327920522392236541"
     }
   },
   "parameters": {
     "resourceGroupPrefrix": {
       "type": "string",
-      "defaultValue": "NINJA-WE-P-RG-WVD-BICEP-WVD-"
+      "defaultValue": "BICEP-AVD-RG-"
     },
     "hostpoolName": {
       "type": "string",
@@ -41,7 +41,7 @@
       "type": "string",
       "defaultValue": "Desktop"
     },
-    "wvdbackplanelocation": {
+    "avdbackplanelocation": {
       "type": "string",
       "defaultValue": "eastus"
     },
@@ -55,7 +55,11 @@
     },
     "logAnalyticsWorkspaceName": {
       "type": "string",
-      "defaultValue": "myNinjaBicepLAWorkspace"
+      "defaultValue": "BicepLAWorkspace"
+    },
+    "logAnalyticslocation": {
+      "type": "string",
+      "defaultValue": "westeurope"
     },
     "vnetName": {
       "type": "string",
@@ -83,7 +87,7 @@
     },
     "storageaccountName": {
       "type": "string",
-      "defaultValue": "bicepsa"
+      "defaultValue": "[format('bicepsa{0}', uniqueString(parameters('storageaccountlocation')))]"
     },
     "storageaccountkind": {
       "type": "string",
@@ -99,11 +103,11 @@
     },
     "sigName": {
       "type": "string",
-      "defaultValue": "BicepWVDSIG"
+      "defaultValue": "BicepavdSIG"
     },
     "imageDefinitionName": {
       "type": "string",
-      "defaultValue": "BicepAIBWVDImage"
+      "defaultValue": "BicepAIBavdImage"
     },
     "imagePublisher": {
       "type": "string",
@@ -157,7 +161,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "wvdbackplane",
+      "name": "avdbackplane",
       "resourceGroup": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -189,8 +193,8 @@
           "applicationgrouptype": {
             "value": "[parameters('preferredAppGroupType')]"
           },
-          "wvdbackplanelocation": {
-            "value": "[parameters('wvdbackplanelocation')]"
+          "avdbackplanelocation": {
+            "value": "[parameters('avdbackplanelocation')]"
           },
           "hostPoolType": {
             "value": "[parameters('hostPoolType')]"
@@ -201,10 +205,13 @@
           "logAnalyticsWorkspaceName": {
             "value": "[parameters('logAnalyticsWorkspaceName')]"
           },
+          "logAnalyticslocation": {
+            "value": "[parameters('logAnalyticslocation')]"
+          },
           "logAnalyticsResourceGroup": {
             "value": "[format('{0}MONITOR', parameters('resourceGroupPrefrix'))]"
           },
-          "wvdBackplaneResourceGroup": {
+          "avdBackplaneResourceGroup": {
             "value": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]"
           }
         },
@@ -214,8 +221,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "3767956074323682348"
+              "version": "0.4.1.14562",
+              "templateHash": "1230089394843247934"
             }
           },
           "parameters": {
@@ -245,7 +252,7 @@
               "type": "string",
               "defaultValue": "Desktop"
             },
-            "wvdbackplanelocation": {
+            "avdbackplanelocation": {
               "type": "string",
               "defaultValue": "eastus"
             },
@@ -261,8 +268,7 @@
               "type": "string"
             },
             "logAnalyticslocation": {
-              "type": "string",
-              "defaultValue": "westeurope"
+              "type": "string"
             },
             "logAnalyticsWorkspaceSku": {
               "type": "string",
@@ -271,7 +277,7 @@
             "logAnalyticsResourceGroup": {
               "type": "string"
             },
-            "wvdBackplaneResourceGroup": {
+            "avdBackplaneResourceGroup": {
               "type": "string"
             }
           },
@@ -281,7 +287,7 @@
               "type": "Microsoft.DesktopVirtualization/hostPools",
               "apiVersion": "2019-12-10-preview",
               "name": "[parameters('hostpoolName')]",
-              "location": "[parameters('wvdbackplanelocation')]",
+              "location": "[parameters('avdbackplanelocation')]",
               "properties": {
                 "friendlyName": "[parameters('hostpoolFriendlyName')]",
                 "hostPoolType": "[parameters('hostPoolType')]",
@@ -293,7 +299,7 @@
               "type": "Microsoft.DesktopVirtualization/applicationGroups",
               "apiVersion": "2019-12-10-preview",
               "name": "[parameters('appgroupName')]",
-              "location": "[parameters('wvdbackplanelocation')]",
+              "location": "[parameters('avdbackplanelocation')]",
               "properties": {
                 "friendlyName": "[parameters('appgroupNameFriendlyName')]",
                 "applicationGroupType": "[parameters('applicationgrouptype')]",
@@ -307,7 +313,7 @@
               "type": "Microsoft.DesktopVirtualization/workspaces",
               "apiVersion": "2019-12-10-preview",
               "name": "[parameters('workspaceName')]",
-              "location": "[parameters('wvdbackplanelocation')]",
+              "location": "[parameters('avdbackplanelocation')]",
               "properties": {
                 "friendlyName": "[parameters('workspaceNameFriendlyName')]",
                 "applicationGroupReferences": [
@@ -344,11 +350,8 @@
                   "workspaceName": {
                     "value": "[parameters('workspaceName')]"
                   },
-                  "logAnalyticsResourceGroup": {
-                    "value": "[parameters('logAnalyticsResourceGroup')]"
-                  },
-                  "wvdBackplaneResourceGroup": {
-                    "value": "[parameters('wvdBackplaneResourceGroup')]"
+                  "avdBackplaneResourceGroup": {
+                    "value": "[parameters('avdBackplaneResourceGroup')]"
                   }
                 },
                 "template": {
@@ -357,8 +360,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "dev",
-                      "templateHash": "9997609816176615400"
+                      "version": "0.4.1.14562",
+                      "templateHash": "18312149735836951675"
                     }
                   },
                   "parameters": {
@@ -379,10 +382,7 @@
                     "workspaceName": {
                       "type": "string"
                     },
-                    "logAnalyticsResourceGroup": {
-                      "type": "string"
-                    },
-                    "wvdBackplaneResourceGroup": {
+                    "avdBackplaneResourceGroup": {
                       "type": "string"
                     }
                   },
@@ -403,7 +403,7 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2019-10-01",
                       "name": "myBicepLADiag",
-                      "resourceGroup": "[parameters('wvdBackplaneResourceGroup')]",
+                      "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -426,8 +426,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "dev",
-                              "templateHash": "6082030172290952535"
+                              "version": "0.4.1.14562",
+                              "templateHash": "4612671530529184096"
                             }
                           },
                           "parameters": {
@@ -477,7 +477,7 @@
                             {
                               "type": "microsoft.insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
-                              "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+                              "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
                               "name": "workspacepool-diag",
                               "properties": {
                                 "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
@@ -527,7 +527,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "wvdnetwork",
+      "name": "avdnetwork",
       "resourceGroup": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -557,8 +557,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "14974550603307173803"
+              "version": "0.4.1.14562",
+              "templateHash": "2824711255064881987"
             }
           },
           "parameters": {
@@ -577,7 +577,7 @@
             },
             "subnetName": {
               "type": "string",
-              "defaultValue": "WVD"
+              "defaultValue": "AVD"
             }
           },
           "functions": [],
@@ -624,7 +624,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "wvdFileServices",
+      "name": "avdFileServices",
       "resourceGroup": "[format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -654,14 +654,13 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "10122142263707335383"
+              "version": "0.4.1.14562",
+              "templateHash": "15643128858186186395"
             }
           },
           "parameters": {
             "storageaccountlocation": {
-              "type": "string",
-              "defaultValue": "westeurope"
+              "type": "string"
             },
             "storageaccountName": {
               "type": "string"
@@ -732,13 +731,13 @@
             "value": "pep-sto"
           },
           "storageAccountId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdFileServices'), '2019-10-01').outputs.storageAccountId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdFileServices'), '2019-10-01').outputs.storageAccountId.value]"
           },
           "vnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdnetwork'), '2019-10-01').outputs.vnetId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork'), '2019-10-01').outputs.vnetId.value]"
           },
           "subnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdnetwork'), '2019-10-01').outputs.subnetId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork'), '2019-10-01').outputs.subnetId.value]"
           }
         },
         "template": {
@@ -747,8 +746,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "12847428002032474568"
+              "version": "0.4.1.14562",
+              "templateHash": "13756096927300783587"
             }
           },
           "parameters": {
@@ -845,15 +844,15 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}NETWORK', parameters('resourceGroupPrefrix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdFileServices')]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdnetwork')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdFileServices')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}NETWORK', parameters('resourceGroupPrefrix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "wvdsig",
+      "name": "avdsig",
       "resourceGroup": "[format('{0}SIG', parameters('resourceGroupPrefrix'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -886,8 +885,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "13198127151453916452"
+              "version": "0.4.1.14562",
+              "templateHash": "1461155323732828828"
             }
           },
           "parameters": {
@@ -950,7 +949,7 @@
             }
           ],
           "outputs": {
-            "wvdidoutput": {
+            "avdidoutput": {
               "type": "string",
               "value": "[resourceId('Microsoft.Compute/galleries/images', split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[0], split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[1])]"
             }
@@ -964,7 +963,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "[format('wvdimagebuilder{0}', 'wvdsig')]",
+      "name": "[format('avdimagebuilder{0}', 'avdsig')]",
       "resourceGroup": "[format('{0}SIG', parameters('resourceGroupPrefrix'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -972,6 +971,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "roleNameGalleryImage": {
+            "value": "BicepSIGRole"
+          },
           "siglocation": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}SIG', parameters('resourceGroupPrefrix'))), '2020-06-01', 'full').location]"
           },
@@ -985,7 +987,7 @@
             "value": "[parameters('imageSKU')]"
           },
           "galleryImageId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}SIG', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdsig'), '2019-10-01').outputs.wvdidoutput.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}SIG', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdsig'), '2019-10-01').outputs.avdidoutput.value]"
           },
           "InvokeRunImageBuildThroughDeploymentScript": {
             "value": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]"
@@ -997,8 +999,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "17714227319258150588"
+              "version": "0.4.1.14562",
+              "templateHash": "4651884188456619268"
             }
           },
           "parameters": {
@@ -1006,8 +1008,7 @@
               "type": "string"
             },
             "roleNameGalleryImage": {
-              "type": "string",
-              "defaultValue": "[format('{0}{1}', 'BicepSIG', utcNow())]"
+              "type": "string"
             },
             "roleNameAIBCustom": {
               "type": "string",
@@ -1023,7 +1024,7 @@
             },
             "imageTemplateName": {
               "type": "string",
-              "defaultValue": "[format('{0}{1}', 'WVDBicep', utcNow())]"
+              "defaultValue": "[format('{0}{1}', 'AVDBicep', utcNow())]"
             },
             "outputname": {
               "type": "string",
@@ -1080,7 +1081,10 @@
                 "assignableScopes": [
                   "[resourceGroup().id]"
                 ]
-              }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
+              ]
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
@@ -1103,7 +1107,8 @@
               "location": "[parameters('siglocation')]",
               "tags": {
                 "imagebuilderTemplate": "AzureImageBuilderSIG",
-                "userIdentity": "enabled"
+                "userIdentity": "enabled",
+                "UAMIRole": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]"
               },
               "identity": {
                 "type": "UserAssigned",
@@ -1112,7 +1117,7 @@
                 }
               },
               "properties": {
-                "buildTimeoutInMinutes": 120,
+                "buildTimeoutInMinutes": 180,
                 "vmProfile": {
                   "vmSize": "Standard_D2_v2",
                   "osDiskSizeGB": 127
@@ -1124,48 +1129,13 @@
                   "sku": "[parameters('imageSKU')]",
                   "version": "latest"
                 },
-                "customize": [
-                  {
-                    "type": "PowerShell",
-                    "name": "OptimizeOS",
-                    "runElevated": true,
-                    "runAsSystem": true,
-                    "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1"
-                  },
-                  {
-                    "type": "WindowsRestart",
-                    "restartCheckCommand": "write-host 'restarting post Optimizations'",
-                    "restartTimeout": "5m"
-                  },
-                  {
-                    "type": "PowerShell",
-                    "name": "Install Teams",
-                    "runElevated": true,
-                    "runAsSystem": true,
-                    "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/2_installTeams.ps1"
-                  },
-                  {
-                    "type": "WindowsRestart",
-                    "restartCheckCommand": "write-host 'restarting post Teams Install'",
-                    "restartTimeout": "5m"
-                  },
-                  {
-                    "type": "WindowsUpdate",
-                    "searchCriteria": "IsInstalled=0",
-                    "filters": [
-                      "exclude:$_.Title -like '*Preview*'",
-                      "include:$true"
-                    ],
-                    "updateLimit": 40
-                  }
-                ],
                 "distribute": [
                   {
                     "type": "SharedImage",
                     "galleryImageId": "[parameters('galleryImageId')]",
                     "runOutputName": "[parameters('outputname')]",
                     "artifactTags": {
-                      "source": "wvd10",
+                      "source": "avd10",
                       "baseosimg": "windows10"
                     },
                     "replicationRegions": []
@@ -1173,6 +1143,8 @@
                 ]
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))))]",
+                "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
               ]
             },
@@ -1255,12 +1227,18 @@
                 "[resourceId('Microsoft.VirtualMachineImages/imageTemplates', parameters('imageTemplateName'))]"
               ]
             }
-          ]
+          ],
+          "outputs": {
+            "sigid": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))).roleName]"
+            }
+          }
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}SIG', parameters('resourceGroupPrefrix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}SIG', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'wvdsig')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}SIG', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdsig')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}SIG', parameters('resourceGroupPrefrix')))]"
       ]
     }
   ]
