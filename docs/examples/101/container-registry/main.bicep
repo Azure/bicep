@@ -1,13 +1,12 @@
-// params
 @minLength(5)
 @maxLength(50)
-@description('Specifies the name of the azure container registry.')
-param acrName string = 'acr001${uniqueString(resourceGroup().id)}' // must be globally unique
+@description('Name of the azure container registry (must be globally unique)')
+param acrName string
 
-@description('Enable admin user that have push / pull permission to the registry.')
+@description('Enable an admin user that has push/pull permission to the registry.')
 param acrAdminUserEnabled bool = false
 
-@description('Specifies the Azure location where the container registry should be created.')
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 @allowed([
@@ -22,6 +21,10 @@ param acrSku string = 'Basic'
 resource acr 'Microsoft.ContainerRegistry/registries@2019-12-01-preview' = {
   name: acrName
   location: location
+  tags: {
+    displayName: 'Container Registry'
+    'container.registry': acrName
+  }
   sku: {
     name: acrSku
   }
