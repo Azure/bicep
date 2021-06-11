@@ -5,9 +5,9 @@ using System.IO;
 using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Utils;
 
 namespace Bicep.LanguageServer
 {
@@ -16,8 +16,7 @@ namespace Bicep.LanguageServer
         public static async Task Main(string[] args)
             => await RunWithCancellationAsync(async cancellationToken =>
             {
-                string profilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), LanguageConstants.LanguageId);
-                Directory.CreateDirectory(profilePath);
+                string profilePath = MulticoreJIT.GetMulticoreJITPath();
                 ProfileOptimization.SetProfileRoot(profilePath);
                 ProfileOptimization.StartProfile("bicepserver.profile");
 
