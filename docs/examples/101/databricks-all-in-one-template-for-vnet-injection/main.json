@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "411181998504174548"
+      "templateHash": "6507440477852167678"
     }
   },
   "parameters": {
@@ -33,20 +33,20 @@
     "pricingTier": {
       "type": "string",
       "defaultValue": "premium",
-      "metadata": {
-        "description": "The pricing tier of workspace."
-      },
       "allowedValues": [
         "trial",
         "standard",
         "premium"
-      ]
+      ],
+      "metadata": {
+        "description": "The pricing tier of workspace."
+      }
     },
     "privateSubnetCidr": {
       "type": "string",
       "defaultValue": "10.179.0.0/18",
       "metadata": {
-        "description": "Cidr range for the private subnet."
+        "description": "CIDR range for the private subnet."
       }
     },
     "privateSubnetName": {
@@ -60,7 +60,7 @@
       "type": "string",
       "defaultValue": "10.179.64.0/18",
       "metadata": {
-        "description": "Cidr range for the public subnet.."
+        "description": "CIDR range for the public subnet.."
       }
     },
     "publicSubnetName": {
@@ -74,7 +74,7 @@
       "type": "string",
       "defaultValue": "10.179.0.0/16",
       "metadata": {
-        "description": "Cidr range for the vnet."
+        "description": "CIDR range for the vnet."
       }
     },
     "vnetName": {
