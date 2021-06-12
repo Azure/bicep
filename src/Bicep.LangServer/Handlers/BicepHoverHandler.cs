@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer.Handlers
                     return CodeBlock(GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
 
                 case PropertySymbol property:
-                    var markdown = CodeBlock($"{property.Name}: {property.Type}\n");
+                    var markdown = $"{CodeBlock($"{property.Name}: {property.Type}")}\n";
                     if (property.Description is not null)
                     {
                         markdown += $"{property.Description}\n";
