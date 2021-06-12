@@ -1,16 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "2994900047115443601"
-    }
-  },
   "parameters": {
     "targetMG": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Target Management Group"
+      }
     },
     "allowedLocations": {
       "type": "array",
@@ -18,10 +14,12 @@
         "australiaeast",
         "australiasoutheast",
         "australiacentral"
-      ]
+      ],
+      "metadata": {
+        "description": "An array of the allowed locations, all other locations will be denied by the created policy."
+      }
     }
   },
-  "functions": [],
   "variables": {
     "mgScope": "[tenantResourceId('Microsoft.Management/managementGroups', parameters('targetMG'))]",
     "policyDefinition": "LocationRestriction"
@@ -29,12 +27,13 @@
   "resources": [
     {
       "type": "Microsoft.Authorization/policyDefinitions",
-      "apiVersion": "2020-03-01",
       "name": "[variables('policyDefinition')]",
+      "apiVersion": "2019-09-01",
       "properties": {
         "policyType": "Custom",
         "mode": "All",
-        "parameters": {},
+        "parameters": {
+        },
         "policyRule": {
           "if": {
             "not": {
@@ -50,15 +49,15 @@
     },
     {
       "type": "Microsoft.Authorization/policyAssignments",
-      "apiVersion": "2020-03-01",
       "name": "location-lock",
+      "apiVersion": "2019-09-01",
+      "dependsOn": [
+        "[variables('policyDefinition')]"
+      ],
       "properties": {
         "scope": "[variables('mgScope')]",
         "policyDefinitionId": "[extensionResourceId(variables('mgScope'), 'Microsoft.Authorization/policyDefinitions', variables('policyDefinition'))]"
-      },
-      "dependsOn": [
-        "[format('Microsoft.Authorization/policyDefinitions/{0}', variables('policyDefinition'))]"
-      ]
+      }
     }
   ]
 }
