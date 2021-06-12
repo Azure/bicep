@@ -10,10 +10,9 @@ namespace Bicep.Cli.Logging
     public interface IDiagnosticLogger
     {
         void LogDiagnostic(Uri fileUri, IDiagnostic diagnostic, ImmutableArray<int> lineStarts);
-
+        void LogSummary();
         bool HasLoggedErrors { get; }
         
-        string LogSummary { get; }
     }
 }
 

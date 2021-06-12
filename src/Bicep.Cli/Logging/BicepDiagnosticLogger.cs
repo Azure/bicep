@@ -41,7 +41,12 @@ namespace Bicep.Cli.Logging
             if (diagnostic.Level == DiagnosticLevel.Error) { this.ErrorCount++; }
         }
 
-        public string LogSummary => $"Build {(this.HasLoggedErrors ? "failed" : "succeeded")}: {this.WarningCount} Warnings, {this.ErrorCount} Errors";
+        public void LogSummary() 
+        {
+            var summary = $"Build {(this.HasLoggedErrors ? "failed" : "succeeded")}: {this.WarningCount} Warning(s), {this.ErrorCount} Error(s)";
+            
+            this.logger.Log(ToLogLevel(DiagnosticLevel.Info), summary);
+        }
         public bool HasLoggedErrors { get; private set; }
         private int ErrorCount { get; set; }
         private int WarningCount { get; set; }

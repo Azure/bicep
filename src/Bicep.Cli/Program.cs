@@ -131,6 +131,8 @@ namespace Bicep.Cli
                 BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultBuildOutputPath(bicepPath));
             }
 
+            diagnosticLogger.LogSummary();
+            
             // return non-zero exit code on errors
             return diagnosticLogger.HasLoggedErrors ? 1 : 0;
         }
@@ -163,8 +165,6 @@ namespace Bicep.Cli
                 using var outputStream = CreateFileStream(outputPath);
                 emitter.Emit(outputStream);
             }
-
-            this.outputWriter.WriteLine(logger.LogSummary);
         }
 
         private void BuildToStdout(IDiagnosticLogger logger, string bicepPath)
@@ -183,10 +183,6 @@ namespace Bicep.Cli
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), this.assemblyFileVersion);
 
                 emitter.Emit(writer);
-            }
-            else 
-            {
-                this.outputWriter.WriteLine(logger.LogSummary);
             }
         }
 
