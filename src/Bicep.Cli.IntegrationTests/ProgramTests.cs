@@ -131,7 +131,7 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(0);
-                output.Should().BeEmpty();
+                output.Should().MatchRegex(@"Build (failed|succeeded): \d* Warnings, \d* Errors"); 
                 AssertNoErrors(error, dataSet.Name);
             }
 
@@ -193,7 +193,7 @@ namespace Bicep.Cli.IntegrationTests
             });
 
             result.Should().Be(1);
-            output.Should().BeEmpty();
+            output.Should().MatchRegex(@"Build (failed|succeeded): \d* Warnings, \d* Errors"); 
             error.Should().NotBeEmpty();
 
             var diagnostics = GetAllDiagnostics(bicepFilePath);
@@ -214,7 +214,7 @@ namespace Bicep.Cli.IntegrationTests
             });
 
             result.Should().Be(1);
-            output.Should().BeEmpty();
+            output.Should().MatchRegex(@"Build (failed|succeeded): \d* Warnings, \d* Errors"); 
             error.Should().NotBeEmpty();
 
             var diagnostics = GetAllDiagnostics(bicepFilePath);
