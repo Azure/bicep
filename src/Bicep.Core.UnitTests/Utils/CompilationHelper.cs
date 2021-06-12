@@ -13,6 +13,7 @@ using System;
 using Bicep.Core.TypeSystem;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Syntax;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -28,9 +29,15 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static CompilationResult Compile(IResourceTypeProvider resourceTypeProvider, params (string fileName, string fileContents)[] files)
         {
-            var (uriDictionary, entryUri) = CreateFileDictionary(files);
-            
-            var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(uriDictionary, entryUri);
+            var bicepFiles = files.Where(x => x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase));
+            bicepFiles.Select(x => x.fileName).Should().Contain("main.bicep");
+
+            var systemFiles = files.Where(x => !x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase));
+
+            var (uriDictionary, entryUri) = CreateFileDictionary(bicepFiles);
+            var fileResolver = new InMemoryFileResolver(CreateFileDictionary(systemFiles).files);
+
+            var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver);
 
             return Compile(new Compilation(resourceTypeProvider, syntaxTreeGrouping));
         }
@@ -41,15 +48,12 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(string fileContents)
             => Compile(("main.bicep", fileContents));
 
-        private static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(params (string fileName, string fileContents)[] files)
+        private static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string fileName, string fileContents)> files)
         {
-            files.Select(x => x.fileName).Should().Contain("main.bicep");
-
             var uriDictionary = files.ToDictionary(
                 x => new Uri($"file:///path/to/{x.fileName}"),
                 x => x.fileContents);
             var entryUri = new Uri($"file:///path/to/main.bicep");
-
             return (uriDictionary, entryUri);
         }
 

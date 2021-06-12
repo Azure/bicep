@@ -34,17 +34,17 @@ module
 
 // #completionTest(24,25) -> moduleObject
 module missingValue '' = 
-//@[20:22) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[20:22) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[25:25) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {
-//@[28:47) [BCP092 (Error)] String interpolation is not supported in module paths. (CodeDescription: none) |'./${interp}.bicep'|
+//@[28:47) [BCP092 (Error)] String interpolation is not supported in file paths. (CodeDescription: none) |'./${interp}.bicep'|
 
 }
 
 module moduleWithConditionAndInterpPath './${interp}.bicep' = if (true) {
-//@[40:59) [BCP092 (Error)] String interpolation is not supported in module paths. (CodeDescription: none) |'./${interp}.bicep'|
+//@[40:59) [BCP092 (Error)] String interpolation is not supported in file paths. (CodeDescription: none) |'./${interp}.bicep'|
 
 }
 
@@ -213,23 +213,23 @@ module modCycle './cycle.bicep' = {
 }
 
 module moduleWithEmptyPath '' = {
-//@[27:29) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[27:29) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 }
 
 module moduleWithAbsolutePath '/abc/def.bicep' = {
-//@[30:46) [BCP051 (Error)] The specified module path begins with "/". Module files must be referenced using relative paths. (CodeDescription: none) |'/abc/def.bicep'|
+//@[30:46) [BCP051 (Error)] The specified path begins with "/". Files must be referenced using relative paths. (CodeDescription: none) |'/abc/def.bicep'|
 }
 
 module moduleWithBackslash 'child\\file.bicep' = {
-//@[27:46) [BCP098 (Error)] The specified module path contains a "\" character. Use "/" instead as the directory separator character. (CodeDescription: none) |'child\\file.bicep'|
+//@[27:46) [BCP098 (Error)] The specified file path contains a "\" character. Use "/" instead as the directory separator character. (CodeDescription: none) |'child\\file.bicep'|
 }
 
 module moduleWithInvalidChar 'child/fi|le.bicep' = {
-//@[29:48) [BCP085 (Error)] The specified module path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". (CodeDescription: none) |'child/fi|le.bicep'|
+//@[29:48) [BCP085 (Error)] The specified file path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". (CodeDescription: none) |'child/fi|le.bicep'|
 }
 
 module moduleWithInvalidTerminatorChar 'child/test.' = {
-//@[39:52) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'child/test.'|
+//@[39:52) [BCP086 (Error)] The specified file path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'child/test.'|
 }
 
 module moduleWithValidScope './empty.bicep' = {
@@ -362,27 +362,27 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionB ''
-//@[19:21) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[21:21) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionC '' =
-//@[19:21) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[23:23) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionD '' = {}
-//@[19:21) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionE '' = {
-//@[19:21) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
   name: 'hello'
 }
 
 // #completionTest(26, 27, 28, 29) -> cwdFileCompletions
 module cwdFileCompletionA '.'
-//@[26:29) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'.'|
+//@[26:29) [BCP086 (Error)] The specified file path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'.'|
 //@[29:29) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(26, 27) -> cwdMCompletions

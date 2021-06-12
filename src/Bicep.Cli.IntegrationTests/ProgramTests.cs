@@ -339,7 +339,7 @@ output myOutput string = 'hello!'
 
         private static IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
         {
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(BicepTestConstants.FileResolver, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), syntaxTreeGrouping);
 
             var output = new List<string>();

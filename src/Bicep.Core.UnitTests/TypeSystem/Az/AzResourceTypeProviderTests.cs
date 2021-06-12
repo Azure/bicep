@@ -13,6 +13,8 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.Extensions;
+using Moq;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
@@ -105,7 +107,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_should_warn_for_missing_resource_types()
         {
             Compilation createCompilation(string program)
-                => new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), SyntaxTreeGroupingFactory.CreateFromText(program));
+                => new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), SyntaxTreeGroupingFactory.CreateFromText(program, new Mock<IFileResolver>().Object));
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
@@ -122,7 +124,7 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
         public void AzResourceTypeProvider_should_error_for_top_level_and_warn_for_nested_properties()
         {
             Compilation createCompilation(string program)
-                => new Compilation(BuiltInTestTypes.Create(), SyntaxTreeGroupingFactory.CreateFromText(program));
+                => new Compilation(BuiltInTestTypes.Create(), SyntaxTreeGroupingFactory.CreateFromText(program, new Mock<IFileResolver>().Object));
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

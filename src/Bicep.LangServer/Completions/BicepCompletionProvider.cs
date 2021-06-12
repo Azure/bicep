@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
-        private IFileResolver FileResolver;
+        private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
         private readonly ITelemetryProvider TelemetryProvider;
 
@@ -263,8 +263,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (FileResolver.TryResolveModulePath(model.SyntaxTree.FileUri, ".") is not { } cwdUri
-                || FileResolver.TryResolveModulePath(cwdUri, entered) is not { } query)
+            if (FileResolver.TryResolveFilePath(model.SyntaxTree.FileUri, ".") is not { } cwdUri
+                || FileResolver.TryResolveFilePath(cwdUri, entered) is not { } query)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -279,7 +279,7 @@ namespace Bicep.LanguageServer.Completions
                 files = FileResolver.GetFiles(query, string.Empty);
                 dirs = FileResolver.GetDirectories(query, string.Empty);
             }
-            else if (FileResolver.TryResolveModulePath(query, ".") is { } queryParent)
+            else if (FileResolver.TryResolveFilePath(query, ".") is { } queryParent)
             {
                 files = FileResolver.GetFiles(queryParent, "");
                 dirs = FileResolver.GetDirectories(queryParent, "");

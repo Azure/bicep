@@ -81,11 +81,12 @@ namespace Bicep.LanguageServer
 
         private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
         {
+            var fileResolver = creationOptions.FileResolver ?? new FileResolver();
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
-            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider());
-            services.AddSingleton<IFileResolver>(services => creationOptions.FileResolver ?? new FileResolver());
+            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver));
+            services.AddSingleton<IFileResolver>(services => fileResolver);
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();

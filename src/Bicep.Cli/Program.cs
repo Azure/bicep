@@ -152,7 +152,8 @@ namespace Bicep.Cli
 
         private void BuildToFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
+            var fileResolver = new FileResolver();
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
@@ -172,7 +173,8 @@ namespace Bicep.Cli
                 Formatting = Formatting.Indented
             };
 
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
+            var fileResolver = new FileResolver();
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
@@ -195,7 +197,8 @@ namespace Bicep.Cli
                 }
 
                 var outputPathToCheck = Path.GetFullPath(outputPath);
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(outputPathToCheck));
+                var fileResolver = new FileResolver();
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, new Workspace(), PathHelper.FilePathToFileUrl(outputPathToCheck));
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
                 return LogDiagnosticsAndCheckSuccess(logger, compilation) ? 0 : 1;
@@ -219,7 +222,8 @@ namespace Bicep.Cli
                     File.WriteAllText(tempOutputPath, bicepOutput);
                 }
 
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(tempOutputPath));
+                var fileResolver = new FileResolver();
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, new Workspace(), PathHelper.FilePathToFileUrl(tempOutputPath));
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
                 return LogDiagnosticsAndCheckSuccess(logger, compilation) ? 0 : 1;

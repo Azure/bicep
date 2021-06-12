@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -610,8 +611,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var binderMock = new Mock<IBinder>();
             binderMock.Setup(x => x.GetParent(It.IsAny<SyntaxBase>()))
                 .Returns<SyntaxBase>(x => hierarchy.GetParent(x));
+            var fileResolverMock = new Mock<IFileResolver>();
 
-            var typeManager = new TypeManager(TestTypeHelper.CreateEmptyProvider(), binderMock.Object);
+            var typeManager = new TypeManager(TestTypeHelper.CreateEmptyProvider(), binderMock.Object, fileResolverMock.Object);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, diagnosticWriter, expression, targetType);

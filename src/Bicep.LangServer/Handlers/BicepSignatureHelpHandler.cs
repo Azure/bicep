@@ -72,7 +72,7 @@ namespace Bicep.LanguageServer.Handlers
             // (can revisit if we add decorator extensibility in the future)
             var includeReturnType = semanticModel.Binder.GetParent(functionCall) is not DecoratorSyntax;
 
-            var signatureHelp = CreateSignatureHelp(functionCall.Arguments, normalizedArgumentTypes, functionSymbol, offset, includeReturnType);
+            var signatureHelp = CreateSignatureHelp(semanticModel, functionCall.Arguments, normalizedArgumentTypes, functionSymbol, offset, includeReturnType);
             signatureHelp = TryReuseActiveSignature(request.Context, signatureHelp);
 
             return Task.FromResult<SignatureHelp?>(signatureHelp);
@@ -148,7 +148,7 @@ namespace Bicep.LanguageServer.Handlers
                 .ToList();
         }
 
-        private static SignatureHelp CreateSignatureHelp(ImmutableArray<FunctionArgumentSyntax> arguments, List<TypeSymbol> normalizedArgumentTypes, FunctionSymbol symbol, int offset, bool includeReturnType)
+        private static SignatureHelp CreateSignatureHelp(SemanticModel model, ImmutableArray<FunctionArgumentSyntax> arguments, List<TypeSymbol> normalizedArgumentTypes, FunctionSymbol symbol, int offset, bool includeReturnType)
         {
             // exclude overloads where the specified arguments have exceeded the maximum
             // allow count mismatches because the user may not have started typing the arguments yet
@@ -166,7 +166,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return new SignatureHelp
             {
-                Signatures = new Container<SignatureInformation>(matchingOverloads.Select(tuple => CreateSignature(tuple.overload, arguments, includeReturnType))),
+                Signatures = new Container<SignatureInformation>(matchingOverloads.Select(tuple => CreateSignature(model, tuple.overload, arguments, includeReturnType))),
                 ActiveSignature = activeSignatureIndex < 0 ? (int?) null : activeSignatureIndex,
                 ActiveParameter = GetActiveParameterIndex(arguments, offset)
             };
@@ -186,7 +186,7 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static SignatureInformation CreateSignature(FunctionOverload overload, ImmutableArray<FunctionArgumentSyntax> arguments, bool includeReturnType)
+        private static SignatureInformation CreateSignature(SemanticModel model, FunctionOverload overload, ImmutableArray<FunctionArgumentSyntax> arguments, bool includeReturnType)
         {
             const string delimiter = ", ";
 
@@ -236,7 +236,7 @@ namespace Bicep.LanguageServer.Handlers
             if (includeReturnType)
             {
                 typeSignature.Append(": ");
-                typeSignature.Append(overload.ReturnTypeBuilder(arguments));
+                typeSignature.Append(overload.TypeSignatureSymbol);
             }
 
             return new SignatureInformation
