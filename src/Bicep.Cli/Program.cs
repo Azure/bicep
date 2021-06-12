@@ -131,6 +131,9 @@ namespace Bicep.Cli
                 BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultBuildOutputPath(bicepPath));
             }
 
+            // write summary of build warnings and errors.
+            this.outputWriter.WriteLine(diagnosticLogger.LogSummary);
+
             // return non-zero exit code on errors
             return diagnosticLogger.HasLoggedErrors ? 1 : 0;
         }

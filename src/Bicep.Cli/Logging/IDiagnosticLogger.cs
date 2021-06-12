@@ -12,6 +12,8 @@ namespace Bicep.Cli.Logging
         void LogDiagnostic(Uri fileUri, IDiagnostic diagnostic, ImmutableArray<int> lineStarts);
 
         bool HasLoggedErrors { get; }
+        
+        string LogSummary { get; }
     }
 }
 

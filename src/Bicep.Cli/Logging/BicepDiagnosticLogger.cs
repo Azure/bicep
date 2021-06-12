@@ -19,6 +19,8 @@ namespace Bicep.Cli.Logging
         {
             this.logger = logger;
             this.HasLoggedErrors = false;
+            this.ErrorCount = 0;
+            this.WarningCount = 0;
         }
 
         public void LogDiagnostic(Uri fileUri, IDiagnostic diagnostic, ImmutableArray<int> lineStarts)
@@ -33,9 +35,16 @@ namespace Bicep.Cli.Logging
             this.logger.Log(ToLogLevel(diagnostic.Level), message);
 
             this.HasLoggedErrors |= diagnostic.Level == DiagnosticLevel.Error;
+
+            // Increment counters
+            if (diagnostic.Level == DiagnosticLevel.Warning) { this.WarningCount++; }
+            if (diagnostic.Level == DiagnosticLevel.Error) { this.ErrorCount++; }
         }
 
+        public string LogSummary => $"\nBuild {(this.HasLoggedErrors ? "failed" : "succeeded")}: {this.WarningCount} Warnings, {this.ErrorCount} Errors";
         public bool HasLoggedErrors { get; private set; }
+        private int ErrorCount { get; set; }
+        private int WarningCount { get; set; }
 
         private static LogLevel ToLogLevel(DiagnosticLevel level)
             => level switch
