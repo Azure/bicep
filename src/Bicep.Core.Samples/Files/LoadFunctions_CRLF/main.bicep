@@ -61,13 +61,9 @@ module module2 'modulea.bicep' = {
 var textFileInSubdirectories = loadTextContent('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/TextFile.txt')
 var binaryFileInSubdirectories = loadFileAsBase64('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary')
 
-var loadTextCompatibleEncodings = [
- loadTextContent('Assets/encoding-iso.txt', 'us-ascii')
- loadTextContent('Assets/encoding-iso.txt', 'utf-8')
- loadTextContent('Assets/encoding-iso.txt', 'utf-16BE')
- loadTextContent('Assets/encoding-iso.txt', 'utf-16')
- loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
- loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
- loadTextContent('Assets/encoding-ascii.txt', 'utf-16BE')
- loadTextContent('Assets/encoding-ascii.txt', 'utf-16')
-]
+var loadWithEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
+var loadWithEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii')
+var loadWithEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
+var loadWithEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
+var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
+var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8')

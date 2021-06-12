@@ -81,14 +81,16 @@ var textFileInSubdirectories = loadTextContent('Assets/../Assets/path/../path/..
 var binaryFileInSubdirectories = loadFileAsBase64('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary')
 //@[4:30) [no-unused-vars (Warning)] Variable "binaryFileInSubdirectories" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |binaryFileInSubdirectories|
 
-var loadTextCompatibleEncodings = [
-//@[4:31) [no-unused-vars (Warning)] Variable "loadTextCompatibleEncodings" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadTextCompatibleEncodings|
- loadTextContent('Assets/encoding-iso.txt', 'us-ascii')
- loadTextContent('Assets/encoding-iso.txt', 'utf-8')
- loadTextContent('Assets/encoding-iso.txt', 'utf-16BE')
- loadTextContent('Assets/encoding-iso.txt', 'utf-16')
- loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
- loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
- loadTextContent('Assets/encoding-ascii.txt', 'utf-16BE')
- loadTextContent('Assets/encoding-ascii.txt', 'utf-16')
-]
+var loadWithEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
+//@[4:22) [no-unused-vars (Warning)] Variable "loadWithEncoding01" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadWithEncoding01|
+var loadWithEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii')
+//@[4:22) [no-unused-vars (Warning)] Variable "loadWithEncoding06" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadWithEncoding06|
+var loadWithEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
+//@[4:22) [no-unused-vars (Warning)] Variable "loadWithEncoding07" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadWithEncoding07|
+var loadWithEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
+//@[4:22) [no-unused-vars (Warning)] Variable "loadWithEncoding08" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadWithEncoding08|
+var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
+//@[4:22) [no-unused-vars (Warning)] Variable "loadWithEncoding11" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadWithEncoding11|
+var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8')
+//@[4:22) [no-unused-vars (Warning)] Variable "loadWithEncoding12" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadWithEncoding12|
+

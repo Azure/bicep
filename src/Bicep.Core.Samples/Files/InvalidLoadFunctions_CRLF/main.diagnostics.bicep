@@ -95,6 +95,26 @@ var textLoadWrongEncoding20 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding20" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding20|
 var textLoadWrongEncoding21 = loadTextContent('Assets/encoding-windows1250.txt', 'iso-8859-1')
 //@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding21" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding21|
+var textLoadWrongEncoding22 = loadTextContent('Assets/encoding-utf8.txt', 'iso-8859-1')
+//@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding22" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding22|
+var textLoadWrongEncoding23 = loadTextContent('Assets/encoding-utf8.txt', 'utf-16')
+//@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding23" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding23|
+var textLoadWrongEncoding24 = loadTextContent('Assets/encoding-utf8.txt', 'utf-16BE')
+//@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding24" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding24|
+var textLoadWrongEncoding25 = loadTextContent('Assets/encoding-utf8.txt', 'us-ascii')
+//@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding25" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding25|
+var textLoadWrongEncoding26 = loadTextContent('Assets/encoding-utf8-bom.txt', 'iso-8859-1')
+//@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding26" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding26|
+//@[78:90) [BCP185 (Info)] Encoding mismatch. File was loaded with 'utf-8' encoding. (CodeDescription: none) |'iso-8859-1'|
+var textLoadWrongEncoding27 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-16')
+//@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding27" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding27|
+//@[78:86) [BCP185 (Info)] Encoding mismatch. File was loaded with 'utf-8' encoding. (CodeDescription: none) |'utf-16'|
+var textLoadWrongEncoding28 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-16BE')
+//@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding28" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding28|
+//@[78:88) [BCP185 (Info)] Encoding mismatch. File was loaded with 'utf-8' encoding. (CodeDescription: none) |'utf-16BE'|
+var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'us-ascii')
+//@[4:27) [no-unused-vars (Warning)] Variable "textLoadWrongEncoding29" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadWrongEncoding29|
+//@[78:88) [BCP185 (Info)] Encoding mismatch. File was loaded with 'utf-8' encoding. (CodeDescription: none) |'us-ascii'|
 
 var textOversize = loadTextContent('Assets/oversizeText.txt')
 //@[4:16) [no-unused-vars (Warning)] Variable "textOversize" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textOversize|

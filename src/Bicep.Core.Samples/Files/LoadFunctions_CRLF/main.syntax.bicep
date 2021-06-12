@@ -588,135 +588,119 @@ var binaryFileInSubdirectories = loadFileAsBase64('Assets/../Assets/path/../path
 //@[141:142)   RightParen |)|
 //@[142:146) NewLine |\r\n\r\n|
 
-var loadTextCompatibleEncodings = [
-//@[0:494) VariableDeclarationSyntax
+var loadWithEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
+//@[0:81) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:31)  IdentifierSyntax
-//@[4:31)   Identifier |loadTextCompatibleEncodings|
-//@[32:33)  Assignment |=|
-//@[34:494)  ArraySyntax
-//@[34:35)   LeftSquare |[|
-//@[35:37)   NewLine |\r\n|
- loadTextContent('Assets/encoding-iso.txt', 'us-ascii')
-//@[1:55)   ArrayItemSyntax
-//@[1:55)    FunctionCallSyntax
-//@[1:16)     IdentifierSyntax
-//@[1:16)      Identifier |loadTextContent|
-//@[16:17)     LeftParen |(|
-//@[17:43)     FunctionArgumentSyntax
-//@[17:42)      StringSyntax
-//@[17:42)       StringComplete |'Assets/encoding-iso.txt'|
-//@[42:43)      Comma |,|
-//@[44:54)     FunctionArgumentSyntax
-//@[44:54)      StringSyntax
-//@[44:54)       StringComplete |'us-ascii'|
-//@[54:55)     RightParen |)|
-//@[55:57)   NewLine |\r\n|
- loadTextContent('Assets/encoding-iso.txt', 'utf-8')
-//@[1:52)   ArrayItemSyntax
-//@[1:52)    FunctionCallSyntax
-//@[1:16)     IdentifierSyntax
-//@[1:16)      Identifier |loadTextContent|
-//@[16:17)     LeftParen |(|
-//@[17:43)     FunctionArgumentSyntax
-//@[17:42)      StringSyntax
-//@[17:42)       StringComplete |'Assets/encoding-iso.txt'|
-//@[42:43)      Comma |,|
-//@[44:51)     FunctionArgumentSyntax
-//@[44:51)      StringSyntax
-//@[44:51)       StringComplete |'utf-8'|
-//@[51:52)     RightParen |)|
-//@[52:54)   NewLine |\r\n|
- loadTextContent('Assets/encoding-iso.txt', 'utf-16BE')
-//@[1:55)   ArrayItemSyntax
-//@[1:55)    FunctionCallSyntax
-//@[1:16)     IdentifierSyntax
-//@[1:16)      Identifier |loadTextContent|
-//@[16:17)     LeftParen |(|
-//@[17:43)     FunctionArgumentSyntax
-//@[17:42)      StringSyntax
-//@[17:42)       StringComplete |'Assets/encoding-iso.txt'|
-//@[42:43)      Comma |,|
-//@[44:54)     FunctionArgumentSyntax
-//@[44:54)      StringSyntax
-//@[44:54)       StringComplete |'utf-16BE'|
-//@[54:55)     RightParen |)|
-//@[55:57)   NewLine |\r\n|
- loadTextContent('Assets/encoding-iso.txt', 'utf-16')
-//@[1:53)   ArrayItemSyntax
-//@[1:53)    FunctionCallSyntax
-//@[1:16)     IdentifierSyntax
-//@[1:16)      Identifier |loadTextContent|
-//@[16:17)     LeftParen |(|
-//@[17:43)     FunctionArgumentSyntax
-//@[17:42)      StringSyntax
-//@[17:42)       StringComplete |'Assets/encoding-iso.txt'|
-//@[42:43)      Comma |,|
-//@[44:52)     FunctionArgumentSyntax
-//@[44:52)      StringSyntax
-//@[44:52)       StringComplete |'utf-16'|
-//@[52:53)     RightParen |)|
-//@[53:55)   NewLine |\r\n|
- loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
-//@[1:59)   ArrayItemSyntax
-//@[1:59)    FunctionCallSyntax
-//@[1:16)     IdentifierSyntax
-//@[1:16)      Identifier |loadTextContent|
-//@[16:17)     LeftParen |(|
-//@[17:45)     FunctionArgumentSyntax
-//@[17:44)      StringSyntax
-//@[17:44)       StringComplete |'Assets/encoding-ascii.txt'|
-//@[44:45)      Comma |,|
-//@[46:58)     FunctionArgumentSyntax
-//@[46:58)      StringSyntax
-//@[46:58)       StringComplete |'iso-8859-1'|
-//@[58:59)     RightParen |)|
-//@[59:61)   NewLine |\r\n|
- loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
-//@[1:54)   ArrayItemSyntax
-//@[1:54)    FunctionCallSyntax
-//@[1:16)     IdentifierSyntax
-//@[1:16)      Identifier |loadTextContent|
-//@[16:17)     LeftParen |(|
-//@[17:45)     FunctionArgumentSyntax
-//@[17:44)      StringSyntax
-//@[17:44)       StringComplete |'Assets/encoding-ascii.txt'|
-//@[44:45)      Comma |,|
-//@[46:53)     FunctionArgumentSyntax
-//@[46:53)      StringSyntax
-//@[46:53)       StringComplete |'utf-8'|
-//@[53:54)     RightParen |)|
-//@[54:56)   NewLine |\r\n|
- loadTextContent('Assets/encoding-ascii.txt', 'utf-16BE')
-//@[1:57)   ArrayItemSyntax
-//@[1:57)    FunctionCallSyntax
-//@[1:16)     IdentifierSyntax
-//@[1:16)      Identifier |loadTextContent|
-//@[16:17)     LeftParen |(|
-//@[17:45)     FunctionArgumentSyntax
-//@[17:44)      StringSyntax
-//@[17:44)       StringComplete |'Assets/encoding-ascii.txt'|
-//@[44:45)      Comma |,|
-//@[46:56)     FunctionArgumentSyntax
-//@[46:56)      StringSyntax
-//@[46:56)       StringComplete |'utf-16BE'|
-//@[56:57)     RightParen |)|
-//@[57:59)   NewLine |\r\n|
- loadTextContent('Assets/encoding-ascii.txt', 'utf-16')
-//@[1:55)   ArrayItemSyntax
-//@[1:55)    FunctionCallSyntax
-//@[1:16)     IdentifierSyntax
-//@[1:16)      Identifier |loadTextContent|
-//@[16:17)     LeftParen |(|
-//@[17:45)     FunctionArgumentSyntax
-//@[17:44)      StringSyntax
-//@[17:44)       StringComplete |'Assets/encoding-ascii.txt'|
-//@[44:45)      Comma |,|
-//@[46:54)     FunctionArgumentSyntax
-//@[46:54)      StringSyntax
-//@[46:54)       StringComplete |'utf-16'|
-//@[54:55)     RightParen |)|
-//@[55:57)   NewLine |\r\n|
-]
-//@[0:1)   RightSquare |]|
-//@[1:1) EndOfFile ||
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |loadWithEncoding01|
+//@[23:24)  Assignment |=|
+//@[25:81)  FunctionCallSyntax
+//@[25:40)   IdentifierSyntax
+//@[25:40)    Identifier |loadTextContent|
+//@[40:41)   LeftParen |(|
+//@[41:67)   FunctionArgumentSyntax
+//@[41:66)    StringSyntax
+//@[41:66)     StringComplete |'Assets/encoding-iso.txt'|
+//@[66:67)    Comma |,|
+//@[68:80)   FunctionArgumentSyntax
+//@[68:80)    StringSyntax
+//@[68:80)     StringComplete |'iso-8859-1'|
+//@[80:81)   RightParen |)|
+//@[81:83) NewLine |\r\n|
+var loadWithEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii')
+//@[0:81) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |loadWithEncoding06|
+//@[23:24)  Assignment |=|
+//@[25:81)  FunctionCallSyntax
+//@[25:40)   IdentifierSyntax
+//@[25:40)    Identifier |loadTextContent|
+//@[40:41)   LeftParen |(|
+//@[41:69)   FunctionArgumentSyntax
+//@[41:68)    StringSyntax
+//@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
+//@[68:69)    Comma |,|
+//@[70:80)   FunctionArgumentSyntax
+//@[70:80)    StringSyntax
+//@[70:80)     StringComplete |'us-ascii'|
+//@[80:81)   RightParen |)|
+//@[81:83) NewLine |\r\n|
+var loadWithEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
+//@[0:83) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |loadWithEncoding07|
+//@[23:24)  Assignment |=|
+//@[25:83)  FunctionCallSyntax
+//@[25:40)   IdentifierSyntax
+//@[25:40)    Identifier |loadTextContent|
+//@[40:41)   LeftParen |(|
+//@[41:69)   FunctionArgumentSyntax
+//@[41:68)    StringSyntax
+//@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
+//@[68:69)    Comma |,|
+//@[70:82)   FunctionArgumentSyntax
+//@[70:82)    StringSyntax
+//@[70:82)     StringComplete |'iso-8859-1'|
+//@[82:83)   RightParen |)|
+//@[83:85) NewLine |\r\n|
+var loadWithEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
+//@[0:78) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |loadWithEncoding08|
+//@[23:24)  Assignment |=|
+//@[25:78)  FunctionCallSyntax
+//@[25:40)   IdentifierSyntax
+//@[25:40)    Identifier |loadTextContent|
+//@[40:41)   LeftParen |(|
+//@[41:69)   FunctionArgumentSyntax
+//@[41:68)    StringSyntax
+//@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
+//@[68:69)    Comma |,|
+//@[70:77)   FunctionArgumentSyntax
+//@[70:77)    StringSyntax
+//@[70:77)     StringComplete |'utf-8'|
+//@[77:78)   RightParen |)|
+//@[78:80) NewLine |\r\n|
+var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
+//@[0:77) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |loadWithEncoding11|
+//@[23:24)  Assignment |=|
+//@[25:77)  FunctionCallSyntax
+//@[25:40)   IdentifierSyntax
+//@[25:40)    Identifier |loadTextContent|
+//@[40:41)   LeftParen |(|
+//@[41:68)   FunctionArgumentSyntax
+//@[41:67)    StringSyntax
+//@[41:67)     StringComplete |'Assets/encoding-utf8.txt'|
+//@[67:68)    Comma |,|
+//@[69:76)   FunctionArgumentSyntax
+//@[69:76)    StringSyntax
+//@[69:76)     StringComplete |'utf-8'|
+//@[76:77)   RightParen |)|
+//@[77:79) NewLine |\r\n|
+var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8')
+//@[0:81) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |loadWithEncoding12|
+//@[23:24)  Assignment |=|
+//@[25:81)  FunctionCallSyntax
+//@[25:40)   IdentifierSyntax
+//@[25:40)    Identifier |loadTextContent|
+//@[40:41)   LeftParen |(|
+//@[41:72)   FunctionArgumentSyntax
+//@[41:71)    StringSyntax
+//@[41:71)     StringComplete |'Assets/encoding-utf8-bom.txt'|
+//@[71:72)    Comma |,|
+//@[73:80)   FunctionArgumentSyntax
+//@[73:80)    StringSyntax
+//@[73:80)     StringComplete |'utf-8'|
+//@[80:81)   RightParen |)|
+//@[81:83) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

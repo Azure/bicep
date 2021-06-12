@@ -355,7 +355,95 @@ var textLoadWrongEncoding21 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[79:80) Comma |,|
 //@[81:93) StringComplete |'iso-8859-1'|
 //@[93:94) RightParen |)|
-//@[94:98) NewLine |\r\n\r\n|
+//@[94:96) NewLine |\r\n|
+var textLoadWrongEncoding22 = loadTextContent('Assets/encoding-utf8.txt', 'iso-8859-1')
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |textLoadWrongEncoding22|
+//@[28:29) Assignment |=|
+//@[30:45) Identifier |loadTextContent|
+//@[45:46) LeftParen |(|
+//@[46:72) StringComplete |'Assets/encoding-utf8.txt'|
+//@[72:73) Comma |,|
+//@[74:86) StringComplete |'iso-8859-1'|
+//@[86:87) RightParen |)|
+//@[87:89) NewLine |\r\n|
+var textLoadWrongEncoding23 = loadTextContent('Assets/encoding-utf8.txt', 'utf-16')
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |textLoadWrongEncoding23|
+//@[28:29) Assignment |=|
+//@[30:45) Identifier |loadTextContent|
+//@[45:46) LeftParen |(|
+//@[46:72) StringComplete |'Assets/encoding-utf8.txt'|
+//@[72:73) Comma |,|
+//@[74:82) StringComplete |'utf-16'|
+//@[82:83) RightParen |)|
+//@[83:85) NewLine |\r\n|
+var textLoadWrongEncoding24 = loadTextContent('Assets/encoding-utf8.txt', 'utf-16BE')
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |textLoadWrongEncoding24|
+//@[28:29) Assignment |=|
+//@[30:45) Identifier |loadTextContent|
+//@[45:46) LeftParen |(|
+//@[46:72) StringComplete |'Assets/encoding-utf8.txt'|
+//@[72:73) Comma |,|
+//@[74:84) StringComplete |'utf-16BE'|
+//@[84:85) RightParen |)|
+//@[85:87) NewLine |\r\n|
+var textLoadWrongEncoding25 = loadTextContent('Assets/encoding-utf8.txt', 'us-ascii')
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |textLoadWrongEncoding25|
+//@[28:29) Assignment |=|
+//@[30:45) Identifier |loadTextContent|
+//@[45:46) LeftParen |(|
+//@[46:72) StringComplete |'Assets/encoding-utf8.txt'|
+//@[72:73) Comma |,|
+//@[74:84) StringComplete |'us-ascii'|
+//@[84:85) RightParen |)|
+//@[85:87) NewLine |\r\n|
+var textLoadWrongEncoding26 = loadTextContent('Assets/encoding-utf8-bom.txt', 'iso-8859-1')
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |textLoadWrongEncoding26|
+//@[28:29) Assignment |=|
+//@[30:45) Identifier |loadTextContent|
+//@[45:46) LeftParen |(|
+//@[46:76) StringComplete |'Assets/encoding-utf8-bom.txt'|
+//@[76:77) Comma |,|
+//@[78:90) StringComplete |'iso-8859-1'|
+//@[90:91) RightParen |)|
+//@[91:93) NewLine |\r\n|
+var textLoadWrongEncoding27 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-16')
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |textLoadWrongEncoding27|
+//@[28:29) Assignment |=|
+//@[30:45) Identifier |loadTextContent|
+//@[45:46) LeftParen |(|
+//@[46:76) StringComplete |'Assets/encoding-utf8-bom.txt'|
+//@[76:77) Comma |,|
+//@[78:86) StringComplete |'utf-16'|
+//@[86:87) RightParen |)|
+//@[87:89) NewLine |\r\n|
+var textLoadWrongEncoding28 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-16BE')
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |textLoadWrongEncoding28|
+//@[28:29) Assignment |=|
+//@[30:45) Identifier |loadTextContent|
+//@[45:46) LeftParen |(|
+//@[46:76) StringComplete |'Assets/encoding-utf8-bom.txt'|
+//@[76:77) Comma |,|
+//@[78:88) StringComplete |'utf-16BE'|
+//@[88:89) RightParen |)|
+//@[89:91) NewLine |\r\n|
+var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'us-ascii')
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |textLoadWrongEncoding29|
+//@[28:29) Assignment |=|
+//@[30:45) Identifier |loadTextContent|
+//@[45:46) LeftParen |(|
+//@[46:76) StringComplete |'Assets/encoding-utf8-bom.txt'|
+//@[76:77) Comma |,|
+//@[78:88) StringComplete |'us-ascii'|
+//@[88:89) RightParen |)|
+//@[89:93) NewLine |\r\n\r\n|
 
 var textOversize = loadTextContent('Assets/oversizeText.txt')
 //@[0:3) Identifier |var|
