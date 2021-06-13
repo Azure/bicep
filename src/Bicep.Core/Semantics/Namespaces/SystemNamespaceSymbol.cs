@@ -467,7 +467,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }
             if (arguments.Length > 1 && fileEncoding != detectedEncoding)
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).FileEncodingMismatch(detectedEncoding));
+                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).FileEncodingMismatch(detectedEncoding.WebName));
             }
             return new StringLiteralType(fileContent);
         }

@@ -1084,11 +1084,11 @@ namespace Bicep.Core.Diagnostics
                "BCP184",
                $"File '{filePath}' exceeded maximum size of {maxSize} {unit}.");
 
-            public Diagnostic FileEncodingMismatch(Encoding detected) => new(
+            public Diagnostic FileEncodingMismatch(string detectedEncoding) => new(
                TextSpan,
                DiagnosticLevel.Info,
                "BCP185",
-               $"Encoding mismatch. File was loaded with '{detected.WebName}' encoding.");
+               $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
