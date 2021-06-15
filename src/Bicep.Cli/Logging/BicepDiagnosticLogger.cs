@@ -18,7 +18,6 @@ namespace Bicep.Cli.Logging
         public BicepDiagnosticLogger(ILogger logger)
         {
             this.logger = logger;
-            this.HasLoggedErrors = false;
             this.ErrorCount = 0;
             this.WarningCount = 0;
         }
@@ -34,8 +33,6 @@ namespace Bicep.Cli.Logging
 
             this.logger.Log(ToLogLevel(diagnostic.Level), message);
 
-            this.HasLoggedErrors |= diagnostic.Level == DiagnosticLevel.Error;
-
             // Increment counters
             if (diagnostic.Level == DiagnosticLevel.Warning) { this.WarningCount++; }
             if (diagnostic.Level == DiagnosticLevel.Error) { this.ErrorCount++; }
@@ -43,14 +40,12 @@ namespace Bicep.Cli.Logging
 
         public void LogSummary() 
         {
-            var summary = $"Build {(this.HasLoggedErrors ? "failed" : "succeeded")}: {this.WarningCount} Warning(s), {this.ErrorCount} Error(s)";
+            var summary = $"Build {(this.ErrorCount > 0 ? "failed" : "succeeded")}: {this.WarningCount} Warning(s), {this.ErrorCount} Error(s)";
             
             this.logger.Log(ToLogLevel(DiagnosticLevel.Info), summary);
         }
 
-        public bool HasLoggedErrors { get; private set; }
-
-        private int ErrorCount { get; set; }
+        public int ErrorCount { get; private set; }
         
         private int WarningCount { get; set; }
 
