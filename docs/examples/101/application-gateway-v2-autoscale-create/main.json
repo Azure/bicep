@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6004824977563261922"
+      "templateHash": "10277147632489461323"
     }
   },
   "parameters": {
@@ -89,13 +89,13 @@
     "cookieBasedAffinity": {
       "type": "string",
       "defaultValue": "Disabled",
-      "metadata": {
-        "description": "Cookie based affinity"
-      },
       "allowedValues": [
         "Enabled",
         "Disabled"
-      ]
+      ],
+      "metadata": {
+        "description": "Cookie based affinity"
+      }
     },
     "location": {
       "type": "string",
