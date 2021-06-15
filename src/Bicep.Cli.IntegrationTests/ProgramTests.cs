@@ -26,6 +26,9 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class ProgramTests
     { 
+        private const string BuildSummaryFailedRegex = @"Build failed: (\d*) Warning\(s\), ([1-9][0-9]*) Error\(s\)";
+        private const string BuildSummarySucceededRegex = @"Build succeeded: (\d*) Warning\(s\), 0 Error\(s\)";
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -132,6 +135,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().BeEmpty();
+                error.Should().MatchRegex(BuildSummarySucceededRegex); 
                 AssertNoErrors(error, dataSet.Name);
             }
 
@@ -164,6 +168,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
+                error.Should().MatchRegex(BuildSummarySucceededRegex);
                 AssertNoErrors(error, dataSet.Name);
             }
 
@@ -194,7 +199,7 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().NotBeEmpty();
+            error.Should().MatchRegex(BuildSummaryFailedRegex);
 
             var diagnostics = GetAllDiagnostics(bicepFilePath);
             error.Should().ContainAll(diagnostics);
@@ -215,7 +220,7 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().NotBeEmpty();
+            error.Should().MatchRegex(BuildSummaryFailedRegex);
 
             var diagnostics = GetAllDiagnostics(bicepFilePath);
             error.Should().ContainAll(diagnostics);
@@ -239,6 +244,7 @@ output myOutput string = 'hello!'
 
             File.Exists(outputFilePath).Should().BeTrue();
             result.Should().Be(0);
+            error.Should().MatchRegex(BuildSummarySucceededRegex);
         }
 
         [TestMethod]
@@ -280,6 +286,7 @@ output myOutput string = 'hello!'
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
+            error.Should().MatchRegex(BuildSummarySucceededRegex);
         }
 
         [DataRow("DoesNotExist.bicep", @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
