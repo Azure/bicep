@@ -248,6 +248,23 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
+        public void Build_command_with_noSummary_parameter()
+        {
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
+output myOutput string = 'hello!'
+            ");
+
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            {
+                var p = CreateProgram(@out, err);
+                return p.Run(new[] {"build", "--no-summary", bicepPath});
+            });
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void Build_command_with_nonexistent_outdir_parameter()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
