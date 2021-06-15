@@ -88,7 +88,7 @@ var storageConfigurations = [
 ]
 
 resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (config, i) in storageConfigurations: {
-  name: 'storageAccountNamePrefix${config.suffix}${i}'
+  name: '${storageAccountNamePrefix}${config.suffix}${i}'
   location: resourceGroup().location
   properties: {
     supportsHttpsTrafficOnly: true

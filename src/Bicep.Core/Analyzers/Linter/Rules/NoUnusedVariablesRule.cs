@@ -9,11 +9,11 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class UnusedVariableRule : LinterRuleBase
+    public sealed class NoUnusedVariablesRule : LinterRuleBase
     {
         public new const string Code = "no-unused-vars";
 
-        public UnusedVariableRule() : base(
+        public NoUnusedVariablesRule() : base(
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
             docUri: new System.Uri("https://aka.ms/bicep/linter/no-unused-vars"),

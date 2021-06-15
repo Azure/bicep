@@ -48,7 +48,7 @@ randomToken
                 d => {
                     d.Range.Should().HaveRange((1, 6), (1, 13));
                     // note documentation pretty printing moves Uri to code for output
-                    d.Should().HaveCodeAndSeverity(new ParametersMustBeUsedRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
+                    d.Should().HaveCodeAndSeverity(new NoUnusedParametersRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
                 },
                 d => {
                     d.Range.Should().HaveRange((1, 23), (1, 24));
@@ -79,7 +79,7 @@ randomToken
                 d => {
                     d.Range.Should().HaveRange((1, 6), (1, 13));
                     // documentation provided with linter sets code to uri for pretty link print outs
-                    d.Should().HaveCodeAndSeverity(new ParametersMustBeUsedRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
+                    d.Should().HaveCodeAndSeverity(new NoUnusedParametersRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
                 },
                 d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));

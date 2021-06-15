@@ -460,7 +460,7 @@ namespace Bicep.Decompiler
                             // we might be dealing with an array
                             break;
                         }
-                    
+
                         baseSyntax = TryParseStringExpression(expression);
                         break;
                     }
@@ -622,7 +622,9 @@ namespace Bicep.Decompiler
         {
             var decoratorsAndNewLines = new List<SyntaxBase>();
 
-            foreach (var parameterPropertyName in new[] { "minValue", "maxValue", "minLength", "maxLength", "allowedValues", "metadata" })
+            // Metadata/description should be first so users see what the parameter is for before
+            // seeing informationi such as a long list of allowed values
+            foreach (var parameterPropertyName in new[] { "metadata", "minValue", "maxValue", "minLength", "maxLength", "allowedValues" })
             {
                 if (TryParseJToken(value.Value?[parameterPropertyName]) is SyntaxBase expression)
                 {
@@ -1090,7 +1092,7 @@ namespace Bicep.Decompiler
                         })));
                 }
 
-                var (nestedBody, nestedDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
+                var (nestedBody, nestedDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
                 var nestedValue = ProcessCondition(resource, nestedBody);
 
                 var filePath = $"./nested_{identifier}.bicep";
@@ -1121,7 +1123,7 @@ namespace Bicep.Decompiler
                 throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
             }
 
-            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
+            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
             var value = ProcessCondition(resource, body);
 
             var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
@@ -1145,7 +1147,7 @@ namespace Bicep.Decompiler
             return module;
         }
 
-        private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource, string nameString)
+        private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource)
         {
             var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
             var paramProperties = new List<ObjectPropertySyntax>();
