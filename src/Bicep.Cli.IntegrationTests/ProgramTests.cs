@@ -136,7 +136,7 @@ namespace Bicep.Cli.IntegrationTests
                 result.Should().Be(0);
                 output.Should().BeEmpty();
                 error.Should().MatchRegex(BuildSummarySucceededRegex); 
-                AssertNoErrors(error, dataSet.Name);
+                AssertNoErrors(error);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -169,7 +169,7 @@ namespace Bicep.Cli.IntegrationTests
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
                 error.Should().MatchRegex(BuildSummarySucceededRegex);
-                AssertNoErrors(error, dataSet.Name);
+                AssertNoErrors(error);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -372,7 +372,7 @@ output myOutput string = 'hello!'
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
 
-        private static void AssertNoErrors(string error, string dataSetName)
+        private static void AssertNoErrors(string error)
         {
             foreach (var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
