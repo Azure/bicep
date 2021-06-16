@@ -5,43 +5,58 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1964936376463586349"
+      "templateHash": "4952456891125984913"
     }
   },
   "parameters": {
     "publisherEmail": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "metadata": {
+        "description": "The email address of the owner of the service"
+      }
     },
     "publisherName": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the owner of the service"
+      }
     },
     "sku": {
       "type": "string",
       "defaultValue": "Developer",
       "allowedValues": [
+        "Basic",
         "Consumption",
         "Developer",
-        "Basic",
         "Standard",
         "Premium"
-      ]
+      ],
+      "metadata": {
+        "description": "The pricing tier of this API Management service"
+      }
     },
     "skuCount": {
       "type": "int",
-      "defaultValue": 1
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The instance size of this API Management service."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
   "functions": [],
   "resources": [
     {
       "type": "Microsoft.ApiManagement/service",
-      "apiVersion": "2020-06-01-preview",
+      "apiVersion": "2020-12-01",
       "name": "[format('apiservice{0}', uniqueString(resourceGroup().id))]",
       "location": "[parameters('location')]",
       "sku": {
@@ -49,8 +64,8 @@
         "capacity": "[parameters('skuCount')]"
       },
       "properties": {
-        "publisherName": "[parameters('publisherName')]",
-        "publisherEmail": "[parameters('publisherEmail')]"
+        "publisherEmail": "[parameters('publisherEmail')]",
+        "publisherName": "[parameters('publisherName')]"
       },
       "identity": {
         "type": "SystemAssigned"

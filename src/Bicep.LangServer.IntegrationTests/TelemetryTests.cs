@@ -36,7 +36,7 @@ namespace Bicep.LangServer.IntegrationTests
                 { "name", "res-aks-cluster" }
             };
 
-            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(string.Empty, "res-aks-cluster", TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion, properties);
+            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(string.Empty, "res-aks-cluster");
 
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
@@ -55,7 +55,7 @@ namespace Bicep.LangServer.IntegrationTests
                 { "type", "Microsoft.ContainerService/managedClusters@2021-03-01" }
             };
 
-            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(text, prefix, TelemetryConstants.EventNames.ResourceBodySnippetInsertion, properties);
+            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(text, prefix);
 
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.ResourceBodySnippetInsertion);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
@@ -70,13 +70,13 @@ namespace Bicep.LangServer.IntegrationTests
                 { "name", "{}" }
             };
 
-            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(text, "{}", TelemetryConstants.EventNames.ModuleBodySnippetInsertion, properties);
+            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(text, "{}");
 
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.ModuleBodySnippetInsertion);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
-        private async Task<BicepTelemetryEvent> ResolveCompletionAsync(string text, string prefix, string eventName, IDictionary<string, string> properties)
+        private async Task<BicepTelemetryEvent> ResolveCompletionAsync(string text, string prefix)
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var telemetryReceived = new TaskCompletionSource<BicepTelemetryEvent>();
