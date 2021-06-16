@@ -8,7 +8,6 @@ var loadedTextEncoding2 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
 //@[4:23) [no-unused-vars (Warning)] Variable "loadedTextEncoding2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextEncoding2|
 var loadedTextEncoding3 = loadTextContent('Assets/encoding-utf16.txt', 'utf-16')
 //@[4:23) [no-unused-vars (Warning)] Variable "loadedTextEncoding3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextEncoding3|
-//@[71:79) [BCP185 (Info)] Encoding mismatch. File was loaded with 'utf-16BE' encoding. (CodeDescription: none) |'utf-16'|
 var loadedTextEncoding4 = loadTextContent('Assets/encoding-utf16be.txt', 'utf-16BE')
 //@[4:23) [no-unused-vars (Warning)] Variable "loadedTextEncoding4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextEncoding4|
 var loadedTextEncoding5 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
