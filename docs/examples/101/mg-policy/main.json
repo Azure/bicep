@@ -5,12 +5,15 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18175139976819678017"
+      "templateHash": "2022767932279852077"
     }
   },
   "parameters": {
     "targetMG": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Target Management Group"
+      }
     },
     "allowedLocations": {
       "type": "array",
@@ -18,19 +21,22 @@
         "australiaeast",
         "australiasoutheast",
         "australiacentral"
-      ]
+      ],
+      "metadata": {
+        "description": "An array of the allowed locations, all other locations will be denied by the created policy."
+      }
     }
   },
   "functions": [],
   "variables": {
     "mgScope": "[tenantResourceId('Microsoft.Management/managementGroups', parameters('targetMG'))]",
-    "policyDefinition": "LocationRestriction"
+    "policyDefinitionName": "LocationRestriction"
   },
   "resources": [
     {
       "type": "Microsoft.Authorization/policyDefinitions",
       "apiVersion": "2020-03-01",
-      "name": "[variables('policyDefinition')]",
+      "name": "[variables('policyDefinitionName')]",
       "properties": {
         "policyType": "Custom",
         "mode": "All",
@@ -54,10 +60,10 @@
       "name": "location-lock",
       "properties": {
         "scope": "[variables('mgScope')]",
-        "policyDefinitionId": "[extensionResourceId(variables('mgScope'), 'Microsoft.Authorization/policyDefinitions', variables('policyDefinition'))]"
+        "policyDefinitionId": "[extensionResourceId(variables('mgScope'), 'Microsoft.Authorization/policyDefinitions', variables('policyDefinitionName'))]"
       },
       "dependsOn": [
-        "[format('Microsoft.Authorization/policyDefinitions/{0}', variables('policyDefinition'))]"
+        "[format('Microsoft.Authorization/policyDefinitions/{0}', variables('policyDefinitionName'))]"
       ]
     }
   ]

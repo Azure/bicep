@@ -3,8 +3,9 @@
 using System.Collections.Generic;
 using System;
 using Newtonsoft.Json.Linq;
+using Azure.Deployments.Core.Configuration;
+using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
-using Azure.Deployments.Templates.Configuration;
 using Azure.Deployments.Core.Collections;
 using Azure.Deployments.Core.Instrumentation;
 using Azure.Deployments.Templates.Schema;
@@ -76,7 +77,7 @@ namespace Bicep.Core.IntegrationTests
 
             var resourceLookup = template.Resources.ToOrdinalInsensitiveDictionary(x => GetResourceId(scopeString, x));
 
-            var evaluationContext = TemplateEngine.GetExpressionEvaluationContext(template);
+            var evaluationContext = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template);
             var defaultEvaluateFunction = evaluationContext.EvaluateFunction;
             evaluationContext.EvaluateFunction = (FunctionExpression functionExpression, JToken[] parameters, TemplateErrorAdditionalInfo additionalInfo) =>
             {
@@ -184,7 +185,7 @@ namespace Bicep.Core.IntegrationTests
                 TemplateEngine.ValidateTemplate(template, "2020-06-01", deploymentScope);
                 TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(config.Parameters), metadata, new InsensitiveDictionary<JToken>());
 
-                TemplateEngine.ProcessTemplateLanguageExpressions(template, "2020-06-01");
+                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-06-01");
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
