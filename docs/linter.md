@@ -31,7 +31,7 @@ There are a set of core rules that are enabled by default, set to `Warning` leve
 
 The linter is being designed to be extensible so new rules can be added by either the Bicep team or the community. In the 0.5 milestone, we will be focusing more on extensibility, making it as easy as possible to contribute new rules and/or analyzers.
 
-If you have an idea for a new rule, please [submit a feature request](https://github.com/Azure/bicep/issues/new?assignees=&labels=enhancement,linting-rule&template=feature_request.md&title=).
+If you have an idea for a new rule, please [submit a feature request](https://github.com/Azure/bicep/issues/new?assignees=&labels=enhancement,linting-rule-idea&template=feature_request.md&title=).
 
 ## ARM Template Tool Kit (arm-ttk)
 

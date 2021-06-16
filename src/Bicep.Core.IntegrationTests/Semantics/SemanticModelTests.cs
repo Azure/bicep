@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory, out _);
             var model = compilation.GetEntrypointSemanticModel();
-            
+
             // use a deterministic order
             var diagnostics = model.GetAllDiagnostics()
                 .OrderBy(x => x.Span.Position)
@@ -45,7 +45,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                TestContext, 
+                TestContext,
                 dataSet.Diagnostics,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
                 actualLocation: resultsFile);
@@ -83,7 +83,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                TestContext, 
+                TestContext,
                 dataSet.Symbols,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
                 actualLocation: resultsFile);
@@ -95,7 +95,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var model = compilation.GetEntrypointSemanticModel();
-            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, model);
+            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 
             // just a sanity check
             symbolReferences.Should().AllBeAssignableTo<ISymbolReference>();
@@ -153,7 +153,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, semanticModel);
+            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 
             var symbols = symbolReferences
                 .Select(symRef => semanticModel.GetSymbolInfo(symRef))
@@ -168,7 +168,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             symbolReferences.Should().BeSubsetOf(foundReferences);
         }
 
-        private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program, SemanticModel semanticModel)
+        private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)
         {
             return SyntaxAggregator.Aggregate(
                 program,
@@ -179,7 +179,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                     {
                         accumulated.Add(current);
                     }
-                    
+
                     return accumulated;
                 },
                 accumulated => accumulated);

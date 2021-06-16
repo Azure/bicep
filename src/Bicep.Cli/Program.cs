@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
+using System.Runtime;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.CommandLine.Arguments;
 using Bicep.Cli.Logging;
@@ -12,6 +13,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Microsoft.Extensions.Logging;
@@ -37,6 +39,9 @@ namespace Bicep.Cli
 
         public static int Main(string[] args)
         {
+            string profilePath = MulticoreJIT.GetMulticoreJITPath();
+            ProfileOptimization.SetProfileRoot(profilePath);
+            ProfileOptimization.StartProfile("bicep.profile");
             Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
             BicepDeploymentsInterop.Initialize();

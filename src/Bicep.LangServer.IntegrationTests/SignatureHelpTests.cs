@@ -64,12 +64,12 @@ namespace Bicep.LangServer.IntegrationTests
                 // if the cursor is present immediate after the function argument opening paren,
                 // the signature help can only show the signature of the enclosing function
                 var startOffset = functionCall.OpenParen.GetEndPosition();
-                await ValidateOffset(compilation, client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
                 
                 // if the cursor is present immediately before the function argument closing paren,
                 // the signature help can only show the signature of the enclosing function
                 var endOffset = functionCall.CloseParen.Span.Position;
-                await ValidateOffset(compilation, client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
             }
         }
 
@@ -119,7 +119,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static async Task ValidateOffset(Compilation compilation, ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol, bool expectDecorator)
+        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol, bool expectDecorator)
         {
             var position = PositionHelper.GetPosition(tree.LineStarts, offset);
             var initial = await RequestSignatureHelp(client, position, uri);
