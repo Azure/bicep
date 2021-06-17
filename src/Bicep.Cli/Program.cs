@@ -136,8 +136,13 @@ namespace Bicep.Cli
                 BuildToFile(diagnosticLogger, bicepPath, PathHelper.GetDefaultBuildOutputPath(bicepPath));
             }
 
+            if(!arguments.NoSummary)
+            {
+                diagnosticLogger.LogSummary();
+            }
+            
             // return non-zero exit code on errors
-            return diagnosticLogger.HasLoggedErrors ? 1 : 0;
+            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
 
         private static bool LogDiagnosticsAndCheckSuccess(IDiagnosticLogger logger, Compilation compilation)
