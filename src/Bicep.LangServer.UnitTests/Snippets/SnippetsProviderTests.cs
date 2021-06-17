@@ -567,7 +567,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         }
 
         [TestMethod]
-        public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnRequiredPropertiesSnippet()
+        public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
             SnippetsProvider snippetsProvider = new SnippetsProvider();
 

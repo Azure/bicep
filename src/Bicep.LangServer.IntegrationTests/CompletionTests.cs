@@ -727,7 +727,7 @@ var nullLit = |n|ull|
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-            var completionLists = await RequestCompletions(client, syntaxTree, cursors.;
+            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
 
             completionLists.Count().Should().Be(1);
 
