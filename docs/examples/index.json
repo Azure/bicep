@@ -320,8 +320,8 @@
         "description": "101/website-with-container"
     },
     {
-        "filePath": "101/wvd-backplane/main.bicep",
-        "description": "101/wvd-backplane"
+        "filePath": "101/avd-backplane/main.bicep",
+        "description": "101/avd-backplane"
     },
     {
         "filePath": "201/1vm-2nics-2subnets-1vnet/main.bicep",

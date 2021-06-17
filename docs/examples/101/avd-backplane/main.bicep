@@ -1,4 +1,4 @@
-//Define WVD deployment parameters
+//Define AVD deployment parameters
 param hostpoolName string = 'myFirstHostpool'
 param hostpoolFriendlyName string = 'My Bicep created Host pool'
 param appgroupName string = 'myFirstAppGroup'
@@ -7,14 +7,14 @@ param workspaceName string = 'myFirstWortkspace'
 param workspaceNameFriendlyName string = 'My Bicep created Workspace'
 param applicationgrouptype string = 'Desktop'
 param preferredAppGroupType string = 'Desktop'
-param wvdbackplanelocation string = 'eastus'
+param avdbackplanelocation string = 'eastus'
 param hostPoolType string = 'pooled'
 param loadBalancerType string = 'BreadthFirst'
 
-//Create WVD Hostpool
+//Create AVD Hostpool
 resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
   name: hostpoolName
-  location: wvdbackplanelocation
+  location: avdbackplanelocation
   properties: {
     friendlyName: hostpoolFriendlyName
     hostPoolType: hostPoolType
@@ -23,10 +23,10 @@ resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
   }
 }
 
-//Create WVD AppGroup
+//Create AVD AppGroup
 resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
   name: appgroupName
-  location: wvdbackplanelocation
+  location: avdbackplanelocation
   properties: {
     friendlyName: appgroupNameFriendlyName
     applicationGroupType: applicationgrouptype
@@ -34,10 +34,10 @@ resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-previe
   }
 }
 
-//Create WVD Workspace
+//Create AVD Workspace
 resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
   name: workspaceName
-  location: wvdbackplanelocation
+  location: avdbackplanelocation
   properties: {
     friendlyName: workspaceNameFriendlyName
     applicationGroupReferences: [

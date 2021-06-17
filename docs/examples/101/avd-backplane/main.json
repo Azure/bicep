@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4936000733008039319"
+      "templateHash": "11435914357705837168"
     }
   },
   "parameters": {
@@ -41,7 +41,7 @@
       "type": "string",
       "defaultValue": "Desktop"
     },
-    "wvdbackplanelocation": {
+    "avdbackplanelocation": {
       "type": "string",
       "defaultValue": "eastus"
     },
@@ -60,7 +60,7 @@
       "type": "Microsoft.DesktopVirtualization/hostPools",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('hostpoolName')]",
-      "location": "[parameters('wvdbackplanelocation')]",
+      "location": "[parameters('avdbackplanelocation')]",
       "properties": {
         "friendlyName": "[parameters('hostpoolFriendlyName')]",
         "hostPoolType": "[parameters('hostPoolType')]",
@@ -72,7 +72,7 @@
       "type": "Microsoft.DesktopVirtualization/applicationGroups",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('appgroupName')]",
-      "location": "[parameters('wvdbackplanelocation')]",
+      "location": "[parameters('avdbackplanelocation')]",
       "properties": {
         "friendlyName": "[parameters('appgroupNameFriendlyName')]",
         "applicationGroupType": "[parameters('applicationgrouptype')]",
@@ -86,7 +86,7 @@
       "type": "Microsoft.DesktopVirtualization/workspaces",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('workspaceName')]",
-      "location": "[parameters('wvdbackplanelocation')]",
+      "location": "[parameters('avdbackplanelocation')]",
       "properties": {
         "friendlyName": "[parameters('workspaceNameFriendlyName')]",
         "applicationGroupReferences": [
