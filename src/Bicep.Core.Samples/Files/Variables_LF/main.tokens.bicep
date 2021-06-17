@@ -1699,4 +1699,6 @@ module.exports = function (context) {
     context.done();
 }
 '''
-//@[3:3) EndOfFile ||
+//@[3:4) NewLine |\n|
+
+//@[0:0) EndOfFile ||
