@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -23,6 +22,8 @@ namespace Bicep.LanguageServer.Snippets
 {
     public class SnippetsProvider : ISnippetsProvider
     {
+        private const string RequiredPropertiesDescription = "Required properties";
+
         // Used to cache resource declarations. Maps resource type to body text and description
         private readonly ConcurrentDictionary<string, (string text, string description)> resourceTypeToBodyMap = new();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
@@ -131,7 +132,7 @@ namespace Bicep.LanguageServer.Snippets
 
                 if (declaredSymbol.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax)
                 {
-                   if (declaredSymbol.Type is TypeSymbol typeSymbol && typeSymbol.TypeKind != TypeKind.Error)
+                    if (declaredSymbol.Type is TypeSymbol typeSymbol && typeSymbol.TypeKind != TypeKind.Error)
                     {
                         string type = typeSymbol.Name;
                         CacheResourceDeclaration(resourceDeclarationSyntax, type, template, description);
@@ -251,14 +252,12 @@ namespace Bicep.LanguageServer.Snippets
 
         private IEnumerable<Snippet> GetResourceBodyCompletionSnippetFromAzTypes(TypeSymbol typeSymbol)
         {
-            string description = "Required properties";
-
             if (typeSymbol is ResourceType resourceType)
             {
                 if (resourceType.Body is ObjectType objectType)
                 {
                     string label = "required-properties";
-                    Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, description);
+                    Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, RequiredPropertiesDescription);
 
                     if (snippet is not null)
                     {
@@ -267,22 +266,30 @@ namespace Bicep.LanguageServer.Snippets
                 }
                 else if (resourceType.Body is DiscriminatedObjectType discriminatedObjectType)
                 {
-                    foreach (KeyValuePair<string, ObjectType> kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
+                    foreach (Snippet snippet in GetRequiredPropertiesSnippetsForDisciminatedObjectType(discriminatedObjectType))
                     {
-                        string disciminatedObjectKey = kvp.Key;
-                        string label = "required-properties-" + disciminatedObjectKey.Trim(new char[] { '\'' });
-                        Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, description, disciminatedObjectKey);
-
-                        if (snippet is not null)
-                        {
-                            yield return snippet;
-                        }
+                        yield return snippet;
                     }
                 }
             }
         }
 
-        private Snippet? GetRequiredPropertiesSnippet(ObjectType objectType, string label, string description, string? discriminatedObjectKey = null)
+        private IEnumerable<Snippet> GetRequiredPropertiesSnippetsForDisciminatedObjectType(DiscriminatedObjectType discriminatedObjectType)
+        {
+            foreach (KeyValuePair<string, ObjectType> kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
+            {
+                string disciminatedObjectKey = kvp.Key;
+                string label = "required-properties-" + disciminatedObjectKey.Trim(new char[] { '\'' });
+                Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, disciminatedObjectKey);
+
+                if (snippet is not null)
+                {
+                    yield return snippet;
+                }
+            }
+        }
+
+        private Snippet? GetRequiredPropertiesSnippet(ObjectType objectType, string label, string? discriminatedObjectKey = null)
         {
             int index = 1;
             StringBuilder sb = new StringBuilder();
@@ -309,7 +316,7 @@ namespace Bicep.LanguageServer.Snippets
                 // Append final tab stop
                 sb.Append("\t$0\n}");
 
-                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, description);
+                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, RequiredPropertiesDescription);
             }
 
             return null;
@@ -385,10 +392,34 @@ namespace Bicep.LanguageServer.Snippets
             if (typeSymbol is ModuleType moduleType && moduleType.Body is ObjectType objectType)
             {
                 string label = "required-properties";
-                string description = "Required properties";
+                Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, RequiredPropertiesDescription);
+
+                if (snippet is not null)
+                {
+                    yield return snippet;
+                }
+            }
+        }
+
+        public IEnumerable<Snippet> GetObjectBodyCompletionSnippets(TypeSymbol typeSymbol)
+        {
+            yield return GetEmptySnippet();
+
+            string label = "required-properties";
+            string description = "Required properties";
+
+            if (typeSymbol is ObjectType objectType)
+            {
                 Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, description);
 
                 if (snippet is not null)
+                {
+                    yield return snippet;
+                }
+            }
+            else if (typeSymbol is DiscriminatedObjectType discriminatedObjectType)
+            {
+                foreach (Snippet snippet in GetRequiredPropertiesSnippetsForDisciminatedObjectType(discriminatedObjectType))
                 {
                     yield return snippet;
                 }

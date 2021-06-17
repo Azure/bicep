@@ -4026,6 +4026,24 @@
     }
   },
   {
+    "label": "required-properties",
+    "kind": "snippet",
+    "detail": "Required properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n\tname: \n\t\n}\n```"
+    },
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_required-properties",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "{\n\tname: $1\n\t$0\n}"
+    }
+  },
+  {
     "label": "resourceGroup",
     "kind": "function",
     "detail": "resourceGroup()",

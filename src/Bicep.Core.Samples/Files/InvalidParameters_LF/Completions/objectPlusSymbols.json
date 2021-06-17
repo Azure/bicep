@@ -1776,11 +1776,15 @@
   },
   {
     "label": "{}",
-    "kind": "value",
+    "kind": "snippet",
     "detail": "{}",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n\t\n}\n```"
+    },
     "deprecated": false,
     "preselect": true,
-    "sortText": "1_{}",
+    "sortText": "2_{}",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
