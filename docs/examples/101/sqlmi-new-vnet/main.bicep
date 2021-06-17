@@ -1,21 +1,36 @@
+@description('Enter managed instance name.')
 param managedInstanceName string
-param adminLogin string
 
+@description('Enter user name.')
+param administratorLogin string
+
+@description('Enter password.')
 @secure()
-param adminPassword string
+param administratorLoginPassword string
 
+@description('Enter location. If you leave this field blank resource group location would be used.')
 param location string = resourceGroup().location
-param virtualNetworkName string = 'vnet-01'
-param virtualNetworkPrefix string = '10.0.0.0/16'
-param subnetName string = 'subnet-01'
+
+@description('Enter virtual network name. If you leave this field blank name will be created by the template.')
+param virtualNetworkName string = 'SQLMI-VNET'
+
+@description('Enter virtual network address prefix.')
+param addressPrefix string = '10.0.0.0/16'
+
+@description('Enter subnet name.')
+param subnetName string = 'ManagedInstance'
+
+@description('Enter subnet address prefix.')
 param subnetPrefix string = '10.0.0.0/24'
 
+@description('Enter sku name.')
 @allowed([
   'GP_Gen5'
   'BC_Gen5'
 ])
 param skuName string = 'GP_Gen5'
 
+@description('Enter number of vCores.')
 @allowed([
   8
   16
@@ -25,14 +40,22 @@ param skuName string = 'GP_Gen5'
   64
   80
 ])
-param vCores int = 8
+param vCores int = 16
 
+@description('Enter storage size.')
 @minValue(32)
 @maxValue(8192)
 param storageSizeInGB int = 256
 
-var networkSecurityGroupName = '${managedInstanceName}-nsg'
-var routeTableName = '${managedInstanceName}-routetable'
+@description('Enter license type.')
+@allowed([
+  'BasePrice'
+  'LicenseIncluded'
+])
+param licenseType string = 'LicenseIncluded'
+
+var networkSecurityGroupName = 'SQLMI-${managedInstanceName}-NSG'
+var routeTableName = 'SQLMI-${managedInstanceName}-Route-Table'
 
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: networkSecurityGroupName
@@ -67,7 +90,6 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2020-06-0
           direction: 'Inbound'
         }
       }
-
       {
         name: 'deny_all_inbound'
         properties: {
@@ -114,34 +136,35 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   properties: {
     addressSpace: {
       addressPrefixes: [
-        virtualNetworkPrefix
+        addressPrefix
       ]
     }
-  }
-}
-
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
-  name: subnetName
-  properties: {
-    addressPrefix: subnetPrefix
-    routeTable: {
-      id: routeTable.id
-    }
-    networkSecurityGroup: {
-      id: networkSecurityGroup.id
-    }
-    delegations: [
+    subnets: [
       {
-        name: 'managedInstanceDelegation'
+        name: subnetName
         properties: {
-          serviceName: 'Microsoft.Sql/managedInstances'
+          addressPrefix: subnetPrefix
+          routeTable: {
+            id: routeTable.id
+          }
+          networkSecurityGroup: {
+            id: networkSecurityGroup.id
+          }
+          delegations: [
+            {
+              name: 'managedInstanceDelegation'
+              properties: {
+                serviceName: 'Microsoft.Sql/managedInstances'
+              }
+            }
+          ]
         }
       }
     ]
   }
 }
 
-resource managedInstance 'Microsoft.Sql/managedInstances@2020-02-02-preview' = {
+resource managedInstanceName_resource 'Microsoft.Sql/managedInstances@2020-02-02-preview' = {
   name: managedInstanceName
   location: location
   sku: {
@@ -151,11 +174,14 @@ resource managedInstance 'Microsoft.Sql/managedInstances@2020-02-02-preview' = {
     type: 'SystemAssigned'
   }
   properties: {
-    administratorLogin: adminLogin
-    administratorLoginPassword: adminPassword
-    subnetId: subnet.id
+    administratorLogin: administratorLogin
+    administratorLoginPassword: administratorLoginPassword
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnetName)
     storageSizeInGB: storageSizeInGB
     vCores: vCores
-    licenseType: 'LicenseIncluded'
+    licenseType: licenseType
   }
+  dependsOn: [
+    virtualNetwork
+  ]
 }
