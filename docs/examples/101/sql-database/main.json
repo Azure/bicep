@@ -1,56 +1,66 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5868187186886427302"
-    }
-  },
   "parameters": {
     "serverName": {
       "type": "string",
-      "defaultValue": "[uniqueString('sql', resourceGroup().id)]"
+      "defaultValue": "[uniqueString('sql', resourceGroup().id)]",
+      "metadata": {
+        "description": "The name of the SQL logical server."
+      }
     },
     "sqlDBName": {
       "type": "string",
-      "defaultValue": "SampleDB"
+      "defaultValue": "SampleDB",
+      "metadata": {
+        "description": "The name of the SQL Database."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     },
     "administratorLogin": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The administrator username of the SQL logical server."
+      }
     },
     "administratorLoginPassword": {
-      "type": "secureString"
+      "type": "securestring",
+      "metadata": {
+        "description": "The administrator password of the SQL logical server."
+      }
     }
   },
-  "functions": [],
+  "variables": {},
   "resources": [
     {
       "type": "Microsoft.Sql/servers",
-      "apiVersion": "2019-06-01-preview",
+      "apiVersion": "2020-02-02-preview",
       "name": "[parameters('serverName')]",
       "location": "[parameters('location')]",
       "properties": {
         "administratorLogin": "[parameters('administratorLogin')]",
         "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
-      }
-    },
-    {
-      "type": "Microsoft.Sql/servers/databases",
-      "apiVersion": "2020-08-01-preview",
-      "name": "[format('{0}/{1}', parameters('serverName'), parameters('sqlDBName'))]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "Standard",
-        "tier": "Standard"
       },
-      "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
+      "resources": [
+        {
+          "type": "databases",
+          "apiVersion": "2020-08-01-preview",
+          "name": "[parameters('sqlDBName')]",
+          "location": "[parameters('location')]",
+          "sku": {
+            "name": "Standard",
+            "tier": "Standard"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', concat(parameters('serverName')))]"
+          ]
+        }
       ]
     }
   ]
