@@ -18,7 +18,6 @@
 ²		superscript 2
 ³		superscript 3
 ´		spacing acute
-µ		micro
 ¶		paragraph
 ·		middle dot
 ¸		spacing cedilla
