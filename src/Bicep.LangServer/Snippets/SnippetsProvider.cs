@@ -23,6 +23,7 @@ namespace Bicep.LanguageServer.Snippets
     public class SnippetsProvider : ISnippetsProvider
     {
         private const string RequiredPropertiesDescription = "Required properties";
+        private const string RequiredPropertiesLabel = "required-properties";
 
         // Used to cache resource declarations. Maps resource type to body text and description
         private readonly ConcurrentDictionary<string, (string text, string description)> resourceTypeToBodyMap = new();
@@ -256,8 +257,7 @@ namespace Bicep.LanguageServer.Snippets
             {
                 if (resourceType.Body is ObjectType objectType)
                 {
-                    string label = "required-properties";
-                    Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, RequiredPropertiesDescription);
+                    Snippet? snippet = GetRequiredPropertiesSnippet(objectType, RequiredPropertiesLabel);
 
                     if (snippet is not null)
                     {
@@ -391,8 +391,7 @@ namespace Bicep.LanguageServer.Snippets
 
             if (typeSymbol is ModuleType moduleType && moduleType.Body is ObjectType objectType)
             {
-                string label = "required-properties";
-                Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, RequiredPropertiesDescription);
+                Snippet? snippet = GetRequiredPropertiesSnippet(objectType, RequiredPropertiesLabel, RequiredPropertiesDescription);
 
                 if (snippet is not null)
                 {
@@ -405,12 +404,9 @@ namespace Bicep.LanguageServer.Snippets
         {
             yield return GetEmptySnippet();
 
-            string label = "required-properties";
-            string description = "Required properties";
-
             if (typeSymbol is ObjectType objectType)
             {
-                Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, description);
+                Snippet? snippet = GetRequiredPropertiesSnippet(objectType, RequiredPropertiesLabel, RequiredPropertiesDescription);
 
                 if (snippet is not null)
                 {
