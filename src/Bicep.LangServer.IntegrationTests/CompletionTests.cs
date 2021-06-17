@@ -20,7 +20,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Completions;
 using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
@@ -683,6 +682,66 @@ var nullLit = |n|ull|
             var completions = await RequestCompletions(client, syntaxTree, cursors);
 
             assertAction(completions);
+        }
+
+        [TestMethod]
+        public async Task VerifyObjectBodyCompletionReturnsEmptyAndRequiredPropertiesSnippets()
+        {
+            string fileWithCursors = @"resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
+  name: 'name'
+  properties: |
+}";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+
+            completionLists.Count().Should().Be(1);
+
+            var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+
+            snippetCompletions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("required-properties");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyObjectBodyCompletionInsideExistingArrayOfObjectsReturnsEmptyAndRequiredPropertiesSnippets()
+        {
+            string fileWithCursors = @"resource applicationGatewayFirewall 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2020-11-01' = {
+  name: 'name'
+  properties: {
+    managedRules: {
+      managedRuleSets: [
+        |
+      ]
+    }
+  }
+}";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, syntaxTree, cursors.;
+
+            completionLists.Count().Should().Be(1);
+
+            var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+
+            snippetCompletions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("required-properties");
+                });
         }
 
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
