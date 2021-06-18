@@ -118,20 +118,81 @@ var a = concat('${p1}${'azuredatalakestore.net'}${p2}', 'foo')
             CompileAndTest(text, diagnosticCount);
         }
 
-        [TestMethod]
-        public void regextest()
+        [DataTestMethod]
+        [DataRow(@"azure.microsoft.com", 0, 0)]
+        [DataRow(@"https://azure.microsoft.com", 0, 0)]
+        [DataRow(@"https:/schema/azure.microsoft.com", 0, 0)]
+        [DataRow(@"There is more string here https:/schema/azure.microsoft.com with following string here", 0, 0)]
+        [DataRow(@"gallery.azure.com", 1, 0)]
+        [DataRow(@"https://gallery.azure.com", 1, 0)]
+        [DataRow(@"https://schema.gallery.azure.com", 1, 1)]
+        [DataRow(@"There is more string here gallery.azure.com with following string here", 1, 0)]
+        [DataRow(@"There is more string here https://gallery.azure.com with following string here", 1, 0)]
+        [DataRow(@"There is more string here https://schema.gallery.azure.com with following string here", 1, 1)]
+        public void DisallowedHostsRegexTest(string host, int hostsToFind, int schemasToFind)
         {
-            var regexWild = new Regex(@".*\.?azure\.microsoft\.com");
-            Assert.IsTrue(regexWild.IsMatch("https://www.azure.microsoft.com"));
-            Assert.IsTrue(regexWild.IsMatch("www.azure.microsoft.com"));
-            Assert.IsTrue(regexWild.IsMatch("azure.microsoft.com"));
+            var disallowedHosts = new[] {
+                "management.core.windows.net",
+                "gallery.azure.com",
+                "management.core.windows.net",
+                "management.azure.com",
+                "database.windows.net",
+                "core.windows.net",
+                "login.microsoftonline.com",
+                "graph.windows.net",
+                "graph.windows.net",
+                "vault.azure.net",
+                "datalake.azure.net",
+                "azuredatalakestore.net",
+                "azuredatalakeanalytics.net",
+                "vault.azure.net",
+                "api.loganalytics.io",
+                "api.loganalytics.iov1",
+                "asazure.windows.net",
+                "region.asazure.windows.net",
+                "api.loganalytics.iov1",
+                "api.loganalytics.io",
+                "asazure.windows.net",
+                "region.asazure.windows.net",
+                "batch.core.windows.net"};
 
-            var regexExact = new Regex(@"(http(s)?://)?azure\.microsoft\.com");
-            Assert.IsFalse(regexExact.IsMatch("https://www.azure.microsoft.com"));
-            Assert.IsFalse(regexExact.IsMatch("www.azure.microsoft.com"));
-            Assert.IsTrue(regexExact.IsMatch("azure.microsoft.com"));
-            Assert.IsTrue(regexExact.IsMatch("https://azure.microsoft.com"));
-            Assert.IsTrue(regexExact.IsMatch("https://azure.microsoft.com/lions/tigers/bears"));
+            var regexMatchStr = string.Join('|', disallowedHosts);
+            var regexMatch = new Regex(regexMatchStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+            var schemaMatchStr = @"https://schema\.";
+            var schemaRegex = new Regex(schemaMatchStr, RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.IgnoreCase);
+
+            int hostCt = 0;
+            int schemaCt = 0;
+
+            // Walk thru each host reference found 
+            foreach (Match match in regexMatch.Matches(host))
+            {
+                hostCt++;
+                //and see if it's preceeded by a schema.
+                var schemaMatch = schemaRegex.Match(host, match.Index);
+
+                // schema is found immediately preceeding this host match
+                bool schemaFound = schemaMatch.Success && (schemaMatch.Index + schemaMatch.Length) == match.Index;
+                if (schemaFound)
+                {
+                    schemaCt++;
+                }
+            }
+
+            Assert.AreEqual(hostsToFind, hostCt, "Host count mismatch");
+            Assert.AreEqual(schemasToFind, schemaCt, "Schema count mismatch");
+
+            //Assert.IsTrue(regexWild.IsMatch("https://www.azure.microsoft.com"));
+            //Assert.IsTrue(regexWild.IsMatch("www.azure.microsoft.com"));
+            //Assert.IsTrue(regexWild.IsMatch("azure.microsoft.com"));
+
+            //var regexExact = new Regex(@"(http(s)?://)?azure\.microsoft\.com");
+            //Assert.IsFalse(regexExact.IsMatch("https://www.azure.microsoft.com"));
+            //Assert.IsFalse(regexExact.IsMatch("www.azure.microsoft.com"));
+            //Assert.IsTrue(regexExact.IsMatch("azure.microsoft.com"));
+            //Assert.IsTrue(regexExact.IsMatch("https://azure.microsoft.com"));
+            //Assert.IsTrue(regexExact.IsMatch("https://azure.microsoft.com/lions/tigers/bears"));
         }
     }
 }
