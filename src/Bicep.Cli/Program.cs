@@ -199,9 +199,9 @@ namespace Bicep.Cli
             try
             {
                 var (_, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
-                foreach (var (_, bicepOutput) in filesToSave)
+                foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
-                    File.WriteAllText(outputPath, bicepOutput);
+                    File.WriteAllText(fileUri.LocalPath, bicepOutput);
                 }
 
                 var outputPathToCheck = Path.GetFullPath(outputPath);
