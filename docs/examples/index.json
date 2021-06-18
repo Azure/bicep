@@ -496,8 +496,8 @@
         "description": "201/web-app-sql-database"
     },
     {
-        "filePath": "201/wvd-backplane-with-network-and-storage-and-monitoring/main.bicep",
-        "description": "201/wvd-backplane-with-network-and-storage-and-monitoring"
+        "filePath": "201/avd-backplane-with-network-and-storage-and-monitoring/main.bicep",
+        "description": "201/avd-backplane-with-network-and-storage-and-monitoring"
     },
     {
         "filePath": "201/vm-windows10-with-nvidia-gpu-extension-and-condition/main.bicep",
