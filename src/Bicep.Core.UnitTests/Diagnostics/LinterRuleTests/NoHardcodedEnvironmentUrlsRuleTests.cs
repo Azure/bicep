@@ -10,6 +10,7 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 // TODO: Test with different configs
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -115,6 +116,22 @@ var a = concat('${p1}${'azuredatalakestore.net'}${p2}', 'foo')
         public void InsideExpressions(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
+        }
+
+        [TestMethod]
+        public void regextest()
+        {
+            var regexWild = new Regex(@".*\.?azure\.microsoft\.com");
+            Assert.IsTrue(regexWild.IsMatch("https://www.azure.microsoft.com"));
+            Assert.IsTrue(regexWild.IsMatch("www.azure.microsoft.com"));
+            Assert.IsTrue(regexWild.IsMatch("azure.microsoft.com"));
+
+            var regexExact = new Regex(@"(http(s)?://)?azure\.microsoft\.com");
+            Assert.IsFalse(regexExact.IsMatch("https://www.azure.microsoft.com"));
+            Assert.IsFalse(regexExact.IsMatch("www.azure.microsoft.com"));
+            Assert.IsTrue(regexExact.IsMatch("azure.microsoft.com"));
+            Assert.IsTrue(regexExact.IsMatch("https://azure.microsoft.com"));
+            Assert.IsTrue(regexExact.IsMatch("https://azure.microsoft.com/lions/tigers/bears"));
         }
     }
 }
