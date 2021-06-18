@@ -5,12 +5,13 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: workspaceName
   location: location
   properties: {
-    retentionInDays: 30
+    retentionInDays: 7
     sku: {
       name: 'Free'
     }
   }
 }
+
 resource solution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
   name: 'SecurityInsights(${workspace.name})'
   location: location

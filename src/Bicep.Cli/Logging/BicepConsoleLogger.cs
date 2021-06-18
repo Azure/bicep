@@ -28,7 +28,7 @@ namespace Bicep.Cli.Logging
             }
             else
             {
-                this.LogMessage(logLevel, message);
+                this.LogMessage(message);
             }
         }
 
@@ -45,12 +45,12 @@ namespace Bicep.Cli.Logging
             ConsoleColor saved = Console.ForegroundColor;
             Console.ForegroundColor = color;
 
-            this.LogMessage(logLevel, message);
+            this.LogMessage(message);
 
             Console.ForegroundColor = saved;
         }
 
-        private void LogMessage(LogLevel logLevel, string message)
+        private void LogMessage(string message)
         {
             this.options.Writer.WriteLine(message);
         }
