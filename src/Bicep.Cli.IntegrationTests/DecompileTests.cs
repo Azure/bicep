@@ -14,6 +14,8 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -75,21 +77,6 @@ namespace Bicep.Cli.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static (IEnumerable<string> outputLines, IEnumerable<string> errorLines, int result) ExecuteProgram(params string[] args)
-        {
-            var (output, error, result) = TextWriterHelper.InvokeWriterAction((outputWriter, errorWriter) =>
-            {
-                var program = new Program(TestTypeHelper.CreateEmptyProvider(), outputWriter, errorWriter, BicepTestConstants.DevAssemblyFileVersion);
-
-                return program.Run(args);
-            });
-
-            return (
-                Regex.Split(output, "\r?\n").Where(x => x != ""),
-                Regex.Split(error, "\r?\n").Where(x => x != ""),
-                result);
-        }
-
         [TestMethod]
         public void Decompilation_of_empty_template_succeeds()
         {
@@ -112,7 +99,7 @@ namespace Bicep.Cli.IntegrationTests
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, template);
 
-            var (output, error, result) = ExecuteProgram("decompile", fileName);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", fileName);
             var bicepFileName = Path.ChangeExtension(fileName, "bicep");
 
             using (new AssertionScope())
@@ -132,7 +119,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public void Decompilation_with_zero_files_should_produce_expected_error()
         {
-            var (output, error, result) = ExecuteProgram("decompile");
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile");
 
             using (new AssertionScope())
             {
@@ -148,7 +135,7 @@ namespace Bicep.Cli.IntegrationTests
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, InvalidTemplate);
 
-            var (output, error, result) = ExecuteProgram("decompile", fileName);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", fileName);
             var bicepFileName = Path.ChangeExtension(fileName, "bicep");
 
             using (new AssertionScope())
@@ -172,7 +159,7 @@ namespace Bicep.Cli.IntegrationTests
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, ValidTemplate);
 
-            var (output, error, result) = ExecuteProgram("decompile", fileName);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", fileName);
             var bicepFileName = Path.ChangeExtension(fileName, "bicep");
 
             using (new AssertionScope())
@@ -196,7 +183,7 @@ namespace Bicep.Cli.IntegrationTests
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, InvalidTemplate);
 
-            var (output, error, result) = ExecuteProgram("decompile", "--stdout", fileName);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", "--stdout", fileName);
 
             using (new AssertionScope())
             {
@@ -222,7 +209,7 @@ namespace Bicep.Cli.IntegrationTests
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, ValidTemplate);
 
-            var (output, error, result) = ExecuteProgram("decompile", "--stdout", fileName);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", "--stdout", fileName);
 
             using (new AssertionScope())
             {
@@ -250,7 +237,7 @@ namespace Bicep.Cli.IntegrationTests
             File.WriteAllText(fileName, ValidTemplate);
 
             var bicepFileName = Path.ChangeExtension(fileName, "bicep");
-            var (output, error, result) = ExecuteProgram("decompile", "--outfile", bicepFileName, fileName);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", "--outfile", bicepFileName, fileName);
 
             using (new AssertionScope())
             {
@@ -277,7 +264,7 @@ namespace Bicep.Cli.IntegrationTests
             Directory.CreateDirectory(outputFileDir);
             var expectedOutputFile = Path.Combine(outputFileDir, "main.bicep");
 
-            var (output, error, result) = ExecuteProgram("decompile", "--outdir", outputFileDir, fileName);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", "--outdir", outputFileDir, fileName);
 
             using (new AssertionScope())
             {
@@ -302,7 +289,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
 
-            var (output, error, result) = ExecuteProgram("decompile", "--outdir", outputFileDir, fileName);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", "--outdir", outputFileDir, fileName);
 
             using (new AssertionScope())
             {
@@ -321,7 +308,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataTestMethod]
         public void Decompilation_of_invalid_input_paths_should_produce_expected_errors(string badPath)
         {
-            var (output, error, result) = ExecuteProgram("decompile", badPath);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", badPath);
             var expectedErrorBadPath = Path.GetFullPath(badPath);
             var expectedErrorBadUri = PathHelper.FilePathToFileUrl(expectedErrorBadPath);
 
@@ -342,7 +329,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataTestMethod]
         public void Decompilation_of_invalid_input_paths_to_stdout_should_produce_expected_errors(string badPath)
         {
-            var (output, error, result) = ExecuteProgram("decompile", "--stdout", badPath);
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", "--stdout", badPath);
             var expectedErrorBadPath = Path.GetFullPath(badPath);
             var expectedErrorBadUri = PathHelper.FilePathToFileUrl(expectedErrorBadPath);
 
@@ -369,7 +356,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // keep the output stream open while we attempt to write to it
                 // this should force an access denied error
-                var (output, error, result) = ExecuteProgram("decompile", inputFile);
+                var (output, error, result) = CliHelper.ExecuteProgram("decompile", inputFile);
 
                 output.Should().BeEmpty();
                 string.Join(string.Empty, error).Should().Contain("Empty.json");
