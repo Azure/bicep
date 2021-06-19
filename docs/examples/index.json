@@ -516,6 +516,10 @@
         "description": "201/wvd-create-hostpool"
     },
     {
+        "filePath": "201/budget-subscription-with-notifications/main.bicep",
+        "description": "201/budget-subscription-with-notifications"
+    },
+    {
         "filePath": "301/expressroute-circuit-vnet-connection/main.bicep",
         "description": "301/expressroute-circuit-vnet-connection"
     },
@@ -566,5 +570,9 @@
     {
         "filePath": "301/automation-account-import-runbooks-and-modules/main.bicep",
         "description": "301/automation-account-import-runbooks-and-modules"
+    },
+    {
+        "filePath": "301/management-groups-nested-with-subscriptions/main.bicep",
+        "description": "301/management-groups-nested-with-subscriptions"
     }
 ]
