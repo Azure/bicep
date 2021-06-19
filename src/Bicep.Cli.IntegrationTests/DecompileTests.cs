@@ -117,11 +117,6 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompilation_of_nested_template_creates_module_file()
-        {
-        }
-
-        [TestMethod]
         public void Decompilation_with_zero_files_should_produce_expected_error()
         {
             var (output, error, result) = CliHelper.ExecuteProgram("decompile");
