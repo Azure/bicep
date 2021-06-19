@@ -570,5 +570,9 @@
     {
         "filePath": "301/automation-account-import-runbooks-and-modules/main.bicep",
         "description": "301/automation-account-import-runbooks-and-modules"
+    },
+    {
+        "filePath": "301/management-groups-nested-with-subscriptions/main.bicep",
+        "description": "301/management-groups-nested-with-subscriptions"
     }
 ]
