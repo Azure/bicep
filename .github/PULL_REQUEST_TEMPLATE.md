@@ -8,7 +8,9 @@ If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). 
 
 ## Contributing an example
 
-* [ ] I have checked that there is not an equivalent example already submitted
+We are integrating the Bicep examples into the [Azure QuickStart Templates](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/README.md).  If you'd like to contribute new example `.bicep` files that showcase abilities of the language, please follow [these instructions](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/README.md) to add them directly there.  We can still take bug reports and fixes for the existing examples for the time being.
+
+* [ ] This is a bug fix for an existing example
 * [ ] I have resolved all warnings and errors shown by the Bicep VS Code extension
 * [ ] I have checked that all tests are passing by running `dotnet test`
 * [ ] I have consistent casing for all of my identifiers and am using camelCasing unless I have a justification to use another casing style

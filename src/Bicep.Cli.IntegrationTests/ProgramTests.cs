@@ -26,6 +26,9 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class ProgramTests
     { 
+        private const string BuildSummaryFailedRegex = @"Build failed: (\d*) Warning\(s\), ([1-9][0-9]*) Error\(s\)";
+        private const string BuildSummarySucceededRegex = @"Build succeeded: (\d*) Warning\(s\), 0 Error\(s\)";
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -132,7 +135,8 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().BeEmpty();
-                AssertNoErrors(error, dataSet.Name);
+                error.Should().MatchRegex(BuildSummarySucceededRegex); 
+                AssertNoErrors(error);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -164,7 +168,8 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
-                AssertNoErrors(error, dataSet.Name);
+                error.Should().MatchRegex(BuildSummarySucceededRegex);
+                AssertNoErrors(error);
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -194,7 +199,7 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().NotBeEmpty();
+            error.Should().MatchRegex(BuildSummaryFailedRegex);
 
             var diagnostics = GetAllDiagnostics(bicepFilePath);
             error.Should().ContainAll(diagnostics);
@@ -215,7 +220,7 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().NotBeEmpty();
+            error.Should().MatchRegex(BuildSummaryFailedRegex);
 
             var diagnostics = GetAllDiagnostics(bicepFilePath);
             error.Should().ContainAll(diagnostics);
@@ -239,6 +244,24 @@ output myOutput string = 'hello!'
 
             File.Exists(outputFilePath).Should().BeTrue();
             result.Should().Be(0);
+            error.Should().MatchRegex(BuildSummarySucceededRegex);
+        }
+
+        [TestMethod]
+        public void Build_command_with_noSummary_parameter()
+        {
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
+output myOutput string = 'hello!'
+            ");
+
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            {
+                var p = CreateProgram(@out, err);
+                return p.Run(new[] {"build", "--no-summary", bicepPath});
+            });
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -280,6 +303,7 @@ output myOutput string = 'hello!'
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
+            error.Should().MatchRegex(BuildSummarySucceededRegex);
         }
 
         [DataRow("DoesNotExist.bicep", @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
@@ -365,7 +389,7 @@ output myOutput string = 'hello!'
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
 
-        private static void AssertNoErrors(string error, string dataSetName)
+        private static void AssertNoErrors(string error)
         {
             foreach (var line in error.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
