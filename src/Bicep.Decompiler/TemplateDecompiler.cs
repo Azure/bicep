@@ -19,11 +19,10 @@ namespace Bicep.Decompiler
 {
     public static class TemplateDecompiler
     {
-        public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, Uri entryJsonUri)
+        public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, Uri entryJsonUri, Uri entryBicepUri)
         {
             var workspace = new Workspace();
             var decompileQueue = new Queue<(Uri, Uri)>();
-            var entryBicepUri = PathHelper.ChangeToBicepExtension(entryJsonUri);
 
             decompileQueue.Enqueue((entryJsonUri, entryBicepUri));
 
@@ -46,7 +45,7 @@ namespace Bicep.Decompiler
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, jsonUri, jsonInput);
+                var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput);
                 var syntaxTree = new SyntaxTree(bicepUri, ImmutableArray<int>.Empty, program);
                 workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
 
