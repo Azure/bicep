@@ -1,12 +1,7 @@
-# Azure Container Registry
+# Migration of examples
 
-This sample Bicep file creates an Azure Container Registry.
+The bicep examples are being integrated into the [Azure QuickStart Template repo](https://github.com/Azure/azure-quickstart-templates).
 
-## Getting started ##
+This sample has been moved to https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.containerregistry/container-registry.
 
-* [Install the Bicep CLI](https://github.com/Azure/bicep/blob/main/docs/installing.md) by following the instruction.
-* Build the `main.bicep` file by running the Bicep CLI command:
-  
-```bash
-bicep build ./main.bicep
-```
+It will also remain here as reference for the time being.

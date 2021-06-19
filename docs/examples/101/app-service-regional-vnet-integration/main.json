@@ -5,52 +5,61 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4099931117723226169"
+      "templateHash": "861346519223189514"
     }
   },
   "parameters": {
     "location": {
-      "type": "string"
-    },
-    "nameprefix": {
-      "type": "string"
-    },
-    "vnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/16"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "The location in which all resources should be deployed."
+      }
     },
-    "subnetAddressPrefix": {
+    "appName": {
       "type": "string",
-      "defaultValue": "10.0.0.0/24"
+      "defaultValue": "[uniqueString(resourceGroup().id)]",
+      "metadata": {
+        "description": "The name of the app to create."
+      }
     }
   },
   "functions": [],
+  "variables": {
+    "appServicePlanName": "[format('{0}{1}', parameters('appName'), uniqueString(subscription().subscriptionId))]",
+    "vnetName": "[format('{0}vnet', parameters('appName'))]",
+    "vnetAddressPrefix": "10.0.0.0/16",
+    "subnetName": "[format('{0}sn', parameters('appName'))]",
+    "subnetAddressPrefix": "10.0.0.0/24",
+    "appServicePlanSku": "S1"
+  },
   "resources": [
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}asp', parameters('nameprefix'))]",
+      "name": "[variables('appServicePlanName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "S1"
-      }
+        "name": "[variables('appServicePlanSku')]"
+      },
+      "kind": "app"
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}vnet', parameters('nameprefix'))]",
+      "name": "[variables('vnetName')]",
       "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[parameters('vnetAddressPrefix')]"
+            "[variables('vnetAddressPrefix')]"
           ]
         },
         "subnets": [
           {
-            "name": "[format('{0}sn', parameters('nameprefix'))]",
+            "name": "[variables('subnetName')]",
             "properties": {
-              "addressPrefix": "[parameters('subnetAddressPrefix')]",
+              "addressPrefix": "[variables('subnetAddressPrefix')]",
               "delegations": [
                 {
                   "name": "delegation",
@@ -67,27 +76,28 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}wa', parameters('nameprefix'))]",
+      "name": "[parameters('appName')]",
       "location": "[parameters('location')]",
       "kind": "app",
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}asp', parameters('nameprefix')))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', format('{0}asp', parameters('nameprefix')))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', format('{0}vnet', parameters('nameprefix')))]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
       ]
     },
     {
       "type": "Microsoft.Web/sites/networkConfig",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/virtualNetwork', format('{0}wa', parameters('nameprefix')))]",
+      "name": "[format('{0}/{1}', parameters('appName'), 'virtualNetwork')]",
       "properties": {
-        "subnetResourceId": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('{0}vnet', parameters('nameprefix')))).subnets[0].id]"
+        "subnetResourceId": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))).subnets[0].id]",
+        "swiftSupported": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', format('{0}vnet', parameters('nameprefix')))]",
-        "[resourceId('Microsoft.Web/sites', format('{0}wa', parameters('nameprefix')))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
       ]
     }
   ]

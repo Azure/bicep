@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Linq;
 using System.IO;
 
 namespace Bicep.Core.FileSystem
@@ -12,7 +11,7 @@ namespace Bicep.Core.FileSystem
 
         private const string TemplateOutputExtension = ".json";
 
-        private const string BicepExtension = ".bicep";
+        private const string BicepExtension = LanguageConstants.LanguageFileExtension;
 
         public static StringComparer PathComparer => IsFileSystemCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 

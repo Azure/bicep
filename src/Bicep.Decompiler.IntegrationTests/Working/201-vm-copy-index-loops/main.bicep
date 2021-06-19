@@ -1,26 +1,26 @@
 @description('Admin username for VM')
 param adminUsername string
 
+@description('Number of VMs to deploy, limit 398 since there is an 800 resource limit for a single template deployment')
 @minValue(2)
 @maxValue(398)
-@description('Number of VMs to deploy, limit 398 since there is an 800 resource limit for a single template deployment')
 param numberOfInstances int = 4
 
+@description('OS Platform for the VM')
 @allowed([
   'Ubuntu'
   'Windows'
 ])
-@description('OS Platform for the VM')
 param OS string = 'Ubuntu'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
+@description('Type of authentication to use on the Virtual Machine. SSH key is recommended.')
 @allowed([
   'sshPublicKey'
   'password'
 ])
-@description('Type of authentication to use on the Virtual Machine. SSH key is recommended.')
 param authenticationType string = 'sshPublicKey'
 
 @description('SSH Key or password for the Virtual Machine. SSH key is recommended.')
