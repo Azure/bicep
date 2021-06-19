@@ -8,6 +8,7 @@ using Bicep.Cli.CommandLine.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -198,53 +199,53 @@ namespace Bicep.Cli
         {
             try
             {
-                var (_, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
-                foreach (var (_, bicepOutput) in filesToSave)
+                var jsonUri = PathHelper.FilePathToFileUrl(jsonPath);
+                var bicepUri = PathHelper.FilePathToFileUrl(outputPath);
+
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), jsonUri, bicepUri);
+                var workspace = new Workspace();
+                foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
-                    File.WriteAllText(outputPath, bicepOutput);
+                    File.WriteAllText(fileUri.LocalPath, bicepOutput);
+                    workspace.UpsertSyntaxTrees(SyntaxTree.Create(fileUri, bicepOutput).AsEnumerable());
                 }
 
-                var outputPathToCheck = Path.GetFullPath(outputPath);
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(outputPathToCheck));
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entrypointUri);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
                 return LogDiagnosticsAndCheckSuccess(logger, compilation) ? 0 : 1;
             }
             catch (Exception exception)
             {
-                this.errorWriter.WriteLine(string.Format(CliResources.DecompiliationFailedFormat, jsonPath, exception.Message));
+                this.errorWriter.WriteLine(string.Format(CliResources.DecompilationFailedFormat, jsonPath, exception.Message));
                 return 1;
             }
         }
 
         private int DecompileToStdout(IDiagnosticLogger logger, string jsonPath)
         {
-            var tempOutputPath = Path.ChangeExtension(Path.GetTempFileName(), "bicep");
             try
             {
-                var (_, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonPath));
-                foreach (var (_, bicepOutput) in filesToSave)
+                var jsonUri = PathHelper.FilePathToFileUrl(jsonPath);
+                var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
+
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), jsonUri, bicepUri);
+                var workspace = new Workspace();
+                foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
                     this.outputWriter.Write(bicepOutput);
-                    File.WriteAllText(tempOutputPath, bicepOutput);
+                    workspace.UpsertSyntaxTrees(SyntaxTree.Create(fileUri, bicepOutput).AsEnumerable());
                 }
 
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(tempOutputPath));
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entrypointUri);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
                 return LogDiagnosticsAndCheckSuccess(logger, compilation) ? 0 : 1;
             }
             catch (Exception exception)
             {
-                this.errorWriter.WriteLine(string.Format(CliResources.DecompiliationFailedFormat, jsonPath, exception.Message));
+                this.errorWriter.WriteLine(string.Format(CliResources.DecompilationFailedFormat, jsonPath, exception.Message));
                 return 1;
-            }
-            finally
-            {
-                if (File.Exists(tempOutputPath))
-                {
-                    File.Delete(tempOutputPath);
-                }
             }
         }
 
