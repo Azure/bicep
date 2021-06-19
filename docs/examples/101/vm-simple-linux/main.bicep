@@ -1,24 +1,24 @@
-// The name of your Virtual Machine.
+@description('The name of you Virtual Machine.')
 param vmName string = 'simpleLinuxVM'
 
-// Username for the Virtual Machine.
+@description('Username for the Virtual Machine.')
 param adminUsername string
 
-// Type of authentication to use on the Virtual Machine. SSH key is recommended.
-
+@description('Type of authentication to use on the Virtual Machine. SSH key is recommended.')
 @allowed([
   'sshPublicKey'
   'password'
 ])
 param authenticationType string = 'password'
 
-// SSH Key or password for the Virtual Machine. SSH key is recommended.
+@description('SSH Key or password for the Virtual Machine. SSH key is recommended.')
+@secure()
 param adminPasswordOrKey string
 
-// Unique DNS Name for the Public IP used to access the Virtual Machine.
+@description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
 param dnsLabelPrefix string = toLower('simplelinuxvm-${uniqueString(resourceGroup().id)}')
 
-// The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.
+@description('The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.')
 @allowed([
   '12.04.5-LTS'
   '14.04.5-LTS'
@@ -27,24 +27,23 @@ param dnsLabelPrefix string = toLower('simplelinuxvm-${uniqueString(resourceGrou
 ])
 param ubuntuOSVersion string = '18.04-LTS'
 
-// Location for all resources.
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
-// The size of the VM.
+@description('The size of the VM')
 param vmSize string = 'Standard_B2s'
 
-// Name of the VNET.
+@description('Name of the VNET')
 param virtualNetworkName string = 'vNet'
 
-// Name of the subnet in the virtual network.
+@description('Name of the subnet in the virtual network')
 param subnetName string = 'Subnet'
 
-// Name of the Network Security Group.
+@description('Name of the Network Security Group')
 param networkSecurityGroupName string = 'SecGroupNet'
 
 var publicIPAddressName = '${vmName}PublicIP'
 var networkInterfaceName = '${vmName}NetInt'
-var subnetRef = '${vnet.id}/subnets/${subnetName}'
 var osDiskType = 'Standard_LRS'
 var subnetAddressPrefix = '10.1.0.0/24'
 var addressPrefix = '10.1.0.0/16'
@@ -69,7 +68,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
         name: 'ipconfig1'
         properties: {
           subnet: {
-            id: subnetRef
+            id: subnet.id
           }
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
@@ -115,22 +114,25 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
         addressPrefix
       ]
     }
-    subnets: [
-      {
-        name: subnetName
-        properties: {
-          addressPrefix: subnetAddressPrefix
-          privateEndpointNetworkPolicies: 'Enabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
-        }
-      }
-    ]
+  }
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+  parent: vnet
+  name: subnetName
+  properties: {
+    addressPrefix: subnetAddressPrefix
+    privateEndpointNetworkPolicies: 'Enabled'
+    privateLinkServiceNetworkPolicies: 'Enabled'
   }
 }
 
 resource publicIP 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: publicIPAddressName
   location: location
+  sku: {
+    name: 'Basic'
+  }
   properties: {
     publicIPAllocationMethod: 'Dynamic'
     publicIPAddressVersion: 'IPv4'
@@ -138,9 +140,6 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
       domainNameLabel: dnsLabelPrefix
     }
     idleTimeoutInMinutes: 4
-  }
-  sku: {
-    name: 'Basic'
   }
 }
 
@@ -176,11 +175,11 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
       computerName: vmName
       adminUsername: adminUsername
       adminPassword: adminPasswordOrKey
-      linuxConfiguration: any(authenticationType == 'password' ? null : linuxConfiguration) // TODO: workaround for https://github.com/Azure/bicep/issues/449
+      linuxConfiguration: ((authenticationType == 'password') ? null : linuxConfiguration)
     }
   }
 }
 
-output administratorUsername string = adminUsername
+output adminUsername string = adminUsername
 output hostname string = publicIP.properties.dnsSettings.fqdn
-output sshCommand string = 'ssh${adminUsername}@${publicIP.properties.dnsSettings.fqdn}'
+output sshCommand string = 'ssh ${adminUsername}@${publicIP.properties.dnsSettings.fqdn}'
