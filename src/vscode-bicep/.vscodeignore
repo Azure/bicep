@@ -1,15 +1,11 @@
-# ignore all by default
-*
-*/**
+# project config
+/.vscode
+/.gitignore
 
-# allow the following
-!out/**/*
-!bicepLanguageServer/**/*
-!icons/**/*
-!schemas/**/*
-!syntaxes/**/*
-!language-configuration.json
-!package.json
-!README.md
-!CHANGELOG.md
-!LICENSE.txt
+# source files
+/src
+/node_modules
+/*.js
+/*.ts
+/tsconfig.json
+/tsconfig.e2e.json
