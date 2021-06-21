@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -40,7 +41,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ")]
         [DataRow(0, @"
         param param1 string
-        var location = 'http://schema.management.core.windows.net'
+        var location = 'http://schema.management.azure.com'
         output sub int = sum
         ")]
         [DataRow(1, @"
@@ -50,7 +51,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ")]
         [DataRow(0, @"
         param param1 string
-        var location = 'https://schema.management.core.windows.net'
+        var location = 'https://schema.management.azure.com'
+        output sub int = sum
+        ")]
+        [DataRow(0, @"
+        param param1 string
+        var location = 'https://zzzzzz.schema.management.azure.com'
         output sub int = sum
         ")]
         [DataRow(1, @"
@@ -78,7 +84,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
           name: 'name'
           location: resourceGroup().location
           sku: {
-            name: 'http://schema.azuredatalakestore.net'
+            name: 'http://schema.management.azure.com'
             capacity: 1
           }
         }
@@ -114,12 +120,72 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(0, @"
         param p1 string
         param p2 string
-        var a = concat('${p1}${'https://schema.azuredatalakestore.net'}${p2}', 'foo')
+        var a = concat('${p1}${'https://schema.management.azure.com'}${p2}', 'foo')
         ")]
         [DataTestMethod]
         public void InsideExpressions(int diagnosticCount, string text)
         {
             CompileAndTest(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
+        }
+
+        [DataTestMethod]
+        // valid matches
+        [DataRow("azure.schema.management.azure.com", true)]
+        [DataRow("aschema.management.azure.com", true)]
+        [DataRow("azure.aschema.management.azure.com", true)]
+        [DataRow("management.azure.com",true)]
+        [DataRow("http://management.azure.com", true)]
+        [DataRow("https://management.azure.com", true)]
+        [DataRow("subdomain1.management.azure.com", true)]
+        [DataRow("http://subdomain1.management.azure.com", true)]
+        [DataRow("https://subdomain1.management.azure.com", true)]
+        // should not match
+        [DataRow("othermanagement.azure.com", false)]
+        [DataRow("azure.schema.mannnnagement.azure.com", false)]
+        [DataRow("management.azzzzure.com", false)]
+        [DataRow("http://management.azzzzure.com", false)]
+        [DataRow("https://management.azzzzure.com", false)]
+        [DataRow("subdomain1.management.azzzure.com", false)]
+        [DataRow("http://subdomain1.manageeeement.azure.com", false)]
+        [DataRow("https://subdomain1.managemeeeent.azure.com", false)]
+        public void DisallowedHostsRegexTest(string host, bool isMatch)
+        {
+            var rule = new NoHardcodedEnvironmentUrlsRule();
+            var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
+            rule.Configure(configHelper.Config);
+
+            var regex = rule.CreateDisallowedHostRegex();
+            Assert.AreEqual(isMatch, regex.IsMatch(host));
+        }
+
+        [DataTestMethod]
+        // valid matches
+        [DataRow("schema.management.azure.com", true)]
+        [DataRow("http://schema.management.azure.com", true)]
+        [DataRow("https://schema.management.azure.com", true)]
+        [DataRow("subany.schema.management.azure.com", true)]
+        [DataRow("http://subany.schema.management.azure.com", true)]
+        [DataRow("https://subany.schema.management.azure.com", true)]
+        [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", true)]
+        // should not match
+        [DataRow("aschema.management.azure.com", false)]
+        [DataRow("azure.aschema.management.azure.com", false)]
+        [DataRow("management.azure.com", false)]
+        [DataRow("http://management.azure.com", false)]
+        [DataRow("https://management.azure.com", false)]
+        [DataRow("subdomain1.management.azure.com", false)]
+        [DataRow("http://subdomain1.management.azure.com", false)]
+        [DataRow("https://subdomain1.management.azure.com", false)]
+        [DataRow("all the world is a stage, but subdomain1.management.azure.com should not be hardcoded", false)]
+        [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", true)]
+        public void ExcludedHostsRegexTest(string host, bool isMatch)
+        {
+            var rule = new NoHardcodedEnvironmentUrlsRule();
+            var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
+            rule.Configure(configHelper.Config);
+
+            var regex = rule.CreateExcludedHostsRegex();
+            Assert.AreEqual(isMatch, regex.IsMatch(host));
         }
     }
 }
