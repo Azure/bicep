@@ -5,13 +5,12 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15807647401599041046"
+      "templateHash": "4546637334796479546"
     }
   },
   "parameters": {
     "storageaccountlocation": {
-      "type": "string",
-      "defaultValue": "westeurope"
+      "type": "string"
     },
     "storageaccountName": {
       "type": "string"

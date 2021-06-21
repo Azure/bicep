@@ -4,11 +4,10 @@ param logAnalyticslocation string = 'westeurope'
 param logAnalyticsWorkspaceSku string = 'pergb2018'
 param hostpoolName string
 param workspaceName string
-param logAnalyticsResourceGroup string
-param wvdBackplaneResourceGroup string
+param avdBackplaneResourceGroup string
 
-//Creaye Log Analytics Workspace
-resource wvdla 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
+//Create Log Analytics Workspace
+resource avdla 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsWorkspaceName
   location: logAnalyticslocation
   properties: {
@@ -18,12 +17,12 @@ resource wvdla 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   }
 }
 
-//Create Diagnotic Setting for WVD components
-module wvdmonitor './wvd-monitor-diag.bicep' = {
+//Create Diagnotic Setting for AVD components
+module avdmonitor './avd-monitor-diag.bicep' = {
   name: 'myBicepLADiag'
-  scope: resourceGroup(wvdBackplaneResourceGroup)
+  scope: resourceGroup(avdBackplaneResourceGroup)
   params: {
-    logAnalyticsWorkspaceID: wvdla.id
+    logAnalyticsWorkspaceID: avdla.id
     hostpoolName: hostpoolName
     workspaceName: workspaceName
   }

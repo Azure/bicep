@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13756174928718894120"
+      "templateHash": "14703761931839700056"
     }
   },
   "parameters": {
@@ -24,7 +24,7 @@
     },
     "subnetName": {
       "type": "string",
-      "defaultValue": "WVD"
+      "defaultValue": "AVD"
     }
   },
   "functions": [],
