@@ -19,17 +19,19 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "no-hardcoded-env-urls";
 
         private ImmutableHashSet<string>? DisallowedHosts;
-        private Regex hostRegex;
-        private Regex schemaRegex;
+        private readonly Lazy<Regex> hostRegexLazy;
+        private Regex hostRegex => hostRegexLazy.Value;
+
+        private readonly Lazy<Regex> schemaRegexLazy;
+        private Regex schemaRegex => schemaRegexLazy.Value;
 
         public NoHardcodedEnvironmentUrlsRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
         {
-
-            var schemaMatchStr = ;
-            var schemaRegex = 
+            this.hostRegexLazy = new Lazy<Regex>(CreateDisallowedHostRegex);
+            this.schemaRegexLazy = new Lazy<Regex>(CreateSchemaRegex);
         }
 
         public override void Configure(IConfigurationRoot config)
@@ -46,19 +48,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             new Regex(string.Join('|', this.DisallowedHosts), RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private Regex CreateSchemaRegex() =>
-            new Regex(@"https://schema\.", RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.IgnoreCase);
+            new Regex(@"https://schema\.|http://schema\.", RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.IgnoreCase);
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             if (this.DisallowedHosts != null && this.DisallowedHosts.Any())
             {
-                // "lazy" load the regex but keep around as compiled
-                this.hostRegex = this.hostRegex ?? CreateDisallowedHostRegex();
-                this.schemaRegex = this.schemaRegex ?? CreateSchemaRegex();
-
-                var visitor = new Visitor(this.DisallowedHosts);
+                var visitor = new Visitor(this.hostRegex, this.schemaRegex);
                 visitor.Visit(model.SyntaxTree.ProgramSyntax);
-                return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.span, entry.host));
+                return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
 
             return Enumerable.Empty<IDiagnostic>();
@@ -66,59 +64,36 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class Visitor : SyntaxVisitor
         {
-            public readonly List<(string host, TextSpan span)> DisallowedHostSpans = new List<(string host, TextSpan span)>();
-            private readonly Regex disallowedHostsRegex;
+            public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new Dictionary<TextSpan, string>();
+            private readonly Regex hostRegex;
             private readonly Regex schemaRegex;
 
             public Visitor(Regex disallowedRegex, Regex schemaRegex)
             {
-                this.disallowedHostsRegex = disallowedRegex;
+                this.hostRegex = disallowedRegex;
                 this.schemaRegex = schemaRegex;
             }
 
             public override void VisitStringSyntax(StringSyntax syntax)
             {
-                **************************************
-                //TODO: convert match spans into dignostics
-                foreach (Match match in regexMatch.Matches(host))
+                foreach (var segment in syntax.SegmentValues)
                 {
-                    hostCt++;
-                    //and see if it's preceeded by a schema.
-                    var schemaMatch = schemaRegex.Match(host, match.Index);
-
-                    // schema is found immediately preceeding this host match
-                    bool schemaFound = schemaMatch.Success && (schemaMatch.Index + schemaMatch.Length) == match.Index;
-                    if (schemaFound)
+                    // does this segment have a host match
+                    foreach (Match match in this.hostRegex.Matches(segment))
                     {
-                        schemaCt++;
+                        //and see if the match is preceeded by a schema.
+                        var schemaMatch = this.schemaRegex.Match(segment, match.Index);
+
+                        // schema is found immediately preceeding this host match
+                        bool schemaFound = schemaMatch.Success && (schemaMatch.Index + schemaMatch.Length) == match.Index;
+                        if (!schemaFound)
+                        {
+                            this.DisallowedHostSpans[syntax.Span] = match.Value;
+                        }
                     }
+                    base.VisitStringSyntax(syntax);
                 }
-                var disallowedHost = syntax.SegmentValues.Select(s => FindEnvironmentUrlInString(s))
-                    .Where(span => span != null)
-                    .FirstOrDefault();
-                if (disallowedHost != null)
-                {
-                    this.DisallowedHostSpans.Add((disallowedHost, syntax.Span));
-                }
-
-                base.VisitStringSyntax(syntax);
             }
-
-            private string? FindEnvironmentUrlInString(string str)
-            {
-                foreach (var host in this.disallowedHosts)
-                {
-                    var index = str.IndexOf(host, StringComparison.InvariantCultureIgnoreCase);
-                    if (index >= 0)
-                    {
-                        return host;
-                    }
-                };
-
-                return null;
-            }
-            ***********************************************
         }
-
     }
 }
