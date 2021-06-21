@@ -1,4 +1,4 @@
-# Migration of exaples
+# Migration of examples
 
 The bicep examples are being integrated into the [Azure QuickStart Template repo](https://github.com/Azure/azure-quickstart-templates).
 
