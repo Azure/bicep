@@ -45,7 +45,4 @@ resource subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   properties: {
     addressPrefix: subnet2Prefix
   }
-  dependsOn: [
-    subnet1
-  ]
 }
