@@ -320,8 +320,8 @@
         "description": "101/website-with-container"
     },
     {
-        "filePath": "101/wvd-backplane/main.bicep",
-        "description": "101/wvd-backplane"
+        "filePath": "101/avd-backplane/main.bicep",
+        "description": "101/avd-backplane"
     },
     {
         "filePath": "201/1vm-2nics-2subnets-1vnet/main.bicep",
@@ -444,8 +444,8 @@
         "description": "201/vm-new-or-existing-conditions"
     },
     {
-        "filePath": "201/vm-push-cert-windows/main.bicep",
-        "description": "201/vm-push-cert-windows"
+        "filePath": "201/vm-push-certificate-windows/main.bicep",
+        "description": "201/vm-push-certificate-windows"
     },
     {
         "filePath": "201/vm-windows-with-custom-script-extension/main.bicep",
@@ -456,8 +456,8 @@
         "description": "201/vmss-windows-autoscale"
     },
     {
-        "filePath": "201/vnet-peering/main.bicep",
-        "description": "201/vnet-peering"
+        "filePath": "201/existing-vnet-to-vnet-peering/main.bicep",
+        "description": "201/existing-vnet-to-vnet-peering"
     },
     {
         "filePath": "201/vnet-to-vnet-bgp/main.bicep",
@@ -496,8 +496,8 @@
         "description": "201/web-app-sql-database"
     },
     {
-        "filePath": "201/wvd-backplane-with-network-and-storage-and-monitoring/main.bicep",
-        "description": "201/wvd-backplane-with-network-and-storage-and-monitoring"
+        "filePath": "201/avd-backplane-with-network-and-storage-and-monitoring/main.bicep",
+        "description": "201/avd-backplane-with-network-and-storage-and-monitoring"
     },
     {
         "filePath": "201/vm-windows10-with-nvidia-gpu-extension-and-condition/main.bicep",
@@ -514,6 +514,10 @@
     {
         "filePath": "201/wvd-create-hostpool/main.bicep",
         "description": "201/wvd-create-hostpool"
+    },
+    {
+        "filePath": "201/budget-subscription-with-notifications/main.bicep",
+        "description": "201/budget-subscription-with-notifications"
     },
     {
         "filePath": "301/expressroute-circuit-vnet-connection/main.bicep",
@@ -566,5 +570,9 @@
     {
         "filePath": "301/automation-account-import-runbooks-and-modules/main.bicep",
         "description": "301/automation-account-import-runbooks-and-modules"
+    },
+    {
+        "filePath": "301/management-groups-nested-with-subscriptions/main.bicep",
+        "description": "301/management-groups-nested-with-subscriptions"
     }
 ]

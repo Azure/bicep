@@ -1,0 +1,87 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15340131888003421698"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string",
+      "defaultValue": "[subscription().displayName]",
+      "metadata": {
+        "description": "Budget name. If not provided will default to subscription display name"
+      }
+    },
+    "amount": {
+      "type": "int",
+      "metadata": {
+        "description": "The total amount of cost to track with the budget"
+      }
+    },
+    "resetPeriod": {
+      "type": "string",
+      "allowedValues": [
+        "Monthly",
+        "Quarterly",
+        "Annually"
+      ],
+      "metadata": {
+        "description": "The time window covered by the budget. Tracking of the amount will be reset based on the reset period"
+      }
+    },
+    "startDate": {
+      "type": "string",
+      "metadata": {
+        "description": "The start date of the budget in date format YYYY-MM-DD. Start date should not exceed more than three months in the future"
+      }
+    },
+    "endDate": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The end date of the budget in date format YYYY-MM-DD. If not provided will default to 10 years from start date"
+      }
+    },
+    "notifications": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "enabled": "Boolean to enable budget",
+        "operator": "Budget operator, e.g. GreaterThan",
+        "threshold": "Integer specifying the threshold value associated with the notification. Notification is sent when the cost exceeded the threshold",
+        "contactEmails": [
+          "The list of email addresses to send the budget notification to when the threshold is exceeded"
+        ],
+        "contactRoles": [
+          "The list of contact roles to send the budget notification to when the threshold is exceeded"
+        ],
+        "contactGroups": [
+          "The list of action groups to send the budget notification to when the threshold is exceeded"
+        ],
+        "description": "Budget notifications"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Consumption/budgets",
+      "apiVersion": "2019-10-01",
+      "name": "[parameters('name')]",
+      "properties": {
+        "amount": "[parameters('amount')]",
+        "category": "Cost",
+        "timeGrain": "[parameters('resetPeriod')]",
+        "timePeriod": {
+          "startDate": "[parameters('startDate')]",
+          "endDate": "[if(not(empty(parameters('endDate'))), parameters('endDate'), null())]"
+        },
+        "notifications": "[if(not(empty(parameters('notifications'))), parameters('notifications'), null())]"
+      }
+    }
+  ]
+}

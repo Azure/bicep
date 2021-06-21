@@ -1,19 +1,27 @@
-param location string
-param nameprefix string
+@description('The location in which all resources should be deployed.')
+param location string = resourceGroup().location
 
-param vnetAddressPrefix string = '10.0.0.0/16'
-param subnetAddressPrefix string = '10.0.0.0/24'
+@description('The name of the app to create.')
+param appName string = uniqueString(resourceGroup().id)
 
-resource appsvc 'Microsoft.Web/serverfarms@2020-06-01' = {
-  name: '${nameprefix}asp'
+var appServicePlanName = '${appName}${uniqueString(subscription().subscriptionId)}'
+var vnetName = '${appName}vnet'
+var vnetAddressPrefix = '10.0.0.0/16'
+var subnetName = '${appName}sn'
+var subnetAddressPrefix = '10.0.0.0/24'
+var appServicePlanSku = 'S1'
+
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
+  name: appServicePlanName
   location: location
   sku: {
-    name: 'S1'
+    name: appServicePlanSku
   }
+  kind: 'app'
 }
 
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-  name: '${nameprefix}vnet'
+  name: vnetName
   location: location
   properties: {
     addressSpace: {
@@ -23,7 +31,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     }
     subnets: [
       {
-        name: '${nameprefix}sn'
+        name: subnetName
         properties: {
           addressPrefix: subnetAddressPrefix
           delegations: [
@@ -40,22 +48,23 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
-resource webapp1 'Microsoft.Web/sites@2020-06-01' = {
-  name: '${nameprefix}wa'
+resource webApp 'Microsoft.Web/sites@2020-06-01' = {
+  name: appName
   location: location
   kind: 'app'
+  properties: {
+    serverFarmId: appServicePlan.id
+  }
   dependsOn: [
-    appsvc
     vnet
   ]
-  properties: {
-    serverFarmId: appsvc.id
-  }
 }
 
-resource webapp1vnet 'Microsoft.Web/sites/networkConfig@2020-06-01' = {
-  name: '${webapp1.name}/virtualNetwork'
+resource webappVnet 'Microsoft.Web/sites/networkConfig@2020-06-01' = {
+  parent: webApp
+  name: 'virtualNetwork'
   properties: {
     subnetResourceId: vnet.properties.subnets[0].id
+    swiftSupported: true
   }
 }

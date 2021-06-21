@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14507995084482624053"
+    }
+  },
+  "parameters": {
+    "managementGroupId": {
+      "type": "string",
+      "metadata": {
+        "description": "Management group id"
+      }
+    },
+    "managementGroupDisplayName": {
+      "type": "string",
+      "metadata": {
+        "description": "Management group display name"
+      }
+    },
+    "parentManagementGroupId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Management group id of the parent management group"
+      }
+    },
+    "subscriptionIds": {
+      "type": "array",
+      "metadata": {
+        "description": "Subscription id of the subscription(s) to add to the management group"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('managementGroupId')]",
+      "properties": {
+        "displayName": "[parameters('managementGroupDisplayName')]",
+        "details": {
+          "parent": {
+            "id": "[if(not(empty(parameters('parentManagementGroupId'))), format('/providers/Microsoft.Management/managementGroups/{0}', parameters('parentManagementGroupId')), null())]"
+          }
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "managementGroupsubscriptions",
+        "count": "[length(parameters('subscriptionIds'))]"
+      },
+      "type": "Microsoft.Management/managementGroups/subscriptions",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}/{1}', parameters('managementGroupId'), parameters('subscriptionIds')[copyIndex()])]",
+      "dependsOn": [
+        "[tenantResourceId('Microsoft.Management/managementGroups', parameters('managementGroupId'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "managementGroupID": {
+      "type": "string",
+      "value": "[parameters('managementGroupId')]"
+    }
+  }
+}
