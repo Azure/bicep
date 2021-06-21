@@ -88,4 +88,3 @@ resource avdid 'Microsoft.Compute/galleries/images@2019-07-01' = {
 }
 
 output avdidoutput string = avdid.id
-

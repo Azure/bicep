@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1.14562",
-      "templateHash": "15672807788475663067"
+      "version": "dev",
+      "templateHash": "7948946427398383311"
     }
   },
   "parameters": {
@@ -225,8 +225,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1.14562",
-              "templateHash": "1230089394843247934"
+              "version": "dev",
+              "templateHash": "4010150104196921853"
             }
           },
           "parameters": {
@@ -364,8 +364,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.1.14562",
-                      "templateHash": "18312149735836951675"
+                      "version": "dev",
+                      "templateHash": "3864819428445360434"
                     }
                   },
                   "parameters": {
@@ -430,8 +430,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.4.1.14562",
-                              "templateHash": "4612671530529184096"
+                              "version": "dev",
+                              "templateHash": "1455955442339016099"
                             }
                           },
                           "parameters": {
@@ -561,8 +561,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1.14562",
-              "templateHash": "2824711255064881987"
+              "version": "dev",
+              "templateHash": "14703761931839700056"
             }
           },
           "parameters": {
@@ -658,8 +658,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1.14562",
-              "templateHash": "15643128858186186395"
+              "version": "dev",
+              "templateHash": "4546637334796479546"
             }
           },
           "parameters": {
@@ -750,8 +750,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1.14562",
-              "templateHash": "13756096927300783587"
+              "version": "dev",
+              "templateHash": "10923208776356047399"
             }
           },
           "parameters": {
@@ -895,8 +895,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1.14562",
-              "templateHash": "7922586351962567340"
+              "version": "dev",
+              "templateHash": "2423311947255325908"
             }
           },
           "parameters": {
@@ -932,36 +932,6 @@
               "apiVersion": "2020-09-30",
               "name": "[parameters('sigName')]",
               "location": "[parameters('sigLocation')]"
-            },
-            {
-              "type": "Microsoft.Compute/galleries/images",
-              "apiVersion": "2019-07-01",
-              "name": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]",
-              "location": "[parameters('sigLocation')]",
-              "properties": {
-                "osType": "Windows",
-                "osState": "Generalized",
-                "identifier": {
-                  "publisher": "[parameters('imagePublisher')]",
-                  "offer": "[parameters('imageOffer')]",
-                  "sku": "[parameters('imageSKU')]"
-                },
-                "recommended": {
-                  "vCPUs": {
-                    "min": 2,
-                    "max": 32
-                  },
-                  "memory": {
-                    "min": 4,
-                    "max": 64
-                  }
-                },
-                "hyperVGeneration": "V2"
-              },
-              "tags": {},
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/galleries', parameters('sigName'))]"
-              ]
             },
             {
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
@@ -1010,16 +980,46 @@
                 "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
               ]
+            },
+            {
+              "type": "Microsoft.Compute/galleries/images",
+              "apiVersion": "2019-07-01",
+              "name": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]",
+              "location": "[parameters('sigLocation')]",
+              "properties": {
+                "osType": "Windows",
+                "osState": "Generalized",
+                "identifier": {
+                  "publisher": "[parameters('imagePublisher')]",
+                  "offer": "[parameters('imageOffer')]",
+                  "sku": "[parameters('imageSKU')]"
+                },
+                "recommended": {
+                  "vCPUs": {
+                    "min": 2,
+                    "max": 32
+                  },
+                  "memory": {
+                    "min": 4,
+                    "max": 64
+                  }
+                },
+                "hyperVGeneration": "V2"
+              },
+              "tags": {},
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/galleries', parameters('sigName'))]"
+              ]
             }
           ],
           "outputs": {
-            "avdidoutput": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Compute/galleries/images', split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[0], split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[1])]"
-            },
             "sigid": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))).roleName]"
+            },
+            "avdidoutput": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Compute/galleries/images', split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[0], split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[1])]"
             }
           }
         }
@@ -1067,8 +1067,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1.14562",
-              "templateHash": "11656084668734285359"
+              "version": "dev",
+              "templateHash": "12367961123551245048"
             }
           },
           "parameters": {
