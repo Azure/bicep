@@ -1,5 +1,5 @@
 //Define Azure Files parmeters
-param storageaccountlocation string = 'westeurope'
+param storageaccountlocation string
 param storageaccountName string
 param storageaccountkind string
 param storgeaccountglobalRedundancy string = 'Premium_LRS'

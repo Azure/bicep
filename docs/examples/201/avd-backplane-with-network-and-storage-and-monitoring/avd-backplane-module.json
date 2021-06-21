@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "9189883791030023076"
+      "version": "0.4.1.14562",
+      "templateHash": "1230089394843247934"
     }
   },
   "parameters": {
@@ -35,7 +35,7 @@
       "type": "string",
       "defaultValue": "Desktop"
     },
-    "wvdbackplanelocation": {
+    "avdbackplanelocation": {
       "type": "string",
       "defaultValue": "eastus"
     },
@@ -51,8 +51,7 @@
       "type": "string"
     },
     "logAnalyticslocation": {
-      "type": "string",
-      "defaultValue": "westeurope"
+      "type": "string"
     },
     "logAnalyticsWorkspaceSku": {
       "type": "string",
@@ -61,7 +60,7 @@
     "logAnalyticsResourceGroup": {
       "type": "string"
     },
-    "wvdBackplaneResourceGroup": {
+    "avdBackplaneResourceGroup": {
       "type": "string"
     }
   },
@@ -71,7 +70,7 @@
       "type": "Microsoft.DesktopVirtualization/hostPools",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('hostpoolName')]",
-      "location": "[parameters('wvdbackplanelocation')]",
+      "location": "[parameters('avdbackplanelocation')]",
       "properties": {
         "friendlyName": "[parameters('hostpoolFriendlyName')]",
         "hostPoolType": "[parameters('hostPoolType')]",
@@ -83,7 +82,7 @@
       "type": "Microsoft.DesktopVirtualization/applicationGroups",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('appgroupName')]",
-      "location": "[parameters('wvdbackplanelocation')]",
+      "location": "[parameters('avdbackplanelocation')]",
       "properties": {
         "friendlyName": "[parameters('appgroupNameFriendlyName')]",
         "applicationGroupType": "[parameters('applicationgrouptype')]",
@@ -97,7 +96,7 @@
       "type": "Microsoft.DesktopVirtualization/workspaces",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('workspaceName')]",
-      "location": "[parameters('wvdbackplanelocation')]",
+      "location": "[parameters('avdbackplanelocation')]",
       "properties": {
         "friendlyName": "[parameters('workspaceNameFriendlyName')]",
         "applicationGroupReferences": [
@@ -134,11 +133,8 @@
           "workspaceName": {
             "value": "[parameters('workspaceName')]"
           },
-          "logAnalyticsResourceGroup": {
-            "value": "[parameters('logAnalyticsResourceGroup')]"
-          },
-          "wvdBackplaneResourceGroup": {
-            "value": "[parameters('wvdBackplaneResourceGroup')]"
+          "avdBackplaneResourceGroup": {
+            "value": "[parameters('avdBackplaneResourceGroup')]"
           }
         },
         "template": {
@@ -147,8 +143,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "dev",
-              "templateHash": "17611419900198401362"
+              "version": "0.4.1.14562",
+              "templateHash": "18312149735836951675"
             }
           },
           "parameters": {
@@ -169,10 +165,7 @@
             "workspaceName": {
               "type": "string"
             },
-            "logAnalyticsResourceGroup": {
-              "type": "string"
-            },
-            "wvdBackplaneResourceGroup": {
+            "avdBackplaneResourceGroup": {
               "type": "string"
             }
           },
@@ -193,7 +186,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2019-10-01",
               "name": "myBicepLADiag",
-              "resourceGroup": "[parameters('wvdBackplaneResourceGroup')]",
+              "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -216,8 +209,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "dev",
-                      "templateHash": "4032270893311280428"
+                      "version": "0.4.1.14562",
+                      "templateHash": "4612671530529184096"
                     }
                   },
                   "parameters": {
@@ -267,7 +260,7 @@
                     {
                       "type": "microsoft.insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
-                      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+                      "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
                       "name": "workspacepool-diag",
                       "properties": {
                         "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",

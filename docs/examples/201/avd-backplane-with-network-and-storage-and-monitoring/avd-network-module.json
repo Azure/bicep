@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "dev",
-      "templateHash": "13756174928718894120"
+      "version": "0.4.1.14562",
+      "templateHash": "2824711255064881987"
     }
   },
   "parameters": {
@@ -24,7 +24,7 @@
     },
     "subnetName": {
       "type": "string",
-      "defaultValue": "WVD"
+      "defaultValue": "AVD"
     }
   },
   "functions": [],
