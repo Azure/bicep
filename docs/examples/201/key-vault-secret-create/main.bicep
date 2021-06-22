@@ -38,10 +38,10 @@ param secretsPermissions array = [
 
 @description('Specifies whether the key vault is a standard vault or a premium vault.')
 @allowed([
-  'Standard'
-  'Premium'
+  'standard'
+  'premium'
 ])
-param skuName string = 'Standard'
+param skuName string = 'standard'
 
 @description('Specifies all secrets {"secretName":"","secretValue":""} wrapped in "secrets" member array in a secure object.')
 @secure()
