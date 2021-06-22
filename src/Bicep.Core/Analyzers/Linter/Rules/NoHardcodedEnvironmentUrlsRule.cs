@@ -19,7 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "no-hardcoded-env-urls";
 
-        private ImmutableArray<string>? DisallowedHosts;
+        public ImmutableArray<string>? DisallowedHosts;
         private ImmutableArray<string>? ExcludedHosts;
 
         private readonly Lazy<Regex> hostRegexLazy;
@@ -57,11 +57,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// </summary>
         /// <returns></returns>
         public Regex CreateDisallowedHostRegex() =>
-            new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|\s|^|/){h.RegexEscaped()}")),
+            new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|\s|^|/){Regex.Escape(h)}")),
                         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public Regex CreateExcludedHostsRegex() =>
-            new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|\s|^|/){h.RegexEscaped()}")),
+            new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|\s|^|/){Regex.Escape(h)}")),
                         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
@@ -98,11 +98,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     foreach (Match match in this.hostRegex.Matches(segment))
                     {
                         // exclusion is found containing the host match
-                        var isExcluded = exclusionMatches.Any( exclusionMatch =>
-                            match.Index > exclusionMatch.Index
-                            && match.Index + match.Length <= exclusionMatch.Index + exclusionMatch.Length);
+                        var isExcluded = exclusionMatches.Any(exclusionMatch =>
+                           match.Index > exclusionMatch.Index
+                           && match.Index + match.Length <= exclusionMatch.Index + exclusionMatch.Length);
 
-                        if(!isExcluded)
+                        if (!isExcluded)
                         {
                             // TODO: split the diagnostics to each occurence
                             // not just for the entire syntax span

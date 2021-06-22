@@ -1,14 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
+using Bicep.Core.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -133,7 +136,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("azure.schema.management.azure.com", true)]
         [DataRow("aschema.management.azure.com", true)]
         [DataRow("azure.aschema.management.azure.com", true)]
-        [DataRow("management.azure.com",true)]
+        [DataRow("management.azure.com", true)]
         [DataRow("http://management.azure.com", true)]
         [DataRow("https://management.azure.com", true)]
         [DataRow("subdomain1.management.azure.com", true)]
