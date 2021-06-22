@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16914268389047195657"
+      "templateHash": "9799993350347910476"
     }
   },
   "parameters": {
@@ -22,12 +22,6 @@
         "description": "Location of the App Service Environment"
       }
     },
-    "existingVirtualNetworkName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the existing VNET"
-      }
-    },
     "existingSubnetName": {
       "type": "string",
       "metadata": {
@@ -40,7 +34,7 @@
     {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', parameters('existingVirtualNetworkName'), parameters('existingSubnetName'))]"
+      "name": "[parameters('existingSubnetName')]"
     },
     {
       "type": "Microsoft.Web/hostingEnvironments",
@@ -53,11 +47,11 @@
         "name": "[parameters('aseName')]",
         "workerPools": [],
         "virtualNetwork": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVirtualNetworkName'), parameters('existingSubnetName'))]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('existingSubnetName'), '/')[0], split(parameters('existingSubnetName'), '/')[1])]"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVirtualNetworkName'), parameters('existingSubnetName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('existingSubnetName'), '/')[0], split(parameters('existingSubnetName'), '/')[1])]"
       ]
     }
   ]
