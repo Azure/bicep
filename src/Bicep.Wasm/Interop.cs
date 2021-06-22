@@ -56,7 +56,8 @@ namespace Bicep.Wasm
 
             try
             {
-                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri);
+                var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
