@@ -1,6 +1,13 @@
+@description('Which Pricing tier our App Service Plan to')
 param skuName string = 'S1'
+
+@description('How many instances of our app service will be scaled out to')
 param skuCapacity int = 1
+
+@description('Location for all resources.')
 param location string = resourceGroup().location
+
+@description('Name that will be used to build associated artifacts')
 param appName string = uniqueString(resourceGroup().id)
 
 var appServicePlanName = toLower('asp-${appName}')
@@ -10,7 +17,7 @@ var logAnalyticsName = toLower('la-${appName}')
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: appServicePlanName // Globally unique storage account name
-  location: location // Azure Region
+  location: location
   sku: {
     name: skuName
     capacity: skuCapacity
@@ -38,9 +45,14 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       minTlsVersion: '1.2'
     }
   }
+  dependsOn: [
+    logAnalyticsWorkspace
+  ]
 }
+
 resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
-  name: '${appService.name}/logs'
+  parent: appService
+  name: 'logs'
   properties: {
     applicationLogs: {
       fileSystem: {
@@ -63,17 +75,19 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
 }
 
 resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
-  name: '${appService.name}/appsettings'
+  parent: appService
+  name: 'appsettings'
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
   }
   dependsOn: [
-    appInsights
     appServiceSiteExtension
   ]
 }
+
 resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
-  name: '${appService.name}/Microsoft.ApplicationInsights.AzureWebsites'
+  parent: appService
+  name: 'Microsoft.ApplicationInsights.AzureWebsites'
   dependsOn: [
     appInsights
   ]
@@ -92,7 +106,7 @@ resource appInsights 'microsoft.insights/components@2020-02-02-preview' = {
   }
 }
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsName
   location: location
   tags: {
@@ -104,5 +118,10 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03
       name: 'PerGB2018'
     }
     retentionInDays: 120
+    features: {
+      searchVersion: 1
+      legacy: 0
+      enableLogAccessUsingOnlyResourcePermissions: true
+    }
   }
 }
