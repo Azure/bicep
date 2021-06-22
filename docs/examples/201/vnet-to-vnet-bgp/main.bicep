@@ -1,7 +1,8 @@
-// converted from https://github.com/Azure/azure-quickstart-templates/tree/master/201-vnet-to-vnet-bgp
+@description('The shared key used to establish connection between the two vNet Gateways.')
 @secure()
 param sharedKey string
 
+@description('The SKU for the VPN Gateway. Cannot be Basic SKU.')
 @allowed([
   'Standard'
   'HighPerformance'
@@ -11,30 +12,30 @@ param sharedKey string
 ])
 param gatewaySku string = 'VpnGw1'
 
+@description('Location of the resources')
 param location string = resourceGroup().location
 
 var vnet1cfg = {
-  name: 'vnet1-${location}'
+  name: 'vNet1-${location}'
   addressSpacePrefix: '10.0.0.0/23'
   subnetName: 'subnet1'
   subnetPrefix: '10.0.0.0/24'
-  gatewayName: 'vpngw1'
+  gatewayName: 'vNet1-Gateway'
   gatewaySubnetPrefix: '10.0.1.224/27'
-  gatewayPublicIPName: 'gw1pip'
-  connectionName: 'vnet1-to-vnet2'
+  gatewayPublicIPName: 'gw1pip${uniqueString(resourceGroup().id)}'
+  connectionName: 'vNet1-to-vNet2'
   asn: 65010
 }
-
 var vnet2cfg = {
   name: 'vnet2-${location}'
   addressSpacePrefix: '10.0.2.0/23'
   subnetName: 'subnet1'
   subnetPrefix: '10.0.2.0/24'
-  gatewayName: 'vpngw2'
+  gatewayName: 'vnet2-Gateway'
   gatewaySubnetPrefix: '10.0.3.224/27'
-  gatewayPublicIPName: 'gw2pip'
+  gatewayPublicIPName: 'gw2pip${uniqueString(resourceGroup().id)}'
   connectionName: 'vnet2-to-vnet1'
-  asn: 65020
+  asn: 65050
 }
 
 resource vnet1 'Microsoft.Network/virtualNetworks@2020-06-01' = {
@@ -53,13 +54,15 @@ resource vnet1 'Microsoft.Network/virtualNetworks@2020-06-01' = {
           addressPrefix: vnet1cfg.subnetPrefix
         }
       }
-      {
-        name: 'GatewaySubnet'
-        properties: {
-          addressPrefix: vnet1cfg.gatewaySubnetPrefix
-        }
-      }
     ]
+  }
+}
+
+resource vnet1GatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
+  parent: vnet1
+  name: 'GatewaySubnet'
+  properties: {
+    addressPrefix: vnet1cfg.gatewaySubnetPrefix
   }
 }
 
@@ -79,16 +82,17 @@ resource vnet2 'Microsoft.Network/virtualNetworks@2020-06-01' = {
           addressPrefix: vnet2cfg.subnetPrefix
         }
       }
-      {
-        name: 'GatewaySubnet'
-        properties: {
-          addressPrefix: vnet2cfg.gatewaySubnetPrefix
-        }
-      }
     ]
   }
 }
 
+resource net2GatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
+  parent: vnet2
+  name: 'GatewaySubnet'
+  properties: {
+    addressPrefix: vnet2cfg.gatewaySubnetPrefix
+  }
+}
 resource gw1pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: vnet1cfg.gatewayPublicIPName
   location: location
@@ -105,17 +109,17 @@ resource gw2pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   }
 }
 
-resource vpngw1 'Microsoft.Network/virtualNetworkGateways@2020-06-01' = {
+resource vnet1Gateway 'Microsoft.Network/virtualNetworkGateways@2020-06-01' = {
   name: vnet1cfg.gatewayName
   location: location
   properties: {
     ipConfigurations: [
       {
-        name: 'vnet1gwipconfig'
+        name: 'vnet1GatewayConfig'
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: '${vnet1.id}/subnets/GatewaySubnet'
+            id: vnet1GatewaySubnet.id
           }
           publicIPAddress: {
             id: gw1pip.id
@@ -136,17 +140,17 @@ resource vpngw1 'Microsoft.Network/virtualNetworkGateways@2020-06-01' = {
   }
 }
 
-resource vpngw2 'Microsoft.Network/virtualNetworkGateways@2020-06-01' = {
+resource vnet2Gateway 'Microsoft.Network/virtualNetworkGateways@2020-05-01' = {
   name: vnet2cfg.gatewayName
   location: location
   properties: {
     ipConfigurations: [
       {
-        name: 'vnet2gwipconfig'
+        name: 'vNet2GatewayConfig'
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: '${vnet2.id}/subnets/GatewaySubnet'
+            id: net2GatewaySubnet.id
           }
           publicIPAddress: {
             id: gw2pip.id
@@ -167,16 +171,16 @@ resource vpngw2 'Microsoft.Network/virtualNetworkGateways@2020-06-01' = {
   }
 }
 
-resource vpn1to2 'Microsoft.Network/connections@2020-06-01' = {
+resource vpn1to2Connection 'Microsoft.Network/connections@2020-05-01' = {
   name: vnet1cfg.connectionName
   location: location
   properties: {
     virtualNetworkGateway1: {
-      id: vpngw1.id
+      id: vnet1Gateway.id
       properties: {}
     }
     virtualNetworkGateway2: {
-      id: vpngw2.id
+      id: vnet2Gateway.id
       properties: {}
     }
     connectionType: 'Vnet2Vnet'
@@ -186,16 +190,16 @@ resource vpn1to2 'Microsoft.Network/connections@2020-06-01' = {
   }
 }
 
-resource vpn2to1 'Microsoft.Network/connections@2020-06-01' = {
+resource vpn2to1Connection 'Microsoft.Network/connections@2020-05-01' = {
   name: vnet2cfg.connectionName
   location: location
   properties: {
     virtualNetworkGateway1: {
-      id: vpngw2.id
+      id: vnet2Gateway.id
       properties: {}
     }
     virtualNetworkGateway2: {
-      id: vpngw1.id
+      id: vnet1Gateway.id
       properties: {}
     }
     connectionType: 'Vnet2Vnet'
