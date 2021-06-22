@@ -1,10 +1,21 @@
+@description('Storage account type')
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+])
 param storageAccountType string = 'Standard_LRS'
+
+@description('Name of file share to be created')
 param fileShareName string = 'sftpfileshare'
+
+@description('Username to use for SFTP access')
 param sftpUser string
 
+@description('Password to use for SFTP access')
 @secure()
 param sftpPassword string
 
+@description('Primary location for resources')
 param location string = resourceGroup().location
 
 var scriptName = 'createFileShare'
@@ -31,7 +42,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -128,4 +139,4 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01'
   }
 }
 
-output containerIpv4Address string = containerGroup.properties.ipAddress.ip
+output containerIPv4Address string = containerGroup.properties.ipAddress.ip
