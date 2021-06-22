@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14567597827528220971"
+      "templateHash": "10746603398479955290"
     }
   },
   "parameters": {
@@ -33,7 +33,7 @@
   "resources": [
     {
       "type": "Microsoft.ServiceBus/namespaces",
-      "apiVersion": "2018-01-01-preview",
+      "apiVersion": "2021-01-01-preview",
       "name": "[parameters('serviceBusNamespaceName')]",
       "location": "[parameters('location')]",
       "sku": {
