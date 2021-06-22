@@ -38,9 +38,13 @@ var networkRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinition
 var privateDnsZoneName = ((toLower(environment().name) == 'azureusgovernment') ? 'privatelink.servicebus.usgovcloudapi.net' : 'privatelink.servicebus.windows.net')
 var vnetResourceId = resourceId('Microsoft.Network/virtualNetworks', existingVNETName)
 
-// asdf todo
+resource existingVNET 'Microsoft.Network/virtualNetworks@2020-04-01' existing = {
+  name: existingVNETName
+}
+
 resource containerSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = {
-  name: '${existingVNETName}/${containerSubnetName}'
+  parent: existingVNET
+  name: containerSubnetName
   properties: {
     addressPrefix: containerSubnetAddressPrefix
     serviceEndpoints: [
@@ -113,9 +117,9 @@ resource relayNamespace_roleAssignment 'Microsoft.Authorization/roleAssignments@
   }
 }
 
-// asdf TODO
 resource relaySubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = {
-  name: '${existingVNETName}/${relaySubnetName}'
+  parent: existingVNET
+  name: relaySubnetName
   properties: {
     addressPrefix: relaySubnetAddressPrefix
     privateEndpointNetworkPolicies: 'Disabled'
@@ -147,9 +151,9 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-04-01' = {
   }
 }
 
-// asdf todo
 resource storageSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = {
-  name: '${existingVNETName}/${storageSubnetName}'
+  parent: existingVNET
+  name: storageSubnetName
   properties: {
     addressPrefix: storageSubnetAddressPrefix
     serviceEndpoints: [
