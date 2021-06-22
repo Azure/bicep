@@ -1,43 +1,73 @@
-// The name of the Azure Redis Cache to create.
+@description('Specify the name of the Azure Redis Cache to create.')
 param redisCacheName string
-// The location of the Redis Cache. For best performance, use the same location as the app to be used with the cache.
-param location string = resourceGroup().location
-// Number of highly available shards to create in the cluster. Requires Premium SKU.
-param redisShardCount int
-// The size of the new Azure Redis Cache instance. Valid family and capacity combinations are (C0..C6, P1..P4).
 
+@description('Location of all resources')
+param location string = resourceGroup().location
+
+@description('Specify the pricing tier of the new Azure Redis Cache.')
 @allowed([
+  'Basic'
+  'Standard'
+  'Premium'
+])
+param redisCacheSKU string = 'Premium'
+
+@description('Specify the family for the sku. C = Basic/Standard, P = Premium.')
+@allowed([
+  'C'
+  'P'
+])
+param redisCacheFamily string = 'P'
+
+@description('Specify the size of the new Azure Redis Cache instance. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4)')
+@allowed([
+  0
   1
   2
   3
   4
+  5
+  6
 ])
 param redisCacheCapacity int = 1
 
-// ResourceId of an existing storage account for diagnostics. Must be in the same subscription.
-param diagsStorageAccountId string
-// Set to true to allow access to redis on port 6379, without SSL tunneling (less secure).
+@description('Set to true to allow access to redis on port 6379, without SSL tunneling (less secure).')
 param enableNonSslPort bool = false
 
-resource cache 'Microsoft.Cache/redis@2015-08-01' = {
+@description('Specify a boolean value that indicates whether diagnostics should be saved to the specified storage account.')
+param diagnosticsEnabled bool = true
+
+@description('Specify an existing storage account for diagnostics. Must be in the same subscription.')
+param existingDiagnosticsStorageAccountId string
+
+resource cache 'Microsoft.Cache/Redis@2020-06-01' = {
   name: redisCacheName
   location: location
   properties: {
     enableNonSslPort: enableNonSslPort
-    shardCount: redisShardCount
+    minimumTlsVersion: '1.2'
     sku: {
       capacity: redisCacheCapacity
-      family: 'P'
-      name: 'Premium'
+      family: redisCacheFamily
+      name: redisCacheSKU
     }
   }
 }
 
-resource diagSettings 'Microsoft.Insights/diagnosticsettings@2015-07-01' = {
+resource diagSettings 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = {
   scope: cache
-  name: 'service'
-  location: location
+  name: redisCacheName
   properties: {
-    storageAccountId: diagsStorageAccountId
+    storageAccountId: existingDiagnosticsStorageAccountId
+    metrics: [
+      {
+        timeGrain: 'AllMetrics'
+        enabled: diagnosticsEnabled
+        retentionPolicy: {
+          days: 90
+          enabled: diagnosticsEnabled
+        }
+      }
+    ]
   }
 }
