@@ -213,10 +213,14 @@ namespace Bicep.LanguageServer.Snippets
                 }
             }
 
-            IEnumerable<Snippet> snippetsFromAzTypes = GetResourceBodyCompletionSnippetFromAzTypes(typeSymbol);
-            if (snippetsFromAzTypes.Any())
+            if (typeSymbol is ResourceType resourceType)
             {
-                snippets.AddRange(snippetsFromAzTypes);
+                IEnumerable<Snippet> snippetsFromAzTypes = GetRequiredPropertiesForObjectType(resourceType.Body.Type);
+
+                if (snippetsFromAzTypes.Any())
+                {
+                    snippets.AddRange(snippetsFromAzTypes);
+                }
             }
 
             // Add to cache
@@ -249,29 +253,6 @@ namespace Bicep.LanguageServer.Snippets
             }
 
             return null;
-        }
-
-        private IEnumerable<Snippet> GetResourceBodyCompletionSnippetFromAzTypes(TypeSymbol typeSymbol)
-        {
-            if (typeSymbol is ResourceType resourceType)
-            {
-                if (resourceType.Body is ObjectType objectType)
-                {
-                    Snippet? snippet = GetRequiredPropertiesSnippet(objectType, RequiredPropertiesLabel);
-
-                    if (snippet is not null)
-                    {
-                        yield return snippet;
-                    }
-                }
-                else if (resourceType.Body is DiscriminatedObjectType discriminatedObjectType)
-                {
-                    foreach (Snippet snippet in GetRequiredPropertiesSnippetsForDisciminatedObjectType(discriminatedObjectType))
-                    {
-                        yield return snippet;
-                    }
-                }
-            }
         }
 
         private IEnumerable<Snippet> GetRequiredPropertiesSnippetsForDisciminatedObjectType(DiscriminatedObjectType discriminatedObjectType)
@@ -404,6 +385,14 @@ namespace Bicep.LanguageServer.Snippets
         {
             yield return GetEmptySnippet();
 
+            foreach (Snippet snippet in GetRequiredPropertiesForObjectType(typeSymbol))
+            {
+                yield return snippet;
+            }
+        }
+
+        private IEnumerable<Snippet> GetRequiredPropertiesForObjectType(TypeSymbol typeSymbol)
+        {
             if (typeSymbol is ObjectType objectType)
             {
                 Snippet? snippet = GetRequiredPropertiesSnippet(objectType, RequiredPropertiesLabel, RequiredPropertiesDescription);
