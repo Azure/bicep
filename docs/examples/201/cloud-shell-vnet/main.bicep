@@ -1,26 +1,35 @@
-// Name of the existing VNET to inject Cloud Shell into.
+@description('Name of the existing VNET to inject Cloud Shell into.')
 param existingVNETName string
-// Name of Azure Relay Namespace.
+
+@description('Name of Azure Relay Namespace.')
 param relayNamespaceName string
 // Object Id of Azure Container Instance Service Principal. 
 // We have to grant this permission to create hybrid connections in the Azure Relay you specify.
-// To get it - Get-AzADServicePrincipal -DisplayNameBeginsWith \'Azure Container Instance\'
+// To get it: Get-AzADServicePrincipal -DisplayNameBeginsWith \'Azure Container Instance\'
 param azureContainerInstanceOID string
-// Name of the subnet to use for cloud shell containers.
+
+@description('Name of the subnet to use for cloud shell containers.')
 param containerSubnetName string = 'cloudshellsubnet'
-// Address space of the subnet to add for cloud shell. e.g. 10.0.1.0/26
+
+@description('Address space of the subnet to add for cloud shell. e.g. 10.0.1.0/26')
 param containerSubnetAddressPrefix string
-// Name of the subnet to use for private link of relay namespace.
+
+@description('Name of the subnet to use for private link of relay namespace.')
 param relaySubnetName string = 'relaysubnet'
-// Address space of the subnet to add for relay. e.g. 10.0.2.0/26
+
+@description('Address space of the subnet to add for relay. e.g. 10.0.2.0/26')
 param relaySubnetAddressPrefix string
-// Name of the subnet to use for storage account.
+
+@description('Name of the subnet to use for storage account.')
 param storageSubnetName string = 'storagesubnet'
-// Address space of the subnet to add for storage. e.g. 10.0.3.0/26
+
+@description('Address space of the subnet to add for storage. e.g. 10.0.3.0/26')
 param storageSubnetAddressPrefix string
-// Name of Private Endpoint for Azure Relay.
+
+@description('Name of Private Endpoint for Azure Relay.')
 param privateEndpointName string = 'cloudshellRelayEndpoint'
-// Location for all resources.
+
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 var networkProfileName = 'aci-networkProfile-${location}'
@@ -29,6 +38,7 @@ var networkRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinition
 var privateDnsZoneName = ((toLower(environment().name) == 'azureusgovernment') ? 'privatelink.servicebus.usgovcloudapi.net' : 'privatelink.servicebus.windows.net')
 var vnetResourceId = resourceId('Microsoft.Network/virtualNetworks', existingVNETName)
 
+// asdf todo
 resource containerSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = {
   name: '${existingVNETName}/${containerSubnetName}'
   properties: {
@@ -76,7 +86,7 @@ resource networkProfile 'Microsoft.Network/networkProfiles@2019-11-01' = {
   }
 }
 
-resource networkProfile_roleAssignment 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = {
+resource networkProfile_roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   scope: networkProfile
   name: guid(networkRoleDefinitionId, azureContainerInstanceOID, networkProfile.name)
   properties: {
@@ -94,7 +104,7 @@ resource relayNamespace 'Microsoft.Relay/namespaces@2018-01-01-preview' = {
   }
 }
 
-resource relayNamespace_roleAssignment 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = {
+resource relayNamespace_roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   scope: relayNamespace
   name: guid(contributorRoleDefinitionId, azureContainerInstanceOID, relayNamespace.name)
   properties: {
@@ -103,6 +113,7 @@ resource relayNamespace_roleAssignment 'Microsoft.Authorization/roleAssignments@
   }
 }
 
+// asdf TODO
 resource relaySubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = {
   name: '${existingVNETName}/${relaySubnetName}'
   properties: {
@@ -136,6 +147,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-04-01' = {
   }
 }
 
+// asdf todo
 resource storageSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = {
   name: '${existingVNETName}/${storageSubnetName}'
   properties: {
@@ -160,7 +172,8 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-01-01' = {
 }
 
 resource privateDnsZoneARecord 'Microsoft.Network/privateDnsZones/A@2020-01-01' = {
-  name: '${privateDnsZone.name}/${relayNamespaceName}'
+  parent: privateDnsZone
+  name: relayNamespaceName
   properties: {
     ttl: 3600
     aRecords: [
@@ -172,7 +185,8 @@ resource privateDnsZoneARecord 'Microsoft.Network/privateDnsZones/A@2020-01-01' 
 }
 
 resource privateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-01-01' = {
-  name: '${privateDnsZone.name}/${relayNamespaceName}'
+  parent: privateDnsZone
+  name: relayNamespaceName
   location: 'global'
   properties: {
     registrationEnabled: false
