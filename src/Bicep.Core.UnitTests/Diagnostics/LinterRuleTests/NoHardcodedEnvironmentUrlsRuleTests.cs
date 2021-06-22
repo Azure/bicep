@@ -115,6 +115,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [DataRow(1, @"var a = 'azuredatalakestore.net' + 1")]
+        [DataRow(2, @"var a = 'azuredatalakestore.net azuredatalakestore.net' + 1")]
         [DataRow(1, @"
         param p1 string
         param p2 string
@@ -124,6 +125,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         param p1 string
         param p2 string
         var a = concat('${p1}${'https://schema.management.azure.com'}${p2}', 'foo')
+        ")]
+        [DataRow(2, @"
+        param p1 string
+        param p2 string
+        var a = concat('${p1}${'azuredatalakestore.net'}${p2}${'management.azure.com'}-${'schema.management.azure.com'}', 'foo')
         ")]
         [DataTestMethod]
         public void InsideExpressions(int diagnosticCount, string text)

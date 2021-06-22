@@ -104,9 +104,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                         if (!isExcluded)
                         {
-                            // TODO: split the diagnostics to each occurence
-                            // not just for the entire syntax span
-                            this.DisallowedHostSpans[syntax.Span] = match.Value;
+                            // create a span for the specific identified instance
+                            // to allow for multiple instances in a single syntax
+                            this.DisallowedHostSpans[new TextSpan(syntax.Span.Position+match.Index, match.Length)] = match.Value;
                         }
                     }
                     base.VisitStringSyntax(syntax);
