@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5240536826472300087"
+      "templateHash": "7918115218431464630"
     }
   },
   "parameters": {
@@ -127,7 +127,7 @@
     },
     {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2021-01-01",
+      "apiVersion": "2020-12-01",
       "name": "[variables('websiteName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -143,7 +143,7 @@
     },
     {
       "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2021-01-01",
+      "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', variables('websiteName'), 'connectionstrings')]",
       "properties": {
         "DefaultConnection": {
