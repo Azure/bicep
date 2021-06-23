@@ -1,40 +1,54 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "10334590051667431343"
-    }
-  },
   "parameters": {
+    "vmSize": {
+      "type": "string",
+      "metadata": {
+        "description": "Size of VM"
+      }
+    },
     "existingVnetName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Existing VNET that contains the domain controller"
+      }
+    },
+    "publicIPAddressName": {
+      "type": "string",
+      "metadata": {
+        "description": "Public IP address name"
+      }
     },
     "existingSubnetName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Existing subnet that contains the domain controller"
+      }
     },
     "dnsLabelPrefix": {
       "type": "string",
-      "maxLength": 62,
-      "minLength": 1
-    },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_A2_v2"
+      "metadata": {
+        "description": "Unique public DNS prefix for the deployment. The fqdn will look something like '<dnsname>.westus.cloudapp.azure.com'. Up to 62 chars, digits or dashes, lowercase, should start with a letter: must conform to '^[a-z][a-z0-9-]{1,61}[a-z0-9]$'."
+      }
     },
     "domainToJoin": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The FQDN of the AD domain"
+      }
     },
-    "domainUserName": {
-      "type": "string"
+    "domainUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Username of the account on the domain"
+      }
     },
     "domainPassword": {
-      "type": "secureString"
-    },
-    "ouPath": {
-      "type": "string"
+      "type": "securestring",
+      "metadata": {
+        "description": "Password of the account on the domain"
+      }
     },
     "domainJoinOptions": {
       "type": "int",
@@ -43,155 +57,153 @@
         "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx"
       }
     },
-    "vmAdminUsername": {
-      "type": "string"
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the administrator of the new VM."
+      }
     },
-    "vmAdminPassword": {
-      "type": "secureString"
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the administrator account of the new VM."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the storage account."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
-  "functions": [],
   "variables": {
-    "storageAccountName": "[uniqueString(resourceGroup().id, deployment().name)]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "windowsOSVersion": "2019-Datacenter",
-    "nicName": "[format('{0}-nic', parameters('dnsLabelPrefix'))]",
-    "publicIpName": "[format('{0}-pip', parameters('dnsLabelPrefix'))]",
+    "osSku": "2016-Datacenter",
+    "nicName": "[toLower(concat('nic',parameters('dnsLabelPrefix')))]",
     "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]"
   },
   "resources": [
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-06-01",
-      "name": "[variables('publicIpName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('dnsLabelPrefix')]"
+      {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[parameters('publicIPAddressName')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "publicIPAllocationMethod": "Dynamic",
+          "dnsSettings": {
+            "domainNameLabel": "[parameters('dnsLabelPrefix')]"
+          }
         }
-      }
-    },
-    {
+      },
+      {
+      "apiVersion": "2015-06-15",
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2020-08-01-preview",
-      "name": "[variables('storageAccountName')]",
-      "location": "[parameters('location')]",
-      "kind": "StorageV2",
-      "sku": {
-        "name": "Standard_LRS",
-        "tier": "Standard"
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2020-06-01",
-      "name": "[variables('nicName')]",
+      "name": "[parameters('storageAccountName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
-              },
-              "subnet": {
-                "id": "[variables('subnetId')]"
+        "accountType": "Standard_LRS"
+      }
+    },
+      {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[variables('nicName')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIPAddress": {
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]"
+                },
+                "subnet": {
+                  "id": "[variables('subnetId')]"
+                }
               }
             }
-          }
-        ]
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('dnsLabelPrefix')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
-        },
-        "osProfile": {
-          "computerName": "[parameters('dnsLabelPrefix')]",
-          "adminUsername": "[parameters('vmAdminUsername')]",
-          "adminPassword": "[parameters('vmAdminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('imagePublisher')]",
-            "offer": "[variables('imageOffer')]",
-            "sku": "[variables('windowsOSVersion')]",
-            "version": "latest"
-          },
-          "osDisk": {
-            "name": "[format('{0}-OsDisk', parameters('dnsLabelPrefix'))]",
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
-          },
-          "dataDisks": [
-            {
-              "name": "[format('{0}-DataDisk', parameters('dnsLabelPrefix'))]",
-              "caching": "None",
-              "createOption": "Empty",
-              "diskSizeGB": 1024,
-              "lun": 0
-            }
           ]
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
-            }
-          ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": true,
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob]"
-          }
         }
       },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-      ]
+      {
+        "apiVersion": "2019-07-01",
+        "type": "Microsoft.Compute/virtualMachines",
+        "name": "[parameters('dnsLabelPrefix')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Storage/storageAccounts',parameters('storageAccountName'))]",
+          "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('vmSize')]"
+          },
+          "osProfile": {
+            "computerName": "[parameters('dnsLabelPrefix')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "[variables('imagePublisher')]",
+              "offer": "[variables('imageOffer')]",
+              "sku": "[variables('osSku')]",
+              "version": "latest"
+            },
+            "osDisk": {
+              "createOption": "FromImage"
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+              }
+            ]
+          },
+          "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), '2015-06-15').primaryEndpoints.blob]"
+          }
+        }
+      }
     },
     {
+      "apiVersion": "2015-06-15",
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2020-06-01",
-      "name": "[format('{0}/joindomain', parameters('dnsLabelPrefix'))]",
+      "name": "[concat(parameters('dnsLabelPrefix'),'/joindomain')]",
       "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines/', parameters('dnsLabelPrefix'))]"
+      ],
       "properties": {
         "publisher": "Microsoft.Compute",
         "type": "JsonADDomainExtension",
         "typeHandlerVersion": "1.3",
         "autoUpgradeMinorVersion": true,
         "settings": {
-          "name": "[parameters('domainToJoin')]",
-          "ouPath": "[parameters('ouPath')]",
-          "user": "[format('{0}\\{1}', parameters('domainToJoin'), parameters('domainUserName'))]",
-          "restart": true,
-          "options": "[parameters('domainJoinOptions')]"
+          "Name": "[parameters('domainToJoin')]",
+          "User": "[concat(parameters('domainToJoin'), '\\', parameters('domainUsername'))]",
+          "Restart": "true",
+          "Options": "[parameters('domainJoinOptions')]"
         },
         "protectedSettings": {
-          "password": "[parameters('domainPassword')]"
+          "Password": "[parameters('domainPassword')]"
         }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('dnsLabelPrefix'))]"
-      ]
+      }
     }
   ]
 }
