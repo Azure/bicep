@@ -7,12 +7,9 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -27,6 +24,8 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ModuleTests
     {
+        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+
         [TestMethod]
         public void Modules_can_be_compiled_successfully()
         {
@@ -193,7 +192,7 @@ module main 'main.bicep' = {
         {
             var fileUri = new Uri("file:///path/to/main.bicep");
 
-            var mockFileResolver = new Mock<IFileResolver>();
+            var mockFileResolver = Repository.Create<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
 
             Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), fileUri);
@@ -218,7 +217,7 @@ module modulea 'modulea.bicep' = {
 }
 ";
 
-            var mockFileResolver = new Mock<IFileResolver>();
+            var mockFileResolver = Repository.Create<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
             mockFileResolver.Setup(x => x.TryResolveModulePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
 
@@ -359,7 +358,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var mockFileResolver = new Mock<IFileResolver>();
+            var mockFileResolver = Repository.Create<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, mainUri, mainFileContents, null);
             SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
             mockFileResolver.Setup(x => x.TryResolveModulePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
