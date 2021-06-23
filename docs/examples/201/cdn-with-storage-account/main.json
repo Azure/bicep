@@ -1,85 +1,94 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5876420350969690989"
-    }
-  },
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
-  "functions": [],
   "variables": {
-    "storageAccountName": "[format('storage{0}', uniqueString(resourceGroup().id))]",
-    "endPointName": "[format('endpoint-{0}', uniqueString(resourceGroup().id))]",
-    "profileName": "CdnProfile1"
+    "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
+    "endpointName": "[concat('endpoint-', uniqueString(resourceGroup().id))]",
+    "profileName": "[concat('cdn-', uniqueString(resourceGroup().id))]"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2020-08-01-preview",
       "name": "[variables('storageAccountName')]",
+      "apiVersion": "2021-01-01",
       "location": "[parameters('location')]",
-      "kind": "StorageV2",
+      "tags": {
+        "displayName": "[variables('storageAccountName')]"
+      },
+      "kind": "Storage",
       "sku": {
         "name": "Standard_LRS"
-      }
-    },
-    {
-      "type": "Microsoft.Cdn/profiles",
-      "apiVersion": "2020-04-15",
-      "name": "[variables('profileName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "Standard_Akamai"
-      }
-    },
-    {
-      "type": "Microsoft.Cdn/profiles/endpoints",
-      "apiVersion": "2020-04-15",
-      "name": "[variables('endPointName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "originHostHeader": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'https://', ''), '/', '')]",
-        "isHttpAllowed": true,
-        "isHttpsAllowed": true,
-        "queryStringCachingBehavior": "IgnoreQueryString",
-        "contentTypesToCompress": [
-          "text/plain",
-          "text/html",
-          "text/css",
-          "application/x-javascript",
-          "text/javascript"
-        ],
-        "isCompressionEnabled": true,
-        "origins": [
-          {
-            "name": "origin1",
-            "properties": {
-              "hostName": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'https://', ''), '/', '')]"
-            }
-          }
-        ]
       },
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      "properties": {}
+    },
+    {
+      "name": "[variables('profileName')]",
+      "type": "Microsoft.Cdn/profiles",
+      "location": "[parameters('location')]",
+      "apiVersion": "2016-04-02",
+      "tags": {
+        "displayName": "[variables('profileName')]"
+      },
+      "sku": {
+        "name": "Standard_Verizon"
+      },
+      "properties": {},
+      "resources": [
+        {
+          "apiVersion": "2016-04-02",
+          "name": "[variables('endpointName')]",
+          "type": "endpoints",
+          "dependsOn": [
+            "[variables('profileName')]",
+            "[variables('storageAccountName')]"
+          ],
+          "location": "[parameters('location')]",
+          "tags": {
+            "displayName": "[variables('endpointName')]"
+          },
+          "properties": {
+            "originHostHeader": "[replace(replace(reference(variables('storageAccountName')).primaryEndpoints.blob,'https://',''),'/','')]",
+            "isHttpAllowed": true,
+            "isHttpsAllowed": true,
+            "queryStringCachingBehavior": "IgnoreQueryString",
+            "contentTypesToCompress": [
+              "text/plain",
+              "text/html",
+              "text/css",
+              "application/x-javascript",
+              "text/javascript"
+            ],
+            "isCompressionEnabled": true,
+            "origins": [
+              {
+                "name": "origin1",
+                "properties": {
+                  "hostName": "[replace(replace(reference(variables('storageAccountName')).primaryEndpoints.blob,'https://',''),'/','')]"
+                }
+              }
+            ]
+          }
+        }
       ]
     }
   ],
   "outputs": {
     "hostName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).hostName]"
+      "value": "[reference(variables('endpointName')).hostName]"
     },
     "originHostHeader": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).originHostHeader]"
+      "value": "[reference(variables('endpointName')).originHostHeader]"
     }
   }
 }
