@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -23,6 +22,9 @@ namespace Bicep.LanguageServer.Snippets
 {
     public class SnippetsProvider : ISnippetsProvider
     {
+        private const string RequiredPropertiesDescription = "Required properties";
+        private const string RequiredPropertiesLabel = "required-properties";
+
         // Used to cache resource declarations. Maps resource type to body text and description
         private readonly ConcurrentDictionary<string, (string text, string description)> resourceTypeToBodyMap = new();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
@@ -131,7 +133,7 @@ namespace Bicep.LanguageServer.Snippets
 
                 if (declaredSymbol.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax)
                 {
-                   if (declaredSymbol.Type is TypeSymbol typeSymbol && typeSymbol.TypeKind != TypeKind.Error)
+                    if (declaredSymbol.Type is TypeSymbol typeSymbol && typeSymbol.TypeKind != TypeKind.Error)
                     {
                         string type = typeSymbol.Name;
                         CacheResourceDeclaration(resourceDeclarationSyntax, type, template, description);
@@ -211,10 +213,14 @@ namespace Bicep.LanguageServer.Snippets
                 }
             }
 
-            IEnumerable<Snippet> snippetsFromAzTypes = GetResourceBodyCompletionSnippetFromAzTypes(typeSymbol);
-            if (snippetsFromAzTypes.Any())
+            if (typeSymbol is ResourceType resourceType)
             {
-                snippets.AddRange(snippetsFromAzTypes);
+                IEnumerable<Snippet> snippetsFromAzTypes = GetRequiredPropertiesForObjectType(resourceType.Body.Type);
+
+                if (snippetsFromAzTypes.Any())
+                {
+                    snippets.AddRange(snippetsFromAzTypes);
+                }
             }
 
             // Add to cache
@@ -249,40 +255,22 @@ namespace Bicep.LanguageServer.Snippets
             return null;
         }
 
-        private IEnumerable<Snippet> GetResourceBodyCompletionSnippetFromAzTypes(TypeSymbol typeSymbol)
+        private IEnumerable<Snippet> GetRequiredPropertiesSnippetsForDisciminatedObjectType(DiscriminatedObjectType discriminatedObjectType)
         {
-            string description = "Required properties";
-
-            if (typeSymbol is ResourceType resourceType)
+            foreach (KeyValuePair<string, ObjectType> kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
             {
-                if (resourceType.Body is ObjectType objectType)
-                {
-                    string label = "required-properties";
-                    Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, description);
+                string disciminatedObjectKey = kvp.Key;
+                string label = "required-properties-" + disciminatedObjectKey.Trim(new char[] { '\'' });
+                Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, disciminatedObjectKey);
 
-                    if (snippet is not null)
-                    {
-                        yield return snippet;
-                    }
-                }
-                else if (resourceType.Body is DiscriminatedObjectType discriminatedObjectType)
+                if (snippet is not null)
                 {
-                    foreach (KeyValuePair<string, ObjectType> kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
-                    {
-                        string disciminatedObjectKey = kvp.Key;
-                        string label = "required-properties-" + disciminatedObjectKey.Trim(new char[] { '\'' });
-                        Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, description, disciminatedObjectKey);
-
-                        if (snippet is not null)
-                        {
-                            yield return snippet;
-                        }
-                    }
+                    yield return snippet;
                 }
             }
         }
 
-        private Snippet? GetRequiredPropertiesSnippet(ObjectType objectType, string label, string description, string? discriminatedObjectKey = null)
+        private Snippet? GetRequiredPropertiesSnippet(ObjectType objectType, string label, string? discriminatedObjectKey = null)
         {
             int index = 1;
             StringBuilder sb = new StringBuilder();
@@ -309,7 +297,7 @@ namespace Bicep.LanguageServer.Snippets
                 // Append final tab stop
                 sb.Append("\t$0\n}");
 
-                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, description);
+                return new Snippet(sb.ToString(), CompletionPriority.Medium, label, RequiredPropertiesDescription);
             }
 
             return null;
@@ -384,11 +372,39 @@ namespace Bicep.LanguageServer.Snippets
 
             if (typeSymbol is ModuleType moduleType && moduleType.Body is ObjectType objectType)
             {
-                string label = "required-properties";
-                string description = "Required properties";
-                Snippet? snippet = GetRequiredPropertiesSnippet(objectType, label, description);
+                Snippet? snippet = GetRequiredPropertiesSnippet(objectType, RequiredPropertiesLabel, RequiredPropertiesDescription);
 
                 if (snippet is not null)
+                {
+                    yield return snippet;
+                }
+            }
+        }
+
+        public IEnumerable<Snippet> GetObjectBodyCompletionSnippets(TypeSymbol typeSymbol)
+        {
+            yield return GetEmptySnippet();
+
+            foreach (Snippet snippet in GetRequiredPropertiesForObjectType(typeSymbol))
+            {
+                yield return snippet;
+            }
+        }
+
+        private IEnumerable<Snippet> GetRequiredPropertiesForObjectType(TypeSymbol typeSymbol)
+        {
+            if (typeSymbol is ObjectType objectType)
+            {
+                Snippet? snippet = GetRequiredPropertiesSnippet(objectType, RequiredPropertiesLabel, RequiredPropertiesDescription);
+
+                if (snippet is not null)
+                {
+                    yield return snippet;
+                }
+            }
+            else if (typeSymbol is DiscriminatedObjectType discriminatedObjectType)
+            {
+                foreach (Snippet snippet in GetRequiredPropertiesSnippetsForDisciminatedObjectType(discriminatedObjectType))
                 {
                     yield return snippet;
                 }

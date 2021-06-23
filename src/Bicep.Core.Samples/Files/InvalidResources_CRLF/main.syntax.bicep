@@ -4761,14 +4761,14 @@ var mock = incorrectPropertiesKey.p
 //@[35:39) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:774) ResourceDeclarationSyntax
+//@[0:796) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:32)  IdentifierSyntax
 //@[9:32)   Identifier |incorrectPropertiesKey2|
 //@[33:83)  StringSyntax
 //@[33:83)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[84:85)  Assignment |=|
-//@[86:774)  ObjectSyntax
+//@[86:796)  ObjectSyntax
 //@[86:87)   LeftBrace |{|
 //@[87:89)   NewLine |\r\n|
   kind: 'AzureCLI'
@@ -4796,11 +4796,11 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[12:14)     StringComplete |''|
 //@[14:16)   NewLine |\r\n|
   properties: {
-//@[2:630)   ObjectPropertySyntax
+//@[2:652)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
-//@[14:630)    ObjectSyntax
+//@[14:652)    ObjectSyntax
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     azCliVersion: '2'
@@ -4856,11 +4856,11 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[28:32)     NewLine |\r\n\r\n|
 
     environmentVariables: [
-//@[4:204)     ObjectPropertySyntax
+//@[4:226)     ObjectPropertySyntax
 //@[4:24)      IdentifierSyntax
 //@[4:24)       Identifier |environmentVariables|
 //@[24:25)      Colon |:|
-//@[26:204)      ArraySyntax
+//@[26:226)      ArraySyntax
 //@[26:27)       LeftSquare |[|
 //@[27:29)       NewLine |\r\n|
       {
@@ -4875,8 +4875,8 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
       }
 //@[6:7)         RightBrace |}|
 //@[7:9)       NewLine |\r\n|
-      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbols
-//@[60:62)       NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
+//@[82:84)       NewLine |\r\n|
       
 //@[6:8)       NewLine |\r\n|
     ]

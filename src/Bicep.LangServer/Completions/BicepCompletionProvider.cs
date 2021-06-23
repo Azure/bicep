@@ -746,7 +746,7 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(arrayType.Item.Type, context.ReplacementRange, loopsAllowed: false);
         }
 
-        private static IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? type, Range replacementRange, bool loopsAllowed)
+        private IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? type, Range replacementRange, bool loopsAllowed)
         {
             switch (type)
             {
@@ -788,7 +788,11 @@ namespace Bicep.LanguageServer.Completions
 
                 case DiscriminatedObjectType _:
                 case ObjectType _:
-                    yield return CreateObjectBodyCompletion(replacementRange);
+                    foreach (CompletionItem completionItem in GetObjectBodyCompletions(type, replacementRange))
+                    {
+                        yield return completionItem;
+                    }
+
                     break;
 
                 case UnionType union:
@@ -802,15 +806,24 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreateObjectBodyCompletion(Range replacementRange)
+        private IEnumerable<CompletionItem> GetObjectBodyCompletions(TypeSymbol typeSymbol, Range replacementRange)
         {
-            const string objectLabel = "{}";
-            return CompletionItemBuilder.Create(CompletionItemKind.Value, objectLabel)
-                .WithSnippetEdit(replacementRange, "{\n\t$0\n}")
-                .WithDetail(objectLabel)
-                .Preselect()
-                .WithSortText(GetSortText(objectLabel, CompletionPriority.High))
-                .Build();
+            IEnumerable<Snippet> snippets = SnippetsProvider.GetObjectBodyCompletionSnippets(typeSymbol);
+
+            foreach (Snippet snippet in snippets)
+            {
+                string prefix = snippet.Prefix;
+                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateObjectBodySnippetInsertion(prefix);
+                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+
+                yield return CreateContextualSnippetCompletion(prefix,
+                    snippet.Detail,
+                    snippet.Text,
+                    replacementRange,
+                    command: command,
+                    snippet.CompletionPriority,
+                    preselect: true);
+            }
         }
 
         private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)

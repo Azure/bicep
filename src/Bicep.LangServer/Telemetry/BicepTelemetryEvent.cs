@@ -42,5 +42,15 @@ namespace Bicep.LanguageServer.Telemetry
                     ["name"] = name,
                 },
             };
+
+        public static BicepTelemetryEvent CreateObjectBodySnippetInsertion(string name)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.ObjectBodySnippetInsertion,
+                Properties = new()
+                {
+                    ["name"] = name
+                },
+            };
     }
 }
