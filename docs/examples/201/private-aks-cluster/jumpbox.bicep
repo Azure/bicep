@@ -69,7 +69,6 @@ param blobStorageAccountPrivateEndpointName string = 'BlobStorageAccountPrivateE
 param logAnalyticsWorkspaceId string
 
 var vmNicName = '${vmName}Nic'
-var vmNicId = vmNic.id
 var blobPublicDNSZoneForwarder = '.blob.${environment().suffixes.storage}'
 var blobPrivateDnsZoneName = 'privatelink${blobPublicDNSZoneForwarder}'
 var blobStorageAccountPrivateEndpointGroupName = 'blob'
@@ -180,7 +179,7 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 
 resource omsAgentForLinux 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   parent: virtualMachines
-  name: '${omsAgentForLinuxName}'
+  name: omsAgentForLinuxName
   location: location
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
@@ -198,7 +197,7 @@ resource omsAgentForLinux 'Microsoft.Compute/virtualMachines/extensions@2020-12-
 
 resource omsDependencyAgentForLinux 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   parent: virtualMachines
-  name: '${omsDependencyAgentForLinuxName}'
+  name: omsDependencyAgentForLinuxName
   location: location
   properties: {
     publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
@@ -245,7 +244,7 @@ resource blobStorageAccountPrivateEndpoint 'Microsoft.Network/privateEndpoints@2
     }
     customDnsConfigs: [
       {
-        fqdn: concat(blobStorageAccountName, blobPublicDNSZoneForwarder)
+        fqdn: '${blobStorageAccountName}${blobPublicDNSZoneForwarder}'
       }
     ]
   }
