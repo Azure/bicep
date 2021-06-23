@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4573629760399744599"
+      "templateHash": "14491707854088474699"
     }
   },
   "parameters": {
@@ -69,10 +69,7 @@
   "variables": {
     "bastionSubnetName": "AzureBastionSubnet",
     "bastionSubnetNsgName": "[format('{0}Nsg', variables('bastionSubnetName'))]",
-    "bastionSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastionSubnetName'))]",
-    "vmSubnetNsgName": "[format('{0}Nsg', parameters('vmSubnetName'))]",
-    "vmSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('vmSubnetName'))]",
-    "aksSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('aksSubnetName'))]"
+    "vmSubnetNsgName": "[format('{0}Nsg', parameters('vmSubnetName'))]"
   },
   "resources": [
     {
