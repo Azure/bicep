@@ -1,6 +1,12 @@
+@description('The email address of the owner of the service')
+@minLength(1)
 param publisherEmail string
+
+@description('The name of the owner of the service')
+@minLength(1)
 param publisherName string
 
+@description('The pricing tier of this API Management service')
 @allowed([
   'Developer'
   'Standard'
@@ -8,29 +14,47 @@ param publisherName string
 ])
 param sku string = 'Standard'
 
+@description('The instance size of this API Management service.')
 param skuCount int = 1
 
+@description('Base-64 encoded Mutual authentication PFX certificate.')
 @secure()
 param mutualAuthenticationCertificate string
 
+@description('Mutual authentication certificate password.')
+@secure()
 param certificatePassword string
+
+@description('EventHub connection string for logger.')
+@secure()
 param eventHubNamespaceConnectionString string
 
+@description('Google client secret to configure google identity.')
 @secure()
 param googleClientSecret string
 
+@description('OpenId connect client secret.')
 @secure()
 param openIdConnectClientSecret string
 
+@description('Tenant policy XML.')
 param tenantPolicy string
+
+@description('API policy XML.')
 param apiPolicy string
+
+@description('Operation policy XML.')
 param operationPolicy string
+
+@description('Product policy XML.')
 param productPolicy string
+
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 var apiManagementServiceName = 'apiservice${uniqueString(resourceGroup().id)}'
 
-resource apiManagementService 'Microsoft.ApiManagement/service@2020-06-01-preview' = {
+resource apiManagementService 'Microsoft.ApiManagement/service@2020-12-01' = {
   name: apiManagementServiceName
   location: location
   sku: {
@@ -43,15 +67,17 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2020-06-01-previe
   }
 }
 
-resource policy 'Microsoft.ApiManagement/service/policies@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/policy'
+resource policy 'Microsoft.ApiManagement/service/policies@2020-12-01' = {
+  parent: apiManagementService
+  name: 'policy'
   properties: {
     value: tenantPolicy
   }
 }
 
-resource petStoreApiExample 'Microsoft.ApiManagement/service/apis@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/PetStoreSwaggerImportExample'
+resource apiManagementServiceName_PetStoreSwaggerImportExample 'Microsoft.ApiManagement/service/apis@2020-12-01' = {
+  parent: apiManagementService
+  name: 'PetStoreSwaggerImportExample'
   properties: {
     format: 'swagger-link-json'
     value: 'http://petstore.swagger.io/v2/swagger.json'
@@ -59,8 +85,9 @@ resource petStoreApiExample 'Microsoft.ApiManagement/service/apis@2020-06-01-pre
   }
 }
 
-resource exampleApi 'Microsoft.ApiManagement/service/apis@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleApi'
+resource exampleApi 'Microsoft.ApiManagement/service/apis@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleApi'
   properties: {
     displayName: 'Example API Name'
     description: 'Description for example API'
@@ -72,8 +99,9 @@ resource exampleApi 'Microsoft.ApiManagement/service/apis@2020-06-01-preview' = 
   }
 }
 
-resource exampleApiOperationDelete 'Microsoft.ApiManagement/service/apis/operations@2020-06-01-preview' = {
-  name: '${exampleApi.name}/exampleOperationsDELETE'
+resource exampleApiOperationDelete 'Microsoft.ApiManagement/service/apis/operations@2020-12-01' = {
+  parent: exampleApi
+  name: 'exampleOperationsDELETE'
   properties: {
     displayName: 'DELETE resource'
     method: 'DELETE'
@@ -82,8 +110,9 @@ resource exampleApiOperationDelete 'Microsoft.ApiManagement/service/apis/operati
   }
 }
 
-resource exampleApiOperationGet 'Microsoft.ApiManagement/service/apis/operations@2020-06-01-preview' = {
-  name: '${exampleApi.name}/exampleOperationsGET'
+resource exampleApiOperationGet 'Microsoft.ApiManagement/service/apis/operations@2020-12-01' = {
+  parent: exampleApi
+  name: 'exampleOperationsGET'
   properties: {
     displayName: 'GET resource'
     method: 'GET'
@@ -92,15 +121,17 @@ resource exampleApiOperationGet 'Microsoft.ApiManagement/service/apis/operations
   }
 }
 
-resource exampleApiOperationGetPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2020-06-01-preview' = {
-  name: '${exampleApiOperationGet.name}/policy'
+resource exampleApiOperationGetPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2020-12-01' = {
+  parent: exampleApiOperationGet
+  name: 'policy'
   properties: {
     value: operationPolicy
   }
 }
 
-resource exampleApiWithPolicy 'Microsoft.ApiManagement/service/apis@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleApiWithPolicy'
+resource exampleApiWithPolicy 'Microsoft.ApiManagement/service/apis@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleApiWithPolicy'
   properties: {
     displayName: 'Example API Name with policy'
     description: 'Description for example API with policy'
@@ -112,17 +143,19 @@ resource exampleApiWithPolicy 'Microsoft.ApiManagement/service/apis@2020-06-01-p
   }
 }
 
-resource exampleApiWithPolicyPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2020-06-01-preview' = {
-  name: '${exampleApiWithPolicy.name}/policy'
+resource exampleApiWithPolicyPolicy 'Microsoft.ApiManagement/service/apis/policies@2020-12-01' = {
+  parent: exampleApiWithPolicy
+  name: 'policy'
   properties: {
     value: apiPolicy
   }
 }
 
-resource exampleProduct 'Microsoft.ApiManagement/service/products@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleProduct'
+resource exampleProduct 'Microsoft.ApiManagement/service/products@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleProduct'
   properties: {
-    displayName: 'Example Product name'
+    displayName: 'Example Product Name'
     description: 'Description for example product'
     terms: 'Terms for example product'
     subscriptionRequired: true
@@ -132,19 +165,22 @@ resource exampleProduct 'Microsoft.ApiManagement/service/products@2020-06-01-pre
   }
 }
 
-resource exampleProductApi 'Microsoft.ApiManagement/service/apis@2020-06-01-preview' = {
-  name: '${exampleProduct.name}/exampleApi'
+resource exampleProductApi 'Microsoft.ApiManagement/service/products/apis@2020-12-01' = {
+  parent: exampleProduct
+  name: 'exampleApi'
 }
 
-resource exampleProductPolicy 'Microsoft.ApiManagement/service/products/policies@2020-06-01-preview' = {
-  name: '${exampleProduct.name}/policy'
+resource exampleProductPolicy 'Microsoft.ApiManagement/service/products/policies@2020-12-01' = {
+  parent: exampleProduct
+  name: 'policy'
   properties: {
     value: productPolicy
   }
 }
 
-resource exampleUser1 'Microsoft.ApiManagement/service/users@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleUser1'
+resource exampleUser1 'Microsoft.ApiManagement/service/users@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleUser1'
   properties: {
     firstName: 'ExampleFirstName1'
     lastName: 'ExampleLastName1'
@@ -154,8 +190,9 @@ resource exampleUser1 'Microsoft.ApiManagement/service/users@2020-06-01-preview'
   }
 }
 
-resource exampleUser2 'Microsoft.ApiManagement/service/users@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleUser2'
+resource exampleUser2 'Microsoft.ApiManagement/service/users@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleUser2'
   properties: {
     firstName: 'ExampleFirstName2'
     lastName: 'ExampleLastName2'
@@ -165,8 +202,9 @@ resource exampleUser2 'Microsoft.ApiManagement/service/users@2020-06-01-preview'
   }
 }
 
-resource exampleUser3 'Microsoft.ApiManagement/service/users@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleUser1'
+resource exampleUser3 'Microsoft.ApiManagement/service/users@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleUser3'
   properties: {
     firstName: 'ExampleFirstName3'
     lastName: 'ExampleLastName3'
@@ -177,7 +215,8 @@ resource exampleUser3 'Microsoft.ApiManagement/service/users@2020-06-01-preview'
 }
 
 resource exampleProperty 'Microsoft.ApiManagement/service/properties@2019-01-01' = {
-  name: '${apiManagementService.name}/exampleproperties'
+  parent: apiManagementService
+  name: 'exampleproperties'
   properties: {
     displayName: 'propertyExampleName'
     value: 'propertyExampleValue'
@@ -187,8 +226,9 @@ resource exampleProperty 'Microsoft.ApiManagement/service/properties@2019-01-01'
   }
 }
 
-resource subscription1 'Microsoft.ApiManagement/service/subscriptions@2017-03-01' = {
-  name: '${apiManagementService.name}/examplesubscription1'
+resource subscription1 'Microsoft.ApiManagement/service/subscriptions@2018-01-01' = {
+  parent: apiManagementService
+  name: 'examplesubscription1'
   properties: {
     displayName: 'examplesubscription1'
     productId: exampleProduct.id
@@ -196,8 +236,9 @@ resource subscription1 'Microsoft.ApiManagement/service/subscriptions@2017-03-01
   }
 }
 
-resource subscription2 'Microsoft.ApiManagement/service/subscriptions@2017-03-01' = {
-  name: '${apiManagementService.name}/examplesubscription2'
+resource subscription2 'Microsoft.ApiManagement/service/subscriptions@2018-01-01' = {
+  parent: apiManagementService
+  name: 'examplesubscription2'
   properties: {
     displayName: 'examplesubscription2'
     productId: exampleProduct.id
@@ -205,16 +246,18 @@ resource subscription2 'Microsoft.ApiManagement/service/subscriptions@2017-03-01
   }
 }
 
-resource certificate 'Microsoft.ApiManagement/service/certificates@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleCertificate'
+resource certificate 'Microsoft.ApiManagement/service/certificates@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleCertificate'
   properties: {
     data: mutualAuthenticationCertificate
     password: certificatePassword
   }
 }
 
-resource exampleGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleGroup'
+resource exampleGroup 'Microsoft.ApiManagement/service/groups@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleGroup'
   properties: {
     displayName: 'Example Group Name'
     description: 'Example group description'
@@ -222,7 +265,8 @@ resource exampleGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview
 }
 
 resource openIdConnectProvider 'Microsoft.ApiManagement/service/openidConnectProviders@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleOpenIdConnectProvider'
+  parent: apiManagementService
+  name: 'exampleOpenIdConnectProvider'
   properties: {
     displayName: 'exampleOpenIdConnectProviderName'
     description: 'Description for example OpenId Connect provider'
@@ -232,8 +276,9 @@ resource openIdConnectProvider 'Microsoft.ApiManagement/service/openidConnectPro
   }
 }
 
-resource exampleLogger 'Microsoft.ApiManagement/service/loggers@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleLogger'
+resource exampleLogger 'Microsoft.ApiManagement/service/loggers@2020-12-01' = {
+  parent: apiManagementService
+  name: 'exampleLogger'
   properties: {
     loggerType: 'azureEventHub'
     description: 'Description for example logger'
@@ -244,13 +289,11 @@ resource exampleLogger 'Microsoft.ApiManagement/service/loggers@2020-06-01-previ
   }
 }
 
-resource identityProvider 'Microsoft.ApiManagement/service/identityProviders@2020-06-01-preview' = {
-  name: any('${apiManagementService.name}/google')
+resource identityProvider 'Microsoft.ApiManagement/service/identityProviders@2020-12-01' = {
+  parent: apiManagementService
+  name: 'google'
   properties: {
     clientId: 'googleClientId'
     clientSecret: googleClientSecret
   }
-  dependsOn: [
-    apiManagementService
-  ]
 }
