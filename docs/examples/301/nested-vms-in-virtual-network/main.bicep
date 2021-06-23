@@ -1,27 +1,57 @@
-param _artifactsLocation string = 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/301-nested-vms-in-virtual-network/'
+@description('The base URI where artifacts required by this template are located including a trailing \'/\'')
+param _artifactsLocation string = deployment().properties.templateLink.uri
 
+@description('The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured.')
 @secure()
 param _artifactsLocationSasToken string = ''
 
+@description('Location for all resources.')
 param location string = resourceGroup().location
+
+@description('Resource Name for Public IP address attached to Hyper-V Host')
 param HostPublicIPAddressName string = 'HVHOSTPIP'
+
+@description('Hyper-V Host and Guest VMs Virtual Network')
 param virtualNetworkName string = 'VirtualNetwork'
+
+@description('Virtual Network Address Space')
 param virtualNetworkAddressPrefix string = '10.0.0.0/22'
+
+@description('NAT Subnet Name')
 param NATSubnetName string = 'NAT'
+
+@description('NAT Subnet Address Space')
 param NATSubnetPrefix string = '10.0.0.0/24'
+
+@description('Hyper-V Host Subnet Name')
 param hyperVSubnetName string = 'Hyper-V-LAN'
+
+@description('Hyper-V Host Subnet Address Space')
 param hyperVSubnetPrefix string = '10.0.1.0/24'
 
+@description('Ghosted Subnet Name')
 param ghostedSubnetName string = 'Ghosted'
+
+@description('Ghosted Subnet Address Space')
 param ghostedSubnetPrefix string = '10.0.2.0/24'
+
+@description('Azure VMs Subnet Name')
 param azureVMsSubnetName string = 'Azure-VMs'
+
+@description('Azure VMs Address Space')
 param azureVMsSubnetPrefix string = '10.0.3.0/24'
+
+@description('Hyper-V Host Network Interface 1 Name, attached to NAT Subnet')
 param HostNetworkInterface1Name string = 'HVHOSTNIC1'
+
+@description('Hyper-V Host Network Interface 2 Name, attached to Hyper-V LAN Subnet')
 param HostNetworkInterface2Name string = 'HVHOSTNIC2'
 
+@description('Name of Hyper-V Host Virtual Machine, Maximum of 15 characters, use letters and numbers only.')
 @maxLength(15)
 param HostVirtualMachineName string = 'HVHOST'
 
+@description('Size of the Host Virtual Machine')
 @allowed([
   'Standard_D2_v3'
   'Standard_D4_v3'
@@ -48,10 +78,12 @@ param HostVirtualMachineName string = 'HVHOST'
   'Standard_E32s_v3'
   'Standard_E64s_v3'
 ])
-param HostVirtualMachineSize string = 'Standard_D4s_v3'
+param HostVirtualMachineSize string //asdf = 'Standard_D4s_v3'
 
+@description('Admin Username for the Host Virtual Machine')
 param HostAdminUsername string
 
+@description('Admin User Password for the Host Virtual Machine')
 @secure()
 param HostAdminPassword string
 
@@ -272,7 +304,8 @@ resource hostVm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
 }
 
 resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' = {
-  name: '${hostVm.name}/InstallWindowsFeatures'
+  parent: hostVm
+  name: 'InstallWindowsFeatures'
   location: location
   properties: {
     publisher: 'Microsoft.Powershell'
@@ -291,7 +324,8 @@ resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' =
 }
 
 resource hostVmSetupExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' = {
-  name: '${hostVm.name}/HVHOSTSetup'
+  parent: hostVm
+  name: 'HVHOSTSetup'
   location: location
   properties: {
     publisher: 'Microsoft.Compute'
@@ -305,4 +339,7 @@ resource hostVmSetupExtension 'Microsoft.Compute/virtualMachines/extensions@2019
       commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress ${createNic1.outputs.assignedIp} -NIC2IPAddress ${createNic2.outputs.assignedIp} -GhostedSubnetPrefix ${ghostedSubnetPrefix} -VirtualNetworkPrefix ${virtualNetworkAddressPrefix}'
     }
   }
+  dependsOn: [
+    vmExtension
+  ]
 }
