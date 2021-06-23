@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Completions
         {
             var model = compilation.GetEntrypointSemanticModel();
 
-            return GetDeclarationCompletions(context)
+            return GetDeclarationCompletions(model, context)
                 .Concat(GetSymbolCompletions(model, context))
                 .Concat(GetDeclarationTypeCompletions(compilation, context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetTargetScopeCompletions(model, context));
         }
 
-        private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.TopLevelDeclarationStart))
             {
@@ -102,19 +102,25 @@ namespace Bicep.LanguageServer.Completions
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange);
 
-                // leaving out the API version on this, because we expect its more common to inherit from the containing resource.
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Nested resource with defaults", @"resource ${1:Identifier} '${2:Type}' = {
-  name: $3
-  properties: {
-    $0
-  }
-}", context.ReplacementRange);
+                if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
+                {
+                    TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
 
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Nested resource without defaults", @"resource ${1:Identifier} '${2:Type}' = {
-  name: $3
-  $0
-}
-", context.ReplacementRange);
+                    foreach (Snippet snippet in SnippetsProvider.GeNestedChildResourceSnippets(typeSymbol))
+                    {
+                        string prefix = snippet.Prefix;
+                        BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, typeSymbol.Name);
+                        Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+
+                        yield return CreateContextualSnippetCompletion(prefix,
+                            snippet.Detail,
+                            snippet.Text,
+                            context.ReplacementRange,
+                            command,
+                            snippet.CompletionPriority,
+                            preselect: true);
+                    }
+                }
             }
         }
 

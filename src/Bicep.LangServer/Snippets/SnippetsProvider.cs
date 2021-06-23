@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -28,8 +30,11 @@ namespace Bicep.LanguageServer.Snippets
 
         // Used to cache resource declarations. Maps resource type to body text and description
         private readonly ConcurrentDictionary<string, (string text, string description)> resourceTypeToBodyMap = new();
+        private readonly ConcurrentDictionary<string, (string prefix, string identifier, string bodyText, string description)> resourceTypeInfoMap = new();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
         private readonly ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new();
+        private readonly ConcurrentDictionary<string, string> resourceTypeToTypeMap = new();
+        private readonly ConcurrentDictionary<string, List<TypeSymbol>> resourceTypeToChildSymbolsMap = new();
         // Used to cache resource body snippets
         private readonly ConcurrentDictionary<(string typeName, bool isExistingResource), IEnumerable<Snippet>> resourceBodySnippetsCache = new();
         // Used to cache top level declarations
@@ -138,37 +143,72 @@ namespace Bicep.LanguageServer.Snippets
                 {
                     if (declaredSymbol.Type is TypeSymbol typeSymbol && typeSymbol.TypeKind != TypeKind.Error)
                     {
-                        string type = typeSymbol.Name;
-                        CacheResourceDeclaration(resourceDeclarationSyntax, type, template, description);
-                        CacheResourceDependencies(kvp.Value, template, type);
+                        CacheResourceDeclaration(resourceDeclarationSyntax, typeSymbol, template, description, manifestResourceName);
+                        CacheResourceDependencies(typeSymbol, kvp.Value, template);
                     }
                 }
             }
         }
 
-        private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclarationSyntax, string type, string template, string description)
+        private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclarationSyntax, TypeSymbol typeSymbol, string template, string description, string manifestResourceName)
         {
+            string type = typeSymbol.Name;
+
             if (!resourceTypeToBodyMap.ContainsKey(type))
             {
                 TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
                 string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
+                string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
+                TextSpan resourceDeclarationSyntaxNameSpan = resourceDeclarationSyntax.Name.Span;
+                string identifier = template.Substring(resourceDeclarationSyntaxNameSpan.Position, resourceDeclarationSyntaxNameSpan.Length);
 
+                resourceTypeInfoMap.TryAdd(type, (prefix, identifier, bodyText, description));
                 resourceTypeToBodyMap.TryAdd(type, (bodyText, description));
             }
         }
 
-        private void CacheResourceDependencies(ImmutableHashSet<ResourceDependency> resourceDependencies, string template, string resourceType)
+        private void CacheResourceDependencies(TypeSymbol typeSymbol, ImmutableHashSet<ResourceDependency> resourceDependencies, string template)
         {
             if (resourceDependencies.Any())
             {
                 StringBuilder sb = new StringBuilder();
+
                 foreach (ResourceDependency resourceDependency in resourceDependencies)
                 {
                     TextSpan span = resourceDependency.Resource.DeclaringSyntax.Span;
+
+                    string parentType = resourceDependency.Resource.Type.Name;
+
+                    if (resourceTypeToChildSymbolsMap.ContainsKey(resourceDependency.Resource.DeclaringSyntax.GetType().Name))
+                    {
+                        resourceTypeToChildSymbolsMap[parentType].Add(typeSymbol);
+                    }
+                    else
+                    {
+                        resourceTypeToChildSymbolsMap.TryAdd(parentType, new List<TypeSymbol> { typeSymbol });
+                    }
+
+                    CacheNestedChildResourceType(parentType, typeSymbol);
+
+
                     sb.AppendLine(template.Substring(span.Position, span.Length));
                 }
 
-                resourceTypeToDependentsMap.TryAdd(resourceType, sb.ToString());
+                resourceTypeToDependentsMap.TryAdd(typeSymbol.Name, sb.ToString());
+            }
+        }
+
+        private void CacheNestedChildResourceType(string parentType, TypeSymbol childTypeSymbol)
+        {
+            if (childTypeSymbol is ResourceType resourceType)
+            {
+                foreach (string type in resourceType.TypeReference.Types)
+                {
+                    if (!parentType.Contains(type))
+                    {
+                        resourceTypeToTypeMap.TryAdd(childTypeSymbol.Name, type + "@" + resourceType.TypeReference.ApiVersion);
+                    }
+                }
             }
         }
 
@@ -411,6 +451,47 @@ namespace Bicep.LanguageServer.Snippets
                 foreach (Snippet snippet in GetRequiredPropertiesSnippetsForDisciminatedObjectType(discriminatedObjectType))
                 {
                     yield return snippet;
+                }
+            }
+        }
+
+        public IEnumerable<Snippet> GeNestedChildResourceSnippets(TypeSymbol typeSymbol)
+        {
+            // leaving out the API version on this, because we expect its more common to inherit from the containing resource.
+            yield return new Snippet(@"resource ${1:Identifier} '${2:Type}' = {
+  name: $3
+  properties: {
+    $0
+  }
+}", prefix: LanguageConstants.ResourceKeyword, detail: "Nested resource with defaults");
+
+            yield return new Snippet(@"resource ${1:Identifier} '${2:Type}' = {
+  name: $3
+  $0
+}", prefix: LanguageConstants.ResourceKeyword, detail: "Nested resource without defaults");
+
+            string parentType = typeSymbol.Name;
+
+            if (resourceTypeToChildSymbolsMap.ContainsKey(parentType))
+            {
+                foreach (TypeSymbol childTypeSymbol in resourceTypeToChildSymbolsMap[typeSymbol.Name])
+                {
+                    resourceTypeInfoMap.TryGetValue(childTypeSymbol.Name, out (string prefix, string identifier, string bodyText, string description) resourceInfo);
+
+                    if (childTypeSymbol is ResourceType resourceType)
+                    {
+                        foreach (string type in resourceType.TypeReference.Types)
+                        {
+                            if (!parentType.Contains(type))
+                            {
+                                string childType = type + "@" + resourceType.TypeReference.ApiVersion;
+                                string bodyText = Regex.Replace(resourceInfo.bodyText, @"^.*parent:.*$[\r\n]*", string.Empty, RegexOptions.Multiline);
+                                string text = LanguageConstants.ResourceKeyword + " " + resourceInfo.identifier + " '" + childType + "' = " + bodyText;
+
+                                yield return new Snippet(text, prefix: resourceInfo.prefix, detail: resourceInfo.description);
+                            }
+                        }
+                    }
                 }
             }
         }
