@@ -30,7 +30,7 @@ namespace Bicep.LangServer.UnitTests
             var provider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver());
 
             var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
-            var syntaxTree = SyntaxTree.Create(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
+            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
             var context = provider.Create(workspace, fileUri);

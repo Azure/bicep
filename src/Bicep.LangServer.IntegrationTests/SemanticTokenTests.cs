@@ -32,7 +32,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task Overlapping_tokens_are_not_returned(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var syntaxTree = SyntaxTree.Create(uri.ToUri(), dataSet.Bicep);
+            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(uri.ToUri(), dataSet.Bicep);
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, dataSet.Bicep, uri);
 

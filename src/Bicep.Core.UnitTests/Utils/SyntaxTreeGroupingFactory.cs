@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static SyntaxTreeGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
         {
             var workspace = new Workspace();
-            var syntaxTrees = files.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
+            var syntaxTrees = files.Select(kvp => SyntaxTreeFactory.CreateSyntaxTree(kvp.Key, kvp.Value));
             workspace.UpsertSyntaxTrees(syntaxTrees);
 
             return SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entryFileUri);

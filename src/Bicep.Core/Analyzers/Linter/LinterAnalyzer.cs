@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -75,6 +75,11 @@ namespace Bicep.Core.Analyzers.Linter
 
         internal IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel, ConfigHelper? overrideConfig = default)
         {
+            if (semanticModel.SyntaxTree is JsonSyntaxTree)
+            {
+                return Enumerable.Empty<IDiagnostic>();
+            }
+
             // check for configuration overrides
             /// typically only used in unit tests
             var configHelp = overrideConfig ?? this.configHelper;

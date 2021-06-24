@@ -93,6 +93,18 @@ namespace Bicep.Core.Emit
 
         public void Write(JsonTextWriter writer)
         {
+            if (this.context.SemanticModel.SyntaxTree is JsonSyntaxTree jsonSyntaxTree)
+            {
+                if (jsonSyntaxTree.TemplateObject is not { } templateObject)
+                {
+                    throw new InvalidOperationException($"Expected JsonSyntaxTree to contain a template object.");
+                }
+
+                templateObject.WriteTo(writer);
+
+                return;
+            }
+
             // Template is used for calcualting template hash, template jtoken is used for writing to file.
             var (template, templateJToken) = GenerateTemplateWithoutHash();
             var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());

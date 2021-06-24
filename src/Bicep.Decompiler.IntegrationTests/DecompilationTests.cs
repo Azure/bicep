@@ -93,7 +93,7 @@ namespace Bicep.Core.IntegrationTests
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFileName);
             var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
-            var syntaxTrees = filesToSave.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
+            var syntaxTrees = filesToSave.Select(kvp => SyntaxTreeFactory.CreateSyntaxTree(kvp.Key, kvp.Value));
             var workspace = new Workspace();
             workspace.UpsertSyntaxTrees(syntaxTrees);
 

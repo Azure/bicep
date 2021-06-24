@@ -12,9 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -37,14 +35,17 @@ namespace Bicep.LanguageServer.Handlers
             // we have full sync enabled, so apparently first change is the whole document
             var contents = request.ContentChanges.First().Text;
 
-            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, contents);
+            this.compilationManager.UpdateCompilation(request.TextDocument.Uri, request.TextDocument.Version, contents);
 
             return Unit.Task;
         }
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
+            if (request.TextDocument.LanguageId.Equals(LanguageConstants.LanguageId, StringComparison.OrdinalIgnoreCase))
+            {
+                this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
+            }
 
             return Unit.Task;
         }

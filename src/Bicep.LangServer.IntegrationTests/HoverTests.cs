@@ -189,7 +189,7 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
 output string test = testRes.prop|erties.rea|donly
 ");
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
@@ -220,7 +220,7 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = [for i in range(0, 10): {
 output string test = testRes[3].prop|erties.rea|donly
 ");
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
@@ -251,7 +251,7 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = if (true) {
 output string test = testRes.prop|erties.rea|donly
 ");
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 
@@ -274,7 +274,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 }
 ");
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var hovers = await RequestHovers(client, syntaxTree, cursors);
 

@@ -8,7 +8,6 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
@@ -42,7 +41,7 @@ namespace Bicep.Core.Syntax
 
         private SyntaxTreeGrouping Build(Uri entryFileUri)
         {
-            var entryPoint = PopulateRecursive(entryFileUri, out var entryPointLoadFailureBuilder);
+            var entryPoint = PopulateRecursive(entryFileUri, true, out var entryPointLoadFailureBuilder);
             if (entryPoint == null)
             {
                 // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
@@ -62,7 +61,7 @@ namespace Bicep.Core.Syntax
                 moduleFailureLookup.ToImmutableDictionary());
         }
 
-        private SyntaxTree? TryGetSyntaxTree(Uri fileUri, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private SyntaxTree? TryGetSyntaxTree(Uri fileUri, bool isEntryFile, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (workspace.TryGetSyntaxTree(fileUri, out var syntaxTree))
             {
@@ -89,20 +88,20 @@ namespace Bicep.Core.Syntax
             }
 
             failureBuilder = null;
-            return AddSyntaxTree(fileUri, fileContents);
+            return AddSyntaxTree(fileUri, fileContents, isEntryFile);
         }
 
-        private SyntaxTree AddSyntaxTree(Uri fileUri, string fileContents)
+        private SyntaxTree AddSyntaxTree(Uri fileUri, string fileContents, bool isEntryFile)
         {
-            var syntaxTree = SyntaxTree.Create(fileUri, fileContents);
+            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(fileUri, fileContents, isEntryFile);
             syntaxTrees[fileUri] = syntaxTree;
 
             return syntaxTree;
         }
 
-        private SyntaxTree? PopulateRecursive(Uri fileUri, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private SyntaxTree? PopulateRecursive(Uri fileUri, bool isEntryFile, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var syntaxTree = TryGetSyntaxTree(fileUri, out var getSyntaxTreeFailureBuilder);
+            var syntaxTree = TryGetSyntaxTree(fileUri, isEntryFile, out var getSyntaxTreeFailureBuilder);
             if (syntaxTree == null)
             {
                 failureBuilder = getSyntaxTreeFailureBuilder;
@@ -123,7 +122,7 @@ namespace Bicep.Core.Syntax
                 // only recurse if we've not seen this module before - to avoid infinite loops
                 if (!syntaxTrees.TryGetValue(moduleFileName, out var moduleSyntaxTree))
                 {
-                    moduleSyntaxTree = PopulateRecursive(moduleFileName, out var modulePopulateFailureBuilder);
+                    moduleSyntaxTree = PopulateRecursive(moduleFileName, false, out var modulePopulateFailureBuilder);
                     
                     if (moduleSyntaxTree == null)
                     {

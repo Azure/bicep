@@ -194,7 +194,7 @@ var dep1 = az.depl|oyment()
 var dep2 = az.deploy|ment()
 ");
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var references = await RequestReferences(client, syntaxTree, cursors);
             

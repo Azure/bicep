@@ -177,7 +177,7 @@ namespace Bicep.LanguageServer.Snippets
 
             // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid 
             // cross platform issues, we'll provide a placeholder uri.
-            SyntaxTree syntaxTree = SyntaxTree.Create(new Uri("inmemory://snippet.bicep"), template);
+            SyntaxTree syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(new Uri("inmemory://snippet.bicep"), template);
             SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
                 syntaxTree,
                 ImmutableHashSet.Create(syntaxTree),

@@ -114,11 +114,19 @@ namespace Bicep.Core.FileSystem
             return new Uri(uriString);
         }
 
+        public static bool HasAnyExtension(Uri uri)
+        {
+            var path = GetNormalizedPath(uri);
+
+            return Path.HasExtension(path);
+        }
+
         public static bool HasExtension(Uri uri, string extension)
         {
+            var path = GetNormalizedPath(uri);
             extension = NormalizeExtension(extension);
 
-            return uri.AbsolutePath.EndsWith(extension, StringComparison.OrdinalIgnoreCase);
+            return path.EndsWith(extension, StringComparison.OrdinalIgnoreCase);
         }
 
         public static Uri RemoveExtension(Uri uri) => ChangeExtension(uri, null);
@@ -126,6 +134,9 @@ namespace Bicep.Core.FileSystem
         public static Uri ChangeToBicepExtension(Uri uri) => ChangeExtension(uri, BicepExtension);
 
         public static bool HasBicepExtension(Uri uri) => HasExtension(uri, BicepExtension);
+
+        private static string GetNormalizedPath(Uri uri) =>
+            uri.Scheme != Uri.UriSchemeFile ? uri.AbsoluteUri.TrimEnd('/') : uri.AbsolutePath;
 
         private static string NormalizeExtension(string extension) =>
             extension.StartsWith(".") ? extension : $".{extension}";

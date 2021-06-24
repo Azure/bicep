@@ -207,7 +207,7 @@ namespace Bicep.Cli
                 foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
                     File.WriteAllText(fileUri.LocalPath, bicepOutput);
-                    workspace.UpsertSyntaxTrees(SyntaxTree.Create(fileUri, bicepOutput).AsEnumerable());
+                    workspace.UpsertSyntaxTrees(SyntaxTreeFactory.CreateSyntaxTree(fileUri, bicepOutput).AsEnumerable());
                 }
 
                 var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entrypointUri);
@@ -234,7 +234,7 @@ namespace Bicep.Cli
                 foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
                     this.outputWriter.Write(bicepOutput);
-                    workspace.UpsertSyntaxTrees(SyntaxTree.Create(fileUri, bicepOutput).AsEnumerable());
+                    workspace.UpsertSyntaxTrees(SyntaxTreeFactory.CreateSyntaxTree(fileUri, bicepOutput).AsEnumerable());
                 }
 
                 var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entrypointUri);

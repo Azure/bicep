@@ -1078,6 +1078,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP183",
                 $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
+
+            public ErrorDiagnostic InvalidJsonTemplate(string jsonErrorMessage) => new(
+                TextSpan,
+                "BCP184",
+                jsonErrorMessage);
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
