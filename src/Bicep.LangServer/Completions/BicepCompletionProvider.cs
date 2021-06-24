@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Azure.Deployments.Core.Comparers;
@@ -19,6 +20,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static Bicep.Core.Semantics.ResourceAncestorGraph;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
@@ -405,8 +407,11 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
+                bool isResourceNested = model.GetSymbolInfo(resourceDeclarationSyntax) is ResourceSymbol resourceSymbol &&
+                                        model.ResourceAncestors.GetAncestors(resourceSymbol).Any(x => x.AncestorType == ResourceAncestorType.Nested);
+
                 TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
-                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, resourceDeclarationSyntax.IsExistingResource());
+                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
 
                 foreach (Snippet snippet in snippets)
                 {

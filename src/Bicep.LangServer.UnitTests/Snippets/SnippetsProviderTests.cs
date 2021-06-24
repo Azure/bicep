@@ -144,7 +144,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     ("name", LanguageConstants.String, TypePropertyFlags.Required),
                     ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -192,7 +192,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
            ("name", LanguageConstants.String, TypePropertyFlags.Required),
            ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -255,7 +255,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                    ("name", LanguageConstants.String, TypePropertyFlags.Required)),
                    TypePropertyFlags.Required)));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -294,7 +294,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
            ResourceScope.ResourceGroup,
            CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -330,7 +330,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     ResourceScope.ResourceGroup,
                     discriminatedObjectType);
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -370,7 +370,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     ResourceScope.ResourceGroup,
                     discriminatedObjectType);
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false, false);
 
             snippets.Should().SatisfyRespectively(
                 x =>

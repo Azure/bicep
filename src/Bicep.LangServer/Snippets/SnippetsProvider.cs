@@ -25,11 +25,12 @@ namespace Bicep.LanguageServer.Snippets
 {
     public class SnippetsProvider : ISnippetsProvider
     {
+        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>[^}]+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(.*))\|})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+
         private const string RequiredPropertiesDescription = "Required properties";
         private const string RequiredPropertiesLabel = "required-properties";
 
-        // Used to cache resource declarations. Maps resource type to body text and description
-        private readonly ConcurrentDictionary<string, (string text, string description)> resourceTypeToBodyMap = new();
+        // Used to cache resource declarations. Maps resource type to resource prefix, identifier, body text and description
         private readonly ConcurrentDictionary<string, (string prefix, string identifier, string bodyText, string description)> resourceTypeInfoMap = new();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
         private readonly ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new();
@@ -154,7 +155,7 @@ namespace Bicep.LanguageServer.Snippets
         {
             string type = typeSymbol.Name;
 
-            if (!resourceTypeToBodyMap.ContainsKey(type))
+            if (!resourceTypeInfoMap.ContainsKey(type))
             {
                 TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
                 string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
@@ -163,7 +164,6 @@ namespace Bicep.LanguageServer.Snippets
                 string identifier = template.Substring(resourceDeclarationSyntaxNameSpan.Position, resourceDeclarationSyntaxNameSpan.Length);
 
                 resourceTypeInfoMap.TryAdd(type, (prefix, identifier, bodyText, description));
-                resourceTypeToBodyMap.TryAdd(type, (bodyText, description));
             }
         }
 
@@ -179,7 +179,7 @@ namespace Bicep.LanguageServer.Snippets
 
                     string parentType = resourceDependency.Resource.Type.Name;
 
-                    if (resourceTypeToChildSymbolsMap.ContainsKey(resourceDependency.Resource.DeclaringSyntax.GetType().Name))
+                    if (resourceTypeToChildSymbolsMap.ContainsKey(parentType))
                     {
                         resourceTypeToChildSymbolsMap[parentType].Add(typeSymbol);
                     }
@@ -236,7 +236,7 @@ namespace Bicep.LanguageServer.Snippets
             return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
         }
 
-        public IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol, bool isExistingResource)
+        public IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol, bool isExistingResource, bool isResourceNested)
         {
             if (resourceBodySnippetsCache.TryGetValue((typeSymbol.Name, isExistingResource), out IEnumerable<Snippet>? cachedSnippets) && cachedSnippets.Any())
             {
@@ -250,10 +250,21 @@ namespace Bicep.LanguageServer.Snippets
             // We will not show custom snippets for resources with 'existing' keyword as they are not applicable in that scenario.
             if (!isExistingResource)
             {
-                Snippet? snippetFromExistingTemplate = GetResourceBodyCompletionSnippetFromTemplate(typeSymbol);
-                if (snippetFromExistingTemplate is not null)
+                if (isResourceNested)
                 {
-                    snippets.Add(snippetFromExistingTemplate);
+                    if (resourceTypeInfoMap.TryGetValue(typeSymbol.Name, out (string prefix, string identifier, string bodyText, string description) resourceTypeInfo))
+                    {
+                        Snippet snippet = new Snippet(RemoveParentFromResourceBodyText(resourceTypeInfo.bodyText), prefix: "snippet", detail: resourceTypeInfo.description);
+                        snippets.Add(snippet);
+                    }
+                }
+                else
+                {
+                    Snippet? snippetFromExistingTemplate = GetResourceBodyCompletionSnippetFromTemplate(typeSymbol);
+                    if (snippetFromExistingTemplate is not null)
+                    {
+                        snippets.Add(snippetFromExistingTemplate);
+                    }
                 }
             }
 
@@ -284,7 +295,7 @@ namespace Bicep.LanguageServer.Snippets
             StringBuilder sb = new StringBuilder();
 
             // Get resource body completion snippet from checked in static template file, if available
-            if (resourceTypeToBodyMap.TryGetValue(type, out (string text, string description) resourceBodyWithDescription))
+            if (resourceTypeInfoMap.TryGetValue(type, out (string prefix, string identifier, string text, string description) resourceBodyWithDescription))
             {
                 sb.AppendLine(resourceBodyWithDescription.text);
 
@@ -463,12 +474,12 @@ namespace Bicep.LanguageServer.Snippets
   properties: {
     $0
   }
-}", prefix: LanguageConstants.ResourceKeyword, detail: "Nested resource with defaults");
+}", prefix: "resource-with-defaults", detail: "Nested resource with defaults");
 
             yield return new Snippet(@"resource ${1:Identifier} '${2:Type}' = {
   name: $3
   $0
-}", prefix: LanguageConstants.ResourceKeyword, detail: "Nested resource without defaults");
+}", prefix: "resource-without-defaults", detail: "Nested resource without defaults");
 
             string parentType = typeSymbol.Name;
 
@@ -485,7 +496,7 @@ namespace Bicep.LanguageServer.Snippets
                             if (!parentType.Contains(type))
                             {
                                 string childType = type + "@" + resourceType.TypeReference.ApiVersion;
-                                string bodyText = Regex.Replace(resourceInfo.bodyText, @"^.*parent:.*$[\r\n]*", string.Empty, RegexOptions.Multiline);
+                                string bodyText = RemoveParentFromResourceBodyText(resourceInfo.bodyText);
                                 string text = LanguageConstants.ResourceKeyword + " " + resourceInfo.identifier + " '" + childType + "' = " + bodyText;
 
                                 yield return new Snippet(text, prefix: resourceInfo.prefix, detail: resourceInfo.description);
@@ -494,6 +505,11 @@ namespace Bicep.LanguageServer.Snippets
                     }
                 }
             }
+        }
+
+        private string RemoveParentFromResourceBodyText(string text)
+        {
+            return Regex.Replace(text, @"^.*parent:.*$[\r\n]*", string.Empty, RegexOptions.Multiline);
         }
     }
 }
