@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16380738536760213809"
+      "templateHash": "1208378844879751426"
     }
   },
   "parameters": {
@@ -25,13 +25,13 @@
     "pricingTier": {
       "type": "string",
       "defaultValue": "premium",
-      "metadata": {
-        "description": "The pricing tier of workspace."
-      },
       "allowedValues": [
         "standard",
         "premium"
-      ]
+      ],
+      "metadata": {
+        "description": "The pricing tier of workspace."
+      }
     },
     "location": {
       "type": "string",

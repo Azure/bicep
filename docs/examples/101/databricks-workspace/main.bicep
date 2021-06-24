@@ -4,17 +4,22 @@ param disablePublicIp bool = false
 @description('The name of the Azure Databricks workspace to create.')
 param workspaceName string
 
+@description('The pricing tier of workspace.')
 @allowed([
   'standard'
   'premium'
 ])
-@description('The pricing tier of workspace.')
 param pricingTier string = 'premium'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
 var managedResourceGroupName = 'databricks-rg-${workspaceName}-${uniqueString(workspaceName, resourceGroup().id)}'
+
+resource managedResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  scope: subscription()
+  name: managedResourceGroupName
+}
 
 resource ws 'Microsoft.Databricks/workspaces@2018-04-01' = {
   name: workspaceName
@@ -30,11 +35,6 @@ resource ws 'Microsoft.Databricks/workspaces@2018-04-01' = {
       }
     }
   }
-}
-
-resource managedResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-  scope: subscription()
-  name: managedResourceGroupName
 }
 
 output workspace object = ws.properties
