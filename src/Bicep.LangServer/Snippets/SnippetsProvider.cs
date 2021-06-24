@@ -25,8 +25,6 @@ namespace Bicep.LanguageServer.Snippets
 {
     public class SnippetsProvider : ISnippetsProvider
     {
-        private static readonly Regex PlaceholderPattern = new Regex(@"\$({(?<index>\d+):(?<name>[^}]+)}|(?<index>\d+)|{(?<index>\d+)\|((?<name>[^,]+)(.*))\|})", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
-
         private const string RequiredPropertiesDescription = "Required properties";
         private const string RequiredPropertiesLabel = "required-properties";
 
@@ -466,7 +464,7 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        public IEnumerable<Snippet> GeNestedChildResourceSnippets(TypeSymbol typeSymbol)
+        public IEnumerable<Snippet> GetChildResourceDeclarationSnippets(TypeSymbol typeSymbol)
         {
             // leaving out the API version on this, because we expect its more common to inherit from the containing resource.
             yield return new Snippet(@"resource ${1:Identifier} '${2:Type}' = {

@@ -22,6 +22,16 @@ namespace Bicep.LanguageServer.Telemetry
                 },
             };
 
+        public static BicepTelemetryEvent CreateChildResourceDeclarationSnippetInsertion(string name)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.ChildResourceDeclarationSnippetInsertion,
+                Properties = new()
+                {
+                    ["name"] = name,
+                },
+            };
+
         public static BicepTelemetryEvent CreateResourceBodySnippetInsertion(string name, string type)
             => new BicepTelemetryEvent
             {

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Azure.Deployments.Core.Comparers;
@@ -108,10 +107,10 @@ namespace Bicep.LanguageServer.Completions
                 {
                     TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
 
-                    foreach (Snippet snippet in SnippetsProvider.GeNestedChildResourceSnippets(typeSymbol))
+                    foreach (Snippet snippet in SnippetsProvider.GetChildResourceDeclarationSnippets(typeSymbol))
                     {
                         string prefix = snippet.Prefix;
-                        BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, typeSymbol.Name);
+                        BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateChildResourceDeclarationSnippetInsertion(prefix);
                         Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
                         yield return CreateContextualSnippetCompletion(prefix,

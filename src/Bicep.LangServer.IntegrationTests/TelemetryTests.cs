@@ -43,6 +43,25 @@ namespace Bicep.LangServer.IntegrationTests
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
+        [TestMethod]
+        public async Task VerifyChildResourceDeclarationSnippetInsertionFiresTelemetryEvent()
+        {
+            string text = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+  name: 'name'
+  location: resourceGroup().location
+
+}";
+            IDictionary<string, string> properties = new Dictionary<string, string>
+            {
+                { "name", "res-automation-cert" }
+            };
+
+            BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(text, "res-automation-cert", new Position(3, 0));
+
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.ChildResourceDeclarationSnippetInsertion);
+            bicepTelemetryEvent.Properties.Should().Equal(properties);
+        }
+
         [DataRow("required-properties")]
         [DataRow("snippet")]
         [DataRow("{}")]

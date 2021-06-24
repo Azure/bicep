@@ -235,6 +235,55 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         }
 
         [TestMethod]
+        public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndNested_ShouldReturnSnippets()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            TypeSymbol typeSymbol = new ResourceType(
+                    ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/certificates@2019-06-01"),
+                    ResourceScope.ResourceGroup,
+                    CreateObjectType("Microsoft.Automation/automationAccounts/certificates@2019-06-01",
+                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("location", LanguageConstants.String, TypePropertyFlags.Required)));
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false, true);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("{}");
+                    x.Detail.Should().Be("{}");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be("{\n\t$0\n}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("snippet");
+                    x.Detail.Should().Be("Automation Certificate");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+  name: ${3:'name'}
+  properties: {
+    base64Value: ${4:'base64Value'}
+    description: ${5:'description'}
+    thumbprint: ${6:'thumbprint'}
+    isExportable: ${7|true,false|}
+  }
+}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("required-properties");
+                    x.Detail.Should().Be("Required properties");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	location: $2
+	$0
+}");
+                });
+        }
+
+        [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNoStaticTemplate_ShouldReturnSnippets()
         {
             TypeSymbol typeSymbol = new ResourceType(
@@ -303,6 +352,74 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Detail.Should().Be("{}");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().Be("{\n\t$0\n}");
+                });
+        }
+
+        [TestMethod]
+        public void GetChildResourceDeclarationSnippets_WithChildResources_ShouldReturnCustomAndDefaultResourceSnippets()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            TypeSymbol typeSymbol = new ResourceType(
+                    ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts@2019-06-01"),
+                    ResourceScope.ResourceGroup,
+                    CreateObjectType("Microsoft.Automation/automationAccounts@2019-06-01"));
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetChildResourceDeclarationSnippets(typeSymbol);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("resource-with-defaults");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("resource-without-defaults");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("res-automation-cert");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("res-automation-cred");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("res-automation-job-schedule");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("res-automation-runbook");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("res-automation-schedule");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("res-automation-variable");
+                });
+        }
+
+        [TestMethod]
+        public void GetChildResourceDeclarationSnippets_WithNoChildResources_ShouldReturnDefaultResourceSnippets()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            TypeSymbol typeSymbol = new ResourceType(
+                    ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/runbooks@2019-06-01"),
+                    ResourceScope.ResourceGroup,
+                    CreateObjectType("Microsoft.Automation/automationAccounts/runbooks@2019-06-01"));
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetChildResourceDeclarationSnippets(typeSymbol);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("resource-with-defaults");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("resource-without-defaults");
                 });
         }
 
