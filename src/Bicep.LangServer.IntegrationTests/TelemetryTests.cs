@@ -44,7 +44,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        public async Task VerifyChildResourceDeclarationSnippetInsertionFiresTelemetryEvent()
+        public async Task VerifyNestedResourceDeclarationSnippetInsertionFiresTelemetryEvent()
         {
             string text = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'

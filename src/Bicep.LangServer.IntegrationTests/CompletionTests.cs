@@ -297,23 +297,31 @@ var test2 = /|* block c|omment *|/
         }
 
         [TestMethod]
-        public async Task VerifyResourceBodyCompletionWithinNestedResourceReturnsSnippets()
+        public async Task VerifyNestedResourceBodyCompletionReturnsSnippets()
         {
-            string text = "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' existing = ";
+            string fileWithCursors = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+  name: 'name'
+  location: resourceGroup().location
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+  resource automationCredential 'credentials@2019-06-01' = |
+}";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
 
-            var completions = await client.RequestCompletion(new CompletionParams
-            {
-                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
-            });
+            completionLists.Count().Should().Be(1);
 
-            completions.Should().SatisfyRespectively(
+            var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+
+            snippetCompletions.Should().SatisfyRespectively(
                 c =>
                 {
                     c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("snippet");
                 },
                 c =>
                 {
@@ -754,7 +762,7 @@ var nullLit = |n|ull|
         }
 
         [TestMethod]
-        public async Task VerifyCompletionRequestWithinNestedResourceDeclarationReturnsSnippets()
+        public async Task VerifyCompletionRequestWithinResourceDeclarationReturnsSnippets()
         {
             string fileWithCursors = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'

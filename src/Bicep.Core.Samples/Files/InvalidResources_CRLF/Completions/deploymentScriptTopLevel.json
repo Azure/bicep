@@ -106,7 +106,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ChildResourceDeclarationSnippetInsertion",
+          "EventName": "NestedResourceDeclarationSnippetInsertion",
           "Properties": {
             "name": "resource-with-defaults"
           }
@@ -135,7 +135,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ChildResourceDeclarationSnippetInsertion",
+          "EventName": "NestedResourceDeclarationSnippetInsertion",
           "Properties": {
             "name": "resource-without-defaults"
           }
