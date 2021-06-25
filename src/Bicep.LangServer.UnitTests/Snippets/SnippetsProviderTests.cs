@@ -462,6 +462,151 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 });
         }
 
+        [TestMethod]
+        public void GetObjectBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.WriteOnly),
+                new TypeProperty("id", LanguageConstants.String)
+            }, null);
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetObjectBodyCompletionSnippets(objectType);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("{}");
+                    x.Detail.Should().Be("{}");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be("{\n\t$0\n}");
+                });
+        }
+
+        [TestMethod]
+        public void GetObjectBodyCompletionSnippets_WithRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                new TypeProperty("id", LanguageConstants.String)
+            }, null);
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetObjectBodyCompletionSnippets(objectType);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("{}");
+                    x.Detail.Should().Be("{}");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be("{\n\t$0\n}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("required-properties");
+                    x.Detail.Should().Be("Required properties");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	location: $2
+	$0
+}");
+                });
+        }
+
+        [TestMethod]
+        public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndNoRequiredProperties_ShouldReturnEmptySnippet()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
+
+            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("discKey", new StringLiteralType("keyA")),
+                new TypeProperty("keyAProp", LanguageConstants.String),
+            }, null);
+
+            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("discKey", new StringLiteralType("keyB")),
+                new TypeProperty("keyBProp", LanguageConstants.String),
+            }, null);
+
+            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetObjectBodyCompletionSnippets(discriminatedObjectType);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("{}");
+                    x.Detail.Should().Be("{}");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be("{\n\t$0\n}");
+                });
+        }
+
+        [TestMethod]
+        public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
+        {
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
+
+            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("discKey", new StringLiteralType("keyA")),
+                new TypeProperty("name", new StringLiteralType("keyA"), TypePropertyFlags.Required),
+                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                new TypeProperty("id", LanguageConstants.String)
+            }, null);
+
+            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("discKey", new StringLiteralType("keyB")),
+                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new TypeProperty("kind", new StringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
+                new TypeProperty("hostPoolType", LanguageConstants.String)
+            }, null);
+
+            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
+
+            IEnumerable<Snippet> snippets = snippetsProvider.GetObjectBodyCompletionSnippets(discriminatedObjectType);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("{}");
+                    x.Detail.Should().Be("{}");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be("{\n\t$0\n}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("required-properties-keyA");
+                    x.Detail.Should().Be("Required properties");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: 'keyA'
+	location: $1
+	$0
+}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("required-properties-keyB");
+                    x.Detail.Should().Be("Required properties");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	$0
+}");
+                });
+        }
+
+
         private static ObjectType CreateObjectType(string name, params (string name, ITypeReference type, TypePropertyFlags typePropertyFlags)[] properties)
             => new(
                 name,

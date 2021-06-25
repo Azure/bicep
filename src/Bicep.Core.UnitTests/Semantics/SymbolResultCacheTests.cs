@@ -12,11 +12,13 @@ namespace Bicep.Core.UnitTests.Semantics
     [TestClass]
     public class SymbolResultCacheTests
     {
+        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+
         [TestMethod]
         public void Lookup_should_use_the_getter_function_to_select_items()
         {
-            var trueSymbolMock = new Mock<Symbol>("casper");
-            var falseSymbolMock = new Mock<Symbol>("evelynn");
+            var trueSymbolMock = Repository.Create<Symbol>("casper");
+            var falseSymbolMock = Repository.Create<Symbol>("evelynn");
 
             var cache = new SymbolResultCache<bool>(symbol => symbol.Name == "casper");
 
@@ -27,8 +29,8 @@ namespace Bicep.Core.UnitTests.Semantics
         [TestMethod]
         public void Lookup_should_only_call_the_getter_func_once_per_symbol()
         {
-            var symbol1Mock = new Mock<Symbol>("kira");
-            var symbol2Mock = new Mock<Symbol>("indy");
+            var symbol1Mock = Repository.Create<Symbol>("kira");
+            var symbol2Mock = Repository.Create<Symbol>("indy");
             var callCounts = new Dictionary<Symbol, int>
             {
                 [symbol1Mock.Object] = 0,
@@ -65,7 +67,7 @@ namespace Bicep.Core.UnitTests.Semantics
         [TestMethod]
         public void Lookup_allows_exceptions_to_bubble_up()
         {
-            var symbolMock = new Mock<Symbol>("casper");
+            var symbolMock = Repository.Create<Symbol>("casper");
             bool throwAnException(Symbol symbol)
             {
                 throw new InvalidOperationException();

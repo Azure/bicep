@@ -23,6 +23,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
     [TestClass]
     public class FunctionResolverTests
     {
+        private static readonly MockRepository Repository = new(MockBehavior.Strict);
+
         [DataTestMethod]
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void ExactOrPartialFunctionMatchShouldHaveCorrectReturnType(string displayName, string functionName, TypeSymbol expectedReturnType, IList<TypeSymbol> argumentTypes)
@@ -30,7 +32,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            matches.Single().ReturnTypeBuilder(new Mock<IBinder>().Object, new Mock<IFileResolver>().Object, new Mock<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Should().BeSameAs(expectedReturnType);
+            matches.Single().ReturnTypeBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -40,7 +42,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList(), out _, out _);
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
-            matches.Select(m => m.ReturnTypeBuilder(new Mock<IBinder>().Object, new Mock<IFileResolver>().Object, new Mock<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray())).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ReturnTypeBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray())).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
