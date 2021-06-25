@@ -27,13 +27,14 @@ namespace Bicep.LanguageServer.Snippets
     {
         private const string RequiredPropertiesDescription = "Required properties";
         private const string RequiredPropertiesLabel = "required-properties";
+        private static readonly Regex ParentPropertyPattern = new Regex(@"^.*parent:.*$[\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
 
-        // Used to cache resource declarations. Maps resource type to resource prefix, identifier, body text and description
+        // Used to cache resource declaration information. Maps resource type to prefix, identifier, body text and description
         private readonly ConcurrentDictionary<string, (string prefix, string identifier, string bodyText, string description)> resourceTypeInfoMap = new();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
-        private readonly ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new();
-        private readonly ConcurrentDictionary<string, string> resourceTypeToTypeMap = new();
-        private readonly ConcurrentDictionary<string, List<TypeSymbol>> resourceTypeToChildSymbolsMap = new();
+        private readonly ConcurrentDictionary<string, string> nestedResourceTypeToDependentsMap = new();
+        // Used to cache information about child type symbols in nested resource scenario. Maps resource type to nested type symbols
+        private readonly ConcurrentDictionary<string, List<TypeSymbol>> resourceTypeToChildTypeSymbolsMap = new();
         // Used to cache resource body snippets
         private readonly ConcurrentDictionary<(string typeName, bool isExistingResource), IEnumerable<Snippet>> resourceBodySnippetsCache = new();
         // Used to cache top level declarations
@@ -165,7 +166,7 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        private void CacheResourceDependencies(TypeSymbol typeSymbol, ImmutableHashSet<ResourceDependency> resourceDependencies, string template)
+        private void CacheResourceDependencies(TypeSymbol childTypeSymbol, ImmutableHashSet<ResourceDependency> resourceDependencies, string template)
         {
             if (resourceDependencies.Any())
             {
@@ -173,40 +174,22 @@ namespace Bicep.LanguageServer.Snippets
 
                 foreach (ResourceDependency resourceDependency in resourceDependencies)
                 {
-                    TextSpan span = resourceDependency.Resource.DeclaringSyntax.Span;
-
                     string parentType = resourceDependency.Resource.Type.Name;
 
-                    if (resourceTypeToChildSymbolsMap.ContainsKey(parentType))
+                    if (resourceTypeToChildTypeSymbolsMap.ContainsKey(parentType))
                     {
-                        resourceTypeToChildSymbolsMap[parentType].Add(typeSymbol);
+                        resourceTypeToChildTypeSymbolsMap[parentType].Add(childTypeSymbol);
                     }
                     else
                     {
-                        resourceTypeToChildSymbolsMap.TryAdd(parentType, new List<TypeSymbol> { typeSymbol });
+                        resourceTypeToChildTypeSymbolsMap.TryAdd(parentType, new List<TypeSymbol> { childTypeSymbol });
                     }
 
-                    CacheNestedChildResourceType(parentType, typeSymbol);
-
-
+                    TextSpan span = resourceDependency.Resource.DeclaringSyntax.Span;
                     sb.AppendLine(template.Substring(span.Position, span.Length));
                 }
 
-                resourceTypeToDependentsMap.TryAdd(typeSymbol.Name, sb.ToString());
-            }
-        }
-
-        private void CacheNestedChildResourceType(string parentType, TypeSymbol childTypeSymbol)
-        {
-            if (childTypeSymbol is ResourceType resourceType)
-            {
-                foreach (string type in resourceType.TypeReference.Types)
-                {
-                    if (!parentType.Contains(type))
-                    {
-                        resourceTypeToTypeMap.TryAdd(childTypeSymbol.Name, type + "@" + resourceType.TypeReference.ApiVersion);
-                    }
-                }
+                nestedResourceTypeToDependentsMap.TryAdd(childTypeSymbol.Name, sb.ToString());
             }
         }
 
@@ -248,11 +231,15 @@ namespace Bicep.LanguageServer.Snippets
             // We will not show custom snippets for resources with 'existing' keyword as they are not applicable in that scenario.
             if (!isExistingResource)
             {
+                // If the resource is nested, we will only return it's body text from cache. Otherwise, we will return information
+                // from the template, which could include parent resource 
                 if (isResourceNested)
                 {
                     if (resourceTypeInfoMap.TryGetValue(typeSymbol.Name, out (string prefix, string identifier, string bodyText, string description) resourceTypeInfo))
                     {
-                        Snippet snippet = new Snippet(RemoveParentFromResourceBodyText(resourceTypeInfo.bodyText), prefix: "snippet", detail: resourceTypeInfo.description);
+                        // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet 
+                        string text = ParentPropertyPattern.Replace(resourceTypeInfo.bodyText, string.Empty);
+                        Snippet snippet = new Snippet(text, prefix: "snippet", detail: resourceTypeInfo.description);
                         snippets.Add(snippet);
                     }
                 }
@@ -297,7 +284,7 @@ namespace Bicep.LanguageServer.Snippets
             {
                 sb.AppendLine(resourceBodyWithDescription.text);
 
-                if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
+                if (nestedResourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
                 {
                     sb.Append(resourceDependencies);
                 }
@@ -464,9 +451,9 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        public IEnumerable<Snippet> GetChildResourceDeclarationSnippets(TypeSymbol typeSymbol)
+        public IEnumerable<Snippet> GetNestedResourceDeclarationSnippets(TypeSymbol typeSymbol)
         {
-            // leaving out the API version on this, because we expect its more common to inherit from the containing resource.
+            // Leaving out the API version on this, because we expect its more common to inherit from the containing resource.
             yield return new Snippet(@"resource ${1:Identifier} '${2:Type}' = {
   name: $3
   properties: {
@@ -481,33 +468,38 @@ namespace Bicep.LanguageServer.Snippets
 
             string parentType = typeSymbol.Name;
 
-            if (resourceTypeToChildSymbolsMap.ContainsKey(parentType))
+            if (resourceTypeToChildTypeSymbolsMap.ContainsKey(parentType))
             {
-                foreach (TypeSymbol childTypeSymbol in resourceTypeToChildSymbolsMap[typeSymbol.Name])
+                foreach (TypeSymbol nestedTypeSymbol in resourceTypeToChildTypeSymbolsMap[typeSymbol.Name])
                 {
-                    resourceTypeInfoMap.TryGetValue(childTypeSymbol.Name, out (string prefix, string identifier, string bodyText, string description) resourceInfo);
+                    resourceTypeInfoMap.TryGetValue(nestedTypeSymbol.Name, out (string prefix, string identifier, string bodyText, string description) resourceInfo);
 
-                    if (childTypeSymbol is ResourceType resourceType)
+                    foreach (string nestedType in GetNestedResourceTypes(parentType, nestedTypeSymbol))
                     {
-                        foreach (string type in resourceType.TypeReference.Types)
-                        {
-                            if (!parentType.Contains(type))
-                            {
-                                string childType = type + "@" + resourceType.TypeReference.ApiVersion;
-                                string bodyText = RemoveParentFromResourceBodyText(resourceInfo.bodyText);
-                                string text = LanguageConstants.ResourceKeyword + " " + resourceInfo.identifier + " '" + childType + "' = " + bodyText;
+                        // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet 
+                        string bodyText = ParentPropertyPattern.Replace(resourceInfo.bodyText, string.Empty);
+                        string text = LanguageConstants.ResourceKeyword + " " + resourceInfo.identifier + " '" + nestedType + "' = " + bodyText;
 
-                                yield return new Snippet(text, prefix: resourceInfo.prefix, detail: resourceInfo.description);
-                            }
-                        }
+                        yield return new Snippet(text, prefix: resourceInfo.prefix, detail: resourceInfo.description);
                     }
                 }
             }
         }
 
-        private string RemoveParentFromResourceBodyText(string text)
+        // Nested resources must specify a single type segment, and optionally can specify an api version using the format "<type>@<apiVersion>"
+        // So we'll remove types that exist in parent and return single type with api version 
+        private IEnumerable<string> GetNestedResourceTypes(string parentType, TypeSymbol nestedTypeSymbol)
         {
-            return Regex.Replace(text, @"^.*parent:.*$[\r\n]*", string.Empty, RegexOptions.Multiline);
+            if (nestedTypeSymbol is ResourceType resourceType)
+            {
+                foreach (string type in resourceType.TypeReference.Types)
+                {
+                    if (!parentType.Contains(type))
+                    {
+                        yield return type + "@" + resourceType.TypeReference.ApiVersion;
+                    }
+                }
+            }
         }
     }
 }

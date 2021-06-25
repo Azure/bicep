@@ -364,7 +364,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     ResourceScope.ResourceGroup,
                     CreateObjectType("Microsoft.Automation/automationAccounts@2019-06-01"));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetChildResourceDeclarationSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(typeSymbol);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -410,7 +410,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     ResourceScope.ResourceGroup,
                     CreateObjectType("Microsoft.Automation/automationAccounts/runbooks@2019-06-01"));
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetChildResourceDeclarationSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(typeSymbol);
 
             snippets.Should().SatisfyRespectively(
                 x =>

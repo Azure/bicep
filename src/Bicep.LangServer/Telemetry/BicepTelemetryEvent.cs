@@ -22,10 +22,10 @@ namespace Bicep.LanguageServer.Telemetry
                 },
             };
 
-        public static BicepTelemetryEvent CreateChildResourceDeclarationSnippetInsertion(string name)
+        public static BicepTelemetryEvent CreateNestedResourceDeclarationSnippetInsertion(string name)
             => new BicepTelemetryEvent
             {
-                EventName = TelemetryConstants.EventNames.ChildResourceDeclarationSnippetInsertion,
+                EventName = TelemetryConstants.EventNames.NestedResourceDeclarationSnippetInsertion,
                 Properties = new()
                 {
                     ["name"] = name,

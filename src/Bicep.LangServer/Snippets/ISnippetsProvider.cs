@@ -8,7 +8,7 @@ namespace Bicep.LanguageServer.Snippets
 {
     public interface ISnippetsProvider
     {
-        IEnumerable<Snippet> GetChildResourceDeclarationSnippets(TypeSymbol typeSymbol);
+        IEnumerable<Snippet> GetNestedResourceDeclarationSnippets(TypeSymbol typeSymbol);
 
         IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets();
 

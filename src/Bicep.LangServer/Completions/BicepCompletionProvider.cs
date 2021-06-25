@@ -99,28 +99,25 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.NestedResourceDeclarationStart))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.NestedResourceDeclarationStart) && context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange);
 
-                if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
+                TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
+
+                foreach (Snippet snippet in SnippetsProvider.GetNestedResourceDeclarationSnippets(typeSymbol))
                 {
-                    TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
+                    string prefix = snippet.Prefix;
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
+                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
-                    foreach (Snippet snippet in SnippetsProvider.GetChildResourceDeclarationSnippets(typeSymbol))
-                    {
-                        string prefix = snippet.Prefix;
-                        BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateChildResourceDeclarationSnippetInsertion(prefix);
-                        Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
-                        yield return CreateContextualSnippetCompletion(prefix,
-                            snippet.Detail,
-                            snippet.Text,
-                            context.ReplacementRange,
-                            command,
-                            snippet.CompletionPriority,
-                            preselect: true);
-                    }
+                    yield return CreateContextualSnippetCompletion(prefix,
+                        snippet.Detail,
+                        snippet.Text,
+                        context.ReplacementRange,
+                        command,
+                        snippet.CompletionPriority,
+                        preselect: true);
                 }
             }
         }

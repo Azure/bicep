@@ -58,7 +58,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             BicepTelemetryEvent bicepTelemetryEvent = await ResolveCompletionAsync(text, "res-automation-cert", new Position(3, 0));
 
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.ChildResourceDeclarationSnippetInsertion);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.NestedResourceDeclarationSnippetInsertion);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
