@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Snippets
         // Used to cache resource declaration information. Maps resource type to prefix, identifier, body text and description
         private readonly ConcurrentDictionary<string, (string prefix, string identifier, string bodyText, string description)> resourceTypeInfoMap = new();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
-        private readonly ConcurrentDictionary<string, string> nestedResourceTypeToDependentsMap = new();
+        private readonly ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new();
         // Used to cache information about child type symbols in nested resource scenario. Maps resource type to nested type symbols
         private readonly ConcurrentDictionary<string, List<TypeSymbol>> resourceTypeToChildTypeSymbolsMap = new();
         // Used to cache resource body snippets
@@ -189,7 +189,7 @@ namespace Bicep.LanguageServer.Snippets
                     sb.AppendLine(template.Substring(span.Position, span.Length));
                 }
 
-                nestedResourceTypeToDependentsMap.TryAdd(childTypeSymbol.Name, sb.ToString());
+                resourceTypeToDependentsMap.TryAdd(childTypeSymbol.Name, sb.ToString());
             }
         }
 
@@ -284,7 +284,7 @@ namespace Bicep.LanguageServer.Snippets
             {
                 sb.AppendLine(resourceBodyWithDescription.text);
 
-                if (nestedResourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
+                if (resourceTypeToDependentsMap.TryGetValue(type, out string? resourceDependencies))
                 {
                     sb.Append(resourceDependencies);
                 }
@@ -487,7 +487,7 @@ namespace Bicep.LanguageServer.Snippets
         }
 
         // Nested resources must specify a single type segment, and optionally can specify an api version using the format "<type>@<apiVersion>"
-        // So we'll remove types that exist in parent and return single type with api version 
+        // We'll remove types that exist in parent and return single type with api version 
         private IEnumerable<string> GetNestedResourceTypes(string parentType, TypeSymbol nestedTypeSymbol)
         {
             if (nestedTypeSymbol is ResourceType resourceType)
