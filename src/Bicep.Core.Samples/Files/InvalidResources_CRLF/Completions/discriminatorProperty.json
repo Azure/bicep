@@ -32,7 +32,7 @@
     }
   },
   {
-    "label": "resource",
+    "label": "resource-with-defaults",
     "kind": "snippet",
     "detail": "Nested resource with defaults",
     "documentation": {
@@ -40,31 +40,53 @@
       "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_resource",
+    "preselect": true,
+    "sortText": "2_resource-with-defaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "ChildResourceDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "resource-with-defaults"
+          }
+        }
+      ]
     }
   },
   {
-    "label": "resource",
+    "label": "resource-without-defaults",
     "kind": "snippet",
     "detail": "Nested resource without defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  \n}\n\n```"
+      "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  \n}\n```"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_resource",
+    "preselect": true,
+    "sortText": "2_resource-without-defaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  $0\n}\n"
+      "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  $0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "ChildResourceDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "resource-without-defaults"
+          }
+        }
+      ]
     }
   }
 ]
