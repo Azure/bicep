@@ -110,7 +110,8 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
                     Execute.Assertion.FailWith($"Expected \"main.combined.bicep\" file to not contain errors or warnings, but found {diagnostics.Count()}. " +
-                        $"Please fix errors/warnings mentioned in below section: \n {sourceTextWithDiags}");
+                        $"Please fix errors/warnings mentioned in below section in \"main.combined.bicep\" file:\n " +
+                        $"{sourceTextWithDiags}");
                 }
 
                 bicepContentsReplaced.Should().EqualWithLineByLineDiffOutput(
