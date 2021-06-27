@@ -29,4 +29,3 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   }
 }
 // Insert snippet here
-
