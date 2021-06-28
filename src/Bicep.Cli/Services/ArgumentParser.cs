@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
-using Bicep.Cli.CommandLine.Arguments;
+using Bicep.Cli.Arguments;
 
-namespace Bicep.Cli.CommandLine
+namespace Bicep.Cli.Services
 {
     public static class ArgumentParser
     {
@@ -18,12 +18,12 @@ namespace Bicep.Cli.CommandLine
             // parse verb
             return (args[0].ToLowerInvariant()) switch
             {
-                CliConstants.CommandBuild => new BuildOrDecompileArguments(args[1..], CliConstants.CommandBuild),
-                CliConstants.CommandDecompile => new BuildOrDecompileArguments(args[1..], CliConstants.CommandDecompile),
-                CliConstants.ArgumentHelp => new HelpArguments(CliConstants.ArgumentHelp),
-                CliConstants.ArgumentHelpShort => new HelpArguments(CliConstants.ArgumentHelpShort),
-                CliConstants.ArgumentVersion => new VersionArguments(CliConstants.ArgumentVersion),
-                CliConstants.ArgumentVersionShort => new VersionArguments(CliConstants.ArgumentVersionShort),
+                Constants.Command.Build => new BuildOrDecompileArguments(args[1..], Constants.Command.Build),
+                Constants.Command.Decompile => new BuildOrDecompileArguments(args[1..], Constants.Command.Decompile),
+                Constants.Argument.Help => new HelpArguments(Constants.Argument.Help),
+                Constants.Argument.HelpShort => new HelpArguments(Constants.Argument.HelpShort),
+                Constants.Argument.Version => new VersionArguments(Constants.Argument.Version),
+                Constants.Argument.VersionShort => new VersionArguments(Constants.Argument.VersionShort),
                 _ => null,
             };
         }

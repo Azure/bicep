@@ -3,8 +3,9 @@
 using System;
 using System.IO;
 using System.Runtime;
-using Bicep.Cli.CommandLine;
-using Bicep.Cli.CommandLine.Arguments;
+using Bicep.Cli;
+using Bicep.Cli.Services;
+using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -63,9 +64,9 @@ namespace Bicep.Cli
                 {
                     switch (ArgumentParser.TryParse(args))
                     {
-                        case BuildOrDecompileArguments buildArguments when buildArguments.CommandName == CliConstants.CommandBuild: // build
+                        case BuildOrDecompileArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // build
                             return Build(logger, buildArguments);
-                        case BuildOrDecompileArguments decompileArguments when decompileArguments.CommandName == CliConstants.CommandDecompile: // decompile
+                        case BuildOrDecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // decompile
                             return Decompile(logger, decompileArguments);
                         case VersionArguments _: // --version
                             ArgumentParser.PrintVersion(this.outputWriter);

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System;
 
-namespace Bicep.Cli.CommandLine
+namespace Bicep.Cli
 {
     public class CommandLineException : Exception
     {

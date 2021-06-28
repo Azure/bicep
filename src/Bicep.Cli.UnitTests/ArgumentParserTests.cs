@@ -3,8 +3,8 @@
 using System;
 using System.IO;
 using System.Text;
-using Bicep.Cli.CommandLine;
-using Bicep.Cli.CommandLine.Arguments;
+using Bicep.Cli.Services;
+using Bicep.Cli.Arguments;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
