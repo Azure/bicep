@@ -17,6 +17,7 @@ namespace Bicep.Core
 
         public const string JsonLanguageId = "json";
         public const string JsoncLanguageId = "jsonc";
+        public const string ArmTemplateLanguageId = "arm-template"; // Provided by the ARM Tools VSCode extension.
 
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;

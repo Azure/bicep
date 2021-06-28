@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
                 ? CreateBicepSyntaxTree(fileUri, fileContents)
                 : CreateJsonSyntaxTree(fileUri, fileContents);
 
-        private static SyntaxTree CreateBicepSyntaxTree(Uri fileUri, string fileContents)
+        public static SyntaxTree CreateBicepSyntaxTree(Uri fileUri, string fileContents)
         {
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
@@ -36,7 +36,7 @@ namespace Bicep.Core.Syntax
             return new SyntaxTree(fileUri, lineStarts, parser.Program());
         }
 
-        private static JsonSyntaxTree CreateJsonSyntaxTree(Uri fileUri, string fileContents)
+        public static JsonSyntaxTree CreateJsonSyntaxTree(Uri fileUri, string fileContents)
         {
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 

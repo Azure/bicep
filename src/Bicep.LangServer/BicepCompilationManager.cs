@@ -16,7 +16,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer
@@ -109,8 +108,9 @@ namespace Bicep.LanguageServer
 
         private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId = null)
         {
-            // Either the document is a bicep file, or a file that is already tracked in the
-            // workspace (must be a JSON template being used as a module).
+            // We should only upsert compilation when languageId is bicep or the file is already tracked in workspace.
+            // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
+            // being referenced as a bicep module.
             return string.Equals(languageId, LanguageConstants.LanguageId, StringComparison.OrdinalIgnoreCase) ||
                 this.workspace.TryGetSyntaxTree(documentUri.ToUri(), out var _);
         }

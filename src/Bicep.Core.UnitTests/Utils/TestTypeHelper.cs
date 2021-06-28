@@ -11,6 +11,7 @@ using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.LanguageServer.Providers;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Utils

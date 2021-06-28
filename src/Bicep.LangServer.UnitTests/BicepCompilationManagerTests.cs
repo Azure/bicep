@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -22,33 +24,58 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompilationManagerTests
     {
-        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+        private const int BaseVersion = 42;
+
+        private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static IFileResolver CreateEmptyFileResolver()
-            => new InMemoryFileResolver(new Dictionary<Uri, string>());
-
-        [TestMethod]
-        public void UpsertCompilation_ShouldUpsertSuccessfully()
+        [DataTestMethod]
+        [DataRow(LanguageConstants.ArmTemplateLanguageId)]
+        [DataRow(LanguageConstants.JsonLanguageId)]
+        [DataRow(LanguageConstants.JsoncLanguageId)]
+        [DataRow("plaintext")]
+        [DataRow(null)]
+        public void UpsertCompilation_NotInWorspaceNonBicepFile_ShouldNotUpsert(string? languageId)
         {
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = CreateMockDocument(p => receivedParams = p);
-
             var server = CreateMockServer(document);
-
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
-
-            const int version = 42;
             var uri = DocumentUri.File(this.TestContext.TestName);
+            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace());
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
 
             // upsert the compilation
-            manager.UpsertCompilation(uri, version, "hello", LanguageConstants.LanguageId);
+            manager.UpsertCompilation(uri, null, "hello", languageId);
+
+            // second get should not return anything
+            manager.GetCompilation(uri).Should().BeNull();
+
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
+        }
+
+        [DataTestMethod]
+        [DataRow(LanguageConstants.LanguageId)]
+        [DataRow(null)]
+        public void UpsertCompilation_BicepFileOrInWorkspaceNonBicepFile_ShouldUpsertSuccessfully(string? languageId)
+        {
+            PublishDiagnosticsParams? receivedParams = null;
+
+            var document = CreateMockDocument(p => receivedParams = p);
+            var server = CreateMockServer(document);
+            var uri = DocumentUri.File(this.TestContext.TestName);
+            var workspace = PrepareWorkspace(uri, languageId);
+            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
+
+            // first get should not return anything
+            manager.GetCompilation(uri).Should().BeNull();
+
+            // upsert the compilation
+            manager.UpsertCompilation(uri, BaseVersion, "hello", languageId);
             var upserted = manager.GetCompilation(uri);
 
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
@@ -56,7 +83,7 @@ namespace Bicep.LangServer.UnitTests
             // there should have been 1 diagnostic
             receivedParams.Should().NotBeNull();
             receivedParams!.Uri.Should().Be(uri);
-            receivedParams.Version.Should().Be(version);
+            receivedParams.Version.Should().Be(BaseVersion);
             receivedParams.Diagnostics.Should().NotBeNullOrEmpty();
             receivedParams.Diagnostics.Count().Should().Be(1);
 
@@ -75,31 +102,30 @@ namespace Bicep.LangServer.UnitTests
         }
 
         [TestMethod]
-        public void CloseAfterUpsert_ShouldClearDiagnostics()
+        [DataRow(LanguageConstants.LanguageId)]
+        [DataRow(null)]
+        public void CloseAfterUpsert_ShouldClearDiagnostics(string? languageId)
         {
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = CreateMockDocument(p => receivedParams = p);
-
             var server = CreateMockServer(document);
-
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
-
-            const int version = 42;
             var uri = DocumentUri.File(this.TestContext.TestName);
+            var workspace = PrepareWorkspace(uri, languageId);
+            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
 
             // upsert the compilation
-            manager.UpsertCompilation(uri, version, "hello", LanguageConstants.LanguageId);
+            manager.UpsertCompilation(uri, BaseVersion, "hello", languageId);
 
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             // there should have been 1 diagnostic
             receivedParams.Should().NotBeNull();
             receivedParams!.Uri.Should().Be(uri);
-            receivedParams.Version.Should().Be(version);
+            receivedParams.Version.Should().Be(BaseVersion);
             receivedParams.Diagnostics.Should().NotBeNullOrEmpty();
             receivedParams.Diagnostics.Count().Should().Be(1);
 
@@ -142,24 +168,23 @@ namespace Bicep.LangServer.UnitTests
         }
 
         [TestMethod]
-        public void UpsertCompilation_ShouldUpdateDiagnostics()
+        [DataRow(LanguageConstants.LanguageId)]
+        [DataRow(null)]
+        public void UpsertCompilation_ShouldUpdateDiagnostics(string? languageId)
         {
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = CreateMockDocument(p => receivedParams = p);
-
             var server = CreateMockServer(document);
-
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
-
-            const int version = 42;
             var uri = DocumentUri.File(this.TestContext.TestName);
+            var workspace = PrepareWorkspace(uri, languageId);
+            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
 
             // upsert the compilation
-            manager.UpsertCompilation(uri, version, "hello", LanguageConstants.LanguageId);
+            manager.UpsertCompilation(uri, BaseVersion, "hello", languageId);
             var firstUpserted = manager.GetCompilation(uri);
 
             // should have pushed out diagnostics
@@ -168,7 +193,7 @@ namespace Bicep.LangServer.UnitTests
             // there should have been 1 diagnostic
             receivedParams.Should().NotBeNull();
             receivedParams!.Uri.Should().Be(uri);
-            receivedParams.Version.Should().Be(version);
+            receivedParams.Version.Should().Be(BaseVersion);
             receivedParams.Diagnostics.Should().NotBeNullOrEmpty();
             receivedParams.Diagnostics.Count().Should().Be(1);
 
@@ -183,7 +208,7 @@ namespace Bicep.LangServer.UnitTests
             firstActual.Should().BeSameAs(firstUpserted);
 
             // upsert second one
-            const int newVersion = version + 1;
+            const int newVersion = BaseVersion + 1;
             manager.UpsertCompilation(uri, newVersion, "hello\r\nthere\r\n");
             var secondUpserted = manager.GetCompilation(uri);
 
@@ -213,7 +238,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var server = Repository.Create<ILanguageServerFacade>();
 
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace());
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -229,7 +254,7 @@ namespace Bicep.LangServer.UnitTests
 
             var server = CreateMockServer(document);
 
-            var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace());
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -249,7 +274,9 @@ namespace Bicep.LangServer.UnitTests
         }
 
         [TestMethod]
-        public void FatalException_ShouldProduceCorrectDiagnosticsAndClearThemWhenFileIsClosed()
+        [DataRow(LanguageConstants.LanguageId)]
+        [DataRow(null)]
+        public void FatalException_ShouldProduceCorrectDiagnosticsAndClearThemWhenFileIsClosed(string? languageId)
         {
             PublishDiagnosticsParams? receivedParams = null;
 
@@ -261,13 +288,14 @@ namespace Bicep.LangServer.UnitTests
             const string expectedMessage = "Internal bicep exception.";
             provider.Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>())).Throws(new InvalidOperationException(expectedMessage));
 
-            var manager = new BicepCompilationManager(server.Object, provider.Object, new Workspace());
-
-            const int version = 74;
             var uri = DocumentUri.File(this.TestContext.TestName);
 
+            var workspace = PrepareWorkspace(uri, languageId);
+
+            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace);
+
             // upsert should fail because of the mock fatal exception
-            manager.UpsertCompilation(uri, version, "fake", LanguageConstants.LanguageId);
+            manager.UpsertCompilation(uri, BaseVersion, "fake", languageId);
             manager.GetCompilation(uri).Should().BeNull();
 
             // diagnostics should have been published once
@@ -275,7 +303,7 @@ namespace Bicep.LangServer.UnitTests
 
             receivedParams.Should().NotBeNull();
             receivedParams!.Uri.Should().Be(uri);
-            receivedParams.Version.Should().Be(version);
+            receivedParams.Version.Should().Be(BaseVersion);
             receivedParams.Diagnostics.Should().HaveCount(1);
 
             var fatalDiagnostic = receivedParams.Diagnostics.Single();
@@ -300,7 +328,9 @@ namespace Bicep.LangServer.UnitTests
         }
 
         [TestMethod]
-        public void NormalUpsertAfterFatalException_ShouldReplaceDiagnostics()
+        [DataRow(LanguageConstants.LanguageId)]
+        [DataRow(null)]
+        public void NormalUpsertAfterFatalException_ShouldReplaceDiagnostics(string? languageId)
         {
             PublishDiagnosticsParams? receivedParams = null;
 
@@ -318,13 +348,13 @@ namespace Bicep.LangServer.UnitTests
             bool failUpsert = true;
             provider
                 .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>()))
-                .Returns<IReadOnlyWorkspace, DocumentUri>((workspace, documentUri) => failUpsert ? throw new InvalidOperationException(expectedMessage) : new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver()).Create(workspace, documentUri));
+                .Returns<IReadOnlyWorkspace, DocumentUri>((workspace, documentUri) => failUpsert ? throw new InvalidOperationException(expectedMessage) : CreateEmptyCompilationProvider().Create(workspace, documentUri));
 
-            var manager = new BicepCompilationManager(server.Object, provider.Object, new Workspace());
-
+            var workspace = PrepareWorkspace(uri, languageId);
+            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace);
 
             // upsert should fail because of the mock fatal exception
-            manager.UpsertCompilation(uri, version, "fake", LanguageConstants.LanguageId);
+            manager.UpsertCompilation(uri, version, "fake", languageId);
             manager.GetCompilation(uri).Should().BeNull();
 
             // diagnostics should have been published once
@@ -393,6 +423,24 @@ namespace Bicep.LangServer.UnitTests
                 .Returns(window.Object);
 
             return server;
+        }
+
+        private static ICompilationProvider CreateEmptyCompilationProvider() =>
+            new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), new InMemoryFileResolver(new Dictionary<Uri, string>()));
+
+        private static Workspace PrepareWorkspace(DocumentUri uri, string? languageId)
+        {
+            var workspace = new Workspace();
+
+            if (string.IsNullOrEmpty(languageId))
+            {
+                // If languageId is not bicep, create a JsonSyntaxTree for the uri and
+                // add it to the workspace so that the compilation manager will not ignore it.
+                var jsonSyntaxTree = SyntaxTreeFactory.CreateJsonSyntaxTree(uri.ToUri(), "{}");
+                workspace.UpsertSyntaxTrees(jsonSyntaxTree.AsEnumerable());
+            }
+
+            return workspace;
         }
     }
 }

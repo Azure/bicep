@@ -8,9 +8,13 @@ namespace Bicep.LanguageServer.Utils
     public class DocumentSelectorFactory
     {
         public static DocumentSelector Create() => DocumentSelector.ForLanguage(
+            LanguageConstants.LanguageId);
+
+        public static DocumentSelector CreateForTextDocumentSync() => DocumentSelector.ForLanguage(
             LanguageConstants.LanguageId,
             LanguageConstants.JsonLanguageId,
-            LanguageConstants.JsoncLanguageId);
+            LanguageConstants.JsoncLanguageId,
+            LanguageConstants.ArmTemplateLanguageId);
     }
 }
 
