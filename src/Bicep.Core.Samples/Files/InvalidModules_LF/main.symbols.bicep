@@ -702,3 +702,15 @@ module secureModule1 'moduleb.bicep' = {
   }
 }
 
+module invalidJsonMod 'modulec.json' = {
+//@[7:21) Module invalidJsonMod. Type: module. Declaration start char: 0, length: 42
+}
+
+module jsonModMissingParam 'moduled.json' = {
+//@[7:26) Module jsonModMissingParam. Type: module. Declaration start char: 0, length: 106
+  name: 'jsonModMissingParam'
+  params: {
+    foo: 123
+  }
+}
+

@@ -51,7 +51,7 @@ namespace Bicep.Core.Syntax.Converters
             var parameterDeclarations = parameters.Select(StatementSyntaxConverter.ConvertToParameterDeclarationWithTypeInfoOnly);
 
             var outputs = GetProperty(templateObject, "outputs", new JObject()).Properties();
-            var outputDeclarations = outputs.Select(StatementSyntaxConverter.ConvertToParameterDeclarationWithTypeInfoOnly);
+            var outputDeclarations = outputs.Select(StatementSyntaxConverter.ConvertToOutputDeclarationWithTypeInfoOnly).OfType<OutputDeclarationSyntax>();
 
             var statements = new List<SyntaxBase>();
 

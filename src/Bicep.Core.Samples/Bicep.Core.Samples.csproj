@@ -22,6 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Files\InvalidModules_LF\modulec.json" />
+    <EmbeddedResource Include="Files\InvalidModules_LF\moduled.json">
+      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />

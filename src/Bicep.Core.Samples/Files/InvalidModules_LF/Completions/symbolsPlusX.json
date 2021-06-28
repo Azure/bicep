@@ -959,6 +959,20 @@
     }
   },
   {
+    "label": "invalidJsonMod",
+    "kind": "module",
+    "detail": "invalidJsonMod",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidJsonMod",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidJsonMod"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",
@@ -973,6 +987,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "jsonModMissingParam",
+    "kind": "module",
+    "detail": "jsonModMissingParam",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_jsonModMissingParam",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "jsonModMissingParam"
     }
   },
   {

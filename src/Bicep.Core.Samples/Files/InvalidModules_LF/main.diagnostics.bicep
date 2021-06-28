@@ -724,3 +724,17 @@ module secureModule1 'moduleb.bicep' = {
   }
 }
 
+module invalidJsonMod 'modulec.json' = {
+//@[7:21) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (CodeDescription: none) |invalidJsonMod|
+//@[22:36) [BCP104 (Error)] The referenced module has errors. (CodeDescription: none) |'modulec.json'|
+}
+
+module jsonModMissingParam 'moduled.json' = {
+  name: 'jsonModMissingParam'
+  params: {
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar". (CodeDescription: none) |params|
+    foo: 123
+//@[9:12) [BCP036 (Error)] The property "foo" expected a value of type "string" but the provided value is of type "int". (CodeDescription: none) |123|
+  }
+}
+

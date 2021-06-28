@@ -480,3 +480,12 @@ module secureModule1 'moduleb.bicep' = {
     secureObjectParam2: kv.getSecret('mySecret')
   }
 }
+
+module invalidJsonMod 'modulec.json' = {}
+
+module jsonModMissingParam 'moduled.json' = {
+  name: 'jsonModMissingParam'
+  params: {
+    foo: 123
+  }
+}
