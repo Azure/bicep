@@ -35,17 +35,14 @@ namespace Bicep.LanguageServer.Handlers
             // we have full sync enabled, so apparently first change is the whole document
             var contents = request.ContentChanges.First().Text;
 
-            this.compilationManager.UpdateCompilation(request.TextDocument.Uri, request.TextDocument.Version, contents);
+            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, contents);
 
             return Unit.Task;
         }
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            if (request.TextDocument.LanguageId.Equals(LanguageConstants.LanguageId, StringComparison.OrdinalIgnoreCase))
-            {
-                this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
-            }
+            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
 
             return Unit.Task;
         }

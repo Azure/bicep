@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -47,7 +48,7 @@ namespace Bicep.LangServer.UnitTests
             manager.GetCompilation(uri).Should().BeNull();
 
             // upsert the compilation
-            manager.UpsertCompilation(uri, version, "hello");
+            manager.UpsertCompilation(uri, version, "hello", LanguageConstants.LanguageId);
             var upserted = manager.GetCompilation(uri);
 
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
@@ -91,7 +92,7 @@ namespace Bicep.LangServer.UnitTests
             manager.GetCompilation(uri).Should().BeNull();
 
             // upsert the compilation
-            manager.UpsertCompilation(uri, version, "hello");
+            manager.UpsertCompilation(uri, version, "hello", LanguageConstants.LanguageId);
 
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
@@ -158,7 +159,7 @@ namespace Bicep.LangServer.UnitTests
             manager.GetCompilation(uri).Should().BeNull();
 
             // upsert the compilation
-            manager.UpsertCompilation(uri, version, "hello");
+            manager.UpsertCompilation(uri, version, "hello", LanguageConstants.LanguageId);
             var firstUpserted = manager.GetCompilation(uri);
 
             // should have pushed out diagnostics
@@ -266,7 +267,7 @@ namespace Bicep.LangServer.UnitTests
             var uri = DocumentUri.File(this.TestContext.TestName);
 
             // upsert should fail because of the mock fatal exception
-            manager.UpsertCompilation(uri, version, "fake");
+            manager.UpsertCompilation(uri, version, "fake", LanguageConstants.LanguageId);
             manager.GetCompilation(uri).Should().BeNull();
 
             // diagnostics should have been published once
@@ -323,7 +324,7 @@ namespace Bicep.LangServer.UnitTests
 
 
             // upsert should fail because of the mock fatal exception
-            manager.UpsertCompilation(uri, version, "fake");
+            manager.UpsertCompilation(uri, version, "fake", LanguageConstants.LanguageId);
             manager.GetCompilation(uri).Should().BeNull();
 
             // diagnostics should have been published once

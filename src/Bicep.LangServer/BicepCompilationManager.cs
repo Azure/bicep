@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
@@ -36,19 +37,16 @@ namespace Bicep.LanguageServer
             this.workspace = workspace;
         }
 
-        public void UpdateCompilation(DocumentUri documentUri, int? version, string fileContents)
+        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null)
         {
-            if (this.activeContexts.TryGetValue(documentUri, out var _))
+            if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
-                this.UpsertCompilation(documentUri, version, fileContents);
-            }
-            else if (this.workspace.TryGetSyntaxTree(documentUri.ToUri(), out var syntaxTree))
-            {
-                // The file must be a JSON template since it is tracked in workspace but does not have
-                // an active CompilationContext. We need to update the files that reference this file.
-
                 var newSyntaxTree = SyntaxTreeFactory.CreateSyntaxTree(documentUri.ToUri(), fileContents);
-                var (_, removedTrees) = workspace.UpsertSyntaxTrees(newSyntaxTree.AsEnumerable());
+                var firstChanges = workspace.UpsertSyntaxTrees(newSyntaxTree.AsEnumerable());
+                var secondChanges = UpdateCompilationInternal(documentUri, version);
+                
+                var addedTrees = firstChanges.added.Concat(secondChanges.added);
+                var removedTrees = firstChanges.removed.Concat(secondChanges.removed);
 
                 foreach (var (entrypointUri, context) in activeContexts)
                 {
@@ -56,24 +54,6 @@ namespace Bicep.LanguageServer
                     {
                         UpdateCompilationInternal(entrypointUri, null);
                     }
-                }
-            }
-        }
-
-        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents)
-        {
-            var newSyntaxTree = SyntaxTreeFactory.CreateSyntaxTree(documentUri.ToUri(), fileContents);
-            var firstChanges = workspace.UpsertSyntaxTrees(newSyntaxTree.AsEnumerable());
-            var secondChanges = UpdateCompilationInternal(documentUri, version);
-            
-            var addedTrees = firstChanges.added.Concat(secondChanges.added);
-            var removedTrees = firstChanges.removed.Concat(secondChanges.removed);
-
-            foreach (var (entrypointUri, context) in activeContexts)
-            {
-                if (removedTrees.Any(x => context.Compilation.SyntaxTreeGrouping.SyntaxTrees.Contains(x)))
-                {
-                    UpdateCompilationInternal(entrypointUri, null);
                 }
             }
         }
@@ -127,6 +107,14 @@ namespace Bicep.LanguageServer
             return context;
         }
 
+        private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId = null)
+        {
+            // Either the document is a bicep file, or a file that is already tracked in the
+            // workspace (must be a JSON template being used as a module).
+            return string.Equals(languageId, LanguageConstants.LanguageId, StringComparison.OrdinalIgnoreCase) ||
+                this.workspace.TryGetSyntaxTree(documentUri.ToUri(), out var _);
+        }
+
         private ImmutableArray<SyntaxTree> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> closingDiagnostics)
         {
             this.activeContexts.TryRemove(documentUri, out var removedContext);
@@ -161,17 +149,10 @@ namespace Bicep.LanguageServer
                 this.activeContexts[documentUri] = context;
 
                 // convert all the diagnostics to LSP diagnostics
-                //var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
-                var diagnosticsBySyntaxTree = context.Compilation.GetAllDiagnosticsBySyntaxTree();
-
-                foreach (var (syntaxTree, diagnostics) in diagnosticsBySyntaxTree)
-                {
-                    var lspDiagnostics = diagnostics.ToDiagnostics(syntaxTree.LineStarts);
-                    this.PublishDocumentDiagnostics(DocumentUri.From(syntaxTree.FileUri), version, lspDiagnostics);
-                }
+                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
                 // publish all the diagnostics
-                //this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
+                this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
 
                 return output;
             }

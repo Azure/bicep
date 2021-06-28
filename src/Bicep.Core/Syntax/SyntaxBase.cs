@@ -47,11 +47,6 @@ namespace Bicep.Core.Syntax
             throw new ArgumentException($"{parameterName} must match keyword {expectedKeywordNameIfNotNull} but provided token was {token.Text}.");
         }
 
-        internal string ToLowerInvariant()
-        {
-            throw new NotImplementedException();
-        }
-
         protected static void AssertTokenTypeList(IEnumerable<Token> tokens, [InvokerParameterName] string parameterName, TokenType expectedType, int minimumCount)
         {
             int index = 0;
