@@ -15,6 +15,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
+using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -33,8 +34,8 @@ namespace Bicep.LanguageServer.Snippets
         private readonly ConcurrentDictionary<string, (string prefix, string identifier, string bodyText, string description)> resourceTypeInfoMap = new();
         // Used to cache resource dependencies. Maps resource type to it's dependencies
         private readonly ConcurrentDictionary<string, string> resourceTypeToDependentsMap = new();
-        // Used to cache information about child type symbols in nested resource scenario. Maps resource type to nested type symbols
-        private readonly ConcurrentDictionary<string, List<TypeSymbol>> resourceTypeToChildTypeSymbolsMap = new();
+        // Used to cache information about child type symbols in nested resource scenario. Maps resource type reference to nested type symbols
+        private readonly ConcurrentDictionary<ResourceTypeReference, ImmutableArray<TypeSymbol>> resourceTypeReferenceToChildTypeSymbolsMap = new(ResourceTypeReferenceComparer.Instance);
         // Used to cache resource body snippets
         private readonly ConcurrentDictionary<(string typeName, bool isExistingResource), IEnumerable<Snippet>> resourceBodySnippetsCache = new();
         // Used to cache top level declarations
@@ -174,15 +175,13 @@ namespace Bicep.LanguageServer.Snippets
 
                 foreach (ResourceDependency resourceDependency in resourceDependencies)
                 {
-                    string parentType = resourceDependency.Resource.Type.Name;
-
-                    if (resourceTypeToChildTypeSymbolsMap.ContainsKey(parentType))
+                    if (resourceDependency.Resource is ResourceSymbol resourceSymbol &&
+                        resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference)
                     {
-                        resourceTypeToChildTypeSymbolsMap[parentType].Add(childTypeSymbol);
-                    }
-                    else
-                    {
-                        resourceTypeToChildTypeSymbolsMap.TryAdd(parentType, new List<TypeSymbol> { childTypeSymbol });
+                        resourceTypeReferenceToChildTypeSymbolsMap.AddOrUpdate(
+                            resourceTypeReference,
+                            _ => ImmutableArray.Create(childTypeSymbol),
+                            (_, children) => children.Add(childTypeSymbol));
                     }
 
                     TextSpan span = resourceDependency.Resource.DeclaringSyntax.Span;
@@ -451,7 +450,7 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        public IEnumerable<Snippet> GetNestedResourceDeclarationSnippets(TypeSymbol typeSymbol)
+        public IEnumerable<Snippet> GetNestedResourceDeclarationSnippets(ResourceTypeReference resourceTypeReference)
         {
             // Leaving out the API version on this, because we expect its more common to inherit from the containing resource.
             yield return new Snippet(@"resource ${1:Identifier} '${2:Type}' = {
@@ -466,16 +465,15 @@ namespace Bicep.LanguageServer.Snippets
   $0
 }", prefix: "resource-without-defaults", detail: "Nested resource without defaults");
 
-            string parentType = typeSymbol.Name;
-
-            if (resourceTypeToChildTypeSymbolsMap.ContainsKey(parentType))
+            if (resourceTypeReferenceToChildTypeSymbolsMap.TryGetValue(resourceTypeReference, out var nestedTypeSymbols))
             {
-                foreach (TypeSymbol nestedTypeSymbol in resourceTypeToChildTypeSymbolsMap[typeSymbol.Name])
+                foreach (TypeSymbol nestedTypeSymbol in nestedTypeSymbols)
                 {
-                    resourceTypeInfoMap.TryGetValue(nestedTypeSymbol.Name, out (string prefix, string identifier, string bodyText, string description) resourceInfo);
+                    string? nestedType = GetNestedResourceType(nestedTypeSymbol);
 
-                    foreach (string nestedType in GetNestedResourceTypes(parentType, nestedTypeSymbol))
+                    if (nestedType is not null)
                     {
+                        resourceTypeInfoMap.TryGetValue(nestedTypeSymbol.Name, out (string prefix, string identifier, string bodyText, string description) resourceInfo);
                         // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet 
                         string bodyText = ParentPropertyPattern.Replace(resourceInfo.bodyText, string.Empty);
                         string text = LanguageConstants.ResourceKeyword + " " + resourceInfo.identifier + " '" + nestedType + "' = " + bodyText;
@@ -487,19 +485,15 @@ namespace Bicep.LanguageServer.Snippets
         }
 
         // Nested resources must specify a single type segment, and optionally can specify an api version using the format "<type>@<apiVersion>"
-        // We'll remove types that exist in parent and return single type with api version 
-        private IEnumerable<string> GetNestedResourceTypes(string parentType, TypeSymbol nestedTypeSymbol)
+        private string? GetNestedResourceType(TypeSymbol nestedTypeSymbol)
         {
             if (nestedTypeSymbol is ResourceType resourceType)
             {
-                foreach (string type in resourceType.TypeReference.Types)
-                {
-                    if (!parentType.Contains(type))
-                    {
-                        yield return type + "@" + resourceType.TypeReference.ApiVersion;
-                    }
-                }
+                var nestedType = resourceType.TypeReference;
+                return $"{nestedType.Types.Last()}@{nestedType.ApiVersion}";
             }
+
+            return null;
         }
     }
 }

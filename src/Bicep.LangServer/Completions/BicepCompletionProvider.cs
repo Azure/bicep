@@ -103,21 +103,23 @@ namespace Bicep.LanguageServer.Completions
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange);
 
-                TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
-
-                foreach (Snippet snippet in SnippetsProvider.GetNestedResourceDeclarationSnippets(typeSymbol))
+                if (model.GetSymbolInfo(resourceDeclarationSyntax) is ResourceSymbol parentSymbol &&
+                    parentSymbol.TryGetResourceTypeReference() is ResourceTypeReference parentTypeReference)
                 {
-                    string prefix = snippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
-                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+                    foreach (Snippet snippet in SnippetsProvider.GetNestedResourceDeclarationSnippets(parentTypeReference))
+                    {
+                        string prefix = snippet.Prefix;
+                        BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
+                        Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
-                    yield return CreateContextualSnippetCompletion(prefix,
-                        snippet.Detail,
-                        snippet.Text,
-                        context.ReplacementRange,
-                        command,
-                        snippet.CompletionPriority,
-                        preselect: true);
+                        yield return CreateContextualSnippetCompletion(prefix,
+                            snippet.Detail,
+                            snippet.Text,
+                            context.ReplacementRange,
+                            command,
+                            snippet.CompletionPriority,
+                            preselect: true);
+                    }
                 }
             }
         }

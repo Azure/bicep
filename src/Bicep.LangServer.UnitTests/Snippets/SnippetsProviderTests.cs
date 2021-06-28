@@ -359,12 +359,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         public void GetNestedResourceDeclarationSnippets_WithChildResources_ShouldReturnCustomAndDefaultResourceSnippets()
         {
             SnippetsProvider snippetsProvider = new SnippetsProvider();
-            TypeSymbol typeSymbol = new ResourceType(
-                    ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts@2019-06-01"),
-                    ResourceScope.ResourceGroup,
-                    CreateObjectType("Microsoft.Automation/automationAccounts@2019-06-01"));
+            ResourceTypeReference resourceTypeReference = ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts@2019-06-01");
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(resourceTypeReference);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -405,12 +402,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         public void GetNestedResourceDeclarationSnippets_WithNoChildResources_ShouldReturnDefaultResourceSnippets()
         {
             SnippetsProvider snippetsProvider = new SnippetsProvider();
-            TypeSymbol typeSymbol = new ResourceType(
-                    ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/runbooks@2019-06-01"),
-                    ResourceScope.ResourceGroup,
-                    CreateObjectType("Microsoft.Automation/automationAccounts/runbooks@2019-06-01"));
+            ResourceTypeReference resourceTypeReference = ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/runbooks@2019-06-01");
 
-            IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(resourceTypeReference);
 
             snippets.Should().SatisfyRespectively(
                 x =>
