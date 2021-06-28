@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.IO;
-using System.Text;
 using Bicep.Cli.Services;
 using Bicep.Cli.Arguments;
 using FluentAssertions;
@@ -99,7 +97,7 @@ namespace Bicep.Cli.UnitTests
         public void BuildOneFile_ShouldReturnOneFile()
         {
             var arguments = ArgumentParser.TryParse(new[] {"build", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var bulidOrDecompileArguments = (BuildArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -114,7 +112,7 @@ namespace Bicep.Cli.UnitTests
         public void BuildOneFileStdOut_ShouldReturnOneFileAndStdout()
         {
             var arguments = ArgumentParser.TryParse(new[] {"build", "--stdout", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var bulidOrDecompileArguments = (BuildArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -129,7 +127,7 @@ namespace Bicep.Cli.UnitTests
         public void BuildOneFileStdOutAllCaps_ShouldReturnOneFileAndStdout()
         {
             var arguments = ArgumentParser.TryParse(new[] {"build", "--STDOUT", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var bulidOrDecompileArguments = (BuildArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -144,7 +142,7 @@ namespace Bicep.Cli.UnitTests
         public void Build_with_outputdir_parameter_should_parse_correctly()
         {
             var arguments = ArgumentParser.TryParse(new[] {"build", "--outdir", "outdir", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var bulidOrDecompileArguments = (BuildArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -159,7 +157,7 @@ namespace Bicep.Cli.UnitTests
         public void Build_with_outputfile_parameter_should_parse_correctly()
         {
             var arguments = ArgumentParser.TryParse(new[] {"build", "--outfile", "jsonFile", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var bulidOrDecompileArguments = (BuildArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -175,7 +173,7 @@ namespace Bicep.Cli.UnitTests
         public void Build_with_noSummary_parameter_should_parse_correctly()
         {
             var arguments = ArgumentParser.TryParse(new[] {"build", "--no-summary", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var bulidOrDecompileArguments = (BuildArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -221,8 +219,8 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void DecompileOneFile_ShouldReturnOneFile()
         {
-            var arguments = ArgumentParser.TryParse(new[] {"build", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "file1"});
+            var bulidOrDecompileArguments = (DecompileArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -235,8 +233,8 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void DecompileOneFileStdOut_ShouldReturnOneFileAndStdout()
         {
-            var arguments = ArgumentParser.TryParse(new[] {"build", "--stdout", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "--stdout", "file1"});
+            var bulidOrDecompileArguments = (DecompileArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -249,8 +247,8 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void DecompileOneFileStdOutAllCaps_ShouldReturnOneFileAndStdout()
         {
-            var arguments = ArgumentParser.TryParse(new[] {"build", "--STDOUT", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "--STDOUT", "file1"});
+            var bulidOrDecompileArguments = (DecompileArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -263,8 +261,8 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Decompile_with_outputdir_parameter_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] {"build", "--outdir", "outdir", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "--outdir", "outdir", "file1"});
+            var bulidOrDecompileArguments = (DecompileArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -277,8 +275,8 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Decompile_with_outputfile_parameter_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] {"build", "--outfile", "jsonFile", "file1"});
-            var bulidOrDecompileArguments = (BuildOrDecompileArguments?) arguments;
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "--outfile", "jsonFile", "file1"});
+            var bulidOrDecompileArguments = (DecompileArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);

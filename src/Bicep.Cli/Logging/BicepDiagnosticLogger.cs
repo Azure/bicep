@@ -45,7 +45,7 @@ namespace Bicep.Cli.Logging
             this.logger.Log(ToLogLevel(DiagnosticLevel.Info), summary);
         }
 
-        public int ErrorCount { get; private set; }
+        public int ErrorCount { get; set; }
         
         private int WarningCount { get; set; }
 

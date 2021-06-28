@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Cli.Logging
 {
@@ -11,7 +10,7 @@ namespace Bicep.Cli.Logging
     {
         void LogDiagnostic(Uri fileUri, IDiagnostic diagnostic, ImmutableArray<int> lineStarts);
         void LogSummary();
-        
+        int ErrorCount { get; set; }
     }
 }
 

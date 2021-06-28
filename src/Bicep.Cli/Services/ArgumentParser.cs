@@ -18,8 +18,8 @@ namespace Bicep.Cli.Services
             // parse verb
             return (args[0].ToLowerInvariant()) switch
             {
-                Constants.Command.Build => new BuildOrDecompileArguments(args[1..], Constants.Command.Build),
-                Constants.Command.Decompile => new BuildOrDecompileArguments(args[1..], Constants.Command.Decompile),
+                Constants.Command.Build => new BuildArguments(args[1..], Constants.Command.Build),
+                Constants.Command.Decompile => new DecompileArguments(args[1..], Constants.Command.Decompile),
                 Constants.Argument.Help => new HelpArguments(Constants.Argument.Help),
                 Constants.Argument.HelpShort => new HelpArguments(Constants.Argument.HelpShort),
                 Constants.Argument.Version => new VersionArguments(Constants.Argument.Version),

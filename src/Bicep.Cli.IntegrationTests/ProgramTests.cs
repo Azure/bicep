@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
-using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -34,7 +33,12 @@ namespace Bicep.Cli.IntegrationTests
 
         private static Program CreateProgram(TextWriter outputWriter, TextWriter errorWriter)
         {
-            return new Program(TestTypeHelper.CreateEmptyProvider(), outputWriter, errorWriter, BicepTestConstants.DevAssemblyFileVersion);
+            return new Program(new InvocationContext{
+                    ResourceTypeProvider = TestTypeHelper.CreateEmptyProvider(),
+                    OutputWriter = outputWriter,
+                    ErrorWriter = errorWriter,
+                    AssemblyFileVersion = BicepTestConstants.DevAssemblyFileVersion
+                });
         }
 
         [TestMethod]

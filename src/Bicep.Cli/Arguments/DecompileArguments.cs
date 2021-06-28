@@ -3,9 +3,9 @@
 
 namespace Bicep.Cli.Arguments
 {
-    public class BuildOrDecompileArguments : ArgumentsBase
+    public class DecompileArguments : ArgumentsBase, ICoreArguments, IArguments
     {
-        public BuildOrDecompileArguments(string[] args, string commandName) : base(commandName)
+        public DecompileArguments(string[] args, string commandName) : base(commandName)
         {
             for (var i = 0; i < args.Length; i++)
             {
@@ -84,5 +84,7 @@ namespace Bicep.Cli.Arguments
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
+        
+        public bool PrintUsage { get; }
     }
 }
