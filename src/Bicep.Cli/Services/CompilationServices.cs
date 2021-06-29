@@ -16,14 +16,14 @@ using Newtonsoft.Json;
 
 namespace Bicep.Cli.Services
 {
-    internal class CompilationService
+    public class CompilationService
     {
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly FileResolver fileResolver;
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
 
-        internal CompilationService(IDiagnosticLogger diagnosticLogger, InvocationContext invocationContext)
+        public CompilationService(IDiagnosticLogger diagnosticLogger, InvocationContext invocationContext)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = new FileResolver();

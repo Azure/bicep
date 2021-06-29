@@ -14,12 +14,14 @@ namespace Bicep.Cli.Commands
         private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly InvocationContext invocationContext;
+        private readonly CompilationService compilationService;
 
-        public BuildCommand(ILogger logger, IDiagnosticLogger diagnosticLogger, InvocationContext invocationContext) 
+        public BuildCommand(ILogger logger, IDiagnosticLogger diagnosticLogger, InvocationContext invocationContext, CompilationService compilationService) 
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.invocationContext = invocationContext;
+            this.compilationService = compilationService;
         }
 
         public int Run(BuildArguments args)
@@ -60,7 +62,7 @@ namespace Bicep.Cli.Commands
 
         private int ToStdout(string inputPath)
         {
-            return new CompilationService(this.diagnosticLogger, this.invocationContext)
+            return compilationService
                 .Compile(inputPath)
                 .LogDiagnostics()
                 .PrintCompilationOnSuccess()
@@ -69,7 +71,7 @@ namespace Bicep.Cli.Commands
 
         private int ToFile(string inputPath, string outputPath)
         {
-            return new CompilationService(this.diagnosticLogger, this.invocationContext)
+            return compilationService
                 .Compile(inputPath)
                 .LogDiagnostics()
                 .WriteCompilationFileOnSuccess(outputPath)

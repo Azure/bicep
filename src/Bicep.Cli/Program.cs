@@ -105,8 +105,9 @@ namespace Bicep.Cli
                 .AddArguments()
                 .AddCommands()
                 .AddSingleton<ILogger>(CreateLoggerFactory().CreateLogger("bicep"))
-                .AddTransient<IDiagnosticLogger, BicepDiagnosticLogger>()
+                .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
                 .AddSingleton(this.invocationContext)
+                .AddTransient<CompilationService>()
                 .BuildServiceProvider();
         }
     }
