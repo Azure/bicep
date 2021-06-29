@@ -2607,6 +2607,11 @@ module jsonModMissingParam 'moduled.json' = {
 //@[7:8) Colon |:|
 //@[9:12) Integer |123|
 //@[12:13) NewLine |\n|
+    baz: 'C'
+//@[4:7) Identifier |baz|
+//@[7:8) Colon |:|
+//@[9:12) StringComplete |'C'|
+//@[12:13) NewLine |\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:4) NewLine |\n|

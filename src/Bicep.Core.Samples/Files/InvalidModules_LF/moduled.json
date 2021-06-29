@@ -7,6 +7,13 @@
     },
     "bar": {
       "type": "bool"
+    },
+    "baz": {
+      "type": "string",
+      "allowedValues": [
+        "A",
+        "B"
+      ]
     }
   },
   "variables": {},

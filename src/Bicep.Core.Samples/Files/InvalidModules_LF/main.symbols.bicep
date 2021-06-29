@@ -707,10 +707,11 @@ module invalidJsonMod 'modulec.json' = {
 }
 
 module jsonModMissingParam 'moduled.json' = {
-//@[7:26) Module jsonModMissingParam. Type: module. Declaration start char: 0, length: 106
+//@[7:26) Module jsonModMissingParam. Type: module. Declaration start char: 0, length: 119
   name: 'jsonModMissingParam'
   params: {
     foo: 123
+    baz: 'C'
   }
 }
 

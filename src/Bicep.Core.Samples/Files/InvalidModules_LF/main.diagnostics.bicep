@@ -735,6 +735,8 @@ module jsonModMissingParam 'moduled.json' = {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar". (CodeDescription: none) |params|
     foo: 123
 //@[9:12) [BCP036 (Error)] The property "foo" expected a value of type "string" but the provided value is of type "int". (CodeDescription: none) |123|
+    baz: 'C'
+//@[9:12) [BCP088 (Error)] The property "baz" expected a value of type "'A' | 'B'" but the provided value is of type "'C'". Did you mean "'A'"? (CodeDescription: none) |'C'|
   }
 }
 

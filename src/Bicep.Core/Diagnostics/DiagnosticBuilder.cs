@@ -1082,7 +1082,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidJsonTemplate(string jsonErrorMessage) => new(
                 TextSpan,
                 "BCP184",
-                jsonErrorMessage);
+                $"Invalid JSON template: {jsonErrorMessage}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

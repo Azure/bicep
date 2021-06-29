@@ -9,7 +9,7 @@ namespace Bicep.Core.Syntax.Converters
     public class SyntaxConversionException : Exception
     {
         public SyntaxConversionException(string message, IJsonLineInfo jsonLineInfo, Exception? innerException = null)
-            : base(FormatMessage(message, jsonLineInfo), innerException)
+            : base(message, innerException)
         {
             this.LineNumber = jsonLineInfo.LineNumber;
             this.LinePosition = jsonLineInfo.LinePosition;
@@ -18,8 +18,5 @@ namespace Bicep.Core.Syntax.Converters
         public int LineNumber { get; }
 
         public int LinePosition { get; }
-
-        private static string FormatMessage(string message, IJsonLineInfo jsonLineInfo) =>
-            $"[{jsonLineInfo.LineNumber}:{jsonLineInfo.LinePosition}]: {message}";
     }
 }

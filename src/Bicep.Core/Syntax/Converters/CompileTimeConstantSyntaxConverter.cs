@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.Deployments.Expression.Engines;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Syntax.Converters
@@ -35,7 +36,7 @@ namespace Bicep.Core.Syntax.Converters
 
                 if (ExpressionsEngine.IsLanguageExpression(propertyName))
                 {
-                    throw new SyntaxConversionException($"The property name \"{propertyName}\" must be a compile-time constant.", property);
+                    throw new SyntaxConversionException($"The property name \"{propertyName}\" cannot be an expression.", property);
                 }
 
                 properties.Add(SyntaxFactory.CreateObjectProperty(propertyName, ConvertJToken(propertyValue)));
@@ -48,7 +49,7 @@ namespace Bicep.Core.Syntax.Converters
         {
             if (value is not JArray arrayValue)
             {
-                throw new SyntaxConversionException($"Expected the value {value} to be an array.", value);
+                throw new SyntaxConversionException($"Expected the value {value.ToString(Formatting.None)} to be an array.", value);
             }
 
             return SyntaxFactory.CreateArray(value.Select(item => ConvertJToken(item)));
@@ -70,14 +71,14 @@ namespace Bicep.Core.Syntax.Converters
         {
             if (value is not JValue { Type: JTokenType.String or JTokenType.Uri or JTokenType.Date })
             {
-                throw new SyntaxConversionException($"Expected the value {value} to be a string.", value);
+                throw new SyntaxConversionException($"Expected the value {value.ToString(Formatting.None)} to be a string.", value);
             }
 
             var stringValue = value.ToString();
 
             if (ExpressionsEngine.IsLanguageExpression(stringValue))
             {
-                throw new SyntaxConversionException($"The value {value} must be a compile-time constant.", value);
+                throw new SyntaxConversionException($"The value {value.ToString(Formatting.None)} cannot be an expression.", value);
             }
 
             return SyntaxFactory.CreateStringLiteral(stringValue);

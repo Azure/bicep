@@ -529,5 +529,6 @@ module jsonModMissingParam 'moduled.json' = {
   name: 'jsonModMissingParam'
   params: {
     foo: 123
+    baz: 'C'
   }
 }

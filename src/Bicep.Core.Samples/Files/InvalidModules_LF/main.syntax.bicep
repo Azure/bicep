@@ -4040,14 +4040,14 @@ module invalidJsonMod 'modulec.json' = {
 //@[1:3) NewLine |\n\n|
 
 module jsonModMissingParam 'moduled.json' = {
-//@[0:106) ModuleDeclarationSyntax
+//@[0:119) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:26)  IdentifierSyntax
 //@[7:26)   Identifier |jsonModMissingParam|
 //@[27:41)  StringSyntax
 //@[27:41)   StringComplete |'moduled.json'|
 //@[42:43)  Assignment |=|
-//@[44:106)  ObjectSyntax
+//@[44:119)  ObjectSyntax
 //@[44:45)   LeftBrace |{|
 //@[45:46)   NewLine |\n|
   name: 'jsonModMissingParam'
@@ -4059,11 +4059,11 @@ module jsonModMissingParam 'moduled.json' = {
 //@[8:29)     StringComplete |'jsonModMissingParam'|
 //@[29:30)   NewLine |\n|
   params: {
-//@[2:28)   ObjectPropertySyntax
+//@[2:41)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |params|
 //@[8:9)    Colon |:|
-//@[10:28)    ObjectSyntax
+//@[10:41)    ObjectSyntax
 //@[10:11)     LeftBrace |{|
 //@[11:12)     NewLine |\n|
     foo: 123
@@ -4073,6 +4073,14 @@ module jsonModMissingParam 'moduled.json' = {
 //@[7:8)      Colon |:|
 //@[9:12)      IntegerLiteralSyntax
 //@[9:12)       Integer |123|
+//@[12:13)     NewLine |\n|
+    baz: 'C'
+//@[4:12)     ObjectPropertySyntax
+//@[4:7)      IdentifierSyntax
+//@[4:7)       Identifier |baz|
+//@[7:8)      Colon |:|
+//@[9:12)      StringSyntax
+//@[9:12)       StringComplete |'C'|
 //@[12:13)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
