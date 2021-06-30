@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// Licensed under the MIT License
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
 
 namespace Bicep.Cli.Commands
 {
@@ -16,14 +18,21 @@ namespace Bicep.Cli.Commands
         private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly InvocationContext invocationContext;
-        private readonly CompilationService compilationService;
+        private readonly ICompilationService compilationService;
+        private readonly IEnumerable<IWriter> writers;
 
-        public DecompileCommand(ILogger logger, IDiagnosticLogger diagnosticLogger, InvocationContext invocationContext, CompilationService compilationService) 
+        public DecompileCommand(
+            ILogger logger, 
+            IDiagnosticLogger diagnosticLogger, 
+            InvocationContext invocationContext, 
+            ICompilationService compilationService,
+            IEnumerable<IWriter> writers) 
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.invocationContext = invocationContext;
             this.compilationService = compilationService;
+            this.writers = writers;
         }
 
         public int Run(DecompileArguments args)
@@ -72,24 +81,20 @@ namespace Bicep.Cli.Commands
             return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
 
-        private int ToStdout(string inputPath)
+         private void ToStdout(string inputPath)
         {
-            return compilationService
-                .Decompile(inputPath)
-                .PrintDecompilation()
-                .CompileDecompilationOutput()
-                .LogDiagnostics()
-                .GetResult() ? 0 : 1;
+            var decompilation = compilationService.Decompile(inputPath);
+
+            writers.ResolveService<ConsoleWriter>()
+                .WriteDecompilation(decompilation);
         }
 
-        private int ToFile(string inputPath, string outputPath)
+        private void ToFile(string inputPath, string outputPath)
         {
-            return compilationService
-                .Decompile(inputPath, outputPath)
-                .WriteDecompilationFile()
-                .CompileDecompilationOutput()
-                .LogDiagnostics()
-                .GetResult() ? 0 : 1;
+            var decompilation = compilationService.Decompile(inputPath, outputPath);
+
+            writers.ResolveService<FileWriter>()
+                .WriteDecompilation(decompilation);
         }
     }
 }

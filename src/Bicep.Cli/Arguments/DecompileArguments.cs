@@ -3,7 +3,7 @@
 
 namespace Bicep.Cli.Arguments
 {
-    public class DecompileArguments : ArgumentsBase, ICoreArguments, IArguments
+    public class DecompileArguments : ArgumentsBase, IArguments
     {
         public DecompileArguments(string[] args, string commandName) : base(commandName)
         {

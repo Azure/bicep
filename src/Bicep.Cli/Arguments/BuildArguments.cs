@@ -3,7 +3,7 @@
 
 namespace Bicep.Cli.Arguments
 {
-    public class BuildArguments : ArgumentsBase, ICoreArguments, IArguments
+    public class BuildArguments : ArgumentsBase, IArguments
     {
         public BuildArguments(string[] args, string commandName) : base(commandName)
         {

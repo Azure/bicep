@@ -3,25 +3,27 @@
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Services;
 using Bicep.Cli.Logging;
-using Microsoft.Extensions.Logging;
+using Bicep.Cli.Helpers;
 using System.IO;
+using System.Collections.Generic;
 using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli.Commands
 {
     public class BuildCommand : ICommand
     {
-        private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
-        private readonly InvocationContext invocationContext;
-        private readonly CompilationService compilationService;
+        private readonly ICompilationService compilationService;
+        private readonly IEnumerable<IWriter> writers;
 
-        public BuildCommand(ILogger logger, IDiagnosticLogger diagnosticLogger, InvocationContext invocationContext, CompilationService compilationService) 
+        public BuildCommand(
+            IDiagnosticLogger diagnosticLogger, 
+            ICompilationService compilationService,
+            IEnumerable<IWriter> writers) 
         {
-            this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
-            this.invocationContext = invocationContext;
             this.compilationService = compilationService;
+            this.writers = writers;
         }
 
         public int Run(BuildArguments args)
@@ -60,22 +62,27 @@ namespace Bicep.Cli.Commands
             return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
 
-        private int ToStdout(string inputPath)
+        private void ToStdout(string inputPath)
         {
-            return compilationService
-                .Compile(inputPath)
-                .LogDiagnostics()
-                .PrintCompilationOnSuccess()
-                .GetResult() ? 0 : 1;
+            var compilation = compilationService.Compile(inputPath);
+
+            if(diagnosticLogger.ErrorCount < 1)
+            {
+                writers.ResolveService<ConsoleWriter>()
+                    .WriteCompilation(compilation);
+            }
         }
 
-        private int ToFile(string inputPath, string outputPath)
+        private void ToFile(string inputPath, string outputPath)
         {
-            return compilationService
-                .Compile(inputPath)
-                .LogDiagnostics()
-                .WriteCompilationFileOnSuccess(outputPath)
-                .GetResult() ? 0 : 1;
+            var compilation = compilationService.Compile(inputPath);
+
+            if(diagnosticLogger.ErrorCount < 1)
+            {
+                writers.ResolveService<FileWriter>()
+                    .CreateFileStream(outputPath)
+                    .WriteCompilation(compilation);
+            }
         }
     }
 }

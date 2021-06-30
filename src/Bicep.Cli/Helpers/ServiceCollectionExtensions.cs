@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Bicep.Cli.Commands;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Services;
 
 namespace Bicep.Cli.Helpers
 {
@@ -75,6 +76,16 @@ namespace Bicep.Cli.Helpers
             }
 
             return services;
+        }
+    
+        /// <summary>
+        /// Resolves the service type to a concrete implementation when multiple implementations are added to the DI container.
+        /// </summary>
+        /// <param name="services">The collection of services returned by the DI container.</param>
+        /// <returns>The resolved service.</returns>
+        public static T ResolveService<T>(this IEnumerable<IService> services) where T : IService
+        {
+            return (T)services.First(x => x.GetType() == typeof(T));
         }
     }
 }

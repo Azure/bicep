@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System;
 using System.Runtime;
-using Bicep.Cli;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Services;
 using Bicep.Cli.Arguments;
@@ -107,7 +106,9 @@ namespace Bicep.Cli
                 .AddSingleton<ILogger>(CreateLoggerFactory().CreateLogger("bicep"))
                 .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
                 .AddSingleton(this.invocationContext)
-                .AddTransient<CompilationService>()
+                .AddSingleton<IWriter, ConsoleWriter>()
+                .AddSingleton<IWriter, FileWriter>()
+                .AddSingleton<ICompilationService, CompilationService>()
                 .BuildServiceProvider();
         }
     }
