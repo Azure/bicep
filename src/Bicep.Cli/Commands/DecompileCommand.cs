@@ -7,7 +7,6 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
 
@@ -40,22 +39,19 @@ namespace Bicep.Cli.Commands
             logger.LogWarning(CliResources.DecompilerDisclaimerMessage);
 
             var inputPath = PathHelper.ResolvePath(args.InputFile);
+            var outputPath = args.OutputDir == null
+                ? PathHelper.GetDefaultDecompileOutputPath(inputPath)
+                : PathHelper.GetDefaultDecompileOutputPath(Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath)));
 
             try
             {
-                 if (args.OutputToStdOut)
+                if (args.OutputToStdOut)
                 {
-                    ToStdout(inputPath);
-                }
-                else if (args.OutputDir is not null)
-                {
-                    var outputPath = Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath));
-
-                    ToFile(inputPath, PathHelper.GetDefaultDecompileOutputPath(outputPath));
+                    ToStdout(inputPath); // --stdout
                 }
                 else
                 {
-                    ToFile(inputPath, args.OutputFile ?? PathHelper.GetDefaultDecompileOutputPath(inputPath));
+                    ToFile(inputPath, args.OutputFile ?? outputPath); // --output-file or --output-dir
                 }
             }
             catch (Exception exception)

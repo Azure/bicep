@@ -29,24 +29,20 @@ namespace Bicep.Cli.Commands
         public int Run(BuildArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
+            var outputPath = args.OutputDir == null
+                ? PathHelper.GetDefaultBuildOutputPath(inputPath)
+                : PathHelper.GetDefaultBuildOutputPath(Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath)));
 
             if (args.OutputToStdOut)
             {
                 ToStdout(inputPath);
             }
-            else if (args.OutputDir is not null)
-            {
-                var outputPath = Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath));
-
-                ToFile(inputPath, PathHelper.GetDefaultBuildOutputPath(outputPath));
-            }
             else
             {
-                ToFile(inputPath, args.OutputFile ?? PathHelper.GetDefaultBuildOutputPath(inputPath));
+                ToFile(inputPath, args.OutputFile ?? outputPath);
             }
             
-            // only the build command supports the --no-summary switch.
-            if(!args.NoSummary)
+            if(args.NoSummary is false)
             {
                 diagnosticLogger.LogSummary();
             }
