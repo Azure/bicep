@@ -16,9 +16,6 @@ namespace Bicep.Cli.Arguments
                     case "--stdout":
                         OutputToStdOut = true;
                         break;
-                    case "--no-summary":
-                        NoSummary = true;
-                        break;
                     case "--outdir":
                         if (args.Length == i + 1)
                         {
@@ -90,14 +87,10 @@ namespace Bicep.Cli.Arguments
 
         public bool OutputToStdOut { get; }
         
-        public bool NoSummary { get; }
-
         public string InputFile { get; }
 
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
-        
-        public bool PrintUsage { get; }
     }
 }

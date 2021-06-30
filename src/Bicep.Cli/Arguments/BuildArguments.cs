@@ -97,7 +97,5 @@ namespace Bicep.Cli.Arguments
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
-        
-        public bool PrintUsage { get; }
     }
 }
