@@ -403,18 +403,17 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> CreateResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
+            if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax &&
+                model.GetDeclaredType(resourceDeclarationSyntax) is ResourceType resourceType)
             {
                 bool isResourceNested = model.GetSymbolInfo(resourceDeclarationSyntax) is ResourceSymbol resourceSymbol &&
-                                        model.ResourceAncestors.GetAncestors(resourceSymbol).Any(x => x.AncestorType == ResourceAncestorType.Nested);
-
-                TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
-                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
+                    model.ResourceAncestors.GetAncestors(resourceSymbol).Any(x => x.AncestorType == ResourceAncestorType.Nested);
+                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
 
                 foreach (Snippet snippet in snippets)
                 {
                     string prefix = snippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, typeSymbol.Name);
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, resourceType.Type.Name);
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
                     yield return CreateContextualSnippetCompletion(prefix,

@@ -17,6 +17,6 @@ namespace Bicep.LanguageServer.Snippets
 
         IEnumerable<Snippet> GetObjectBodyCompletionSnippets(TypeSymbol typeSymbol);
 
-        IEnumerable<Snippet> GetResourceBodyCompletionSnippets(TypeSymbol typeSymbol, bool isExistingResource, bool isResourceNested);
+        IEnumerable<Snippet> GetResourceBodyCompletionSnippets(ResourceType resourceType, bool isExistingResource, bool isResourceNested);
     }
 }
