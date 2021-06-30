@@ -6,6 +6,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -30,7 +31,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory, out _);
             var model = compilation.GetEntrypointSemanticModel();
 
             // use a deterministic order
@@ -53,7 +54,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestMethod]
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText("parameter "));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText("parameter ", BicepTestConstants.FileResolver));
             compilation.GetEntrypointSemanticModel().GetParseDiagnostics();
         }
 
@@ -62,7 +63,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory, out _);
             var model = compilation.GetEntrypointSemanticModel();
 
             var symbols = SymbolCollector
@@ -92,7 +93,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void NameBindingsShouldBeConsistent(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var model = compilation.GetEntrypointSemanticModel();
             var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 
@@ -150,7 +151,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void FindReferencesResultsShouldIncludeAllSymbolReferenceSyntaxNodes(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var semanticModel = compilation.GetEntrypointSemanticModel();
             var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 

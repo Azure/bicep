@@ -33,7 +33,7 @@ module module2Deploy 'nested/module2.bicep' = {
 }
 
 module moduleWithDodgyUri '?' /*TODO: replace with correct path to [concat(parameters('location'), 'abc', variables('module2Url'))]*/ = {
-//@[26:29) [BCP085 (Error)] The specified module path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". (CodeDescription: none) |'?'|
+//@[26:29) [BCP085 (Error)] The specified file path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". (CodeDescription: none) |'?'|
   name: 'moduleWithDodgyUri'
   params: {
     location: location

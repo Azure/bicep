@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -56,10 +57,12 @@ namespace Bicep.LanguageServer.Snippets
             "tags",
             "properties"
         };
+        private readonly IFileResolver fileResolver;
 
-        public SnippetsProvider()
+        public SnippetsProvider(IFileResolver fileResolver)
         {
             Initialize();
+            this.fileResolver = fileResolver;
         }
 
         private void Initialize()
@@ -71,7 +74,7 @@ namespace Bicep.LanguageServer.Snippets
             foreach (var manifestResourceName in manifestResourceNames)
             {
                 Stream? stream = assembly.GetManifestResourceStream(manifestResourceName);
-                StreamReader streamReader = new StreamReader(stream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
+                var streamReader = new StreamReader(stream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
 
                 (string description, string snippetText) = GetDescriptionAndText(streamReader.ReadToEnd(), manifestResourceName);
                 string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
@@ -82,7 +85,7 @@ namespace Bicep.LanguageServer.Snippets
                     completionPriority = CompletionPriority.High;
                 }
 
-                Snippet snippet = new Snippet(snippetText, completionPriority, prefix, description);
+                var snippet = new Snippet(snippetText, completionPriority, prefix, description);
 
                 topLevelNamedDeclarationSnippets.Add(snippet);
             }
@@ -184,7 +187,8 @@ namespace Bicep.LanguageServer.Snippets
                 syntaxTree,
                 ImmutableHashSet.Create(syntaxTree),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, SyntaxTree>(),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>());
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
+                fileResolver);
 
             Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();

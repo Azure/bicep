@@ -82,18 +82,8 @@ namespace Bicep.Core.Emit
                         ConvertExpression(ternary.TrueExpression),
                         ConvertExpression(ternary.FalseExpression));
 
-                case FunctionCallSyntax function:
-                    return ConvertFunction(
-                        function.Name.IdentifierName,
-                        function.Arguments.Select(a => ConvertExpression(a.Expression)));
-
-                case InstanceFunctionCallSyntax instanceFunctionCall:
-                    var namespaceSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
-                    Assert(namespaceSymbol is NamespaceSymbol, $"BaseExpression must be a NamespaceSymbol, instead got: '{namespaceSymbol?.Kind}'");
-
-                    return ConvertFunction(
-                        instanceFunctionCall.Name.IdentifierName,
-                        instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
+                case FunctionCallSyntaxBase functionCall:
+                    return ConvertFunction(functionCall);
 
                 case ArrayAccessSyntax arrayAccess:
                     return ConvertArrayAccess(arrayAccess);
@@ -109,6 +99,36 @@ namespace Bicep.Core.Emit
 
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
+            }
+        }
+
+        private LanguageExpression ConvertFunction(FunctionCallSyntaxBase functionCall)
+        {
+            var symbol = context.SemanticModel.GetSymbolInfo(functionCall);
+            if (symbol is FunctionSymbol functionSymbol &&
+                context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is FunctionOverload functionOverload &&
+                functionOverload.Evaluator is not null)
+            {
+                return ConvertExpression(functionOverload.Evaluator(functionCall, symbol, context.SemanticModel.GetTypeInfo(functionCall)));
+            }
+
+            switch (functionCall)
+            {
+                case FunctionCallSyntax function:
+                    return ConvertFunction(
+                        function.Name.IdentifierName,
+                        function.Arguments.Select(a => ConvertExpression(a.Expression)));
+
+                case InstanceFunctionCallSyntax instanceFunctionCall:
+                    var namespaceSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
+                    Assert(namespaceSymbol is NamespaceSymbol, $"BaseExpression must be a NamespaceSymbol, instead got: '{namespaceSymbol?.Kind}'");
+
+                    return ConvertFunction(
+                        instanceFunctionCall.Name.IdentifierName,
+                        instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
+
+                default:
+                    throw new NotImplementedException($"Cannot emit unexpected expression of type {functionCall.GetType().Name}");
             }
         }
 
@@ -128,7 +148,7 @@ namespace Bicep.Core.Emit
                     // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
                     var @for = inaccessibleLocalLoops.Single();
                     var current = this;
-                    foreach(var local in inaccessibleLocals)
+                    foreach (var local in inaccessibleLocals)
                     {
                         var replacementValue = GetLoopVariableExpression(local, @for, this.ConvertExpression(indexExpression));
                         current = current.AppendReplacement(local, replacementValue);
@@ -175,7 +195,7 @@ namespace Bicep.Core.Emit
             LanguageExpression? ConvertResourcePropertyAccess(ResourceSymbol resourceSymbol, SyntaxBase? indexExpression)
             {
                 var typeReference = resourceSymbol.GetResourceTypeReference();
-                
+
 
                 // special cases for certain resource property access. if we recurse normally, we'll end up
                 // generating statements like reference(resourceId(...)).id which are not accepted by ARM
@@ -234,7 +254,7 @@ namespace Bicep.Core.Emit
             }
 
             if (propertyAccess.BaseExpression is ArrayAccessSyntax propArrayAccess &&
-                (propArrayAccess.BaseExpression is VariableAccessSyntax || propArrayAccess.BaseExpression is ResourceAccessSyntax) && 
+                (propArrayAccess.BaseExpression is VariableAccessSyntax || propArrayAccess.BaseExpression is ResourceAccessSyntax) &&
                 context.SemanticModel.GetSymbolInfo(propArrayAccess.BaseExpression) is ResourceSymbol resourceCollectionSymbol &&
                 ConvertResourcePropertyAccess(resourceCollectionSymbol, propArrayAccess.IndexExpression) is { } convertedCollection)
             {
@@ -255,7 +275,7 @@ namespace Bicep.Core.Emit
 
             if (propertyAccess.BaseExpression is ArrayAccessSyntax modulePropArrayAccess &&
                 modulePropArrayAccess.BaseExpression is VariableAccessSyntax moduleArrayVariableAccess &&
-                context.SemanticModel.GetSymbolInfo(moduleArrayVariableAccess) is ModuleSymbol moduleCollectionSymbol && 
+                context.SemanticModel.GetSymbolInfo(moduleArrayVariableAccess) is ModuleSymbol moduleCollectionSymbol &&
                 ConvertModulePropertyAccess(moduleCollectionSymbol, modulePropArrayAccess.IndexExpression) is { } moduleConvertedCollection)
             {
 
@@ -313,7 +333,8 @@ namespace Bicep.Core.Emit
 
                 var resourceName = ConvertExpression(GetResourceNameSyntax(resourceSymbol));
 
-                var parentNames = ancestors.SelectMany((x, i) => {
+                var parentNames = ancestors.SelectMany((x, i) =>
+                {
                     var nameSyntax = GetResourceNameSyntax(x.Resource);
                     var nameExpression = CreateConverterForIndexReplacement(nameSyntax, x.IndexExpression, x.Resource.NameSyntax)
                         .ConvertExpression(nameSyntax);
@@ -493,7 +514,7 @@ namespace Bicep.Core.Emit
                 throw new NotImplementedException($"{nameof(LocalVariableSymbol)} has un unexpected parent of type '{symbolParent?.GetType().Name}'.");
             }
 
-            if(localScope.DeclaringSyntax is ForSyntax @for)
+            if (localScope.DeclaringSyntax is ForSyntax @for)
             {
                 return @for;
             }
@@ -534,7 +555,7 @@ namespace Bicep.Core.Emit
         {
             // loop item variable should be replaced with <array expression>[<index expression>]
             var arrayExpression = ToFunctionExpression(@for.Expression);
-            
+
             return AppendProperties(arrayExpression, indexExpression);
         }
 
@@ -662,12 +683,6 @@ namespace Bicep.Core.Emit
 
         private static LanguageExpression ConvertFunction(string functionName, IEnumerable<LanguageExpression> arguments)
         {
-            if (string.Equals("any", functionName, LanguageConstants.IdentifierComparison))
-            {
-                // this is the any function - don't generate a function call for it
-                return arguments.Single();
-            }
-
             if (ShouldReplaceUnsupportedFunction(functionName, arguments, out var replacementExpression))
             {
                 return replacementExpression;

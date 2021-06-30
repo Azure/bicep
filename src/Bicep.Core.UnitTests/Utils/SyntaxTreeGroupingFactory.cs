@@ -11,20 +11,20 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class SyntaxTreeGroupingFactory
     {
-        public static SyntaxTreeGrouping CreateFromText(string text)
+        public static SyntaxTreeGrouping CreateFromText(string text, IFileResolver fileResolver)
         {
             var entryFileUri = new Uri("file:///main.bicep");
 
-            return CreateForFiles(new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri);
+            return CreateForFiles(new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri, fileResolver);
         }
 
-        public static SyntaxTreeGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
+        public static SyntaxTreeGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri, IFileResolver fileResolver)
         {
             var workspace = new Workspace();
             var syntaxTrees = files.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
             workspace.UpsertSyntaxTrees(syntaxTrees);
 
-            return SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entryFileUri);
+            return SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entryFileUri);
         }
     }
 }

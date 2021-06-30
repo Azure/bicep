@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -21,7 +22,7 @@ namespace Bicep.Core.Semantics
             this.ResourceTypeProvider = resourceTypeProvider;
             this.lazySemanticModelLookup = syntaxTreeGrouping.SyntaxTrees.ToImmutableDictionary(
                 syntaxTree => syntaxTree,
-                syntaxTree => new Lazy<SemanticModel>(() => new SemanticModel(this, syntaxTree)));
+                syntaxTree => new Lazy<SemanticModel>(() => new SemanticModel(this, syntaxTree, SyntaxTreeGrouping.FileResolver)));
         }
 
         public SyntaxTreeGrouping SyntaxTreeGrouping { get; }

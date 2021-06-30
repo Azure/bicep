@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -38,14 +39,18 @@ namespace Bicep.Core.TypeSystem
         private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
+        private readonly IFileResolver fileResolver;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
+        private readonly IDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
 
-        public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, ITypeManager typeManager, IBinder binder)
+        public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, ITypeManager typeManager, IBinder binder, IFileResolver fileResolver)
         {
             this.resourceTypeProvider = resourceTypeProvider;
             this.typeManager = typeManager;
             this.binder = binder;
-            this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
+            this.fileResolver = fileResolver;
+            assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
+            matchedFunctionOverloads = new Dictionary<FunctionCallSyntaxBase, FunctionOverload>();
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -69,6 +74,12 @@ namespace Bicep.Core.TypeSystem
             Visit(this.binder.FileSymbol.Syntax);
 
             return assignedTypes.Values.SelectMany(x => x.Diagnostics);
+        }
+
+        public FunctionOverload? GetMatchedFunctionOverload(FunctionCallSyntaxBase syntax)
+        {
+            Visit(syntax);
+            return matchedFunctionOverloads.TryGetValue(syntax, out var overload) ? overload : null;
         }
 
         private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc)
@@ -935,23 +946,28 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var errors = new List<ErrorDiagnostic>();
 
-                foreach (TypeSymbol argumentType in this.GetArgumentTypes(syntax.Arguments).ToArray())
+                foreach (TypeSymbol argumentType in GetArgumentTypes(syntax.Arguments).ToArray())
                 {
                     CollectErrors(errors, argumentType);
                 }
 
-                switch (this.binder.GetSymbolInfo(syntax))
+                switch (binder.GetSymbolInfo(syntax))
                 {
                     case ErrorSymbol errorSymbol:
                         // function bind failure - pass the error along
                         return ErrorType.Create(errors.Concat(errorSymbol.GetDiagnostics()));
 
                     case FunctionSymbol function:
-                        return this.GetFunctionSymbolType(function, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, errors);
+                        var (type, matchedOverload) = GetFunctionSymbolType(function, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, errors, diagnostics);
+                        if (matchedOverload is not null)
+                        {
+                            matchedFunctionOverloads.Add(syntax, matchedOverload);
+                        }
+                        return type;
 
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
@@ -999,7 +1015,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var errors = new List<ErrorDiagnostic>();
 
@@ -1033,7 +1049,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 Symbol? foundSymbol;
-                if (this.binder.GetParent(syntax) is DecoratorSyntax decorator)
+                if (binder.GetParent(syntax) is DecoratorSyntax decorator)
                 {
                     foundSymbol = GetSymbolForDecorator(decorator);
                 }
@@ -1050,7 +1066,12 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Create(errors.Concat(errorSymbol.GetDiagnostics()));
 
                     case FunctionSymbol functionSymbol:
-                        return this.GetFunctionSymbolType(functionSymbol, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, errors);
+                        var (type, matchedOverload) = GetFunctionSymbolType(functionSymbol, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, errors, diagnostics);
+                        if (matchedOverload is not null)
+                        {
+                            matchedFunctionOverloads.Add(syntax, matchedOverload);
+                        }
+                        return type;
 
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
@@ -1175,15 +1196,16 @@ namespace Bicep.Core.TypeSystem
             errors.AddRange(reference.Type.GetDiagnostics());
         }
 
-        private TypeSymbol GetFunctionSymbolType(
+        private (TypeSymbol typeSymbol, FunctionOverload? matchedOverload) GetFunctionSymbolType(
             FunctionSymbol function,
             Token openParen,
             Token closeParen,
             ImmutableArray<FunctionArgumentSyntax> argumentSyntaxes,
-            IList<ErrorDiagnostic> errors)
+            IList<ErrorDiagnostic> errors,
+            IDiagnosticWriter diagnosticWriter)
         {
             // Recover argument type errors so we can continue type checking for the parent function call.
-            var argumentTypes = this.GetRecoveredArgumentTypes(argumentSyntaxes).ToArray();
+            var argumentTypes = this.GetRecoveredArgumentTypes(argumentSyntaxes).ToImmutableArray();
             var matches = FunctionResolver.GetMatches(
                 function,
                 argumentTypes,
@@ -1224,15 +1246,16 @@ namespace Bicep.Core.TypeSystem
 
             if (PropagateErrorType(errors))
             {
-                return ErrorType.Create(errors);
+                return (ErrorType.Create(errors), null);
             }
 
             if (matches.Count == 1)
             {
+
                 // we have an exact match or a single ambiguous match
                 var matchedOverload = matches.Single();
-                // and return its type
-                return matchedOverload.ReturnTypeBuilder(argumentSyntaxes);
+                // return its type
+                return (matchedOverload.ReturnTypeBuilder(binder, fileResolver, diagnosticWriter, argumentSyntaxes, argumentTypes), matchedOverload);
             }
 
             // function arguments are ambiguous (due to "any" type)
@@ -1240,7 +1263,7 @@ namespace Bicep.Core.TypeSystem
             // unfortunately our language lacks a good type checking construct
             // and we also don't want users to have to use the converter functions to work around it
             // instead, we will return the "any" type to short circuit the type checking for those cases
-            return LanguageConstants.Any;
+            return (LanguageConstants.Any, null);
         }
 
         /// <summary>

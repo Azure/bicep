@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
@@ -17,11 +18,11 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
+        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver);
+
         [TestMethod]
         public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
-
             (string description, string text) = snippetsProvider.GetDescriptionAndText(string.Empty, @"C:\foo.bicep");
 
             Assert.IsTrue(description.Equals(string.Empty));
@@ -31,8 +32,6 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void GetDescriptionAndText_WithNullInput_ReturnsEmptyDescriptionAndText()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
-
             (string description, string text) = snippetsProvider.GetDescriptionAndText(null, @"C:\foo.bicep");
 
             Assert.IsTrue(description.Equals(string.Empty));
@@ -42,8 +41,6 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void GetDescriptionAndText_WithOnlyWhitespaceInput_ReturnsEmptyDescriptionAndText()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
-
             (string description, string text) = snippetsProvider.GetDescriptionAndText("   ", @"C:\foo.bicep");
 
             Assert.IsTrue(description.Equals(string.Empty));
@@ -53,8 +50,6 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void GetDescriptionAndText_WithValidInput_ReturnsDescriptionAndText()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
-
             string template = @"// DNS Zone
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -81,8 +76,6 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void GetDescriptionAndText_WithMissingCommentInInput_ReturnsEmptyDescriptionAndValidText()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
-
             string template = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
   location: 'global'
@@ -108,8 +101,6 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void GetDescriptionAndText_WithCommentAndMissingDeclarations_ReturnsEmptyDescriptionAndText()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
-
             string template = @"// DNS Zone";
 
             (string description, string text) = snippetsProvider.GetDescriptionAndText(template, @"C:\foo.bicep");
@@ -121,8 +112,6 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void CompletionPriorityOfResourceSnippets_ShouldBeHigh()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
-
             IEnumerable<Snippet> snippets = snippetsProvider.GetTopLevelNamedDeclarationSnippets()
                 .Where(x => x.Prefix.StartsWith("resource"));
 
@@ -136,9 +125,8 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void CompletionPriorityOfNonResourceSnippets_ShouldBeMedium()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
             IEnumerable<Snippet> snippets = snippetsProvider.GetTopLevelNamedDeclarationSnippets()
-                .Where(x => !x.Prefix.StartsWith("resource"));
+       .Where(x => !x.Prefix.StartsWith("resource"));
 
             foreach (Snippet snippet in snippets)
             {
@@ -149,7 +137,6 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndNoResourceDependencies_ShouldReturnSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
             TypeSymbol typeSymbol = new ResourceType(
                     ResourceTypeReference.Parse("Microsoft.DataLakeStore/accounts@2016-11-01"),
                     ResourceScope.ResourceGroup,
@@ -198,13 +185,12 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndResourceDependencies_ShouldReturnSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
             TypeSymbol typeSymbol = new ResourceType(
-                    ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
-                    ResourceScope.ResourceGroup,
-                    CreateObjectType("Microsoft.Automation/automationAccounts/modules@2015-10-31",
-                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
-                    ("location", LanguageConstants.String, TypePropertyFlags.Required)));
+           ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
+           ResourceScope.ResourceGroup,
+           CreateObjectType("Microsoft.Automation/automationAccounts/modules@2015-10-31",
+           ("name", LanguageConstants.String, TypePropertyFlags.Required),
+           ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
 
@@ -251,24 +237,23 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNoStaticTemplate_ShouldReturnSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
             TypeSymbol typeSymbol = new ResourceType(
-                    ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
-                    ResourceScope.ResourceGroup,
-                    CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview",
-                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
-                    ("location", LanguageConstants.String, TypePropertyFlags.Required),
-                    ("kind", LanguageConstants.String, TypePropertyFlags.Required),
-                    ("id", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                    ("hostPoolType", LanguageConstants.String, TypePropertyFlags.Required),
-                    ("sku", CreateObjectType("applicationGroup",
-                            ("friendlyName", LanguageConstants.String, TypePropertyFlags.None),
-                            ("properties", CreateObjectType("properties",
-                                           ("loadBalancerType", LanguageConstants.String, TypePropertyFlags.Required),
-                                           ("preferredAppGroupType", LanguageConstants.String, TypePropertyFlags.WriteOnly)),
-                                           TypePropertyFlags.Required),
-                            ("name", LanguageConstants.String, TypePropertyFlags.Required)),
-                            TypePropertyFlags.Required)));
+           ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
+           ResourceScope.ResourceGroup,
+           CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview",
+           ("name", LanguageConstants.String, TypePropertyFlags.Required),
+           ("location", LanguageConstants.String, TypePropertyFlags.Required),
+           ("kind", LanguageConstants.String, TypePropertyFlags.Required),
+           ("id", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+           ("hostPoolType", LanguageConstants.String, TypePropertyFlags.Required),
+           ("sku", CreateObjectType("applicationGroup",
+                   ("friendlyName", LanguageConstants.String, TypePropertyFlags.None),
+                   ("properties", CreateObjectType("properties",
+                                  ("loadBalancerType", LanguageConstants.String, TypePropertyFlags.Required),
+                                  ("preferredAppGroupType", LanguageConstants.String, TypePropertyFlags.WriteOnly)),
+                                  TypePropertyFlags.Required),
+                   ("name", LanguageConstants.String, TypePropertyFlags.Required)),
+                   TypePropertyFlags.Required)));
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
 
@@ -304,11 +289,10 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
             TypeSymbol typeSymbol = new ResourceType(
-                    ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
-                    ResourceScope.ResourceGroup,
-                    CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
+           ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
+           ResourceScope.ResourceGroup,
+           CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, false);
 
@@ -325,7 +309,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithDiscriminatedObjectTypeAndNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
 
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
@@ -361,7 +345,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnRequiredPropertiesSnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
 
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
@@ -422,7 +406,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetModuleBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
@@ -446,7 +430,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetModuleBodyCompletionSnippets_WithRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -481,7 +465,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
@@ -504,7 +488,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -538,7 +522,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
 
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
@@ -569,7 +553,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
 
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {

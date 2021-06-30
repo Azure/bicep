@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
@@ -17,6 +18,7 @@ namespace Bicep.Core
 
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
+        public const int MaxLiteralCharacterLimit = 131072;
 
         public const string ErrorName = "<error>";
         public const string MissingName = "<missing>";
@@ -117,7 +119,9 @@ namespace Bicep.Core
         public const string StringHoleOpen = "${";
         public const string StringHoleClose = "}";
 
+        public const string AnyFunction = "any";
         public static readonly TypeSymbol Any = new AnyType();
+
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
 
         // type used for the item type in the dependsOn array type
@@ -140,6 +144,17 @@ namespace Bicep.Core
         public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Array = new ArrayType("array");
+        //Type for available loadTextContent encoding
+
+        public static readonly ImmutableArray<(string name, Encoding encoding)> SupportedEncodings = new[]{
+            ("us-ascii", Encoding.ASCII),
+            ("iso-8859-1", Encoding.GetEncoding("iso-8859-1")),
+            ("utf-8", Encoding.UTF8),
+            ("utf-16BE", Encoding.BigEndianUnicode),
+            ("utf-16", Encoding.Unicode)
+        }.ToImmutableArray();
+
+        public static readonly TypeSymbol LoadTextContentEncodings = UnionType.Create(SupportedEncodings.Select(s => new StringLiteralType(s.name)));
 
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);

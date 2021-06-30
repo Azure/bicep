@@ -97,7 +97,8 @@ namespace Bicep.Core.IntegrationTests
             var workspace = new Workspace();
             workspace.UpsertSyntaxTrees(syntaxTrees);
 
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, bicepUri);
+            var fileResolver = new FileResolver();
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, bicepUri);
             var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
             var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree(new ConfigHelper().GetDisabledLinterConfig());
 
