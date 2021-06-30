@@ -101,11 +101,19 @@ namespace Bicep.Cli
         private ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
+                // Adds commands and arguments to the DI container.
                 .AddArguments()
                 .AddCommands()
-                .AddSingleton<ILogger>(CreateLoggerFactory().CreateLogger("bicep"))
+
+                // We're not using the default host's logging configuration here, maybe we should move to it?
+                .AddSingleton(CreateLoggerFactory().CreateLogger("bicep"))
                 .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
+
+                // Adds the context of this invocation to the container.
+                // This handles production running and also test running of the program.
                 .AddSingleton(this.invocationContext)
+
+                // Adds the various services that
                 .AddSingleton<IWriter, ConsoleWriter>()
                 .AddSingleton<IWriter, FileWriter>()
                 .AddSingleton<ICompilationService, CompilationService>()

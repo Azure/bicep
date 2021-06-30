@@ -36,14 +36,7 @@ namespace Bicep.Cli.Commands
             }
             else if (args.OutputDir is not null)
             {
-                var outputDir = PathHelper.ResolvePath(args.OutputDir);
-
-                if (!Directory.Exists(outputDir))
-                {
-                    throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
-                }
-
-                var outputPath = Path.Combine(outputDir, Path.GetFileName(inputPath));
+                var outputPath = Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath));
 
                 ToFile(inputPath, PathHelper.GetDefaultBuildOutputPath(outputPath));
             }

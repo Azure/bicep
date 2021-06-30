@@ -40,6 +40,7 @@ namespace Bicep.Cli.Commands
             logger.LogWarning(CliResources.DecompilerDisclaimerMessage);
 
             var inputPath = PathHelper.ResolvePath(args.InputFile);
+
             try
             {
                  if (args.OutputToStdOut)
@@ -48,14 +49,7 @@ namespace Bicep.Cli.Commands
                 }
                 else if (args.OutputDir is not null)
                 {
-                    var outputDir = PathHelper.ResolvePath(args.OutputDir);
-
-                    if (!Directory.Exists(outputDir))
-                    {
-                        throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
-                    }
-
-                    var outputPath = Path.Combine(outputDir, Path.GetFileName(inputPath));
+                    var outputPath = Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath));
 
                     ToFile(inputPath, PathHelper.GetDefaultDecompileOutputPath(outputPath));
                 }
@@ -63,13 +57,6 @@ namespace Bicep.Cli.Commands
                 {
                     ToFile(inputPath, args.OutputFile ?? PathHelper.GetDefaultDecompileOutputPath(inputPath));
                 }
-            }
-            catch (Exception exception) when (
-                exception is CommandLineException || 
-                exception is BicepException || 
-                exception is ErrorDiagnosticException) 
-            {
-                throw; // We pass these custom exception types back without further processing.
             }
             catch (Exception exception)
             {

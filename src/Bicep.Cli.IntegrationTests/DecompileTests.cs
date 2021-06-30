@@ -130,6 +130,24 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public void Decompilation_of_file_with_no_errors_to_nonexistent_outdir()
+        {
+            var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
+            File.WriteAllText(fileName, ValidTemplate);
+
+            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
+
+            var (output, error, result) = CliHelper.ExecuteProgram("decompile", "--outdir", outputFileDir, fileName);
+
+            using (new AssertionScope())
+            {
+                output.Should().BeEmpty();
+                error.Should().Contain($"The specified output directory \"{outputFileDir}\" does not exist.");
+                result.Should().Be(1);
+            }
+        }
+
+        [TestMethod]
         public void Decompilation_of_file_with_errors()
         {
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
@@ -279,28 +297,6 @@ namespace Bicep.Cli.IntegrationTests
 
             var bicepFile = File.ReadAllText(expectedOutputFile);
             bicepFile.Should().BeEquivalentToIgnoringNewlines(ValidTemplateExpectedDecompilation);
-        }
-
-        [TestMethod]
-        public void Decompilation_of_file_with_no_errors_to_nonexistent_outdir()
-        {
-            var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
-            File.WriteAllText(fileName, ValidTemplate);
-
-            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
-
-            var (output, error, result) = CliHelper.ExecuteProgram("decompile", "--outdir", outputFileDir, fileName);
-
-            using (new AssertionScope())
-            {
-                output.Should().BeEmpty();
-                error.Should().BeEquivalentTo(
-                    "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
-                    "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
-                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
-                    $"The specified output directory \"{outputFileDir}\" does not exist.");
-                result.Should().Be(1);
-            }
         }
 
         [DataRow("DoesNotExist.json")]

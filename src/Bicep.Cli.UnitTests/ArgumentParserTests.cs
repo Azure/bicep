@@ -75,6 +75,7 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new [] { "build", "--stdout", "--outfile", "dir1", "file1" }, "The --outfile and --stdout parameters cannot both be used")]
         [DataRow(new [] { "build", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
         [DataRow(new [] { "build", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
+        [DataRow(new [] { "build", "--outdir", "dir1", "file1" }, "The specified output directory \"*\" does not exist.")]
         [DataRow(new [] { "decompile" }, "The input file path was not specified")]
         [DataRow(new [] { "decompile", "--stdout" }, "The input file path was not specified")]
         [DataRow(new [] { "decompile", "file1", "file2" }, "The input file path cannot be specified multiple times")]
@@ -86,6 +87,8 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new [] { "decompile", "--stdout", "--outfile", "dir1", "file1" }, "The --outfile and --stdout parameters cannot both be used")]
         [DataRow(new [] { "decompile", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
         [DataRow(new [] { "decompile", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
+        [DataRow(new [] { "decompile", "--outdir", "dir1", "file1" }, "The specified output directory \"*\" does not exist.")]
+
         public void Invalid_args_trigger_validation_exceptions(string[] parameters, string expectedException)
         {
             Action parseFunc = () => ArgumentParser.TryParse(parameters);
@@ -141,17 +144,19 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Build_with_outputdir_parameter_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] {"build", "--outdir", "outdir", "file1"});
+            // Use relative . to ensure directory exists else the parser will throw.
+            var arguments = ArgumentParser.TryParse(new[] {"build", "--outdir", ".", "file1"}); 
             var bulidOrDecompileArguments = (BuildArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
             bulidOrDecompileArguments!.InputFile.Should().Be("file1");
             bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
-            bulidOrDecompileArguments!.OutputDir.Should().Be("outdir");
+            bulidOrDecompileArguments!.OutputDir.Should().Be(".");
             bulidOrDecompileArguments!.OutputFile.Should().BeNull();
             bulidOrDecompileArguments!.NoSummary.Should().BeFalse();
         }
+
 
         [TestMethod]
         public void Build_with_outputfile_parameter_should_parse_correctly()
@@ -261,14 +266,15 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Decompile_with_outputdir_parameter_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] {"decompile", "--outdir", "outdir", "file1"});
+            // Use relative . to ensure directory exists else the parser will throw.
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "--outdir", ".", "file1"}); 
             var bulidOrDecompileArguments = (DecompileArguments?) arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
             bulidOrDecompileArguments!.InputFile.Should().Be("file1");
             bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
-            bulidOrDecompileArguments!.OutputDir.Should().Be("outdir");
+            bulidOrDecompileArguments!.OutputDir.Should().Be(".");
             bulidOrDecompileArguments!.OutputFile.Should().BeNull();
         }
 

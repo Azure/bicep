@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.FileSystem;
+using System.IO;
 
 namespace Bicep.Cli.Arguments
 {
@@ -9,23 +11,24 @@ namespace Bicep.Cli.Arguments
         {
             for (var i = 0; i < args.Length; i++)
             {
-                switch (args[i].ToLowerInvariant()) {
+                switch (args[i].ToLowerInvariant())
+                {
                     case "--stdout":
-                        this.OutputToStdOut = true;
+                        OutputToStdOut = true;
                         break;
                     case "--no-summary":
-                        this.NoSummary = true;
+                        NoSummary = true;
                         break;
                     case "--outdir":
                         if (args.Length == i + 1)
                         {
                             throw new CommandLineException($"The --outdir parameter expects an argument");
                         }
-                        if (this.OutputDir is not null)
+                        if (OutputDir is not null)
                         {
                             throw new CommandLineException($"The --outdir parameter cannot be specified twice");
                         }
-                        this.OutputDir = args[i + 1];
+                        OutputDir = args[i + 1];
                         i++;
                         break;
                     case "--outfile":
@@ -33,11 +36,11 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --outfile parameter expects an argument");
                         }
-                        if (this.OutputFile is not null)
+                        if (OutputFile is not null)
                         {
                             throw new CommandLineException($"The --outfile parameter cannot be specified twice");
                         }
-                        this.OutputFile = args[i + 1];
+                        OutputFile = args[i + 1];
                         i++;
                         break;
                     default:
@@ -45,33 +48,43 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
                         }
-                        if (this.InputFile is not null)
+                        if (InputFile is not null)
                         {
                             throw new CommandLineException($"The input file path cannot be specified multiple times");
                         }
-                        this.InputFile = args[i];
+                        InputFile = args[i];
                         break;
                 }
             }
 
-            if (this.InputFile is null)
+            if (InputFile is null)
             {
                 throw new CommandLineException($"The input file path was not specified");
             }
 
-            if (this.OutputToStdOut && this.OutputDir is not null)
+            if (OutputToStdOut && OutputDir is not null)
             {
                 throw new CommandLineException($"The --outdir and --stdout parameters cannot both be used");
             }
 
-            if (this.OutputToStdOut && this.OutputFile is not null)
+            if (OutputToStdOut && OutputFile is not null)
             {
                 throw new CommandLineException($"The --outfile and --stdout parameters cannot both be used");
             }
 
-            if (this.OutputDir is not null && this.OutputFile is not null)
+            if (OutputDir is not null && OutputFile is not null)
             {
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
+            }
+
+            if (OutputDir is not null)
+            {
+                var outputDir = PathHelper.ResolvePath(OutputDir);
+
+                if (!Directory.Exists(outputDir))
+                {
+                    throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
+                }
             }
         }
 
