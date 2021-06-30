@@ -12,44 +12,6 @@ namespace Bicep.Cli.UnitTests
     public class ArgumentParserTests
     {
         [TestMethod]
-        public void PrintUsage_ShouldPrintUsage()
-        {
-            var actual = TextWriterHelper.InvokeWriterAction(ArgumentParser.PrintUsage);
-
-            actual.Should().Contain("--help");
-            actual.Should().Contain("--version");
-            actual.Should().Contain("bicep build");
-            actual.Should().Contain("options");
-            actual.Should().Contain("--stdout");
-            actual.Should().Contain("bicep decompile");
-        }
-
-        [TestMethod]
-        public void PrintUsage_ShouldNotThrow()
-        {
-            ArgumentParser.PrintUsage(Console.Out);
-        }
-
-        [TestMethod]
-        public void PrintVersion_ShouldPrintVersion()
-        {
-            var actual = TextWriterHelper.InvokeWriterAction(ArgumentParser.PrintVersion);
-            actual.Should().MatchRegex(@"Bicep CLI version \d+\.\d+\.\d+(|-alpha) \([0-9a-f]{10}\)");
-        }
-
-        [TestMethod]
-        public void PrintVersion_ShouldNotThrow()
-        {
-            ArgumentParser.PrintVersion(Console.Out);
-        }
-
-        [TestMethod]
-        public void GetExeName_ShouldReturnExecutableName()
-        {
-            ArgumentParser.GetExeName().Should().Be("bicep");
-        }
-
-        [TestMethod]
         public void Empty_parameters_should_return_null()
         {
             var arguments = ArgumentParser.TryParse(Array.Empty<string>());
@@ -194,7 +156,7 @@ namespace Bicep.Cli.UnitTests
         {
             var arguments = ArgumentParser.TryParse(new[] { "--version" });
 
-            arguments.Should().BeOfType<VersionArguments>();
+            arguments.Should().BeOfType<RootArguments>();
         }
 
         [TestMethod]
@@ -202,7 +164,7 @@ namespace Bicep.Cli.UnitTests
         {
             var arguments = ArgumentParser.TryParse(new[] { "--help" });
 
-            arguments.Should().BeOfType<HelpArguments>();
+            arguments.Should().BeOfType<RootArguments>();
         }
 
         [TestMethod]
@@ -210,7 +172,7 @@ namespace Bicep.Cli.UnitTests
         {
             var arguments = ArgumentParser.TryParse(new[] {"-v"});
 
-            arguments.Should().BeOfType<VersionArguments>();
+            arguments.Should().BeOfType<RootArguments>();
         }
 
         [TestMethod]
@@ -218,7 +180,7 @@ namespace Bicep.Cli.UnitTests
         {
             var arguments = ArgumentParser.TryParse(new[] {"-h"});
 
-            arguments.Should().BeOfType<HelpArguments>();
+            arguments.Should().BeOfType<RootArguments>();
         }
 
         [TestMethod]

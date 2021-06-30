@@ -53,38 +53,33 @@ namespace Bicep.Cli
             {
                 switch (ArgumentParser.TryParse(args))
                 {
-                    case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // build
+                    case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
                         return serviceProvider.GetRequiredService<BuildCommand>().Run(buildArguments);
 
-                    case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // decompile
+                    case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
                         return serviceProvider.GetRequiredService<DecompileCommand>().Run(decompileArguments);
 
-                    case VersionArguments _: // --version
-                        ArgumentParser.PrintVersion(this.invocationContext.OutputWriter);
-                        return 0;
-                    case HelpArguments _: // --help
-                        ArgumentParser.PrintUsage(this.invocationContext.OutputWriter);
-                        return 0;
+                    case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
+                        return serviceProvider.GetRequiredService<RootCommand>().Run(rootArguments);
+
                     default:
-                        var exeName = ArgumentParser.GetExeName();
-                        var arguments = string.Join(' ', args);
-                        this.invocationContext.ErrorWriter.WriteLine(string.Format(CliResources.UnrecognizedArgumentsFormat, arguments, exeName));
+                        invocationContext.ErrorWriter.WriteLine(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
                         return 1;
                 }
             }
             catch (CommandLineException exception)
             {
-                this.invocationContext.ErrorWriter.WriteLine(exception.Message);
+                invocationContext.ErrorWriter.WriteLine(exception.Message);
                 return 1;
             }
             catch (BicepException exception)
             {
-                this.invocationContext.ErrorWriter.WriteLine(exception.Message);
+                invocationContext.ErrorWriter.WriteLine(exception.Message);
                 return 1;
             }
             catch (ErrorDiagnosticException exception)
             {
-                this.invocationContext.ErrorWriter.WriteLine(exception.Message);
+                invocationContext.ErrorWriter.WriteLine(exception.Message);
                 return 1;
             }
         }
