@@ -33,7 +33,7 @@ namespace Bicep.Cli.Services
         {
             var (_, filesToSave) = decompilation;
 
-            foreach (var (fileUri, bicepOutput) in filesToSave)
+            foreach (var (_, bicepOutput) in filesToSave)
             {
                 invocationContext.OutputWriter.Write(bicepOutput);
             }

@@ -40,8 +40,8 @@ namespace Bicep.Cli.Commands
 
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var outputPath = args.OutputDir == null
-                ? PathHelper.GetDefaultDecompileOutputPath(inputPath)
-                : PathHelper.GetDefaultDecompileOutputPath(Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath)));
+                ? PathHelper.GetDefaultDecompileOutputPath(inputPath) // use the inputPath's directory.
+                : PathHelper.GetDefaultDecompileOutputPath(Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath))); // otherwise resolve to the outputDir.
 
             try
             {
@@ -68,6 +68,7 @@ namespace Bicep.Cli.Commands
         {
             var decompilation = compilationService.Decompile(inputPath);
 
+            // it's intended that we write here regardless of errors
             writers.ResolveService<ConsoleWriter>()
                 .WriteDecompilation(decompilation);
         }
@@ -76,6 +77,7 @@ namespace Bicep.Cli.Commands
         {
             var decompilation = compilationService.Decompile(inputPath, outputPath);
 
+            // it's intended that we write here regardless of errors
             writers.ResolveService<FileWriter>()
                 .WriteDecompilation(decompilation);
         }

@@ -44,7 +44,6 @@ namespace Bicep.Cli.Services
             }
         }
 
-
         public FileWriter CreateFileStream(string path)
         {
             try

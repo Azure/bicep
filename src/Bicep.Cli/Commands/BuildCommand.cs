@@ -30,16 +30,16 @@ namespace Bicep.Cli.Commands
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var outputPath = args.OutputDir == null
-                ? PathHelper.GetDefaultBuildOutputPath(inputPath)
-                : PathHelper.GetDefaultBuildOutputPath(Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath)));
+                ? PathHelper.GetDefaultBuildOutputPath(inputPath) // use the inputPath's directory.
+                : PathHelper.GetDefaultBuildOutputPath(Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath))); // otherwise resolve to the outputDir.
 
             if (args.OutputToStdOut)
             {
-                ToStdout(inputPath);
+                ToStdout(inputPath); // --stdout
             }
             else
             {
-                ToFile(inputPath, args.OutputFile ?? outputPath);
+                ToFile(inputPath, args.OutputFile ?? outputPath); // --output-file or --output-dir
             }
             
             if(args.NoSummary is false)
