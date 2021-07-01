@@ -7,7 +7,7 @@ var workspaceName = toLower('la-${appName}')
 var automationaccountName = toLower('aa${appName}')
 var automationaccountDiagName = toLower('diag-aa${appName}')
 
-resource automation_log_analytics 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
+resource automation_log_analytics 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   location: location
   name: workspaceName
   properties: {
@@ -18,13 +18,16 @@ resource automation_log_analytics 'Microsoft.OperationalInsights/workspaces@2020
   }
 }
 
-resource automation_account 'Microsoft.Automation/automationAccounts@2015-10-31' = {
+resource automation_account 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
   location: location
   name: automationaccountName
   properties: {
     sku: {
       name: 'Basic'
     }
+  }
+  identity: {
+    type: 'SystemAssigned'
   }
 }
 
