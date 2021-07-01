@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "11943737649630419837"
-    }
-  },
   "parameters": {
     "sku": {
       "type": "string",
@@ -35,9 +28,9 @@
   "resources": [
     {
       "type": "Microsoft.OperationalInsights/workspaces",
-      "apiVersion": "2020-03-01-preview",
-      "name": "[variables('workspaceName')]",
+      "apiVersion": "2020-08-01",
       "location": "[parameters('location')]",
+      "name": "[variables('workspaceName')]",
       "properties": {
         "sku": {
           "name": "[parameters('sku')]"
@@ -47,13 +40,16 @@
     },
     {
       "type": "Microsoft.Automation/automationAccounts",
-      "apiVersion": "2015-10-31",
-      "name": "[variables('automationaccountName')]",
+      "apiVersion": "2020-01-13-preview",
       "location": "[parameters('location')]",
+      "name": "[variables('automationaccountName')]",
       "properties": {
         "sku": {
           "name": "Basic"
         }
+      },
+      "identity": {
+        "type": "SystemAssigned"
       }
     },
     {
@@ -75,5 +71,12 @@
         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.1.62928",
+      "templateHash": "4388673246130525753"
+    }
+  }
 }
