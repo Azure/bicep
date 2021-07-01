@@ -137,12 +137,12 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndNoResourceDependencies_ShouldReturnSnippets()
         {
-            TypeSymbol typeSymbol = new ResourceType(
-                    ResourceTypeReference.Parse("Microsoft.DataLakeStore/accounts@2016-11-01"),
-                    ResourceScope.ResourceGroup,
-                    CreateObjectType("Microsoft.DataLakeStore/accounts@2016-11-01",
-                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
-                    ("location", LanguageConstants.String, TypePropertyFlags.Required)));
+            ResourceType resourceType = new ResourceType(
+                ResourceTypeReference.Parse("Microsoft.DataLakeStore/accounts@2016-11-01"),
+                ResourceScope.ResourceGroup,
+                CreateObjectType("Microsoft.DataLakeStore/accounts@2016-11-01",
+                ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -185,12 +185,12 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndResourceDependencies_ShouldReturnSnippets()
         {
-            TypeSymbol typeSymbol = new ResourceType(
-           ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
-           ResourceScope.ResourceGroup,
-           CreateObjectType("Microsoft.Automation/automationAccounts/modules@2015-10-31",
-           ("name", LanguageConstants.String, TypePropertyFlags.Required),
-           ("location", LanguageConstants.String, TypePropertyFlags.Required)));
+            ResourceType resourceType = new ResourceType(
+                ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
+                ResourceScope.ResourceGroup,
+                CreateObjectType("Microsoft.Automation/automationAccounts/modules@2015-10-31",
+                ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -237,7 +237,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNestedResource_ShouldReturnSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             ResourceType resourceType = new ResourceType(
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/certificates@2019-06-01"),
                 ResourceScope.ResourceGroup,
@@ -286,23 +286,23 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNoStaticTemplate_ShouldReturnSnippets()
         {
-            TypeSymbol typeSymbol = new ResourceType(
-           ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
-           ResourceScope.ResourceGroup,
-           CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview",
-           ("name", LanguageConstants.String, TypePropertyFlags.Required),
-           ("location", LanguageConstants.String, TypePropertyFlags.Required),
-           ("kind", LanguageConstants.String, TypePropertyFlags.Required),
-           ("id", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-           ("hostPoolType", LanguageConstants.String, TypePropertyFlags.Required),
-           ("sku", CreateObjectType("applicationGroup",
-                   ("friendlyName", LanguageConstants.String, TypePropertyFlags.None),
-                   ("properties", CreateObjectType("properties",
-                                  ("loadBalancerType", LanguageConstants.String, TypePropertyFlags.Required),
-                                  ("preferredAppGroupType", LanguageConstants.String, TypePropertyFlags.WriteOnly)),
-                                  TypePropertyFlags.Required),
-                   ("name", LanguageConstants.String, TypePropertyFlags.Required)),
-                   TypePropertyFlags.Required)));
+            ResourceType resourceType = new ResourceType(
+                ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
+                ResourceScope.ResourceGroup,
+                CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview",
+                ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                ("location", LanguageConstants.String, TypePropertyFlags.Required),
+                ("kind", LanguageConstants.String, TypePropertyFlags.Required),
+                ("id", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                ("hostPoolType", LanguageConstants.String, TypePropertyFlags.Required),
+                ("sku", CreateObjectType("applicationGroup",
+                        ("friendlyName", LanguageConstants.String, TypePropertyFlags.None),
+                        ("properties", CreateObjectType("properties",
+                                       ("loadBalancerType", LanguageConstants.String, TypePropertyFlags.Required),
+                                       ("preferredAppGroupType", LanguageConstants.String, TypePropertyFlags.WriteOnly)),
+                                           TypePropertyFlags.Required),
+                        ("name", LanguageConstants.String, TypePropertyFlags.Required)),
+                        TypePropertyFlags.Required)));
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -338,10 +338,10 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            TypeSymbol typeSymbol = new ResourceType(
-           ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
-           ResourceScope.ResourceGroup,
-           CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
+            ResourceType resourceType = new ResourceType(
+                ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
+                ResourceScope.ResourceGroup,
+                CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -358,7 +358,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetNestedResourceDeclarationSnippets_WithChildResources_ShouldReturnCustomAndDefaultResourceSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             ResourceTypeReference resourceTypeReference = ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts@2019-06-01");
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(resourceTypeReference);
@@ -401,7 +401,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetNestedResourceDeclarationSnippets_WithNoChildResources_ShouldReturnDefaultResourceSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider();
+            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             ResourceTypeReference resourceTypeReference = ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/runbooks@2019-06-01");
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(resourceTypeReference);
