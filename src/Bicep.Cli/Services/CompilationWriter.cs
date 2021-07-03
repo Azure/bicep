@@ -40,7 +40,7 @@ namespace Bicep.Cli.Services
         }
 
 
-        public static FileStream CreateFileStream(string path)
+        private static FileStream CreateFileStream(string path)
         {
             try
             {
