@@ -18,6 +18,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Completions;
@@ -103,7 +104,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var combinedFileUri = PathHelper.FilePathToFileUrl(combinedFileName);
                 var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(new Dictionary<Uri, string> {
                     [combinedFileUri] = bicepContentsReplaced,
-                }, combinedFileUri);
+                }, combinedFileUri, BicepTestConstants.FileResolver);
                 var compilation = new Compilation(TypeProvider, syntaxTreeGrouping);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
@@ -178,7 +179,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var uri = DocumentUri.FromFileSystemPath(entryPoint);
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, resourceTypeProvider: TypeProvider, fileResolver: new FileResolver());
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, resourceTypeProvider: TypeProvider, fileResolver: BicepTestConstants.FileResolver);
 
             var intermediate = new List<(Position position, JToken actual)>();
 

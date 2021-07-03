@@ -4,18 +4,18 @@
   "devDependencies": {
     "@types/highlight.js": "^10.1.0",
     "@types/jest": "^26.0.23",
-    "@types/node": "^15.12.4",
+    "@types/node": "^15.14.0",
     "@types/plist": "^3.0.2",
-    "@typescript-eslint/eslint-plugin": "^4.28.0",
-    "@typescript-eslint/parser": "^4.28.0",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
     "eslint": "^7.29.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^24.3.6",
     "highlight.js": "^11.0.1",
-    "jest": "^27.0.5",
+    "jest": "^27.0.6",
     "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.5"
   },
   "engines": {
     "node": ">=14.0.0"

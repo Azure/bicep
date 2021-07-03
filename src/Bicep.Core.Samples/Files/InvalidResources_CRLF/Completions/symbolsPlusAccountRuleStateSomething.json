@@ -2621,6 +2621,40 @@
     }
   },
   {
+    "label": "loadContentAsBase64",
+    "kind": "function",
+    "detail": "loadContentAsBase64()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadContentAsBase64",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadContentAsBase64($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadTextContent",
+    "kind": "function",
+    "detail": "loadTextContent()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadTextContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadTextContent($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "loopForRuntimeCheck",
     "kind": "interface",
     "detail": "loopForRuntimeCheck",

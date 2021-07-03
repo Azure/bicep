@@ -236,7 +236,7 @@ namespace Bicep.LanguageServer.Handlers
             if (includeReturnType)
             {
                 typeSignature.Append(": ");
-                typeSignature.Append(overload.ReturnTypeBuilder(arguments));
+                typeSignature.Append(overload.TypeSignatureSymbol);
             }
 
             return new SignatureInformation
