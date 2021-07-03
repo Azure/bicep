@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Text.RegularExpressions;
 
 namespace Bicep.Cli.Arguments
 {
-    public class RootArguments : ArgumentsBase, IArguments
+    public class RootArguments : ArgumentsBase
     {
         public RootArguments(string arg, string commandName) : base(commandName)
         {

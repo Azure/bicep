@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Bicep.Cli.Arguments
 {
-    public class DecompileArguments : ArgumentsBase, IArguments
+    public class DecompileArguments : ArgumentsBase
     {
         public DecompileArguments(string[] args, string commandName) : base(commandName)
         {

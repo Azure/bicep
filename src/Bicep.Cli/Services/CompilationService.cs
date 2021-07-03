@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Immutable;
+
 using Bicep.Cli.Logging;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -9,10 +8,12 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
+using System;
+using System.Collections.Immutable;
 
 namespace Bicep.Cli.Services
 {
-    public class CompilationService : ICompilationService
+    public class CompilationService
     {
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly FileResolver fileResolver;
@@ -40,14 +41,12 @@ namespace Bicep.Cli.Services
             return compilation;
         }  
 
-        public (Uri, ImmutableDictionary<Uri, string>) Decompile(string inputPath, string outputPath = "")
+        public (Uri, ImmutableDictionary<Uri, string>) Decompile(string inputPath, string outputPath)
         {
             inputPath = PathHelper.ResolvePath(inputPath);
             Uri inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
-            Uri outputUri = string.IsNullOrEmpty(outputPath)
-                ? PathHelper.ChangeToBicepExtension(inputUri)
-                : PathHelper.FilePathToFileUrl(outputPath);
+            Uri outputUri = PathHelper.FilePathToFileUrl(outputPath);
 
             var decompilation = TemplateDecompiler.DecompileFileWithModules(invocationContext.ResourceTypeProvider, new FileResolver(), inputUri, outputUri);
 

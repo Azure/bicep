@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.FileSystem;
 using System.IO;
 
 namespace Bicep.Cli.Arguments
 {
-    public class BuildArguments : ArgumentsBase, IArguments
+    public class BuildArguments : ArgumentsBase
     {
         public BuildArguments(string[] args, string commandName) : base(commandName)
         {

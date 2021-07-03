@@ -1,21 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
+
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Logging;
+using System;
 
 namespace Bicep.Cli.Commands
 {
     public class RootCommand : ICommand
     {
-        private readonly IDiagnosticLogger diagnosticLogger;
         private readonly InvocationContext invocationContext;
 
-        public RootCommand(
-            IDiagnosticLogger diagnosticLogger, 
-            InvocationContext invocationContext)
+        public RootCommand(InvocationContext invocationContext)
         {
-            this.diagnosticLogger = diagnosticLogger;
             this.invocationContext = invocationContext;
         }
 

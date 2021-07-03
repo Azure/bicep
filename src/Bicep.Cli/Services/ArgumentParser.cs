@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Text.RegularExpressions;
+
 using Bicep.Cli.Arguments;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Cli.Services
 {

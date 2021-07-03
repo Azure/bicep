@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using Bicep.Cli.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using Microsoft.Extensions.DependencyInjection;
-
-using Bicep.Cli.Commands;
-using Bicep.Cli.Arguments;
-using Bicep.Cli.Services;
 
 namespace Bicep.Cli.Helpers
 {
@@ -26,7 +23,7 @@ namespace Bicep.Cli.Helpers
         /// <returns>The service collection, for chaining.</returns>
         /// <remarks>
         /// We are using convention to register the commands; essentially everything in the same namespace as the
-        /// <see cref="BuildCommand"/> and that implements <see cref="CommandBase"/> will be registered. 
+        /// <see cref="BuildCommand"/> and that implements <see cref="ICommand"/> will be registered. 
         ///
         /// See https://endjin.com/blog/2020/09/simple-pattern-for-using-system-commandline-with-dependency-injection for reference.
         /// </remarks>
@@ -46,46 +43,6 @@ namespace Bicep.Cli.Helpers
             }
 
             return services;
-        }
-
-        /// <summary>
-        /// Adds the corresponding configuration, used by the commands, to the DI container. These are resolved when the commands are registered with the
-        /// <c>CommandLineBuilder</c>.
-        /// </summary>
-        /// <param name="services">The service collection to add to.</param>
-        /// <returns>The service collection, for chaining.</returns>
-        /// <remarks>
-        /// We are using convention to register these configurations; essentially everything in the same namespace as the
-        /// <see cref="BuildArguments"/> and that implements <see cref="IArguments"/> will be registered. 
-        ///
-        /// See https://endjin.com/blog/2020/09/simple-pattern-for-using-system-commandline-with-dependency-injection for reference.
-        /// </remarks>
-        public static IServiceCollection AddArguments(this IServiceCollection services)
-        {
-            Type grabConfigType = typeof(BuildArguments);
-            Type configType = typeof(IArguments);
-
-            IEnumerable<Type> configs = grabConfigType
-                .Assembly
-                .GetExportedTypes()
-                .Where(x => x.Namespace == grabConfigType.Namespace && x.GetInterfaces().Contains(configType));
-
-            foreach (Type config in configs)
-            {
-                services.AddSingleton(config);
-            }
-
-            return services;
-        }
-    
-        /// <summary>
-        /// Resolves the service type to a concrete implementation when multiple implementations are added to the DI container.
-        /// </summary>
-        /// <param name="services">The collection of services returned by the DI container.</param>
-        /// <returns>The resolved service.</returns>
-        public static T ResolveService<T>(this IEnumerable<IService> services) where T : IService
-        {
-            return (T)services.First(x => x.GetType() == typeof(T));
         }
     }
 }

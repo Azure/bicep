@@ -1,18 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Runtime;
-using Bicep.Cli.Commands;
-using Bicep.Cli.Services;
+
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
+using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Runtime;
 
 namespace Bicep.Cli
 {
@@ -96,22 +97,20 @@ namespace Bicep.Cli
         private ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                // Adds commands and arguments to the DI container.
-                .AddArguments()
+                // Adds commands to the DI container
                 .AddCommands()
 
-                // We're not using the default host's logging configuration here, maybe we should move to it?
+                // Adds the ILogger and IDiagnosticlogger
                 .AddSingleton(CreateLoggerFactory().CreateLogger("bicep"))
                 .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
 
-                // Adds the context of this invocation to the container.
-                // This handles production running and also test running of the program.
-                .AddSingleton(this.invocationContext)
+                // Handles the context of this invocation
+                .AddSingleton(invocationContext)
 
                 // Adds the various services that
-                .AddSingleton<IWriter, ConsoleWriter>()
-                .AddSingleton<IWriter, FileWriter>()
-                .AddSingleton<ICompilationService, CompilationService>()
+                .AddSingleton<DecompilationWriter>()
+                .AddSingleton<CompilationWriter>()
+                .AddSingleton<CompilationService>()
                 .BuildServiceProvider();
         }
     }

@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
 
 namespace Bicep.Cli.Commands
 {
@@ -17,21 +15,21 @@ namespace Bicep.Cli.Commands
         private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly InvocationContext invocationContext;
-        private readonly ICompilationService compilationService;
-        private readonly IEnumerable<IWriter> writers;
+        private readonly CompilationService compilationService;
+        private readonly DecompilationWriter writer;
 
         public DecompileCommand(
             ILogger logger, 
             IDiagnosticLogger diagnosticLogger, 
             InvocationContext invocationContext, 
-            ICompilationService compilationService,
-            IEnumerable<IWriter> writers) 
+            CompilationService compilationService,
+            DecompilationWriter writer) 
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.invocationContext = invocationContext;
             this.compilationService = compilationService;
-            this.writers = writers;
+            this.writer = writer;
         }
 
         public int Run(DecompileArguments args)
@@ -45,13 +43,15 @@ namespace Bicep.Cli.Commands
 
             try
             {
+                var decompilation = compilationService.Decompile(inputPath, outputPath);
+
                 if (args.OutputToStdOut)
                 {
-                    ToStdout(inputPath); // --stdout
+                    writer.ToStdout(decompilation);
                 }
                 else
                 {
-                    ToFile(inputPath, args.OutputFile ?? outputPath); // --output-file or --output-dir
+                    writer.ToFile(decompilation);
                 }
             }
             catch (Exception exception)
@@ -62,24 +62,6 @@ namespace Bicep.Cli.Commands
 
             // return non-zero exit code on errors
             return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
-        }
-
-         private void ToStdout(string inputPath)
-        {
-            var decompilation = compilationService.Decompile(inputPath);
-
-            // it's intended that we write here regardless of errors
-            writers.ResolveService<ConsoleWriter>()
-                .WriteDecompilation(decompilation);
-        }
-
-        private void ToFile(string inputPath, string outputPath)
-        {
-            var decompilation = compilationService.Decompile(inputPath, outputPath);
-
-            // it's intended that we write here regardless of errors
-            writers.ResolveService<FileWriter>()
-                .WriteDecompilation(decompilation);
         }
     }
 }
