@@ -35,13 +35,7 @@ namespace Bicep.Cli
 
             BicepDeploymentsInterop.Initialize();
 
-            var program = new Program(new InvocationContext()
-            {
-                ResourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes(),
-                OutputWriter = Console.Out,
-                ErrorWriter = Console.Error,
-                AssemblyFileVersion = ThisAssembly.AssemblyFileVersion
-            });
+            var program = new Program(new InvocationContext(AzResourceTypeProvider.CreateWithAzTypes(), Console.Out, Console.Error, ThisAssembly.AssemblyFileVersion));
 
             return program.Run(args);
         }

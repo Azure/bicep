@@ -27,13 +27,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             return TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                return new Program(new InvocationContext
-                {
-                    ResourceTypeProvider = TestTypeHelper.CreateEmptyProvider(),
-                    OutputWriter = @out,
-                    ErrorWriter = err,
-                    AssemblyFileVersion = BicepTestConstants.DevAssemblyFileVersion
-                }).Run(args);
+                return new Program(new InvocationContext(TestTypeHelper.CreateEmptyProvider(), @out, err, BicepTestConstants.DevAssemblyFileVersion)).Run(args);
             });
         }
 
