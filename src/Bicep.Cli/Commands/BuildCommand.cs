@@ -28,9 +28,6 @@ namespace Bicep.Cli.Commands
         public int Run(BuildArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
-            var outputPath = args.OutputDir == null
-                ? PathHelper.GetDefaultBuildOutputPath(inputPath) // use the inputPath's directory.
-                : PathHelper.GetDefaultBuildOutputPath(Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath))); // otherwise resolve to the outputDir.
 
             var compilation = compilationService.Compile(inputPath);
 
@@ -42,7 +39,9 @@ namespace Bicep.Cli.Commands
                 }
                 else
                 {
-                    writer.ToFile(compilation, args.OutputFile ?? outputPath);
+                    var outputPath = ResolveOutputPath(inputPath, args.OutputDir, args.OutputFile);
+
+                    writer.ToFile(compilation, outputPath);
                 }
             }
 
@@ -53,6 +52,26 @@ namespace Bicep.Cli.Commands
 
             // return non-zero exit code on errors
            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+        }
+
+        private static string ResolveOutputPath(string inputPath, string? outputDir, string? outputFile)
+        {
+            if(outputDir is not null)
+            {
+                var dir = PathHelper.ResolvePath(outputDir);
+                var file = Path.GetFileName(inputPath);
+                var path = Path.Combine(dir, file);
+
+                return PathHelper.GetDefaultBuildOutputPath(path);
+            }
+            else if (outputFile is not null)
+            {
+                return PathHelper.ResolvePath(outputFile);
+            }
+            else
+            {
+                return PathHelper.GetDefaultBuildOutputPath(inputPath);
+            }
         }
     }
 }

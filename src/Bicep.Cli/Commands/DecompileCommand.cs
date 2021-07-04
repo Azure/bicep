@@ -37,9 +37,7 @@ namespace Bicep.Cli.Commands
             logger.LogWarning(CliResources.DecompilerDisclaimerMessage);
 
             var inputPath = PathHelper.ResolvePath(args.InputFile);
-            var outputPath = args.OutputDir == null
-                ? PathHelper.GetDefaultDecompileOutputPath(inputPath) // use the inputPath's directory.
-                : PathHelper.GetDefaultDecompileOutputPath(Path.Combine(PathHelper.ResolvePath(args.OutputDir), Path.GetFileName(inputPath))); // otherwise resolve to the outputDir.
+            var outputPath = ResolveOutputPath(inputPath, args.OutputDir, args.OutputFile);
 
             try
             {
@@ -62,6 +60,26 @@ namespace Bicep.Cli.Commands
 
             // return non-zero exit code on errors
             return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+        }
+
+        private static string ResolveOutputPath(string inputPath, string? outputDir, string? outputFile)
+        {
+            if (outputDir is not null)
+            {
+                var dir = PathHelper.ResolvePath(outputDir);
+                var file = Path.GetFileName(inputPath);
+                var path = Path.Combine(dir, file);
+
+                return PathHelper.GetDefaultDecompileOutputPath(path);
+            }
+            else if (outputFile is not null)
+            {
+                return PathHelper.ResolvePath(outputFile);
+            }
+            else
+            {
+                return PathHelper.GetDefaultDecompileOutputPath(inputPath);
+            }
         }
     }
 }
