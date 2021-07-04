@@ -3,7 +3,6 @@
 
 using Bicep.Cli.UnitTests;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -13,8 +12,6 @@ using Bicep.Core.Workspaces;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace Bicep.Cli.IntegrationTests
 {
