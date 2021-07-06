@@ -23,9 +23,11 @@ namespace Bicep.Core.Syntax
             : CreateSyntaxTree(fileUri, fileContents);
 
         public static SyntaxTree CreateSyntaxTree(Uri fileUri, string fileContents) =>
-            PathHelper.HasBicepExtension(fileUri) || !PathHelper.HasAnyExtension(fileUri)
-                ? CreateBicepSyntaxTree(fileUri, fileContents)
-                : CreateJsonSyntaxTree(fileUri, fileContents);
+            PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
+            PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension) ||
+            PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension)
+                ? CreateJsonSyntaxTree(fileUri, fileContents)
+                : CreateBicepSyntaxTree(fileUri, fileContents);
 
         public static SyntaxTree CreateBicepSyntaxTree(Uri fileUri, string fileContents)
         {
