@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -15,10 +17,13 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         private static readonly ImmutableArray<FunctionOverload> SystemOverloads = new[]
         {
-            new FunctionOverloadBuilder("any")
+            new FunctionOverloadBuilder(LanguageConstants.AnyFunction)
                 .WithReturnType(LanguageConstants.Any)
                 .WithDescription("Converts the specified value to the `any` type.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to `any` type")
+                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol) => {
+                    return functionCall.Arguments.Single().Expression;
+                })
                 .Build(),
 
             new FunctionOverloadBuilder("concat")
@@ -389,8 +394,115 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.String)
                 .WithDescription("Returns a value in the format of a globally unique identifier. **This function can only be used in the default value for a parameter**.")
                 .WithFlags(FunctionFlags.ParamDefaultsOnly)
+                .Build(),
+
+            new FunctionOverloadBuilder("loadTextContent")
+                .WithDescription($"Loads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is {LanguageConstants.MaxLiteralCharacterLimit} characters (including line endings).")
+                .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
+                .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
+                .WithDynamicReturnType(LoadTextContentTypeBuilder, LanguageConstants.String)
+                .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
+                .Build(),
+
+            new FunctionOverloadBuilder("loadFileAsBase64")
+                .WithDescription($"Loads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is {LanguageConstants.MaxLiteralCharacterLimit / 4 * 3 / 1024} Kb.")
+                .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
+                .WithDynamicReturnType(LoadContentAsBase64TypeBuilder, LanguageConstants.String)
+                .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
                 .Build()
         }.ToImmutableArray();
+
+        private static Uri? GetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, string filePath, SyntaxBase filePathArgument)
+        {
+            if (!SyntaxTreeGroupingBuilder.ValidateFilePath(filePath, out var validateFilePathFailureBuilder))
+            {
+                diagnostics.Write(validateFilePathFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument)));
+                return null;
+            }
+
+            var fileUri = fileResolver.TryResolveFilePath(binder.FileSymbol.FileUri, filePath);
+            if (fileUri is null)
+            {
+                diagnostics.Write(DiagnosticBuilder.ForPosition(filePathArgument).FilePathCouldNotBeResolved(filePath, binder.FileSymbol.FileUri.LocalPath));
+                return null;
+            }
+
+            if (!fileUri.IsFile)
+            {
+                diagnostics.Write(DiagnosticBuilder.ForPosition(filePathArgument).UnableToLoadNonFileUri(fileUri));
+                return null;
+            }
+            return fileUri;
+        }
+
+        private static TypeSymbol LoadTextContentTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            if (argumentTypes[0] is not StringLiteralType filePathType)
+            {
+                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired());
+                return LanguageConstants.String;
+            }
+            var filePathValue = filePathType.RawStringValue;
+
+            var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, arguments[0]);
+            if (fileUri is null)
+            {
+                return LanguageConstants.String;
+            }
+            var fileEncoding = Encoding.UTF8;
+            if (argumentTypes.Length > 1)
+            {
+                if (argumentTypes[1] is not StringLiteralType encodingType)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired());
+                    return LanguageConstants.String;
+                }
+                fileEncoding = LanguageConstants.SupportedEncodings.First(x => string.Equals(x.name, encodingType.RawStringValue, LanguageConstants.IdentifierComparison)).encoding;
+            }
+
+            if (!fileResolver.TryRead(fileUri, out var fileContent, out var fileReadFailureBuilder, fileEncoding, LanguageConstants.MaxLiteralCharacterLimit, out var detectedEncoding))
+            {
+                diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
+                return LanguageConstants.String;
+            }
+            if (arguments.Length > 1 && fileEncoding != detectedEncoding)
+            {
+                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).FileEncodingMismatch(detectedEncoding.WebName));
+            }
+            return new StringLiteralType(fileContent);
+        }
+
+        private static TypeSymbol LoadContentAsBase64TypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            if (argumentTypes[0] is not StringLiteralType filePathType)
+            {
+                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired());
+                return LanguageConstants.String;
+            }
+            var filePathValue = filePathType.RawStringValue;
+
+            var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, arguments[0]);
+            if (fileUri is null)
+            {
+                return LanguageConstants.String;
+            }
+            if (!fileResolver.TryReadAsBase64(fileUri, out var fileContent, out var fileReadFailureBuilder, LanguageConstants.MaxLiteralCharacterLimit))
+            {
+                diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
+                return LanguageConstants.String;
+            }
+
+            return new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent);
+        }
+
+        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol)
+        {
+            if (typeSymbol is not StringLiteralType stringLiteral)
+            {
+                throw new InvalidOperationException($"Expecting function to return {nameof(StringLiteralType)}, but {typeSymbol.GetType().Name} received.");
+            }
+            return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
+        }
 
         // TODO: Add copyIndex here when we support loops.
         private static readonly ImmutableArray<BannedFunction> BannedFunctions = new[]
@@ -534,7 +646,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines metadata of the parameter.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((_, decoratorSyntax, _, typeManager, binder, diagnosticWriter) => 
+                .WithValidator((_, decoratorSyntax, _, typeManager, binder, diagnosticWriter) =>
                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
                 .WithEvaluator(MergeToTargetObject("metadata", SingleArgumentSelector))
                 .Build();

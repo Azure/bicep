@@ -185,7 +185,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
   },
   ""resources"": []
 }")]
-        public void CompileWithLocalJsonModule_InvalidTemplate_FailsWithBCP184(string errorMessage, string jsonTemplateText)
+        public void CompileWithLocalJsonModule_InvalidTemplate_FailsWithBCP186(string errorMessage, string jsonTemplateText)
         {
             var (template, _, compilation) = CompilationHelper.Compile(
                 ("main.bicep", @"
@@ -206,7 +206,7 @@ module mod 'module.json' = {
                 });
                 diagnosticsByFileName["module.json"].Should().HaveDiagnostics(new[]
                 {
-                    ("BCP184", DiagnosticLevel.Error, errorMessage),
+                    ("BCP186", DiagnosticLevel.Error, errorMessage),
                 });
             }
         }

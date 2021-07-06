@@ -19,6 +19,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static Bicep.Core.Semantics.ResourceAncestorGraph;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
@@ -32,7 +33,7 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
-        private IFileResolver FileResolver;
+        private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
         private readonly ITelemetryProvider TelemetryProvider;
 
@@ -47,7 +48,7 @@ namespace Bicep.LanguageServer.Completions
         {
             var model = compilation.GetEntrypointSemanticModel();
 
-            return GetDeclarationCompletions(context)
+            return GetDeclarationCompletions(model, context)
                 .Concat(GetSymbolCompletions(model, context))
                 .Concat(GetDeclarationTypeCompletions(compilation, context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
@@ -67,7 +68,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetTargetScopeCompletions(model, context));
         }
 
-        private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.TopLevelDeclarationStart))
             {
@@ -98,23 +99,28 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.NestedResourceDeclarationStart))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.NestedResourceDeclarationStart) && context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange);
 
-                // leaving out the API version on this, because we expect its more common to inherit from the containing resource.
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Nested resource with defaults", @"resource ${1:Identifier} '${2:Type}' = {
-  name: $3
-  properties: {
-    $0
-  }
-}", context.ReplacementRange);
+                if (model.GetSymbolInfo(resourceDeclarationSyntax) is ResourceSymbol parentSymbol &&
+                    parentSymbol.TryGetResourceTypeReference() is ResourceTypeReference parentTypeReference)
+                {
+                    foreach (Snippet snippet in SnippetsProvider.GetNestedResourceDeclarationSnippets(parentTypeReference))
+                    {
+                        string prefix = snippet.Prefix;
+                        BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
+                        Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
-                yield return CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Nested resource without defaults", @"resource ${1:Identifier} '${2:Type}' = {
-  name: $3
-  $0
-}
-", context.ReplacementRange);
+                        yield return CreateContextualSnippetCompletion(prefix,
+                            snippet.Detail,
+                            snippet.Text,
+                            context.ReplacementRange,
+                            command,
+                            snippet.CompletionPriority,
+                            preselect: true);
+                    }
+                }
             }
         }
 
@@ -263,8 +269,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (FileResolver.TryResolveModulePath(model.SyntaxTree.FileUri, ".") is not { } cwdUri
-                || FileResolver.TryResolveModulePath(cwdUri, entered) is not { } query)
+            if (FileResolver.TryResolveFilePath(model.SyntaxTree.FileUri, ".") is not { } cwdUri
+                || FileResolver.TryResolveFilePath(cwdUri, entered) is not { } query)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -279,7 +285,7 @@ namespace Bicep.LanguageServer.Completions
                 files = FileResolver.GetFiles(query, string.Empty);
                 dirs = FileResolver.GetDirectories(query, string.Empty);
             }
-            else if (FileResolver.TryResolveModulePath(query, ".") is { } queryParent)
+            else if (FileResolver.TryResolveFilePath(query, ".") is { } queryParent)
             {
                 files = FileResolver.GetFiles(queryParent, "");
                 dirs = FileResolver.GetDirectories(queryParent, "");
@@ -397,15 +403,17 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> CreateResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
+            if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax &&
+                model.GetDeclaredType(resourceDeclarationSyntax) is ResourceType resourceType)
             {
-                TypeSymbol typeSymbol = model.GetTypeInfo(resourceDeclarationSyntax);
-                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(typeSymbol, resourceDeclarationSyntax.IsExistingResource());
+                bool isResourceNested = model.GetSymbolInfo(resourceDeclarationSyntax) is ResourceSymbol resourceSymbol &&
+                    model.ResourceAncestors.GetAncestors(resourceSymbol).Any(x => x.AncestorType == ResourceAncestorType.Nested);
+                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
 
                 foreach (Snippet snippet in snippets)
                 {
                     string prefix = snippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, typeSymbol.Name);
+                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, resourceType.Type.Name);
                     Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
                     yield return CreateContextualSnippetCompletion(prefix,
@@ -746,7 +754,7 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(arrayType.Item.Type, context.ReplacementRange, loopsAllowed: false);
         }
 
-        private static IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? type, Range replacementRange, bool loopsAllowed)
+        private IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? type, Range replacementRange, bool loopsAllowed)
         {
             switch (type)
             {
@@ -788,7 +796,11 @@ namespace Bicep.LanguageServer.Completions
 
                 case DiscriminatedObjectType _:
                 case ObjectType _:
-                    yield return CreateObjectBodyCompletion(replacementRange);
+                    foreach (CompletionItem completionItem in GetObjectBodyCompletions(type, replacementRange))
+                    {
+                        yield return completionItem;
+                    }
+
                     break;
 
                 case UnionType union:
@@ -802,15 +814,24 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreateObjectBodyCompletion(Range replacementRange)
+        private IEnumerable<CompletionItem> GetObjectBodyCompletions(TypeSymbol typeSymbol, Range replacementRange)
         {
-            const string objectLabel = "{}";
-            return CompletionItemBuilder.Create(CompletionItemKind.Value, objectLabel)
-                .WithSnippetEdit(replacementRange, "{\n\t$0\n}")
-                .WithDetail(objectLabel)
-                .Preselect()
-                .WithSortText(GetSortText(objectLabel, CompletionPriority.High))
-                .Build();
+            IEnumerable<Snippet> snippets = SnippetsProvider.GetObjectBodyCompletionSnippets(typeSymbol);
+
+            foreach (Snippet snippet in snippets)
+            {
+                string prefix = snippet.Prefix;
+                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateObjectBodySnippetInsertion(prefix);
+                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+
+                yield return CreateContextualSnippetCompletion(prefix,
+                    snippet.Detail,
+                    snippet.Text,
+                    replacementRange,
+                    command: command,
+                    snippet.CompletionPriority,
+                    preselect: true);
+            }
         }
 
         private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)

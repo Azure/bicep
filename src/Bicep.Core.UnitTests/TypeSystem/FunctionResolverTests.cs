@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -13,12 +16,15 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Core.UnitTests.TypeSystem
 {
     [TestClass]
     public class FunctionResolverTests
     {
+        private static readonly MockRepository Repository = new(MockBehavior.Strict);
+
         [DataTestMethod]
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void ExactOrPartialFunctionMatchShouldHaveCorrectReturnType(string displayName, string functionName, TypeSymbol expectedReturnType, IList<TypeSymbol> argumentTypes)
@@ -26,7 +32,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            matches.Single().ReturnTypeBuilder(Enumerable.Empty<FunctionArgumentSyntax>()).Should().BeSameAs(expectedReturnType);
+            matches.Single().ReturnTypeBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -36,7 +42,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList(), out _, out _);
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
-            matches.Select(m => m.ReturnTypeBuilder(Enumerable.Empty<FunctionArgumentSyntax>())).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ReturnTypeBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray())).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -90,7 +96,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             row.Length.Should().BeGreaterThan(0);
             row[0].Should().BeOfType<string>();
-            return (string) row[0];
+            return (string)row[0];
         }
 
         private static IEnumerable<object[]> GetExactMatchData()
@@ -99,7 +105,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             object[] CreateRow(string functionName, TypeSymbol expectedReturnType, params TypeSymbol[] argumentTypes)
             {
                 string displayName = $"{functionName}({argumentTypes.Select(a => a.ToString()).ConcatString(", ")}): {expectedReturnType}";
-                return new object[] {displayName, functionName, expectedReturnType, argumentTypes};
+                return new object[] { displayName, functionName, expectedReturnType, argumentTypes };
             }
 
             // various concat overloads
@@ -135,7 +141,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             object[] CreateRow(string functionName, int argumentCount, params TypeSymbol[] expectedReturnTypes)
             {
                 string displayName = $"{functionName}({Enumerable.Repeat(LanguageConstants.Any, argumentCount).Select(a => a.ToString()).ConcatString(", ")}): {UnionType.Create(expectedReturnTypes)}";
-                return new object[] {displayName, functionName, argumentCount, expectedReturnTypes};
+                return new object[] { displayName, functionName, argumentCount, expectedReturnTypes };
             }
 
             yield return CreateRow("concat", 2, LanguageConstants.String, LanguageConstants.Array);
@@ -202,7 +208,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             // conflicting types
             yield return CreateRow("concat", LanguageConstants.Any, LanguageConstants.String, LanguageConstants.Any, LanguageConstants.Array);
-            
+
             // too many arguments
             yield return CreateRow("resourceGroup", LanguageConstants.Bool);
 
@@ -221,7 +227,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol(ResourceScope.ResourceGroup)};
+            var namespaces = new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(ResourceScope.ResourceGroup) };
             var matches = new List<FunctionOverload>();
 
             argumentCountMismatches = new List<ArgumentCountMismatch>();

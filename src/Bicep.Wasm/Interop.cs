@@ -148,7 +148,8 @@ namespace Bicep.Wasm
             var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(fileUri, fileContents);
             workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
 
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, fileUri);
+            var fileResolver = new FileResolver();
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, fileUri);
 
             return new Compilation(resourceTypeProvider, syntaxTreeGrouping);
         }

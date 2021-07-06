@@ -2590,6 +2590,40 @@
     }
   },
   {
+    "label": "loadFileAsBase64",
+    "kind": "function",
+    "detail": "loadFileAsBase64()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadFileAsBase64",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadFileAsBase64($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadTextContent",
+    "kind": "function",
+    "detail": "loadTextContent()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadTextContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadTextContent($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "loopForRuntimeCheck",
     "kind": "interface",
     "detail": "loopForRuntimeCheck",
@@ -5367,16 +5401,31 @@
   },
   {
     "label": "{}",
-    "kind": "value",
+    "kind": "snippet",
     "detail": "{}",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n{\n\t\n}\n```"
+    },
     "deprecated": false,
     "preselect": true,
-    "sortText": "1_{}",
+    "sortText": "2_{}",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "{\n\t$0\n}"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "ObjectBodySnippetInsertion",
+          "Properties": {
+            "name": "{}"
+          }
+        }
+      ]
     }
   }
 ]

@@ -58,7 +58,8 @@ namespace Bicep.Core.Syntax
                 entryPoint,
                 syntaxTrees.Values.ToImmutableHashSet(), 
                 moduleLookup.ToImmutableDictionary(),
-                moduleFailureLookup.ToImmutableDictionary());
+                moduleFailureLookup.ToImmutableDictionary(),
+                fileResolver);
         }
 
         private SyntaxTree? TryGetSyntaxTree(Uri fileUri, bool isEntryFile, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
@@ -156,17 +157,17 @@ namespace Bicep.Core.Syntax
             return pathChar >= 0 && pathChar <= 31;
         }
 
-        public static bool ValidateModulePath(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool ValidateFilePath(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if (pathName.Length == 0)
+            if (string.IsNullOrWhiteSpace(pathName))
             {
-                failureBuilder = x => x.ModulePathIsEmpty();
+                failureBuilder = x => x.FilePathIsEmpty();
                 return false;
             }
 
             if (pathName.First() == '/')
             {
-                failureBuilder = x => x.ModulePathBeginsWithForwardSlash();
+                failureBuilder = x => x.FilePathBeginsWithForwardSlash();
                 return false;
             }
 
@@ -175,26 +176,26 @@ namespace Bicep.Core.Syntax
                 if (pathChar == '\\')
                 {
                     // enforce '/' rather than '\' for module paths for cross-platform compatibility
-                    failureBuilder = x => x.ModulePathContainsBackSlash();
+                    failureBuilder = x => x.FilePathContainsBackSlash();
                     return false;
                 }
 
                 if (forbiddenPathChars.Contains(pathChar))
                 {
-                    failureBuilder = x => x.ModulePathContainsForbiddenCharacters(forbiddenPathChars);
+                    failureBuilder = x => x.FilePathContainsForbiddenCharacters(forbiddenPathChars);
                     return false;
                 }
 
                 if (IsInvalidPathControlCharacter(pathChar))
                 {
-                    failureBuilder = x => x.ModulePathContainsControlChars();
+                    failureBuilder = x => x.FilePathContainsControlChars();
                     return false;
                 }
             }
 
             if (forbiddenPathTerminatorChars.Contains(pathName.Last()))
             {
-                failureBuilder = x => x.ModulePathHasForbiddenTerminator(forbiddenPathTerminatorChars);
+                failureBuilder = x => x.FilePathHasForbiddenTerminator(forbiddenPathTerminatorChars);
                 return false;
             }
 
@@ -211,16 +212,16 @@ namespace Bicep.Core.Syntax
                 return null;
             }
 
-            if (!ValidateModulePath(pathName, out var validateModulePathFailureBuilder))
+            if (!ValidateFilePath(pathName, out var validateModulePathFailureBuilder))
             {
                 failureBuilder = validateModulePathFailureBuilder;
                 return null;
             }
 
-            var moduleUri = fileResolver.TryResolveModulePath(parentFileUri, pathName);
+            var moduleUri = fileResolver.TryResolveFilePath(parentFileUri, pathName);
             if (moduleUri == null)
             {
-                failureBuilder = x => x.ModulePathCouldNotBeResolved(pathName, parentFileUri.LocalPath);
+                failureBuilder = x => x.FilePathCouldNotBeResolved(pathName, parentFileUri.LocalPath);
                 return null;
             }
 

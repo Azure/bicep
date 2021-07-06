@@ -163,7 +163,8 @@ namespace Bicep.Cli
 
         private void BuildToFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
+            var fileResolver = new FileResolver();
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
@@ -183,7 +184,8 @@ namespace Bicep.Cli
                 Formatting = Formatting.Indented
             };
 
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
+            var fileResolver = new FileResolver();
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
@@ -201,8 +203,9 @@ namespace Bicep.Cli
             {
                 var jsonUri = PathHelper.FilePathToFileUrl(jsonPath);
                 var bicepUri = PathHelper.FilePathToFileUrl(outputPath);
+                var fileResolver = new FileResolver();
 
-                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), jsonUri, bicepUri);
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri, bicepUri);
                 var workspace = new Workspace();
                 foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
@@ -210,7 +213,7 @@ namespace Bicep.Cli
                     workspace.UpsertSyntaxTrees(SyntaxTreeFactory.CreateSyntaxTree(fileUri, bicepOutput).AsEnumerable());
                 }
 
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entrypointUri);
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entrypointUri);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
                 return LogDiagnosticsAndCheckSuccess(logger, compilation) ? 0 : 1;
@@ -228,8 +231,9 @@ namespace Bicep.Cli
             {
                 var jsonUri = PathHelper.FilePathToFileUrl(jsonPath);
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
+                var fileResolver = new FileResolver();
 
-                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), jsonUri, bicepUri);
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri, bicepUri);
                 var workspace = new Workspace();
                 foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
@@ -237,7 +241,7 @@ namespace Bicep.Cli
                     workspace.UpsertSyntaxTrees(SyntaxTreeFactory.CreateSyntaxTree(fileUri, bicepOutput).AsEnumerable());
                 }
 
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entrypointUri);
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entrypointUri);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
                 return LogDiagnosticsAndCheckSuccess(logger, compilation) ? 0 : 1;

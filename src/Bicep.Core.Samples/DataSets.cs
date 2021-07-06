@@ -81,6 +81,10 @@ namespace Bicep.Core.Samples
 
         public static DataSet IntermediaryVariables_LF => CreateDataSet();
 
+        public static DataSet InvalidLoadFunctions_CRLF => CreateDataSet();
+
+        public static DataSet LoadFunctions_CRLF => CreateDataSet();
+
         public static IEnumerable<DataSet> AllDataSets =>
             typeof(DataSets)
                 .GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Static)
