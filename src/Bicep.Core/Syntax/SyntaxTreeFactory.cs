@@ -5,7 +5,6 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
-using Azure.Deployments.Core.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -52,7 +51,7 @@ namespace Bicep.Core.Syntax
 
                 if (!Template.TryFromJson<Template>(fileContents, out var _))
                 {
-                    return CreateErrorJsonSyntaxTree(fileUri, lineStarts, "Failed to desirialize the template.", templateObject);
+                    return CreateErrorJsonSyntaxTree(fileUri, lineStarts, "Failed to deserialize the template.", templateObject);
                 }
 
                 return new JsonSyntaxTree(fileUri, lineStarts, templateObject, programSyntax);
