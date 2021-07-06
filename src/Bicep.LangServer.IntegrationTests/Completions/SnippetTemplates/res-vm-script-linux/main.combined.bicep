@@ -29,4 +29,3 @@ resource linuxVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2019-07
   }
 }
 // Insert snippet here
-
