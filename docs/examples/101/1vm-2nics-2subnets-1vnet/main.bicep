@@ -201,5 +201,3 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
     ]
   }
 }
-
-output publicIp string = pip.properties.ipAddress
