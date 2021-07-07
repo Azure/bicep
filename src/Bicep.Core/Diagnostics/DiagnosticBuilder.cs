@@ -239,7 +239,7 @@ namespace Bicep.Core.Diagnostics
                     $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value{sourceDeclarationClause} is of type \"{actualType}\".");
             }
 
-            public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
+            public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties, bool isResourceSyntax)
             {
                 var permissiblePropertiesClause = validUnspecifiedProperties.Any()
                     ? $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}."
@@ -249,11 +249,15 @@ namespace Bicep.Core.Diagnostics
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
+                var typeInaccuracyClause = isResourceSyntax
+                    ? $" If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues"
+                    : string.Empty;
+
                 return new(
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP037",
-                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}");
+                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}{typeInaccuracyClause}");
             }
 
             public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
@@ -1078,7 +1082,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP183",
                 $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
-            
+
             public ErrorDiagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => new(
                TextSpan,
                "BCP184",
@@ -1089,6 +1093,12 @@ namespace Bicep.Core.Diagnostics
                DiagnosticLevel.Info,
                "BCP185",
                $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
+
+            public Diagnostic FallbackPropertyUsed(string property) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP186",
+                $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -269,7 +269,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, singleOrCollectionDeclaredType);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, singleOrCollectionDeclaredType, true);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)

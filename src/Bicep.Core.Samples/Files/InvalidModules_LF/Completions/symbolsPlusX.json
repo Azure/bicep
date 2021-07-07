@@ -959,6 +959,20 @@
     }
   },
   {
+    "label": "issue3000",
+    "kind": "module",
+    "detail": "issue3000",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",

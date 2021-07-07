@@ -1866,3 +1866,63 @@ resource comp7 'Microsoft.Resources/templateSpecs@20'
 resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
 //@[9:14) Resource comp8. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 61
 
+
+// issue #3000
+resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[9:27) Resource issue3000LogicApp1. Type: Microsoft.Logic/workflows@2019-05-01. Declaration start char: 0, length: 453
+  name: 'issue3000LogicApp1'
+  location: resourceGroup().location
+  properties: {
+    state: 'Enabled'
+    definition: ''
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  extendedLocation: {}
+  sku: {}
+  kind: 'V1'
+  managedBy: 'string'
+  mangedByExtended: [
+   'str1'
+   'str2'
+  ]
+  zones: [
+   'str1'
+   'str2'
+  ]
+  plan: {}
+  eTag: ''
+  scale: {}  
+}
+
+resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[9:27) Resource issue3000LogicApp2. Type: Microsoft.Logic/workflows@2019-05-01. Declaration start char: 0, length: 452
+  name: 'issue3000LogicApp2'
+  location: resourceGroup().location
+  properties: {
+    state: 'Enabled'
+    definition: ''
+  }
+  identity: 'SystemAssigned'
+  extendedLocation: 'eastus'
+  sku: 'Basic'
+  kind: {
+    name: 'V1'
+  }
+  managedBy: {}
+  mangedByExtended: [
+   {}
+   {}
+  ]
+  zones: [
+   {}
+   {}
+  ]
+  plan: ''
+  eTag: {}
+  scale: [
+  {}
+  ]  
+}
+

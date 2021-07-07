@@ -6956,6 +6956,264 @@ resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
 //@[0:8) Identifier |resource|
 //@[9:14) Identifier |comp8|
 //@[15:61) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[61:63) NewLine |\r\n|
+//@[61:67) NewLine |\r\n\r\n\r\n|
+
+
+// issue #3000
+//@[14:16) NewLine |\r\n|
+resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:27) Identifier |issue3000LogicApp1|
+//@[28:66) StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
+//@[67:68) Assignment |=|
+//@[69:70) LeftBrace |{|
+//@[70:72) NewLine |\r\n|
+  name: 'issue3000LogicApp1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:28) StringComplete |'issue3000LogicApp1'|
+//@[28:30) NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:25) Identifier |resourceGroup|
+//@[25:26) LeftParen |(|
+//@[26:27) RightParen |)|
+//@[27:28) Dot |.|
+//@[28:36) Identifier |location|
+//@[36:38) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    state: 'Enabled'
+//@[4:9) Identifier |state|
+//@[9:10) Colon |:|
+//@[11:20) StringComplete |'Enabled'|
+//@[20:22) NewLine |\r\n|
+    definition: ''
+//@[4:14) Identifier |definition|
+//@[14:15) Colon |:|
+//@[16:18) StringComplete |''|
+//@[18:20) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  identity: {
+//@[2:10) Identifier |identity|
+//@[10:11) Colon |:|
+//@[12:13) LeftBrace |{|
+//@[13:15) NewLine |\r\n|
+    type: 'SystemAssigned'
+//@[4:8) Identifier |type|
+//@[8:9) Colon |:|
+//@[10:26) StringComplete |'SystemAssigned'|
+//@[26:28) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  extendedLocation: {}
+//@[2:18) Identifier |extendedLocation|
+//@[18:19) Colon |:|
+//@[20:21) LeftBrace |{|
+//@[21:22) RightBrace |}|
+//@[22:24) NewLine |\r\n|
+  sku: {}
+//@[2:5) Identifier |sku|
+//@[5:6) Colon |:|
+//@[7:8) LeftBrace |{|
+//@[8:9) RightBrace |}|
+//@[9:11) NewLine |\r\n|
+  kind: 'V1'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:12) StringComplete |'V1'|
+//@[12:14) NewLine |\r\n|
+  managedBy: 'string'
+//@[2:11) Identifier |managedBy|
+//@[11:12) Colon |:|
+//@[13:21) StringComplete |'string'|
+//@[21:23) NewLine |\r\n|
+  mangedByExtended: [
+//@[2:18) Identifier |mangedByExtended|
+//@[18:19) Colon |:|
+//@[20:21) LeftSquare |[|
+//@[21:23) NewLine |\r\n|
+   'str1'
+//@[3:9) StringComplete |'str1'|
+//@[9:11) NewLine |\r\n|
+   'str2'
+//@[3:9) StringComplete |'str2'|
+//@[9:11) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+  zones: [
+//@[2:7) Identifier |zones|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:12) NewLine |\r\n|
+   'str1'
+//@[3:9) StringComplete |'str1'|
+//@[9:11) NewLine |\r\n|
+   'str2'
+//@[3:9) StringComplete |'str2'|
+//@[9:11) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+  plan: {}
+//@[2:6) Identifier |plan|
+//@[6:7) Colon |:|
+//@[8:9) LeftBrace |{|
+//@[9:10) RightBrace |}|
+//@[10:12) NewLine |\r\n|
+  eTag: ''
+//@[2:6) Identifier |eTag|
+//@[6:7) Colon |:|
+//@[8:10) StringComplete |''|
+//@[10:12) NewLine |\r\n|
+  scale: {}  
+//@[2:7) Identifier |scale|
+//@[7:8) Colon |:|
+//@[9:10) LeftBrace |{|
+//@[10:11) RightBrace |}|
+//@[13:15) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[0:8) Identifier |resource|
+//@[9:27) Identifier |issue3000LogicApp2|
+//@[28:66) StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
+//@[67:68) Assignment |=|
+//@[69:70) LeftBrace |{|
+//@[70:72) NewLine |\r\n|
+  name: 'issue3000LogicApp2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:28) StringComplete |'issue3000LogicApp2'|
+//@[28:30) NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:25) Identifier |resourceGroup|
+//@[25:26) LeftParen |(|
+//@[26:27) RightParen |)|
+//@[27:28) Dot |.|
+//@[28:36) Identifier |location|
+//@[36:38) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    state: 'Enabled'
+//@[4:9) Identifier |state|
+//@[9:10) Colon |:|
+//@[11:20) StringComplete |'Enabled'|
+//@[20:22) NewLine |\r\n|
+    definition: ''
+//@[4:14) Identifier |definition|
+//@[14:15) Colon |:|
+//@[16:18) StringComplete |''|
+//@[18:20) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  identity: 'SystemAssigned'
+//@[2:10) Identifier |identity|
+//@[10:11) Colon |:|
+//@[12:28) StringComplete |'SystemAssigned'|
+//@[28:30) NewLine |\r\n|
+  extendedLocation: 'eastus'
+//@[2:18) Identifier |extendedLocation|
+//@[18:19) Colon |:|
+//@[20:28) StringComplete |'eastus'|
+//@[28:30) NewLine |\r\n|
+  sku: 'Basic'
+//@[2:5) Identifier |sku|
+//@[5:6) Colon |:|
+//@[7:14) StringComplete |'Basic'|
+//@[14:16) NewLine |\r\n|
+  kind: {
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:9) LeftBrace |{|
+//@[9:11) NewLine |\r\n|
+    name: 'V1'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:14) StringComplete |'V1'|
+//@[14:16) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  managedBy: {}
+//@[2:11) Identifier |managedBy|
+//@[11:12) Colon |:|
+//@[13:14) LeftBrace |{|
+//@[14:15) RightBrace |}|
+//@[15:17) NewLine |\r\n|
+  mangedByExtended: [
+//@[2:18) Identifier |mangedByExtended|
+//@[18:19) Colon |:|
+//@[20:21) LeftSquare |[|
+//@[21:23) NewLine |\r\n|
+   {}
+//@[3:4) LeftBrace |{|
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+   {}
+//@[3:4) LeftBrace |{|
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+  zones: [
+//@[2:7) Identifier |zones|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:12) NewLine |\r\n|
+   {}
+//@[3:4) LeftBrace |{|
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+   {}
+//@[3:4) LeftBrace |{|
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+  plan: ''
+//@[2:6) Identifier |plan|
+//@[6:7) Colon |:|
+//@[8:10) StringComplete |''|
+//@[10:12) NewLine |\r\n|
+  eTag: {}
+//@[2:6) Identifier |eTag|
+//@[6:7) Colon |:|
+//@[8:9) LeftBrace |{|
+//@[9:10) RightBrace |}|
+//@[10:12) NewLine |\r\n|
+  scale: [
+//@[2:7) Identifier |scale|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:12) NewLine |\r\n|
+  {}
+//@[2:3) LeftBrace |{|
+//@[3:4) RightBrace |}|
+//@[4:6) NewLine |\r\n|
+  ]  
+//@[2:3) RightSquare |]|
+//@[5:7) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

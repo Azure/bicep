@@ -147,7 +147,7 @@ resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Test.Rp/readWriteTests@2020-01-01\". Permissible properties include \"dependsOn\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Test.Rp/readWriteTests@2020-01-01\". Permissible properties include \"dependsOn\". If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues"),
             });
 
             // Missing non top-level properties - should be a warning
@@ -173,7 +173,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues"),
             });
         }
 

@@ -228,6 +228,14 @@ namespace Bicep.Core.TypeSystem.Az
 
             var functions = GetBicepMethods(typeReference);
 
+            foreach (var item in LanguageConstants.KnownTopLevelResourceProperties())
+            {
+                if (!properties.ContainsKey(item.Name))
+                {
+                    properties = properties.Add(item.Name, new TypeProperty(item.Name, item.TypeReference, item.Flags | TypePropertyFlags.FallbackProperty));
+                }
+            }
+
             return new ObjectType(
                 objectType.Name,
                 objectType.ValidationFlags,

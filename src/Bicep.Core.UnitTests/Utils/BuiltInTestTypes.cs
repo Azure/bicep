@@ -24,8 +24,8 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/basicTests@2020-01-01");
 
-            return new ResourceType(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default, 
-                GetCommonResourceProperties(resourceType).Concat(new [] {
+            return new ResourceType(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly, "kind property"),
                 }), null));
         }
@@ -34,15 +34,15 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/readWriteTests@2020-01-01");
 
-            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnTypeMismatch, new [] {
+            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnTypeMismatch, new[] {
                 new TypeProperty("readwrite", LanguageConstants.String, TypePropertyFlags.None, "This is a property which supports reading AND writing!"),
                 new TypeProperty("readonly", LanguageConstants.String, TypePropertyFlags.ReadOnly, "This is a property which only supports reading."),
                 new TypeProperty("writeonly", LanguageConstants.String, TypePropertyFlags.WriteOnly, "This is a property which only supports writing."),
                 new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "This is a property which is required."),
             }, null);
 
-            return new ResourceType(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default, 
-                GetCommonResourceProperties(resourceType).Concat(new [] {
+            return new ResourceType(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
                 }), null));
         }
@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests.Utils
             var bodyAProps = new ObjectType(
                 "BodyAProperties",
                 TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new [] { 
+                new[] {
                     new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
                 },
                 null);
@@ -62,7 +62,7 @@ namespace Bicep.Core.UnitTests.Utils
             var bodyBProps = new ObjectType(
                 "BodyBProperties",
                 TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new [] { 
+                new[] {
                     new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
                 },
                 null);
@@ -71,7 +71,7 @@ namespace Bicep.Core.UnitTests.Utils
                 resourceType.FormatName(),
                 TypeSymbolValidationFlags.Default,
                 "kind",
-                new [] {
+                new[] {
                     new ObjectType("BodyA", TypeSymbolValidationFlags.Default, GetCommonResourceProperties(resourceType).Concat(new [] {
                         new TypeProperty("kind", new StringLiteralType("BodyA"), TypePropertyFlags.None, "This is the kind of body A"),
                         new TypeProperty("properties", bodyAProps, TypePropertyFlags.None, "These are the properties for body A"),
@@ -85,11 +85,29 @@ namespace Bicep.Core.UnitTests.Utils
             return new ResourceType(resourceType, ResourceScope.ResourceGroup, bodyType);
         }
 
+        private static ResourceType FallbackPropertyTestsType()
+        {
+            var resourceType = ResourceTypeReference.Parse("Test.Rp/fallbackProperties@2020-01-01");
+
+            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnTypeMismatch, new[] {
+                new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "This is a property which is required."),
+            }, null);
+
+            return new ResourceType(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                GetCommonResourceProperties(resourceType).Concat(new[] {
+                    new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
+                }).Concat(
+                    LanguageConstants.KnownTopLevelResourceProperties()
+                                     .Select(p => new TypeProperty(p.Name, p.TypeReference, TypePropertyFlags.None, "Property that does something important"))
+                ), null));
+        }
+
         public static Core.TypeSystem.IResourceTypeProvider Create()
-            => TestTypeHelper.CreateProviderWithTypes(new [] {
+            => TestTypeHelper.CreateProviderWithTypes(new[] {
                 BasicTestsType(),
                 ReadWriteTestsType(),
                 DiscriminatorTestsType(),
+                FallbackPropertyTestsType(),
             });
     }
 }

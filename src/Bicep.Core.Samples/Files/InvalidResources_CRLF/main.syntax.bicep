@@ -10763,6 +10763,392 @@ resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
 //@[15:61)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
 //@[61:61)  SkippedTriviaSyntax
 //@[61:61)  SkippedTriviaSyntax
-//@[61:63) NewLine |\r\n|
+//@[61:67) NewLine |\r\n\r\n\r\n|
+
+
+// issue #3000
+//@[14:16) NewLine |\r\n|
+resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[0:453) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |issue3000LogicApp1|
+//@[28:66)  StringSyntax
+//@[28:66)   StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
+//@[67:68)  Assignment |=|
+//@[69:453)  ObjectSyntax
+//@[69:70)   LeftBrace |{|
+//@[70:72)   NewLine |\r\n|
+  name: 'issue3000LogicApp1'
+//@[2:28)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:28)    StringSyntax
+//@[8:28)     StringComplete |'issue3000LogicApp1'|
+//@[28:30)   NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:36)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:36)    PropertyAccessSyntax
+//@[12:27)     FunctionCallSyntax
+//@[12:25)      IdentifierSyntax
+//@[12:25)       Identifier |resourceGroup|
+//@[25:26)      LeftParen |(|
+//@[26:27)      RightParen |)|
+//@[27:28)     Dot |.|
+//@[28:36)     IdentifierSyntax
+//@[28:36)      Identifier |location|
+//@[36:38)   NewLine |\r\n|
+  properties: {
+//@[2:62)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:62)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    state: 'Enabled'
+//@[4:20)     ObjectPropertySyntax
+//@[4:9)      IdentifierSyntax
+//@[4:9)       Identifier |state|
+//@[9:10)      Colon |:|
+//@[11:20)      StringSyntax
+//@[11:20)       StringComplete |'Enabled'|
+//@[20:22)     NewLine |\r\n|
+    definition: ''
+//@[4:18)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |definition|
+//@[14:15)      Colon |:|
+//@[16:18)      StringSyntax
+//@[16:18)       StringComplete |''|
+//@[18:20)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  identity: {
+//@[2:46)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |identity|
+//@[10:11)    Colon |:|
+//@[12:46)    ObjectSyntax
+//@[12:13)     LeftBrace |{|
+//@[13:15)     NewLine |\r\n|
+    type: 'SystemAssigned'
+//@[4:26)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |type|
+//@[8:9)      Colon |:|
+//@[10:26)      StringSyntax
+//@[10:26)       StringComplete |'SystemAssigned'|
+//@[26:28)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  extendedLocation: {}
+//@[2:22)   ObjectPropertySyntax
+//@[2:18)    IdentifierSyntax
+//@[2:18)     Identifier |extendedLocation|
+//@[18:19)    Colon |:|
+//@[20:22)    ObjectSyntax
+//@[20:21)     LeftBrace |{|
+//@[21:22)     RightBrace |}|
+//@[22:24)   NewLine |\r\n|
+  sku: {}
+//@[2:9)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |sku|
+//@[5:6)    Colon |:|
+//@[7:9)    ObjectSyntax
+//@[7:8)     LeftBrace |{|
+//@[8:9)     RightBrace |}|
+//@[9:11)   NewLine |\r\n|
+  kind: 'V1'
+//@[2:12)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:12)    StringSyntax
+//@[8:12)     StringComplete |'V1'|
+//@[12:14)   NewLine |\r\n|
+  managedBy: 'string'
+//@[2:21)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |managedBy|
+//@[11:12)    Colon |:|
+//@[13:21)    StringSyntax
+//@[13:21)     StringComplete |'string'|
+//@[21:23)   NewLine |\r\n|
+  mangedByExtended: [
+//@[2:48)   ObjectPropertySyntax
+//@[2:18)    IdentifierSyntax
+//@[2:18)     Identifier |mangedByExtended|
+//@[18:19)    Colon |:|
+//@[20:48)    ArraySyntax
+//@[20:21)     LeftSquare |[|
+//@[21:23)     NewLine |\r\n|
+   'str1'
+//@[3:9)     ArrayItemSyntax
+//@[3:9)      StringSyntax
+//@[3:9)       StringComplete |'str1'|
+//@[9:11)     NewLine |\r\n|
+   'str2'
+//@[3:9)     ArrayItemSyntax
+//@[3:9)      StringSyntax
+//@[3:9)       StringComplete |'str2'|
+//@[9:11)     NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)   NewLine |\r\n|
+  zones: [
+//@[2:37)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |zones|
+//@[7:8)    Colon |:|
+//@[9:37)    ArraySyntax
+//@[9:10)     LeftSquare |[|
+//@[10:12)     NewLine |\r\n|
+   'str1'
+//@[3:9)     ArrayItemSyntax
+//@[3:9)      StringSyntax
+//@[3:9)       StringComplete |'str1'|
+//@[9:11)     NewLine |\r\n|
+   'str2'
+//@[3:9)     ArrayItemSyntax
+//@[3:9)      StringSyntax
+//@[3:9)       StringComplete |'str2'|
+//@[9:11)     NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)   NewLine |\r\n|
+  plan: {}
+//@[2:10)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |plan|
+//@[6:7)    Colon |:|
+//@[8:10)    ObjectSyntax
+//@[8:9)     LeftBrace |{|
+//@[9:10)     RightBrace |}|
+//@[10:12)   NewLine |\r\n|
+  eTag: ''
+//@[2:10)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |eTag|
+//@[6:7)    Colon |:|
+//@[8:10)    StringSyntax
+//@[8:10)     StringComplete |''|
+//@[10:12)   NewLine |\r\n|
+  scale: {}  
+//@[2:11)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scale|
+//@[7:8)    Colon |:|
+//@[9:11)    ObjectSyntax
+//@[9:10)     LeftBrace |{|
+//@[10:11)     RightBrace |}|
+//@[13:15)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[0:452) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |issue3000LogicApp2|
+//@[28:66)  StringSyntax
+//@[28:66)   StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
+//@[67:68)  Assignment |=|
+//@[69:452)  ObjectSyntax
+//@[69:70)   LeftBrace |{|
+//@[70:72)   NewLine |\r\n|
+  name: 'issue3000LogicApp2'
+//@[2:28)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:28)    StringSyntax
+//@[8:28)     StringComplete |'issue3000LogicApp2'|
+//@[28:30)   NewLine |\r\n|
+  location: resourceGroup().location
+//@[2:36)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:36)    PropertyAccessSyntax
+//@[12:27)     FunctionCallSyntax
+//@[12:25)      IdentifierSyntax
+//@[12:25)       Identifier |resourceGroup|
+//@[25:26)      LeftParen |(|
+//@[26:27)      RightParen |)|
+//@[27:28)     Dot |.|
+//@[28:36)     IdentifierSyntax
+//@[28:36)      Identifier |location|
+//@[36:38)   NewLine |\r\n|
+  properties: {
+//@[2:62)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:62)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    state: 'Enabled'
+//@[4:20)     ObjectPropertySyntax
+//@[4:9)      IdentifierSyntax
+//@[4:9)       Identifier |state|
+//@[9:10)      Colon |:|
+//@[11:20)      StringSyntax
+//@[11:20)       StringComplete |'Enabled'|
+//@[20:22)     NewLine |\r\n|
+    definition: ''
+//@[4:18)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |definition|
+//@[14:15)      Colon |:|
+//@[16:18)      StringSyntax
+//@[16:18)       StringComplete |''|
+//@[18:20)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  identity: 'SystemAssigned'
+//@[2:28)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |identity|
+//@[10:11)    Colon |:|
+//@[12:28)    StringSyntax
+//@[12:28)     StringComplete |'SystemAssigned'|
+//@[28:30)   NewLine |\r\n|
+  extendedLocation: 'eastus'
+//@[2:28)   ObjectPropertySyntax
+//@[2:18)    IdentifierSyntax
+//@[2:18)     Identifier |extendedLocation|
+//@[18:19)    Colon |:|
+//@[20:28)    StringSyntax
+//@[20:28)     StringComplete |'eastus'|
+//@[28:30)   NewLine |\r\n|
+  sku: 'Basic'
+//@[2:14)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |sku|
+//@[5:6)    Colon |:|
+//@[7:14)    StringSyntax
+//@[7:14)     StringComplete |'Basic'|
+//@[14:16)   NewLine |\r\n|
+  kind: {
+//@[2:30)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:30)    ObjectSyntax
+//@[8:9)     LeftBrace |{|
+//@[9:11)     NewLine |\r\n|
+    name: 'V1'
+//@[4:14)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:14)      StringSyntax
+//@[10:14)       StringComplete |'V1'|
+//@[14:16)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  managedBy: {}
+//@[2:15)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |managedBy|
+//@[11:12)    Colon |:|
+//@[13:15)    ObjectSyntax
+//@[13:14)     LeftBrace |{|
+//@[14:15)     RightBrace |}|
+//@[15:17)   NewLine |\r\n|
+  mangedByExtended: [
+//@[2:40)   ObjectPropertySyntax
+//@[2:18)    IdentifierSyntax
+//@[2:18)     Identifier |mangedByExtended|
+//@[18:19)    Colon |:|
+//@[20:40)    ArraySyntax
+//@[20:21)     LeftSquare |[|
+//@[21:23)     NewLine |\r\n|
+   {}
+//@[3:5)     ArrayItemSyntax
+//@[3:5)      ObjectSyntax
+//@[3:4)       LeftBrace |{|
+//@[4:5)       RightBrace |}|
+//@[5:7)     NewLine |\r\n|
+   {}
+//@[3:5)     ArrayItemSyntax
+//@[3:5)      ObjectSyntax
+//@[3:4)       LeftBrace |{|
+//@[4:5)       RightBrace |}|
+//@[5:7)     NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)   NewLine |\r\n|
+  zones: [
+//@[2:29)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |zones|
+//@[7:8)    Colon |:|
+//@[9:29)    ArraySyntax
+//@[9:10)     LeftSquare |[|
+//@[10:12)     NewLine |\r\n|
+   {}
+//@[3:5)     ArrayItemSyntax
+//@[3:5)      ObjectSyntax
+//@[3:4)       LeftBrace |{|
+//@[4:5)       RightBrace |}|
+//@[5:7)     NewLine |\r\n|
+   {}
+//@[3:5)     ArrayItemSyntax
+//@[3:5)      ObjectSyntax
+//@[3:4)       LeftBrace |{|
+//@[4:5)       RightBrace |}|
+//@[5:7)     NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)   NewLine |\r\n|
+  plan: ''
+//@[2:10)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |plan|
+//@[6:7)    Colon |:|
+//@[8:10)    StringSyntax
+//@[8:10)     StringComplete |''|
+//@[10:12)   NewLine |\r\n|
+  eTag: {}
+//@[2:10)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |eTag|
+//@[6:7)    Colon |:|
+//@[8:10)    ObjectSyntax
+//@[8:9)     LeftBrace |{|
+//@[9:10)     RightBrace |}|
+//@[10:12)   NewLine |\r\n|
+  scale: [
+//@[2:21)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scale|
+//@[7:8)    Colon |:|
+//@[9:21)    ArraySyntax
+//@[9:10)     LeftSquare |[|
+//@[10:12)     NewLine |\r\n|
+  {}
+//@[2:4)     ArrayItemSyntax
+//@[2:4)      ObjectSyntax
+//@[2:3)       LeftBrace |{|
+//@[3:4)       RightBrace |}|
+//@[4:6)     NewLine |\r\n|
+  ]  
+//@[2:3)     RightSquare |]|
+//@[5:7)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

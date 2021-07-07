@@ -2491,6 +2491,40 @@
     ]
   },
   {
+    "label": "issue3000LogicApp1",
+    "kind": "interface",
+    "detail": "issue3000LogicApp1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000LogicApp1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000LogicApp1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "issue3000LogicApp2",
+    "kind": "interface",
+    "detail": "issue3000LogicApp2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000LogicApp2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000LogicApp2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "itemAndIndexSameName",
     "kind": "interface",
     "detail": "itemAndIndexSameName",
