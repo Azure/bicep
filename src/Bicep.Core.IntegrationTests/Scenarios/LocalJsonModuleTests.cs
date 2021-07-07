@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Azure.Deployments.Core.Instrumentation;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
@@ -17,18 +18,24 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class LocalJsonModuleTests
     {
+        [ClassInitialize]
+        public static void Initialize(TestContext context)
+        {
+            DeploymentsInterop.Initialize();
+        }
+
         [DataTestMethod]
-        [DataRow("Invalid JSON template: Cannot locate $schema for the template.", @"{
+        [DataRow("Invalid JSON template: Required property '$schema' not found in JSON. Path '', line 2, position 1.", @"{
 }")]
-        [DataRow("Invalid JSON template: Cannot locate contentVersion for the template.", @"{
+        [DataRow("Invalid JSON template: Required property 'contentVersion' not found in JSON. Path '', line 3, position 1.", @"{
   ""$schema"": ""foo""
 }")]
-        [DataRow("Invalid JSON template: Cannot locate resources for the template.", @"{
+        [DataRow("Invalid JSON template: Required property 'resources' not found in JSON. Path '', line 4, position 1.", @"{
   ""$schema"": ""foo"",
   ""contentVersion"": ""bar""
 }")]
-        [DataRow("Invalid JSON template: $schema value \"foo\" is not a valid URI.", @"{
-  ""$schema"": ""foo"",
+        [DataRow("Invalid JSON template: $schema value \"2019-04-01\" is not a valid URI.", @"{
+  ""$schema"": ""2019-04-01"",
   ""contentVersion"": ""1.0.0.0"",
   ""resources"": []
 }")]
@@ -53,7 +60,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     }
   }
 }")]
-        [DataRow("Invalid JSON template: The parameter name \"[concat('foo', 'bar')]\" cannot be an expression.", @"{
+        [DataRow("Invalid JSON template: The template parameter '[concat('foo', 'bar')]' at line '5' and column '31' is not valid. The parameter name cannot be an expression. Please see https://aka.ms/arm-template/#parameters for usage details.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
@@ -63,7 +70,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
   },
   ""resources"": []
 }")]
-        [DataRow("Invalid JSON template: The output name \"[resourceGroup().id]\" cannot be an expression.", @"{
+        [DataRow("Invalid JSON template: The template output '[resourceGroup().id]' at line '6' and column '29' is not valid. The output name cannot be an expression. Please see https://aka.ms/arm-template/#outputs for usage details.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""resources"": [],
@@ -74,7 +81,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     }
   }
 }")]
-        [DataRow("Invalid JSON template: The type value \"something\" is invalid.", @"{
+        [DataRow("Invalid JSON template: Error converting value \"something\" to type 'Azure.Deployments.Core.Entities.TemplateParameterType'. Path '', line 6, position 25.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
@@ -84,7 +91,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
   },
   ""resources"": []
 }")]
-        [DataRow("Invalid JSON template: The type value \"apple\" is invalid.", @"{
+        [DataRow("Invalid JSON template: Error converting value \"apple\" to type 'Azure.Deployments.Core.Entities.TemplateParameterType'. Path '', line 7, position 21.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""resources"": [],
@@ -95,7 +102,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     }
   }
 }")]
-        [DataRow("Invalid JSON template: Expected the value 12345 to be a string.", @"{
+        [DataRow("Invalid JSON template: Template parameter 'foo' at line '6' and column '19' has invalid type '12345'. Supported types are 'String,SecureString,Int,Bool,Array,Object,SecureObject'. Please see https://aka.ms/arm-template/#parameters for usage details.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
@@ -105,7 +112,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
   },
   ""resources"": []
 }")]
-        [DataRow("Invalid JSON template: Expected the value true to be a string.", @"{
+        [DataRow("Invalid JSON template: Unexpected token Boolean when parsing enum. Path '', line 7, position 18.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""resources"": [],
@@ -116,7 +123,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     }
   }
 }")]
-        [DataRow("Invalid JSON template: The value \"[add(1, 1)]\" cannot be an expression.", @"{
+        [DataRow("Invalid JSON template: Error converting value \"[add(1, 1)]\" to type 'Azure.Deployments.Core.Entities.TemplateParameterType'. Path '', line 6, position 27.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
@@ -126,7 +133,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
   },
   ""resources"": []
 }")]
-        [DataRow("Invalid JSON template: The value \"[add(1, 1)]\" cannot be an expression.", @"{
+        [DataRow("Invalid JSON template: Error converting value \"[add(1, 1)]\" to type 'Azure.Deployments.Core.Entities.TemplateParameterType'. Path '', line 7, position 27.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""resources"": [],
@@ -170,7 +177,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
   },
   ""resources"": []
 }")]
-        [DataRow("Invalid JSON template: Expected the value \"something\" to be a boolean.", @"{
+        [DataRow("Invalid JSON template: Expected the value \"something\" to be a Boolean.", @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {

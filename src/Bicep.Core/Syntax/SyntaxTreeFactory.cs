@@ -4,7 +4,11 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Azure.Deployments.Core.Configuration;
+using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
+using Azure.Deployments.Templates.Engines;
+using Azure.Deployments.Templates.Exceptions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -43,24 +47,30 @@ namespace Bicep.Core.Syntax
 
             try
             {
+                var template = TemplateEngine.ParseTemplate(fileContents);
+
+                ValidateTemplate(template);
+
+                var programSyntax = ProgramSyntaxConverter.ConvertToProgramSyntaxWithTypeInfoOnly(template);
+
                 var templateObject = JObject.Parse(fileContents, new JsonLoadSettings
                 {
                     CommentHandling = CommentHandling.Ignore,
-                    LineInfoHandling = LineInfoHandling.Load,
                 });
-
-                var programSyntax = ProgramSyntaxConverter.ConvertToProgramSyntaxWithTypeInfoOnly(templateObject);
-
-                if (!Template.TryFromJson<Template>(fileContents, out var _))
-                {
-                    return CreateErrorJsonSyntaxTree(fileUri, lineStarts, "Failed to deserialize the template.", templateObject);
-                }
 
                 return new JsonSyntaxTree(fileUri, lineStarts, templateObject, programSyntax);
             }
-            catch (JsonReaderException e)
+            catch (TemplateParsingException e)
             {
-                return CreateErrorJsonSyntaxTree(fileUri, lineStarts, e.Message, e.LineNumber, e.LinePosition);
+                return e.InnerException is JsonSerializationException { LineNumber: var lineNumber, LinePosition: var linePosition }
+                    ? CreateErrorJsonSyntaxTree(fileUri, lineStarts, e.Message, lineNumber, linePosition)
+                    : CreateErrorJsonSyntaxTree(fileUri, lineStarts, e.Message, 1, 1);
+            }
+            catch (TemplateValidationException e)
+            {
+                return e.TemplateErrorAdditionalInfo is { LineNumber: var lineNumber, LinePosition: var linePosition }
+                    ? CreateErrorJsonSyntaxTree(fileUri, lineStarts, e.Message, lineNumber, linePosition)
+                    : CreateErrorJsonSyntaxTree(fileUri, lineStarts, e.Message, 1, 1);
             }
             catch (SyntaxConversionException e)
             {
@@ -80,7 +90,17 @@ namespace Bicep.Core.Syntax
             return new JsonSyntaxTree(fileUri, lineStarts, null, program);
         }
 
-        private static JsonSyntaxTree CreateErrorJsonSyntaxTree(Uri fileUri, ImmutableArray<int> lineStarts, string errorMessage, IJsonLineInfo errorLineInfo) =>
-            CreateErrorJsonSyntaxTree(fileUri, lineStarts, errorMessage, errorLineInfo.LineNumber, errorLineInfo.LinePosition);
+        private static void ValidateTemplate(Template template)
+        {
+            // To validate resources we would need to know what API version the user will use to deploy the template (which is impossible).
+            // Replacing resources with an empty array to skip validating them.
+            var templateResources = template.Resources;
+            template.Resources = Array.Empty<TemplateResource>();
+
+            // The apiVersion and deploymentScope parameters don't matter here as they are only used when validating resources.
+            TemplateEngine.ValidateTemplate(template, CoreConstants.ApiVersion20200101, TemplateDeploymentScope.NotSpecified);
+
+            template.Resources = templateResources;
+        }
     }
 }

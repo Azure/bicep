@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Newtonsoft.Json.Linq;
@@ -12,46 +13,17 @@ namespace Bicep.Core.Syntax.Converters
 {
     public static class ProgramSyntaxConverter
     {
-        public static ProgramSyntax ConvertToProgramSyntaxWithTypeInfoOnly(JObject templateObject)
+        public static ProgramSyntax ConvertToProgramSyntaxWithTypeInfoOnly(Template template)
         {
-            var schema = GetProperty<JToken>(templateObject, "$schema");
+            var targetScope = StatementSyntaxConverter.ConvertToTargetScopeSyntax(template.Schema);
 
-            if (schema is null)
-            {
-                throw new SyntaxConversionException("Cannot locate $schema for the template.", templateObject);
-            }
+            var parameterDeclarations = template.Parameters is { } parameters
+                ? parameters.Select(StatementSyntaxConverter.ConvertToParameterDeclarationWithTypeInfoOnly)
+                : Enumerable.Empty<ParameterDeclarationSyntax>();
 
-            var contentVersion = GetProperty<JToken>(templateObject, "contentVersion");
-
-            if (contentVersion is null)
-            {
-                throw new SyntaxConversionException("Cannot locate contentVersion for the template.", templateObject);
-            }
-
-            if (contentVersion.Type != JTokenType.String)
-            {
-                throw new SyntaxConversionException("Expected contentVersion to be a string.", contentVersion);
-            }
-
-            var resources = GetProperty<JToken>(templateObject, "resources");
-
-            if (resources is null)
-            {
-                throw new SyntaxConversionException("Cannot locate resources for the template.", templateObject);
-            }
-
-            if (resources is not JArray)
-            {
-                throw new SyntaxConversionException("Expected resources to be an array.", resources);
-            }
-
-            var targetScope = StatementSyntaxConverter.ConvertToTargetScopeSyntax(schema);
-
-            var parameters = GetProperty(templateObject, "parameters", new JObject()).Properties();
-            var parameterDeclarations = parameters.Select(StatementSyntaxConverter.ConvertToParameterDeclarationWithTypeInfoOnly);
-
-            var outputs = GetProperty(templateObject, "outputs", new JObject()).Properties();
-            var outputDeclarations = outputs.Select(StatementSyntaxConverter.ConvertToOutputDeclarationWithTypeInfoOnly).OfType<OutputDeclarationSyntax>();
+            var outputDeclarations = template.Outputs is { } outputs
+                ? outputs.Select(StatementSyntaxConverter.ConvertToOutputDeclarationWithTypeInfoOnly).OfType<OutputDeclarationSyntax>()
+                : Enumerable.Empty<OutputDeclarationSyntax>();
 
             var statements = new List<SyntaxBase>();
 
@@ -91,11 +63,5 @@ namespace Bicep.Core.Syntax.Converters
                 syntaxes.Add(SyntaxFactory.NewlineToken);
             }
         }
-
-        private static T? GetProperty<T>(JObject templateObject, string propertyName) =>
-            templateObject.Property(propertyName, StringComparison.OrdinalIgnoreCase)?.Value is T value ? value : default;
-
-        private static T GetProperty<T>(JObject templateObject, string propertyName, T fallbackValue) where T : notnull =>
-            templateObject.Property(propertyName, StringComparison.OrdinalIgnoreCase)?.Value is T value ? value : fallbackValue;
     }
 }

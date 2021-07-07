@@ -5,7 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Azure.Deployments.Expression.Engines;
+using Azure.Deployments.Core.Definitions.Schema;
+using Azure.Deployments.Core.Entities;
 using Bicep.Core.Parsing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -27,11 +28,11 @@ namespace Bicep.Core.Syntax.Converters
             "string"
         };
 
-        public static TargetScopeSyntax? ConvertToTargetScopeSyntax(JToken schema)
+        public static TargetScopeSyntax? ConvertToTargetScopeSyntax(TemplateGenericProperty<string> schema)
         {
-            if (schema.Value<string>() is not { } schemaValue || !Uri.TryCreate(schemaValue, UriKind.Absolute, out var schemaUri))
+            if (!Uri.TryCreate(schema.Value, UriKind.Absolute, out var schemaUri))
             {
-                throw new SyntaxConversionException($"$schema value \"{schema}\" is not a valid URI.", schema);
+                throw new SyntaxConversionException($"$schema value \"{schema.Value}\" is not a valid URI.", schema);
             }
 
             return (schemaUri?.AbsolutePath) switch
@@ -55,31 +56,16 @@ namespace Bicep.Core.Syntax.Converters
             };
         }
 
-        public static ParameterDeclarationSyntax ConvertToParameterDeclarationWithTypeInfoOnly(JProperty parameter)
+        public static ParameterDeclarationSyntax ConvertToParameterDeclarationWithTypeInfoOnly(KeyValuePair<string, TemplateInputParameter> parameter)
         {
-            if (ExpressionsEngine.IsLanguageExpression(parameter.Name))
+            if (InvalidNameRegex.IsMatch(parameter.Key))
             {
-                throw new SyntaxConversionException($"The parameter name \"{parameter.Name}\" cannot be an expression.", parameter);
-            }
-
-            if (InvalidNameRegex.IsMatch(parameter.Name))
-            {
-                throw new SyntaxConversionException($"Cannot convert the parameter name \"{parameter.Name}\" to an identifier.", parameter);
-            }
-
-            if (parameter.Value is not JObject parameterValue)
-            {
-                throw new SyntaxConversionException("Expected parameter value to be an object.", parameter.Value);
+                throw new SyntaxConversionException($"Cannot convert the parameter name \"{parameter.Key}\" to an identifier.", parameter.Value);
             }
 
             var decoratorsAndNewLines = new List<SyntaxBase>();
 
-            if (parameterValue["type"] is not { } type)
-            {
-                throw new SyntaxConversionException($"Unable to locate \"type\" for parameter \"{parameter.Name}\"", parameter.Value);
-            }
-
-            var typeSyntax = ConvertToType(type);
+            var typeSyntax = ConvertToType(parameter.Value.Type);
 
             switch (typeSyntax.TypeName)
             {
@@ -97,17 +83,15 @@ namespace Bicep.Core.Syntax.Converters
 
             ParameterDefaultValueSyntax? syntheticDefaultValue = null;
 
-            if (parameterValue["allowedValues"] is JToken allowedValues &&
+            if (parameter.Value.AllowedValues is { Value: var allowedValues } allowedValuesProperty &&
                 CompileTimeConstantSyntaxConverter.ConvertJArray(allowedValues) is SyntaxBase expression)
             {
-                var allowedValueArray = (JArray)allowedValues;
-
-                if (allowedValueArray.Count == 0)
+                if (allowedValues.Count == 0)
                 {
-                    throw new SyntaxConversionException($"The \"allowedValues\" array must contain one or more items.", allowedValues);
+                    throw new SyntaxConversionException($"The \"allowedValues\" array must contain one or more items.", allowedValuesProperty);
                 }
 
-                foreach (var allowedValue in allowedValueArray)
+                foreach (var allowedValue in allowedValues)
                 {
                     ValidateAllowedValue(allowedValue, typeSyntax);
                 }
@@ -115,13 +99,13 @@ namespace Bicep.Core.Syntax.Converters
                 decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterAllowedPropertyName, expression));
                 decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                 
-                if (parameterValue["defaultValue"] is not null)
+                if (parameter.Value.DefaultValue is not null)
                 {
-                    syntheticDefaultValue = new(SyntaxFactory.AssignmentToken, CompileTimeConstantSyntaxConverter.ConvertJToken(allowedValueArray[0]));
+                    syntheticDefaultValue = new(SyntaxFactory.AssignmentToken, CompileTimeConstantSyntaxConverter.ConvertJToken(allowedValues[0]));
                 }
             }
 
-            if (parameterValue["defaultValue"] is not null && syntheticDefaultValue is null)
+            if (parameter.Value.DefaultValue is not null && syntheticDefaultValue is null)
             {
                 syntheticDefaultValue = new(SyntaxFactory.AssignmentToken, CreateSyntheticValueForType(typeSyntax));
             }
@@ -129,29 +113,19 @@ namespace Bicep.Core.Syntax.Converters
             return new ParameterDeclarationSyntax(
                 decoratorsAndNewLines,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "param"),
-                SyntaxFactory.CreateIdentifier(parameter.Name),
+                SyntaxFactory.CreateIdentifier(parameter.Key),
                 typeSyntax,
                 syntheticDefaultValue);
         }
 
-        public static OutputDeclarationSyntax? ConvertToOutputDeclarationWithTypeInfoOnly(JProperty output)
+        public static OutputDeclarationSyntax? ConvertToOutputDeclarationWithTypeInfoOnly(KeyValuePair<string, TemplateOutputParameter> output)
         {
-            if (ExpressionsEngine.IsLanguageExpression(output.Name))
+            if (InvalidNameRegex.IsMatch(output.Key))
             {
-                throw new SyntaxConversionException($"The output name \"{output.Name}\" cannot be an expression.", output);
+                throw new SyntaxConversionException($"Cannot convert the output name \"{output.Key}\" to an identifier.", output.Value);
             }
 
-            if (InvalidNameRegex.IsMatch(output.Name))
-            {
-                throw new SyntaxConversionException($"Cannot convert the output name \"{output.Name}\" to an identifier.", output);
-            }
-
-            if (output.Value["type"] is not { } type)
-            {
-                throw new SyntaxConversionException($"Unable to locate \"type\" for output \"{output.Name}\".", output.Value);
-            }
-
-            var typeSyntax = ConvertToType(type);
+            var typeSyntax = ConvertToType(output.Value.Type);
 
             if (typeSyntax.TypeName == "securestring" || typeSyntax.TypeName == "secureobject")
             {
@@ -164,24 +138,14 @@ namespace Bicep.Core.Syntax.Converters
             return new OutputDeclarationSyntax(
                 Enumerable.Empty<SyntaxBase>(),
                 SyntaxFactory.CreateToken(TokenType.Identifier, "output"),
-                SyntaxFactory.CreateIdentifier(output.Name),
+                SyntaxFactory.CreateIdentifier(output.Key),
                 typeSyntax,
                 SyntaxFactory.AssignmentToken,
                 syntheticOutputValue);
         }
 
-        private static TypeSyntax ConvertToType(JToken value)
-        {
-            var typeStringLiteral = CompileTimeConstantSyntaxConverter.ConvertToStringLiteral(value);
-
-            if (typeStringLiteral.TryGetLiteralValue() is not { } typeString ||
-                !TypeNames.Contains(typeString, StringComparer.OrdinalIgnoreCase))
-            {
-                throw new SyntaxConversionException($"The type value {value.ToString(Formatting.None)} is invalid.", value);
-            }
-
-            return new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, typeString.ToLowerInvariant()));
-        }
+        private static TypeSyntax ConvertToType(TemplateGenericProperty<TemplateParameterType> typeProperty) =>
+            new(SyntaxFactory.CreateToken(TokenType.Identifier, typeProperty.Value.ToString().ToLowerInvariant()));
 
         private static SyntaxBase CreateSyntheticValueForType(TypeSyntax typeSyntax) => typeSyntax.TypeName switch
         {
@@ -200,7 +164,7 @@ namespace Bicep.Core.Syntax.Converters
                 case "array" when allowedValue.Type != JTokenType.Array:
                     throw new SyntaxConversionException($"Expected the value {allowedValue.ToString(Formatting.None)} to be an array.", allowedValue);
                 case "bool" when allowedValue.Type != JTokenType.Boolean:
-                    throw new SyntaxConversionException($"Expected the value {allowedValue.ToString(Formatting.None)} to be a boolean.", allowedValue);
+                    throw new SyntaxConversionException($"Expected the value {allowedValue.ToString(Formatting.None)} to be a Boolean.", allowedValue);
                 case "int" when allowedValue.Type != JTokenType.Integer:
                     throw new SyntaxConversionException($"Expected the value {allowedValue.ToString(Formatting.None)} to be an integer.", allowedValue);
                 case "object" when allowedValue.Type != JTokenType.Object:
