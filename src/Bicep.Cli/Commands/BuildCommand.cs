@@ -5,7 +5,6 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.FileSystem;
-using System.IO;
 
 namespace Bicep.Cli.Commands
 {
@@ -39,7 +38,9 @@ namespace Bicep.Cli.Commands
                 }
                 else
                 {
-                    var outputPath = ResolveOutputPath(inputPath, args.OutputDir, args.OutputFile);
+                    static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
+
+                    var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
 
                     writer.ToFile(compilation, outputPath);
                 }
@@ -52,26 +53,6 @@ namespace Bicep.Cli.Commands
 
             // return non-zero exit code on errors
            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
-        }
-
-        private static string ResolveOutputPath(string inputPath, string? outputDir, string? outputFile)
-        {
-            if(outputDir is not null)
-            {
-                var dir = PathHelper.ResolvePath(outputDir);
-                var file = Path.GetFileName(inputPath);
-                var path = Path.Combine(dir, file);
-
-                return PathHelper.GetDefaultBuildOutputPath(path);
-            }
-            else if (outputFile is not null)
-            {
-                return PathHelper.ResolvePath(outputFile);
-            }
-            else
-            {
-                return PathHelper.GetDefaultBuildOutputPath(inputPath);
-            }
         }
     }
 }
