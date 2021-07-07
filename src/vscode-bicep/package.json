@@ -195,7 +195,7 @@
     "package": "npm run clean && nbgv-setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset"
   },
   "devDependencies": {
-    "@types/copy-webpack-plugin": "^8.0.0",
+    "@types/copy-webpack-plugin": "^8.0.1",
     "@types/cytoscape": "^3.14.15",
     "@types/jest": "^26.0.24",
     "@types/mocha": "^8.2.2",
