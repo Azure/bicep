@@ -10,6 +10,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -369,9 +370,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("json")
-                .WithReturnType(LanguageConstants.Any)
                 .WithDescription("Converts a valid JSON string into a JSON data type.")
                 .WithRequiredParameter("json", LanguageConstants.String, "The value to convert to JSON. The string must be a properly formatted JSON string.")
+                .WithDynamicReturnType(JsonTypeBuilder, LanguageConstants.Any)
                 .Build(),
 
             new FunctionOverloadBuilder("dateTimeAdd")
@@ -502,6 +503,46 @@ namespace Bicep.Core.Semantics.Namespaces
                 throw new InvalidOperationException($"Expecting function to return {nameof(StringLiteralType)}, but {typeSymbol.GetType().Name} received.");
             }
             return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
+        }
+
+        private static TypeSymbol JsonTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            static TypeSymbol ToBicepType(JToken token)
+                => token switch {
+                    JObject @object => new ObjectType(
+                        "object",
+                        TypeSymbolValidationFlags.Default,
+                        @object.Properties().Select(x => new TypeProperty(x.Name, ToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
+                        null),
+                    JArray @array => new TypedArrayType(
+                        UnionType.Create(@array.Select(x => ToBicepType(x))),
+                        TypeSymbolValidationFlags.Default),
+                    JValue value => value.Type switch {
+                        JTokenType.String => new StringLiteralType(value.ToString()),
+                        JTokenType.Integer => LanguageConstants.Int,
+                        JTokenType.Float => LanguageConstants.Int,
+                        JTokenType.Boolean => LanguageConstants.Bool,
+                        JTokenType.Null => LanguageConstants.Null,
+                        _ => LanguageConstants.Any,
+                    },
+                    _ => LanguageConstants.Any,
+                };
+
+            if (argumentTypes.Length != 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
+            {
+                return LanguageConstants.Any;
+            }
+
+            try
+            {
+                var token = JToken.Parse(stringLiteral.RawStringValue);
+
+                return ToBicepType(token);
+            }
+            catch
+            {
+                return LanguageConstants.Any;
+            }
         }
 
         // TODO: Add copyIndex here when we support loops.

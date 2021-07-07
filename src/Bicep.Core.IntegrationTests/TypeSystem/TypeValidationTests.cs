@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -342,6 +345,47 @@ output valueB string = myRes.properties.myDisc1.valueB
                     x => x.Should().HaveCodeAndSeverity("BCP083", expectedDiagnosticLevel).And.HaveMessage("The type \"choiceA\" does not contain property \"valueB\". Did you mean \"valueA\"?")
                 );
             }
+        }
+
+        [TestMethod]
+        public void Json_function_can_obtain_types_for_string_literal_json_args()
+        {
+            var program = @"
+var invalidJson = json('{""prop"": ""value""')
+var intJson = json('123')
+var floatJson = json('1234.1224')
+var stringJson = json('""hello!""')
+var nullJson = json('null')
+
+var objectJson = json('{""validProp"": ""validValue""}')
+var propAccess = objectJson.validProp
+var invalidPropAccess = objectJson.invalidProp
+";
+
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            
+            GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
+            GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
+
+            GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("any");
+            GetTypeForNamedSymbol(model, "intJson").Name.Should().Be("int");
+            GetTypeForNamedSymbol(model, "floatJson").Name.Should().Be("int");
+            GetTypeForNamedSymbol(model, "stringJson").Name.Should().Be("'hello!'");
+            GetTypeForNamedSymbol(model, "nullJson").Name.Should().Be("null");
+
+            GetTypeForNamedSymbol(model, "invalidPropAccess").Name.Should().Be("error");
+
+            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
+            model.GetAllDiagnostics(noLinterConfig).Should().SatisfyRespectively(
+                x => x.Should().HaveCodeAndSeverity("BCP083", DiagnosticLevel.Error).And.HaveMessage("The type \"object\" does not contain property \"invalidProp\". Did you mean \"validProp\"?")
+            );
+        }
+
+        private static TypeSymbol GetTypeForNamedSymbol(SemanticModel model, string symbolName)
+        {
+            var symbol = model.Root.GetDeclarationsByName(symbolName).Single();
+                
+            return symbol.Type;
         }
     }
 }

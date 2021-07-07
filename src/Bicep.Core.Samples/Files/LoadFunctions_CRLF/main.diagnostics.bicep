@@ -93,3 +93,15 @@ var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
 var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8')
 //@[4:22) [no-unused-vars (Warning)] Variable "loadWithEncoding12" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadWithEncoding12|
 
+var testJson = json(loadTextContent('./Assets/test.json.txt'))
+var testJsonString = testJson.string
+//@[4:18) [no-unused-vars (Warning)] Variable "testJsonString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonString|
+var testJsonInt = testJson.int
+//@[4:15) [no-unused-vars (Warning)] Variable "testJsonInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonInt|
+var testJsonArrayVal = testJson.array[0]
+//@[4:20) [no-unused-vars (Warning)] Variable "testJsonArrayVal" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonArrayVal|
+var testJsonObject = testJson.object
+//@[4:18) [no-unused-vars (Warning)] Variable "testJsonObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonObject|
+var testJsonNestedString = testJson.object.nestedString
+//@[4:24) [no-unused-vars (Warning)] Variable "testJsonNestedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonNestedString|
+
