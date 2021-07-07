@@ -19,4 +19,3 @@ resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-
   }
 }
 // Insert snippet here
-

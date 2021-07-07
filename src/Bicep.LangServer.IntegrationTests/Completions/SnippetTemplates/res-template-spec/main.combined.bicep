@@ -12,4 +12,3 @@ resource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {
   }
 }
 // Insert snippet here
-

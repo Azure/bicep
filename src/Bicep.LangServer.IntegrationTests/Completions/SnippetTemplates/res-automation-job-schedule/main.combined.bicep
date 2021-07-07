@@ -21,4 +21,3 @@ resource automationJobSchedule 'Microsoft.Automation/automationAccounts/jobSched
   }
 }
 // Insert snippet here
-
