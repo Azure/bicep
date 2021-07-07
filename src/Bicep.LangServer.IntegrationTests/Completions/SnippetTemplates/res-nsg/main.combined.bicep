@@ -34,4 +34,3 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-0
   }
 }
 // Insert snippet here
-

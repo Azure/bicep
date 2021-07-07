@@ -27,4 +27,3 @@ resource windowsVMDsc 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' 
   }
 }
 // Insert snippet here
-

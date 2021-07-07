@@ -21,4 +21,3 @@ resource automationSchedule 'Microsoft.Automation/automationAccounts/schedules@2
   }
 }
 // Insert snippet here
-

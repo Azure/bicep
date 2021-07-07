@@ -72,4 +72,3 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
   }
 }
 // Insert snippet here
-
