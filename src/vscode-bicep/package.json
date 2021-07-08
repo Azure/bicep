@@ -198,7 +198,7 @@
     "@types/copy-webpack-plugin": "^8.0.1",
     "@types/cytoscape": "^3.14.15",
     "@types/jest": "^26.0.24",
-    "@types/mocha": "^8.2.2",
+    "@types/mocha": "^8.2.3",
     "@types/node": "^16.0.0",
     "@types/react": "^17.0.14",
     "@types/react-dom": "^17.0.8",
