@@ -29,7 +29,7 @@ namespace Bicep.LanguageServer.Snippets
         private const string RequiredPropertiesDescription = "Required properties";
         private const string RequiredPropertiesLabel = "required-properties";
         private static readonly Regex ParentPropertyPattern = new Regex(@"^.*parent:.*$[\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex SnippetPlaceholderCommentPattern = new Regex(@"(?<replacementText>\/\*(?<snippetPlaceholder>\$({\d+:.*}))\*\/[^\s]+)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex SnippetPlaceholderCommentPattern = new Regex(@"\/\*(?<snippetPlaceholder>\$({\d+(:|\|)(.*?)}))\*\/('(.*?)'|\w+)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         // Used to cache resource declaration information. Maps resource type reference to prefix, identifier, body text and description
         private readonly ConcurrentDictionary<ResourceTypeReference, (string prefix, string identifier, string bodyText, string description)> resourceTypeReferenceInfoMap = new(ResourceTypeReferenceComparer.Instance);
@@ -105,14 +105,15 @@ namespace Bicep.LanguageServer.Snippets
 
             if (!string.IsNullOrWhiteSpace(template))
             {
+                // Remove snippet placeholder comments
+                template = RemoveSnippetPlaceholderComments(template);
+
                 Parser parser = new Parser(template);
                 ProgramSyntax programSyntax = parser.Program();
                 IEnumerable<SyntaxBase> declarations = programSyntax.Declarations;
 
                 if (declarations.Any() && declarations.First() is StatementSyntax statementSyntax)
                 {
-                    template = UncommentSnippetPlaceholderComments(template);
-
                     text = template.Substring(statementSyntax.Span.Position);
 
                     ImmutableArray<SyntaxBase> children = programSyntax.Children;
@@ -483,39 +484,27 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        private string UncommentSnippetPlaceholderComments(string text)
+        public string RemoveSnippetPlaceholderComments(string text)
         {
-            // we will be performing multiple string replacements
-            // better to do it in-place
-            var buffer = new StringBuilder(text);
-
-            // to avoid recomputing spans, we will perform the replacements in reverse order by span position
-            foreach (SnippetPlaceholderComment snippetPlaceholderComment in GetSnippetPlaceholdersWithReplacementSpan(text))
+            if (!string.IsNullOrEmpty(text))
             {
-                buffer = buffer.Remove(snippetPlaceholderComment.Span.Position, snippetPlaceholderComment.Span.Length);
-                buffer = buffer.Insert(snippetPlaceholderComment.Span.Position, snippetPlaceholderComment.ReplacementText);
-            }
+                MatchCollection matches = SnippetPlaceholderCommentPattern.Matches(text);
 
-            return buffer.ToString();
-        }
+                // We will be performing multiple string replacements, better to do it in-place
+                StringBuilder buffer = new StringBuilder(text);
 
-        private static IEnumerable<SnippetPlaceholderComment> GetSnippetPlaceholdersWithReplacementSpan(string text)
-        {
-            List<SnippetPlaceholderComment> snippetPlaceholderComments = new();
-
-            foreach (Match match in SnippetPlaceholderCommentPattern.Matches(text))
-            {
-                TextSpan span = new TextSpan(match.Index, match.Length);
-                string replacementText = match.Groups["snippetPlaceholder"].Value;
-
-                if (!string.IsNullOrEmpty(replacementText))
+                // To avoid recomputing spans, we will perform the replacements in reverse order
+                foreach (Match match in matches.OrderByDescending(x => x.Index))
                 {
-                    SnippetPlaceholderComment snippetPlaceholderComment = new SnippetPlaceholderComment(span, replacementText);
-                    snippetPlaceholderComments.Add(snippetPlaceholderComment);
+                    buffer.Replace(oldValue: match.Value,
+                                   newValue: match.Groups["snippetPlaceholder"].Value,
+                                   startIndex: match.Index,
+                                   count: match.Length);
                 }
+                return buffer.ToString();
             }
 
-            return snippetPlaceholderComments.OrderByDescending(x => x.Span.Position);
+            return text;
         }
     }
 }
