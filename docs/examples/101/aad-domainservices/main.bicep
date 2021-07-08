@@ -1,16 +1,32 @@
+@description('Domain Name')
 param domainName string
-// Location for all resources.
+
+@description('Location for all resources.')
 param location string = resourceGroup().location
-// Virtual Network Name
+
+@description('SKU of the AD Domain Service.')
+param sku string = 'Enterprise'
+
+@description('Domain Configuration Type.')
+param domainConfigurationType string = 'FullySynced'
+
+@description('Choose the filtered sync type.')
+param filteredSync string = 'Disabled'
+
+@description('Virtual Network Name')
 param domainServicesVnetName string = 'domain-services-vnet'
-// Address Prefix
+
+@description('Address Prefix')
 param domainServicesVnetAddressPrefix string = '10.0.0.0/16'
-// Subnet name
+
+@description('Virtual Network Name')
 param domainServicesSubnetName string = 'domain-services-subnet'
-// Subnet prefix
+
+@description('Subnet prefix')
 param domainServicesSubnetAddressPrefix string = '10.0.0.0/24'
 
 var domainServicesNSGName = '${domainServicesSubnetName}-nsg'
+
 var PSRemotingSlicePIPAddresses = [
   '52.180.179.108'
   '52.180.177.87'
@@ -37,6 +53,7 @@ var RDPIPAddresses = [
   '13.106.174.32/27'
   '13.106.4.96/27'
 ]
+
 var PSRemotingSliceTIPAddresses = [
   '52.180.183.67'
   '52.180.181.39'
@@ -58,7 +75,7 @@ var PSRemotingSliceTIPAddresses = [
   '23.99.93.197'
 ]
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2018-10-01' = {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   name: domainServicesNSGName
   location: location
   properties: {
@@ -119,7 +136,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2018-10-01' = {
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   name: domainServicesVnetName
   location: location
   properties: {
@@ -131,8 +148,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
   }
 }
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2018-10-01' = {
-  name: '${vnet.name}/${domainServicesSubnetName}'
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
+  parent: vnet
+  name: domainServicesSubnetName
   properties: {
     addressPrefix: domainServicesSubnetAddressPrefix
     networkSecurityGroup: {
@@ -141,11 +159,19 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2018-10-01' = {
   }
 }
 
-resource domainServices 'Microsoft.AAD/DomainServices@2017-06-01' = {
+resource domainServices 'Microsoft.AAD/DomainServices@2020-01-01' = {
   name: domainName
   location: location
   properties: {
     domainName: domainName
-    subnetId: subnet.id
+    filteredSync: filteredSync
+    domainConfigurationType: domainConfigurationType
+    replicaSets: [
+      {
+        subnetId: subnet.id
+        location: location
+      }
+    ]
+    sku: sku
   }
 }
