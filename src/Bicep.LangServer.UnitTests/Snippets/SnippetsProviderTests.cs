@@ -742,7 +742,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         }
 
         [TestMethod]
-        public void RemoveSnippetPlaceholderComments_WithMatchingSnippetPlaceholderCommentPatternInInput_RemovedSnippetPlaceholderCommentss()
+        public void RemoveSnippetPlaceholderComments_WithMatchingSnippetPlaceholderCommentPatternInInput_RemovesSnippetPlaceholderComments()
         {
             string input = @"// DNS Record
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
