@@ -1,0 +1,94 @@
+¡		inverted exclamation mark
+¢		cent
+£		pound
+¤		currency
+¥		yen
+¦		broken vertical bar
+§		section
+¨		spacing diaeresis
+©		copyright
+ª		feminine ordinal indicator
+«		angle quotation mark (left)
+¬		negation
+­		soft hyphen
+®		registered trademark
+¯		spacing macron
+°		degree
+±		plus-or-minus
+²		superscript 2
+³		superscript 3
+´		spacing acute
+¶		paragraph
+·		middle dot
+¸		spacing cedilla
+¹		superscript 1
+º		masculine ordinal indicator
+»		angle quotation mark (right)
+¼		fraction 1/4
+½		fraction 1/2
+¾		fraction 3/4
+¿		inverted question mark
+À		capital a, grave accent
+Á		capital a, acute accent
+Â		capital a, circumflex accent
+Ã		capital a, tilde
+Ä		capital a, umlaut mark
+Å		capital a, ring
+Æ		capital ae
+Ç		capital c, cedilla
+È		capital e, grave accent
+É		capital e, acute accent
+Ê		capital e, circumflex accent
+Ë		capital e, umlaut mark
+Ì		capital i, grave accent
+Í		capital i, acute accent
+Î		capital i, circumflex accent
+Ï		capital i, umlaut mark
+Ð		capital eth, Icelandic
+Ñ		capital n, tilde
+Ò		capital o, grave accent
+Ó		capital o, acute accent
+Ô		capital o, circumflex accent
+Õ		capital o, tilde
+Ö		capital o, umlaut mark
+×		multiplication
+Ø		capital o, slash
+Ù		capital u, grave accent
+Ú		capital u, acute accent
+Û		capital u, circumflex accent
+Ü		capital u, umlaut mark
+Ý		capital y, acute accent
+Þ		capital THORN, Icelandic
+ß		small sharp s, German
+à		small a, grave accent
+á		small a, acute accent
+â		small a, circumflex accent
+ã		small a, tilde
+ä		small a, umlaut mark
+å		small a, ring
+æ		small ae
+ç		small c, cedilla
+è		small e, grave accent
+é		small e, acute accent
+ê		small e, circumflex accent
+ë		small e, umlaut mark
+ì		small i, grave accent
+í		small i, acute accent
+î		small i, circumflex accent
+ï		small i, umlaut mark
+ð		small eth, Icelandic
+ñ		small n, tilde
+ò		small o, grave accent
+ó		small o, acute accent
+ô		small o, circumflex accent
+õ		small o, tilde
+ö		small o, umlaut mark
+÷		division
+ø		small o, slash
+ù		small u, grave accent
+ú		small u, acute accent
+û		small u, circumflex accent
+ü		small u, umlaut mark
+ý		small y, acute accent
+þ		small thorn, Icelandic
+ÿ		small y, umlaut mark

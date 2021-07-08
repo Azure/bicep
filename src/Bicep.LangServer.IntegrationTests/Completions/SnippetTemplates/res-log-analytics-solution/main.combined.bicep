@@ -24,4 +24,3 @@ resource logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-
   }
 }
 // Insert snippet here
-

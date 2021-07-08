@@ -12,7 +12,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
@@ -36,10 +35,9 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task ShouldProvideSignatureHelpBetweenFunctionParentheses(DataSet dataSet)
         {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
             var tree = compilation.SyntaxTreeGrouping.EntryPoint;
 
@@ -66,12 +64,12 @@ namespace Bicep.LangServer.IntegrationTests
                 // if the cursor is present immediate after the function argument opening paren,
                 // the signature help can only show the signature of the enclosing function
                 var startOffset = functionCall.OpenParen.GetEndPosition();
-                await ValidateOffset(compilation, client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
                 
                 // if the cursor is present immediately before the function argument closing paren,
                 // the signature help can only show the signature of the enclosing function
                 var endOffset = functionCall.CloseParen.Span.Position;
-                await ValidateOffset(compilation, client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
             }
         }
 
@@ -88,10 +86,9 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task NonFunctionCallSyntaxShouldProvideNoSignatureHelp(DataSet dataSet)
         {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var tree = compilation.SyntaxTreeGrouping.EntryPoint;
 
             var nonFunctions = SyntaxAggregator.Aggregate(
@@ -122,7 +119,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static async Task ValidateOffset(Compilation compilation, ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol, bool expectDecorator)
+        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol, bool expectDecorator)
         {
             var position = PositionHelper.GetPosition(tree.LineStarts, offset);
             var initial = await RequestSignatureHelp(client, position, uri);

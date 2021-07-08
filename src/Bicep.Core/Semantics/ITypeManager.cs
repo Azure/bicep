@@ -17,5 +17,6 @@ namespace Bicep.Core.Semantics
 
         IEnumerable<IDiagnostic> GetAllDiagnostics();
 
+        FunctionOverload? GetMatchedFunctionOverload(FunctionCallSyntaxBase syntax);
     }
 }

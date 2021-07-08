@@ -5,32 +5,71 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12278602599272280181"
+      "templateHash": "7692443432302620124"
     }
   },
   "parameters": {
     "domainName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Domain Name"
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "Enterprise",
+      "metadata": {
+        "description": "SKU of the AD Domain Service."
+      }
+    },
+    "domainConfigurationType": {
+      "type": "string",
+      "defaultValue": "FullySynced",
+      "metadata": {
+        "description": "Domain Configuration Type."
+      }
+    },
+    "filteredSync": {
+      "type": "string",
+      "defaultValue": "Disabled",
+      "metadata": {
+        "description": "Choose the filtered sync type."
+      }
     },
     "domainServicesVnetName": {
       "type": "string",
-      "defaultValue": "domain-services-vnet"
+      "defaultValue": "domain-services-vnet",
+      "metadata": {
+        "description": "Virtual Network Name"
+      }
     },
     "domainServicesVnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/16"
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "Address Prefix"
+      }
     },
     "domainServicesSubnetName": {
       "type": "string",
-      "defaultValue": "domain-services-subnet"
+      "defaultValue": "domain-services-subnet",
+      "metadata": {
+        "description": "Virtual Network Name"
+      }
     },
     "domainServicesSubnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/24"
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "Subnet prefix"
+      }
     }
   },
   "functions": [],
@@ -86,7 +125,7 @@
   "resources": [
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2020-11-01",
       "name": "[variables('domainServicesNSGName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -148,7 +187,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('domainServicesVnetName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -161,7 +200,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2020-11-01",
       "name": "[format('{0}/{1}', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName'))]",
       "properties": {
         "addressPrefix": "[parameters('domainServicesSubnetAddressPrefix')]",
@@ -176,15 +215,23 @@
     },
     {
       "type": "Microsoft.AAD/domainServices",
-      "apiVersion": "2017-06-01",
+      "apiVersion": "2020-01-01",
       "name": "[parameters('domainName')]",
       "location": "[parameters('location')]",
       "properties": {
         "domainName": "[parameters('domainName')]",
-        "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName')), '/')[0], split(format('{0}/{1}', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName')), '/')[1])]"
+        "filteredSync": "[parameters('filteredSync')]",
+        "domainConfigurationType": "[parameters('domainConfigurationType')]",
+        "replicaSets": [
+          {
+            "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName'))]",
+            "location": "[parameters('location')]"
+          }
+        ],
+        "sku": "[parameters('sku')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName')), '/')[0], split(format('{0}/{1}', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName')), '/')[1])]"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName'))]"
       ]
     }
   ]

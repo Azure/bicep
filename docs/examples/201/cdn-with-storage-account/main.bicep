@@ -1,30 +1,41 @@
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 var storageAccountName = 'storage${uniqueString(resourceGroup().id)}'
-var endPointName = 'endpoint-${uniqueString(resourceGroup().id)}'
-var profileName = 'CdnProfile1'
+var endpointName = 'endpoint-${uniqueString(resourceGroup().id)}'
+var profileName = 'cdn-${uniqueString(resourceGroup().id)}'
 var storageAccountHostName = replace(replace(storageAccount.properties.primaryEndpoints.blob, 'https://', ''), '/', '')
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-  location: location
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: storageAccountName
+  location: location
+  tags: {
+    displayName: storageAccountName
+  }
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
   }
 }
 
-resource cdnProfile 'Microsoft.Cdn/profiles@2020-04-15' = {
-  location: location
+resource cdnProfile 'Microsoft.Cdn/profiles@2020-09-01' = {
   name: profileName
+  location: location
+  tags: {
+    displayName: profileName
+  }
   sku: {
-    name: 'Standard_Akamai'
+    name: 'Standard_Verizon'
   }
 }
 
-resource endpoint 'Microsoft.Cdn/profiles/endpoints@2020-04-15' = {
+resource endpoint 'Microsoft.Cdn/profiles/endpoints@2020-09-01' = {
+  parent: cdnProfile
+  name: endpointName
   location: location
-  name: endPointName
+  tags: {
+    displayName: endpointName
+  }
   properties: {
     originHostHeader: storageAccountHostName
     isHttpAllowed: true

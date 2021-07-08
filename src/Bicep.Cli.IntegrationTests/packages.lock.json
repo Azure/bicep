@@ -45,9 +45,9 @@
       },
       "MSTest.TestFramework": {
         "type": "Direct",
-        "requested": "[2.2.4, )",
-        "resolved": "2.2.4",
-        "contentHash": "KPE/Ze3jD/YJzicpImUgerKGPQOzuTKU4nPIudt5LmQNXuCBBOH/0SOdvvitm8AAwxkvbhKajGuDDF5AJU9VuQ==",
+        "requested": "[2.2.5, )",
+        "resolved": "2.2.5",
+        "contentHash": "7PQH0yJoQO6bp6kHgVoTowtQZyQilftL64/pxeDzi15vm3UewzRZz74QssTaOi1otA6j2/lxFTEMJk/+HY/apQ==",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
           "System.Diagnostics.TextWriterTraceListener": "4.3.0"
@@ -55,9 +55,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.4.205, )",
-        "resolved": "3.4.205",
-        "contentHash": "NWUhCkYARhLEO5aJrp+Hrcr7vbiYovdNIbVI77uUEfGfCoZWSiryWb3wux9WEfCI8Uw1s6aQjR5gOO5VWqZKLw=="
+        "requested": "[3.4.220, )",
+        "resolved": "3.4.220",
+        "contentHash": "a4A8qKgM1OLmAEnP30qlA8AhVAutKfJtQbfhwXIeUE5QhWKlnGe6cThJik9aKAzZvhcdmUIaN4O0q+JSI6BU4A=="
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
@@ -77,8 +77,8 @@
       },
       "Azure.Deployments.Core": {
         "type": "Transitive",
-        "resolved": "1.0.173",
-        "contentHash": "CJPkzjIURg01q2UcYbkRh9bnPyWtnUr3to1GaewDwYf74jVst4Giy9yYH+QM6+3aZhGeMSQVSH0jbKC2jVdDYw==",
+        "resolved": "1.0.207",
+        "contentHash": "nmT4B09E7h+x5td5VGBCRKAFbxNnzDSU6yD6jNY7101o+grACrSI0ZSU0zMajVeq4801bgE+e5RRgF0IpTdgcA==",
         "dependencies": {
           "Newtonsoft.Json": "11.0.2",
           "System.Reflection.Emit.Lightweight": "4.7.0"
@@ -86,10 +86,10 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Transitive",
-        "resolved": "1.0.173",
-        "contentHash": "tM5e/kWWLqQJWhe6ve7F9pX/IntA0SzlkMt80c3M1jcqjaX+qXb8okKTbFMUWUmC9MeUu0Ng3hVYHFZ4DyJi6g==",
+        "resolved": "1.0.207",
+        "contentHash": "1u/31ZAKLWPYUJXezBgVXXSx/hxezunXfSfgPjiJAbIzYhcN+p3gZtNZDVPg0avIGJYdd8gsa0dERKV+MgTIPg==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.173",
+          "Azure.Deployments.Core": "1.0.207",
           "Newtonsoft.Json": "11.0.2"
         }
       },
@@ -2161,7 +2161,7 @@
         "dependencies": {
           "FluentAssertions": "5.10.3",
           "MSTest.TestAdapter": "2.2.3",
-          "MSTest.TestFramework": "2.2.4",
+          "MSTest.TestFramework": "2.2.5",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "bicep": "1.0.0"
         }
@@ -2171,8 +2171,8 @@
         "dependencies": {
           "Azure.Bicep.Types": "0.1.157",
           "Azure.Bicep.Types.Az": "0.1.157",
-          "Azure.Deployments.Core": "1.0.173",
-          "Azure.Deployments.Expression": "1.0.173",
+          "Azure.Deployments.Core": "1.0.207",
+          "Azure.Deployments.Expression": "1.0.207",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.Configuration.Binder": "5.0.0",
           "Microsoft.Extensions.Configuration.Json": "5.0.0",
@@ -2187,7 +2187,7 @@
           "Bicep.Core.UnitTests": "1.0.0",
           "FluentAssertions": "5.10.3",
           "MSTest.TestAdapter": "2.2.3",
-          "MSTest.TestFramework": "2.2.4",
+          "MSTest.TestFramework": "2.2.5",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "bicep": "1.0.0"
         }
@@ -2201,7 +2201,7 @@
           "FluentAssertions": "5.10.3",
           "JsonDiffPatch.Net": "2.3.0",
           "MSTest.TestAdapter": "2.2.3",
-          "MSTest.TestFramework": "2.2.4",
+          "MSTest.TestFramework": "2.2.5",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "Microsoft.PowerShell.SDK": "7.1.3",
           "Moq": "4.16.1",
@@ -2212,7 +2212,7 @@
       "bicep.decompiler": {
         "type": "Project",
         "dependencies": {
-          "Azure.Deployments.Expression": "1.0.173",
+          "Azure.Deployments.Expression": "1.0.207",
           "Bicep.Core": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
           "System.Collections.Immutable": "5.0.0"

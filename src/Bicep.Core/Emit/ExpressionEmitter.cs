@@ -15,7 +15,7 @@ namespace Bicep.Core.Emit
 {
     public class ExpressionEmitter
     {
-        private static readonly ExpressionSerializer ExpressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
+        private static readonly ExpressionSerializer ExpressionSerializer = new(new ExpressionSerializerSettings
         {
             IncludeOuterSquareBrackets = true,
 
@@ -139,7 +139,7 @@ namespace Bicep.Core.Emit
 
             if (syntax is FunctionCallSyntax functionCall &&
                 symbol is FunctionSymbol functionSymbol &&
-                string.Equals(functionSymbol.Name, "any", LanguageConstants.IdentifierComparison))
+                string.Equals(functionSymbol.Name, LanguageConstants.AnyFunction, LanguageConstants.IdentifierComparison))
             {
                 // the outermost function in the current syntax node is the "any" function
                 // we should emit its argument directly
@@ -171,7 +171,6 @@ namespace Bicep.Core.Emit
 
             writer.WriteValue(serialized);
         }
-
         public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null, long? batchSize = null)
         {
             // local function

@@ -56,7 +56,8 @@ namespace Bicep.Wasm
 
             try
             {
-                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri);
+                var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
@@ -147,7 +148,8 @@ namespace Bicep.Wasm
             var syntaxTree = SyntaxTree.Create(fileUri, fileContents);
             workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
 
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, fileUri);
+            var fileResolver = new FileResolver();
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, fileUri);
 
             return new Compilation(resourceTypeProvider, syntaxTreeGrouping);
         }

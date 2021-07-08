@@ -3180,8 +3180,8 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
       }
 //@[6:7) RightBrace |}|
 //@[7:9) NewLine |\r\n|
-      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbols
-//@[60:62) NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
+//@[82:84) NewLine |\r\n|
       
 //@[6:8) NewLine |\r\n|
     ]

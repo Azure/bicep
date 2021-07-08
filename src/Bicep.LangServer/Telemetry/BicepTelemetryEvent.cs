@@ -22,6 +22,16 @@ namespace Bicep.LanguageServer.Telemetry
                 },
             };
 
+        public static BicepTelemetryEvent CreateNestedResourceDeclarationSnippetInsertion(string name)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.NestedResourceDeclarationSnippetInsertion,
+                Properties = new()
+                {
+                    ["name"] = name,
+                },
+            };
+
         public static BicepTelemetryEvent CreateResourceBodySnippetInsertion(string name, string type)
             => new BicepTelemetryEvent
             {
@@ -40,6 +50,16 @@ namespace Bicep.LanguageServer.Telemetry
                 Properties = new()
                 {
                     ["name"] = name,
+                },
+            };
+
+        public static BicepTelemetryEvent CreateObjectBodySnippetInsertion(string name)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.ObjectBodySnippetInsertion,
+                Properties = new()
+                {
+                    ["name"] = name
                 },
             };
     }

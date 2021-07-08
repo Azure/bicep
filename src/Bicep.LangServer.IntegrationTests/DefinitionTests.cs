@@ -12,7 +12,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -35,10 +34,9 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task GoToDefinitionRequestOnValidSymbolReferenceShouldReturnLocationOfDeclaredSymbol(DataSet dataSet)
         {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
@@ -80,7 +78,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
@@ -110,10 +108,9 @@ namespace Bicep.LangServer.IntegrationTests
             // local function
             bool IsUnboundNode(IDictionary<SyntaxBase, Symbol> dictionary, SyntaxBase syntax) => dictionary.ContainsKey(syntax) == false && !(syntax is Token);
 
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 

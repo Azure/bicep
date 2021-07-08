@@ -5,18 +5,27 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "243144719197438001"
+      "templateHash": "15567308115178212258"
     }
   },
   "parameters": {
     "principalId": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "principalId of the user that will be given contributor access to the resourceGroup"
+      }
     },
     "roleDefinitionId": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "roleDefinition to apply to the resourceGroup - default is contributor"
+      }
     },
     "roleAssignmentName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Unique name for the roleAssignment in the format of a guid"
+      }
     }
   },
   "functions": [],

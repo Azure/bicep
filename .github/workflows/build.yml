@@ -57,7 +57,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.0
+        uses: actions/setup-dotnet@v1.8.1
       
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
@@ -93,7 +93,7 @@ jobs:
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
         if: ${{ matrix.rid == 'linux-musl-x64' }}
-        uses: docker://microsoft/azure-cli:latest
+        uses: docker://mcr.microsoft.com/azure-cli:latest
         with:
           entrypoint: sh
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
@@ -124,7 +124,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v1.5.0
+        uses: codecov/codecov-action@v1.5.2
         with:
           flags: dotnet
 
@@ -140,7 +140,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.0
+        uses: actions/setup-dotnet@v1.8.1
       
       - name: Download Bicep CLI
         uses: actions/download-artifact@v2
@@ -186,10 +186,10 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.0
+        uses: actions/setup-dotnet@v1.8.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2.2.0
         with:
           node-version: 10.x
 
@@ -264,7 +264,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2.2.0
         with:
           node-version: 10.x
 
@@ -315,7 +315,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v1.5.0
+        uses: codecov/codecov-action@v1.5.2
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
@@ -344,10 +344,10 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.0
+        uses: actions/setup-dotnet@v1.8.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2.2.0
         with:
           node-version: 14.x
       
@@ -381,10 +381,10 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.0
+        uses: actions/setup-dotnet@v1.8.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2.2.0
         with:
           node-version: 14.x
       

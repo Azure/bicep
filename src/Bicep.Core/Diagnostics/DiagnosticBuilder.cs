@@ -331,15 +331,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP049",
                 $"The array index must be of type \"{LanguageConstants.String}\" or \"{LanguageConstants.Int}\" but the provided index was of type \"{wrongType}\".");
 
-            public ErrorDiagnostic ModulePathIsEmpty() => new(
+            public ErrorDiagnostic FilePathIsEmpty() => new(
                 TextSpan,
                 "BCP050",
-                "The specified module path is empty.");
+                "The specified path is empty.");
 
-            public ErrorDiagnostic ModulePathBeginsWithForwardSlash() => new(
+            public ErrorDiagnostic FilePathBeginsWithForwardSlash() => new(
                 TextSpan,
                 "BCP051",
-                "The specified module path begins with \"/\". Module files must be referenced using relative paths.");
+                "The specified path begins with \"/\". Files must be referenced using relative paths.");
 
             public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new(
                 TextSpan,
@@ -537,15 +537,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP084",
                 $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
 
-            public ErrorDiagnostic ModulePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => new(
+            public ErrorDiagnostic FilePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => new(
                 TextSpan,
                 "BCP085",
-                $"The specified module path contains one ore more invalid path characters. The following are not permitted: {ToQuotedString(forbiddenChars.OrderBy(x => x).Select(x => x.ToString()))}.");
+                $"The specified file path contains one ore more invalid path characters. The following are not permitted: {ToQuotedString(forbiddenChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
-            public ErrorDiagnostic ModulePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => new(
+            public ErrorDiagnostic FilePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => new(
                 TextSpan,
                 "BCP086",
-                $"The specified module path ends with an invalid character. The following are not permitted: {ToQuotedString(forbiddenPathTerminatorChars.OrderBy(x => x).Select(x => x.ToString()))}.");
+                $"The specified file path ends with an invalid character. The following are not permitted: {ToQuotedString(forbiddenPathTerminatorChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
             public ErrorDiagnostic ComplexLiteralsNotAllowed() => new(
                 TextSpan,
@@ -580,15 +580,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP091",
                 $"An error occurred reading file. {failureMessage}");
 
-            public ErrorDiagnostic ModulePathInterpolationUnsupported() => new(
+            public ErrorDiagnostic FilePathInterpolationUnsupported() => new(
                 TextSpan,
                 "BCP092",
-                "String interpolation is not supported in module paths.");
+                "String interpolation is not supported in file paths.");
 
-            public ErrorDiagnostic ModulePathCouldNotBeResolved(string modulePath, string parentPath) => new(
+            public ErrorDiagnostic FilePathCouldNotBeResolved(string filePath, string parentPath) => new(
                 TextSpan,
                 "BCP093",
-                $"Module path \"{modulePath}\" could not be resolved relative to \"{parentPath}\".");
+                $"File path \"{filePath}\" could not be resolved relative to \"{parentPath}\".");
 
             public ErrorDiagnostic CyclicModuleSelfReference() => new(
                 TextSpan,
@@ -610,10 +610,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP097",
                 "Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public ErrorDiagnostic ModulePathContainsBackSlash() => new(
+            public ErrorDiagnostic FilePathContainsBackSlash() => new(
                 TextSpan,
                 "BCP098",
-                "The specified module path contains a \"\\\" character. Use \"/\" instead as the directory separator character.");
+                "The specified file path contains a \"\\\" character. Use \"/\" instead as the directory separator character.");
 
             public ErrorDiagnostic AllowedMustContainItems() => new(
                 TextSpan,
@@ -681,10 +681,10 @@ namespace Bicep.Core.Diagnostics
                 null,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
-            public ErrorDiagnostic ModulePathContainsControlChars() => new(
+            public ErrorDiagnostic FilePathContainsControlChars() => new(
                 TextSpan,
                 "BCP111",
-                $"The specified module path contains invalid control code characters.");
+                $"The specified file path contains invalid control code characters.");
 
             public ErrorDiagnostic TargetScopeMultipleDeclarations() => new(
                 TextSpan,
@@ -1078,6 +1078,17 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP183",
                 $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
+            
+            public ErrorDiagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => new(
+               TextSpan,
+               "BCP184",
+               $"File '{filePath}' exceeded maximum size of {maxSize} {unit}.");
+
+            public Diagnostic FileEncodingMismatch(string detectedEncoding) => new(
+               TextSpan,
+               DiagnosticLevel.Info,
+               "BCP185",
+               $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

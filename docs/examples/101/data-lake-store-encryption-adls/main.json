@@ -5,16 +5,22 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10933695159331286621"
+      "templateHash": "6881182543139474466"
     }
   },
   "parameters": {
     "accountName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Data Lake Store account to create."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "The location in which to create the Data Lake Store account."
+      }
     }
   },
   "functions": [],

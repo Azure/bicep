@@ -1,10 +1,32 @@
-param adminUserName string
+@description('Username for the Virtual Machine.')
+param adminUsername string
 
+@description('Password for the Virtual Machine.')
+@minLength(12)
 @secure()
 param adminPassword string
 
-param dnsLabelPrefix string
+@description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
+param dnsLabelPrefix string = toLower('${vmName}-${uniqueString(resourceGroup().id, vmName)}')
 
+@description('Name for the Public IP used to access the Virtual Machine.')
+param publicIpName string = 'myPublicIP'
+
+@description('Allocation method for the Public IP used to access the Virtual Machine.')
+@allowed([
+  'Dynamic'
+  'Static'
+])
+param publicIPAllocationMethod string = 'Dynamic'
+
+@description('SKU for the Public IP used to access the Virtual Machine.')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param publicIpSku string = 'Basic'
+
+@description('The Windows version for the VM. This will pick a fully patched image of this given Windows version.')
 @allowed([
   '2008-R2-SP1'
   '2012-Datacenter'
@@ -13,28 +35,34 @@ param dnsLabelPrefix string
   '2016-Datacenter-with-Containers'
   '2016-Datacenter'
   '2019-Datacenter'
+  '2019-Datacenter-Core'
+  '2019-Datacenter-Core-smalldisk'
+  '2019-Datacenter-Core-with-Containers'
+  '2019-Datacenter-Core-with-Containers-smalldisk'
+  '2019-Datacenter-smalldisk'
+  '2019-Datacenter-with-Containers'
+  '2019-Datacenter-with-Containers-smalldisk'
 ])
-@description('The Windows version for the VM. This will pick a fully patched image of this given Windows version.')
-param windowsOSVersion string = '2016-Datacenter'
+param OSVersion string = '2019-Datacenter'
 
 @description('Size of the virtual machine.')
 param vmSize string = 'Standard_D2_v3'
 
-@description('location for all resources')
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
-var storageAccountName = concat(uniqueString(resourceGroup().id), 'sawinvm')
+@description('Name of the virtual machine.')
+param vmName string = 'simple-vm'
+
+var storageAccountName = 'bootdiags${uniqueString(resourceGroup().id)}'
 var nicName = 'myVMNic'
 var addressPrefix = '10.0.0.0/16'
 var subnetName = 'Subnet'
 var subnetPrefix = '10.0.0.0/24'
-var publicIPAddressName = 'myPublicIP'
-var vmName = 'SimpleWinVM'
 var virtualNetworkName = 'MyVNET'
-var subnetRef = '${vn.id}/subnets/${subnetName}'
 var networkSecurityGroupName = 'default-NSG'
 
-resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -43,25 +71,28 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   kind: 'Storage'
 }
 
-resource pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
-  name: publicIPAddressName
+resource pip 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
+  name: publicIpName
   location: location
+  sku: {
+    name: publicIpSku
+  }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
+    publicIPAllocationMethod: publicIPAllocationMethod
     dnsSettings: {
       domainNameLabel: dnsLabelPrefix
     }
   }
 }
 
-resource sg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
+resource securityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
   name: networkSecurityGroupName
   location: location
   properties: {
     securityRules: [
       {
         name: 'default-allow-3389'
-        'properties': {
+        properties: {
           priority: 1000
           access: 'Allow'
           direction: 'Inbound'
@@ -76,7 +107,7 @@ resource sg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   }
 }
 
-resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' = {
   name: virtualNetworkName
   location: location
   properties: {
@@ -85,24 +116,23 @@ resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' = {
         addressPrefix
       ]
     }
-    subnets: [
-      {
-        name: subnetName
-        properties: {
-          addressPrefix: subnetPrefix
-          networkSecurityGroup: {
-            id: sg.id
-          }
-        }
-      }
-    ]
   }
 }
 
-resource nInter 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
+  parent: vn
+  name: subnetName
+  properties: {
+    addressPrefix: subnetPrefix
+    networkSecurityGroup: {
+      id: securityGroup.id
+    }
+  }
+}
+
+resource nic 'Microsoft.Network/networkInterfaces@2021-02-01' = {
   name: nicName
   location: location
-
   properties: {
     ipConfigurations: [
       {
@@ -113,7 +143,7 @@ resource nInter 'Microsoft.Network/networkInterfaces@2020-06-01' = {
             id: pip.id
           }
           subnet: {
-            id: subnetRef
+            id: subnet.id
           }
         }
       }
@@ -121,7 +151,7 @@ resource nInter 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   }
 }
 
-resource VM 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = {
   name: vmName
   location: location
   properties: {
@@ -130,18 +160,21 @@ resource VM 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     }
     osProfile: {
       computerName: vmName
-      adminUsername: adminUserName
+      adminUsername: adminUsername
       adminPassword: adminPassword
     }
     storageProfile: {
       imageReference: {
         publisher: 'MicrosoftWindowsServer'
         offer: 'WindowsServer'
-        sku: windowsOSVersion
+        sku: OSVersion
         version: 'latest'
       }
       osDisk: {
         createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: 'StandardSSD_LRS'
+        }
       }
       dataDisks: [
         {
@@ -154,7 +187,7 @@ resource VM 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: nInter.id
+          id: nic.id
         }
       ]
     }

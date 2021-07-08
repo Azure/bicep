@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "209805249433312840"
+      "templateHash": "13593744847859493909"
     }
   },
   "parameters": {
@@ -77,26 +77,18 @@
     "skuName": {
       "type": "string",
       "defaultValue": "standard",
-      "metadata": {
-        "description": "Specifies whether the key vault is a standard vault or a premium vault."
-      },
       "allowedValues": [
         "standard",
         "premium"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies whether the key vault is a standard vault or a premium vault."
+      }
     },
     "secretsObject": {
       "type": "secureObject",
-      "defaultValue": {
-        "secrets": [
-          {
-            "secretName": "yourSecret",
-            "secretValue": "yourValue"
-          }
-        ]
-      },
       "metadata": {
-        "description": "Specifies all secrets {\"secretName\":\"\",\"secretValue\":\"\"} wrapped in a secure object."
+        "description": "Specifies all secrets {\"secretName\":\"\",\"secretValue\":\"\"} wrapped in \"secrets\" member array in a secure object."
       }
     }
   },
@@ -141,7 +133,7 @@
         "count": "[length(parameters('secretsObject').secrets)]"
       },
       "type": "Microsoft.KeyVault/vaults/secrets",
-      "apiVersion": "2018-02-14",
+      "apiVersion": "2019-09-01",
       "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('secretsObject').secrets[copyIndex()].secretName)]",
       "properties": {
         "value": "[parameters('secretsObject').secrets[copyIndex()].secretValue]"

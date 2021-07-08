@@ -8,6 +8,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Text;
 
 namespace Bicep.Core.UnitTests.FileSystem
 {
@@ -19,7 +20,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         public void TryResolveModulePath_should_return_expected_results(string parentFilePath, string childFilePath, string? expectedResult)
         {
             var fileResolver = new FileResolver();
-            fileResolver.TryResolveModulePath(new Uri(parentFilePath), childFilePath).Should().Be(expectedResult != null ? new Uri(expectedResult) : null, $"{nameof(fileResolver.TryResolveModulePath)}(\"{parentFilePath}\", \"{childFilePath}\") should produce expected result");
+            fileResolver.TryResolveFilePath(new Uri(parentFilePath), childFilePath).Should().Be(expectedResult != null ? new Uri(expectedResult) : null, $"{nameof(fileResolver.TryResolveFilePath)}(\"{parentFilePath}\", \"{childFilePath}\") should produce expected result");
         }
 
         private static IEnumerable<object?[]> TryResolveModulePathData()
@@ -59,6 +60,55 @@ namespace Bicep.Core.UnitTests.FileSystem
             File.Delete(tempFile);
 
             fileResolver.TryRead(tempFileUri, out fileContents, out failureMessage).Should().BeFalse();
+            fileContents.Should().BeNull();
+            failureMessage.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void TryReadWithLimit_should_return_expected_results()
+        {
+            var fileResolver = new FileResolver();
+            var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
+            var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
+
+            File.WriteAllText(tempFile, "abcd\r\ndef");
+
+            fileResolver.TryRead(tempFileUri, out var fileContents, out var failureMessage, Encoding.UTF8, 6, out var _).Should().BeFalse();
+            fileContents.Should().BeNull();
+            failureMessage.Should().NotBeNull();
+            Core.Diagnostics.DiagnosticBuilder.DiagnosticBuilderInternal diag = new(new Core.Parsing.TextSpan(0, 5));
+            var err = failureMessage!.Invoke(diag);
+            err.Message.Should().Contain($"6 characters");
+
+            File.Delete(tempFile);
+
+            fileResolver.TryRead(tempFileUri, out fileContents, out failureMessage, Encoding.UTF8, 6, out var _).Should().BeFalse();
+            fileContents.Should().BeNull();
+            failureMessage.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void TryReadAsBase64_should_return_expected_results()
+        {
+            var fileResolver = new FileResolver();
+            var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
+            var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
+
+            File.WriteAllText(tempFile, "abcd\r\ndef\r\n\r\nghi");
+            fileResolver.TryReadAsBase64(tempFileUri, out var fileContents, out var failureMessage).Should().BeTrue();
+            fileContents.Should().Equals("YWJjZA0KZGVmDQoNCmdoaQ==");
+            failureMessage.Should().BeNull();
+
+            fileResolver.TryReadAsBase64(tempFileUri, out fileContents, out failureMessage, 8).Should().BeFalse();
+            fileContents.Should().BeNull();
+            failureMessage.Should().NotBeNull();
+            Core.Diagnostics.DiagnosticBuilder.DiagnosticBuilderInternal diag = new(new Core.Parsing.TextSpan(0, 5));
+            var err = failureMessage!.Invoke(diag);
+            err.Message.Should().Contain($"{8 / 4 * 3} bytes");
+
+            File.Delete(tempFile);
+
+            fileResolver.TryReadAsBase64(tempFileUri, out fileContents, out failureMessage).Should().BeFalse();
             fileContents.Should().BeNull();
             failureMessage.Should().NotBeNull();
         }

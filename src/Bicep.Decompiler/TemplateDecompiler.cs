@@ -19,11 +19,10 @@ namespace Bicep.Decompiler
 {
     public static class TemplateDecompiler
     {
-        public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, Uri entryJsonUri)
+        public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, Uri entryJsonUri, Uri entryBicepUri)
         {
             var workspace = new Workspace();
             var decompileQueue = new Queue<(Uri, Uri)>();
-            var entryBicepUri = PathHelper.ChangeToBicepExtension(entryJsonUri);
 
             decompileQueue.Enqueue((entryJsonUri, entryBicepUri));
 
@@ -46,7 +45,7 @@ namespace Bicep.Decompiler
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, jsonUri, jsonInput);
+                var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput);
                 var syntaxTree = new SyntaxTree(bicepUri, ImmutableArray<int>.Empty, program);
                 workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
 
@@ -54,7 +53,7 @@ namespace Bicep.Decompiler
                 {
                     var moduleRelativePath = SyntaxHelper.TryGetModulePath(module, out _);
                     if (moduleRelativePath == null ||
-                        !SyntaxTreeGroupingBuilder.ValidateModulePath(moduleRelativePath, out _) ||
+                        !SyntaxTreeGroupingBuilder.ValidateFilePath(moduleRelativePath, out _) ||
                         !Uri.TryCreate(bicepUri, moduleRelativePath, out var moduleUri))
                     {
                         // Do our best, but keep going if we fail to resolve a module file
@@ -99,7 +98,8 @@ namespace Bicep.Decompiler
         private static bool RewriteSyntax(IResourceTypeProvider resourceTypeProvider, Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
             var hasChanges = false;
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entryUri);
+            var fileResolver = new FileResolver();
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entryUri);
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             foreach (var (fileUri, syntaxTree) in workspace.GetActiveSyntaxTrees())
@@ -115,7 +115,7 @@ namespace Bicep.Decompiler
                     var newSyntaxTree = new SyntaxTree(fileUri, ImmutableArray<int>.Empty, newProgramSyntax);
                     workspace.UpsertSyntaxTrees(newSyntaxTree.AsEnumerable());
 
-                    syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entryUri);
+                    syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entryUri);
                     compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
                 }
             }

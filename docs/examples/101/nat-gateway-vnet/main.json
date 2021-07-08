@@ -5,42 +5,68 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7911232722176433839"
+      "templateHash": "6286385429065988966"
     }
   },
   "parameters": {
     "vnetName": {
       "type": "string",
-      "defaultValue": "myVnet"
+      "defaultValue": "myVnet",
+      "metadata": {
+        "description": "Name of the virtual network"
+      }
     },
-    "subNetName": {
+    "subnetName": {
       "type": "string",
-      "defaultValue": "mySubnet"
+      "defaultValue": "mySubnet",
+      "metadata": {
+        "description": "Name of the subnet for virtual network"
+      }
     },
     "vnetAddressSpace": {
       "type": "string",
-      "defaultValue": "192.168.0.0/16"
+      "defaultValue": "192.168.0.0/16",
+      "metadata": {
+        "description": "Address space for virtual network"
+      }
     },
     "vnetSubnetPrefix": {
       "type": "string",
-      "defaultValue": "192.168.0.0/24"
+      "defaultValue": "192.168.0.0/24",
+      "metadata": {
+        "description": "Subnet prefix for virtual network"
+      }
     },
     "natGatewayName": {
       "type": "string",
-      "defaultValue": "myNATgateway"
+      "defaultValue": "myNATgateway",
+      "metadata": {
+        "description": "Name of the NAT gateway resource"
+      }
     },
-    "publicIpDNS": {
+    "publicIpDns": {
       "type": "string",
-      "defaultValue": "[format('gw-{0}', uniqueString(resourceGroup().id))]"
+      "defaultValue": "[format('gw-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "dns of the public ip address, leave blank for no dns"
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location of resources"
+      }
     }
   },
   "functions": [],
   "variables": {
-    "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]"
+    "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]",
+    "publicIpAddresses": [
+      {
+        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
+      }
+    ]
   },
   "resources": [
     {
@@ -56,7 +82,7 @@
         "publicIPAllocationMethod": "Static",
         "idleTimeoutInMinutes": 4,
         "dnsSettings": {
-          "domainNameLabel": "[parameters('publicIpDNS')]"
+          "domainNameLabel": "[parameters('publicIpDns')]"
         }
       }
     },
@@ -70,11 +96,7 @@
       },
       "properties": {
         "idleTimeoutInMinutes": 4,
-        "publicIpAddresses": [
-          {
-            "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
-          }
-        ]
+        "publicIpAddresses": "[if(not(empty(parameters('publicIpDns'))), variables('publicIpAddresses'), null())]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
@@ -93,7 +115,7 @@
         },
         "subnets": [
           {
-            "name": "[parameters('subNetName')]",
+            "name": "[parameters('subnetName')]",
             "properties": {
               "addressPrefix": "[parameters('vnetSubnetPrefix')]",
               "natGateway": {
@@ -114,7 +136,7 @@
     {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subNetName'))]",
+      "name": "[format('{0}/{1}', parameters('vnetName'), 'mySubnet')]",
       "properties": {
         "addressPrefix": "[parameters('vnetSubnetPrefix')]",
         "natGateway": {
