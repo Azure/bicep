@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Azure.Deployments.Core.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -534,25 +535,20 @@ namespace Bicep.Core.Semantics.Namespaces
                 return LanguageConstants.Any;
             }
 
-            try
+            // Purposefully use the same method and parsing settings as the deployment engine,
+            // to provide as much consistency as possible.
+            if (stringLiteral.RawStringValue.TryFromJson<JToken>() is not {} token)
             {
-                var jsonLoadSettings = new JsonLoadSettings
-                {
-                    CommentHandling = CommentHandling.Ignore,
-                    DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error,
-                    LineInfoHandling = LineInfoHandling.Ignore
-                };
-
-                var token = JToken.Parse(stringLiteral.RawStringValue, jsonLoadSettings);
-
-                return ToBicepType(token);
-            }
-            catch
-            {
+                // Instead of catching and returning the JSON parse exception, we simply return a generic error.
+                // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
+                // If the in-line JSON is so complex that troubleshooting is difficult, then that's a sign that the user should
+                // instead break it out into a separate file and use loadTextContent().
                 var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparseableJsonType();
 
                 return ErrorType.Create(error);
             }
+
+            return ToBicepType(token);
         }
 
         // TODO: Add copyIndex here when we support loops.
