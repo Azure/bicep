@@ -86,7 +86,7 @@ var disallowed = {
             result.Should().HaveDiagnostics(new[] {
                 ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"allowed\" is declared but never used."),
                 ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"disallowed\" is declared but never used."),
-                ("BCP110", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"lis\". Did you mean \"list\"?"),
+                ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"lis\"."),
                 ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"lsit\"."),
                 ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"totallyMadeUpMethod\"."),
             });
