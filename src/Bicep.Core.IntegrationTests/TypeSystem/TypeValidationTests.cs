@@ -351,14 +351,21 @@ output valueB string = myRes.properties.myDisc1.valueB
         public void Json_function_can_obtain_types_for_string_literal_json_args()
         {
             var program = @"
-var invalidJson = json('{""prop"": ""value""')
 var intJson = json('123')
 var floatJson = json('1234.1224')
 var stringJson = json('""hello!""')
 var nullJson = json('null')
+var jsonWithComments = json('''
+{
+    //here's a comment!
+    ""key"": ""value"" /* multi-line
+    comment */
+}
+''')
 
 var objectJson = json('{""validProp"": ""validValue""}')
 var propAccess = objectJson.validProp
+var commentsPropAccess = jsonWithComments.key
 var invalidPropAccess = objectJson.invalidProp
 ";
 
@@ -367,17 +374,34 @@ var invalidPropAccess = objectJson.invalidProp
             GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
             GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
 
-            GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("any");
             GetTypeForNamedSymbol(model, "intJson").Name.Should().Be("int");
-            GetTypeForNamedSymbol(model, "floatJson").Name.Should().Be("int");
+            GetTypeForNamedSymbol(model, "floatJson").Name.Should().Be("any");
             GetTypeForNamedSymbol(model, "stringJson").Name.Should().Be("'hello!'");
             GetTypeForNamedSymbol(model, "nullJson").Name.Should().Be("null");
+            GetTypeForNamedSymbol(model, "commentsPropAccess").Name.Should().Be("'value'");
 
             GetTypeForNamedSymbol(model, "invalidPropAccess").Name.Should().Be("error");
 
             var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
             model.GetAllDiagnostics(noLinterConfig).Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP083", DiagnosticLevel.Error).And.HaveMessage("The type \"object\" does not contain property \"invalidProp\". Did you mean \"validProp\"?")
+            );
+        }
+
+        [TestMethod]
+        public void Json_function_returns_error_for_unparseable_json()
+        {
+            var program = @"
+var invalidJson = json('{""prop"": ""value""')
+";
+
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            
+            GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("error");
+
+            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
+            model.GetAllDiagnostics(noLinterConfig).Should().SatisfyRespectively(
+                x => x.Should().HaveCodeAndSeverity("BCP186", DiagnosticLevel.Error).And.HaveMessage("Unable to parse literal JSON value. Please ensure that it is well-formed.")
             );
         }
 
