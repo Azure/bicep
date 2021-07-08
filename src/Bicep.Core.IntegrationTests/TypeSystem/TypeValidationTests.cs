@@ -392,7 +392,7 @@ var invalidPropAccess = objectJson.invalidProp
         public void Json_function_returns_error_for_unparseable_json()
         {
             var program = @"
-var invalidJson = json('{""prop"": ""value""')
+var invalidJson = json('{""prop"": ""value')
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
