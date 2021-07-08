@@ -520,7 +520,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     JValue value => value.Type switch {
                         JTokenType.String => new StringLiteralType(value.ToString()),
                         JTokenType.Integer => LanguageConstants.Int,
-                        JTokenType.Float => LanguageConstants.Int,
+                        // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
+                        JTokenType.Float => LanguageConstants.Any,
                         JTokenType.Boolean => LanguageConstants.Bool,
                         JTokenType.Null => LanguageConstants.Null,
                         _ => LanguageConstants.Any,
@@ -535,13 +536,22 @@ namespace Bicep.Core.Semantics.Namespaces
 
             try
             {
-                var token = JToken.Parse(stringLiteral.RawStringValue);
+                var jsonLoadSettings = new JsonLoadSettings
+                {
+                    CommentHandling = CommentHandling.Ignore,
+                    DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error,
+                    LineInfoHandling = LineInfoHandling.Ignore
+                };
+
+                var token = JToken.Parse(stringLiteral.RawStringValue, jsonLoadSettings);
 
                 return ToBicepType(token);
             }
             catch
             {
-                return LanguageConstants.Any;
+                var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparseableJsonType();
+
+                return ErrorType.Create(error);
             }
         }
 

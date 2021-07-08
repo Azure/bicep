@@ -1089,6 +1089,11 @@ namespace Bicep.Core.Diagnostics
                DiagnosticLevel.Info,
                "BCP185",
                $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
+
+            public ErrorDiagnostic UnparseableJsonType() => new(
+               TextSpan,
+               "BCP186",
+               $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

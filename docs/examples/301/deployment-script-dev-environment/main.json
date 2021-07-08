@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1663779225169069299"
+      "templateHash": "289854984096426809"
     }
   },
   "parameters": {
@@ -204,7 +204,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1159894373308865716"
+              "templateHash": "6673808017610235563"
             }
           },
           "parameters": {
@@ -284,7 +284,7 @@
                   {
                     "name": "[format('{0}cg', parameters('name'))]",
                     "properties": {
-                      "image": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliImage'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshImage'), null()))]",
+                      "image": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliImage'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshImage'), ''))]",
                       "resources": {
                         "requests": {
                           "cpu": 1,

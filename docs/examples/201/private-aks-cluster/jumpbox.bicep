@@ -133,7 +133,7 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2020-12-01' = {
       computerName: vmName
       adminUsername: vmAdminUsername
       adminPassword: vmAdminPasswordOrKey
-      linuxConfiguration: ((authenticationType == 'password') ? any(null) : linuxConfiguration)
+      linuxConfiguration: ((authenticationType == 'password') ? null : linuxConfiguration)
     }
     storageProfile: {
       imageReference: {
