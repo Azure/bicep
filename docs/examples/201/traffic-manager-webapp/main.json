@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17505730705752757815"
+      "templateHash": "7725203689471739007"
     }
   },
   "parameters": {
@@ -42,7 +42,7 @@
   "resources": [
     {
       "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2021-01-01",
+      "apiVersion": "2020-12-01",
       "name": "[parameters('appServicePlanName')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -52,7 +52,7 @@
     },
     {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2021-01-01",
+      "apiVersion": "2020-12-01",
       "name": "[parameters('uniqueDnsNameForWebApp')]",
       "location": "[parameters('location')]",
       "properties": {
