@@ -8,6 +8,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
@@ -21,10 +22,11 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<LinterAnalyzer> linterAnalyzerLazy;
 
-        public SemanticModel(Compilation compilation, SyntaxTree syntaxTree)
+        public SemanticModel(Compilation compilation, SyntaxTree syntaxTree, IFileResolver fileResolver)
         {
             Compilation = compilation;
             SyntaxTree = syntaxTree;
+            FileResolver = fileResolver;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
@@ -33,7 +35,7 @@ namespace Bicep.Core.Semantics
             SymbolContext = symbolContext;
 
             Binder = new Binder(syntaxTree, symbolContext);
-            TypeManager = new TypeManager(compilation.ResourceTypeProvider, Binder);
+            TypeManager = new TypeManager(compilation.ResourceTypeProvider, Binder, fileResolver);
 
             // name binding is done
             // allow type queries now
@@ -55,7 +57,6 @@ namespace Bicep.Core.Semantics
         }
 
         public SyntaxTree SyntaxTree { get; }
-
         public IBinder Binder { get; }
 
         public ISymbolContext SymbolContext { get; }
@@ -63,6 +64,8 @@ namespace Bicep.Core.Semantics
         public Compilation Compilation { get; }
 
         public ITypeManager TypeManager { get; }
+
+        public IFileResolver FileResolver { get; }
 
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
 

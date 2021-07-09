@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -38,7 +37,8 @@ namespace Bicep.Core.Semantics
                 declarations.OfType<VariableSymbol>(),
                 declarations.OfType<ResourceSymbol>(),
                 declarations.OfType<ModuleSymbol>(),
-                declarations.OfType<OutputSymbol>());
+                declarations.OfType<OutputSymbol>(),
+                syntaxTree.FileUri);
         }
 
         public ResourceScope TargetScope { get; }

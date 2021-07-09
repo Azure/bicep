@@ -15,4 +15,3 @@ resource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-
   }
 }
 // Insert snippet here
-

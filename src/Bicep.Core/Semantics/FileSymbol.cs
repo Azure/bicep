@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -21,11 +22,13 @@ namespace Bicep.Core.Semantics
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
             IEnumerable<ModuleSymbol> moduleDeclarations,
-            IEnumerable<OutputSymbol> outputDeclarations)
+            IEnumerable<OutputSymbol> outputDeclarations,
+            Uri fileUri)
             : base(name)
         {
             this.Syntax = syntax;
             this.ImportedNamespaces = importedNamespaces;
+            FileUri = fileUri;
             this.LocalScopes = outermostScopes.ToImmutableArray();
 
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
@@ -62,7 +65,9 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
-        
+
+        public Uri FileUri { get; }
+
         /// <summary>
         /// Returns all the top-level declaration symbols.
         /// </summary>

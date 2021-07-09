@@ -21,4 +21,3 @@ resource automationCertificate 'Microsoft.Automation/automationAccounts/certific
   }
 }
 // Insert snippet here
-

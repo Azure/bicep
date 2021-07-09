@@ -3,20 +3,20 @@
   "private": true,
   "devDependencies": {
     "@types/html-escaper": "^3.0.0",
-    "@types/jest": "^26.0.23",
-    "@types/node": "^15.12.4",
-    "@typescript-eslint/eslint-plugin": "^4.27.0",
-    "@typescript-eslint/parser": "^4.27.0",
-    "eslint": "^7.29.0",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "@typescript-eslint/parser": "^4.28.2",
+    "eslint": "^7.30.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^24.3.6",
     "html-escaper": "^3.0.3",
-    "jest": "^27.0.4",
+    "jest": "^27.0.6",
     "jest-esm-transformer": "^1.0.0",
     "monaco-editor-core": "^0.25.1",
     "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.5"
   },
   "engines": {
     "node": ">=14.0.0"

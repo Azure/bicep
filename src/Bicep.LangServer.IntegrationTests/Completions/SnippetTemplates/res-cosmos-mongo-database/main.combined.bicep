@@ -12,4 +12,3 @@ resource mongoDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-3
   }
 }
 // Insert snippet here
-

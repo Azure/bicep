@@ -181,7 +181,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2018-11-01' = [for i in range(
       }
     ]
     enableAcceleratedNetworking: enableAcceleratedNetworking
-    networkSecurityGroup: (empty(networkSecurityGroupId) ? json('null') : json('{"id": "${nsgId}"}'))
+    networkSecurityGroup: (empty(networkSecurityGroupId) ? null : json('{"id": "${nsgId}"}'))
   }
   dependsOn: [
     NSG
@@ -199,7 +199,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = [for i in range(0, 
     hardwareProfile: {
       vmSize: rdshVmSize
     }
-    availabilitySet: ((availabilityOption == 'AvailabilitySet') ? vmAvailabilitySetResourceId : json('null'))
+    availabilitySet: ((availabilityOption == 'AvailabilitySet') ? vmAvailabilitySetResourceId : null)
     osProfile: {
       computerName: concat(rdshPrefix, (i + vmInitialNumber))
       adminUsername: vmAdministratorUsername

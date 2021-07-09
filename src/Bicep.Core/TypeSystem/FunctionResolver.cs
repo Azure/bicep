@@ -73,10 +73,7 @@ namespace Bicep.Core.TypeSystem
             var wildcardOverloads =  FunctionWildcardOverloads.Where(fo => fo.WildcardRegex.IsMatch(name));
 
             // create a new symbol for each unique name that matches the wildcard
-            var cachedSymbol = wildcardOverloads.Any() ? new FunctionSymbol(name, wildcardOverloads) : null;
-            FunctionCache[name] = cachedSymbol;
-
-            return cachedSymbol;
+            return wildcardOverloads.Any() ? new FunctionSymbol(name, wildcardOverloads) : null;
         }
 
         public static IEnumerable<FunctionOverload> GetMatches(

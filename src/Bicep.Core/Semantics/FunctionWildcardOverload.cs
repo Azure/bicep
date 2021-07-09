@@ -16,8 +16,9 @@ namespace Bicep.Core.Semantics
             TypeSymbol returnType,
             IEnumerable<FixedFunctionParameter> fixedArgumentTypes,
             VariableFunctionParameter? variableArgumentType,
+            EvaluatorDelegate? expressionEmitterDelegate,
             FunctionFlags flags = FunctionFlags.Default)
-            : base(name, description, returnTypeBuilder, returnType, fixedArgumentTypes, variableArgumentType, flags)
+            : base(name, description, returnTypeBuilder, returnType, fixedArgumentTypes, variableArgumentType, expressionEmitterDelegate, flags)
         {
             WildcardRegex = wildcardRegex;
         }

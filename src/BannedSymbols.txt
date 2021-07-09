@@ -34,3 +34,6 @@ M:System.Console.WriteLine(System.String,System.Object,System.Object);Don't use 
 M:System.Console.WriteLine(System.String,System.Object,System.Object,System.Object);Don't use Console.WriteLine for logging.
 M:System.Console.WriteLine(System.String,System.Object[]);Don't use Console.WriteLine for logging.
 M:System.Console.WriteLine(System.Decimal);Don't use Console.WriteLine for logging.
+
+M:Moq.Mock`1.#ctor();Don't use the default Mock constructor. Set Strict mode explicitly or use a MockRepository set to strict mode.
+M:Moq.Mock`1.#ctor(System.Object[]);Don't use the default Mock constructor. Set Strict mode explicitly or use a MockRepository set to strict mode.

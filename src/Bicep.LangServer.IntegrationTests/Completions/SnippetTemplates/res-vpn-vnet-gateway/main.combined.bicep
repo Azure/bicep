@@ -38,4 +38,3 @@ resource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11
   }
 }
 // Insert snippet here
-

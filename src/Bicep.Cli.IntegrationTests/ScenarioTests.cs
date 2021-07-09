@@ -1,19 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Syntax;
+
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
-    public class ScenarioTests
+    public class ScenarioTests : TestBase
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -135,7 +133,7 @@ namespace Bicep.Cli.IntegrationTests
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, template);
 
-            var (output, error, result) = CliHelper.ExecuteProgram("decompile", fileName);
+            var (_, _, result) = Bicep("decompile", fileName);
 
             // This example has errors, but files should still have been generated
             result.Should().Be(1);

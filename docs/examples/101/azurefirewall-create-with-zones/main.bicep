@@ -45,7 +45,7 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
 resource firewall 'Microsoft.Network/azureFirewalls@2020-06-01' = {
   name: firewallName
   location: location
-  zones: length(availabilityZones) == 0 ? json('null') : availabilityZones
+  zones: length(availabilityZones) == 0 ? null : availabilityZones
   properties: {
     ipConfigurations: [
       {
