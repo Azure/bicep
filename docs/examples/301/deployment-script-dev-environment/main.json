@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12138990045889318701"
+      "templateHash": "289854984096426809"
     }
   },
   "parameters": {
@@ -204,7 +204,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10962051538706201810"
+              "templateHash": "6673808017610235563"
             }
           },
           "parameters": {
@@ -284,7 +284,7 @@
                   {
                     "name": "[format('{0}cg', parameters('name'))]",
                     "properties": {
-                      "image": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliImage'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshImage'), json('null')))]",
+                      "image": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliImage'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshImage'), ''))]",
                       "resources": {
                         "requests": {
                           "cpu": 1,
@@ -303,7 +303,7 @@
                           "mountPath": "[parameters('mountPath')]"
                         }
                       ],
-                      "command": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliCommand'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshCommand'), json('null')))]"
+                      "command": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliCommand'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshCommand'), null()))]"
                     }
                   }
                 ],
