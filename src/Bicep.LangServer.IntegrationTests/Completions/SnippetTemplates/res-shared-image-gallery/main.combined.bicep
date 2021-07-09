@@ -10,4 +10,3 @@ resource sharedImageGallery 'Microsoft.Compute/galleries@2020-09-30' = {
   }
 }
 // Insert snippet here
-

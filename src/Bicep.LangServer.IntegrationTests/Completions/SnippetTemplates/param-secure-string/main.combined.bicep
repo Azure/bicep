@@ -1,6 +1,13 @@
-// $1 = testParam
+// $1 = location
 
 @secure()
-param testParam string// Insert snippet here
-//@[6:15) [no-unused-params (Warning)] Parameter "testParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |testParam|
+param location string// Insert snippet here
 
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
+  name: 'name'
+  location: location
+  sku: {
+    name: 'F1'
+    capacity: 1
+  }
+}

@@ -67,7 +67,6 @@ namespace Bicep.LangServer.IntegrationTests
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
         }
 
-        // TODO: Handle varying linter expectations for data-driven test
         [DataTestMethod]
         [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -75,7 +74,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
 
-            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(this.TestContext, typeof(CompletionTests).Assembly, pathPrefix);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(CompletionTests).Assembly, pathPrefix);
 
             var bicepFileName = Path.Combine(outputDirectory, "main.bicep");
             var bicepSourceFileName = Path.Combine("src", "Bicep.LangServer.IntegrationTests", pathPrefix, Path.GetRelativePath(outputDirectory, bicepFileName));
@@ -108,10 +107,15 @@ namespace Bicep.LangServer.IntegrationTests
                 var compilation = new Compilation(TypeProvider, syntaxTreeGrouping);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
-                File.WriteAllText(combinedFileName + ".actual", sourceTextWithDiags);
+                if (diagnostics.Any())
+                {
+                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
+                    Execute.Assertion.FailWith($"Expected \"main.combined.bicep\" file to not contain errors or warnings, but found {diagnostics.Count()}. " +
+                        $"Please fix errors/warnings mentioned in below section in \"main.combined.bicep\" file:\n " +
+                        $"{sourceTextWithDiags}");
+                }
 
-                sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                bicepContentsReplaced.Should().EqualWithLineByLineDiffOutput(
                     TestContext,
                     File.Exists(combinedFileName) ? (await File.ReadAllTextAsync(combinedFileName)) : string.Empty,
                     expectedLocation: combinedSourceFileName,
@@ -293,6 +297,125 @@ var test2 = /|* block c|omment *|/
                 c =>
                 {
                     c.Label.Should().Be("for-filtered");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyNestedResourceBodyCompletionReturnsSnippets()
+        {
+            string fileWithCursors = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+  name: 'name'
+  location: resourceGroup().location
+
+  resource automationCredential 'credentials@2019-06-01' = |
+}";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+
+            completionLists.Count().Should().Be(1);
+
+            var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+
+            snippetCompletions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("{}");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("snippet");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("required-properties");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("if");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-indexed");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("for-filtered");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyNestedResourceBodyCompletionReturnsCustomSnippetWithoutParentInformation()
+        {
+            string fileWithCursors = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+  name: 'name'
+  location: resourceGroup().location
+
+  resource automationCredential 'credentials@2019-06-01' = |
+}";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+
+            completionLists.Count().Should().Be(1);
+
+            var snippetCompletion = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == "snippet");
+
+            snippetCompletion.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("snippet");
+                    c.Detail.Should().Be("Automation Credential");
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.TextEdit?.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"{
+  name: ${3:'name'}
+  properties: {
+    userName: ${4:'userName'}
+    password: ${5:'password'}
+    description: ${6:'description'}
+  }
+}");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyNestedResourceCompletionReturnsCustomSnippetWithoutParentInformation()
+        {
+            string fileWithCursors = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+  name: 'name'
+  location: resourceGroup().location
+
+  |
+}";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+
+            completionLists.Count().Should().Be(1);
+
+            var snippetCompletion = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == "res-automation-cred");
+
+            snippetCompletion.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("res-automation-cred");
+                    c.Detail.Should().Be("Automation Credential");
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.TextEdit?.TextEdit?.NewText?.Should().BeEquivalentToIgnoringNewlines(@"resource ${2:automationCredential} 'credentials@2019-06-01' = {
+  name: ${3:'name'}
+  properties: {
+    userName: ${4:'userName'}
+    password: ${5:'password'}
+    description: ${6:'description'}
+  }
+}");
                 });
         }
 
@@ -709,6 +832,58 @@ var nullLit = |n|ull|
                 c =>
                 {
                     c.Label.Should().Be("required-properties");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestWithinResourceDeclarationReturnsSnippets()
+        {
+            string fileWithCursors = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+  name: 'name'
+  location: resourceGroup().location
+  |
+}";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+
+            completionLists.Count().Should().Be(1);
+
+            var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+
+            snippetCompletions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("resource-with-defaults");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("resource-without-defaults");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("res-automation-cert");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("res-automation-cred");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("res-automation-job-schedule");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("res-automation-runbook");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("res-automation-schedule");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("res-automation-variable");
                 });
         }
 

@@ -66,3 +66,10 @@ var loadWithEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-
 var loadWithEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
 var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
 var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8')
+
+var testJson = json(loadTextContent('./Assets/test.json.txt'))
+var testJsonString = testJson.string
+var testJsonInt = testJson.int
+var testJsonArrayVal = testJson.array[0]
+var testJsonObject = testJson.object
+var testJsonNestedString = testJson.object.nestedString

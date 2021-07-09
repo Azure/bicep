@@ -66,35 +66,5 @@
       "range": {},
       "newText": "if (${1:condition}) {\n\t$0\n}"
     }
-  },
-  {
-    "label": "{}",
-    "kind": "snippet",
-    "detail": "{}",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\n{\n\t\n}\n```"
-    },
-    "deprecated": false,
-    "preselect": true,
-    "sortText": "2_{}",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "{\n\t$0\n}"
-    },
-    "command": {
-      "command": "bicep.Telemetry",
-      "arguments": [
-        {
-          "Properties": {
-            "name": "{}",
-            "type": "error"
-          },
-          "EventName": "ResourceBodySnippetInsertion"
-        }
-      ]
-    }
   }
 ]

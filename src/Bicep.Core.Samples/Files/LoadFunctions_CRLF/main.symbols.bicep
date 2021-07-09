@@ -95,3 +95,16 @@ var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
 var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8')
 //@[4:22) Variable loadWithEncoding12. Type: '💪😊😈🍕☕\r\n🐱‍👤\r\n\r\n朝辞白帝彩云间\r\n千里江陵一日还\r\n两岸猿声啼不住\r\n轻舟已过万重山\r\n\r\nΠ π Φ φ\r\n\r\n😎\r\n\r\nαα\r\nΩω\r\nΘ  \r\n\r\nZażółć gęślą jaźń\r\n\r\náéóúñü - ¡Hola!\r\n\r\n二头肌二头肌\r\n\r\n\r\n二头肌\r\nΘ二头肌α\r\n\r\n𐐷\r\n\\u{10437}\r\n\\u{D801}\\u{DC37}\r\n\r\n❆ Hello\\u{20}World\\u{21} ❁\r\n\r\n\ta\tb\tc\td\te\tf\tg\th\t\r\n8\t♜\t♞\t♝\t♛\t♚\t♝\t♞\t♜\t8\r\n7\t♟\t♟\t♟\t♟\t♟\t♟\t♟\t♟\t7\r\n6\t\t\t\t\t\t\t\t\t6\r\n5\t\t\t\t\t\t\t\t\t5\r\n4\t\t\t\t\t\t\t\t\t4\r\n3\t\t\t\t\t\t\t\t\t3\r\n2\t♙\t♙\t♙\t♙\t♙\t♙\t♙\t♙\t2\r\n1\t♖\t♘\t♗\t♕\t♔\t♗\t♘\t♖\t1\r\n\ta\tb\tc\td\te\tf\tg\th\r\n'. Declaration start char: 0, length: 81
 
+var testJson = json(loadTextContent('./Assets/test.json.txt'))
+//@[4:12) Variable testJson. Type: object. Declaration start char: 0, length: 62
+var testJsonString = testJson.string
+//@[4:18) Variable testJsonString. Type: 'someVal'. Declaration start char: 0, length: 36
+var testJsonInt = testJson.int
+//@[4:15) Variable testJsonInt. Type: int. Declaration start char: 0, length: 30
+var testJsonArrayVal = testJson.array[0]
+//@[4:20) Variable testJsonArrayVal. Type: int. Declaration start char: 0, length: 40
+var testJsonObject = testJson.object
+//@[4:18) Variable testJsonObject. Type: object. Declaration start char: 0, length: 36
+var testJsonNestedString = testJson.object.nestedString
+//@[4:24) Variable testJsonNestedString. Type: 'someVal'. Declaration start char: 0, length: 55
+

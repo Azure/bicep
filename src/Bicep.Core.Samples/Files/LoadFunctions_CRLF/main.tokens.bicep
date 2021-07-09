@@ -429,6 +429,64 @@ var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8'
 //@[71:72) Comma |,|
 //@[73:80) StringComplete |'utf-8'|
 //@[80:81) RightParen |)|
-//@[81:83) NewLine |\r\n|
+//@[81:85) NewLine |\r\n\r\n|
+
+var testJson = json(loadTextContent('./Assets/test.json.txt'))
+//@[0:3) Identifier |var|
+//@[4:12) Identifier |testJson|
+//@[13:14) Assignment |=|
+//@[15:19) Identifier |json|
+//@[19:20) LeftParen |(|
+//@[20:35) Identifier |loadTextContent|
+//@[35:36) LeftParen |(|
+//@[36:60) StringComplete |'./Assets/test.json.txt'|
+//@[60:61) RightParen |)|
+//@[61:62) RightParen |)|
+//@[62:64) NewLine |\r\n|
+var testJsonString = testJson.string
+//@[0:3) Identifier |var|
+//@[4:18) Identifier |testJsonString|
+//@[19:20) Assignment |=|
+//@[21:29) Identifier |testJson|
+//@[29:30) Dot |.|
+//@[30:36) Identifier |string|
+//@[36:38) NewLine |\r\n|
+var testJsonInt = testJson.int
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |testJsonInt|
+//@[16:17) Assignment |=|
+//@[18:26) Identifier |testJson|
+//@[26:27) Dot |.|
+//@[27:30) Identifier |int|
+//@[30:32) NewLine |\r\n|
+var testJsonArrayVal = testJson.array[0]
+//@[0:3) Identifier |var|
+//@[4:20) Identifier |testJsonArrayVal|
+//@[21:22) Assignment |=|
+//@[23:31) Identifier |testJson|
+//@[31:32) Dot |.|
+//@[32:37) Identifier |array|
+//@[37:38) LeftSquare |[|
+//@[38:39) Integer |0|
+//@[39:40) RightSquare |]|
+//@[40:42) NewLine |\r\n|
+var testJsonObject = testJson.object
+//@[0:3) Identifier |var|
+//@[4:18) Identifier |testJsonObject|
+//@[19:20) Assignment |=|
+//@[21:29) Identifier |testJson|
+//@[29:30) Dot |.|
+//@[30:36) Identifier |object|
+//@[36:38) NewLine |\r\n|
+var testJsonNestedString = testJson.object.nestedString
+//@[0:3) Identifier |var|
+//@[4:24) Identifier |testJsonNestedString|
+//@[25:26) Assignment |=|
+//@[27:35) Identifier |testJson|
+//@[35:36) Dot |.|
+//@[36:42) Identifier |object|
+//@[42:43) Dot |.|
+//@[43:55) Identifier |nestedString|
+//@[55:57) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

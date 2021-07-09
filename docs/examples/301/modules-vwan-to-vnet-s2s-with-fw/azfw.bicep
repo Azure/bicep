@@ -71,5 +71,5 @@ var vnetfwproperties = {
 resource firewall 'Microsoft.Network/azureFirewalls@2020-06-01' = {
   name: fwname
   location: location
-  properties: fwtype == 'VNet' ? vnetfwproperties.properties : fwtype == 'vWAN' ? hubfwproperties.properties : any(null)
+  properties: fwtype == 'VNet' ? vnetfwproperties.properties : fwtype == 'vWAN' ? hubfwproperties.properties : null
 }
