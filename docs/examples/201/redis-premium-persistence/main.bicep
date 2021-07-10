@@ -1,59 +1,88 @@
-// The name of the Azure Redis Cache to create.
+@description('Specify the name of the Azure Redis Cache to create.')
 param redisCacheName string
-// The location of the Redis Cache. For best performance, use the same location as the app to be used with the cache.
-param location string = resourceGroup().location
-// The size of the new Azure Redis Cache instance. Valid family and capacity combinations are (C0..C6, P1..P4).
 
+@description('Name of the storage account.')
+param storageAccountName string
+
+@description('The location of the Redis Cache. For best performance, use the same location as the app to be used with the cache.')
+param location string = resourceGroup().location
+
+@description('Specify the pricing tier of the new Azure Redis Cache.')
 @allowed([
+  'Basic'
+  'Standard'
+  'Premium'
+])
+param redisCacheSKU string = 'Premium'
+
+@description('Specify the family for the sku. C = Basic/Standard, P = Premium')
+@allowed([
+  'C'
+  'P'
+])
+param redisCacheFamily string = 'P'
+
+@description('Specify the size of the new Azure Redis Cache instance. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4)')
+@allowed([
+  0
   1
   2
   3
   4
+  5
+  6
 ])
 param redisCacheCapacity int = 1
 
-// Name for the resource group containing the storage accounts
-param storageRgName string = resourceGroup().name
-// Set to true to allow access to redis on port 6379, without SSL tunneling (less secure).
+@description('Specify a boolean value that indicates whether to allow access via non-SSL ports.')
 param enableNonSslPort bool = false
 
-module prereqs './prereqs.bicep' = {
-  scope: resourceGroup(storageRgName)
-  name: 'prereqs'
-  params: {
-    cacheAccountName: 'cached${uniqueString(resourceGroup().id)}'
-    location: location
-  }
+@description('Specify a boolean value that indicates whether diagnostics should be saved to the specified storage account.')
+param diagnosticsEnabled bool = true
+
+@description('Specify an existing storage account for diagnostics.')
+param existingDiagnosticsStorageAccountId string
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: storageAccountName
 }
 
-// Due to an IL limitation, this is not allowed today:
-// var cacheAccountKey = listKeys(prereqs.outputs.cacheAccountId, '2019-06-01').keys[0].value
-var cacheAccountKey = listKeys(resourceId('Microsoft.Storage/storageAccounts', cacheAccountName), '2019-06-01').keys[0].value
-var cacheAccountName = 'cached${uniqueString(resourceGroup().id)}'
+var cacheAccountKey = listKeys(storageAccount.id, '2021-04-01').keys[0].value
 
-resource cache 'Microsoft.Cache/redis@2019-07-01' = {
+resource cache 'Microsoft.Cache/Redis@2020-06-01' = {
   name: redisCacheName
   location: location
   properties: {
     enableNonSslPort: enableNonSslPort
+    minimumTlsVersion: '1.2'
     sku: {
       capacity: redisCacheCapacity
-      family: 'P'
-      name: 'Premium'
+      family: redisCacheFamily
+      name: redisCacheSKU
     }
     redisConfiguration: {
       'rdb-backup-enabled': 'true'
       'rdb-backup-frequency': '60'
-      'rdb-storage-connection-string': 'DefaultEndpointsProtocol=https;AccountName=${cacheAccountName};AccountKey=${cacheAccountKey}'
+      'rdb-backup-max-snapshot-count': '1'
+      'rdb-storage-connection-string': 'DefaultEndpointsProtocol=https;BlobEndpoint=https://${storageAccount.name}.blob.${environment().suffixes.storage};AccountName=${storageAccount.name};AccountKey=${cacheAccountKey}'
     }
   }
 }
 
-resource diagSettings 'Microsoft.Insights/diagnosticSettings@2015-07-01' = {
+resource diagSettings 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = {
   scope: cache
-  name: 'service'
-  location: location
+  name: redisCacheName
   properties: {
-    storageAccountId: prereqs.outputs.diagAccountId
+    storageAccountId: existingDiagnosticsStorageAccountId
+    metrics: [
+      {
+        timeGrain: 'AllMetrics'
+        enabled: diagnosticsEnabled
+        retentionPolicy: {
+          days: 90
+          enabled: diagnosticsEnabled
+        }
+      }
+    ]
   }
 }

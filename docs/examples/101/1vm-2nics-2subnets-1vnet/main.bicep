@@ -1,9 +1,21 @@
-param virtualMachineSize string
+@description('Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)')
+param virtualMachineSize string = 'Standard_DS1_v2'
+
+@description('Default Admin username')
 param adminUsername string
 
+@description('Default Admin password')
 @secure()
 param adminPassword string
-param storageAccountType string
+
+@description('Storage Account type for the VM and VM diagnostic storage')
+@allowed([
+  'Standard_LRS'
+  'Premium_LRS'
+])
+param storageAccountType string = 'Standard_LRS'
+
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 var virtualMachineName = 'VM-MultiNic'
@@ -13,9 +25,9 @@ var virtualNetworkName = 'virtualNetwork'
 var subnet1Name = 'subnet-1'
 var subnet2Name = 'subnet-2'
 var publicIPAddressName = 'publicIp'
-var diagStorageAccountName = concat('diags', uniqueString(resourceGroup().id))
+var diagStorageAccountName = 'diags${uniqueString(resourceGroup().id)}'
 var networkSecurityGroupName = 'NSG'
-var networkSecurityGroupName2 = concat(subnet2Name, '-nsg')
+var networkSecurityGroupName2 = '${subnet2Name}-nsg'
 
 // This is the virtual machine that you're building.
 resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
@@ -37,13 +49,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
       imageReference: {
         publisher: 'MicrosoftWindowsServer'
         offer: 'WindowsServer'
-        sku: '2016-Datacenter'
+        sku: '2019-Datacenter'
         version: 'latest'
       }
       osDisk: {
         createOption: 'FromImage'
       }
-      dataDisks: []
     }
     networkProfile: {
       networkInterfaces: [
@@ -76,14 +87,13 @@ resource diagsAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   sku: {
     name: storageAccountType
   }
-  kind: 'Storage'
+  kind: 'StorageV2'
 }
 
 // Simple Network Security Group for subnet2
 resource nsg2 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: networkSecurityGroupName2
   location: location
-  properties: {}
 }
 
 // This will build a Virtual Network.
@@ -126,7 +136,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-06-01' = {
         name: 'ipconfig1'
         properties: {
           subnet: {
-            id: '${vnet.id}/subnets/${subnet1Name}'
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnet1Name)
           }
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
@@ -151,7 +161,7 @@ resource nic2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
         name: 'ipconfig1'
         properties: {
           subnet: {
-            id: '${vnet.id}/subnets/${subnet2Name}'
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnet2Name)
           }
           privateIPAllocationMethod: 'Dynamic'
         }
@@ -191,5 +201,3 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
     ]
   }
 }
-
-output publicIp string = pip.properties.ipAddress

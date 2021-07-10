@@ -29,6 +29,7 @@ namespace Bicep.LanguageServer.Snippets
         private const string RequiredPropertiesDescription = "Required properties";
         private const string RequiredPropertiesLabel = "required-properties";
         private static readonly Regex ParentPropertyPattern = new Regex(@"^.*parent:.*$[\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex SnippetPlaceholderCommentPattern = new Regex(@"\/\*(?<snippetPlaceholder>\$({\d+(:|\|)(.*?)}))\*\/('(.*?)'|\w+)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         // Used to cache resource declaration information. Maps resource type reference to prefix, identifier, body text and description
         private readonly ConcurrentDictionary<ResourceTypeReference, (string prefix, string identifier, string bodyText, string description)> resourceTypeReferenceInfoMap = new(ResourceTypeReferenceComparer.Instance);
@@ -104,6 +105,9 @@ namespace Bicep.LanguageServer.Snippets
 
             if (!string.IsNullOrWhiteSpace(template))
             {
+                // Remove snippet placeholder comments
+                template = RemoveSnippetPlaceholderComments(template);
+
                 Parser parser = new Parser(template);
                 ProgramSyntax programSyntax = parser.Program();
                 IEnumerable<SyntaxBase> declarations = programSyntax.Declarations;
@@ -478,6 +482,29 @@ namespace Bicep.LanguageServer.Snippets
                     }
                 }
             }
+        }
+
+        public string RemoveSnippetPlaceholderComments(string text)
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                MatchCollection matches = SnippetPlaceholderCommentPattern.Matches(text);
+
+                // We will be performing multiple string replacements, better to do it in-place
+                StringBuilder buffer = new StringBuilder(text);
+
+                // To avoid recomputing spans, we will perform the replacements in reverse order
+                foreach (Match match in matches.OrderByDescending(x => x.Index))
+                {
+                    buffer.Replace(oldValue: match.Value,
+                                   newValue: match.Groups["snippetPlaceholder"].Value,
+                                   startIndex: match.Index,
+                                   count: match.Length);
+                }
+                return buffer.ToString();
+            }
+
+            return text;
         }
     }
 }

@@ -55,7 +55,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP186", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP187", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
         }
 
@@ -118,7 +118,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 var value = fallbackProperty." + property + @"
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP186", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP187", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
         }
 

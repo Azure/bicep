@@ -1,11 +1,17 @@
-param websiteName string
-param dbAdminLogin string
+@description('Name of azure web app')
+param siteName string
 
-@secure()
+@description('Database administrator login name')
+@minLength(1)
+param administratorLogin string
+
+@description('Database administrator password')
 @minLength(8)
 @maxLength(128)
-param dbAdminPassword string
+@secure()
+param administratorLoginPassword string
 
+@description('Azure database for MySQL compute capacity in vCores (2,4,8,16,32)')
 @allowed([
   2
   4
@@ -13,8 +19,9 @@ param dbAdminPassword string
   16
   32
 ])
-param dbSkuCapacity int = 2
+param databaseSkucapacity int = 2
 
+@description('Azure database for MySQL sku name ')
 @allowed([
   'GP_Gen5_2'
   'GP_Gen5_4'
@@ -27,90 +34,109 @@ param dbSkuCapacity int = 2
   'MO_Gen5_16'
   'MO_Gen5_32'
 ])
-param dbSkuName string = 'GP_Gen5_2'
+param databaseSkuName string = 'GP_Gen5_2'
 
+@description('Azure database for MySQL Sku Size ')
 @allowed([
   51200
   102400
 ])
-param dbSkuSizeInMB int = 51200
+param databaseSkuSizeMB int = 51200
 
+@description('Azure database for MySQL pricing tier')
 @allowed([
   'GeneralPurpose'
   'MemoryOptimized'
 ])
-param dbSkuTier string = 'GeneralPurpose'
+param databaseSkuTier string = 'GeneralPurpose'
 
-param dbSkuFamily string = 'Gen5'
-
+@description('MySQL version')
 @allowed([
   '5.6'
   '5.7'
 ])
-param mySQLVersion string
+param mySqlVersion string = '5.6'
 
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
-var dbName = '${websiteName}-db'
-var dbServerName = '${websiteName}-server'
-var serverFarmName = '${websiteName}-serviceplan'
+@description('Azure database for MySQL sku family')
+param databaseSkuFamily string = 'Gen5'
 
-resource serverFarm 'Microsoft.Web/serverfarms@2020-06-01' = {
-  name: serverFarmName
+var databaseName = '${siteName}-database'
+var serverName = '${siteName}-server'
+var hostingPlanName = '${siteName}-serviceplan'
+
+resource hostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
+  name: hostingPlanName
   location: location
+  properties: {
+    reserved: true
+  }
   sku: {
     tier: 'Standard'
     name: 'S1'
   }
 }
+
 resource website 'Microsoft.Web/sites@2020-06-01' = {
-  name: websiteName
+  name: siteName
   location: location
   properties: {
-    serverFarmId: serverFarm.id
+    serverFarmId: hostingPlan.id
   }
 }
+
 resource connectionString 'Microsoft.Web/sites/config@2020-06-01' = {
-  name: '${website.name}/connectionString'
+  parent: website
+  name: 'connectionstrings'
   properties: {
     defaultConnection: {
-      value: 'Database=${dbName};Data Source=${dbServer.properties.fullyQualifiedDomainName};User Id=${dbAdminLogin}@${dbServer.name};Password=${dbAdminPassword}'
+      value: 'Database=${databaseName};Data Source=${server.properties.fullyQualifiedDomainName};User Id=${administratorLogin}@${serverName};Password=${administratorLoginPassword}'
       type: 'MySql'
     }
   }
 }
-resource dbServer 'Microsoft.DBForMySQL/servers@2017-12-01-preview' = {
-  name: dbServerName
+
+resource server 'Microsoft.DBforMySQL/servers@2017-12-01' = {
   location: location
+  name: serverName
   sku: {
-    name: dbSkuName
-    tier: dbSkuTier
-    capacity: dbSkuCapacity
-    size: string(dbSkuSizeInMB)
-    family: dbSkuFamily
+    name: databaseSkuName
+    tier: databaseSkuTier
+    capacity: databaseSkucapacity
+    size: string(databaseSkuSizeMB)
+    family: databaseSkuFamily
   }
   properties: {
     createMode: 'Default'
-    version: mySQLVersion
-    administratorLogin: dbAdminLogin
-    administratorLoginPassword: dbAdminPassword
+    version: mySqlVersion
+    administratorLogin: administratorLogin
+    administratorLoginPassword: administratorLoginPassword
     storageProfile: {
-      storageMB: dbSkuSizeInMB
+      storageMB: databaseSkuSizeMB
       backupRetentionDays: 7
       geoRedundantBackup: 'Disabled'
     }
     sslEnforcement: 'Disabled'
   }
 }
-resource firewallRules 'Microsoft.DBForMySQL/servers/firewallRules@2017-12-01-preview' = {
-  name: '${dbServer.name}/allowAzureIPs'
+
+resource firewallRules 'Microsoft.DBforMySQL/servers/firewallrules@2017-12-01' = {
+  parent: server
+  name: 'AllowAzureIPs'
+  dependsOn: [
+    database
+  ]
   properties: {
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
   }
 }
-resource database 'Microsoft.DBForMySQL/servers/databases@2017-12-01-preview' = {
-  name: '${dbServer.name}/${dbName}'
+
+resource database 'Microsoft.DBforMySQL/servers/databases@2017-12-01' = {
+  parent: server
+  name: databaseName
   properties: {
     charset: 'utf8'
     collation: 'utf8_general_ci'

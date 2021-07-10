@@ -1,10 +1,14 @@
-param appName string = uniqueString(resourceGroup().id)
-param accountName string = toLower('cosmos-${appName}')
-param location string = resourceGroup().location
-param databaseName string = toLower('db-${appName}')
+@description('Cosmos DB account name')
+param accountName string = 'cosmos-${uniqueString(resourceGroup().id)}'
 
-resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2020-04-01' = {
-  name: accountName
+@description('Location for the Cosmos DB account.')
+param location string = resourceGroup().location
+
+@description('The name for the Core (SQL) database')
+param databaseName string
+
+resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
+  name: toLower(accountName)
   location: location
   properties: {
     enableFreeTier: true
@@ -20,8 +24,8 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2020-04-01' = {
   }
 }
 
-resource cosmosdb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2020-04-01' = {
-  name: '${cosmos.name}/${databaseName}'
+resource cosmosDB 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-04-15' = {
+  name: '${cosmosAccount.name}/${toLower(databaseName)}'
   properties: {
     resource: {
       id: databaseName

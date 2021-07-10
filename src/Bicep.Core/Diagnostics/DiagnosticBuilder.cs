@@ -1093,10 +1093,15 @@ namespace Bicep.Core.Diagnostics
                "BCP185",
                $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
 
+            public ErrorDiagnostic UnparseableJsonType() => new(
+               TextSpan,
+               "BCP186",
+               $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
+
             public Diagnostic FallbackPropertyUsed(string property) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
-                "BCP186",
+                "BCP187",
                 $"The property \"{property}\" does not exist in the resource definition, although it might still be valid.{TYPE_INACCURACY_CLAUSE}", TYPE_UNACCURACY_URI);
         }
 
