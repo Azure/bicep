@@ -55,7 +55,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP186", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues"),
+                ("BCP186", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
         }
 
@@ -75,7 +75,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues"),
+                ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
         }
 
@@ -97,7 +97,28 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" from source declaration \"props\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues"),
+                ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" from source declaration \"props\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            });
+        }
+
+        [DynamicData(nameof(FallbackProperties))]
+        [DataTestMethod]
+        public void FallbackProperty_ShouldShowWarning_WhenIsRead(string property, string value)
+        {
+
+            // Missing top-level properties - should be an error
+            var compilation = CreateCompilation(@"
+resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
+  name: 'fallbackProperty'
+  properties: {
+    required: 'required'    
+  }
+}
+
+var value = fallbackProperty." + property + @"
+");
+            compilation.Should().HaveDiagnostics(new[] {
+                ("BCP186", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
         }
 
@@ -241,6 +262,44 @@ output outputa string = '${inputa}-${inputb}'
             compilation.Should().HaveDiagnostics(new[] {                
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" from source declaration \"inputs\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\"."),
                 ("BCP183", DiagnosticLevel.Error, "The value of the module \"params\" property must be an object literal."),
+            });
+        }
+
+        [DynamicData(nameof(FallbackProperties))]
+        [DataTestMethod]
+        public void FallbackProperty_ShouldShowError_WhenReadOnModule(string property, string value)
+        {
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] = @"
+param inputa string
+param inputb string
+
+module modulea 'modulea.bicep' = {
+  name: 'modulea'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }  
+}
+
+var check = modulea." + property + @"
+",
+                [moduleAUri] = @"
+param inputa string
+param inputb string
+
+output outputa string = '${inputa}-${inputb}'
+",
+            };
+
+            var compilation = new Compilation(BuiltInTestTypes.Create(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
+
+            compilation.Should().HaveDiagnostics(new[] {
+                ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"name\", \"outputs\".")
             });
         }
     }

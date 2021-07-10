@@ -273,23 +273,21 @@ namespace Bicep.Core
             {
                 yield return prop;
             }
+
+            foreach (var prop in KnownTopLevelResourceProperties())
+            {
+                yield return prop;
+            }
+        }
+
+        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
+        {
             yield return new TypeProperty("location", String);
 
             yield return new TypeProperty("tags", Tags);
 
             yield return new TypeProperty("properties", Object);
 
-            foreach (var prop in KnownTopLevelResourceProperties())
-            {
-                yield return prop;
-            }
-
-            var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny);
-        }
-
-        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
-        {
             // TODO: Model type fully
             yield return new TypeProperty("sku", Object);
 

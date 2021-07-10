@@ -1926,3 +1926,21 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
   ]  
 }
 
+resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+//@[9:21) Resource issue3000stg. Type: Microsoft.Storage/storageAccounts@2021-04-01. Declaration start char: 0, length: 234
+  name: 'issue3000stg'
+  kind: 'StorageV2'
+  location: 'West US'
+  sku: {
+    name: 'Premium_LRS'    
+  }
+  madeUpProperty: {}
+  managedByExtended: []
+}
+
+var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
+//@[4:30) Variable issue3000stgMadeUpProperty. Type: error. Declaration start char: 0, length: 60
+var issue3000stgManagedBy = issue3000stg.managedBy
+//@[4:25) Variable issue3000stgManagedBy. Type: string. Declaration start char: 0, length: 50
+var issue3000stgManagedByExtended = issue3000stg.managedByExtended
+//@[4:33) Variable issue3000stgManagedByExtended. Type: (never)[]. Declaration start char: 0, length: 66

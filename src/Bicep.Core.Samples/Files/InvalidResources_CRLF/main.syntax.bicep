@@ -11149,6 +11149,123 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[5:7)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+//@[0:234) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:21)  IdentifierSyntax
+//@[9:21)   Identifier |issue3000stg|
+//@[22:68)  StringSyntax
+//@[22:68)   StringComplete |'Microsoft.Storage/storageAccounts@2021-04-01'|
+//@[69:70)  Assignment |=|
+//@[71:234)  ObjectSyntax
+//@[71:72)   LeftBrace |{|
+//@[72:74)   NewLine |\r\n|
+  name: 'issue3000stg'
+//@[2:22)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:22)    StringSyntax
+//@[8:22)     StringComplete |'issue3000stg'|
+//@[22:24)   NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'StorageV2'|
+//@[19:21)   NewLine |\r\n|
+  location: 'West US'
+//@[2:21)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:21)    StringSyntax
+//@[12:21)     StringComplete |'West US'|
+//@[21:23)   NewLine |\r\n|
+  sku: {
+//@[2:42)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |sku|
+//@[5:6)    Colon |:|
+//@[7:42)    ObjectSyntax
+//@[7:8)     LeftBrace |{|
+//@[8:10)     NewLine |\r\n|
+    name: 'Premium_LRS'    
+//@[4:23)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:23)      StringSyntax
+//@[10:23)       StringComplete |'Premium_LRS'|
+//@[27:29)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  madeUpProperty: {}
+//@[2:20)   ObjectPropertySyntax
+//@[2:16)    IdentifierSyntax
+//@[2:16)     Identifier |madeUpProperty|
+//@[16:17)    Colon |:|
+//@[18:20)    ObjectSyntax
+//@[18:19)     LeftBrace |{|
+//@[19:20)     RightBrace |}|
+//@[20:22)   NewLine |\r\n|
+  managedByExtended: []
+//@[2:23)   ObjectPropertySyntax
+//@[2:19)    IdentifierSyntax
+//@[2:19)     Identifier |managedByExtended|
+//@[19:20)    Colon |:|
+//@[21:23)    ArraySyntax
+//@[21:22)     LeftSquare |[|
+//@[22:23)     RightSquare |]|
+//@[23:25)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
+//@[0:60) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:30)  IdentifierSyntax
+//@[4:30)   Identifier |issue3000stgMadeUpProperty|
+//@[31:32)  Assignment |=|
+//@[33:60)  PropertyAccessSyntax
+//@[33:45)   VariableAccessSyntax
+//@[33:45)    IdentifierSyntax
+//@[33:45)     Identifier |issue3000stg|
+//@[45:46)   Dot |.|
+//@[46:60)   IdentifierSyntax
+//@[46:60)    Identifier |madeUpProperty|
+//@[60:62) NewLine |\r\n|
+var issue3000stgManagedBy = issue3000stg.managedBy
+//@[0:50) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:25)  IdentifierSyntax
+//@[4:25)   Identifier |issue3000stgManagedBy|
+//@[26:27)  Assignment |=|
+//@[28:50)  PropertyAccessSyntax
+//@[28:40)   VariableAccessSyntax
+//@[28:40)    IdentifierSyntax
+//@[28:40)     Identifier |issue3000stg|
+//@[40:41)   Dot |.|
+//@[41:50)   IdentifierSyntax
+//@[41:50)    Identifier |managedBy|
+//@[50:52) NewLine |\r\n|
+var issue3000stgManagedByExtended = issue3000stg.managedByExtended
+//@[0:66) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:33)  IdentifierSyntax
+//@[4:33)   Identifier |issue3000stgManagedByExtended|
+//@[34:35)  Assignment |=|
+//@[36:66)  PropertyAccessSyntax
+//@[36:48)   VariableAccessSyntax
+//@[36:48)    IdentifierSyntax
+//@[36:48)     Identifier |issue3000stg|
+//@[48:49)   Dot |.|
+//@[49:66)   IdentifierSyntax
+//@[49:66)    Identifier |managedByExtended|
+//@[66:66) EndOfFile ||

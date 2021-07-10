@@ -23,6 +23,9 @@ namespace Bicep.Core.Diagnostics
 
         public class DiagnosticBuilderInternal
         {
+            private const string TYPE_INACCURACY_CLAUSE = " If this is an inaccuracy in the documentation, please report it to the Bicep Team.";
+            private static readonly Uri TYPE_UNACCURACY_URI = new("https://aka.ms/bicep-type-issues");
+
             public DiagnosticBuilderInternal(TextSpan textSpan)
             {
                 TextSpan = textSpan;
@@ -249,15 +252,11 @@ namespace Bicep.Core.Diagnostics
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
-                var typeInaccuracyClause = isResourceSyntax
-                    ? $" If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues"
-                    : string.Empty;
-
                 return new(
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP037",
-                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}{typeInaccuracyClause}");
+                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}{(isResourceSyntax ? TYPE_INACCURACY_CLAUSE : string.Empty)}", isResourceSyntax ? TYPE_UNACCURACY_URI : null);
             }
 
             public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
@@ -1098,7 +1097,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP186",
-                $"The property \"{property}\" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team: https://aka.ms/bicep-type-issues");
+                $"The property \"{property}\" does not exist in the resource definition, although it might still be valid.{TYPE_INACCURACY_CLAUSE}", TYPE_UNACCURACY_URI);
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

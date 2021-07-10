@@ -514,7 +514,7 @@ namespace Bicep.Core.TypeSystem
 
                     narrowedProperties.Add(new TypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
                 }
-                else if (!declaredProperty.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
+                else
                 {
                     narrowedProperties.Add(declaredProperty);
                 }

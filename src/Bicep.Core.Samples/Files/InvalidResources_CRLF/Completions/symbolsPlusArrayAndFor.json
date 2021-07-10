@@ -2561,6 +2561,65 @@
     ]
   },
   {
+    "label": "issue3000stg",
+    "kind": "interface",
+    "detail": "issue3000stg",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000stg",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000stg"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "issue3000stgMadeUpProperty",
+    "kind": "variable",
+    "detail": "issue3000stgMadeUpProperty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000stgMadeUpProperty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000stgMadeUpProperty"
+    }
+  },
+  {
+    "label": "issue3000stgManagedBy",
+    "kind": "variable",
+    "detail": "issue3000stgManagedBy",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000stgManagedBy",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000stgManagedBy"
+    }
+  },
+  {
+    "label": "issue3000stgManagedByExtended",
+    "kind": "variable",
+    "detail": "issue3000stgManagedByExtended",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000stgManagedByExtended",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000stgManagedByExtended"
+    }
+  },
+  {
     "label": "item",
     "kind": "variable",
     "detail": "item",

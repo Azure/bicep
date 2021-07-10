@@ -97,7 +97,7 @@ namespace Bicep.Core.UnitTests.Utils
                 GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
                 }).Concat(
-                    LanguageConstants.KnownTopLevelResourceProperties()
+                    LanguageConstants.KnownTopLevelResourceProperties().Where(p => !string.Equals(p.Name, "properties", LanguageConstants.IdentifierComparison))
                                      .Select(p => new TypeProperty(p.Name, p.TypeReference, TypePropertyFlags.None, "Property that does something important"))
                 ), null));
         }
