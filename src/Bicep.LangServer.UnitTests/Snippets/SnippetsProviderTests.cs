@@ -717,6 +717,66 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 });
         }
 
+        [DataTestMethod]
+        [DataRow(null, null)]
+        [DataRow("", "")]
+        [DataRow("   ", "   " )]
+        public void RemoveSnippetPlaceholderComments_WithInvalidInput_ReturnsInputTextAsIs(string input, string expected)
+        {
+            string actual = snippetsProvider.RemoveSnippetPlaceholderComments(input);
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void RemoveSnippetPlaceholderComments_WithoutMatchingSnippetPlaceholderCommentPatternInInput_ReturnsInputTextAsIs()
+        {
+            string input = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'name'
+  location: resourceGroup().location
+}";
+
+            string actual = snippetsProvider.RemoveSnippetPlaceholderComments(input);
+
+            actual.Should().BeEquivalentToIgnoringNewlines(input);
+        }
+
+        [TestMethod]
+        public void RemoveSnippetPlaceholderComments_WithMatchingSnippetPlaceholderCommentPatternInInput_RemovesSnippetPlaceholderComments()
+        {
+            string input = @"// DNS Record
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: /*${1:'name'}*/'name'
+  location: resourceGroup().location
+}
+
+resource /*${2:dnsRecord}*/dnsRecord 'Microsoft.Network/dnsZones//*${3|A,AAAA,CNAME,MX,NS,PTR,SOA,SRV,TXT|}*/A@2018-05-01' = {
+  parent: dnsZone
+  name: /*${4:'name'}*/'name'
+  properties: {
+    TTL: 3600
+    '/*${5|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}*/ARecords': []
+  }
+}";
+
+            string actual = snippetsProvider.RemoveSnippetPlaceholderComments(input);
+
+            actual.Should().BeEquivalentToIgnoringNewlines(@"// DNS Record
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: ${1:'name'}
+  location: resourceGroup().location
+}
+
+resource ${2:dnsRecord} 'Microsoft.Network/dnsZones/${3|A,AAAA,CNAME,MX,NS,PTR,SOA,SRV,TXT|}@2018-05-01' = {
+  parent: dnsZone
+  name: ${4:'name'}
+  properties: {
+    TTL: 3600
+    '${5|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}': []
+  }
+}");
+        }
+
 
         private static ObjectType CreateObjectType(string name, params (string name, ITypeReference type, TypePropertyFlags typePropertyFlags)[] properties)
             => new(
