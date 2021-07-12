@@ -26,4 +26,3 @@ resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2020-11-01'
   }
 }
 // Insert snippet here
-
