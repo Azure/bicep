@@ -275,27 +275,25 @@ namespace Bicep.Core.TypeSystem
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (this.binder.GetSymbolInfo(syntax) is not ModuleSymbol moduleSymbol)
-                {
-                    // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
-                    return ErrorType.Empty();
-                }
-
-                if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
-                {
-                    return ErrorType.Create(failureDiagnostic);
-                }
-
-                var singleModuleDeclaredType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
+                var singleModuleDeclaredType = syntax.GetDeclaredType(this.binder);
                 var singleOrCollectionDeclaredType = syntax.Value is ForSyntax
                     ? new TypedArrayType(singleModuleDeclaredType, TypeSymbolValidationFlags.Default)
                     : singleModuleDeclaredType;
 
                 this.ValidateDecorators(syntax.Decorators, singleOrCollectionDeclaredType, diagnostics);
 
-                if (moduleSemanticModel.HasErrors())
+                if (singleModuleDeclaredType is ErrorType)
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
+                    return singleModuleDeclaredType;
+                }
+
+                if (this.binder.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol &&
+                    moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var _) &&
+                    moduleSemanticModel.HasErrors())
+                {
+                    diagnostics.Write(moduleSemanticModel is ArmTemplateSemanticModel
+                        ? DiagnosticBuilder.ForPosition(syntax.Path).ReferencedArmTemplateHasErrors()
+                        : DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }
 
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, singleOrCollectionDeclaredType);
@@ -317,7 +315,6 @@ namespace Bicep.Core.TypeSystem
                 {
                     return declaredType;
                 }
-
 
                 var allowedDecoratorSyntax = GetDecorator(LanguageConstants.ParameterAllowedPropertyName);
 

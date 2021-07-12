@@ -19,100 +19,22 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     public class LocalJsonModuleTests
     {
         [ClassInitialize]
-        public static void Initialize(TestContext context)
+        public static void Initialize(TestContext _)
         {
             DeploymentsInterop.Initialize();
         }
 
         [DataTestMethod]
-        [DataRow("Invalid JSON template: Required property '$schema' not found in JSON. Path '', line 2, position 1.", @"{
+        [DataRow(@"{
 }")]
-        [DataRow("Invalid JSON template: Required property 'contentVersion' not found in JSON. Path '', line 3, position 1.", @"{
+        [DataRow(@"{
   ""$schema"": ""foo""
 }")]
-        [DataRow("Invalid JSON template: Required property 'resources' not found in JSON. Path '', line 4, position 1.", @"{
+        [DataRow(@"{
   ""$schema"": ""foo"",
   ""contentVersion"": ""bar""
 }")]
-        [DataRow("Invalid JSON template: $schema value \"2019-04-01\" is not a valid URI.", @"{
-  ""$schema"": ""2019-04-01"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""resources"": []
-}")]
-        [DataRow("Invalid JSON template: Cannot convert the parameter name \"123foo\" to an identifier.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""123foo"": {
-      ""type"": ""string""
-    }
-  },
-  ""resources"": []
-}")]
-        [DataRow("Invalid JSON template: Cannot convert the output name \"foo&bar\" to an identifier.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""resources"": [],
-  ""outputs"": {
-    ""foo&bar"": {
-      ""type"": ""string"",
-      ""value"": ""foobar""
-    }
-  }
-}")]
-        [DataRow("Invalid JSON template: The template parameter '[concat('foo', 'bar')]' at line '5' and column '31' is not valid. The parameter name cannot be an expression. Please see https://aka.ms/arm-template/#parameters for usage details.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""[concat('foo', 'bar')]"": {
-      ""type"": ""string""
-    }
-  },
-  ""resources"": []
-}")]
-        [DataRow("Invalid JSON template: The template output '[resourceGroup().id]' at line '6' and column '29' is not valid. The output name cannot be an expression. Please see https://aka.ms/arm-template/#outputs for usage details.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""resources"": [],
-  ""outputs"": {
-    ""[resourceGroup().id]"": {
-      ""type"": ""string"",
-      ""value"": ""hello""
-    }
-  }
-}")]
-        [DataRow("Invalid JSON template: Error converting value \"something\" to type 'Azure.Deployments.Core.Entities.TemplateParameterType'. Path '', line 6, position 25.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""type"": ""something""
-    }
-  },
-  ""resources"": []
-}")]
-        [DataRow("Invalid JSON template: Error converting value \"apple\" to type 'Azure.Deployments.Core.Entities.TemplateParameterType'. Path '', line 7, position 21.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""resources"": [],
-  ""outputs"": {
-    ""foo"": {
-      ""type"": ""apple"",
-      ""value"": ""hello""
-    }
-  }
-}")]
-        [DataRow("Invalid JSON template: Template parameter 'foo' at line '6' and column '19' has invalid type '12345'. Supported types are 'String,SecureString,Int,Bool,Array,Object,SecureObject'. Please see https://aka.ms/arm-template/#parameters for usage details.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""type"": 12345
-    }
-  },
-  ""resources"": []
-}")]
-        [DataRow("Invalid JSON template: Unexpected token Boolean when parsing enum. Path '', line 7, position 18.", @"{
+        [DataRow(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""resources"": [],
@@ -123,76 +45,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     }
   }
 }")]
-        [DataRow("Invalid JSON template: Error converting value \"[add(1, 1)]\" to type 'Azure.Deployments.Core.Entities.TemplateParameterType'. Path '', line 6, position 27.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""type"": ""[add(1, 1)]""
-    }
-  },
-  ""resources"": []
-}")]
-        [DataRow("Invalid JSON template: Error converting value \"[add(1, 1)]\" to type 'Azure.Deployments.Core.Entities.TemplateParameterType'. Path '', line 7, position 27.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""resources"": [],
-  ""outputs"": {
-    ""foo"": {
-      ""type"": ""[add(1, 1)]"",
-      ""value"": ""hello""
-    }
-  }
-}")]
-        [DataRow("Invalid JSON template: The value \"[toLower('VALUE3')]\" cannot be an expression.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""type"": ""object"",
-      ""allowedValues"": [
-        {
-            ""key"": ""value1""
-        },
-        {
-            ""key"": ""value2""
-        },
-        {
-            ""key"": ""[toLower('VALUE3')]""
-        }
-      ]
-    }
-  },
-  ""resources"": []
-}")]
-        [DataRow("Invalid JSON template: The \"allowedValues\" array must contain one or more items.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""type"": ""array"",
-      ""allowedValues"": [
-      ]
-    }
-  },
-  ""resources"": []
-}")]
-        [DataRow("Invalid JSON template: Expected the value \"something\" to be a Boolean.", @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""type"": ""bool"",
-      ""allowedValues"": [
-        true,
-        ""something"",
-        false
-      ]
-    }
-  },
-  ""resources"": []
-}")]
-        public void CompileWithLocalJsonModule_InvalidTemplate_FailsWithBCP186(string errorMessage, string jsonTemplateText)
+        public void CompileWithLocalJsonModule_InvalidTemplate_FailsWithBCP186(string jsonTemplateText)
         {
             var (template, _, compilation) = CompilationHelper.Compile(
                 ("main.bicep", @"
@@ -207,13 +60,10 @@ module mod 'module.json' = {
             using (new AssertionScope())
             {
                 template.Should().BeNull();
+                diagnosticsByFileName.Should().NotContain("module.json");
                 diagnosticsByFileName["main.bicep"].Should().HaveDiagnostics(new[]
                 {
-                    ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                });
-                diagnosticsByFileName["module.json"].Should().HaveDiagnostics(new[]
-                {
-                    ("BCP186", DiagnosticLevel.Error, errorMessage),
+                    ("BCP186", DiagnosticLevel.Error, "The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template."),
                 });
             }
         }
@@ -277,12 +127,12 @@ module mod 'module.json' = {
             using (new AssertionScope())
             {
                 template.Should().NotBeNull();
+                diagnosticsByFileName.Should().NotContain("module.json");
                 diagnosticsByFileName["main.bicep"].Should().BeEmpty();
-                diagnosticsByFileName["module.json"].Should().BeEmpty();
             }
         }
 
         private static IReadOnlyDictionary<string, IEnumerable<IDiagnostic>> GetDiagnosticsByFileName(Compilation compilation) =>
-            compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => Path.GetFileName(kvp.Key.FileUri.LocalPath), kvp => kvp.Value);
+            compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => Path.GetFileName(kvp.Key.FileUri.LocalPath), kvp => kvp.Value);
     }
 }

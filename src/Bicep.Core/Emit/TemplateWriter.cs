@@ -22,7 +22,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.Emit
 {
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
-    public class TemplateWriter
+    public class TemplateWriter : ITemplateWriter
     {
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
@@ -53,7 +53,7 @@ namespace Bicep.Core.Emit
             LanguageConstants.ResourceDependsOnPropertyName,
         }.ToImmutableHashSet();
 
-        private static SemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
+        private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
             if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
             {
@@ -93,18 +93,6 @@ namespace Bicep.Core.Emit
 
         public void Write(JsonTextWriter writer)
         {
-            if (this.context.SemanticModel.SyntaxTree is JsonSyntaxTree jsonSyntaxTree)
-            {
-                if (jsonSyntaxTree.TemplateObject is not { } templateObject)
-                {
-                    throw new InvalidOperationException($"Expected JsonSyntaxTree to contain a template object.");
-                }
-
-                templateObject.WriteTo(writer);
-
-                return;
-            }
-
             // Template is used for calcualting template hash, template jtoken is used for writing to file.
             var (template, templateJToken) = GenerateTemplateWithoutHash();
             var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());
@@ -532,7 +520,12 @@ namespace Bicep.Core.Emit
                 jsonWriter.WritePropertyName("template");
                 {
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-                    var moduleWriter = new TemplateWriter(moduleSemanticModel, this.assemblyFileVersion);
+                    ITemplateWriter moduleWriter = moduleSemanticModel switch
+                    {
+                        ArmTemplateSemanticModel armTemplateModel => new ArmTemplateWriter(armTemplateModel),
+                        SemanticModel bicepModel => new TemplateWriter(bicepModel, this.assemblyFileVersion),
+                        _ => throw new ArgumentException($"Unknown semantic model type: \"{moduleSemanticModel.GetType()}\"."),
+                    };
                     moduleWriter.Write(jsonWriter);
                 }
 

@@ -75,11 +75,6 @@ namespace Bicep.Core.Analyzers.Linter
 
         internal IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel, ConfigHelper? overrideConfig = default)
         {
-            if (semanticModel.SyntaxTree is JsonSyntaxTree)
-            {
-                return Enumerable.Empty<IDiagnostic>();
-            }
-
             // check for configuration overrides
             /// typically only used in unit tests
             var configHelp = overrideConfig ?? this.configHelper;

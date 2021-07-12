@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Syntax
 {
@@ -10,14 +11,15 @@ namespace Bicep.Core.Syntax
     {
         public SyntaxTree EntryPoint { get; }
 
-        public ImmutableHashSet<SyntaxTree> SyntaxTrees { get; }
+        public ImmutableHashSet<ISourceFile> SyntaxTrees { get; }
 
-        public ImmutableDictionary<ModuleDeclarationSyntax, SyntaxTree> ModuleLookup { get; }
+        public ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> ModuleLookup { get; }
 
         public ImmutableDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> ModuleFailureLookup { get; }
+
         public IFileResolver FileResolver { get; }
 
-        public SyntaxTreeGrouping(SyntaxTree entryPoint, ImmutableHashSet<SyntaxTree> syntaxTrees, ImmutableDictionary<ModuleDeclarationSyntax, SyntaxTree> moduleLookup, ImmutableDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup, FileSystem.IFileResolver fileResolver)
+        public SyntaxTreeGrouping(SyntaxTree entryPoint, ImmutableHashSet<ISourceFile> syntaxTrees, ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> moduleLookup, ImmutableDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup, FileSystem.IFileResolver fileResolver)
         {
             EntryPoint = entryPoint;
             SyntaxTrees = syntaxTrees;

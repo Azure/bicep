@@ -136,17 +136,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetModuleType(ModuleDeclarationSyntax syntax)
         {
-            if (this.binder.GetSymbolInfo(syntax) is not ModuleSymbol moduleSymbol)
-            {
-                return new DeclaredTypeAssignment(ErrorType.Empty(), syntax);
-            }
-
-            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
-            {
-                return new DeclaredTypeAssignment(ErrorType.Create(failureDiagnostic), syntax);
-            }
-
-            var declaredModuleType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
+            var declaredModuleType = syntax.GetDeclaredType(this.binder);
             
             // if the value is a loop (not a condition or object), the type is an array of the declared module type
             return new DeclaredTypeAssignment(

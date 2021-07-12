@@ -145,8 +145,8 @@ namespace Bicep.Wasm
         {
             var fileUri = new Uri("inmemory:///main.bicep");
             var workspace = new Workspace();
-            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(fileUri, fileContents);
-            workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
+            var syntaxTree = SourceFileFactory.CreateSourceFile(fileUri, fileContents);
+            workspace.UpsertSourceFiles(syntaxTree.AsEnumerable());
 
             var fileResolver = new FileResolver();
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, fileUri);

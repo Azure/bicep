@@ -14,6 +14,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -190,7 +191,7 @@ var dep1 = az.depl|oyment()
 var dep2 = az.deploy|ment()
 ");
 
-            var syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(new Uri("file:///path/to/main.bicep"), file);
+            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var references = await RequestReferences(client, syntaxTree, cursors);
             

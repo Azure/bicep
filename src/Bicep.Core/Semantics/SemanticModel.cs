@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
@@ -15,12 +16,14 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class SemanticModel
+    public class SemanticModel : ISemanticModel
     {
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<LinterAnalyzer> linterAnalyzerLazy;
+        private readonly Lazy<ImmutableArray<TypeProperty>> parameterTypePropertiesLazy;
+        private readonly Lazy<ImmutableArray<TypeProperty>> outputTypePropertiesLazy;
 
         public SemanticModel(Compilation compilation, SyntaxTree syntaxTree, IFileResolver fileResolver)
         {
@@ -53,10 +56,42 @@ namespace Bicep.Core.Semantics
 
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
-            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>( () => new LinterAnalyzer());
+            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer());
+
+            this.parameterTypePropertiesLazy = new Lazy<ImmutableArray<TypeProperty>>(() =>
+            {
+                var paramTypeProperties = new List<TypeProperty>();
+
+                foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
+                {
+                    var typePropertyFlags = TypePropertyFlags.WriteOnly;
+                    if (SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null)
+                    {
+                        // if there's no default value, it must be specified
+                        typePropertyFlags |= TypePropertyFlags.Required;
+                    }
+
+                    paramTypeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags));
+                }
+
+                return paramTypeProperties.ToImmutableArray();
+            });
+
+            this.outputTypePropertiesLazy = new Lazy<ImmutableArray<TypeProperty>>(() =>
+            {
+                var outputTypeProperties = new List<TypeProperty>();
+
+                foreach (var output in this.Root.OutputDeclarations.DistinctBy(o => o.Name))
+                {
+                    outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
+                }
+
+                return outputTypeProperties.ToImmutableArray();
+            });
         }
 
         public SyntaxTree SyntaxTree { get; }
+
         public IBinder Binder { get; }
 
         public ISymbolContext SymbolContext { get; }
@@ -72,6 +107,10 @@ namespace Bicep.Core.Semantics
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
         private LinterAnalyzer LinterAnalyzer => linterAnalyzerLazy.Value;
+
+        public ImmutableArray<TypeProperty> ParameterTypeProperties => this.parameterTypePropertiesLazy.Value;
+
+        public ImmutableArray<TypeProperty> OutputTypeProperties => this.outputTypePropertiesLazy.Value;
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.

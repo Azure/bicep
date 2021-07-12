@@ -149,7 +149,7 @@ namespace Bicep.Cli
         private static bool LogDiagnosticsAndCheckSuccess(IDiagnosticLogger logger, Compilation compilation)
         {
             var success = true;
-            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
             {
                 foreach (var diagnostic in diagnostics)
                 {
@@ -210,7 +210,7 @@ namespace Bicep.Cli
                 foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
                     File.WriteAllText(fileUri.LocalPath, bicepOutput);
-                    workspace.UpsertSyntaxTrees(SyntaxTreeFactory.CreateSyntaxTree(fileUri, bicepOutput).AsEnumerable());
+                    workspace.UpsertSourceFiles(SourceFileFactory.CreateSourceFile(fileUri, bicepOutput).AsEnumerable());
                 }
 
                 var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entrypointUri);
@@ -238,7 +238,7 @@ namespace Bicep.Cli
                 foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
                     this.outputWriter.Write(bicepOutput);
-                    workspace.UpsertSyntaxTrees(SyntaxTreeFactory.CreateSyntaxTree(fileUri, bicepOutput).AsEnumerable());
+                    workspace.UpsertSourceFiles(SourceFileFactory.CreateSourceFile(fileUri, bicepOutput).AsEnumerable());
                 }
 
                 var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entrypointUri);

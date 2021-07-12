@@ -726,7 +726,7 @@ module secureModule1 'moduleb.bicep' = {
 
 module invalidJsonMod 'modulec.json' = {
 //@[7:21) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (CodeDescription: none) |invalidJsonMod|
-//@[22:36) [BCP104 (Error)] The referenced module has errors. (CodeDescription: none) |'modulec.json'|
+//@[22:36) [BCP186 (Error)] The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template. (CodeDescription: none) |'modulec.json'|
 }
 
 module jsonModMissingParam 'moduled.json' = {

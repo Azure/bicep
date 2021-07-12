@@ -367,7 +367,7 @@ output myOutput string = 'hello!'
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), syntaxTreeGrouping);
 
             var output = new List<string>();
-            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
             {
                 foreach (var diagnostic in diagnostics)
                 {

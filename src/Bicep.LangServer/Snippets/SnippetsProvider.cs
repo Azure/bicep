@@ -20,6 +20,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Completions;
 
 namespace Bicep.LanguageServer.Snippets
@@ -201,11 +202,11 @@ namespace Bicep.LanguageServer.Snippets
 
             // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid 
             // cross platform issues, we'll provide a placeholder uri.
-            SyntaxTree syntaxTree = SyntaxTreeFactory.CreateSyntaxTree(new Uri("inmemory://snippet.bicep"), template);
+            SyntaxTree syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("inmemory://snippet.bicep"), template);
             SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
                 syntaxTree,
-                ImmutableHashSet.Create(syntaxTree),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, SyntaxTree>(),
+                ImmutableHashSet.Create<ISourceFile>(syntaxTree),
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
                 fileResolver);
 

@@ -40,16 +40,20 @@ namespace Bicep.LanguageServer
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
-                var newSyntaxTree = SyntaxTreeFactory.CreateSyntaxTree(documentUri.ToUri(), fileContents);
-                var firstChanges = workspace.UpsertSyntaxTrees(newSyntaxTree.AsEnumerable());
-                var secondChanges = UpdateCompilationInternal(documentUri, version);
-                
-                var addedTrees = firstChanges.added.Concat(secondChanges.added);
-                var removedTrees = firstChanges.removed.Concat(secondChanges.removed);
+                var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
+                var firstChanges = workspace.UpsertSourceFiles(newFile.AsEnumerable());
+                var removedFiles = firstChanges.removed;
+
+                if (newFile is SyntaxTree)
+                {
+                    // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
+                    var secondChanges = UpdateCompilationInternal(documentUri, version);
+                    removedFiles = removedFiles.Concat(secondChanges.removed).ToImmutableArray();
+                }
 
                 foreach (var (entrypointUri, context) in activeContexts)
                 {
-                    if (removedTrees.Any(x => context.Compilation.SyntaxTreeGrouping.SyntaxTrees.Contains(x)))
+                    if (removedFiles.Any(x => context.Compilation.SyntaxTreeGrouping.SyntaxTrees.Contains(x)))
                     {
                         UpdateCompilationInternal(entrypointUri, null);
                     }
@@ -61,12 +65,12 @@ namespace Bicep.LanguageServer
         {
             // close and clear diagnostics for the file
             // if upsert failed to create a compilation due to a fatal error, we still need to clean up the diagnostics
-            CloseCompilationInternal(documentUri, 0, Enumerable.Empty<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic>());
+            CloseCompilationInternal(documentUri, 0, Enumerable.Empty<Diagnostic>());
         }
 
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
         {
-            var removedTrees = new HashSet<SyntaxTree>();
+            var removedFiles = new HashSet<ISourceFile>();
             foreach (var change in fileEvents.Where(x => x.Type == FileChangeType.Changed || x.Type == FileChangeType.Deleted))
             {
                 if (activeContexts.ContainsKey(change.Uri))
@@ -77,23 +81,23 @@ namespace Bicep.LanguageServer
                 }
 
                 // We treat both updates and deletes as 'removes' to force the new SyntaxTree to be reloaded from disk
-                if (workspace.TryGetSyntaxTree(change.Uri.ToUri(), out var removedTree))
+                if (workspace.TryGetSourceFile(change.Uri.ToUri(), out var removedFile))
                 {
-                    removedTrees.Add(removedTree);
+                    removedFiles.Add(removedFile);
                 }
                 else if (change.Type == FileChangeType.Deleted)
                 {
                     // If we don't know definitively that we're deleting a file, we have to assume it's a directory; the file system watcher does not give us any information to differentiate reliably.
                     // We could possibly assume that if the path ends in '.bicep', we've got a file, but this would discount directories ending in '.bicep', however unlikely.
-                    var subdirRemovedTrees = workspace.GetSyntaxTreesForDirectory(change.Uri.ToUri());
-                    removedTrees.UnionWith(subdirRemovedTrees);
+                    var subdirRemovedFiles = workspace.GetSourceFilesForDirectory(change.Uri.ToUri());
+                    removedFiles.UnionWith(subdirRemovedFiles);
                 }
             }
 
-            workspace.RemoveSyntaxTrees(removedTrees);
+            workspace.RemoveSourceFiles(removedFiles);
             foreach (var (entrypointUri, context) in activeContexts)
             {
-                if (removedTrees.Any(x => context.Compilation.SyntaxTreeGrouping.SyntaxTrees.Contains(x)))
+                if (removedFiles.Any(x => context.Compilation.SyntaxTreeGrouping.SyntaxTrees.Contains(x)))
                 {
                     UpdateCompilationInternal(entrypointUri, null);
                 }
@@ -112,10 +116,10 @@ namespace Bicep.LanguageServer
             // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
             // being referenced as a bicep module.
             return string.Equals(languageId, LanguageConstants.LanguageId, StringComparison.OrdinalIgnoreCase) ||
-                this.workspace.TryGetSyntaxTree(documentUri.ToUri(), out var _);
+                this.workspace.TryGetSourceFile(documentUri.ToUri(), out var _);
         }
 
-        private ImmutableArray<SyntaxTree> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> closingDiagnostics)
+        private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
         {
             this.activeContexts.TryRemove(documentUri, out var removedContext);
 
@@ -123,27 +127,27 @@ namespace Bicep.LanguageServer
 
             if (removedContext == null)
             {
-                return ImmutableArray<SyntaxTree>.Empty;
+                return ImmutableArray<ISourceFile>.Empty;
             }
 
-            var closedSyntaxTrees = removedContext.Compilation.SyntaxTreeGrouping.SyntaxTrees.ToHashSet();
-            foreach (var (entrypointUri, context) in activeContexts)
+            var closedFiles = removedContext.Compilation.SyntaxTreeGrouping.SyntaxTrees.ToHashSet();
+            foreach (var (_, context) in activeContexts)
             {
-                closedSyntaxTrees.ExceptWith(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
+                closedFiles.ExceptWith(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
             }
 
-            workspace.RemoveSyntaxTrees(closedSyntaxTrees);
+            workspace.RemoveSourceFiles(closedFiles);
 
-            return closedSyntaxTrees.ToImmutableArray();
+            return closedFiles.ToImmutableArray();
         }
 
-        private (ImmutableArray<SyntaxTree> added, ImmutableArray<SyntaxTree> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version)
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version)
         {
             try
             {
                 var context = this.provider.Create(workspace, documentUri);
 
-                var output = workspace.UpsertSyntaxTrees(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
+                var output = workspace.UpsertSourceFiles(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
 
                 // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
                 this.activeContexts[documentUri] = context;
@@ -176,9 +180,9 @@ namespace Bicep.LanguageServer
                 
                 // the file is no longer in a state that can be parsed
                 // clear all info to prevent cascading failures elsewhere
-                var closedTrees = CloseCompilationInternal(documentUri, version, fatalError.AsEnumerable());
+                var closedFiles = CloseCompilationInternal(documentUri, version, fatalError.AsEnumerable());
 
-                return (ImmutableArray<SyntaxTree>.Empty, closedTrees);
+                return (ImmutableArray<ISourceFile>.Empty, closedFiles);
             }
         }
 

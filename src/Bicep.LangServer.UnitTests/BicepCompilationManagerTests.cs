@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -14,10 +17,6 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -32,28 +31,69 @@ namespace Bicep.LangServer.UnitTests
         public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
-        [DataRow(LanguageConstants.ArmTemplateLanguageId)]
-        [DataRow(LanguageConstants.JsonLanguageId)]
-        [DataRow(LanguageConstants.JsoncLanguageId)]
-        [DataRow("plaintext")]
-        [DataRow(null)]
-        public void UpsertCompilation_NotInWorspaceNonBicepFile_ShouldNotUpsert(string? languageId)
+        [DataRow(".arm")]
+        [DataRow(".json")]
+        [DataRow(".jsonc")]
+        public void UpsertCompilation_NotInWorspaceArmTemplateFile_ShouldNotUpsert(string fileExtension)
         {
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            var uri = DocumentUri.File(this.TestContext.TestName);
-            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace());
+            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUri();
+            var workspace = new Workspace();
+            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
 
             // upsert the compilation
-            manager.UpsertCompilation(uri, null, "hello", languageId);
+            manager.UpsertCompilation(uri, null, "hello");
 
             // second get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
+
+            workspace.TryGetSourceFile(uri, out var file);
+
+            // The workspace should remain empty.
+            file.Should().BeNull();
+
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
+        }
+
+        [DataTestMethod]
+        [DataRow(".arm")]
+        [DataRow(".json")]
+        [DataRow(".jsonc")]
+        public void UpsertCompilation_InWorspaceArmTemplateFile_ShouldRefreshWorkspace(string fileExtension)
+        {
+            PublishDiagnosticsParams? receivedParams = null;
+
+            var document = CreateMockDocument(p => receivedParams = p);
+            var server = CreateMockServer(document);
+            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUri();
+
+            var originalFile = SourceFileFactory.CreateArmTemplateSourceFile(uri, "{}");
+            var workspace = new Workspace();
+            workspace.UpsertSourceFiles(originalFile.AsEnumerable());
+
+            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
+
+            // first get should not return anything
+            manager.GetCompilation(uri).Should().BeNull();
+
+            // upsert the compilation
+            manager.UpsertCompilation(uri, null, "hello");
+
+            // second get should not return anything
+            manager.GetCompilation(uri).Should().BeNull();
+
+            workspace.TryGetSourceFile(uri, out var updatedFile);
+
+            // The workspace should be refreshed.
+            updatedFile.Should().NotBeNull();
+            updatedFile!.FileUri.Should().Be(originalFile.FileUri);
+            updatedFile.Should().NotBeSameAs(originalFile);
 
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
         }
@@ -61,14 +101,20 @@ namespace Bicep.LangServer.UnitTests
         [DataTestMethod]
         [DataRow(LanguageConstants.LanguageId)]
         [DataRow(null)]
-        public void UpsertCompilation_BicepFileOrInWorkspaceNonBicepFile_ShouldUpsertSuccessfully(string? languageId)
+        public void UpsertCompilation_BicepFile_ShouldUpsertSuccessfully(string? languageId)
         {
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName);
-            var workspace = PrepareWorkspace(uri, languageId);
+            var workspace = new Workspace();
+
+            if (languageId is null)
+            {
+                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+            }
+
             var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
 
             // first get should not return anything
@@ -111,7 +157,13 @@ namespace Bicep.LangServer.UnitTests
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName);
-            var workspace = PrepareWorkspace(uri, languageId);
+            var workspace = new Workspace();
+
+            if (languageId is null)
+            {
+                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+            }
+
             var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
 
             // first get should not return anything
@@ -177,7 +229,13 @@ namespace Bicep.LangServer.UnitTests
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName);
-            var workspace = PrepareWorkspace(uri, languageId);
+            var workspace = new Workspace();
+
+            if (languageId is null)
+            {
+                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+            }
+
             var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
 
             // first get should not return anything
@@ -289,8 +347,12 @@ namespace Bicep.LangServer.UnitTests
             provider.Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>())).Throws(new InvalidOperationException(expectedMessage));
 
             var uri = DocumentUri.File(this.TestContext.TestName);
+            var workspace = new Workspace();
 
-            var workspace = PrepareWorkspace(uri, languageId);
+            if (languageId is null)
+            {
+                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+            }
 
             var manager = new BicepCompilationManager(server.Object, provider.Object, workspace);
 
@@ -350,7 +412,13 @@ namespace Bicep.LangServer.UnitTests
                 .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>()))
                 .Returns<IReadOnlyWorkspace, DocumentUri>((workspace, documentUri) => failUpsert ? throw new InvalidOperationException(expectedMessage) : CreateEmptyCompilationProvider().Create(workspace, documentUri));
 
-            var workspace = PrepareWorkspace(uri, languageId);
+            var workspace = new Workspace();
+
+            if (languageId is null)
+            {
+                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+            }
+
             var manager = new BicepCompilationManager(server.Object, provider.Object, workspace);
 
             // upsert should fail because of the mock fatal exception
@@ -427,21 +495,6 @@ namespace Bicep.LangServer.UnitTests
 
         private static ICompilationProvider CreateEmptyCompilationProvider() =>
             new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), new InMemoryFileResolver(new Dictionary<Uri, string>()));
-
-        private static Workspace PrepareWorkspace(DocumentUri uri, string? languageId)
-        {
-            var workspace = new Workspace();
-
-            if (string.IsNullOrEmpty(languageId))
-            {
-                // If languageId is not bicep, create a JsonSyntaxTree for the uri and
-                // add it to the workspace so that the compilation manager will not ignore it.
-                var jsonSyntaxTree = SyntaxTreeFactory.CreateJsonSyntaxTree(uri.ToUri(), "{}");
-                workspace.UpsertSyntaxTrees(jsonSyntaxTree.AsEnumerable());
-            }
-
-            return workspace;
-        }
     }
 }
 
