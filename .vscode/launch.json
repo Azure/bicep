@@ -10,13 +10,10 @@
                 "--enable-proposed-api",
                 "--extensionDevelopmentPath=${workspaceRoot}/src/vscode-bicep"
             ],
-            "env": {
-                "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/src/Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
-            },
             "stopOnEntry": false,
             "sourceMaps": true,
             "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
-            "preLaunchTask": "vscodeext-build"
+            "preLaunchTask": "Build VSIX"
         },
         {
             "name": "Bicep Playground",
@@ -27,13 +24,13 @@
             "cwd": "${workspaceFolder}/src/playground",
             "autoAttachChildProcesses": true,
             "stopOnEntry": false,
-            "preLaunchTask": "playground-build-wasm"
+            "preLaunchTask": "Build WASM for Playground"
         },
         {
             "name": "Bicep CLI",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build-cli",
+            "preLaunchTask": "Build CLI",
             "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net5.0/Bicep.dll",
             "args": [
                 "build",
