@@ -1090,9 +1090,14 @@ namespace Bicep.Core.Diagnostics
                "BCP185",
                $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
 
+            public ErrorDiagnostic UnparseableJsonType() => new(
+               TextSpan,
+               "BCP186",
+               $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
+
             public ErrorDiagnostic ReferencedArmTemplateHasErrors() => new(
                 TextSpan,
-                "BCP186",
+                "BCP187",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
         }
 

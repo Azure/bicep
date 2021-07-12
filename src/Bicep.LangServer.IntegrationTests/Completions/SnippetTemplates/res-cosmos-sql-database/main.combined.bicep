@@ -15,4 +15,3 @@ resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31'
   }
 }
 // Insert snippet here
-

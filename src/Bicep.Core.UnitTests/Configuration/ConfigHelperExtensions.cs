@@ -16,6 +16,5 @@ namespace Bicep.Core.UnitTests.Configuration
         public static ConfigHelper GetDisabledLinterConfig(this ConfigHelper configHelper) =>
             configHelper.OverrideSetting(LinterAnalyzer.LinterEnabledSetting, false)
                         .OverrideSetting(LinterAnalyzer.LinterVerboseSetting, false);
-
     }
 }

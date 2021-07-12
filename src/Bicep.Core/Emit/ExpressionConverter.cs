@@ -120,13 +120,29 @@ namespace Bicep.Core.Emit
                         function.Arguments.Select(a => ConvertExpression(a.Expression)));
 
                 case InstanceFunctionCallSyntax instanceFunctionCall:
-                    var namespaceSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
-                    Assert(namespaceSymbol is NamespaceSymbol, $"BaseExpression must be a NamespaceSymbol, instead got: '{namespaceSymbol?.Kind}'");
+                    var baseSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
 
-                    return ConvertFunction(
-                        instanceFunctionCall.Name.IdentifierName,
-                        instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
+                    switch (baseSymbol)
+                    {
+                        case NamespaceSymbol namespaceSymbol:
+                            return ConvertFunction(
+                                instanceFunctionCall.Name.IdentifierName,
+                                instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
+                        case ResourceSymbol resourceSymbol when instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively("list"):
+                        // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
+                            var convertedArgs = instanceFunctionCall.Arguments.SelectArray(a => ConvertExpression(a.Expression));
+                            var resourceIdExpression = GetFullyQualifiedResourceId(resourceSymbol);
+                            var apiVersionExpression = new JTokenExpression(resourceSymbol.GetResourceTypeReference().ApiVersion);
 
+                            var listArgs = convertedArgs.Length switch {
+                                0 => new LanguageExpression[] { resourceIdExpression, apiVersionExpression, },
+                                _ => new LanguageExpression[] { resourceIdExpression, }.Concat(convertedArgs),
+                            };
+
+                            return CreateFunction(instanceFunctionCall.Name.IdentifierName, listArgs);
+                    }
+                    
+                    throw new InvalidOperationException($"Unrecognized base expression {baseSymbol?.Kind}");
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {functionCall.GetType().Name}");
             }

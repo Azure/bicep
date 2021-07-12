@@ -45,23 +45,6 @@
     }
   },
   {
-    "label": "listKeys",
-    "kind": "function",
-    "detail": "listKeys()",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "3_listKeys",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "listKeys($0)"
-    },
-    "command": {
-      "command": "editor.action.triggerParameterHints"
-    }
-  },
-  {
     "label": "managementGroup",
     "kind": "function",
     "detail": "managementGroup()",

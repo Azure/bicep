@@ -12,4 +12,3 @@ resource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {
   }
 }
 // Insert snippet here
-

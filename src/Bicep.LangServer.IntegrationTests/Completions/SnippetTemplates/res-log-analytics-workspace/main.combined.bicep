@@ -12,4 +12,3 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10
   }
 }
 // Insert snippet here
-

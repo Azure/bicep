@@ -45,6 +45,26 @@ namespace Bicep.Core.FileSystem
             return Path.GetFullPath(resolvedPath);
         }
 
+        public static string ResolveDefaultOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath)
+        {
+            if (outputDir is not null)
+            {
+                var dir = ResolvePath(outputDir);
+                var file = Path.GetFileName(inputPath);
+                var path = Path.Combine(dir, file);
+
+                return defaultOutputPath(path);
+            }
+            else if (outputFile is not null)
+            {
+                return ResolvePath(outputFile);
+            }
+            else
+            {
+                return defaultOutputPath(inputPath);
+            }
+        }
+
         public static string GetDefaultBuildOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), TemplateOutputExtension, PathComparison))
@@ -56,11 +76,6 @@ namespace Bicep.Core.FileSystem
             return Path.ChangeExtension(path, TemplateOutputExtension);
         }
 
-        /// <summary>
-        /// Returns a normalized absolute path. Relative paths are converted to absolute paths relative to current directory prior to normalization.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="baseDirectory">The base directory to use when resolving relative paths. Set to null to use CWD.</param>
         public static string GetDefaultDecompileOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), BicepExtension, PathComparison))

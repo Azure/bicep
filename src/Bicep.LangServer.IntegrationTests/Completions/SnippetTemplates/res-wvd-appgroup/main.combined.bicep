@@ -14,4 +14,3 @@ resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@201
   }
 }
 // Insert snippet here
-

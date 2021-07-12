@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5568127674592377707"
+      "templateHash": "10839339689322770047"
     }
   },
   "parameters": {
@@ -1076,7 +1076,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10939577128460965414"
+              "templateHash": "6673211936035085652"
             }
           },
           "parameters": {
@@ -1288,7 +1288,7 @@
                   "computerName": "[parameters('vmName')]",
                   "adminUsername": "[parameters('vmAdminUsername')]",
                   "adminPassword": "[parameters('vmAdminPasswordOrKey')]",
-                  "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
+                  "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
                 },
                 "storageProfile": {
                   "copy": [
@@ -1591,7 +1591,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11819378221515304822"
+              "templateHash": "5882575949678654988"
             }
           },
           "parameters": {
@@ -1975,7 +1975,7 @@
                   "dockerBridgeCidr": "[parameters('aksClusterDockerBridgeCidr')]",
                   "loadBalancerSku": "[parameters('aksClusterLoadBalancerSku')]"
                 },
-                "aadProfile": "[if(parameters('aadEnabled'), variables('aadProfileConfiguration'), json('null'))]",
+                "aadProfile": "[if(parameters('aadEnabled'), variables('aadProfileConfiguration'), null())]",
                 "apiServerAccessProfile": {
                   "enablePrivateCluster": "[parameters('aksClusterEnablePrivateCluster')]"
                 }

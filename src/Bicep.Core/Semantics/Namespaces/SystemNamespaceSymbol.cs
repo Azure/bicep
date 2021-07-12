@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Azure.Deployments.Core.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -369,9 +371,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("json")
-                .WithReturnType(LanguageConstants.Any)
                 .WithDescription("Converts a valid JSON string into a JSON data type.")
                 .WithRequiredParameter("json", LanguageConstants.String, "The value to convert to JSON. The string must be a properly formatted JSON string.")
+                .WithDynamicReturnType(JsonTypeBuilder, LanguageConstants.Any)
                 .Build(),
 
             new FunctionOverloadBuilder("dateTimeAdd")
@@ -502,6 +504,51 @@ namespace Bicep.Core.Semantics.Namespaces
                 throw new InvalidOperationException($"Expecting function to return {nameof(StringLiteralType)}, but {typeSymbol.GetType().Name} received.");
             }
             return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
+        }
+
+        private static TypeSymbol JsonTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            static TypeSymbol ToBicepType(JToken token)
+                => token switch {
+                    JObject @object => new ObjectType(
+                        "object",
+                        TypeSymbolValidationFlags.Default,
+                        @object.Properties().Select(x => new TypeProperty(x.Name, ToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
+                        null),
+                    JArray @array => new TypedArrayType(
+                        UnionType.Create(@array.Select(x => ToBicepType(x))),
+                        TypeSymbolValidationFlags.Default),
+                    JValue value => value.Type switch {
+                        JTokenType.String => new StringLiteralType(value.ToString()),
+                        JTokenType.Integer => LanguageConstants.Int,
+                        // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
+                        JTokenType.Float => LanguageConstants.Any,
+                        JTokenType.Boolean => LanguageConstants.Bool,
+                        JTokenType.Null => LanguageConstants.Null,
+                        _ => LanguageConstants.Any,
+                    },
+                    _ => LanguageConstants.Any,
+                };
+
+            if (argumentTypes.Length != 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
+            {
+                return LanguageConstants.Any;
+            }
+
+            // Purposefully use the same method and parsing settings as the deployment engine,
+            // to provide as much consistency as possible.
+            if (stringLiteral.RawStringValue.TryFromJson<JToken>() is not {} token)
+            {
+                // Instead of catching and returning the JSON parse exception, we simply return a generic error.
+                // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
+                // If the in-line JSON is so complex that troubleshooting is difficult, then that's a sign that the user should
+                // instead break it out into a separate file and use loadTextContent().
+                var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparseableJsonType();
+
+                return ErrorType.Create(error);
+            }
+
+            return ToBicepType(token);
         }
 
         // TODO: Add copyIndex here when we support loops.

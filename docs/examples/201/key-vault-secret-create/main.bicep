@@ -3,7 +3,7 @@
 // * documentation on key vault secret resource types: 
 //   https://docs.microsoft.com/en-us/azure/templates/microsoft.keyvault/vaults/secrets?tabs=json
 // * 201/key-vault-secret=create in pre-decompiled ARM format
-//   https://github.com/Azure/azure-quickstart-templates/tree/master/201-key-vault-secret-create
+//   https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.keyvault/key-vault-secret-create
 
 @description('Specifies the name of the key vault.')
 param keyVaultName string
@@ -36,24 +36,26 @@ param secretsPermissions array = [
   'list'
 ]
 
+@description('Specifies whether the key vault is a standard vault or a premium vault.')
 @allowed([
   'standard'
   'premium'
 ])
-@description('Specifies whether the key vault is a standard vault or a premium vault.')
 param skuName string = 'standard'
 
+@description('Specifies all secrets {"secretName":"","secretValue":""} wrapped in "secrets" member array in a secure object.')
 @secure()
-@description('Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object.')
-param secretsObject object = {
-  secrets: [
-    // either edit this section with your secrets, or add them as parameters you can define. 
-    {
-      secretName: 'yourSecret'
-      secretValue: 'yourValue'
-    }
-  ]
-}
+param secretsObject object
+// secretsObject should be passed in dynamically as a parameter (not checked in to
+// source code control).  It should be an object in this format:
+// {
+//   secrets: [
+//     {
+//       secretName: 'yourSecret'
+//       secretValue: 'yourValue'
+//     }
+//   ]
+// }
 
 resource vault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: keyVaultName
@@ -87,8 +89,9 @@ resource vault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   }
 }
 
-resource secrets 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [for secret in secretsObject.secrets: {
-  name: '${vault.name}/${secret.secretName}'
+resource secrets 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = [for secret in secretsObject.secrets: {
+  parent: vault
+  name: secret.secretName
   properties: {
     value: secret.secretValue
   }

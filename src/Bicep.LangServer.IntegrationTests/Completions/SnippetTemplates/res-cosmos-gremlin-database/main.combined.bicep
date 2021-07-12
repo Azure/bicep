@@ -15,4 +15,3 @@ resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03
   }
 }
 // Insert snippet here
-

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Threading;
+
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Logging
