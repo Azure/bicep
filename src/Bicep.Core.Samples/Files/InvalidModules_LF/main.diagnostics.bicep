@@ -724,3 +724,35 @@ module secureModule1 'moduleb.bicep' = {
   }
 }
 
+module issue3000 'empty.bicep' = {
+  name: 'issue3000Module'
+  params: {}
+  identity: {
+//@[2:10) [BCP037 (Error)] The property "identity" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |identity|
+    type: 'SystemAssigned'
+  }
+  extendedLocation: {}
+//@[2:18) [BCP037 (Error)] The property "extendedLocation" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |extendedLocation|
+  sku: {}
+//@[2:5) [BCP037 (Error)] The property "sku" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |sku|
+  kind: 'V1'
+//@[2:6) [BCP037 (Error)] The property "kind" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |kind|
+  managedBy: 'string'
+//@[2:11) [BCP037 (Error)] The property "managedBy" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |managedBy|
+  mangedByExtended: [
+//@[2:18) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |mangedByExtended|
+   'str1'
+   'str2'
+  ]
+  zones: [
+//@[2:7) [BCP037 (Error)] The property "zones" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |zones|
+   'str1'
+   'str2'
+  ]
+  plan: {}
+//@[2:6) [BCP037 (Error)] The property "plan" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |plan|
+  eTag: ''
+//@[2:6) [BCP037 (Error)] The property "eTag" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |eTag|
+  scale: {}  
+//@[2:7) [BCP037 (Error)] The property "scale" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |scale|
+}

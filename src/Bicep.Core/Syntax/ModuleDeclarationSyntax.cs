@@ -68,7 +68,7 @@ namespace Bicep.Core.Syntax
                 outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
             }
 
-            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, moduleSemanticModel.TargetScope, containingScope, "module");
+            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, moduleSemanticModel.TargetScope, containingScope, LanguageConstants.TypeNameModule);
         }
 
         public ObjectSyntax? TryGetBody() =>

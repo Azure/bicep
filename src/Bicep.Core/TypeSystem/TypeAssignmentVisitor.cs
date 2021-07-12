@@ -269,7 +269,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, singleOrCollectionDeclaredType);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, singleOrCollectionDeclaredType, true);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -840,7 +840,7 @@ namespace Bicep.Core.TypeSystem
                             .Select(baseMemberType => GetArrayItemType(syntax, diagnostics, baseMemberType.Type, indexType))
                             .ToList();
 
-                        if(arrayItemTypes.OfType<ErrorType>().Any())
+                        if (arrayItemTypes.OfType<ErrorType>().Any())
                         {
                             // some of the union members are not assignable
                             // base expression was of the wrong type
@@ -1316,6 +1316,11 @@ namespace Bicep.Core.TypeSystem
                     {
                         return ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>());
                     }
+                }
+
+                if (declaredProperty.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).FallbackPropertyUsed(propertyName));
                 }
 
                 // there is - return its type

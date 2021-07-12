@@ -1108,7 +1108,7 @@ namespace Bicep.Decompiler
 
                 return new ModuleDeclarationSyntax(
                     nestedDecorators,
-                    SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
+                    SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
                     SyntaxFactory.CreateIdentifier(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
                     SyntaxFactory.AssignmentToken,
@@ -1129,7 +1129,7 @@ namespace Bicep.Decompiler
             var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
             var module = new ModuleDeclarationSyntax(
                 decorators,
-                SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
+                SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
                 SyntaxFactory.CreateIdentifier(identifier),
                 modulePath,
                 SyntaxFactory.AssignmentToken,

@@ -57,6 +57,11 @@ namespace Bicep.Core.TypeSystem
         /// On non-required properties, this allows the property type to be treated as "<x> | null" (where <x> is the current property type)
         /// for the purposes of type checking the value assigned to the property.
         /// </summary>
-        AllowImplicitNull = 1 << 8
+        AllowImplicitNull = 1 << 8,
+
+        /// <summary>
+        /// Property that is not defined in Swagger, but still might be valid. We will show warning instead error.
+        /// </summary>
+        FallbackProperty = 1 << 9
     }
 }

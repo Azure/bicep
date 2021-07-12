@@ -75,6 +75,7 @@ namespace Bicep.Core
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string TypeNameString = "string";
+        public const string TypeNameModule = "module";
 
         /*
          * The following top-level properties must be set deploy-time constant values,
@@ -273,6 +274,20 @@ namespace Bicep.Core
                 yield return prop;
             }
 
+            foreach (var prop in KnownTopLevelResourceProperties())
+            {
+                yield return prop;
+            }
+        }
+
+        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
+        {
+            yield return new TypeProperty("location", String);
+
+            yield return new TypeProperty("tags", Tags);
+
+            yield return new TypeProperty("properties", Object);
+
             // TODO: Model type fully
             yield return new TypeProperty("sku", Object);
 
@@ -281,8 +296,6 @@ namespace Bicep.Core
 
             var stringArray = new TypedArrayType(String, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty("managedByExtended", stringArray);
-
-            yield return new TypeProperty("location", String);
 
             // TODO: Model type fully
             yield return new TypeProperty("extendedLocation", Object);
@@ -293,18 +306,12 @@ namespace Bicep.Core
 
             yield return new TypeProperty("eTag", String);
 
-            yield return new TypeProperty("tags", Tags);
-
             // TODO: Model type fully
             yield return new TypeProperty("scale", Object);
 
             // TODO: Model type fully
             yield return new TypeProperty("identity", Object);
 
-            yield return new TypeProperty("properties", Object);
-
-            var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny);
         }
     }
 }
