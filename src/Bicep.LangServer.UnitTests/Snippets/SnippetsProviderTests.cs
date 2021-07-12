@@ -758,6 +758,7 @@ resource /*${2:dnsRecord}*/dnsRecord 'Microsoft.Network/dnsZones//*${3|A,AAAA,CN
     mode: /*'${5|Detection,Prevention|}'*/'Detection'
     /*'hidden-link:${6:appServiceId}'*/'appServiceId': 'Resource'
     '/*${7|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}*/ARecords': []
+    precision: /*${8:-1}*/-1
   }
 }";
 
@@ -777,6 +778,7 @@ resource ${2:dnsRecord} 'Microsoft.Network/dnsZones/${3|A,AAAA,CNAME,MX,NS,PTR,S
     mode: '${5|Detection,Prevention|}'
     'hidden-link:${6:appServiceId}': 'Resource'
     '${7|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}': []
+    precision: ${8:-1}
   }
 }");
         }

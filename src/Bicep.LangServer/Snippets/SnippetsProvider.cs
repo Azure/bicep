@@ -30,7 +30,7 @@ namespace Bicep.LanguageServer.Snippets
         private const string RequiredPropertiesDescription = "Required properties";
         private const string RequiredPropertiesLabel = "required-properties";
         private static readonly Regex ParentPropertyPattern = new Regex(@"^.*parent:.*$[\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex SnippetPlaceholderCommentPattern = new Regex(@"\/\*(?<snippetPlaceholder>(\'?)(\w+\-\w+:)?\$({\d+(:|\|)(.*?)})(\'?))\*\/('(.*?)'|\w+)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex SnippetPlaceholderCommentPattern = new Regex(@"\/\*(?<snippetPlaceholder>(\'?)(\w+\-\w+:)?\$({\d+(:|\|)(-\d+)?(.*?)})(\'?))\*\/('(.*?)'|\w+|-\d+)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         // Used to cache resource declaration information. Maps resource type reference to prefix, identifier, body text and description
         private readonly ConcurrentDictionary<ResourceTypeReference, (string prefix, string identifier, string bodyText, string description)> resourceTypeReferenceInfoMap = new(ResourceTypeReferenceComparer.Instance);
