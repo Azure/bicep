@@ -1,3 +1,3 @@
 ﻿// Secure string parameter
 @secure()
-param ${1:Identifier} string
+param /*${1:Identifier}*/Identifier string

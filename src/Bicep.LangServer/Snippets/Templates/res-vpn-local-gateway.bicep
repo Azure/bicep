@@ -1,13 +1,13 @@
 ﻿// VPN Local Network Gateway
-resource ${1:localNetworkGateway} 'Microsoft.Network/localNetworkGateways@2019-11-01' = {
-  name: ${2:'name'}
+resource /*${1:localNetworkGateway}*/localNetworkGateway 'Microsoft.Network/localNetworkGateways@2019-11-01' = {
+  name: /*${2:'name'}*/'name'
   location: resourceGroup().location
   properties: {
     localNetworkAddressSpace: {
       addressPrefixes: [
-        ${3:'REQUIRED'}
+        /*${3:'REQUIRED'}*/'REQUIRED'
       ]
     }
-    gatewayIpAddress: ${4:'gatewayIpAddress'}
+    gatewayIpAddress: /*${4:'gatewayIpAddress'}*/'gatewayIpAddress'
   }
 }

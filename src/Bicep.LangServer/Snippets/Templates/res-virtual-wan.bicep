@@ -1,6 +1,6 @@
 // Virtual WAN
-resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {
-  name: ${2:'name'}
+resource /*${1:virtualWan}*/virtualWan 'Microsoft.Network/virtualWans@2020-07-01' = {
+  name: /*${2:'name'}*/'name'
   location: resourceGroup().location
   properties: any({
     type: ${3|'Standard','Basic'|}

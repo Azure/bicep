@@ -1,12 +1,12 @@
 ﻿// Custom script extension for a Windows Virtual Machine
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-  name: ${1:'name'}
+  name: /*${1:'name'}*/'name'
   location: resourceGroup().location
 }
 
-resource ${2:windowsVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+resource /*${2:windowsVMExtensions}*/windowsVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   parent: virtualMachine
-  name: ${3:'name'}
+  name: /*${3:'name'}*/'name'
   location: resourceGroup().location
   properties: {
     publisher: 'Microsoft.Compute'
@@ -15,11 +15,11 @@ resource ${2:windowsVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        ${4:'fileUris'}
+        /*${4:'fileUris'}*/'fileUris'
       ]
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Bypass -file ${5:customScript.ps1}'
+      commandToExecute: 'powershell -ExecutionPolicy Bypass -file /*${5:customScript.ps1}*/customScript.ps1'
     }
   }
 }

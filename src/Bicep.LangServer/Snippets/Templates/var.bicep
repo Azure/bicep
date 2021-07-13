@@ -1,2 +1,2 @@
 ﻿// Variable declaration
-var ${1:Identifier} = $0
+var /*${1:Identifier}*/Identifier = $0

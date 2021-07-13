@@ -1,11 +1,11 @@
 // Web Application
-resource ${1:webApplication} 'Microsoft.Web/sites@2018-11-01' = {
-  name: ${2:'name'}
+resource /*${1:webApplication}*/webApplication 'Microsoft.Web/sites@2018-11-01' = {
+  name: /*${2:'name'}*/'name'
   location: resourceGroup().location
   tags: {
-    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${3:'appServicePlan'}': 'Resource'
+    /*'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${3:'appServicePlan'}*/'resource': 'Resource'
   }
   properties: {
-    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${4:'appServicePlan'})
+    serverFarmId: resourceId('Microsoft.Web/serverfarms', /*${4:'appServicePlan'}*/'appServicePlan')
   }
 }

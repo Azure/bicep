@@ -1,2 +1,2 @@
 ﻿// Output declaration
-output ${1:Identifier} ${2:Type} = $0
+output /*${1:Identifier}*/Identifier /*${2:Type}*/string = /*$0*/'default'

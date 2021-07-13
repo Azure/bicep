@@ -1,31 +1,31 @@
 ﻿// Azure Firewall
-resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2020-11-01' = {
-  name: ${2:'name'}
+resource /*${1:firewall}*/firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
+  name: /*${2:'name'}*/'name'
   location: resourceGroup().location
   properties: {
     applicationRuleCollections: [
       {
-        name: ${3:'name'}
+        name: /*${3:'name'}*/'name'
         properties: {
-          priority: ${4:'priority'}
+          priority: /*${4:'priority'}*/'priority'
           action: {
-            type: '${5|Allow,Deny|}'
+            type: /*'${5|Allow,Deny|}'*/'Allow'
           }
           rules: [
             {
-              name: ${6:'name'}
-              description: ${7:'description'}
+              name: /*${6:'name'}*/'name'
+              description: /*${7:'description'}*/'description'
               sourceAddresses: [
-                ${8:'sourceAddress'}
+                /*${8:'sourceAddress'}*/'sourceAddress'
               ]
               protocols: [
                 {
-                  protocolType: '${9|Http,Https,Mssql|}'
-                  port: ${10|80,443,1433|}
+                  protocolType: /*'${9|Http,Https,Mssql|}'*/'Http'
+                  port: /*${10|80,443,1433|}*/80
                 }
               ]
               targetFqdns: [
-                ${11:'www.microsoft.com'}
+                /*${11:'www.microsoft.com'}*/'www.microsoft.com'
               ]
             }
           ]
@@ -34,30 +34,30 @@ resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2020-11-01' = {
     ]
     natRuleCollections: [
       {
-        name: ${12:'name'}
+        name: /*${12:'name'}*/'name'
         properties: {
-          priority: ${13:'priority'}
+          priority: /*${13:'priority'}*/'priority'
           action: {
-            type: '${14|Dnat, Snat|}'
+            type: '/*${14|Dnat, Snat|}'*/'Dnat'
           }
           rules: [
             {
-              name: ${15:'name'}
-              description: ${16:'description'}
+              name: /*${15:'name'}*/'name'
+              description: /*${16:'description'}*/'description'
               sourceAddresses: [
-                ${17:'sourceAddress'}
+                /*${17:'sourceAddress'}*/'sourceAddress'
               ]
               destinationAddresses: [
-                ${18:'destinationAddress'}
+                /*${18:'destinationAddress'}*/'destinationAddress'
               ]
               destinationPorts: [
-                ${19:'port'}
+                /*${19:'port'}*/'port'
               ]
               protocols: [
-                '${20|TCP,UDP,Any,ICMP|}'
+                /*'${20|TCP,UDP,Any,ICMP|}'*/'TCP'
               ]
-              translatedAddress: ${21:'translatedAddress'}
-              translatedPort: ${22:'translatedPort'}
+              translatedAddress: /*${21:'translatedAddress'}*/'translatedAddress'
+              translatedPort: /*${22:'translatedPort'}*/'translatedPort'
             }
           ]
         }
@@ -65,27 +65,27 @@ resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2020-11-01' = {
     ]
     networkRuleCollections: [
       {
-        name: ${23:'name'}
+        name: /*${23:'name'}*/'name'
         properties: {
-          priority: ${24:'priority'}
+          priority: /*${24:'priority'}*/'priority'
           action: {
-            type: '${25|Deny,Allow|}'
+            type: '/*${25|Deny,Allow|}'*/'Deny'
           }
           rules: [
             {
-              name: ${26:'name'}
-              description: ${27:'description'}
+              name: /*${26:'name'}*/'name'
+              description: /*${27:'description'}*/'description'
               sourceAddresses: [
-                ${28:'sourceAddress'}
+                /*${28:'sourceAddress'}*/'sourceAddress'
               ]
               destinationAddresses: [
-                ${29:'destinationAddress'}
+                /*${29:'destinationAddress'}*/'destinationAddress'
               ]
               destinationPorts: [
-                ${30:'destinationPort'}
+                /*${30:'destinationPort'}*/'destinationPort'
               ]
               protocols: [
-                '${31|TCP,UDP,Any,ICMP|}'
+                /*'${31|TCP,UDP,Any,ICMP|}'*/'TCP'
               ]
             }
           ]
@@ -94,13 +94,13 @@ resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2020-11-01' = {
     ]
     ipConfigurations: [
       {
-        name: ${32:'name'}
+        name: /*${32:'name'}*/'name'
         properties: {
           subnet: {
-            id: ${33:'id'}
+            id: /*${33:'id'}*/'id'
           }
           publicIPAddress: {
-            id: ${34:'id'}
+            id: /*${34:'id'}*/'id'
           }
         }
       }
