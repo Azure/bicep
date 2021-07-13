@@ -93,18 +93,18 @@ namespace Bicep.Core.IntegrationTests
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFileName);
             var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
-            var syntaxTrees = filesToSave.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
+            var syntaxTrees = filesToSave.Select(kvp => SourceFileFactory.CreateBicepSourceFile(kvp.Key, kvp.Value));
             var workspace = new Workspace();
-            workspace.UpsertSyntaxTrees(syntaxTrees);
+            workspace.UpsertSourceFiles(syntaxTrees);
 
             var fileResolver = new FileResolver();
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, bicepUri);
             var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
-            var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree(new ConfigHelper().GetDisabledLinterConfig());
+            var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsByBicepFile(new ConfigHelper().GetDisabledLinterConfig());
 
             using (new AssertionScope())
             {
-                foreach (var syntaxTree in syntaxTreeGrouping.SyntaxTrees)
+                foreach (var syntaxTree in syntaxTreeGrouping.SyntaxTrees.OfType<SyntaxTree>())
                 {
                     var exampleExists = File.Exists(syntaxTree.FileUri.LocalPath);
                     exampleExists.Should().BeTrue($"Generated example \"{syntaxTree.FileUri.LocalPath}\" should be checked in");

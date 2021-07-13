@@ -2674,4 +2674,51 @@ module issue3000 'empty.bicep' = {
 //@[13:14) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+module invalidJsonMod 'modulec.json' = {
+//@[0:6) Identifier |module|
+//@[7:21) Identifier |invalidJsonMod|
+//@[22:36) StringComplete |'modulec.json'|
+//@[37:38) Assignment |=|
+//@[39:40) LeftBrace |{|
+//@[40:41) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module jsonModMissingParam 'moduled.json' = {
+//@[0:6) Identifier |module|
+//@[7:26) Identifier |jsonModMissingParam|
+//@[27:41) StringComplete |'moduled.json'|
+//@[42:43) Assignment |=|
+//@[44:45) LeftBrace |{|
+//@[45:46) NewLine |\n|
+  name: 'jsonModMissingParam'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:29) StringComplete |'jsonModMissingParam'|
+//@[29:30) NewLine |\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    foo: 123
+//@[4:7) Identifier |foo|
+//@[7:8) Colon |:|
+//@[9:12) Integer |123|
+//@[12:13) NewLine |\n|
+    baz: 'C'
+//@[4:7) Identifier |baz|
+//@[7:8) Colon |:|
+//@[9:12) StringComplete |'C'|
+//@[12:13) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:2) NewLine |\n|
+
+//@[0:0) EndOfFile ||

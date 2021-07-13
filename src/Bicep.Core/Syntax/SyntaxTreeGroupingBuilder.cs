@@ -8,7 +8,6 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
@@ -18,18 +17,18 @@ namespace Bicep.Core.Syntax
     {
         private readonly IFileResolver fileResolver;
         private readonly IReadOnlyWorkspace workspace;
-        private readonly IDictionary<ModuleDeclarationSyntax, SyntaxTree> moduleLookup;
+        private readonly IDictionary<ModuleDeclarationSyntax, ISourceFile> moduleLookup;
         private readonly IDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup;
-        private readonly IDictionary<Uri, SyntaxTree> syntaxTrees;
+        private readonly IDictionary<Uri, ISourceFile> syntaxTrees;
         private readonly IDictionary<Uri, DiagnosticBuilder.ErrorBuilderDelegate> syntaxTreeLoadFailures;
 
         private SyntaxTreeGroupingBuilder(IFileResolver fileResolver, IReadOnlyWorkspace workspace)
         {
             this.fileResolver = fileResolver;
             this.workspace = workspace;
-            this.moduleLookup = new Dictionary<ModuleDeclarationSyntax, SyntaxTree>();
+            this.moduleLookup = new Dictionary<ModuleDeclarationSyntax, ISourceFile>();
             this.moduleFailureLookup = new Dictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
-            this.syntaxTrees = new Dictionary<Uri, SyntaxTree>();
+            this.syntaxTrees = new Dictionary<Uri, ISourceFile>();
             this.syntaxTreeLoadFailures = new Dictionary<Uri, DiagnosticBuilder.ErrorBuilderDelegate>();
         }
 
@@ -42,8 +41,9 @@ namespace Bicep.Core.Syntax
 
         private SyntaxTreeGrouping Build(Uri entryFileUri)
         {
-            var entryPoint = PopulateRecursive(entryFileUri, out var entryPointLoadFailureBuilder);
-            if (entryPoint == null)
+            var syntaxTree = PopulateRecursive(entryFileUri, isEntryFile: true, out var entryPointLoadFailureBuilder);
+
+            if (syntaxTree is null)
             {
                 // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
                 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
@@ -51,6 +51,11 @@ namespace Bicep.Core.Syntax
                 var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
 
                 throw new ErrorDiagnosticException(diagnostic);
+            }
+
+            if (syntaxTree is not SyntaxTree entryPoint)
+            {
+                throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to return a SyntaxTree.");
             }
 
             ReportFailuresForCycles();
@@ -63,9 +68,9 @@ namespace Bicep.Core.Syntax
                 fileResolver);
         }
 
-        private SyntaxTree? TryGetSyntaxTree(Uri fileUri, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? TryGetSyntaxTree(Uri fileUri, bool isEntryFile, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if (workspace.TryGetSyntaxTree(fileUri, out var syntaxTree))
+            if (workspace.TryGetSourceFile(fileUri, out var syntaxTree))
             {
                 failureBuilder = null;
                 syntaxTrees[fileUri] = syntaxTree;
@@ -90,27 +95,35 @@ namespace Bicep.Core.Syntax
             }
 
             failureBuilder = null;
-            return AddSyntaxTree(fileUri, fileContents);
+            return AddSyntaxTree(fileUri, fileContents, isEntryFile);
         }
 
-        private SyntaxTree AddSyntaxTree(Uri fileUri, string fileContents)
+        private ISourceFile AddSyntaxTree(Uri fileUri, string fileContents, bool isEntryFile)
         {
-            var syntaxTree = SyntaxTree.Create(fileUri, fileContents);
-            syntaxTrees[fileUri] = syntaxTree;
+            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents, isEntryFile);
 
-            return syntaxTree;
+            syntaxTrees[fileUri] = sourceFile;
+
+            return sourceFile;
         }
 
-        private SyntaxTree? PopulateRecursive(Uri fileUri, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? PopulateRecursive(Uri fileUri, bool isEntryFile, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var syntaxTree = TryGetSyntaxTree(fileUri, out var getSyntaxTreeFailureBuilder);
+            var syntaxTree = TryGetSyntaxTree(fileUri, isEntryFile, out var getSyntaxTreeFailureBuilder);
+
             if (syntaxTree == null)
             {
                 failureBuilder = getSyntaxTreeFailureBuilder;
                 return null;
             }
 
-            foreach (var module in GetModuleSyntaxes(syntaxTree))
+            if (syntaxTree is not SyntaxTree bicepSyntaxTree)
+            {
+                failureBuilder = null;
+                return syntaxTree;
+            }
+
+            foreach (var module in GetModuleSyntaxes(bicepSyntaxTree))
             {
                 var moduleFileName = TryGetNormalizedModulePath(fileUri, module, out var moduleGetPathFailureBuilder);
                 if (moduleFileName == null)
@@ -124,7 +137,7 @@ namespace Bicep.Core.Syntax
                 // only recurse if we've not seen this module before - to avoid infinite loops
                 if (!syntaxTrees.TryGetValue(moduleFileName, out var moduleSyntaxTree))
                 {
-                    moduleSyntaxTree = PopulateRecursive(moduleFileName, out var modulePopulateFailureBuilder);
+                    moduleSyntaxTree = PopulateRecursive(moduleFileName, isEntryFile: false, out var modulePopulateFailureBuilder);
                     
                     if (moduleSyntaxTree == null)
                     {
@@ -232,11 +245,11 @@ namespace Bicep.Core.Syntax
 
         private void ReportFailuresForCycles()
         {
-            var syntaxTreeGraph = syntaxTrees.Values.OfType<SyntaxTree>()
-                .SelectMany(tree => GetModuleSyntaxes(tree).Where(moduleLookup.ContainsKey).Select(x => moduleLookup[x]).Distinct().Select(x => (tree, x)))
+            var syntaxTreeGraph = this.syntaxTrees.Values
+                .SelectMany(tree => GetModuleSyntaxes(tree).Where(this.moduleLookup.ContainsKey) .Select(x => this.moduleLookup[x]) .Distinct().Select(x => (tree, x)))
                 .ToLookup(x => x.Item1, x => x.Item2);
 
-            var cycles = CycleDetector<SyntaxTree>.FindCycles(syntaxTreeGraph);
+            var cycles = CycleDetector<ISourceFile>.FindCycles(syntaxTreeGraph);
             foreach (var kvp in moduleLookup)
             {
                 if (cycles.TryGetValue(kvp.Value, out var cycle))
@@ -253,7 +266,8 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        private static IEnumerable<ModuleDeclarationSyntax> GetModuleSyntaxes(SyntaxTree syntaxTree)
-            => syntaxTree.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>();
+        private static IEnumerable<ModuleDeclarationSyntax> GetModuleSyntaxes(ISourceFile syntaxTree) => syntaxTree is SyntaxTree bicepSyntaxTree
+            ? bicepSyntaxTree.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>()
+            : Enumerable.Empty<ModuleDeclarationSyntax>();
     }
 }

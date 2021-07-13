@@ -1097,14 +1097,14 @@ namespace Bicep.Decompiler
 
                 var filePath = $"./nested_{identifier}.bicep";
                 var nestedModuleUri = fileResolver.TryResolveFilePath(bicepFileUri, filePath) ?? throw new ConversionFailedException($"Unable to module uri for {typeString} {nameString}", nestedTemplate);
-                if (workspace.TryGetSyntaxTree(nestedModuleUri, out _))
+                if (workspace.TryGetSourceFile(nestedModuleUri, out _))
                 {
                     throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
                 }
 
                 var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule);
                 var nestedSyntaxTree = new SyntaxTree(nestedModuleUri, ImmutableArray<int>.Empty, nestedConverter.Parse());
-                workspace.UpsertSyntaxTrees(nestedSyntaxTree.AsEnumerable());
+                workspace.UpsertSourceFiles(nestedSyntaxTree.AsEnumerable());
 
                 return new ModuleDeclarationSyntax(
                     nestedDecorators,

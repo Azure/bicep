@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Workspaces
 {
@@ -14,51 +13,51 @@ namespace Bicep.Core.Workspaces
     /// </summary>
     public class Workspace : IWorkspace
     {
-        private readonly IDictionary<Uri, SyntaxTree> activeSyntaxTrees = new Dictionary<Uri, SyntaxTree>();
+        private readonly IDictionary<Uri, ISourceFile> activeFiles = new Dictionary<Uri, ISourceFile>();
 
-        public bool TryGetSyntaxTree(Uri fileUri, [NotNullWhen(true)] out SyntaxTree? syntaxTree)
-            => activeSyntaxTrees.TryGetValue(fileUri, out syntaxTree);
+        public bool TryGetSourceFile(Uri fileUri, [NotNullWhen(true)] out ISourceFile? file)
+            => activeFiles.TryGetValue(fileUri, out file);
 
-        public IEnumerable<SyntaxTree> GetSyntaxTreesForDirectory(Uri fileUri)
-            => activeSyntaxTrees
+        public IEnumerable<ISourceFile> GetSourceFilesForDirectory(Uri fileUri)
+            => activeFiles
                 .Where(kvp => fileUri.IsBaseOf(kvp.Key))
                 .Select(kvp => kvp.Value);
 
-        public ImmutableDictionary<Uri, SyntaxTree> GetActiveSyntaxTrees()
-            => activeSyntaxTrees.ToImmutableDictionary();
+        public ImmutableDictionary<Uri, ISourceFile> GetActiveSourceFilesByUri()
+            => activeFiles.ToImmutableDictionary();
 
-        public (ImmutableArray<SyntaxTree> added, ImmutableArray<SyntaxTree> removed) UpsertSyntaxTrees(IEnumerable<SyntaxTree> syntaxTrees)
+        public (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFiles(IEnumerable<ISourceFile> files)
         {
-            var addedTrees = new List<SyntaxTree>();
-            var removedTrees = new List<SyntaxTree>();
+            var added = new List<ISourceFile>();
+            var removed = new List<ISourceFile>();
 
-            foreach (var newSyntaxTree in syntaxTrees)
+            foreach (var newFile in files)
             {
-                if (activeSyntaxTrees.TryGetValue(newSyntaxTree.FileUri, out var oldSyntaxTree))
+                if (activeFiles.TryGetValue(newFile.FileUri, out var oldFile))
                 {
-                    if (oldSyntaxTree == newSyntaxTree)
+                    if (oldFile == newFile)
                     {
                         continue;
                     }
 
-                    removedTrees.Add(oldSyntaxTree);
+                    removed.Add(oldFile);
                 }
 
-                addedTrees.Add(newSyntaxTree);
+                added.Add(newFile);
 
-                activeSyntaxTrees[newSyntaxTree.FileUri] = newSyntaxTree;
+                activeFiles[newFile.FileUri] = newFile;
             }
 
-            return (addedTrees.ToImmutableArray(), removedTrees.ToImmutableArray());
+            return (added.ToImmutableArray(), removed.ToImmutableArray());
         }
 
-        public void RemoveSyntaxTrees(IEnumerable<SyntaxTree> syntaxTrees)
+        public void RemoveSourceFiles(IEnumerable<ISourceFile> files)
         {
-            foreach (var syntaxTree in syntaxTrees)
+            foreach (var file in files)
             {
-                if (activeSyntaxTrees.TryGetValue(syntaxTree.FileUri, out var treeToRemove) && treeToRemove == syntaxTree)
+                if (activeFiles.TryGetValue(file.FileUri, out var treeToRemove) && treeToRemove == file)
                 {
-                    activeSyntaxTrees.Remove(syntaxTree.FileUri);
+                    activeFiles.Remove(file.FileUri);
                 }
             }
         }

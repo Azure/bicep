@@ -544,3 +544,14 @@ module issue3000 'empty.bicep' = {
   eTag: ''
   scale: {}  
 }
+
+module invalidJsonMod 'modulec.json' = {
+}
+
+module jsonModMissingParam 'moduled.json' = {
+  name: 'jsonModMissingParam'
+  params: {
+    foo: 123
+    baz: 'C'
+  }
+}

@@ -128,7 +128,7 @@ namespace Bicep.Core.Samples
             // quiet the linter diagnostics
             var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
 
-            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree(overrideConfig))
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsByBicepFile(overrideConfig))
             {
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     syntaxTree,

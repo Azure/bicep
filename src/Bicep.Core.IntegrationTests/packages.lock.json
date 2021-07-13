@@ -2174,6 +2174,7 @@
           "Azure.Bicep.Types.Az": "0.1.157",
           "Azure.Deployments.Core": "1.0.207",
           "Azure.Deployments.Expression": "1.0.207",
+          "Azure.Deployments.Templates": "1.0.207",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.Configuration.Binder": "5.0.0",
           "Microsoft.Extensions.Configuration.Json": "5.0.0",

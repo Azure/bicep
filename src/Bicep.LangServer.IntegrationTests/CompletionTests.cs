@@ -21,6 +21,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Completions;
 using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
@@ -126,7 +127,7 @@ namespace Bicep.LangServer.IntegrationTests
         private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile, int cursor)
         {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
-            var syntaxTree = SyntaxTree.Create(documentUri.ToUri(), placeholderFile);
+            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(documentUri.ToUri(), placeholderFile);
 
             var client = await IntegrationTestHelper.StartServerWithTextAsync(
                 this.TestContext,
@@ -264,7 +265,7 @@ var test2 = /|* block c|omment *|/
         {
             string text = "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' existing = ";
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
+            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///main.bicep"), text);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
 
             var completions = await client.RequestCompletion(new CompletionParams
@@ -424,7 +425,7 @@ var test2 = /|* block c|omment *|/
         {
             string text = @"resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = ";
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
+            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///main.bicep"), text);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
 
             var completions = await client.RequestCompletion(new CompletionParams
@@ -468,7 +469,7 @@ var test2 = /|* block c|omment *|/
         public async Task VerifyResourceBodyCompletionWithDiscriminatedObjectTypeContainsRequiredPropertiesSnippet()
         {
             string text = @"resource deploymentScripts 'Microsoft.Resources/deploymentScripts@2020-10-01'=";
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///main.bicep"), text);
+            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///main.bicep"), text);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
 
             var completions = await client.RequestCompletion(new CompletionParams
@@ -801,7 +802,7 @@ var nullLit = |n|ull|
         private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
+            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///path/to/main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
             var completions = await RequestCompletions(client, syntaxTree, cursors);
 

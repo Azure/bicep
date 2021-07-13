@@ -5,10 +5,11 @@ using System;
 using System.Collections.Immutable;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Syntax
 {
-    public class SyntaxTree
+    public class SyntaxTree : ISourceFile
     {
         public static SyntaxTree Create(Uri fileUri, string fileContents)
         {

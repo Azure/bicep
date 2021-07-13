@@ -52,7 +52,7 @@ namespace Bicep.Cli.Services
 
             foreach (var (fileUri, bicepOutput) in decompilation.filesToSave)
             {
-                workspace.UpsertSyntaxTrees(SyntaxTree.Create(fileUri, bicepOutput).AsEnumerable());
+                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(fileUri, bicepOutput).AsEnumerable());
             }
 
             _ = Compile(decompilation.entrypointUri.AbsolutePath); // to verify success we recompile and check for syntax errors.
@@ -67,11 +67,11 @@ namespace Bicep.Cli.Services
                 throw new Exception("Compilation is null. A compilation must exist before logging the diagnostics.");
             }
 
-            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
             {
                 foreach (var diagnostic in diagnostics)
                 {
-                    diagnosticLogger.LogDiagnostic(syntaxTree.FileUri, diagnostic, syntaxTree.LineStarts);
+                    diagnosticLogger.LogDiagnostic(bicepFile.FileUri, diagnostic, bicepFile.LineStarts);
                 }
             }
         }

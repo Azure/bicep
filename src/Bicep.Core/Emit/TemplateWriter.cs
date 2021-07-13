@@ -22,7 +22,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.Emit
 {
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
-    public class TemplateWriter
+    public class TemplateWriter : ITemplateWriter
     {
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
@@ -53,7 +53,7 @@ namespace Bicep.Core.Emit
             LanguageConstants.ResourceDependsOnPropertyName,
         }.ToImmutableHashSet();
 
-        private static SemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
+        private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
             if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
             {
@@ -520,7 +520,12 @@ namespace Bicep.Core.Emit
                 jsonWriter.WritePropertyName("template");
                 {
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-                    var moduleWriter = new TemplateWriter(moduleSemanticModel, this.assemblyFileVersion);
+                    ITemplateWriter moduleWriter = moduleSemanticModel switch
+                    {
+                        ArmTemplateSemanticModel armTemplateModel => new ArmTemplateWriter(armTemplateModel),
+                        SemanticModel bicepModel => new TemplateWriter(bicepModel, this.assemblyFileVersion),
+                        _ => throw new ArgumentException($"Unknown semantic model type: \"{moduleSemanticModel.GetType()}\"."),
+                    };
                     moduleWriter.Write(jsonWriter);
                 }
 

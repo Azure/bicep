@@ -139,11 +139,13 @@ namespace Bicep.Core.Syntax
             return CreateStringLiteral(text);
         }
 
-        public static IntegerLiteralSyntax CreateIntegerLiteral(long value) =>
-            new IntegerLiteralSyntax(CreateToken(TokenType.Integer, value.ToString()), value);
+        public static IntegerLiteralSyntax CreateIntegerLiteral(long value) => new(CreateToken(TokenType.Integer, value.ToString()), value);
 
-        public static StringSyntax CreateStringLiteral(string value)
-            => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
+        public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
+
+        public static BooleanLiteralSyntax CreateBooleanLiteral(bool value) => new(TrueKeywordToken, value);
+
+        public static NullLiteralSyntax CreateNullLiteral() => new(NullKeywordToken);
 
         public static StringSyntax CreateString(IEnumerable<string> values, IEnumerable<SyntaxBase> expressions)
         {

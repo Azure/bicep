@@ -12,6 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Deployments.Templates" Version="1.0.207" />
 		<PackageReference Include="JetBrains.Annotations" Version="2021.1.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>

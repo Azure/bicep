@@ -114,10 +114,11 @@ namespace Bicep.LanguageServer.Handlers
 
                         if (moduleFilePath is not null &&
                             moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var _) &&
-                            (moduleSemanticModel.Root.ResourceDeclarations.Any() || moduleSemanticModel.Root.ModuleDeclarations.Any()))
+                            moduleSemanticModel is SemanticModel bicepModel &&
+                            (bicepModel.Root.ResourceDeclarations.Any() || bicepModel.Root.ModuleDeclarations.Any()))
                         {
                             hasChildren = true;
-                            queue.Enqueue((moduleSemanticModel, moduleFilePath, id));
+                            queue.Enqueue((bicepModel, moduleFilePath, id));
                         }
 
                         nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, "<module>", isCollection, range, hasChildren, moduleHasError, moduleFilePath);

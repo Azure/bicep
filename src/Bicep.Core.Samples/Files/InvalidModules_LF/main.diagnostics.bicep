@@ -756,3 +756,20 @@ module issue3000 'empty.bicep' = {
   scale: {}  
 //@[2:7) [BCP037 (Error)] The property "scale" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |scale|
 }
+
+module invalidJsonMod 'modulec.json' = {
+//@[7:21) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (CodeDescription: none) |invalidJsonMod|
+//@[22:36) [BCP188 (Error)] The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template. (CodeDescription: none) |'modulec.json'|
+}
+
+module jsonModMissingParam 'moduled.json' = {
+  name: 'jsonModMissingParam'
+  params: {
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar". (CodeDescription: none) |params|
+    foo: 123
+//@[9:12) [BCP036 (Error)] The property "foo" expected a value of type "string" but the provided value is of type "int". (CodeDescription: none) |123|
+    baz: 'C'
+//@[9:12) [BCP088 (Error)] The property "baz" expected a value of type "'A' | 'B'" but the provided value is of type "'C'". Did you mean "'A'"? (CodeDescription: none) |'C'|
+  }
+}
+

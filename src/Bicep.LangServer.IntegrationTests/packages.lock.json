@@ -115,6 +115,16 @@
           "Newtonsoft.Json": "11.0.2"
         }
       },
+      "Azure.Deployments.Templates": {
+        "type": "Transitive",
+        "resolved": "1.0.207",
+        "contentHash": "XWAgwzTzuM/mLd4ox2qcWIiVY3K5AzJD2Bp42YfpcQbjlCdxROetZ6ETVbZOO3l1G3rCIYlHk2+cv1BBhvq3Rg==",
+        "dependencies": {
+          "Azure.Deployments.Core": "1.0.207",
+          "Azure.Deployments.Expression": "1.0.207",
+          "Newtonsoft.Json": "11.0.2"
+        }
+      },
       "Castle.Core": {
         "type": "Transitive",
         "resolved": "4.4.0",
@@ -2176,6 +2186,7 @@
           "Azure.Bicep.Types.Az": "0.1.157",
           "Azure.Deployments.Core": "1.0.207",
           "Azure.Deployments.Expression": "1.0.207",
+          "Azure.Deployments.Templates": "1.0.207",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.Configuration.Binder": "5.0.0",
           "Microsoft.Extensions.Configuration.Json": "5.0.0",
