@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 import vscode from "vscode";
 import {
-  AzureUserInput,
   createAzExtOutputChannel,
   registerUIExtensionVariables,
 } from "vscode-azureextensionui";
@@ -47,7 +46,6 @@ export async function activate(
   registerUIExtensionVariables({
     context,
     outputChannel,
-    ui: new AzureUserInput(context.globalState),
   });
 
   await activateWithTelemetryAndErrorHandling(async () => {
