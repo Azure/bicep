@@ -3,23 +3,13 @@
 
 using System;
 using System.Collections.Immutable;
-using Bicep.Core.Parsing;
-using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
+using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Syntax
+namespace Bicep.Core.Workspaces
 {
-    public class SyntaxTree : ISourceFile
+    public class BicepFile : ISourceFile
     {
-        public static SyntaxTree Create(Uri fileUri, string fileContents)
-        {
-            var parser = new Parser(fileContents);
-            var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
-            
-            return new SyntaxTree(fileUri, lineStarts, parser.Program());
-        }
-
-        public SyntaxTree(Uri fileUri, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
+        public BicepFile(Uri fileUri, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
         {
             FileUri = fileUri;
             LineStarts = lineStarts;

@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
@@ -31,9 +30,9 @@ namespace Bicep.Core.Samples
         {
             outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
             fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(BicepTestConstants.FileResolver, new Workspace(), fileUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, new Workspace(), fileUri);
 
-            return new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
+            return new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
         }
     }
 }

@@ -14,7 +14,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -102,10 +101,10 @@ namespace Bicep.LangServer.IntegrationTests
                 File.Exists(combinedFileName).Should().BeTrue($"Combined snippet file \"{combinedSourceFileName}\" should be checked in");
 
                 var combinedFileUri = PathHelper.FilePathToFileUrl(combinedFileName);
-                var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(new Dictionary<Uri, string> {
+                var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string> {
                     [combinedFileUri] = bicepContentsReplaced,
                 }, combinedFileUri, BicepTestConstants.FileResolver);
-                var compilation = new Compilation(TypeProvider, syntaxTreeGrouping);
+                var compilation = new Compilation(TypeProvider, sourceFileGrouping);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
                 if (diagnostics.Any())
@@ -127,7 +126,7 @@ namespace Bicep.LangServer.IntegrationTests
         private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile, int cursor)
         {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(documentUri.ToUri(), placeholderFile);
+            var bicepFile = SourceFileFactory.CreateBicepFile(documentUri.ToUri(), placeholderFile);
 
             var client = await IntegrationTestHelper.StartServerWithTextAsync(
                 this.TestContext,
@@ -139,7 +138,7 @@ namespace Bicep.LangServer.IntegrationTests
             var completions = await client.RequestCompletion(new CompletionParams
             {
                 TextDocument = documentUri,
-                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
             });
 
             var matchingSnippets = completions.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == completionData.Prefix);
@@ -148,7 +147,7 @@ namespace Bicep.LangServer.IntegrationTests
             var completion = matchingSnippets.First();
 
             completion.TextEdit.Should().NotBeNull();
-            completion.TextEdit!.TextEdit!.Range.Should().Be(new TextSpan(cursor, 0).ToRange(syntaxTree.LineStarts));
+            completion.TextEdit!.TextEdit!.Range.Should().Be(new TextSpan(cursor, 0).ToRange(bicepFile.LineStarts));
             completion.TextEdit.TextEdit.NewText.Should().NotBeNullOrWhiteSpace();
 
             return completion.TextEdit.TextEdit.NewText;
@@ -265,13 +264,13 @@ var test2 = /|* block c|omment *|/
         {
             string text = "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' existing = ";
 
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
-                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, text.Length),
             });
 
             completions.Should().SatisfyRespectively(
@@ -311,9 +310,9 @@ var test2 = /|* block c|omment *|/
   resource automationCredential 'credentials@2019-06-01' = |
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
 
@@ -360,9 +359,9 @@ var test2 = /|* block c|omment *|/
   resource automationCredential 'credentials@2019-06-01' = |
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
 
@@ -395,9 +394,9 @@ var test2 = /|* block c|omment *|/
   |
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
 
@@ -425,13 +424,13 @@ var test2 = /|* block c|omment *|/
         {
             string text = @"resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = ";
 
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
-                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, text.Length),
             });
 
             completions.Should().SatisfyRespectively(
@@ -469,13 +468,13 @@ var test2 = /|* block c|omment *|/
         public async Task VerifyResourceBodyCompletionWithDiscriminatedObjectTypeContainsRequiredPropertiesSnippet()
         {
             string text = @"resource deploymentScripts 'Microsoft.Resources/deploymentScripts@2020-10-01'=";
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
-                TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, text.Length),
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, text.Length),
             });
 
             completions.Should().SatisfyRespectively(
@@ -802,9 +801,9 @@ var nullLit = |n|ull|
         private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
-            var completions = await RequestCompletions(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var completions = await RequestCompletions(client, bicepFile, cursors);
 
             assertAction(completions);
         }
@@ -817,9 +816,9 @@ var nullLit = |n|ull|
   properties: |
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
 
@@ -845,9 +844,9 @@ var nullLit = |n|ull|
   |
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
 
@@ -902,9 +901,9 @@ var nullLit = |n|ull|
   }
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
-            var completionLists = await RequestCompletions(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
 
@@ -1127,15 +1126,15 @@ var nullLit = |n|ull|
             public static string GetDisplayName(MethodInfo methodInfo, object[] data) => ((CompletionData)data[0]).Prefix!;
         }
 
-        private static async Task<IEnumerable<CompletionList?>> RequestCompletions(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
+        private static async Task<IEnumerable<CompletionList?>> RequestCompletions(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
         {
             var completions = new List<CompletionList?>();
             foreach (var cursor in cursors)
             {
                 var completionList = await client.RequestCompletion(new CompletionParams
                 {
-                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                    TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
                 });
 
                 completions.Add(completionList);

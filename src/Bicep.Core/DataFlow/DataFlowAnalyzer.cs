@@ -35,7 +35,7 @@ namespace Bicep.Core.DataFlow
 
             // the symbol remains accessible IFF the newParent is the binding container or is below the binding container
             return ReferenceEquals(newParent, bindingContainer) ||
-                this.semanticModel.SyntaxTree.Hierarchy.IsDescendant(node: newParent, potentialAncestor: bindingContainer);
+                this.semanticModel.SourceFile.Hierarchy.IsDescendant(node: newParent, potentialAncestor: bindingContainer);
         }
 
         /// <summary>

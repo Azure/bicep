@@ -7,7 +7,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -44,7 +43,7 @@ namespace Bicep.LanguageServer
                 var firstChanges = workspace.UpsertSourceFiles(newFile.AsEnumerable());
                 var removedFiles = firstChanges.removed;
 
-                if (newFile is SyntaxTree)
+                if (newFile is BicepFile)
                 {
                     // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
                     var secondChanges = UpdateCompilationInternal(documentUri, version);
@@ -53,7 +52,7 @@ namespace Bicep.LanguageServer
 
                 foreach (var (entrypointUri, context) in activeContexts)
                 {
-                    if (removedFiles.Any(x => context.Compilation.SyntaxTreeGrouping.SyntaxTrees.Contains(x)))
+                    if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                     {
                         UpdateCompilationInternal(entrypointUri, null);
                     }
@@ -97,7 +96,7 @@ namespace Bicep.LanguageServer
             workspace.RemoveSourceFiles(removedFiles);
             foreach (var (entrypointUri, context) in activeContexts)
             {
-                if (removedFiles.Any(x => context.Compilation.SyntaxTreeGrouping.SyntaxTrees.Contains(x)))
+                if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
                     UpdateCompilationInternal(entrypointUri, null);
                 }
@@ -130,10 +129,10 @@ namespace Bicep.LanguageServer
                 return ImmutableArray<ISourceFile>.Empty;
             }
 
-            var closedFiles = removedContext.Compilation.SyntaxTreeGrouping.SyntaxTrees.ToHashSet();
+            var closedFiles = removedContext.Compilation.SourceFileGrouping.SourceFiles.ToHashSet();
             foreach (var (_, context) in activeContexts)
             {
-                closedFiles.ExceptWith(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
+                closedFiles.ExceptWith(context.Compilation.SourceFileGrouping.SourceFiles);
             }
 
             workspace.RemoveSourceFiles(closedFiles);
@@ -147,7 +146,7 @@ namespace Bicep.LanguageServer
             {
                 var context = this.provider.Create(workspace, documentUri);
 
-                var output = workspace.UpsertSourceFiles(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
+                var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
 
                 // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
                 this.activeContexts[documentUri] = context;

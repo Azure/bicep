@@ -6,8 +6,8 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions.Execution;
 
 namespace Bicep.Core.UnitTests.Assertions
@@ -17,29 +17,29 @@ namespace Bicep.Core.UnitTests.Assertions
         /// <summary>
         /// Prints the program syntax with line numbers and a cursor if a test fails in the given assertion scope.
         /// </summary>
-        public static AssertionScope WithVisualCursor(this AssertionScope assertionScope, SyntaxTree syntaxTree, IPositionable cursorPosition)
+        public static AssertionScope WithVisualCursor(this AssertionScope assertionScope, BicepFile bicepFile, IPositionable cursorPosition)
             => WithAnnotatedSource(
                 assertionScope,
-                syntaxTree,
+                bicepFile,
                 "cursor info",
                 new PrintHelper.Annotation(cursorPosition.Span, "cursor").AsEnumerable());
 
         /// <summary>
         /// Prints the program syntax with line numbers and diagnostics if a test fails in the given assertion scope.
         /// </summary>
-        public static AssertionScope WithVisualDiagnostics(this AssertionScope assertionScope, SyntaxTree syntaxTree, IEnumerable<IDiagnostic> diagnostics)
+        public static AssertionScope WithVisualDiagnostics(this AssertionScope assertionScope, BicepFile bicepFile, IEnumerable<IDiagnostic> diagnostics)
             => WithAnnotatedSource(
                 assertionScope,
-                syntaxTree,
+                bicepFile,
                 "diagnostics",
                 diagnostics.Select(x => new PrintHelper.Annotation(x.Span, $"[{x.Code} ({x.Level})] {x.Message}")));
 
-        public static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, SyntaxTree syntaxTree, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
+        public static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, BicepFile bicepFile, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
         {
             // TODO: figure out how to set this only on failure, rather than always calculating it
             assertionScope.AddReportable(
                 contextName,
-                PrintHelper.PrintWithAnnotations(syntaxTree, annotations, 1, true));
+                PrintHelper.PrintWithAnnotations(bicepFile, annotations, 1, true));
 
             return assertionScope;
         }

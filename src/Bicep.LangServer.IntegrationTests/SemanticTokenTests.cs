@@ -33,7 +33,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task Overlapping_tokens_are_not_returned(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), dataSet.Bicep);
+            var bicepFile = SourceFileFactory.CreateBicepFile(uri.ToUri(), dataSet.Bicep);
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, dataSet.Bicep, uri);
 
@@ -42,7 +42,7 @@ namespace Bicep.LangServer.IntegrationTests
                 TextDocument = new TextDocumentIdentifier(uri),
             });
 
-            var tokenSpans = CalculateTokenTextSpans(syntaxTree.LineStarts, semanticTokens!.Data).ToArray();
+            var tokenSpans = CalculateTokenTextSpans(bicepFile.LineStarts, semanticTokens!.Data).ToArray();
 
             for (var i = 1; i < tokenSpans.Length; i++)
             {
@@ -52,7 +52,7 @@ namespace Bicep.LangServer.IntegrationTests
                 if (TextSpan.AreOverlapping(prevSpan, currentSpan))
                 {
                     using (new AssertionScope()
-                        .WithAnnotations(syntaxTree, "overlapping tokens", new [] { prevSpan, currentSpan }, _ => "here", x => x.ToRange(syntaxTree.LineStarts)))
+                        .WithAnnotations(bicepFile, "overlapping tokens", new [] { prevSpan, currentSpan }, _ => "here", x => x.ToRange(bicepFile.LineStarts)))
                     {
                         TextSpan.AreOverlapping(prevSpan, currentSpan).Should().BeFalse();
                     }

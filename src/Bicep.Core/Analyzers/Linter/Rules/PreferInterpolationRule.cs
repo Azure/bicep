@@ -27,7 +27,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             var visitor = new Visitor(this, model);
-            visitor.Visit(model.SyntaxTree.ProgramSyntax);
+            visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
 

@@ -12,6 +12,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
@@ -39,7 +40,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var tree = compilation.SyntaxTreeGrouping.EntryPoint;
+            var tree = compilation.SourceFileGrouping.EntryPoint;
 
             var functionCalls = SyntaxAggregator.Aggregate(
                 tree.ProgramSyntax,
@@ -89,10 +90,10 @@ namespace Bicep.LangServer.IntegrationTests
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
             var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var tree = compilation.SyntaxTreeGrouping.EntryPoint;
+            var bicepFile = compilation.SourceFileGrouping.EntryPoint;
 
             var nonFunctions = SyntaxAggregator.Aggregate(
-                tree.ProgramSyntax,
+                bicepFile.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, current) =>
                 {
@@ -110,22 +111,22 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (var nonFunction in nonFunctions)
             {
-                using (new AssertionScope().WithVisualCursor(tree, nonFunction.Span.ToZeroLengthSpan()))
+                using (new AssertionScope().WithVisualCursor(bicepFile, nonFunction.Span.ToZeroLengthSpan()))
                 {
-                    var position = PositionHelper.GetPosition(tree.LineStarts, nonFunction.Span.Position);
+                    var position = PositionHelper.GetPosition(bicepFile.LineStarts, nonFunction.Span.Position);
                     var signatureHelp = await RequestSignatureHelp(client, position, uri);
                     signatureHelp.Should().BeNull();
                 }
             }
         }
 
-        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, SyntaxTree tree, int offset, FunctionSymbol? symbol, bool expectDecorator)
+        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, BicepFile bicepFile, int offset, FunctionSymbol? symbol, bool expectDecorator)
         {
-            var position = PositionHelper.GetPosition(tree.LineStarts, offset);
+            var position = PositionHelper.GetPosition(bicepFile.LineStarts, offset);
             var initial = await RequestSignatureHelp(client, position, uri);
 
             // fancy method to give us some annotated source code to look at if any assertions fail :)
-            using (new AssertionScope().WithVisualCursor(tree, new TextSpan(offset, 0)))
+            using (new AssertionScope().WithVisualCursor(bicepFile, new TextSpan(offset, 0)))
             {
                 if (symbol is not null)
                 {

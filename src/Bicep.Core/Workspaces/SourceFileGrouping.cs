@@ -3,15 +3,15 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Workspaces;
+using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Syntax
+namespace Bicep.Core.Workspaces
 {
-    public class SyntaxTreeGrouping
+    public class SourceFileGrouping
     {
-        public SyntaxTree EntryPoint { get; }
+        public BicepFile EntryPoint { get; }
 
-        public ImmutableHashSet<ISourceFile> SyntaxTrees { get; }
+        public ImmutableHashSet<ISourceFile> SourceFiles { get; }
 
         public ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> ModuleLookup { get; }
 
@@ -19,10 +19,10 @@ namespace Bicep.Core.Syntax
 
         public IFileResolver FileResolver { get; }
 
-        public SyntaxTreeGrouping(SyntaxTree entryPoint, ImmutableHashSet<ISourceFile> syntaxTrees, ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> moduleLookup, ImmutableDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup, FileSystem.IFileResolver fileResolver)
+        public SourceFileGrouping(BicepFile entryPoint, ImmutableHashSet<ISourceFile> sourceFiles, ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> moduleLookup, ImmutableDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup, IFileResolver fileResolver)
         {
             EntryPoint = entryPoint;
-            SyntaxTrees = syntaxTrees;
+            SourceFiles = sourceFiles;
             ModuleLookup = moduleLookup;
             ModuleFailureLookup = moduleFailureLookup;
             FileResolver = fileResolver;

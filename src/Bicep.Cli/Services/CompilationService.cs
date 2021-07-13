@@ -5,7 +5,6 @@ using Bicep.Cli.Logging;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
@@ -32,9 +31,9 @@ namespace Bicep.Cli.Services
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(this.fileResolver, this.workspace, inputUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.workspace, inputUri);
 
-            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, syntaxTreeGrouping);
+            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping);
 
             LogDiagnostics(compilation);
 
@@ -52,7 +51,7 @@ namespace Bicep.Cli.Services
 
             foreach (var (fileUri, bicepOutput) in decompilation.filesToSave)
             {
-                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(fileUri, bicepOutput).AsEnumerable());
+                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepFile(fileUri, bicepOutput).AsEnumerable());
             }
 
             _ = Compile(decompilation.entrypointUri.AbsolutePath); // to verify success we recompile and check for syntax errors.

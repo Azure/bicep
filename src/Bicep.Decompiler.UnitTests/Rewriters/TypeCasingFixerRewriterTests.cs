@@ -24,10 +24,10 @@ resource resA 'My.Rp/resA@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             // Reference equality check to ensure we're not regenerating syntax unnecessarily
-            newProgramSyntax.Should().BeSameAs(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            newProgramSyntax.Should().BeSameAs(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ output myObj object = {
             var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
@@ -117,7 +117,7 @@ output myObj object = {
             var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             var firstPassBicepFile = PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax);
             firstPassBicepFile.Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
@@ -136,7 +136,7 @@ output myObj object = {
             (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", firstPassBicepFile));
             rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
-            newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'

@@ -11,6 +11,7 @@ using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -45,24 +46,24 @@ namespace Bicep.Core.UnitTests.Utils
             public string Message { get; }
         }
 
-        private static string GetProgramText(SyntaxTree syntaxTree)
+        private static string GetProgramText(BicepFile bicepFile)
         {
             var buffer = new StringBuilder();
             var visitor = new PrintVisitor(buffer);
 
-            visitor.Visit(syntaxTree.ProgramSyntax);
+            visitor.Visit(bicepFile.ProgramSyntax);
 
             return buffer.ToString();
         }
 
-        private static string[] GetProgramTextLines(SyntaxTree syntaxTree)
+        private static string[] GetProgramTextLines(BicepFile bicepFile)
         {
-            var programText = GetProgramText(syntaxTree);
+            var programText = GetProgramText(bicepFile);
 
             return StringUtils.ReplaceNewlines(programText, "\n").Split("\n");
         }
 
-        public static string PrintWithAnnotations(SyntaxTree syntaxTree, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
+        public static string PrintWithAnnotations(BicepFile bicepFile, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
         {
             if (!annotations.Any())
             {
@@ -70,11 +71,11 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             var output = new StringBuilder();
-            var programLines = GetProgramTextLines(syntaxTree);
+            var programLines = GetProgramTextLines(bicepFile);
 
             var annotationPositions = annotations.ToDictionary(
                 x => x,
-                x => TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, x.Span.Position));
+                x => TextCoordinateConverter.GetPosition(bicepFile.LineStarts, x.Span.Position));
 
             var annotationsByLine = annotationPositions.ToLookup(x => x.Value.line, x => x.Key);
 
@@ -82,7 +83,7 @@ namespace Bicep.Core.UnitTests.Utils
             var maxLine = annotationPositions.Values.Aggregate(0, (max, curr) => Math.Max(curr.line, max)) + 1;
 
             minLine = Math.Max(0, minLine - context);
-            maxLine = Math.Min(syntaxTree.LineStarts.Length, maxLine + context);
+            maxLine = Math.Min(bicepFile.LineStarts.Length, maxLine + context);
             var digits = maxLine.ToString().Length;
 
             for (var i = minLine; i < maxLine; i++)

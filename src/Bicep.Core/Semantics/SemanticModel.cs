@@ -13,6 +13,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -25,10 +26,10 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<TypeProperty>> parameterTypePropertiesLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> outputTypePropertiesLazy;
 
-        public SemanticModel(Compilation compilation, SyntaxTree syntaxTree, IFileResolver fileResolver)
+        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver)
         {
             Compilation = compilation;
-            SyntaxTree = syntaxTree;
+            SourceFile = sourceFile;
             FileResolver = fileResolver;
 
             // create this in locked mode by default
@@ -37,7 +38,7 @@ namespace Bicep.Core.Semantics
             var symbolContext = new SymbolContext(compilation, this);
             SymbolContext = symbolContext;
 
-            Binder = new Binder(syntaxTree, symbolContext);
+            Binder = new Binder(sourceFile, symbolContext);
             TypeManager = new TypeManager(compilation.ResourceTypeProvider, Binder, fileResolver);
 
             // name binding is done
@@ -52,7 +53,7 @@ namespace Bicep.Core.Semantics
 
                 return hierarchy;
             });
-            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(syntaxTree, Binder));
+            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(sourceFile, Binder));
 
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
@@ -90,7 +91,7 @@ namespace Bicep.Core.Semantics
             });
         }
 
-        public SyntaxTree SyntaxTree { get; }
+        public BicepFile SourceFile { get; }
 
         public IBinder Binder { get; }
 
@@ -128,7 +129,7 @@ namespace Bicep.Core.Semantics
             var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
             visitor.Visit(this.Root);
 
-            foreach (var missingDeclarationSyntax in this.SyntaxTree.ProgramSyntax.Children.OfType<MissingDeclarationSyntax>())
+            foreach (var missingDeclarationSyntax in this.SourceFile.ProgramSyntax.Children.OfType<MissingDeclarationSyntax>())
             {
                 // Trigger type checking manually as missing declarations are not bound to any symbol.
                 this.TypeManager.GetTypeInfo(missingDeclarationSyntax);
@@ -220,7 +221,7 @@ namespace Bicep.Core.Semantics
 
                     switch (TypeAssignmentVisitor.UnwrapType(baseType))
                     {
-                        case NamespaceType namespaceType when SyntaxTree.Hierarchy.GetParent(ifc) is DecoratorSyntax:
+                        case NamespaceType namespaceType when SourceFile.Hierarchy.GetParent(ifc) is DecoratorSyntax:
                             return namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name);
                         case ObjectType objectType:
                             return objectType.MethodResolver.TryGetSymbol(ifc.Name);
@@ -261,7 +262,7 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <param name="symbol">The symbol</param>
         public IEnumerable<SyntaxBase> FindReferences(Symbol symbol)
-            => SyntaxAggregator.Aggregate(this.SyntaxTree.ProgramSyntax, new List<SyntaxBase>(), (accumulated, current) =>
+            => SyntaxAggregator.Aggregate(this.SourceFile.ProgramSyntax, new List<SyntaxBase>(), (accumulated, current) =>
                 {
                     if (object.ReferenceEquals(symbol, this.GetSymbolInfo(current)))
                     {

@@ -39,7 +39,7 @@ namespace Bicep.Core.Emit
             var visitor = new ForSyntaxValidatorVisitor(semanticModel, diagnosticWriter);
 
             // visiting writes diagnostics in some cases
-            visitor.Visit(semanticModel.SyntaxTree.ProgramSyntax);
+            visitor.Visit(semanticModel.SourceFile.ProgramSyntax);
         }
 
         public static bool IsAddingPropertyLoopAllowed(SemanticModel semanticModel, ObjectPropertySyntax property)
@@ -48,7 +48,7 @@ namespace Bicep.Core.Emit
             int propertyLoopCount = 0;
             while(current is not null)
             {
-                var parent = semanticModel.SyntaxTree.Hierarchy.GetParent(current);
+                var parent = semanticModel.SourceFile.Hierarchy.GetParent(current);
                 if (current is ForSyntax @for && IsPropertyLoop(parent, @for))
                 {
                     ++propertyLoopCount;
@@ -238,7 +238,7 @@ namespace Bicep.Core.Emit
 
         private bool IsPropertyLoop(ForSyntax syntax)
         {
-            var parent = this.semanticModel.SyntaxTree.Hierarchy.GetParent(syntax);
+            var parent = this.semanticModel.SourceFile.Hierarchy.GetParent(syntax);
             return IsPropertyLoop(parent, syntax);
         }
 
@@ -249,7 +249,7 @@ namespace Bicep.Core.Emit
 
         private bool IsTopLevelLoop(ForSyntax syntax)
         {
-            var parent = this.semanticModel.SyntaxTree.Hierarchy.GetParent(syntax);
+            var parent = this.semanticModel.SourceFile.Hierarchy.GetParent(syntax);
 
             switch(parent)
             {

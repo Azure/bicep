@@ -47,10 +47,10 @@ namespace Bicep.LangServer.IntegrationTests
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, resourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes(), fileResolver: BicepTestConstants.FileResolver);
 
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var symbolReferences = SyntaxAggregator.Aggregate(
-                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
+                compilation.SourceFileGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {
@@ -82,7 +82,7 @@ namespace Bicep.LangServer.IntegrationTests
                 });
 
                 // fancy method to give us some annotated source code to look at if any assertions fail :)
-                using (new AssertionScope().WithVisualCursor(compilation.SyntaxTreeGrouping.EntryPoint, nodeForHover.Span.ToZeroLengthSpan()))
+                using (new AssertionScope().WithVisualCursor(compilation.SourceFileGrouping.EntryPoint, nodeForHover.Span.ToZeroLengthSpan()))
                 {
                     if (!symbolTable.TryGetValue(symbolReference, out var symbol))
                     {
@@ -134,10 +134,10 @@ namespace Bicep.LangServer.IntegrationTests
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
 
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var nonHoverableNodes = SyntaxAggregator.Aggregate(
-                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
+                compilation.SourceFileGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {
@@ -161,7 +161,7 @@ namespace Bicep.LangServer.IntegrationTests
                 });
 
                 // fancy method to give us some annotated source code to look at if any assertions fail :)
-                using (new AssertionScope().WithVisualCursor(compilation.SyntaxTreeGrouping.EntryPoint, node.Span.ToZeroLengthSpan()))
+                using (new AssertionScope().WithVisualCursor(compilation.SourceFileGrouping.EntryPoint, node.Span.ToZeroLengthSpan()))
                 {
                     hover.Should().BeNull();
                 }
@@ -185,9 +185,9 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
 output string test = testRes.prop|erties.rea|donly
 ");
 
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
-            var hovers = await RequestHovers(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
@@ -216,9 +216,9 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = [for i in range(0, 10): {
 output string test = testRes[3].prop|erties.rea|donly
 ");
 
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
-            var hovers = await RequestHovers(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
@@ -247,9 +247,9 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = if (true) {
 output string test = testRes.prop|erties.rea|donly
 ");
 
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
-            var hovers = await RequestHovers(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nname property\n"),
@@ -270,9 +270,9 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 }
 ");
 
-            var syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
-            var hovers = await RequestHovers(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
@@ -339,15 +339,15 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             return DataSets.NonStressDataSets.ToDynamicTestData();
         }
 
-        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
+        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
         {
             var hovers = new List<Hover?>();
             foreach (var cursor in cursors)
             {
                 var hover = await client.RequestHover(new HoverParams
                 {
-                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
-                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                    TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
                 });
 
                 hovers.Add(hover);

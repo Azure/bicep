@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -16,28 +15,28 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(IResourceTypeProvider resourceTypeProvider, SyntaxTreeGrouping syntaxTreeGrouping)
+        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping)
         {
-            this.SyntaxTreeGrouping = syntaxTreeGrouping;
+            this.SourceFileGrouping = sourceFileGrouping;
             this.ResourceTypeProvider = resourceTypeProvider;
-            this.lazySemanticModelLookup = syntaxTreeGrouping.SyntaxTrees.ToImmutableDictionary(
+            this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
                 sourceFile => new Lazy<ISemanticModel>(() => sourceFile switch
                 {
-                    SyntaxTree bicepFile => new SemanticModel(this, bicepFile, SyntaxTreeGrouping.FileResolver),
+                    BicepFile bicepFile => new SemanticModel(this, bicepFile, SourceFileGrouping.FileResolver),
                     ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                     _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                 }));
         }
 
-        public SyntaxTreeGrouping SyntaxTreeGrouping { get; }
+        public SourceFileGrouping SourceFileGrouping { get; }
 
         public IResourceTypeProvider ResourceTypeProvider { get; }
 
         public SemanticModel GetEntrypointSemanticModel()
-            => GetSemanticModel(SyntaxTreeGrouping.EntryPoint);
+            => GetSemanticModel(SourceFileGrouping.EntryPoint);
 
-        public SemanticModel GetSemanticModel(SyntaxTree bicepFile)
+        public SemanticModel GetSemanticModel(BicepFile bicepFile)
             => this.GetSemanticModel<SemanticModel>(bicepFile);
 
         public ArmTemplateSemanticModel GetSemanticModel(ArmTemplateFile armTemplateFile)
@@ -46,10 +45,10 @@ namespace Bicep.Core.Semantics
         public ISemanticModel GetSemanticModel(ISourceFile sourceFile)
             => this.lazySemanticModelLookup[sourceFile].Value;
 
-        public IReadOnlyDictionary<SyntaxTree, IEnumerable<IDiagnostic>> GetAllDiagnosticsByBicepFile(ConfigHelper? overrideConfig = default)
-            => SyntaxTreeGrouping.SyntaxTrees.OfType<SyntaxTree>().ToDictionary(
-                syntaxTree => syntaxTree,
-                syntaxTree => GetSemanticModel(syntaxTree).GetAllDiagnostics(overrideConfig));
+        public IReadOnlyDictionary<BicepFile, IEnumerable<IDiagnostic>> GetAllDiagnosticsByBicepFile(ConfigHelper? overrideConfig = default)
+            => SourceFileGrouping.SourceFiles.OfType<BicepFile>().ToDictionary(
+                bicepFile => bicepFile,
+                bicepFile => this.GetSemanticModel(bicepFile).GetAllDiagnostics(overrideConfig));
 
         private T GetSemanticModel<T>(ISourceFile sourceFile) where T : class, ISemanticModel =>
             this.GetSemanticModel(sourceFile) as T ??

@@ -11,6 +11,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -416,7 +417,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static Uri? GetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, string filePath, SyntaxBase filePathArgument)
         {
-            if (!SyntaxTreeGroupingBuilder.ValidateFilePath(filePath, out var validateFilePathFailureBuilder))
+            if (!SourceFileGroupingBuilder.ValidateFilePath(filePath, out var validateFilePathFailureBuilder))
             {
                 diagnostics.Write(validateFilePathFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument)));
                 return null;

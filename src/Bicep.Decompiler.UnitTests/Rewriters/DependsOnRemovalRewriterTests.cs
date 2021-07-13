@@ -49,7 +49,7 @@ resource resC 'My.Rp/resB@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
@@ -114,7 +114,7 @@ module modC 'modC.bicep' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
@@ -159,7 +159,7 @@ resource resB 'My.Rp/resB@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
@@ -191,7 +191,7 @@ module modB 'modb.bicep' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
@@ -216,10 +216,10 @@ resource resA 'My.Rp/resA@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             // Reference equality check to ensure we're not regenerating syntax unnecessarily
-            newProgramSyntax.Should().BeSameAs(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            newProgramSyntax.Should().BeSameAs(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
         }
     }
 }

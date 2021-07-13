@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -27,8 +26,8 @@ namespace Bicep.LanguageServer.Providers
 
         public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri)
         {
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, documentUri.ToUri());
-            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, documentUri.ToUri());
+            var compilation = new Compilation(resourceTypeProvider, sourceFileGrouping);
 
             return new CompilationContext(compilation);
         }

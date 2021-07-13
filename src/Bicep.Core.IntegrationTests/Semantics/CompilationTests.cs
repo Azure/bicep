@@ -18,10 +18,10 @@ namespace Bicep.Core.IntegrationTests.Semantics
         public void EmptyProgram_SyntaxTreeGrouping_should_be_persisted()
         {
             var fileResolver = new FileResolver();
-            var program = SyntaxTreeGroupingFactory.CreateFromText(DataSets.Empty.Bicep, fileResolver);
+            var program = SourceFileGroupingFactory.CreateFromText(DataSets.Empty.Bicep, fileResolver);
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), program);
 
-            compilation.SyntaxTreeGrouping.Should().BeSameAs(program);
+            compilation.SourceFileGrouping.Should().BeSameAs(program);
             compilation.GetEntrypointSemanticModel().Should().NotBeNull();
         }
     }

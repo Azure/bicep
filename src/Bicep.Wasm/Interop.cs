@@ -8,7 +8,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
 using Bicep.Core.TypeSystem;
@@ -83,7 +82,7 @@ namespace Bicep.Wasm
         public object GetSemanticTokens(string content)
         {
             var compilation = GetCompilation(content);
-            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.SyntaxTreeGrouping.EntryPoint);
+            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.SourceFileGrouping.EntryPoint);
 
             var data = new List<int>();
             SemanticToken? prevToken = null;
@@ -145,13 +144,13 @@ namespace Bicep.Wasm
         {
             var fileUri = new Uri("inmemory:///main.bicep");
             var workspace = new Workspace();
-            var syntaxTree = SourceFileFactory.CreateSourceFile(fileUri, fileContents);
-            workspace.UpsertSourceFiles(syntaxTree.AsEnumerable());
+            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents);
+            workspace.UpsertSourceFiles(sourceFile.AsEnumerable());
 
             var fileResolver = new FileResolver();
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, fileUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, fileUri);
 
-            return new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+            return new Compilation(resourceTypeProvider, sourceFileGrouping);
         }
 
         private static string ReadStreamToEnd(Stream stream)

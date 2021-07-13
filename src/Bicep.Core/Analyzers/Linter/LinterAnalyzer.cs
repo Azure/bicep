@@ -83,7 +83,7 @@ namespace Bicep.Core.Analyzers.Linter
 
             try
             {
-                configHelp.LoadConfigurationForSourceFile(semanticModel.SyntaxTree.FileUri);
+                configHelp.LoadConfigurationForSourceFile(semanticModel.SourceFile.FileUri);
             }
             catch (Exception ex)
             {
