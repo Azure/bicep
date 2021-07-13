@@ -208,11 +208,11 @@ namespace Bicep.LanguageServer.Snippets
             // cross platform issues, we'll provide a placeholder uri.
             BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory://snippet.bicep"), template);
             SourceFileGrouping sourceFileGrouping = new SourceFileGrouping(
+                fileResolver,
                 bicepFile,
                 ImmutableHashSet.Create<ISourceFile>(bicepFile),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
-                fileResolver);
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>());
 
             Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();

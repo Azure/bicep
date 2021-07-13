@@ -145,7 +145,7 @@ namespace Bicep.Wasm
             var fileUri = new Uri("inmemory:///main.bicep");
             var workspace = new Workspace();
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents);
-            workspace.UpsertSourceFiles(sourceFile.AsEnumerable());
+            workspace.UpsertSourceFile(sourceFile);
 
             var fileResolver = new FileResolver();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, fileUri);

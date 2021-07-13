@@ -1104,7 +1104,7 @@ namespace Bicep.Decompiler
 
                 var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule);
                 var nestedBicepFile = new BicepFile(nestedModuleUri, ImmutableArray<int>.Empty, nestedConverter.Parse());
-                workspace.UpsertSourceFiles(nestedBicepFile.AsEnumerable());
+                workspace.UpsertSourceFile(nestedBicepFile);
 
                 return new ModuleDeclarationSyntax(
                     nestedDecorators,

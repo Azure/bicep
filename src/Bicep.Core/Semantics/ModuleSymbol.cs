@@ -23,16 +23,15 @@ namespace Bicep.Core.Semantics
 
         public bool TryGetSemanticModel([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
         {            
-            if (Context.Compilation.SourceFileGrouping.ModuleFailureLookup.TryGetValue(this.DeclaringModule, out var moduleFailureDiagnostic))
+            if (Context.Compilation.SourceFileGrouping.TryLookUpModuleErrorDiagnostic(this.DeclaringModule, out failureDiagnostic))
             {
-                failureDiagnostic = moduleFailureDiagnostic(DiagnosticBuilder.ForPosition(this.DeclaringModule.Path));
                 semanticModel = null;
                 return false;
             }
 
-            // SyntaxTreeGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
+            // SourceFileGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
             // So it is safe to assume that this lookup will succeed without throwing an exception.
-            var sourceFile = Context.Compilation.SourceFileGrouping.ModuleLookup[this.DeclaringModule];
+            var sourceFile = Context.Compilation.SourceFileGrouping.LookUpModuleSourceFile(this.DeclaringModule);
 
             failureDiagnostic = null;
             semanticModel = Context.Compilation.GetSemanticModel(sourceFile);

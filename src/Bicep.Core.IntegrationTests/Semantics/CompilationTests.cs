@@ -3,11 +3,9 @@
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Bicep.Core.IntegrationTests.Semantics
 {
@@ -15,7 +13,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
     public class CompilationTests
     {
         [TestMethod]
-        public void EmptyProgram_SyntaxTreeGrouping_should_be_persisted()
+        public void EmptyProgram_SourceFileGrouping_should_be_persisted()
         {
             var fileResolver = new FileResolver();
             var program = SourceFileGroupingFactory.CreateFromText(DataSets.Empty.Bicep, fileResolver);

@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
                 var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
-                var firstChanges = workspace.UpsertSourceFiles(newFile.AsEnumerable());
+                var firstChanges = workspace.UpsertSourceFile(newFile);
                 var removedFiles = firstChanges.removed;
 
                 if (newFile is BicepFile)
@@ -79,7 +79,7 @@ namespace Bicep.LanguageServer
                     continue;
                 }
 
-                // We treat both updates and deletes as 'removes' to force the new SyntaxTree to be reloaded from disk
+                // We treat both updates and deletes as 'removes' to force the new SourceFile to be reloaded from disk
                 if (workspace.TryGetSourceFile(change.Uri.ToUri(), out var removedFile))
                 {
                     removedFiles.Add(removedFile);

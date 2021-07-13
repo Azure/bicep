@@ -48,7 +48,7 @@ namespace Bicep.Decompiler
 
                 var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput);
                 var bicepFile = new BicepFile(bicepUri, ImmutableArray<int>.Empty, program);
-                workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
+                workspace.UpsertSourceFile(bicepFile);
 
                 foreach (var module in program.Children.OfType<ModuleDeclarationSyntax>())
                 {
@@ -121,7 +121,7 @@ namespace Bicep.Decompiler
                 {
                     hasChanges = true;
                     var newFile = new BicepFile(fileUri, ImmutableArray<int>.Empty, newProgramSyntax);
-                    workspace.UpsertSourceFiles(newFile.AsEnumerable());
+                    workspace.UpsertSourceFile(newFile);
 
                     sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, entryUri);
                     compilation = new Compilation(resourceTypeProvider, sourceFileGrouping);

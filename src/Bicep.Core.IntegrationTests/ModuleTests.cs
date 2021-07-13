@@ -187,7 +187,7 @@ module main 'main.bicep' = {
         }
 
         [TestMethod]
-        public void SyntaxTreeGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
+        public void SourceFileGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
         {
             var fileUri = new Uri("file:///path/to/main.bicep");
 

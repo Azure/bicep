@@ -10,6 +10,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
+using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
 {
@@ -17,19 +18,19 @@ namespace Bicep.Core.Workspaces
     {
         private readonly IFileResolver fileResolver;
         private readonly IReadOnlyWorkspace workspace;
-        private readonly IDictionary<ModuleDeclarationSyntax, ISourceFile> moduleLookup;
-        private readonly IDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup;
+        private readonly IDictionary<ModuleDeclarationSyntax, ISourceFile> sourceFilesByModuleDeclaration;
+        private readonly IDictionary<ModuleDeclarationSyntax, ErrorBuilderDelegate> errorBuildersByModuleDeclaration;
         private readonly IDictionary<Uri, ISourceFile> sourceFilesByUri;
-        private readonly IDictionary<Uri, DiagnosticBuilder.ErrorBuilderDelegate> sourceFileLoadFailures;
+        private readonly IDictionary<Uri, ErrorBuilderDelegate> errorBuildersByUri;
 
         private SourceFileGroupingBuilder(IFileResolver fileResolver, IReadOnlyWorkspace workspace)
         {
             this.fileResolver = fileResolver;
             this.workspace = workspace;
-            this.moduleLookup = new Dictionary<ModuleDeclarationSyntax, ISourceFile>();
-            this.moduleFailureLookup = new Dictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
+            this.sourceFilesByModuleDeclaration = new Dictionary<ModuleDeclarationSyntax, ISourceFile>();
+            this.errorBuildersByModuleDeclaration = new Dictionary<ModuleDeclarationSyntax, ErrorBuilderDelegate>();
             this.sourceFilesByUri = new Dictionary<Uri, ISourceFile>();
-            this.sourceFileLoadFailures = new Dictionary<Uri, DiagnosticBuilder.ErrorBuilderDelegate>();
+            this.errorBuildersByUri = new Dictionary<Uri, ErrorBuilderDelegate>();
         }
 
         public static SourceFileGrouping Build(IFileResolver fileResolver, IReadOnlyWorkspace workspace, Uri entryFileUri)
@@ -48,7 +49,7 @@ namespace Bicep.Core.Workspaces
                 // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
                 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
                 var failureBuilder = entryPointLoadFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to provide failure diagnostics");
-                var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
+                var diagnostic = failureBuilder(ForPosition(new TextSpan(0, 0)));
 
                 throw new ErrorDiagnosticException(diagnostic);
             }
@@ -61,14 +62,14 @@ namespace Bicep.Core.Workspaces
             this.ReportFailuresForCycles();
 
             return new SourceFileGrouping(
+                fileResolver,
                 entryPoint,
                 sourceFilesByUri.Values.ToImmutableHashSet(),
-                moduleLookup.ToImmutableDictionary(),
-                moduleFailureLookup.ToImmutableDictionary(),
-                fileResolver);
+                sourceFilesByModuleDeclaration.ToImmutableDictionary(),
+                errorBuildersByModuleDeclaration.ToImmutableDictionary());
         }
 
-        private ISourceFile? TryGetSourceFile(Uri fileUri, bool isEntryFile, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? TryGetSourceFile(Uri fileUri, bool isEntryFile, out ErrorBuilderDelegate? failureBuilder)
         {
             if (workspace.TryGetSourceFile(fileUri, out var sourceFile))
             {
@@ -83,22 +84,22 @@ namespace Bicep.Core.Workspaces
                 return sourceFile;
             }
 
-            if (sourceFileLoadFailures.TryGetValue(fileUri, out failureBuilder))
+            if (errorBuildersByUri.TryGetValue(fileUri, out failureBuilder))
             {
                 return null;
             }
 
             if (!fileResolver.TryRead(fileUri, out var fileContents, out failureBuilder))
             {
-                sourceFileLoadFailures[fileUri] = failureBuilder;
+                errorBuildersByUri[fileUri] = failureBuilder;
                 return null;
             }
 
             failureBuilder = null;
-            return AddSyntaxTree(fileUri, fileContents, isEntryFile);
+            return AddSourceFile(fileUri, fileContents, isEntryFile);
         }
 
-        private ISourceFile AddSyntaxTree(Uri fileUri, string fileContents, bool isEntryFile)
+        private ISourceFile AddSourceFile(Uri fileUri, string fileContents, bool isEntryFile)
         {
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents, isEntryFile);
 
@@ -107,13 +108,13 @@ namespace Bicep.Core.Workspaces
             return sourceFile;
         }
 
-        private ISourceFile? PopulateRecursive(Uri fileUri, bool isEntryFile, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? PopulateRecursive(Uri fileUri, bool isEntryFile, out ErrorBuilderDelegate? failureBuilder)
         {
-            var sourceFile = this.TryGetSourceFile(fileUri, isEntryFile, out var getSyntaxTreeFailureBuilder);
+            var sourceFile = this.TryGetSourceFile(fileUri, isEntryFile, out var getSourceFileFailureBuilder);
 
             if (sourceFile == null)
             {
-                failureBuilder = getSyntaxTreeFailureBuilder;
+                failureBuilder = getSourceFileFailureBuilder;
                 return null;
             }
 
@@ -131,7 +132,7 @@ namespace Bicep.Core.Workspaces
                 {
                     // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
                     // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
-                    moduleFailureLookup[module] = moduleGetPathFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(TryGetNormalizedModuleUri)} to provide failure diagnostics");
+                    errorBuildersByModuleDeclaration[module] = moduleGetPathFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(TryGetNormalizedModuleUri)} to provide failure diagnostics");
                     continue;
                 }
 
@@ -144,7 +145,7 @@ namespace Bicep.Core.Workspaces
                     {
                         // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
                         // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
-                        moduleFailureLookup[module] = modulePopulateFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to provide failure diagnostics");
+                        errorBuildersByModuleDeclaration[module] = modulePopulateFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to provide failure diagnostics");
                         continue;
                     }
                 }
@@ -154,7 +155,7 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                moduleLookup[module] = moduleFile;
+                sourceFilesByModuleDeclaration[module] = moduleFile;
             }
 
             failureBuilder = null;
@@ -172,7 +173,7 @@ namespace Bicep.Core.Workspaces
             return pathChar >= 0 && pathChar <= 31;
         }
 
-        public static bool ValidateFilePath(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool ValidateFilePath(string pathName, [NotNullWhen(false)] out ErrorBuilderDelegate? failureBuilder)
         {
             if (string.IsNullOrWhiteSpace(pathName))
             {
@@ -218,7 +219,7 @@ namespace Bicep.Core.Workspaces
             return true;
         }
 
-        private Uri? TryGetNormalizedModuleUri(Uri parentFileUri, ModuleDeclarationSyntax moduleDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private Uri? TryGetNormalizedModuleUri(Uri parentFileUri, ModuleDeclarationSyntax moduleDeclarationSyntax, out ErrorBuilderDelegate? failureBuilder)
         {
             var pathName = SyntaxHelper.TryGetModulePath(moduleDeclarationSyntax, out var getModulePathFailureBuilder);
             if (pathName == null)
@@ -248,24 +249,24 @@ namespace Bicep.Core.Workspaces
         {
             var sourceFileGraph = this.sourceFilesByUri.Values
                 .SelectMany(sourceFile => GetModuleDeclarations(sourceFile)
-                    .Where(this.moduleLookup.ContainsKey)
-                    .Select(moduleDeclaration => this.moduleLookup[moduleDeclaration])
+                    .Where(this.sourceFilesByModuleDeclaration.ContainsKey)
+                    .Select(moduleDeclaration => this.sourceFilesByModuleDeclaration[moduleDeclaration])
                     .Distinct()
                     .Select(referencedFile => (sourceFile, referencedFile)))
                 .ToLookup(x => x.sourceFile, x => x.referencedFile);
 
             var cycles = CycleDetector<ISourceFile>.FindCycles(sourceFileGraph);
-            foreach (var kvp in moduleLookup)
+            foreach (var kvp in sourceFilesByModuleDeclaration)
             {
                 if (cycles.TryGetValue(kvp.Value, out var cycle))
                 {
                     if (cycle.Length == 1)
                     {
-                        moduleFailureLookup[kvp.Key] = x => x.CyclicModuleSelfReference();
+                        errorBuildersByModuleDeclaration[kvp.Key] = x => x.CyclicModuleSelfReference();
                     }
                     else
                     {
-                        moduleFailureLookup[kvp.Key] = x => x.CyclicModule(cycle.Select(x => x.FileUri.LocalPath));
+                        errorBuildersByModuleDeclaration[kvp.Key] = x => x.CyclicModule(cycle.Select(x => x.FileUri.LocalPath));
                     }
                 }
             }

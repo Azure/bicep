@@ -51,7 +51,7 @@ namespace Bicep.Cli.Services
 
             foreach (var (fileUri, bicepOutput) in decompilation.filesToSave)
             {
-                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepFile(fileUri, bicepOutput).AsEnumerable());
+                workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
             }
 
             _ = Compile(decompilation.entrypointUri.AbsolutePath); // to verify success we recompile and check for syntax errors.
