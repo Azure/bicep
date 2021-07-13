@@ -7,7 +7,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -30,9 +29,9 @@ namespace Bicep.LangServer.UnitTests
             var provider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), CreateEmptyFileResolver());
 
             var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
-            var syntaxTree = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
+            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
-            workspace.UpsertSourceFiles(syntaxTree.AsEnumerable());
+            workspace.UpsertSourceFile(sourceFile);
             var context = provider.Create(workspace, fileUri);
 
             context.Compilation.Should().NotBeNull();

@@ -36,7 +36,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
-            var grouping = SyntaxTreeGroupingFactory.CreateFromText(string.Empty, BicepTestConstants.FileResolver);
+            var grouping = SourceFileGroupingFactory.CreateFromText(string.Empty, BicepTestConstants.FileResolver);
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
@@ -109,7 +109,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void NonDeclarationContextShouldIncludeDeclaredSymbols()
         {
-            var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"
+            var grouping = SourceFileGroupingFactory.CreateFromText(@"
 param p string
 var v = 
 resource r 'Microsoft.Foo/foos@2020-09-01' = {
@@ -154,7 +154,7 @@ output o int = 42
         [TestMethod]
         public void CompletionsForOneLinerParameterDefaultValueShouldIncludeFunctionsValidInDefaultValues()
         {
-            var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"param p string = ", BicepTestConstants.FileResolver);
+            var grouping = SourceFileGroupingFactory.CreateFromText(@"param p string = ", BicepTestConstants.FileResolver);
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
 
             var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
@@ -181,7 +181,7 @@ output o int = 42
         [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
-            var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"
+            var grouping = SourceFileGroupingFactory.CreateFromText(@"
 param concat string
 var resourceGroup = true
 resource base64 'Microsoft.Foo/foos@2020-09-01' = {
@@ -232,7 +232,7 @@ output length int =
         [TestMethod]
         public void OutputTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var grouping = SyntaxTreeGroupingFactory.CreateFromText("output test ", BicepTestConstants.FileResolver);
+            var grouping = SourceFileGroupingFactory.CreateFromText("output test ", BicepTestConstants.FileResolver);
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server));
 
@@ -249,7 +249,7 @@ output length int =
         [TestMethod]
         public void ParameterTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var grouping = SyntaxTreeGroupingFactory.CreateFromText("param foo ", BicepTestConstants.FileResolver);
+            var grouping = SourceFileGroupingFactory.CreateFromText("param foo ", BicepTestConstants.FileResolver);
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server));
 
@@ -296,7 +296,7 @@ output length int =
         [TestMethod]
         public void VerifyParameterTypeCompletionWithPrecedingComment()
         {
-            var grouping = SyntaxTreeGroupingFactory.CreateFromText("/*test*/param foo ", BicepTestConstants.FileResolver);
+            var grouping = SourceFileGroupingFactory.CreateFromText("/*test*/param foo ", BicepTestConstants.FileResolver);
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server));
 
@@ -354,7 +354,7 @@ output length int =
 */")]
         public void CommentShouldNotGiveAnyCompletions(string codeFragment)
         {
-        var grouping = SyntaxTreeGroupingFactory.CreateFromText(codeFragment, BicepTestConstants.FileResolver);
+        var grouping = SourceFileGroupingFactory.CreateFromText(codeFragment, BicepTestConstants.FileResolver);
         var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
         var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server));
 

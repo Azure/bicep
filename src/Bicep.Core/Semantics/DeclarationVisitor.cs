@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -26,13 +27,13 @@ namespace Bicep.Core.Semantics
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetDeclarations(SyntaxTree syntaxTree, ISymbolContext symbolContext)
+        public static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetDeclarations(BicepFile bicepFile, ISymbolContext symbolContext)
         {
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
             var childScopes = new List<ScopeInfo>();
             var declarationVisitor = new DeclarationVisitor(symbolContext, declarations, childScopes);
-            declarationVisitor.Visit(syntaxTree.ProgramSyntax);
+            declarationVisitor.Visit(bicepFile.ProgramSyntax);
 
             return (declarations.ToImmutableArray(), childScopes.Select(MakeImmutable).ToImmutableArray());
         }

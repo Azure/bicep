@@ -39,7 +39,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             // filter out binding failures and locals with invalid identifiers
             // (locals are special because their full span is the same as the identifier span,
@@ -62,8 +62,8 @@ namespace Bicep.LangServer.IntegrationTests
                 var expectedHighlights = symbolToSyntaxLookup[symbol].Select(node => CreateExpectedHighlight(lineStarts, node));
 
                 using (new AssertionScope()
-                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "expected", expectedHighlights, _ => "here", x => x.Range)
-                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "actual", highlights, _ => "here", x => x.Range))
+                    .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "expected", expectedHighlights, _ => "here", x => x.Range)
+                    .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "actual", highlights, _ => "here", x => x.Range))
                 {
                     // ranges should match what we got from our own symbol table
                     highlights.Should().BeEquivalentTo(expectedHighlights);
@@ -85,10 +85,10 @@ namespace Bicep.LangServer.IntegrationTests
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
             var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var wrongNodes = SyntaxAggregator.Aggregate(
-                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
+                compilation.SourceFileGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {

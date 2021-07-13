@@ -69,7 +69,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (this.DisallowedHosts.HasValue && this.DisallowedHosts.Value.Any())
             {
                 var visitor = new Visitor(this.hostRegex, this.excludedRegex);
-                visitor.Visit(model.SyntaxTree.ProgramSyntax);
+                visitor.Visit(model.SourceFile.ProgramSyntax);
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
 

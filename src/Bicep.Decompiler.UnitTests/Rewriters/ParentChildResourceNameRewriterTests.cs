@@ -31,7 +31,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
@@ -68,7 +68,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = [for i in range(0, 1): {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
@@ -107,7 +107,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = if (condB) {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"param condA bool
 param condB bool
@@ -147,7 +147,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
@@ -200,7 +200,7 @@ resource resD 'My.Rp/resA/childB@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"param parentName string = 'resA'
 var parentSuffix = 'suffix'
@@ -255,7 +255,7 @@ resource resB 'My.Rp/resB/childB@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var parentName = 'resA'
 
@@ -298,7 +298,7 @@ resource childB 'My.Rp/parent/child@2020-01-01' = {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var resAName = 'resA'
 var resBName = 'resB'

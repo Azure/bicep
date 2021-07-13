@@ -16,8 +16,8 @@ namespace Bicep.LanguageServer.CompilationManager
 
         public Compilation Compilation { get; }
 
-        public ProgramSyntax ProgramSyntax => Compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax;
+        public ProgramSyntax ProgramSyntax => Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
 
-        public ImmutableArray<int> LineStarts => Compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+        public ImmutableArray<int> LineStarts => Compilation.SourceFileGrouping.EntryPoint.LineStarts;
     }
 }

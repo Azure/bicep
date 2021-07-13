@@ -1,18 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Syntax
 {
     public static class SyntaxHelper
     {
-        private static SyntaxBase? TryGetObjectProperty(ObjectSyntax objectSyntax, string propertyName)
-            => objectSyntax.Properties.SingleOrDefault(p => p.TryGetKeyText() == propertyName)?.Value;
-
         public static SyntaxBase? TryGetDefaultValue(ParameterDeclarationSyntax parameterDeclarationSyntax)
         {
             if (parameterDeclarationSyntax.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
@@ -74,10 +70,10 @@ namespace Bicep.Core.Syntax
             };
         }
 
-        public static ResourceScope GetTargetScope(SyntaxTree syntaxTree)
+        public static ResourceScope GetTargetScope(BicepFile bicepFile)
         {
             var defaultTargetScope = ResourceScope.ResourceGroup;
-            var targetSyntax = syntaxTree.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();
+            var targetSyntax = bicepFile.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();
             if (targetSyntax == null)
             {
                 return defaultTargetScope;

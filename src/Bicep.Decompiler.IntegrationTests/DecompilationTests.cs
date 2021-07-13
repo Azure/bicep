@@ -12,7 +12,6 @@ using System.IO;
 using System.Reflection;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Az;
@@ -93,33 +92,33 @@ namespace Bicep.Core.IntegrationTests
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFileName);
             var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
-            var syntaxTrees = filesToSave.Select(kvp => SourceFileFactory.CreateBicepSourceFile(kvp.Key, kvp.Value));
+            var bicepFiles = filesToSave.Select(kvp => SourceFileFactory.CreateBicepFile(kvp.Key, kvp.Value));
             var workspace = new Workspace();
-            workspace.UpsertSourceFiles(syntaxTrees);
+            workspace.UpsertSourceFiles(bicepFiles);
 
             var fileResolver = new FileResolver();
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, bicepUri);
-            var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
-            var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsByBicepFile(new ConfigHelper().GetDisabledLinterConfig());
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, bicepUri);
+            var compilation = new Compilation(typeProvider, sourceFileGrouping);
+            var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile(new ConfigHelper().GetDisabledLinterConfig());
 
             using (new AssertionScope())
             {
-                foreach (var syntaxTree in syntaxTreeGrouping.SyntaxTrees.OfType<SyntaxTree>())
+                foreach (var bicepFile in sourceFileGrouping.SourceFiles.OfType<BicepFile>())
                 {
-                    var exampleExists = File.Exists(syntaxTree.FileUri.LocalPath);
-                    exampleExists.Should().BeTrue($"Generated example \"{syntaxTree.FileUri.LocalPath}\" should be checked in");
+                    var exampleExists = File.Exists(bicepFile.FileUri.LocalPath);
+                    exampleExists.Should().BeTrue($"Generated example \"{bicepFile.FileUri.LocalPath}\" should be checked in");
 
-                    var diagnostics = diagnosticsBySyntaxTree[syntaxTree];
-                    var bicepOutput = filesToSave[syntaxTree.FileUri];
+                    var diagnostics = diagnosticsByBicepFile[bicepFile];
+                    var bicepOutput = filesToSave[bicepFile.FileUri];
 
                     var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, outputDirectory, diag));
-                    File.WriteAllText(syntaxTree.FileUri.LocalPath + ".actual", sourceTextWithDiags);
+                    File.WriteAllText(bicepFile.FileUri.LocalPath + ".actual", sourceTextWithDiags);
 
                     sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                         TestContext,
-                        exampleExists ? File.ReadAllText(syntaxTree.FileUri.LocalPath) : "",
-                        expectedLocation: Path.Combine("src", "Bicep.Decompiler.IntegrationTests", parentStream, Path.GetRelativePath(outputDirectory, syntaxTree.FileUri.LocalPath)),
-                        actualLocation: syntaxTree.FileUri.LocalPath + ".actual");
+                        exampleExists ? File.ReadAllText(bicepFile.FileUri.LocalPath) : "",
+                        expectedLocation: Path.Combine("src", "Bicep.Decompiler.IntegrationTests", parentStream, Path.GetRelativePath(outputDirectory, bicepFile.FileUri.LocalPath)),
+                        actualLocation: bicepFile.FileUri.LocalPath + ".actual");
                 }
             }
         }

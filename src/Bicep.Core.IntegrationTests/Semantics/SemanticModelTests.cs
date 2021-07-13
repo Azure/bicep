@@ -54,7 +54,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestMethod]
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText("parameter ", BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText("parameter ", BicepTestConstants.FileResolver));
             compilation.GetEntrypointSemanticModel().GetParseDiagnostics();
         }
 
@@ -70,7 +70,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 .CollectSymbols(model)
                 .OfType<DeclaredSymbol>();
 
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
             string getLoggingString(DeclaredSymbol symbol)
             {
                 (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
@@ -95,7 +95,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var model = compilation.GetEntrypointSemanticModel();
-            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var symbolReferences = GetAllBoundSymbolReferences(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             // just a sanity check
             symbolReferences.Should().AllBeAssignableTo<ISymbolReference>();
@@ -153,7 +153,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var symbolReferences = GetAllBoundSymbolReferences(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             var symbols = symbolReferences
                 .Select(symRef => semanticModel.GetSymbolInfo(symRef))

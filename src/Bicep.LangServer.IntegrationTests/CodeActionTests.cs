@@ -38,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, fileResolver: new FileResolver());
 
             // construct a parallel compilation
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
             var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>();
 
             foreach (IFixable fixable in fixables)

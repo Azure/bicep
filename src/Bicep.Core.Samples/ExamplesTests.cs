@@ -13,7 +13,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests;
@@ -121,20 +120,20 @@ namespace Bicep.Core.Samples
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(BicepTestConstants.FileResolver, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
-            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
+            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
 
             // quiet the linter diagnostics
             var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
 
-            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsByBicepFile(overrideConfig))
+            foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile(overrideConfig))
             {
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
-                    syntaxTree,
+                    bicepFile,
                     diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x)),
                     diagnostics => {
-                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", syntaxTree.FileUri.LocalPath);
+                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", bicepFile.FileUri.LocalPath);
                     });
             }
 

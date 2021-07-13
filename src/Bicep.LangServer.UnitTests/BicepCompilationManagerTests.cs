@@ -73,9 +73,9 @@ namespace Bicep.LangServer.UnitTests
             var server = CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUri();
 
-            var originalFile = SourceFileFactory.CreateArmTemplateSourceFile(uri, "{}");
+            var originalFile = SourceFileFactory.CreateArmTemplateFile(uri, "{}");
             var workspace = new Workspace();
-            workspace.UpsertSourceFiles(originalFile.AsEnumerable());
+            workspace.UpsertSourceFile(originalFile);
 
             var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
 
@@ -112,7 +112,7 @@ namespace Bicep.LangServer.UnitTests
 
             if (languageId is null)
             {
-                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+                workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
             var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
@@ -161,7 +161,7 @@ namespace Bicep.LangServer.UnitTests
 
             if (languageId is null)
             {
-                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+                workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
             var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
@@ -233,7 +233,7 @@ namespace Bicep.LangServer.UnitTests
 
             if (languageId is null)
             {
-                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+                workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
             var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
@@ -351,7 +351,7 @@ namespace Bicep.LangServer.UnitTests
 
             if (languageId is null)
             {
-                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+                workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
             var manager = new BicepCompilationManager(server.Object, provider.Object, workspace);
@@ -416,7 +416,7 @@ namespace Bicep.LangServer.UnitTests
 
             if (languageId is null)
             {
-                workspace.UpsertSourceFiles(SourceFileFactory.CreateBicepSourceFile(uri.ToUri(), "").AsEnumerable());
+                workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
             var manager = new BicepCompilationManager(server.Object, provider.Object, workspace);

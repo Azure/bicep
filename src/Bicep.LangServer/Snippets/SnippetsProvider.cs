@@ -206,15 +206,15 @@ namespace Bicep.LanguageServer.Snippets
 
             // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid 
             // cross platform issues, we'll provide a placeholder uri.
-            SyntaxTree syntaxTree = SourceFileFactory.CreateBicepSourceFile(new Uri("inmemory://snippet.bicep"), template);
-            SyntaxTreeGrouping syntaxTreeGrouping = new SyntaxTreeGrouping(
-                syntaxTree,
-                ImmutableHashSet.Create<ISourceFile>(syntaxTree),
+            BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory://snippet.bicep"), template);
+            SourceFileGrouping sourceFileGrouping = new SourceFileGrouping(
+                fileResolver,
+                bicepFile,
+                ImmutableHashSet.Create<ISourceFile>(bicepFile),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
-                fileResolver);
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>());
 
-            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), syntaxTreeGrouping);
+            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 
             return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);

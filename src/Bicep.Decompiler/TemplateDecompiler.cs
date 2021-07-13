@@ -47,14 +47,14 @@ namespace Bicep.Decompiler
                 }
 
                 var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput);
-                var syntaxTree = new SyntaxTree(bicepUri, ImmutableArray<int>.Empty, program);
-                workspace.UpsertSourceFiles(syntaxTree.AsEnumerable());
+                var bicepFile = new BicepFile(bicepUri, ImmutableArray<int>.Empty, program);
+                workspace.UpsertSourceFile(bicepFile);
 
                 foreach (var module in program.Children.OfType<ModuleDeclarationSyntax>())
                 {
                     var moduleRelativePath = SyntaxHelper.TryGetModulePath(module, out _);
                     if (moduleRelativePath == null ||
-                        !SyntaxTreeGroupingBuilder.ValidateFilePath(moduleRelativePath, out _) ||
+                        !SourceFileGroupingBuilder.ValidateFilePath(moduleRelativePath, out _) ||
                         !Uri.TryCreate(bicepUri, moduleRelativePath, out var moduleUri))
                     {
                         // Do our best, but keep going if we fail to resolve a module file
@@ -88,9 +88,9 @@ namespace Bicep.Decompiler
         private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
         {
             var filesToSave = new Dictionary<Uri, string>();
-            foreach (var (fileUri, syntaxTree) in workspace.GetActiveSourceFilesByUri())
+            foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
             {
-                if (syntaxTree is not SyntaxTree bicepFile)
+                if (sourceFile is not BicepFile bicepFile)
                 {
                     continue;
                 }
@@ -105,12 +105,12 @@ namespace Bicep.Decompiler
         {
             var hasChanges = false;
             var fileResolver = new FileResolver();
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entryUri);
-            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, entryUri);
+            var compilation = new Compilation(resourceTypeProvider, sourceFileGrouping);
 
-            foreach (var (fileUri, syntaxTree) in workspace.GetActiveSourceFilesByUri())
+            foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
             {
-                if (syntaxTree is not SyntaxTree bicepFile)
+                if (sourceFile is not BicepFile bicepFile)
                 {
                     throw new InvalidOperationException("Expected a bicep source file.");
                 }
@@ -120,11 +120,11 @@ namespace Bicep.Decompiler
                 if (!object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
                 {
                     hasChanges = true;
-                    var newSyntaxTree = new SyntaxTree(fileUri, ImmutableArray<int>.Empty, newProgramSyntax);
-                    workspace.UpsertSourceFiles(newSyntaxTree.AsEnumerable());
+                    var newFile = new BicepFile(fileUri, ImmutableArray<int>.Empty, newProgramSyntax);
+                    workspace.UpsertSourceFile(newFile);
 
-                    syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, entryUri);
-                    compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, entryUri);
+                    compilation = new Compilation(resourceTypeProvider, sourceFileGrouping);
                 }
             }
 

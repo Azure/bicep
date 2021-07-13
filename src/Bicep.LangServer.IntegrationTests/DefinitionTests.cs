@@ -38,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             // filter out symbols that don't have locations as well as locals with invalid identifiers
             // (locals are special because their full span is the same as the identifier span,
@@ -80,7 +80,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var undeclaredSymbolBindings = symbolTable.Where(pair => pair.Value is not DeclaredSymbol and not PropertySymbol);
 
@@ -92,7 +92,7 @@ namespace Bicep.LangServer.IntegrationTests
                     Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
-                using (new AssertionScope().WithVisualCursor(compilation.SyntaxTreeGrouping.EntryPoint, syntax.Span))
+                using (new AssertionScope().WithVisualCursor(compilation.SourceFileGrouping.EntryPoint, syntax.Span))
                 {
                     // go to definition on a symbol that isn't declared by the user (like error or function symbol)
                     // should produce an empty response
@@ -112,10 +112,10 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var unboundNodes = SyntaxAggregator.Aggregate(
-                source: compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
+                source: compilation.SourceFileGrouping.EntryPoint.ProgramSyntax,
                 seed: new List<SyntaxBase>(),
                 function: (accumulated, syntax) =>
                 {

@@ -15,6 +15,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
@@ -269,7 +270,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (FileResolver.TryResolveFilePath(model.SyntaxTree.FileUri, ".") is not { } cwdUri
+            if (FileResolver.TryResolveFilePath(model.SourceFile.FileUri, ".") is not { } cwdUri
                 || FileResolver.TryResolveFilePath(cwdUri, entered) is not { } query)
             {
                 return Enumerable.Empty<CompletionItem>();
@@ -293,7 +294,7 @@ namespace Bicep.LanguageServer.Completions
             // "./" will not be preserved when making relative Uris. We have to go and manually add it.
             // Prioritize .bicep files higher than other files.
             var fileItems = files
-                .Where(file => file != model.SyntaxTree.FileUri)
+                .Where(file => file != model.SourceFile.FileUri)
                 .Where(file => file.Segments.Last().EndsWith(LanguageConstants.LanguageFileExtension))
                 .Select(file => CreateModulePathCompletionBuilder(
                     file.Segments.Last(),
@@ -321,8 +322,8 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.EnclosingDeclaration is ParameterDeclarationSyntax parameterDeclarationSyntax)
             {
-                SyntaxTree syntaxTree = compitation.SyntaxTreeGrouping.EntryPoint;
-                Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(syntaxTree.LineStarts);
+                BicepFile bicepFile = compitation.SourceFileGrouping.EntryPoint;
+                Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(bicepFile.LineStarts);
                 TextEdit textEdit = new TextEdit()
                 {
                     Range = new Range()
@@ -626,7 +627,7 @@ namespace Bicep.LanguageServer.Completions
 
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => CreatePropertyAccessCompletion(p, compilation.SyntaxTreeGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
                 .Concat(GetMethods(declaredType)
                     .Select(m => CreateSymbolCompletion(m, context.ReplacementRange)));
         }
@@ -885,7 +886,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, SyntaxTree tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepFile tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var item = CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 .WithCommitCharacters(PropertyAccessCommitChars)

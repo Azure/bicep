@@ -8,7 +8,6 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
-using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
 
@@ -17,25 +16,25 @@ namespace Bicep.Core.Workspaces
     public static class SourceFileFactory
     {
         public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, bool isEntryFile) => isEntryFile
-            ? CreateBicepSourceFile(fileUri, fileContents)
+            ? CreateBicepFile(fileUri, fileContents)
             : CreateSourceFile(fileUri, fileContents);
 
         public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents) =>
             PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
             PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension) ||
             PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension)
-                ? CreateArmTemplateSourceFile(fileUri, fileContents)
-                : CreateBicepSourceFile(fileUri, fileContents);
+                ? CreateArmTemplateFile(fileUri, fileContents)
+                : CreateBicepFile(fileUri, fileContents);
 
-        public static SyntaxTree CreateBicepSourceFile(Uri fileUri, string fileContents)
+        public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
             
-            return new SyntaxTree(fileUri, lineStarts, parser.Program());
+            return new BicepFile(fileUri, lineStarts, parser.Program());
         }
 
-        public static ArmTemplateFile CreateArmTemplateSourceFile(Uri fileUri, string fileContents)
+        public static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents)
         {
             try
             {

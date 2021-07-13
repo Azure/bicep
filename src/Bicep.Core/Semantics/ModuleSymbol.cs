@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using Bicep.Core.Syntax;
-using Bicep.Core.Diagnostics;
-using System;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
@@ -24,19 +23,18 @@ namespace Bicep.Core.Semantics
 
         public bool TryGetSemanticModel([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
         {            
-            if (Context.Compilation.SyntaxTreeGrouping.ModuleFailureLookup.TryGetValue(this.DeclaringModule, out var moduleFailureDiagnostic))
+            if (Context.Compilation.SourceFileGrouping.TryLookUpModuleErrorDiagnostic(this.DeclaringModule, out failureDiagnostic))
             {
-                failureDiagnostic = moduleFailureDiagnostic(DiagnosticBuilder.ForPosition(this.DeclaringModule.Path));
                 semanticModel = null;
                 return false;
             }
 
-            // SyntaxTreeGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
+            // SourceFileGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
             // So it is safe to assume that this lookup will succeed without throwing an exception.
-            var syntaxTree = Context.Compilation.SyntaxTreeGrouping.ModuleLookup[this.DeclaringModule];
+            var sourceFile = Context.Compilation.SourceFileGrouping.LookUpModuleSourceFile(this.DeclaringModule);
 
             failureDiagnostic = null;
-            semanticModel = Context.Compilation.GetSemanticModel(syntaxTree);
+            semanticModel = Context.Compilation.GetSemanticModel(sourceFile);
             return true;
         }
 
