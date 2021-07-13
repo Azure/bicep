@@ -481,6 +481,29 @@ module secureModule1 'moduleb.bicep' = {
   }
 }
 
+module issue3000 'empty.bicep' = {
+  name: 'issue3000Module'
+  params: {}
+  identity: {
+    type: 'SystemAssigned'
+  }
+  extendedLocation: {}
+  sku: {}
+  kind: 'V1'
+  managedBy: 'string'
+  mangedByExtended: [
+    'str1'
+    'str2'
+  ]
+  zones: [
+    'str1'
+    'str2'
+  ]
+  plan: {}
+  eTag: ''
+  scale: {}
+}
+
 module invalidJsonMod 'modulec.json' = {}
 
 module jsonModMissingParam 'moduled.json' = {

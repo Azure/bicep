@@ -687,29 +687,21 @@ namespace Bicep.LanguageServer.Completions
             // exclude properties whose name has been specified in the object already
             var includeColon = !context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyColonExists);
             return GetProperties(declaredType)
-                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.ContainsKey(p.Name) == false)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly)
+                            && specifiedPropertyNames.ContainsKey(p.Name) == false)
                 .Select(p => CreatePropertyNameCompletion(p, includeColon, context.ReplacementRange));
         }
 
         private static IEnumerable<TypeProperty> GetProperties(TypeSymbol? type)
         {
-            switch (type)
+            return (type switch
             {
-                case ResourceType resourceType:
-                    return GetProperties(resourceType.Body.Type);
-
-                case ModuleType moduleType:
-                    return GetProperties(moduleType.Body.Type);
-
-                case ObjectType objectType:
-                    return objectType.Properties.Values;
-
-                case DiscriminatedObjectType discriminated:
-                    return discriminated.DiscriminatorProperty.AsEnumerable();
-
-                default:
-                    return Enumerable.Empty<TypeProperty>();
-            }
+                ResourceType resourceType => GetProperties(resourceType.Body.Type),
+                ModuleType moduleType => GetProperties(moduleType.Body.Type),
+                ObjectType objectType => objectType.Properties.Values,
+                DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty.AsEnumerable(),
+                _ => Enumerable.Empty<TypeProperty>(),
+            }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }
 
         private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) =>

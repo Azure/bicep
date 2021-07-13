@@ -23,6 +23,9 @@ namespace Bicep.Core.Diagnostics
 
         public class DiagnosticBuilderInternal
         {
+            private const string TypeInaccuracyClause = " If this is an inaccuracy in the documentation, please report it to the Bicep Team.";
+            private static readonly Uri TypeInaccuracyLink = new("https://aka.ms/bicep-type-issues");
+
             public DiagnosticBuilderInternal(TextSpan textSpan)
             {
                 TextSpan = textSpan;
@@ -239,7 +242,7 @@ namespace Bicep.Core.Diagnostics
                     $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value{sourceDeclarationClause} is of type \"{actualType}\".");
             }
 
-            public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
+            public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties, bool isResourceSyntax)
             {
                 var permissiblePropertiesClause = validUnspecifiedProperties.Any()
                     ? $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}."
@@ -253,7 +256,7 @@ namespace Bicep.Core.Diagnostics
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP037",
-                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}");
+                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}{(isResourceSyntax ? TypeInaccuracyClause : string.Empty)}", isResourceSyntax ? TypeInaccuracyLink : null);
             }
 
             public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties)
@@ -1078,7 +1081,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP183",
                 $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
-            
+
             public ErrorDiagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => new(
                TextSpan,
                "BCP184",
@@ -1095,9 +1098,15 @@ namespace Bicep.Core.Diagnostics
                "BCP186",
                $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
 
+            public Diagnostic FallbackPropertyUsed(string property) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP187",
+                $"The property \"{property}\" does not exist in the resource definition, although it might still be valid.{TypeInaccuracyClause}", TypeInaccuracyLink);
+
             public ErrorDiagnostic ReferencedArmTemplateHasErrors() => new(
                 TextSpan,
-                "BCP187",
+                "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
         }
 

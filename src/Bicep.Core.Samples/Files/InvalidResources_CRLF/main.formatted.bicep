@@ -1393,3 +1393,75 @@ resource comp7 'Microsoft.Resources/templateSpecs@20'
 
 // #completionTest(60,61) -> virtualNetworksResourceTypes
 resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
+
+// issue #3000
+resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'issue3000LogicApp1'
+  location: resourceGroup().location
+  properties: {
+    state: 'Enabled'
+    definition: ''
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  extendedLocation: {}
+  sku: {}
+  kind: 'V1'
+  managedBy: 'string'
+  mangedByExtended: [
+    'str1'
+    'str2'
+  ]
+  zones: [
+    'str1'
+    'str2'
+  ]
+  plan: {}
+  eTag: ''
+  scale: {}
+}
+
+resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
+  name: 'issue3000LogicApp2'
+  location: resourceGroup().location
+  properties: {
+    state: 'Enabled'
+    definition: ''
+  }
+  identity: 'SystemAssigned'
+  extendedLocation: 'eastus'
+  sku: 'Basic'
+  kind: {
+    name: 'V1'
+  }
+  managedBy: {}
+  mangedByExtended: [
+    {}
+    {}
+  ]
+  zones: [
+    {}
+    {}
+  ]
+  plan: ''
+  eTag: {}
+  scale: [
+    {}
+  ]
+}
+
+resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'issue3000stg'
+  kind: 'StorageV2'
+  location: 'West US'
+  sku: {
+    name: 'Premium_LRS'
+  }
+  madeUpProperty: {}
+  managedByExtended: []
+}
+
+var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
+var issue3000stgManagedBy = issue3000stg.managedBy
+var issue3000stgManagedByExtended = issue3000stg.managedByExtended

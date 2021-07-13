@@ -45,7 +45,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     }
   }
 }")]
-        public void CompileWithLocalJsonModule_InvalidTemplate_FailsWithBCP187(string jsonTemplateText)
+        public void CompileWithLocalJsonModule_InvalidTemplate_FailsWithBCP188(string jsonTemplateText)
         {
             var (template, _, compilation) = CompilationHelper.Compile(
                 ("main.bicep", @"
@@ -63,7 +63,7 @@ module mod 'module.json' = {
                 diagnosticsByFileName.Should().NotContain("module.json");
                 diagnosticsByFileName["main.bicep"].Should().HaveDiagnostics(new[]
                 {
-                    ("BCP187", DiagnosticLevel.Error, "The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template."),
+                    ("BCP188", DiagnosticLevel.Error, "The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template."),
                 });
             }
         }

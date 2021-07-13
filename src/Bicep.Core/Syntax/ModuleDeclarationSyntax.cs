@@ -64,7 +64,7 @@ namespace Bicep.Core.Syntax
                 moduleSemanticModel.OutputTypeProperties,
                 moduleSemanticModel.TargetScope,
                 binder.TargetScope,
-                "module");
+                LanguageConstants.TypeNameModule);
         }
 
         public ObjectSyntax? TryGetBody() =>

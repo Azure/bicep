@@ -106,8 +106,14 @@ namespace Bicep.Core.Emit
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            VisitFunctionCallSyntaxInternal(syntax);
+            VisitFunctionCallSyntaxBaseInternal(syntax);
             base.VisitFunctionCallSyntax(syntax);
+        }
+
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            VisitFunctionCallSyntaxBaseInternal(syntax);
+            base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
@@ -239,7 +245,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private void VisitFunctionCallSyntaxInternal(FunctionCallSyntax syntax)
+        private void VisitFunctionCallSyntaxBaseInternal(FunctionCallSyntaxBase syntax)
         {
             if (currentDeclaration == null)
             {
