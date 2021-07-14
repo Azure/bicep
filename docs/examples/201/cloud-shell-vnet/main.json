@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17233081184271710711"
+      "templateHash": "7678246143339351059"
     }
   },
   "parameters": {
@@ -22,7 +22,10 @@
       }
     },
     "azureContainerInstanceOID": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Object Id of Azure Container Instance Service Principal. We have to grant this permission to create hybrid connections in the Azure Relay you specify. To get it: Get-AzADServicePrincipal -DisplayNameBeginsWith 'Azure Container Instance'"
+      }
     },
     "containerSubnetName": {
       "type": "string",
