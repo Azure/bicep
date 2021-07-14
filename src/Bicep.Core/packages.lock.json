@@ -4,20 +4,20 @@
     ".NETStandard,Version=v2.1": {
       "Azure.Bicep.Types": {
         "type": "Direct",
-        "requested": "[0.1.197, )",
-        "resolved": "0.1.197",
-        "contentHash": "fKrnWtPYr5l2ogOPyYgOWQ9umpWtiwe0GkuSrNUBFDuiT0SoPktr8fjdSrdEXDr/Po8Oo/MlPEoq8Sc0PCvuPA==",
+        "requested": "[0.1.201, )",
+        "resolved": "0.1.201",
+        "contentHash": "Y35r/xpY1bIxNWxdX98rhroitAtS2Ms9yFA9cCgMorCpipdbuJyuH+tBUOHersduaJ4CamDtCzNeB7MfVk7zjQ==",
         "dependencies": {
           "System.Text.Json": "5.0.2"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Direct",
-        "requested": "[0.1.197, )",
-        "resolved": "0.1.197",
-        "contentHash": "JGgo4x0PdQ3Y9M8XPm5kUXlnoClE5iHmH1JjKOR9/02hPP0dG8hoeKoOaZP7oCgnYwcMg0rwVpdglHxF4Ou7CA==",
+        "requested": "[0.1.201, )",
+        "resolved": "0.1.201",
+        "contentHash": "gnecdDw5iGJYv8W3ryFbfubaYyA7pMre3n07x69ESZvi6MOJAlTNjg1IRfepnXJ9Ek9UZ6AVEbGYdj2+cvnr2A==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.1.197"
+          "Azure.Bicep.Types": "0.1.201"
         }
       },
       "Azure.Deployments.Core": {
