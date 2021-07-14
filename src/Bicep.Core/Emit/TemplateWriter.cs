@@ -9,6 +9,7 @@ using System.Linq;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Json;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -21,7 +22,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.Emit
 {
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
-    public class TemplateWriter
+    public class TemplateWriter : ITemplateWriter
     {
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
@@ -52,7 +53,7 @@ namespace Bicep.Core.Emit
             LanguageConstants.ResourceDependsOnPropertyName,
         }.ToImmutableHashSet();
 
-        private static SemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
+        private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
             if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
             {
@@ -92,17 +93,18 @@ namespace Bicep.Core.Emit
 
         public void Write(JsonTextWriter writer)
         {
-            JToken template = GenerateTemplateWithoutHash();
-            var templateHash = TemplateHelpers.ComputeTemplateHash(template);
-            if (template.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
+            // Template is used for calcualting template hash, template jtoken is used for writing to file.
+            var (template, templateJToken) = GenerateTemplateWithoutHash();
+            var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());
+            if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
             {
                 throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
             }
             generatorObject.Add("templateHash", templateHash);
-            template.WriteTo(writer);
+            templateJToken.WriteTo(writer);
         }
 
-        private JToken GenerateTemplateWithoutHash()
+        private (Template, JToken) GenerateTemplateWithoutHash()
         {
             // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject
             // instead of writing to a JsonWriter and converting it to JToken at the end
@@ -132,7 +134,8 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
 
-            return stringWriter.ToString().FromJson<JToken>();
+            var content = stringWriter.ToString();
+            return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
         private void EmitParametersIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
@@ -517,7 +520,12 @@ namespace Bicep.Core.Emit
                 jsonWriter.WritePropertyName("template");
                 {
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-                    var moduleWriter = new TemplateWriter(moduleSemanticModel, this.assemblyFileVersion);
+                    ITemplateWriter moduleWriter = moduleSemanticModel switch
+                    {
+                        ArmTemplateSemanticModel armTemplateModel => new ArmTemplateWriter(armTemplateModel),
+                        SemanticModel bicepModel => new TemplateWriter(bicepModel, this.assemblyFileVersion),
+                        _ => throw new ArgumentException($"Unknown semantic model type: \"{moduleSemanticModel.GetType()}\"."),
+                    };
                     moduleWriter.Write(jsonWriter);
                 }
 

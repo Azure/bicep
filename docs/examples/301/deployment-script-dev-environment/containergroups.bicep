@@ -47,7 +47,7 @@ resource containerGroupName 'Microsoft.ContainerInstance/containerGroups@2019-12
       {
         name: '${name}cg'
         properties: {
-          image: type == 'AzureCLI' ? azcliImage : type == 'AzurePowerShell' ? azpwshImage : json('null')
+          image: type == 'AzureCLI' ? azcliImage : type == 'AzurePowerShell' ? azpwshImage : ''
           resources: {
             requests: {
               cpu: 1
@@ -66,7 +66,7 @@ resource containerGroupName 'Microsoft.ContainerInstance/containerGroups@2019-12
               mountPath: mountPath
             }
           ]
-          command: type == 'AzureCLI' ? azcliCommand : type == 'AzurePowerShell' ? azpwshCommand : json('null')
+          command: type == 'AzureCLI' ? azcliCommand : type == 'AzurePowerShell' ? azpwshCommand : null
         }
       }
     ]

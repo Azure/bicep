@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7781070043977821900"
+      "templateHash": "10072553779848923110"
     }
   },
   "parameters": {
@@ -24,14 +24,6 @@
         "Premium_ZRS",
         "Standard_GZRS",
         "Standard_RAGZRS"
-      ]
-    },
-    "tier": {
-      "type": "string",
-      "defaultValue": "Standard",
-      "allowedValues": [
-        "Standard",
-        "Premium"
       ]
     },
     "kind": {
@@ -70,8 +62,7 @@
       "name": "[parameters('name')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "[parameters('sku')]",
-        "tier": "[parameters('tier')]"
+        "name": "[parameters('sku')]"
       },
       "kind": "[parameters('kind')]",
       "properties": {

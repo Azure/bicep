@@ -3,8 +3,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -66,10 +66,10 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public static ResourceAncestorGraph Compute(SyntaxTree syntaxTree, IBinder binder)
+        public static ResourceAncestorGraph Compute(BicepFile bicepFile, IBinder binder)
         {
             var visitor = new ResourceAncestorVisitor(binder);
-            visitor.Visit(syntaxTree.ProgramSyntax);
+            visitor.Visit(bicepFile.ProgramSyntax);
 
             var ancestry = visitor.Ancestry.Keys
                 .ToImmutableDictionary(

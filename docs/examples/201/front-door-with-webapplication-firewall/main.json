@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5090334688815975202"
+      "templateHash": "7795098484119813219"
     }
   },
   "parameters": {
@@ -144,7 +144,6 @@
                 "/*"
               ],
               "enabledState": "Enabled",
-              "resourceState": "Enabled",
               "routeConfiguration": {
                 "@odata.type": "#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration",
                 "forwardingProtocol": "HttpsOnly",
@@ -170,7 +169,6 @@
                 "/redirect"
               ],
               "enabledState": "Enabled",
-              "resourceState": "Enabled",
               "routeConfiguration": {
                 "@odata.type": "#Microsoft.Azure.FrontDoor.Models.FrontdoorRedirectConfiguration",
                 "customHost": "[variables('redirectExampleTarget')]",

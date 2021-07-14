@@ -206,6 +206,105 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+module modC './child/modulec.json' = {
+//@[0:100) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:11)  IdentifierSyntax
+//@[7:11)   Identifier |modC|
+//@[12:34)  StringSyntax
+//@[12:34)   StringComplete |'./child/modulec.json'|
+//@[35:36)  Assignment |=|
+//@[37:100)  ObjectSyntax
+//@[37:38)   LeftBrace |{|
+//@[38:40)   NewLine |\r\n|
+  name: 'modC'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'modC'|
+//@[14:16)   NewLine |\r\n|
+  params: {
+//@[2:41)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:41)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:13)     NewLine |\r\n|
+    location: 'West US'
+//@[4:23)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |location|
+//@[12:13)      Colon |:|
+//@[14:23)      StringSyntax
+//@[14:23)       StringComplete |'West US'|
+//@[23:25)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
+//@[0:142) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:24)  IdentifierSyntax
+//@[7:24)   Identifier |modCWithCondition|
+//@[25:47)  StringSyntax
+//@[25:47)   StringComplete |'./child/modulec.json'|
+//@[48:49)  Assignment |=|
+//@[50:142)  IfConditionSyntax
+//@[50:52)   Identifier |if|
+//@[53:65)   ParenthesizedExpressionSyntax
+//@[53:54)    LeftParen |(|
+//@[54:64)    BinaryOperationSyntax
+//@[54:59)     BinaryOperationSyntax
+//@[54:55)      IntegerLiteralSyntax
+//@[54:55)       Integer |2|
+//@[56:57)      Minus |-|
+//@[58:59)      IntegerLiteralSyntax
+//@[58:59)       Integer |1|
+//@[60:62)     Equals |==|
+//@[63:64)     IntegerLiteralSyntax
+//@[63:64)      Integer |1|
+//@[64:65)    RightParen |)|
+//@[66:142)   ObjectSyntax
+//@[66:67)    LeftBrace |{|
+//@[67:69)    NewLine |\r\n|
+  name: 'modCWithCondition'
+//@[2:27)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:27)     StringSyntax
+//@[8:27)      StringComplete |'modCWithCondition'|
+//@[27:29)    NewLine |\r\n|
+  params: {
+//@[2:41)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |params|
+//@[8:9)     Colon |:|
+//@[10:41)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:13)      NewLine |\r\n|
+    location: 'East US'
+//@[4:23)      ObjectPropertySyntax
+//@[4:12)       IdentifierSyntax
+//@[4:12)        Identifier |location|
+//@[12:13)       Colon |:|
+//@[14:23)       StringSyntax
+//@[14:23)        StringComplete |'East US'|
+//@[23:25)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 module optionalWithNoParams1 './child/optionalParams.bicep'= {
 //@[0:98) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -332,14 +431,14 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 //@[1:5) NewLine |\r\n\r\n|
 
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:193) ResourceDeclarationSyntax
+//@[0:233) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:28)  IdentifierSyntax
 //@[9:28)   Identifier |resWithDependencies|
 //@[29:62)  StringSyntax
 //@[29:62)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
 //@[63:64)  Assignment |=|
-//@[65:193)  ObjectSyntax
+//@[65:233)  ObjectSyntax
 //@[65:66)   LeftBrace |{|
 //@[66:68)   NewLine |\r\n|
   name: 'harry'
@@ -351,11 +450,11 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 //@[8:15)     StringComplete |'harry'|
 //@[15:17)   NewLine |\r\n|
   properties: {
-//@[2:105)   ObjectPropertySyntax
+//@[2:145)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
-//@[14:105)    ObjectSyntax
+//@[14:145)    ObjectSyntax
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     modADep: modATest.outputs.stringOutputA
@@ -385,6 +484,23 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 //@[13:17)        VariableAccessSyntax
 //@[13:17)         IdentifierSyntax
 //@[13:17)          Identifier |modB|
+//@[17:18)        Dot |.|
+//@[18:25)        IdentifierSyntax
+//@[18:25)         Identifier |outputs|
+//@[25:26)       Dot |.|
+//@[26:38)       IdentifierSyntax
+//@[26:38)        Identifier |myResourceId|
+//@[38:40)     NewLine |\r\n|
+    modCDep: modC.outputs.myResourceId
+//@[4:38)     ObjectPropertySyntax
+//@[4:11)      IdentifierSyntax
+//@[4:11)       Identifier |modCDep|
+//@[11:12)      Colon |:|
+//@[13:38)      PropertyAccessSyntax
+//@[13:25)       PropertyAccessSyntax
+//@[13:17)        VariableAccessSyntax
+//@[13:17)         IdentifierSyntax
+//@[13:17)          Identifier |modC|
 //@[17:18)        Dot |.|
 //@[18:25)        IdentifierSyntax
 //@[18:25)         Identifier |outputs|

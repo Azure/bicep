@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13606253389916053373"
+      "templateHash": "13154155776809438883"
     }
   },
   "parameters": {
@@ -599,7 +599,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10954004534364881128"
+              "templateHash": "11596780352137584181"
             }
           },
           "parameters": {
@@ -666,7 +666,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7399391484395215790"
+              "templateHash": "871329429336967058"
             }
           },
           "parameters": {
@@ -840,7 +840,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "964550341040626360"
+              "templateHash": "12159192052625478905"
             }
           },
           "parameters": {
@@ -1162,7 +1162,7 @@
                   }
                 ],
                 "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
-                "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), json('null'), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
+                "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
@@ -1185,7 +1185,7 @@
                 "hardwareProfile": {
                   "vmSize": "[parameters('rdshVmSize')]"
                 },
-                "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), json('null'))]",
+                "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), null())]",
                 "osProfile": {
                   "computerName": "[concat(parameters('rdshPrefix'), add(range(0, parameters('rdshNumberOfInstances'))[copyIndex()], parameters('vmInitialNumber')))]",
                   "adminUsername": "[variables('vmAdministratorUsername')]",
@@ -1356,7 +1356,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "17602823694330426971"
+                      "templateHash": "9768223943364163858"
                     }
                   },
                   "parameters": {
@@ -1528,7 +1528,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3438004890255477333"
+              "templateHash": "3610555063404175184"
             }
           },
           "parameters": {
@@ -1833,7 +1833,7 @@
                   }
                 ],
                 "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
-                "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), json('null'), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
+                "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
@@ -1856,7 +1856,7 @@
                 "hardwareProfile": {
                   "vmSize": "[parameters('rdshVmSize')]"
                 },
-                "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), json('null'))]",
+                "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), null())]",
                 "osProfile": {
                   "computerName": "[concat(parameters('rdshPrefix'), add(range(0, parameters('rdshNumberOfInstances'))[copyIndex()], parameters('vmInitialNumber')))]",
                   "adminUsername": "[variables('vmAdministratorUsername')]",
@@ -2029,7 +2029,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "17602823694330426971"
+                      "templateHash": "9768223943364163858"
                     }
                   },
                   "parameters": {
@@ -2201,7 +2201,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2551771567625208202"
+              "templateHash": "11204922523232167930"
             }
           },
           "parameters": {
@@ -2505,7 +2505,7 @@
                   }
                 ],
                 "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
-                "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), json('null'), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
+                "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
@@ -2528,7 +2528,7 @@
                 "hardwareProfile": {
                   "vmSize": "[parameters('rdshVmSize')]"
                 },
-                "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), json('null'))]",
+                "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), null())]",
                 "osProfile": {
                   "computerName": "[concat(parameters('rdshPrefix'), add(range(0, parameters('rdshNumberOfInstances'))[copyIndex()], parameters('vmInitialNumber')))]",
                   "adminUsername": "[variables('vmAdministratorUsername')]",
@@ -2698,7 +2698,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "17602823694330426971"
+                      "templateHash": "9768223943364163858"
                     }
                   },
                   "parameters": {
@@ -2870,7 +2870,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8415762130566971384"
+              "templateHash": "1641105856964782992"
             }
           },
           "parameters": {
@@ -3174,7 +3174,7 @@
                   }
                 ],
                 "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
-                "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), json('null'), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
+                "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
@@ -3197,7 +3197,7 @@
                 "hardwareProfile": {
                   "vmSize": "[parameters('rdshVmSize')]"
                 },
-                "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), json('null'))]",
+                "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), null())]",
                 "osProfile": {
                   "computerName": "[concat(parameters('rdshPrefix'), add(range(0, parameters('rdshNumberOfInstances'))[copyIndex()], parameters('vmInitialNumber')))]",
                   "adminUsername": "[variables('vmAdministratorUsername')]",
@@ -3370,7 +3370,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "17602823694330426971"
+                      "templateHash": "9768223943364163858"
                     }
                   },
                   "parameters": {

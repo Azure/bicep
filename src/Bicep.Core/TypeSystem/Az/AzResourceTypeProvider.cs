@@ -7,6 +7,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using Bicep.Core.Emit;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -228,6 +229,14 @@ namespace Bicep.Core.TypeSystem.Az
 
             var functions = GetBicepMethods(typeReference);
 
+            foreach (var item in LanguageConstants.KnownTopLevelResourceProperties())
+            {
+                if (!properties.ContainsKey(item.Name))
+                {
+                    properties = properties.Add(item.Name, new TypeProperty(item.Name, item.TypeReference, item.Flags | TypePropertyFlags.FallbackProperty));
+                }
+            }
+
             return new ObjectType(
                 objectType.Name,
                 objectType.ValidationFlags,
@@ -239,6 +248,14 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static IEnumerable<FunctionOverload> GetBicepMethods(ResourceTypeReference resourceType)
         {
+            yield return new FunctionWildcardOverloadBuilder("list*", new Regex("^list[a-zA-Z]*"))
+                .WithReturnType(LanguageConstants.Any)
+                .WithDescription("The syntax for this function varies by name of the list operations. Each implementation returns values for the resource type that supports a list operation. The operation name must start with list. Some common usages are `listKeys`, `listKeyValue`, and `listSecrets`.")
+                .WithOptionalParameter("apiVersion", LanguageConstants.String, "API version of resource runtime state. Typically, in the format, yyyy-mm-dd.")
+                .WithOptionalParameter("functionValues", LanguageConstants.Object, "An object that has values for the function. Only provide this object for functions that support receiving an object with parameter values, such as listAccountSas on a storage account. An example of passing function values is shown in this article.")
+                .WithFlags(FunctionFlags.RequiresInlining)
+                .Build();
+
             switch (resourceType.FullyQualifiedType.ToLowerInvariant())
             {
                 case "microsoft.keyvault/vaults":

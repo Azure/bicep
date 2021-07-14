@@ -1,7 +1,21 @@
+@description('Location for all resources except Application Insights.')
 param location string = resourceGroup().location
-param runtime string = 'node'
-param applicationName string = 'app${uniqueString(resourceGroup().name)}'
 
+@description('Location for Application Insights.')
+param appInsightsLocation string
+
+@description('The language worker runtime to load in the function app.')
+@allowed([
+  'node'
+  'dotnet'
+  'java'
+])
+param runtime string = 'node'
+
+@description('The name of the function app that you wish to create.')
+param appName string = 'fnapp${uniqueString(resourceGroup().id)}'
+
+@description('Storage Account type')
 @allowed([
   'Standard_LRS'
   'Standard_GRS'
@@ -9,12 +23,18 @@ param applicationName string = 'app${uniqueString(resourceGroup().name)}'
 ])
 param storageAccountType string = 'Standard_LRS'
 
+@description('The name of the virtual network to be created.')
 param vnetName string
+
+@description('The name of the subnet to be created within the virtual network.')
 param subnetName string
 
 var vnetAddressPrefix = '10.0.0.0/16'
 var subnetAddressPrefix = '10.0.0.0/24'
-var storageAccountName = '${applicationName}azfunc'
+var functionAppName = appName
+var hostingPlanName = appName
+var storageAccountName = '${uniqueString(resourceGroup().id)}azfunctions'
+var functionWorkerRuntime = runtime
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: vnetName
@@ -44,7 +64,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -54,8 +74,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' =
 }
 
 resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = {
-  name: applicationName
-  location: location
+  name: functionAppName
+  location: appInsightsLocation
   kind: 'web'
   properties: {
     Application_Type: 'web'
@@ -63,7 +83,7 @@ resource appInsights 'Microsoft.Insights/components@2018-05-01-preview' = {
 }
 
 resource serverFarm 'Microsoft.Web/serverfarms@2020-06-01' = {
-  name: applicationName
+  name: hostingPlanName
   location: location
   sku: {
     name: 'EP1'
@@ -76,7 +96,7 @@ resource serverFarm 'Microsoft.Web/serverfarms@2020-06-01' = {
 }
 
 resource function 'Microsoft.Web/sites@2020-06-01' = {
-  name: applicationName
+  name: functionAppName
   location: location
   kind: 'functionapp'
   properties: {
@@ -93,7 +113,11 @@ resource function 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix= ${environment().suffixes.storage};AccountKey=${listkeys(storageAccount.id, '2019-06-01').keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix= ${environment().suffixes.storage};AccountKey=${listkeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listkeys(storageAccount.id, storageAccount.apiVersion).keys[0].value};'
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
@@ -101,7 +125,7 @@ resource function 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: runtime
+          value: functionWorkerRuntime
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
@@ -110,11 +134,21 @@ resource function 'Microsoft.Web/sites@2020-06-01' = {
       ]
     }
   }
+  dependsOn: [
+    virtualNetwork
+  ]
 }
+
 resource networkConfig 'Microsoft.Web/sites/networkConfig@2020-06-01' = {
-  name: '${function.name}/virtualNetwork'
+  parent: function
+  name: 'virtualNetwork'
   properties: {
-    subnetResourceId: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, subnetName)
+    subnetResourceId: subnet.id
     swiftSupported: true
   }
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {
+  parent: virtualNetwork
+  name: subnetName
 }

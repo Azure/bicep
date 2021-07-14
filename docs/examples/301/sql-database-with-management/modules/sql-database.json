@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12413819060224235299"
+      "templateHash": "12560223677407066596"
     }
   },
   "parameters": {
@@ -63,7 +63,7 @@
       "condition": "[parameters('sqlDatabase').longTermBackup.enabled]",
       "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
       "apiVersion": "2021-02-01-preview",
-      "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'Default')]",
+      "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'default')]",
       "properties": {
         "weeklyRetention": "[parameters('sqlDatabase').longTermBackup.weeklyRetention]",
         "monthlyRetention": "[parameters('sqlDatabase').longTermBackup.monthlyRetention]",
@@ -80,7 +80,7 @@
       "condition": "[and(and(parameters('sqlDatabase').azureDefender.enabled, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
       "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
       "apiVersion": "2021-02-01-preview",
-      "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'Default')]",
+      "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'default')]",
       "properties": {
         "recurringScans": {
           "isEnabled": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans]",
@@ -98,7 +98,7 @@
     },
     {
       "condition": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs]",
-      "type": "microsoft.insights/diagnosticSettings",
+      "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
       "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
@@ -119,7 +119,7 @@
     },
     {
       "condition": "[not(empty(parameters('sqlDatabase').diagnosticLogsAndMetrics.name))]",
-      "type": "microsoft.insights/diagnosticSettings",
+      "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
       "name": "sendLogsAndMetrics",
@@ -174,7 +174,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1280408386363466909"
+              "templateHash": "13857232367360321477"
             }
           },
           "parameters": {
@@ -227,7 +227,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15009839048358250877"
+              "templateHash": "2829092679645401993"
             }
           },
           "parameters": {
@@ -283,7 +283,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4499755266351443773"
+              "templateHash": "5447449594683998530"
             }
           },
           "parameters": {

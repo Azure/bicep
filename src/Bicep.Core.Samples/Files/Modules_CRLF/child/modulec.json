@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "functions": [],
+  "resources": [
+    {
+      "name": "myResource",
+      "type": "Mock.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "location": "[parameters('location')]"
+    }
+  ],
+  "outputs": {
+    "myResourceId": {
+      "type": "string",
+      "value": "[resourceId('Mock.Rp/mockResource', 'myResource')]"
+    }
+  }
+}

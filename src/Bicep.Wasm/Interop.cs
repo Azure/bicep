@@ -8,7 +8,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
 using Bicep.Core.TypeSystem;
@@ -56,7 +55,8 @@ namespace Bicep.Wasm
 
             try
             {
-                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri);
+                var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
@@ -82,7 +82,7 @@ namespace Bicep.Wasm
         public object GetSemanticTokens(string content)
         {
             var compilation = GetCompilation(content);
-            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.SyntaxTreeGrouping.EntryPoint);
+            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.SourceFileGrouping.EntryPoint);
 
             var data = new List<int>();
             SemanticToken? prevToken = null;
@@ -144,12 +144,13 @@ namespace Bicep.Wasm
         {
             var fileUri = new Uri("inmemory:///main.bicep");
             var workspace = new Workspace();
-            var syntaxTree = SyntaxTree.Create(fileUri, fileContents);
-            workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
+            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents);
+            workspace.UpsertSourceFile(sourceFile);
 
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, fileUri);
+            var fileResolver = new FileResolver();
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, fileUri);
 
-            return new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+            return new Compilation(resourceTypeProvider, sourceFileGrouping);
         }
 
         private static string ReadStreamToEnd(Stream stream)

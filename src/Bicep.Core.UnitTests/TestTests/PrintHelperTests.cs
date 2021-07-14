@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.TestTests
         [TestMethod]
         public void PrintHelper_should_add_annotations()
         {
-            var syntaxTree = SyntaxTreeGroupingFactory.CreateFromText(@"
+            var bicepFile = SourceFileGroupingFactory.CreateFromText(@"
 resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
   name: 'hello'
   location: location
@@ -22,9 +22,9 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
     someMadeUpProp: 'boo'
   }
 }
-").EntryPoint;
+", BicepTestConstants.FileResolver).EntryPoint;
 
-            var output = PrintHelper.PrintWithAnnotations(syntaxTree, new [] {
+            var output = PrintHelper.PrintWithAnnotations(bicepFile, new[] {
                 new PrintHelper.Annotation(new TextSpan(26, 18), "what is this!?"),
                 // 0 length span should produce a '^' rather than a '~'
                 new PrintHelper.Annotation(new TextSpan(80, 0), "oh, hi!"),
@@ -48,7 +48,7 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
         [TestMethod]
         public void PrintHelper_only_includes_nearby_context()
         {
-            var syntaxTree = SyntaxTreeGroupingFactory.CreateFromText(@"
+            var bicepFile = SourceFileGroupingFactory.CreateFromText(@"
 var test = '''
 here's
 a
@@ -81,9 +81,9 @@ don't
 care
 about
 '''
-").EntryPoint;
+", BicepTestConstants.FileResolver).EntryPoint;
 
-            var output = PrintHelper.PrintWithAnnotations(syntaxTree, new [] {
+            var output = PrintHelper.PrintWithAnnotations(bicepFile, new[] {
                 new PrintHelper.Annotation(new TextSpan(108, 4), "here's your cursor!"),
             }, 1, true);
 

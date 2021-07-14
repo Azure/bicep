@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Text.RegularExpressions;
@@ -17,14 +17,15 @@ namespace Bicep.Core.Semantics
         public override FunctionOverload BuildInternal()
         {
             return new FunctionWildcardOverload(
-                this.Name,
-                this.Description,
-                this.WildcardRegex,
-                this.ReturnTypeBuilder,
-                this.ReturnType,
-                this.FixedParameters.ToImmutable(),
-                this.VariableParameter,
-                this.Flags);
+                Name,
+                Description,
+                WildcardRegex,
+                ReturnTypeBuilder,
+                ReturnType,
+                FixedParameters.ToImmutable(),
+                VariableParameter,
+                Evaluator,
+                Flags);
         }
     }
 }

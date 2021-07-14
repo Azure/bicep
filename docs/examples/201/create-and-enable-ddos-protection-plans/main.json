@@ -5,50 +5,68 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1613317534132500604"
+      "templateHash": "5864153784304662289"
     }
   },
   "parameters": {
     "ddosProtectionPlanName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Specify a DDoS protection plan name."
+      }
     },
     "virtualNetworkName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Specify a DDoS virtual network name."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specify a location for the resources."
+      }
     },
-    "virtualNetworkPrefix": {
+    "vnetAddressPrefix": {
       "type": "string",
-      "defaultValue": "172.17.0.0/16"
+      "defaultValue": "172.17.0.0/16",
+      "metadata": {
+        "description": "Specify the virtual network address prefix"
+      }
     },
     "subnetPrefix": {
       "type": "string",
-      "defaultValue": "172.17.0.0/24"
+      "defaultValue": "172.17.0.0/24",
+      "metadata": {
+        "description": "Specify the virtual network subnet prefix"
+      }
     },
     "ddosProtectionPlanEnabled": {
       "type": "bool",
-      "defaultValue": true
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable DDoS protection plan."
+      }
     }
   },
   "functions": [],
   "resources": [
     {
       "type": "Microsoft.Network/ddosProtectionPlans",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('ddosProtectionPlanName')]",
       "location": "[parameters('location')]"
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[parameters('virtualNetworkPrefix')]"
+            "[parameters('vnetAddressPrefix')]"
           ]
         },
         "subnets": [

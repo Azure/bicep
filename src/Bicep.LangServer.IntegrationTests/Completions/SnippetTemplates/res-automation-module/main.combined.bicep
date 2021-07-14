@@ -16,4 +16,3 @@ resource automationAccountVariable 'Microsoft.Automation/automationAccounts/modu
     }
   }
 }// Insert snippet here
-

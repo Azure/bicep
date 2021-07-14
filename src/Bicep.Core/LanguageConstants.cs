@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
@@ -15,8 +16,17 @@ namespace Bicep.Core
         public const string LanguageId = "bicep";
         public const string LanguageFileExtension = ".bicep";
 
+        public const string JsonLanguageId = "json";
+        public const string JsoncLanguageId = "jsonc";
+        public const string ArmTemplateLanguageId = "arm-template"; // Provided by the ARM Tools VSCode extension.
+
+        public const string JsonFileExtension = ".json";
+        public const string JsoncFileExtension = ".jsonc";
+        public const string ArmTemplateFileExtension = ".arm";
+
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
+        public const int MaxLiteralCharacterLimit = 131072;
 
         public const string ErrorName = "<error>";
         public const string MissingName = "<missing>";
@@ -73,6 +83,7 @@ namespace Bicep.Core
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string TypeNameString = "string";
+        public const string TypeNameModule = "module";
 
         /*
          * The following top-level properties must be set deploy-time constant values,
@@ -117,7 +128,9 @@ namespace Bicep.Core
         public const string StringHoleOpen = "${";
         public const string StringHoleClose = "}";
 
+        public const string AnyFunction = "any";
         public static readonly TypeSymbol Any = new AnyType();
+
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
 
         // type used for the item type in the dependsOn array type
@@ -140,6 +153,17 @@ namespace Bicep.Core
         public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Array = new ArrayType("array");
+        //Type for available loadTextContent encoding
+
+        public static readonly ImmutableArray<(string name, Encoding encoding)> SupportedEncodings = new[]{
+            ("us-ascii", Encoding.ASCII),
+            ("iso-8859-1", Encoding.GetEncoding("iso-8859-1")),
+            ("utf-8", Encoding.UTF8),
+            ("utf-16BE", Encoding.BigEndianUnicode),
+            ("utf-16", Encoding.Unicode)
+        }.ToImmutableArray();
+
+        public static readonly TypeSymbol LoadTextContentEncodings = UnionType.Create(SupportedEncodings.Select(s => new StringLiteralType(s.name)));
 
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
@@ -258,6 +282,20 @@ namespace Bicep.Core
                 yield return prop;
             }
 
+            foreach (var prop in KnownTopLevelResourceProperties())
+            {
+                yield return prop;
+            }
+        }
+
+        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
+        {
+            yield return new TypeProperty("location", String);
+
+            yield return new TypeProperty("tags", Tags);
+
+            yield return new TypeProperty("properties", Object);
+
             // TODO: Model type fully
             yield return new TypeProperty("sku", Object);
 
@@ -266,8 +304,6 @@ namespace Bicep.Core
 
             var stringArray = new TypedArrayType(String, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty("managedByExtended", stringArray);
-
-            yield return new TypeProperty("location", String);
 
             // TODO: Model type fully
             yield return new TypeProperty("extendedLocation", Object);
@@ -278,18 +314,12 @@ namespace Bicep.Core
 
             yield return new TypeProperty("eTag", String);
 
-            yield return new TypeProperty("tags", Tags);
-
             // TODO: Model type fully
             yield return new TypeProperty("scale", Object);
 
             // TODO: Model type fully
             yield return new TypeProperty("identity", Object);
 
-            yield return new TypeProperty("properties", Object);
-
-            var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny);
         }
     }
 }

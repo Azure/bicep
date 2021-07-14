@@ -94,7 +94,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 @secure()
 param param1 string = 'val'";
             var compilationResult = CompilationHelper.Compile(text);
-            var semanticModel = compilationResult.Compilation.GetSemanticModel(compilationResult.SyntaxTree);
+            var semanticModel = compilationResult.Compilation.GetSemanticModel(compilationResult.BicepFile);
 
             var throwRule = new LinterThrowsTestRule();
             var diagnostics = throwRule.Analyze(semanticModel);

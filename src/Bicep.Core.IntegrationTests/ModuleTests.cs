@@ -7,12 +7,8 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -27,6 +23,8 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ModuleTests
     {
+        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+
         [TestMethod]
         public void Modules_can_be_compiled_successfully()
         {
@@ -74,7 +72,7 @@ output outputb string = '${inputa}-${inputb}'
             };
 
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -104,7 +102,7 @@ module mainRecursive 'main.bicep' = {
             };
 
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -159,7 +157,7 @@ module main 'main.bicep' = {
             };
 
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -189,14 +187,14 @@ module main 'main.bicep' = {
         }
 
         [TestMethod]
-        public void SyntaxTreeGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
+        public void SourceFileGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
         {
             var fileUri = new Uri("file:///path/to/main.bicep");
 
-            var mockFileResolver = new Mock<IFileResolver>();
+            var mockFileResolver = Repository.Create<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
 
-            Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), fileUri);
+            Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), fileUri);
             buildAction.Should().Throw<ErrorDiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
@@ -218,15 +216,15 @@ module modulea 'modulea.bicep' = {
 }
 ";
 
-            var mockFileResolver = new Mock<IFileResolver>();
+            var mockFileResolver = Repository.Create<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
-            mockFileResolver.Setup(x => x.TryResolveModulePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
+            mockFileResolver.Setup(x => x.TryResolveFilePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), mainFileUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), mainFileUri));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
-                ("BCP093", DiagnosticLevel.Error, "Module path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
+                ("BCP093", DiagnosticLevel.Error, "File path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
             });
         }
 
@@ -295,7 +293,7 @@ output outputc2 int = inputb + 1
             };
 
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(files, mainUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -319,26 +317,26 @@ output outputc2 int = inputb + 1
 
             // Confirming hashes equal individual template hashes
             ModuleTemplateHashValidator(
-              new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
+              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
               {
                 [moduleAUri] = files[moduleAUri]
               }, 
-              moduleAUri)), moduleATemplateHash);
+              moduleAUri, BicepTestConstants.FileResolver)), moduleATemplateHash);
 
             ModuleTemplateHashValidator(
-              new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
+              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
               {
                 [moduleBUri] = files[moduleBUri],
                 [moduleCUri] = files[moduleCUri]
               }, 
-              moduleBUri)), moduleBTemplateHash);
+              moduleBUri, BicepTestConstants.FileResolver)), moduleBTemplateHash);
 
             ModuleTemplateHashValidator(
-              new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
+              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
               {
                 [moduleCUri] = files[moduleCUri]
               }, 
-              moduleCUri)), moduleCTemplateHash);
+              moduleCUri, BicepTestConstants.FileResolver)), moduleCTemplateHash);
         }
 
          [TestMethod]
@@ -359,12 +357,12 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var mockFileResolver = new Mock<IFileResolver>();
+            var mockFileResolver = Repository.Create<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, mainUri, mainFileContents, null);
             SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
-            mockFileResolver.Setup(x => x.TryResolveModulePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
+            mockFileResolver.Setup(x => x.TryResolveFilePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), mainUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), mainUri));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -383,7 +381,7 @@ module modulea 'modulea.bicep' = {
             return stringBuilder.ToString();
         }
 
-        private static IEnumerable<(SyntaxTree file, IDiagnostic diagnostic)> GetDiagnosticsByFile(IDictionary<SyntaxTree, List<IDiagnostic>> diagnosticsByFile)
+        private static IEnumerable<(BicepFile file, IDiagnostic diagnostic)> GetDiagnosticsByFile(IDictionary<BicepFile, List<IDiagnostic>> diagnosticsByFile)
         {
             foreach (var kvp in diagnosticsByFile)
             {
@@ -396,7 +394,7 @@ module modulea 'modulea.bicep' = {
 
         private static (bool success, IDictionary<Uri, IEnumerable<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
-            var diagnosticsByFile = compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
+            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
 
             return (success, diagnosticsByFile);

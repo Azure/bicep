@@ -11,6 +11,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -78,8 +79,8 @@ namespace Bicep.LanguageServer.Completions
 
         public static BicepCompletionContext Create(Compilation compilation, int offset)
         {
-            var syntaxTree = compilation.SyntaxTreeGrouping.EntryPoint;
-            var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(syntaxTree.ProgramSyntax, offset);
+            var bicepFile = compilation.SourceFileGrouping.EntryPoint;
+            var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(bicepFile.ProgramSyntax, offset);
             if (!matchingNodes.Any())
             {
                 // this indicates a bug
@@ -87,9 +88,9 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // the check at the beginning guarantees we have at least 1 node
-            var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
+            var replacementRange = GetReplacementRange(bicepFile, matchingNodes[^1], offset);
 
-            var triviaMatchingOffset = FindTriviaMatchingOffset(syntaxTree.ProgramSyntax, offset);
+            var triviaMatchingOffset = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, offset);
             switch (triviaMatchingOffset?.Type)
             {
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
@@ -702,18 +703,18 @@ namespace Bicep.LanguageServer.Completions
         
         static bool IsOffsetImmediatlyAfterNode(int offset, SyntaxBase node) => node.Span.Position + node.Span.Length == offset;
 
-        private static Range GetReplacementRange(SyntaxTree syntaxTree, SyntaxBase innermostMatchingNode, int offset)
+        private static Range GetReplacementRange(BicepFile bicepFile, SyntaxBase innermostMatchingNode, int offset)
         {
             if (innermostMatchingNode is Token token && ReplaceableTokens.Contains(token.Type))
             {
                 // the token is replaceable - replace it
-                return token.Span.ToRange(syntaxTree.LineStarts);
+                return token.Span.ToRange(bicepFile.LineStarts);
             }
 
             // the innermost matching node is either a non-token or it's not replaceable
             // (non-replaceable tokens include colons, newlines, parens, etc.)
             // produce an insertion edit
-            return new TextSpan(offset, 0).ToRange(syntaxTree.LineStarts);
+            return new TextSpan(offset, 0).ToRange(bicepFile.LineStarts);
         }
 
         private static bool CanInsertChildNodeAtOffset(ProgramSyntax programSyntax, int offset)

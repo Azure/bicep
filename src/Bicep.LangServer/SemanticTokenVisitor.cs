@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -21,16 +22,16 @@ namespace Bicep.LanguageServer
             this.tokens = new List<(IPositionable, SemanticTokenType)>();
         }
 
-        public static void BuildSemanticTokens(SemanticTokensBuilder builder, SyntaxTree syntaxTree)
+        public static void BuildSemanticTokens(SemanticTokensBuilder builder, BicepFile bicepFile)
         {
             var visitor = new SemanticTokenVisitor();
 
-            visitor.Visit(syntaxTree.ProgramSyntax);
+            visitor.Visit(bicepFile.ProgramSyntax);
 
             // the builder is fussy about ordering. tokens are visited out of order, we need to call build after visiting everything
             foreach (var (positionable, tokenType) in visitor.tokens.OrderBy(t => t.positionable.Span.Position))
             {
-                var tokenRanges = positionable.ToRangeSpanningLines(syntaxTree.LineStarts);
+                var tokenRanges = positionable.ToRangeSpanningLines(bicepFile.LineStarts);
                 foreach (var tokenRange in tokenRanges)
                 {
                     builder.Push(tokenRange.Start.Line, tokenRange.Start.Character, tokenRange.End.Character - tokenRange.Start.Character, tokenType as SemanticTokenType?);

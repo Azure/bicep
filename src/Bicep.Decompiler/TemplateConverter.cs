@@ -31,15 +31,15 @@ namespace Bicep.Decompiler
         private INamingResolver nameResolver;
         private readonly Workspace workspace;
         private readonly IFileResolver fileResolver;
-        private readonly Uri fileUri;
+        private readonly Uri bicepFileUri;
         private readonly JObject template;
         private readonly Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule;
 
-        private TemplateConverter(Workspace workspace, IFileResolver fileResolver, Uri fileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule)
+        private TemplateConverter(Workspace workspace, IFileResolver fileResolver, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule)
         {
             this.workspace = workspace;
             this.fileResolver = fileResolver;
-            this.fileUri = fileUri;
+            this.bicepFileUri = bicepFileUri;
             this.template = template;
             this.nameResolver = new UniqueNamingResolver();
             this.jsonTemplateUrisByModule = jsonTemplateUrisByModule;
@@ -48,13 +48,13 @@ namespace Bicep.Decompiler
         public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule) DecompileTemplate(
             Workspace workspace,
             IFileResolver fileResolver,
-            Uri fileUri,
+            Uri bicepFileUri,
             string content)
         {
             var instance = new TemplateConverter(
                 workspace,
                 fileResolver,
-                fileUri,
+                bicepFileUri,
                 JObject.Parse(content, new JsonLoadSettings
                 {
                     CommentHandling = CommentHandling.Ignore,
@@ -729,7 +729,7 @@ namespace Bicep.Decompiler
                 return (createFakeModulePath(templateLink), null);
             }
 
-            var nestedUri = fileResolver.TryResolveModulePath(fileUri, nestedRelativePath);
+            var nestedUri = fileResolver.TryResolveFilePath(bicepFileUri, nestedRelativePath);
             if (nestedUri is null || !fileResolver.TryRead(nestedUri, out _, out _))
             {
                 // return the original expression so that the author can fix it up rather than failing
@@ -1092,23 +1092,23 @@ namespace Bicep.Decompiler
                         })));
                 }
 
-                var (nestedBody, nestedDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
+                var (nestedBody, nestedDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
                 var nestedValue = ProcessCondition(resource, nestedBody);
 
                 var filePath = $"./nested_{identifier}.bicep";
-                var nestedModuleUri = fileResolver.TryResolveModulePath(fileUri, filePath) ?? throw new ConversionFailedException($"Unable to module uri for {typeString} {nameString}", nestedTemplate);
-                if (workspace.TryGetSyntaxTree(nestedModuleUri, out _))
+                var nestedModuleUri = fileResolver.TryResolveFilePath(bicepFileUri, filePath) ?? throw new ConversionFailedException($"Unable to module uri for {typeString} {nameString}", nestedTemplate);
+                if (workspace.TryGetSourceFile(nestedModuleUri, out _))
                 {
                     throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
                 }
 
                 var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule);
-                var nestedSyntaxTree = new SyntaxTree(nestedModuleUri, ImmutableArray<int>.Empty, nestedConverter.Parse());
-                workspace.UpsertSyntaxTrees(nestedSyntaxTree.AsEnumerable());
+                var nestedBicepFile = new BicepFile(nestedModuleUri, ImmutableArray<int>.Empty, nestedConverter.Parse());
+                workspace.UpsertSourceFile(nestedBicepFile);
 
                 return new ModuleDeclarationSyntax(
                     nestedDecorators,
-                    SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
+                    SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
                     SyntaxFactory.CreateIdentifier(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
                     SyntaxFactory.AssignmentToken,
@@ -1123,13 +1123,13 @@ namespace Bicep.Decompiler
                 throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
             }
 
-            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x, nameString));
+            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
             var value = ProcessCondition(resource, body);
 
             var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
             var module = new ModuleDeclarationSyntax(
                 decorators,
-                SyntaxFactory.CreateToken(TokenType.Identifier, "module"),
+                SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
                 SyntaxFactory.CreateIdentifier(identifier),
                 modulePath,
                 SyntaxFactory.AssignmentToken,
@@ -1147,7 +1147,7 @@ namespace Bicep.Decompiler
             return module;
         }
 
-        private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource, string nameString)
+        private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource)
         {
             var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
             var paramProperties = new List<ObjectPropertySyntax>();

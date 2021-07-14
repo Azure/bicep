@@ -1,6 +1,11 @@
+@description('The name of the frontdoor resource.')
 param frontDoorName string
-param backendAddress string
+
+@description('The hostname of the frontendEndpoints. Must be a domain name.')
 param customDomainName string
+
+@description('The hostname of the backend. Must be an IP address or FQDN.')
+param backendAddress string
 
 var frontEndEndpointDefaultName = 'frontEndEndpointDefault'
 var frontEndEndpointCustomName = 'frontEndEndpointCustom'
@@ -19,7 +24,7 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-01-01' = {
       {
         name: frontEndEndpointDefaultName
         properties: {
-          hostName: concat(frontDoorName, '.azurefd.net')
+          hostName: '${frontDoorName}.azurefd.net'
           sessionAffinityEnabledState: 'Disabled'
         }
       }

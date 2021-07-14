@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Globalization;
 using Azure.Deployments.Core.Instrumentation;
 
@@ -10,6 +11,8 @@ namespace Bicep.Core.Emit
         private BicepDeploymentsInterop()
         {
         }
+
+        public int DeploymentNameLengthLimit => throw new NotImplementedException();
 
         public static void Initialize()
             => DeploymentsInterop.Initialize(new BicepDeploymentsInterop());

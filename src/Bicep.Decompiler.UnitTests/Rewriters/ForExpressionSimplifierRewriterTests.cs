@@ -29,7 +29,7 @@ output test array = [for i in range(0, length(items)): {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var items = [
   'a'
@@ -61,7 +61,7 @@ output test array = [for i in range(0, length(items)): {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var items = [
   'a'
@@ -121,7 +121,7 @@ resource vmsLoop 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in rang
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var vmNames = [
   'vm1'
@@ -187,10 +187,10 @@ output test array = [for i in range(0, length(container.items)): {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             // Reference equality check to ensure we're not regenerating syntax unnecessarily
-            newProgramSyntax.Should().BeSameAs(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            newProgramSyntax.Should().BeSameAs(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
         }
 
         [TestMethod]
@@ -211,7 +211,7 @@ output test array = [for i in sys.range(0, sys.length(items)): {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
 @"var items = [
   'a'
@@ -244,10 +244,10 @@ output test array = [for i in az.range(0, az.length(items)): {
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
-            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             // Reference equality check to ensure syntax has not been modified
-            newProgramSyntax.Should().BeSameAs(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            newProgramSyntax.Should().BeSameAs(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
         }
     }
 }

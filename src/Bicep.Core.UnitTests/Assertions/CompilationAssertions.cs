@@ -53,5 +53,13 @@ namespace Bicep.Core.UnitTests.Assertions
 
             return new AndConstraint<CompilationAssertions>(this);
         }
+        public AndConstraint<CompilationAssertions> NotHaveAnyDiagnostics(string because = "", params object[] becauseArgs)
+        {
+            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
+
+            Subject.GetEntrypointSemanticModel().GetAllDiagnostics(noLinterConfig).Should().BeEmpty(because, becauseArgs);
+
+            return new AndConstraint<CompilationAssertions>(this);
+        }
     }
 }

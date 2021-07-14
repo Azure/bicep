@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4549205892506181472"
+      "templateHash": "11943737649630419837"
     }
   },
   "parameters": {
@@ -57,7 +57,7 @@
       }
     },
     {
-      "type": "microsoft.insights/diagnosticSettings",
+      "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Automation/automationAccounts/{0}', variables('automationaccountName'))]",
       "name": "[variables('automationaccountDiagName')]",

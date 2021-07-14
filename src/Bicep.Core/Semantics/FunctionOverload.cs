@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -12,21 +14,24 @@ namespace Bicep.Core.Semantics
 {
     public class FunctionOverload
     {
-        public delegate TypeSymbol ReturnTypeBuilderDelegate(IEnumerable<FunctionArgumentSyntax> arguments);
+        public delegate TypeSymbol ReturnTypeBuilderDelegate(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes);
+        public delegate SyntaxBase EvaluatorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol);
 
-        public FunctionOverload(string name, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol returnType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, FunctionFlags flags = FunctionFlags.Default)
+        public FunctionOverload(string name, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, FunctionFlags flags = FunctionFlags.Default)
         {
-            this.Name = name;
-            this.Description = description;
-            this.ReturnTypeBuilder = returnTypeBuilder;
-            this.FixedParameters = fixedParameters.ToImmutableArray();
-            this.VariableParameter = variableParameter;
-            this.Flags = flags;
+            Name = name;
+            Description = description;
+            ReturnTypeBuilder = returnTypeBuilder;
+            Evaluator = evaluator;
+            FixedParameters = fixedParameters.ToImmutableArray();
+            VariableParameter = variableParameter;
+            Flags = flags;
 
-            this.MinimumArgumentCount = this.FixedParameters.Count(fp => fp.Required) + (this.VariableParameter?.MinimumCount ?? 0);
-            this.MaximumArgumentCount = this.VariableParameter == null ? this.FixedParameters.Length : (int?)null;
+            MinimumArgumentCount = FixedParameters.Count(fp => fp.Required) + (VariableParameter?.MinimumCount ?? 0);
+            MaximumArgumentCount = VariableParameter == null ? FixedParameters.Length : (int?)null;
 
-            this.TypeSignature = $"({string.Join(", ", this.ParameterTypeSignatures)}): {returnType}";
+            TypeSignature = $"({string.Join(", ", ParameterTypeSignatures)}): {signatureType}";
+            TypeSignatureSymbol = signatureType;
         }
 
         public string Name { get; }
@@ -42,6 +47,8 @@ namespace Bicep.Core.Semantics
         public VariableFunctionParameter? VariableParameter { get; }
 
         public ReturnTypeBuilderDelegate ReturnTypeBuilder { get; }
+        public TypeSymbol TypeSignatureSymbol { get; }
+        public EvaluatorDelegate? Evaluator { get; }
 
         public FunctionFlags Flags { get; }
 
@@ -107,5 +114,6 @@ namespace Bicep.Core.Semantics
 
             return FunctionMatchResult.Match;
         }
+
     }
 }

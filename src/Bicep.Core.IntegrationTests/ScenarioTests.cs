@@ -1605,7 +1605,7 @@ resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" from source declaration \"vmNotWorkingProps\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" from source declaration \"vmNotWorkingProps\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
         }
 
@@ -1668,7 +1668,7 @@ resource sqlDb 'Microsoft.Sql/servers/databases@2020-02-02-preview' existing = {
 }
 
 resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
-  name: 'myTde'
+  name: 'current'
   parent: sqlDb
   properties: {
     status: sqlDatabase.dataEncryption
@@ -1677,11 +1677,12 @@ resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentD
 
 output tdeId string = transparentDataEncryption.id
 ");
+            result.Should().NotHaveAnyDiagnostics();
 
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
 
-            evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/myTde");
-            evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/myTde");
+            evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/current");
+            evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/current");
         }
 
         [TestMethod]
@@ -2290,6 +2291,30 @@ resource subnetRef 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existi
             result.Should().HaveDiagnostics(new[] {
                 ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
             });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/3566
+        public void Test_Issue3566()
+        {
+            var result = CompilationHelper.Compile(@"
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: uniqueString(resourceGroup().id, 'alfran')
+  location: resourceGroup().location
+  kind: 'StorageV2'
+  sku: {
+    name: 'Premium_LRS'
+  }
+}
+
+var secret = storageaccount.listKeys().keys[0].value
+output secret string = secret
+");
+
+            result.Template.Should().NotHaveValueAtPath("$.variables['secret']", "the listKeys() output should be in-lined and not generate a variable");
+            result.Template.Should().HaveValueAtPath("$.outputs['secret'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id, 'alfran')), '2021-02-01').keys[0].value]", "the listKeys() output should be in-lined");
+
+            result.Should().NotHaveAnyDiagnostics();
         }
     }
 }

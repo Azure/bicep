@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14580800383198221209"
+      "templateHash": "6061572376334368051"
     }
   },
   "parameters": {
@@ -45,8 +45,7 @@
   },
   "functions": [],
   "variables": {
-    "templateImageResourceGroupId": "[format('/subscriptions/{0}/resourcegroups/{1}', parameters('azureSubscriptionID'), parameters('templateImageResourceGroup'))]",
-    "imageDefinitionFullName": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]"
+    "templateImageResourceGroupId": "[format('/subscriptions/{0}/resourcegroups/{1}', parameters('azureSubscriptionID'), parameters('templateImageResourceGroup'))]"
   },
   "resources": [
     {
@@ -58,7 +57,7 @@
     {
       "type": "Microsoft.Compute/galleries/images",
       "apiVersion": "2020-09-30",
-      "name": "[variables('imageDefinitionFullName')]",
+      "name": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]",
       "location": "[parameters('imageLocation')]",
       "properties": {
         "osState": "Generalized",
@@ -68,7 +67,10 @@
           "offer": "[parameters('imageOffer')]",
           "sku": "[parameters('imageSKU')]"
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/galleries', parameters('sigName'))]"
+      ]
     },
     {
       "type": "Microsoft.Authorization/roleDefinitions",

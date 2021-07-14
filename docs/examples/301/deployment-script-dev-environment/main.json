@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17777160234851437826"
+      "templateHash": "1628028490283910307"
     }
   },
   "parameters": {
@@ -66,7 +66,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7781070043977821900"
+              "templateHash": "10072553779848923110"
             }
           },
           "parameters": {
@@ -85,14 +85,6 @@
                 "Premium_ZRS",
                 "Standard_GZRS",
                 "Standard_RAGZRS"
-              ]
-            },
-            "tier": {
-              "type": "string",
-              "defaultValue": "Standard",
-              "allowedValues": [
-                "Standard",
-                "Premium"
               ]
             },
             "kind": {
@@ -131,8 +123,7 @@
               "name": "[parameters('name')]",
               "location": "[parameters('location')]",
               "sku": {
-                "name": "[parameters('sku')]",
-                "tier": "[parameters('tier')]"
+                "name": "[parameters('sku')]"
               },
               "kind": "[parameters('kind')]",
               "properties": {
@@ -204,7 +195,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5549572267611532959"
+              "templateHash": "6673808017610235563"
             }
           },
           "parameters": {
@@ -284,7 +275,7 @@
                   {
                     "name": "[format('{0}cg', parameters('name'))]",
                     "properties": {
-                      "image": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliImage'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshImage'), json('null')))]",
+                      "image": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliImage'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshImage'), ''))]",
                       "resources": {
                         "requests": {
                           "cpu": 1,
@@ -303,7 +294,7 @@
                           "mountPath": "[parameters('mountPath')]"
                         }
                       ],
-                      "command": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliCommand'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshCommand'), json('null')))]"
+                      "command": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliCommand'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshCommand'), null()))]"
                     }
                   }
                 ],

@@ -30,6 +30,7 @@ steps:
 
 - task: PublishTestResults@2
   displayName: Publish Test Results
+  condition: always()
   inputs:
     testResultsFormat: VSTest
     testResultsFiles: '$(Build.SourcesDirectory)/TestResults/**/*.trx'

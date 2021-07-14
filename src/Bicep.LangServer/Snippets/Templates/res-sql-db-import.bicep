@@ -6,13 +6,13 @@ resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
 
 resource ${3:sqlDatabaseImport} 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {
   parent: sqlServerDatabase
-  name: ${4:'name'}
+  name: 'import'
   properties: {
-    storageKeyType: '${5|StorageAccessKey,SharedAccessKey|}'
-    storageKey: ${6:'storageKey'}
-    storageUri: ${7:'storageUri'}
-    administratorLogin: ${8:'administratorLogin'}
-    administratorLoginPassword: ${9:'administratorLoginPassword'}
-    operationMode: ${10:'operationMode'}
+    storageKeyType: '${4|StorageAccessKey,SharedAccessKey|}'
+    storageKey: ${5:'storageKey'}
+    storageUri: ${6:'storageUri'}
+    administratorLogin: ${7:'administratorLogin'}
+    administratorLoginPassword: ${8:'administratorLoginPassword'}
+    operationMode: 'Import'
   }
 }

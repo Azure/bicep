@@ -2502,6 +2502,99 @@
     ]
   },
   {
+    "label": "issue3000LogicApp1",
+    "kind": "interface",
+    "detail": "issue3000LogicApp1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000LogicApp1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000LogicApp1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "issue3000LogicApp2",
+    "kind": "interface",
+    "detail": "issue3000LogicApp2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000LogicApp2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000LogicApp2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "issue3000stg",
+    "kind": "interface",
+    "detail": "issue3000stg",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000stg",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000stg"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "issue3000stgMadeUpProperty",
+    "kind": "variable",
+    "detail": "issue3000stgMadeUpProperty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000stgMadeUpProperty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000stgMadeUpProperty"
+    }
+  },
+  {
+    "label": "issue3000stgManagedBy",
+    "kind": "variable",
+    "detail": "issue3000stgManagedBy",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000stgManagedBy",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000stgManagedBy"
+    }
+  },
+  {
+    "label": "issue3000stgManagedByExtended",
+    "kind": "variable",
+    "detail": "issue3000stgManagedByExtended",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue3000stgManagedByExtended",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue3000stgManagedByExtended"
+    }
+  },
+  {
     "label": "itemAndIndexSameName",
     "kind": "interface",
     "detail": "itemAndIndexSameName",
@@ -2615,17 +2708,34 @@
     }
   },
   {
-    "label": "listKeys",
+    "label": "loadFileAsBase64",
     "kind": "function",
-    "detail": "listKeys()",
+    "detail": "loadFileAsBase64()",
     "deprecated": false,
     "preselect": false,
-    "sortText": "3_listKeys",
+    "sortText": "3_loadFileAsBase64",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "listKeys($0)"
+      "newText": "loadFileAsBase64($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadTextContent",
+    "kind": "function",
+    "detail": "loadTextContent()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadTextContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadTextContent($0)"
     },
     "command": {
       "command": "editor.action.triggerParameterHints"

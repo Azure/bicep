@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3438004890255477333"
+      "templateHash": "3610555063404175184"
     }
   },
   "parameters": {
@@ -310,7 +310,7 @@
           }
         ],
         "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
-        "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), json('null'), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
+        "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
@@ -333,7 +333,7 @@
         "hardwareProfile": {
           "vmSize": "[parameters('rdshVmSize')]"
         },
-        "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), json('null'))]",
+        "availabilitySet": "[if(equals(parameters('availabilityOption'), 'AvailabilitySet'), variables('vmAvailabilitySetResourceId'), null())]",
         "osProfile": {
           "computerName": "[concat(parameters('rdshPrefix'), add(range(0, parameters('rdshNumberOfInstances'))[copyIndex()], parameters('vmInitialNumber')))]",
           "adminUsername": "[variables('vmAdministratorUsername')]",
@@ -506,7 +506,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17602823694330426971"
+              "templateHash": "9768223943364163858"
             }
           },
           "parameters": {

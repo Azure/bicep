@@ -34,17 +34,17 @@ module
 
 // #completionTest(24,25) -> moduleObject
 module missingValue '' = 
-//@[20:22) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[20:22) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[25:25) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {
-//@[28:47) [BCP092 (Error)] String interpolation is not supported in module paths. (CodeDescription: none) |'./${interp}.bicep'|
+//@[28:47) [BCP092 (Error)] String interpolation is not supported in file paths. (CodeDescription: none) |'./${interp}.bicep'|
 
 }
 
 module moduleWithConditionAndInterpPath './${interp}.bicep' = if (true) {
-//@[40:59) [BCP092 (Error)] String interpolation is not supported in module paths. (CodeDescription: none) |'./${interp}.bicep'|
+//@[40:59) [BCP092 (Error)] String interpolation is not supported in file paths. (CodeDescription: none) |'./${interp}.bicep'|
 
 }
 
@@ -213,23 +213,23 @@ module modCycle './cycle.bicep' = {
 }
 
 module moduleWithEmptyPath '' = {
-//@[27:29) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[27:29) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 }
 
 module moduleWithAbsolutePath '/abc/def.bicep' = {
-//@[30:46) [BCP051 (Error)] The specified module path begins with "/". Module files must be referenced using relative paths. (CodeDescription: none) |'/abc/def.bicep'|
+//@[30:46) [BCP051 (Error)] The specified path begins with "/". Files must be referenced using relative paths. (CodeDescription: none) |'/abc/def.bicep'|
 }
 
 module moduleWithBackslash 'child\\file.bicep' = {
-//@[27:46) [BCP098 (Error)] The specified module path contains a "\" character. Use "/" instead as the directory separator character. (CodeDescription: none) |'child\\file.bicep'|
+//@[27:46) [BCP098 (Error)] The specified file path contains a "\" character. Use "/" instead as the directory separator character. (CodeDescription: none) |'child\\file.bicep'|
 }
 
 module moduleWithInvalidChar 'child/fi|le.bicep' = {
-//@[29:48) [BCP085 (Error)] The specified module path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". (CodeDescription: none) |'child/fi|le.bicep'|
+//@[29:48) [BCP085 (Error)] The specified file path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". (CodeDescription: none) |'child/fi|le.bicep'|
 }
 
 module moduleWithInvalidTerminatorChar 'child/test.' = {
-//@[39:52) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'child/test.'|
+//@[39:52) [BCP086 (Error)] The specified file path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'child/test.'|
 }
 
 module moduleWithValidScope './empty.bicep' = {
@@ -362,27 +362,27 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionB ''
-//@[19:21) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[21:21) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionC '' =
-//@[19:21) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[23:23) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionD '' = {}
-//@[19:21) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionE '' = {
-//@[19:21) [BCP050 (Error)] The specified module path is empty. (CodeDescription: none) |''|
+//@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
   name: 'hello'
 }
 
 // #completionTest(26, 27, 28, 29) -> cwdFileCompletions
 module cwdFileCompletionA '.'
-//@[26:29) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'.'|
+//@[26:29) [BCP086 (Error)] The specified file path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'.'|
 //@[29:29) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(26, 27) -> cwdMCompletions
@@ -721,6 +721,55 @@ module secureModule1 'moduleb.bicep' = {
     secureObjectParam2: kv.getSecret('mySecret')
 //@[4:22) [BCP037 (Error)] The property "secureObjectParam2" is not allowed on objects of type "params". No other properties are allowed. (CodeDescription: none) |secureObjectParam2|
 //@[24:48) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
+  }
+}
+
+module issue3000 'empty.bicep' = {
+  name: 'issue3000Module'
+  params: {}
+  identity: {
+//@[2:10) [BCP037 (Error)] The property "identity" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |identity|
+    type: 'SystemAssigned'
+  }
+  extendedLocation: {}
+//@[2:18) [BCP037 (Error)] The property "extendedLocation" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |extendedLocation|
+  sku: {}
+//@[2:5) [BCP037 (Error)] The property "sku" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |sku|
+  kind: 'V1'
+//@[2:6) [BCP037 (Error)] The property "kind" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |kind|
+  managedBy: 'string'
+//@[2:11) [BCP037 (Error)] The property "managedBy" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |managedBy|
+  mangedByExtended: [
+//@[2:18) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |mangedByExtended|
+   'str1'
+   'str2'
+  ]
+  zones: [
+//@[2:7) [BCP037 (Error)] The property "zones" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |zones|
+   'str1'
+   'str2'
+  ]
+  plan: {}
+//@[2:6) [BCP037 (Error)] The property "plan" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |plan|
+  eTag: ''
+//@[2:6) [BCP037 (Error)] The property "eTag" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |eTag|
+  scale: {}  
+//@[2:7) [BCP037 (Error)] The property "scale" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |scale|
+}
+
+module invalidJsonMod 'modulec.json' = {
+//@[7:21) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (CodeDescription: none) |invalidJsonMod|
+//@[22:36) [BCP188 (Error)] The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template. (CodeDescription: none) |'modulec.json'|
+}
+
+module jsonModMissingParam 'moduled.json' = {
+  name: 'jsonModMissingParam'
+  params: {
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar". (CodeDescription: none) |params|
+    foo: 123
+//@[9:12) [BCP036 (Error)] The property "foo" expected a value of type "string" but the provided value is of type "int". (CodeDescription: none) |123|
+    baz: 'C'
+//@[9:12) [BCP088 (Error)] The property "baz" expected a value of type "'A' | 'B'" but the provided value is of type "'C'". Did you mean "'A'"? (CodeDescription: none) |'C'|
   }
 }
 

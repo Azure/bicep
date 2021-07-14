@@ -30,6 +30,20 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
   }
 }
 
+module modC './child/modulec.json' = {
+  name: 'modC'
+  params: {
+    location: 'West US'
+  }
+}
+
+module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
+  name: 'modCWithCondition'
+  params: {
+    location: 'East US'
+  }
+}
+
 module optionalWithNoParams1 './child/optionalParams.bicep'= {
   name: 'optionalWithNoParams1'
 }
@@ -55,6 +69,7 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
   properties: {
     modADep: modATest.outputs.stringOutputA
     modBDep: modB.outputs.myResourceId
+    modCDep: modC.outputs.myResourceId
   }
 }
 

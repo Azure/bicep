@@ -1,12 +1,18 @@
-param workspaceName string
-param applicationInsightsName string
-param location string = resourceGroup().location
-
+@description('Enter response time threshold in seconds.')
 @minValue(1)
 @maxValue(10000)
 param responseTimeThreshold int = 3
 
-var responseAlertName = 'ResponseTime-${applicationInsightsName}'
+@description('Name of the workspace where the data will be stored.')
+param workspaceName string = 'myWorkspace'
+
+@description('Name of the application insights resource.')
+param applicationInsightsName string = 'myApplicationInsights'
+
+@description('Location for all resources.')
+param location string = resourceGroup().location
+
+var responseAlertName = 'ResponseTime-${toLower(applicationInsightsName)}'
 
 resource workspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
   name: workspaceName
@@ -17,6 +23,7 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
     }
   }
 }
+
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
   name: applicationInsightsName
   location: location
@@ -26,6 +33,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02-preview' 
     WorkspaceResourceId: workspace.id
   }
 }
+
 resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: responseAlertName
   location: 'global'
@@ -58,6 +66,7 @@ resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
     ]
   }
 }
+
 resource emailActionGroup 'microsoft.insights/actionGroups@2019-06-01' = {
   name: 'emailActionGroup'
   location: 'global'

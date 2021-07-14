@@ -16,4 +16,3 @@ resource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {
   }
 }
 // Insert snippet here
-

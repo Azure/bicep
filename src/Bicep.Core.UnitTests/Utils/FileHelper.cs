@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static string SaveEmbeddedResourcesWithPathPrefix(TestContext testContext, Assembly containingAssembly, string manifestFilePrefix)
         {
             var outputDirectory = GetUniqueTestOutputPath(testContext);
-            
+
             var filesSaved = false;
             foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix,  StringComparison.Ordinal)))
             {
@@ -55,6 +55,8 @@ namespace Bicep.Core.UnitTests.Utils
                 var fileStream = File.Create(filePath);
                 manifestStream.Seek(0, SeekOrigin.Begin);
                 manifestStream.CopyTo(fileStream);
+                testContext.WriteLine($"Bytes written to {filePath}: {fileStream.Position}");
+
                 fileStream.Close();
                 
                 testContext.AddResultFile(filePath);

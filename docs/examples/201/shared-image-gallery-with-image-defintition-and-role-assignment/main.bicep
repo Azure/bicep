@@ -11,7 +11,6 @@ param principalId string
 param templateImageResourceGroup string
 
 var templateImageResourceGroupId = '/subscriptions/${azureSubscriptionID}/resourcegroups/${templateImageResourceGroup}'
-var imageDefinitionFullName = '${sigName}/${imageDefinitionName}'
 
 //Create Shard Image Gallery
 resource wvdsig 'Microsoft.Compute/galleries@2020-09-30' = {
@@ -19,9 +18,10 @@ resource wvdsig 'Microsoft.Compute/galleries@2020-09-30' = {
   location: sigLocation
 }
 
-//Create Image definitation
+//Create Image definition
 resource wvdid 'Microsoft.Compute/galleries/images@2020-09-30' = {
-  name: imageDefinitionFullName
+  parent: wvdsig
+  name: imageDefinitionName
   location: imageLocation
   properties: {
     osState: 'Generalized'

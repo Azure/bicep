@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "Build Solution",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -14,7 +14,7 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "build-cli",
+            "label": "Build CLI",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -26,19 +26,21 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "build-langserver",
+            "label": "Build Language Server for VSIX",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
                 "${workspaceFolder}/src/Bicep.LangServer/Bicep.LangServer.csproj",
                 "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "/consoleloggerparameters:NoSummary",
+                "--output",
+                "${workspaceFolder}/src/vscode-bicep/bicepLanguageServer"
             ],
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "vscodeext-build",
+            "label": "Build VSIX",
             "command": "npm",
             "args": ["run", "build", "--loglevel", "silent"],
             "type": "shell",
@@ -47,11 +49,11 @@
                 "cwd": "${workspaceFolder}/src/vscode-bicep"
             },
             "dependsOn": [
-                "build-langserver"
+                "Build Language Server for VSIX"
             ]
         },
         {
-            "label": "playground-build-wasm",
+            "label": "Build WASM for Playground",
             "command": "npm",
             "args": ["run", "build-wasm"],
             "type": "shell",

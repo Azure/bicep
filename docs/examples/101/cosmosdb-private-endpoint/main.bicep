@@ -34,7 +34,7 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-previ
   name: accountName
   location: location
   kind: 'GlobalDocumentDB'
-  properties: {
+  properties: any({
     createMode: 'Default'
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'
@@ -50,7 +50,7 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-previ
     enableAutomaticFailover: false
     enableMultipleWriteLocations: false
     publicNetworkAccess: publicNetworkAccess
-  }
+  })
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-06-01' = {

@@ -42,6 +42,11 @@ namespace Bicep.LanguageServer.Handlers
                     {
                         Kind = WatchKind.Create | WatchKind.Change | WatchKind.Delete,
                         GlobPattern = "**/*.bicep"
+                    },
+                    new FileSystemWatcher()
+                    {
+                        Kind = WatchKind.Create | WatchKind.Change | WatchKind.Delete,
+                        GlobPattern = "**/*.{json,jsonc,arm}"
                     }
                 )
         };

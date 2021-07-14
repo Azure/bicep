@@ -31,17 +31,14 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task RequestingCodeActionWithFixableDiagnosticsShouldProduceQuickFixes(DataSet dataSet)
         {
-            // ensure all files (e.g. modules) are present locally
-            string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext);
-            var entryPoint = Path.Combine(basePath, "main.bicep");
-            var uri = DocumentUri.FromFileSystemPath(entryPoint);
-
+            var compilation = dataSet.CopyFilesAndCreateCompilation(this.TestContext, out _, out var fileUri);
+            var uri = DocumentUri.From(fileUri);
+ 
             // start language server
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, fileResolver: new FileResolver());
 
             // construct a parallel compilation
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
             var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>();
 
             foreach (IFixable fixable in fixables)

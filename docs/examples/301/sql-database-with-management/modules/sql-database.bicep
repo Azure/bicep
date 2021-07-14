@@ -54,7 +54,7 @@ resource longTermBackup 'Microsoft.Sql/servers/databases/backupLongTermRetention
     transparentDataEncryption
     shortTermBackup
   ]
-  name: 'Default'
+  name: 'default'
   parent: sqlDb
   properties: {
     weeklyRetention: sqlDatabase.longTermBackup.weeklyRetention
@@ -90,7 +90,7 @@ resource vulnerabilityAssessments 'Microsoft.Sql/servers/databases/vulnerability
     transparentDataEncryption
     azureDefender
   ]
-  name: 'Default'
+  name: 'default'
   parent: sqlDb
   properties: {
     recurringScans: {

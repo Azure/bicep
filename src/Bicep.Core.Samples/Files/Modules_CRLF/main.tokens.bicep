@@ -138,6 +138,72 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+module modC './child/modulec.json' = {
+//@[0:6) Identifier |module|
+//@[7:11) Identifier |modC|
+//@[12:34) StringComplete |'./child/modulec.json'|
+//@[35:36) Assignment |=|
+//@[37:38) LeftBrace |{|
+//@[38:40) NewLine |\r\n|
+  name: 'modC'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'modC'|
+//@[14:16) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    location: 'West US'
+//@[4:12) Identifier |location|
+//@[12:13) Colon |:|
+//@[14:23) StringComplete |'West US'|
+//@[23:25) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
+//@[0:6) Identifier |module|
+//@[7:24) Identifier |modCWithCondition|
+//@[25:47) StringComplete |'./child/modulec.json'|
+//@[48:49) Assignment |=|
+//@[50:52) Identifier |if|
+//@[53:54) LeftParen |(|
+//@[54:55) Integer |2|
+//@[56:57) Minus |-|
+//@[58:59) Integer |1|
+//@[60:62) Equals |==|
+//@[63:64) Integer |1|
+//@[64:65) RightParen |)|
+//@[66:67) LeftBrace |{|
+//@[67:69) NewLine |\r\n|
+  name: 'modCWithCondition'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:27) StringComplete |'modCWithCondition'|
+//@[27:29) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    location: 'East US'
+//@[4:12) Identifier |location|
+//@[12:13) Colon |:|
+//@[14:23) StringComplete |'East US'|
+//@[23:25) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 module optionalWithNoParams1 './child/optionalParams.bicep'= {
 //@[0:6) Identifier |module|
 //@[7:28) Identifier |optionalWithNoParams1|
@@ -254,6 +320,15 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 //@[4:11) Identifier |modBDep|
 //@[11:12) Colon |:|
 //@[13:17) Identifier |modB|
+//@[17:18) Dot |.|
+//@[18:25) Identifier |outputs|
+//@[25:26) Dot |.|
+//@[26:38) Identifier |myResourceId|
+//@[38:40) NewLine |\r\n|
+    modCDep: modC.outputs.myResourceId
+//@[4:11) Identifier |modCDep|
+//@[11:12) Colon |:|
+//@[13:17) Identifier |modC|
 //@[17:18) Dot |.|
 //@[18:25) Identifier |outputs|
 //@[25:26) Dot |.|

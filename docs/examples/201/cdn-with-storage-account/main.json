@@ -5,27 +5,33 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17071071458183814945"
+      "templateHash": "6691240461596735890"
     }
   },
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
   "functions": [],
   "variables": {
     "storageAccountName": "[format('storage{0}', uniqueString(resourceGroup().id))]",
-    "endPointName": "[format('endpoint-{0}', uniqueString(resourceGroup().id))]",
-    "profileName": "CdnProfile1"
+    "endpointName": "[format('endpoint-{0}', uniqueString(resourceGroup().id))]",
+    "profileName": "[format('cdn-{0}', uniqueString(resourceGroup().id))]"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2020-08-01-preview",
+      "apiVersion": "2021-01-01",
       "name": "[variables('storageAccountName')]",
       "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "[variables('storageAccountName')]"
+      },
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
@@ -33,18 +39,24 @@
     },
     {
       "type": "Microsoft.Cdn/profiles",
-      "apiVersion": "2020-04-15",
+      "apiVersion": "2020-09-01",
       "name": "[variables('profileName')]",
       "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "[variables('profileName')]"
+      },
       "sku": {
-        "name": "Standard_Akamai"
+        "name": "Standard_Verizon"
       }
     },
     {
       "type": "Microsoft.Cdn/profiles/endpoints",
-      "apiVersion": "2020-04-15",
-      "name": "[variables('endPointName')]",
+      "apiVersion": "2020-09-01",
+      "name": "[format('{0}/{1}', variables('profileName'), variables('endpointName'))]",
       "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "[variables('endpointName')]"
+      },
       "properties": {
         "originHostHeader": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'https://', ''), '/', '')]",
         "isHttpAllowed": true,
@@ -68,6 +80,7 @@
         ]
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', variables('profileName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     }
@@ -75,11 +88,11 @@
   "outputs": {
     "hostName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).hostName]"
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', variables('profileName'), variables('endpointName'))).hostName]"
     },
     "originHostHeader": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).originHostHeader]"
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', variables('profileName'), variables('endpointName'))).originHostHeader]"
     }
   }
 }

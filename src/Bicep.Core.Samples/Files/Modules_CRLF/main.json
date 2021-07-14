@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11239587175076523465"
+      "templateHash": "7530146131911660409"
     }
   },
   "parameters": {
@@ -60,11 +60,13 @@
       "name": "harry",
       "properties": {
         "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]",
-        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]"
+        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]",
+        "modCDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modC'), '2019-10-01').outputs.myResourceId.value]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'modATest')]",
-        "[resourceId('Microsoft.Resources/deployments', 'modB')]"
+        "[resourceId('Microsoft.Resources/deployments', 'modB')]",
+        "[resourceId('Microsoft.Resources/deployments', 'modC')]"
       ]
     },
     {
@@ -113,7 +115,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -191,7 +193,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5311387963487731512"
+              "templateHash": "2690166781482293239"
             }
           },
           "parameters": {
@@ -239,7 +241,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5311387963487731512"
+              "templateHash": "2690166781482293239"
             }
           },
           "parameters": {
@@ -268,6 +270,89 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
+      "name": "modC",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "West US"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "location": {
+              "type": "string"
+            }
+          },
+          "variables": {},
+          "functions": [],
+          "resources": [
+            {
+              "name": "myResource",
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "location": "[parameters('location')]"
+            }
+          ],
+          "outputs": {
+            "myResourceId": {
+              "type": "string",
+              "value": "[resourceId('Mock.Rp/mockResource', 'myResource')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "condition": "[equals(sub(2, 1), 1)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "modCWithCondition",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "East US"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "location": {
+              "type": "string"
+            }
+          },
+          "variables": {},
+          "functions": [],
+          "resources": [
+            {
+              "name": "myResource",
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "location": "[parameters('location')]"
+            }
+          ],
+          "outputs": {
+            "myResourceId": {
+              "type": "string",
+              "value": "[resourceId('Mock.Rp/mockResource', 'myResource')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
       "name": "optionalWithNoParams1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -281,7 +366,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12219545452385241730"
+              "templateHash": "10738077103160673326"
             }
           },
           "parameters": {
@@ -341,7 +426,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12219545452385241730"
+              "templateHash": "10738077103160673326"
             }
           },
           "parameters": {
@@ -414,7 +499,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12219545452385241730"
+              "templateHash": "10738077103160673326"
             }
           },
           "parameters": {
@@ -487,7 +572,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12219545452385241730"
+              "templateHash": "10738077103160673326"
             }
           },
           "parameters": {
@@ -564,7 +649,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12219545452385241730"
+              "templateHash": "10738077103160673326"
             }
           },
           "parameters": {
@@ -641,7 +726,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12219545452385241730"
+              "templateHash": "10738077103160673326"
             }
           },
           "parameters": {
@@ -719,7 +804,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -812,7 +897,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -906,7 +991,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -1003,7 +1088,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -1100,7 +1185,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -1194,7 +1279,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -1317,7 +1402,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -1441,7 +1526,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -1568,7 +1653,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12608156742562425152"
+              "templateHash": "13267921988990488399"
             }
           },
           "parameters": {
@@ -1660,7 +1745,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10472196812999824211"
+              "templateHash": "8835955120763275123"
             }
           },
           "parameters": {
@@ -1718,7 +1803,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10472196812999824211"
+              "templateHash": "8835955120763275123"
             }
           },
           "parameters": {
@@ -1780,7 +1865,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10472196812999824211"
+              "templateHash": "8835955120763275123"
             }
           },
           "parameters": {

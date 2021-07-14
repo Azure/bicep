@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17579601539293354052"
+      "templateHash": "15303513457722336163"
     }
   },
   "parameters": {
@@ -208,7 +208,7 @@
       ]
     },
     {
-      "type": "microsoft.insights/autoscalesettings",
+      "type": "Microsoft.Insights/autoscalesettings",
       "apiVersion": "2015-04-01",
       "name": "cpuautoscale",
       "location": "[parameters('location')]",

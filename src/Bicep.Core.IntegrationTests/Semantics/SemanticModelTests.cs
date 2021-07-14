@@ -6,6 +6,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -30,9 +31,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory, out _);
             var model = compilation.GetEntrypointSemanticModel();
-            
+
             // use a deterministic order
             var diagnostics = model.GetAllDiagnostics()
                 .OrderBy(x => x.Span.Position)
@@ -44,7 +45,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                TestContext, 
+                TestContext,
                 dataSet.Diagnostics,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
                 actualLocation: resultsFile);
@@ -53,7 +54,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestMethod]
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText("parameter "));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText("parameter ", BicepTestConstants.FileResolver));
             compilation.GetEntrypointSemanticModel().GetParseDiagnostics();
         }
 
@@ -62,14 +63,14 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory, out _);
             var model = compilation.GetEntrypointSemanticModel();
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
                 .OfType<DeclaredSymbol>();
 
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
             string getLoggingString(DeclaredSymbol symbol)
             {
                 (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
@@ -82,7 +83,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                TestContext, 
+                TestContext,
                 dataSet.Symbols,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
                 actualLocation: resultsFile);
@@ -92,9 +93,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void NameBindingsShouldBeConsistent(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var model = compilation.GetEntrypointSemanticModel();
-            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, model);
+            var symbolReferences = GetAllBoundSymbolReferences(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             // just a sanity check
             symbolReferences.Should().AllBeAssignableTo<ISymbolReference>();
@@ -150,9 +151,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void FindReferencesResultsShouldIncludeAllSymbolReferenceSyntaxNodes(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, semanticModel);
+            var symbolReferences = GetAllBoundSymbolReferences(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             var symbols = symbolReferences
                 .Select(symRef => semanticModel.GetSymbolInfo(symRef))
@@ -167,7 +168,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             symbolReferences.Should().BeSubsetOf(foundReferences);
         }
 
-        private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program, SemanticModel semanticModel)
+        private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)
         {
             return SyntaxAggregator.Aggregate(
                 program,
@@ -178,7 +179,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                     {
                         accumulated.Add(current);
                     }
-                    
+
                     return accumulated;
                 },
                 accumulated => accumulated);

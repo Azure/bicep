@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 	</PropertyGroup>
@@ -13,6 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Deployments.Templates" Version="1.0.207" />
 		<PackageReference Include="JetBrains.Annotations" Version="2021.1.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -21,10 +21,10 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-		<PackageReference Include="Azure.Deployments.Expression" Version="1.0.173" />
-		<PackageReference Include="Azure.Deployments.Core" Version="1.0.173" />
-		<PackageReference Include="Azure.Bicep.Types" Version="0.1.157" />
-		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.157" />
+		<PackageReference Include="Azure.Deployments.Expression" Version="1.0.207" />
+		<PackageReference Include="Azure.Deployments.Core" Version="1.0.207" />
+		<PackageReference Include="Azure.Bicep.Types" Version="0.1.201" />
+		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.201" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CoreResources.Designer.cs">

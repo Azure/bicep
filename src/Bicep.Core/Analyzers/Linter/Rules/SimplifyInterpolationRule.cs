@@ -26,7 +26,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             var spanFixes = new Dictionary<TextSpan, CodeFix>();
             var visitor = new Visitor(spanFixes, model);
-            visitor.Visit(model.SyntaxTree.ProgramSyntax);
+            visitor.Visit(model.SourceFile.ProgramSyntax);
 
             return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(kvp.Key, kvp.Value));
         }

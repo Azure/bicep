@@ -74,9 +74,9 @@ namespace Bicep.Cli {
         /// <summary>
         ///   Looks up a localized string similar to {0}: Decompilation failed with fatal error &quot;{1}&quot;.
         /// </summary>
-        internal static string DecompiliationFailedFormat {
+        internal static string DecompilationFailedFormat {
             get {
-                return ResourceManager.GetString("DecompiliationFailedFormat", resourceCulture);
+                return ResourceManager.GetString("DecompilationFailedFormat", resourceCulture);
             }
         }
         

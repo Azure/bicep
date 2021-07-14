@@ -5,22 +5,32 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17478612712825184147"
+      "templateHash": "3516581484793368788"
     }
   },
   "parameters": {
-    "websiteName": {
-      "type": "string"
+    "siteName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of azure web app"
+      }
     },
-    "dbAdminLogin": {
-      "type": "string"
+    "administratorLogin": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Database administrator login name"
+      }
     },
-    "dbAdminPassword": {
+    "administratorLoginPassword": {
       "type": "secureString",
       "maxLength": 128,
-      "minLength": 8
+      "minLength": 8,
+      "metadata": {
+        "description": "Database administrator password"
+      }
     },
-    "dbSkuCapacity": {
+    "databaseSkucapacity": {
       "type": "int",
       "defaultValue": 2,
       "allowedValues": [
@@ -29,9 +39,12 @@
         8,
         16,
         32
-      ]
+      ],
+      "metadata": {
+        "description": "Azure database for MySQL compute capacity in vCores (2,4,8,16,32)"
+      }
     },
-    "dbSkuName": {
+    "databaseSkuName": {
       "type": "string",
       "defaultValue": "GP_Gen5_2",
       "allowedValues": [
@@ -45,52 +58,74 @@
         "MO_Gen5_8",
         "MO_Gen5_16",
         "MO_Gen5_32"
-      ]
+      ],
+      "metadata": {
+        "description": "Azure database for MySQL sku name "
+      }
     },
-    "dbSkuSizeInMB": {
+    "databaseSkuSizeMB": {
       "type": "int",
       "defaultValue": 51200,
       "allowedValues": [
         51200,
         102400
-      ]
+      ],
+      "metadata": {
+        "description": "Azure database for MySQL Sku Size "
+      }
     },
-    "dbSkuTier": {
+    "databaseSkuTier": {
       "type": "string",
       "defaultValue": "GeneralPurpose",
       "allowedValues": [
         "GeneralPurpose",
         "MemoryOptimized"
-      ]
+      ],
+      "metadata": {
+        "description": "Azure database for MySQL pricing tier"
+      }
     },
-    "dbSkuFamily": {
+    "mySqlVersion": {
       "type": "string",
-      "defaultValue": "Gen5"
-    },
-    "mySQLVersion": {
-      "type": "string",
+      "defaultValue": "5.6",
       "allowedValues": [
         "5.6",
         "5.7"
-      ]
+      ],
+      "metadata": {
+        "description": "MySQL version"
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "databaseSkuFamily": {
+      "type": "string",
+      "defaultValue": "Gen5",
+      "metadata": {
+        "description": "Azure database for MySQL sku family"
+      }
     }
   },
   "functions": [],
   "variables": {
-    "dbName": "[format('{0}-db', parameters('websiteName'))]",
-    "dbServerName": "[format('{0}-server', parameters('websiteName'))]",
-    "serverFarmName": "[format('{0}-serviceplan', parameters('websiteName'))]"
+    "databaseName": "[format('{0}-database', parameters('siteName'))]",
+    "serverName": "[format('{0}-server', parameters('siteName'))]",
+    "hostingPlanName": "[format('{0}-serviceplan', parameters('siteName'))]"
   },
   "resources": [
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
-      "name": "[variables('serverFarmName')]",
+      "name": "[variables('hostingPlanName')]",
       "location": "[parameters('location')]",
+      "properties": {
+        "reserved": true
+      },
       "sku": {
         "tier": "Standard",
         "name": "S1"
@@ -99,49 +134,49 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
-      "name": "[parameters('websiteName')]",
+      "name": "[parameters('siteName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
       ]
     },
     {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/connectionString', parameters('websiteName'))]",
+      "name": "[format('{0}/{1}', parameters('siteName'), 'connectionstrings')]",
       "properties": {
         "defaultConnection": {
-          "value": "[format('Database={0};Data Source={1};User Id={2}@{3};Password={4}', variables('dbName'), reference(resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))).fullyQualifiedDomainName, parameters('dbAdminLogin'), variables('dbServerName'), parameters('dbAdminPassword'))]",
+          "value": "[format('Database={0};Data Source={1};User Id={2}@{3};Password={4}', variables('databaseName'), reference(resourceId('Microsoft.DBforMySQL/servers', variables('serverName'))).fullyQualifiedDomainName, parameters('administratorLogin'), variables('serverName'), parameters('administratorLoginPassword'))]",
           "type": "MySql"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))]",
-        "[resourceId('Microsoft.Web/sites', parameters('websiteName'))]"
+        "[resourceId('Microsoft.DBforMySQL/servers', variables('serverName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('siteName'))]"
       ]
     },
     {
-      "type": "Microsoft.DBForMySQL/servers",
-      "apiVersion": "2017-12-01-preview",
-      "name": "[variables('dbServerName')]",
+      "type": "Microsoft.DBforMySQL/servers",
+      "apiVersion": "2017-12-01",
+      "name": "[variables('serverName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "[parameters('dbSkuName')]",
-        "tier": "[parameters('dbSkuTier')]",
-        "capacity": "[parameters('dbSkuCapacity')]",
-        "size": "[string(parameters('dbSkuSizeInMB'))]",
-        "family": "[parameters('dbSkuFamily')]"
+        "name": "[parameters('databaseSkuName')]",
+        "tier": "[parameters('databaseSkuTier')]",
+        "capacity": "[parameters('databaseSkucapacity')]",
+        "size": "[string(parameters('databaseSkuSizeMB'))]",
+        "family": "[parameters('databaseSkuFamily')]"
       },
       "properties": {
         "createMode": "Default",
-        "version": "[parameters('mySQLVersion')]",
-        "administratorLogin": "[parameters('dbAdminLogin')]",
-        "administratorLoginPassword": "[parameters('dbAdminPassword')]",
+        "version": "[parameters('mySqlVersion')]",
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
         "storageProfile": {
-          "storageMB": "[parameters('dbSkuSizeInMB')]",
+          "storageMB": "[parameters('databaseSkuSizeMB')]",
           "backupRetentionDays": 7,
           "geoRedundantBackup": "Disabled"
         },
@@ -149,27 +184,28 @@
       }
     },
     {
-      "type": "Microsoft.DBForMySQL/servers/firewallRules",
-      "apiVersion": "2017-12-01-preview",
-      "name": "[format('{0}/allowAzureIPs', variables('dbServerName'))]",
+      "type": "Microsoft.DBforMySQL/servers/firewallRules",
+      "apiVersion": "2017-12-01",
+      "name": "[format('{0}/{1}', variables('serverName'), 'AllowAzureIPs')]",
       "properties": {
         "startIpAddress": "0.0.0.0",
         "endIpAddress": "0.0.0.0"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))]"
+        "[resourceId('Microsoft.DBforMySQL/servers/databases', variables('serverName'), variables('databaseName'))]",
+        "[resourceId('Microsoft.DBforMySQL/servers', variables('serverName'))]"
       ]
     },
     {
-      "type": "Microsoft.DBForMySQL/servers/databases",
-      "apiVersion": "2017-12-01-preview",
-      "name": "[format('{0}/{1}', variables('dbServerName'), variables('dbName'))]",
+      "type": "Microsoft.DBforMySQL/servers/databases",
+      "apiVersion": "2017-12-01",
+      "name": "[format('{0}/{1}', variables('serverName'), variables('databaseName'))]",
       "properties": {
         "charset": "utf8",
         "collation": "utf8_general_ci"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))]"
+        "[resourceId('Microsoft.DBforMySQL/servers', variables('serverName'))]"
       ]
     }
   ]

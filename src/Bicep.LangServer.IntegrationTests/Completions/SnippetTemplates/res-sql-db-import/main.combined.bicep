@@ -1,13 +1,11 @@
 // $1 = 'sqlDatabase/import'
 // $2 = 'location'
 // $3 = sqlDatabaseImport
-// $4 = 'name'
-// $5 = StorageAccessKey
-// $6 = 'storageKey'
-// $7 = 'storageUri'
-// $8 = 'administratorLogin'
-// $9 = 'administratorLoginPassword'
-// $10 = 'operationMode'
+// $4 = StorageAccessKey
+// $5 = 'storageKey'
+// $6 = 'storageUri'
+// $7 = 'administratorLogin'
+// $8 = 'administratorLoginPassword'
 
 resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
   name: 'sqlDatabase/import'
@@ -16,15 +14,14 @@ resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
 
 resource sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {
   parent: sqlServerDatabase
-  name: 'name'
+  name: 'import'
   properties: {
     storageKeyType: 'StorageAccessKey'
     storageKey: 'storageKey'
     storageUri: 'storageUri'
     administratorLogin: 'administratorLogin'
     administratorLoginPassword: 'administratorLoginPassword'
-    operationMode: 'operationMode'
+    operationMode: 'Import'
   }
 }
 // Insert snippet here
-

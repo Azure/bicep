@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9372725192706889378"
+      "templateHash": "10839339689322770047"
     }
   },
   "parameters": {
@@ -536,7 +536,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10588670802653614854"
+              "templateHash": "4573629760399744599"
             }
           },
           "parameters": {
@@ -837,7 +837,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10013257574516528708"
+              "templateHash": "9608724785177199123"
             }
           },
           "parameters": {
@@ -939,7 +939,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13859140963405042406"
+              "templateHash": "957041648486849486"
             }
           },
           "parameters": {
@@ -1076,7 +1076,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1600189310875854248"
+              "templateHash": "6673211936035085652"
             }
           },
           "parameters": {
@@ -1288,7 +1288,7 @@
                   "computerName": "[parameters('vmName')]",
                   "adminUsername": "[parameters('vmAdminUsername')]",
                   "adminPassword": "[parameters('vmAdminPasswordOrKey')]",
-                  "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
+                  "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
                 },
                 "storageProfile": {
                   "copy": [
@@ -1591,7 +1591,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5600213408066942719"
+              "templateHash": "5882575949678654988"
             }
           },
           "parameters": {
@@ -1975,7 +1975,7 @@
                   "dockerBridgeCidr": "[parameters('aksClusterDockerBridgeCidr')]",
                   "loadBalancerSku": "[parameters('aksClusterLoadBalancerSku')]"
                 },
-                "aadProfile": "[if(parameters('aadEnabled'), variables('aadProfileConfiguration'), json('null'))]",
+                "aadProfile": "[if(parameters('aadEnabled'), variables('aadProfileConfiguration'), null())]",
                 "apiServerAccessProfile": {
                   "enablePrivateCluster": "[parameters('aksClusterEnablePrivateCluster')]"
                 }

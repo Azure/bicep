@@ -30,6 +30,9 @@
             "asazure.windows.net",
             "region.asazure.windows.net",
             "batch.core.windows.net"
+          ],
+          "excludedhosts": [
+            "schema.management.azure.com"
           ]
         }
       }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Linq;
 using Azure.Deployments.Expression.Configuration;
-using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
@@ -61,9 +60,9 @@ namespace Bicep.Core.UnitTests.Emit
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var programText = $"var test = {text}";
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SyntaxTreeGroupingFactory.CreateFromText(programText));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver));
 
-            var programSyntax = compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax;
+            var programSyntax = compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
             var variableDeclarationSyntax = programSyntax.Children.OfType<VariableDeclarationSyntax>().First();
 
             var converter = new ExpressionConverter(new EmitterContext(compilation.GetEntrypointSemanticModel()));

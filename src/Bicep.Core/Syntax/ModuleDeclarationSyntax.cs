@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -47,28 +46,25 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(ResourceScope containingScope, SemanticModel moduleSemanticModel)
+        public TypeSymbol GetDeclaredType(IBinder binder)
         {
-            var paramTypeProperties = new List<TypeProperty>();
-            foreach (var param in moduleSemanticModel.Root.ParameterDeclarations.DistinctBy(p => p.Name))
+            if (binder.GetSymbolInfo(this) is not ModuleSymbol moduleSymbol)
             {
-                var typePropertyFlags = TypePropertyFlags.WriteOnly;
-                if (SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null)
-                {
-                    // if there's no default value, it must be specified
-                    typePropertyFlags |= TypePropertyFlags.Required;
-                }
-
-                paramTypeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags));
+                // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
+                return ErrorType.Empty();
             }
 
-            var outputTypeProperties = new List<TypeProperty>();
-            foreach (var output in moduleSemanticModel.Root.OutputDeclarations.DistinctBy(o => o.Name))
+            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
             {
-                outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
+                return ErrorType.Create(failureDiagnostic);
             }
 
-            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, moduleSemanticModel.TargetScope, containingScope, "module");
+            return LanguageConstants.CreateModuleType(
+                moduleSemanticModel.ParameterTypeProperties,
+                moduleSemanticModel.OutputTypeProperties,
+                moduleSemanticModel.TargetScope,
+                binder.TargetScope,
+                LanguageConstants.TypeNameModule);
         }
 
         public ObjectSyntax? TryGetBody() =>

@@ -2,17 +2,16 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -23,7 +22,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var typeProvider = TestTypeHelper.CreateProviderWithTypes(definedTypes);
 
-            var compilation = new Compilation(typeProvider, SyntaxTreeGroupingFactory.CreateFromText(programText));
+            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver));
             return compilation.GetEntrypointSemanticModel();
         }
 
@@ -346,6 +345,71 @@ output valueB string = myRes.properties.myDisc1.valueB
                     x => x.Should().HaveCodeAndSeverity("BCP083", expectedDiagnosticLevel).And.HaveMessage("The type \"choiceA\" does not contain property \"valueB\". Did you mean \"valueA\"?")
                 );
             }
+        }
+
+        [TestMethod]
+        public void Json_function_can_obtain_types_for_string_literal_json_args()
+        {
+            var program = @"
+var intJson = json('123')
+var floatJson = json('1234.1224')
+var stringJson = json('""hello!""')
+var nullJson = json('null')
+var jsonWithComments = json('''
+{
+    //here's a comment!
+    ""key"": ""value"" /* multi-line
+    comment */
+}
+''')
+
+var objectJson = json('{""validProp"": ""validValue""}')
+var propAccess = objectJson.validProp
+var commentsPropAccess = jsonWithComments.key
+var invalidPropAccess = objectJson.invalidProp
+";
+
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            
+            GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
+            GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
+
+            GetTypeForNamedSymbol(model, "intJson").Name.Should().Be("int");
+            GetTypeForNamedSymbol(model, "floatJson").Name.Should().Be("any");
+            GetTypeForNamedSymbol(model, "stringJson").Name.Should().Be("'hello!'");
+            GetTypeForNamedSymbol(model, "nullJson").Name.Should().Be("null");
+            GetTypeForNamedSymbol(model, "commentsPropAccess").Name.Should().Be("'value'");
+
+            GetTypeForNamedSymbol(model, "invalidPropAccess").Name.Should().Be("error");
+
+            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
+            model.GetAllDiagnostics(noLinterConfig).Should().SatisfyRespectively(
+                x => x.Should().HaveCodeAndSeverity("BCP083", DiagnosticLevel.Error).And.HaveMessage("The type \"object\" does not contain property \"invalidProp\". Did you mean \"validProp\"?")
+            );
+        }
+
+        [TestMethod]
+        public void Json_function_returns_error_for_unparseable_json()
+        {
+            var program = @"
+var invalidJson = json('{""prop"": ""value')
+";
+
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            
+            GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("error");
+
+            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
+            model.GetAllDiagnostics(noLinterConfig).Should().SatisfyRespectively(
+                x => x.Should().HaveCodeAndSeverity("BCP186", DiagnosticLevel.Error).And.HaveMessage("Unable to parse literal JSON value. Please ensure that it is well-formed.")
+            );
+        }
+
+        private static TypeSymbol GetTypeForNamedSymbol(SemanticModel model, string symbolName)
+        {
+            var symbol = model.Root.GetDeclarationsByName(symbolName).Single();
+                
+            return symbol.Type;
         }
     }
 }

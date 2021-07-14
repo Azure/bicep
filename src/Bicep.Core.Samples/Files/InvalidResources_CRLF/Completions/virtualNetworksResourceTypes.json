@@ -8,7 +8,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000024",
+    "sortText": "00000025",
     "filterText": "'Microsoft.Network/virtualnetworks@2015-05-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -26,7 +26,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000023",
+    "sortText": "00000024",
     "filterText": "'Microsoft.Network/virtualNetworks@2015-06-15'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -44,7 +44,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000022",
+    "sortText": "00000023",
     "filterText": "'Microsoft.Network/virtualNetworks@2016-03-30'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -62,7 +62,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000021",
+    "sortText": "00000022",
     "filterText": "'Microsoft.Network/virtualNetworks@2016-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -80,7 +80,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000020",
+    "sortText": "00000021",
     "filterText": "'Microsoft.Network/virtualNetworks@2016-09-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -98,7 +98,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "0000001f",
+    "sortText": "00000020",
     "filterText": "'Microsoft.Network/virtualNetworks@2016-12-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -116,13 +116,31 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "0000001e",
+    "sortText": "0000001f",
     "filterText": "'Microsoft.Network/virtualNetworks@2017-03-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'Microsoft.Network/virtualNetworks@2017-03-01'"
+    }
+  },
+  {
+    "label": "2017-03-30",
+    "kind": "class",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2017-03-30`"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "0000001e",
+    "filterText": "'Microsoft.Network/virtualNetworks@2017-03-30'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'Microsoft.Network/virtualNetworks@2017-03-30'"
     }
   },
   {

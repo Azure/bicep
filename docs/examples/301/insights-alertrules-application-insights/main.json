@@ -5,30 +5,44 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2273655890687549318"
+      "templateHash": "6932515354107245659"
     }
   },
   "parameters": {
-    "workspaceName": {
-      "type": "string"
-    },
-    "applicationInsightsName": {
-      "type": "string"
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]"
-    },
     "responseTimeThreshold": {
       "type": "int",
       "defaultValue": 3,
       "maxValue": 10000,
-      "minValue": 1
+      "minValue": 1,
+      "metadata": {
+        "description": "Enter response time threshold in seconds."
+      }
+    },
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "myWorkspace",
+      "metadata": {
+        "description": "Name of the workspace where the data will be stored."
+      }
+    },
+    "applicationInsightsName": {
+      "type": "string",
+      "defaultValue": "myApplicationInsights",
+      "metadata": {
+        "description": "Name of the application insights resource."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
   "functions": [],
   "variables": {
-    "responseAlertName": "[format('ResponseTime-{0}', parameters('applicationInsightsName'))]"
+    "responseAlertName": "[format('ResponseTime-{0}', toLower(parameters('applicationInsightsName')))]"
   },
   "resources": [
     {

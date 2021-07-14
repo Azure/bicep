@@ -19,4 +19,3 @@ resource automationCredential 'Microsoft.Automation/automationAccounts/credentia
   }
 }
 // Insert snippet here
-

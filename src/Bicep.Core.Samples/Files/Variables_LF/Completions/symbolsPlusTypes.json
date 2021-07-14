@@ -1192,17 +1192,34 @@
     }
   },
   {
-    "label": "listKeys",
+    "label": "loadFileAsBase64",
     "kind": "function",
-    "detail": "listKeys()",
+    "detail": "loadFileAsBase64()",
     "deprecated": false,
     "preselect": false,
-    "sortText": "3_listKeys",
+    "sortText": "3_loadFileAsBase64",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "listKeys($0)"
+      "newText": "loadFileAsBase64($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadTextContent",
+    "kind": "function",
+    "detail": "loadTextContent()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadTextContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadTextContent($0)"
     },
     "command": {
       "command": "editor.action.triggerParameterHints"

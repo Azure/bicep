@@ -861,7 +861,7 @@ var mock = incorrectPropertiesKey.p
 //@[4:8) Variable mock. Type: error. Declaration start char: 0, length: 35
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:32) Resource incorrectPropertiesKey2. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 774
+//@[9:32) Resource incorrectPropertiesKey2. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 796
   kind: 'AzureCLI'
   name: 'test'
   location: ''
@@ -885,7 +885,7 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
         // #completionTest(0,2,4,6,8) -> environmentVariableProperties
         
       }
-      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbols
+      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
       
     ]
   }
@@ -1866,3 +1866,81 @@ resource comp7 'Microsoft.Resources/templateSpecs@20'
 resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
 //@[9:14) Resource comp8. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 61
 
+
+// issue #3000
+resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[9:27) Resource issue3000LogicApp1. Type: Microsoft.Logic/workflows@2019-05-01. Declaration start char: 0, length: 453
+  name: 'issue3000LogicApp1'
+  location: resourceGroup().location
+  properties: {
+    state: 'Enabled'
+    definition: ''
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  extendedLocation: {}
+  sku: {}
+  kind: 'V1'
+  managedBy: 'string'
+  mangedByExtended: [
+   'str1'
+   'str2'
+  ]
+  zones: [
+   'str1'
+   'str2'
+  ]
+  plan: {}
+  eTag: ''
+  scale: {}  
+}
+
+resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[9:27) Resource issue3000LogicApp2. Type: Microsoft.Logic/workflows@2019-05-01. Declaration start char: 0, length: 452
+  name: 'issue3000LogicApp2'
+  location: resourceGroup().location
+  properties: {
+    state: 'Enabled'
+    definition: ''
+  }
+  identity: 'SystemAssigned'
+  extendedLocation: 'eastus'
+  sku: 'Basic'
+  kind: {
+    name: 'V1'
+  }
+  managedBy: {}
+  mangedByExtended: [
+   {}
+   {}
+  ]
+  zones: [
+   {}
+   {}
+  ]
+  plan: ''
+  eTag: {}
+  scale: [
+  {}
+  ]  
+}
+
+resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+//@[9:21) Resource issue3000stg. Type: Microsoft.Storage/storageAccounts@2021-04-01. Declaration start char: 0, length: 234
+  name: 'issue3000stg'
+  kind: 'StorageV2'
+  location: 'West US'
+  sku: {
+    name: 'Premium_LRS'    
+  }
+  madeUpProperty: {}
+  managedByExtended: []
+}
+
+var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
+//@[4:30) Variable issue3000stgMadeUpProperty. Type: error. Declaration start char: 0, length: 60
+var issue3000stgManagedBy = issue3000stg.managedBy
+//@[4:25) Variable issue3000stgManagedBy. Type: string. Declaration start char: 0, length: 50
+var issue3000stgManagedByExtended = issue3000stg.managedByExtended
+//@[4:33) Variable issue3000stgManagedByExtended. Type: (never)[]. Declaration start char: 0, length: 66

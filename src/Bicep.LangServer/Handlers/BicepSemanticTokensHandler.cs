@@ -37,7 +37,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (compilationContext != null)
             {
-                SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.SyntaxTreeGrouping.EntryPoint);
+                SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.SourceFileGrouping.EntryPoint);
             }
 
             return Task.CompletedTask;

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +14,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -40,12 +40,11 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task FindReferencesWithDeclarationsShouldProduceCorrectResults(DataSet dataSet)
         {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             // filter out bind failures and locals with invalid identifiers
             // (locals are special because their span is equal to their identifier span)
@@ -74,8 +73,8 @@ namespace Bicep.LangServer.IntegrationTests
                     .Select(node => PositionHelper.GetNameRange(lineStarts, node));
 
                 using (new AssertionScope()
-                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "expected", expectedRanges, _ => "here", x => x)
-                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "actual", locations, _ => "here", x => x.Range))
+                    .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "expected", expectedRanges, _ => "here", x => x)
+                    .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "actual", locations, _ => "here", x => x.Range))
                 {
                     // ranges should match what we got from our own symbol table
                     locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
@@ -87,12 +86,11 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task FindReferencesWithoutDeclarationsShouldProduceCorrectResults(DataSet dataSet)
         {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             // filter out bind failures and locals with invalid identifiers
             // (locals are special because their span is equal to their identifier span)
@@ -122,8 +120,8 @@ namespace Bicep.LangServer.IntegrationTests
                     .Select(node => PositionHelper.GetNameRange(lineStarts, node));
 
                 using (new AssertionScope()
-                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "expected", expectedRanges, _ => "here", x => x)
-                    .WithAnnotations(compilation.SyntaxTreeGrouping.EntryPoint, "actual", locations, _ => "here", x => x.Range))
+                    .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "expected", expectedRanges, _ => "here", x => x)
+                    .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "actual", locations, _ => "here", x => x.Range))
                 {
                     // ranges should match what we got from our own symbol table
                     locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
@@ -142,14 +140,13 @@ namespace Bicep.LangServer.IntegrationTests
                 node is not ITopLevelNamedDeclarationSyntax &&
                 node is not Token;
 
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
-            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var wrongNodes = SyntaxAggregator.Aggregate(
-                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
+                compilation.SourceFileGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {
@@ -194,9 +191,9 @@ var dep1 = az.depl|oyment()
 var dep2 = az.deploy|ment()
 ");
 
-            var syntaxTree = SyntaxTree.Create(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, syntaxTree.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
-            var references = await RequestReferences(client, syntaxTree, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var references = await RequestReferences(client, bicepFile, cursors);
             
             references.Should().SatisfyRespectively(
                 r => r.Should().HaveCount(3),
@@ -211,19 +208,19 @@ var dep2 = az.deploy|ment()
             return DataSets.NonStressDataSets.ToDynamicTestData();
         }
 
-        private static async Task<IEnumerable<LocationContainer?>> RequestReferences(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
+        private static async Task<IEnumerable<LocationContainer?>> RequestReferences(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
         {
             var references = new List<LocationContainer?>();
             foreach (var cursor in cursors)
             {
                 var referenceList = await client.RequestReferences(new ReferenceParams
                 {
-                    TextDocument = new TextDocumentIdentifier(syntaxTree.FileUri),
+                    TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
                     Context = new ReferenceContext
                     {
                         IncludeDeclaration = false
                     },
-                    Position = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, cursor),
+                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
                 });
 
                 references.Add(referenceList);
