@@ -68,7 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(CompletionDataHelper.GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
@@ -126,6 +126,8 @@ namespace Bicep.LangServer.IntegrationTests
                     actualLocation: combinedFileName + ".actual");
             }
         }
+
+        private static IEnumerable<object[]> GetSnippetCompletionData() => CompletionDataHelper.GetSnippetCompletionData();
 
         private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile, int cursor)
         {
@@ -1097,7 +1099,7 @@ var nullLit = |n|ull|
             DataSet
         }
 
-        private static async Task<IEnumerable<CompletionList?>> RequestCompletions(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
+        private static async Task<IEnumerable<CompletionList?>> RequestCompletions(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
         {
             var completions = new List<CompletionList?>();
             foreach (var cursor in cursors)
