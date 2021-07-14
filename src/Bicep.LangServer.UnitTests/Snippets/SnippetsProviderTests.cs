@@ -764,7 +764,7 @@ resource /*${2:dnsRecord}*/dnsRecord 'Microsoft.Network/dnsZones//*${3|A,AAAA,CN
       name: 'AzureWebJobsDashboard'
       value: /*'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'*/'value'
     }
-    id: /*$0*/0
+    id: /*$0*/
   }
 }";
 
