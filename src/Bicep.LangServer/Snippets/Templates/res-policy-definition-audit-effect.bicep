@@ -1,4 +1,5 @@
 // Policy Definition
+targetScope = 'subscription'
 resource /*${1:policyDefinition}*/policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
   name: /*${2:'name'}*/'name'
   properties: {
@@ -12,7 +13,7 @@ resource /*${1:policyDefinition}*/policyDefinition 'Microsoft.Authorization/poli
       source: /*${9:'source'}*/'source'
     }
     parameters: {
-      /*${10:parameterName}*/'parameterName': {
+      /*${10:parameterName}*/parameterName: {
         type: /*${11|'String','Array'|}*/'String'
         defaultValue: /*${12:'defaultValue'}*/'defaultValue'
         metadata: {

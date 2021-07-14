@@ -68,7 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [DynamicData(nameof(CompletionDataHelper.GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
@@ -155,24 +155,6 @@ namespace Bicep.LangServer.IntegrationTests
             completion.TextEdit.TextEdit.NewText.Should().NotBeNullOrWhiteSpace();
 
             return completion.TextEdit.TextEdit.NewText;
-        }
-
-        private static IEnumerable<object[]> GetSnippetCompletionData()
-        {
-            Assembly languageServerAssembly = Assembly.Load("Bicep.LangServer");
-            IEnumerable<string> manifestResourceNames = languageServerAssembly.GetManifestResourceNames()
-                .Where(p => p.EndsWith(".bicep", StringComparison.Ordinal));
-
-            foreach (var manifestResourceName in manifestResourceNames)
-            {
-                Stream? stream = languageServerAssembly.GetManifestResourceStream(manifestResourceName);
-                StreamReader streamReader = new StreamReader(stream!);
-
-                string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
-                CompletionData completionData = new CompletionData(prefix, streamReader.ReadToEnd());
-
-                yield return new object[] { completionData };
-            }
         }
 
         [DataTestMethod]
@@ -1115,22 +1097,7 @@ var nullLit = |n|ull|
             DataSet
         }
 
-        public class CompletionData
-        {
-            public CompletionData(string prefix, string snippetText)
-            {
-                Prefix = prefix;
-                SnippetText = snippetText;
-            }
-
-            public string Prefix { get; }
-
-            public string SnippetText { get; }
-
-            public static string GetDisplayName(MethodInfo methodInfo, object[] data) => ((CompletionData)data[0]).Prefix!;
-        }
-
-        private static async Task<IEnumerable<CompletionList?>> RequestCompletions(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
+        private static async Task<IEnumerable<CompletionList?>> RequestCompletions(ILanguageClient client, SyntaxTree syntaxTree, IEnumerable<int> cursors)
         {
             var completions = new List<CompletionList?>();
             foreach (var cursor in cursors)

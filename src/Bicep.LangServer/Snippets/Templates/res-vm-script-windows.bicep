@@ -19,7 +19,7 @@ resource /*${2:windowsVMExtensions}*/windowsVMExtensions 'Microsoft.Compute/virt
       ]
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Bypass -file /*${5:customScript.ps1}*/customScript.ps1'
+      commandToExecute: /*'powershell -ExecutionPolicy Bypass -file ${5:customScript.ps1}'*/'powershell -ExecutionPolicy Bypass -file customScript.ps1'
     }
   }
 }

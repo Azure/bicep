@@ -1,6 +1,6 @@
 ﻿// Cosmos DB SQL Container
 resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
-  name: /*${1:'name'}*/'name'
+  name: /*${1:'name'}*/'account-name/sqlDb/database-name'
   properties: {
     resource: {
       id: /*${2:'id'}*/'id'

@@ -1,4 +1,5 @@
 // PolicySet Definition
+targetScope = 'subscription'
 resource /*${1:policySetDefinition}*/policySetDefinition 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {
   name: /*${2:'name'}*/'name'
   properties: {

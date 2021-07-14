@@ -4,6 +4,6 @@ resource /*${1:appServicePlan}*/appServicePlan 'Microsoft.Web/serverfarms@2020-1
   location: resourceGroup().location
   sku: {
     name: /*${3:'name'}*/'name'
-    capacity: /*${4:capacity}*/capacity
+    capacity: /*${4:capacity}*/4
   }
 }

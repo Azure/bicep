@@ -38,7 +38,7 @@ resource /*${1:firewall}*/firewall 'Microsoft.Network/azureFirewalls@2020-11-01'
         properties: {
           priority: /*${13:'priority'}*/'priority'
           action: {
-            type: '/*${14|Dnat, Snat|}'*/'Dnat'
+            type: /*'${14|Dnat, Snat|}'*/'Dnat'
           }
           rules: [
             {
@@ -69,7 +69,7 @@ resource /*${1:firewall}*/firewall 'Microsoft.Network/azureFirewalls@2020-11-01'
         properties: {
           priority: /*${24:'priority'}*/'priority'
           action: {
-            type: '/*${25|Deny,Allow|}'*/'Deny'
+            type: /*'${25|Deny,Allow|}'*/'Deny'
           }
           rules: [
             {

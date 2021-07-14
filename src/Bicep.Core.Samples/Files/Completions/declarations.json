@@ -2599,7 +2599,7 @@
     "detail": "Web Application",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2018-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/'appServicePlan'': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'appServicePlan')\n  }\n}\n```"
+      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2018-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'appServicePlan')\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2608,7 +2608,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:webApplication} 'Microsoft.Web/sites@2018-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${3:'appServicePlan'}': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${4:'appServicePlan'})\n  }\n}"
+      "newText": "resource ${1:webApplication} 'Microsoft.Web/sites@2018-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${3:appServicePlan}': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${4:'appServicePlan'})\n  }\n}"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2628,7 +2628,7 @@
     "detail": "Web Deploy for a Web Application",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource 'webApplicationExtension 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: 'packageUri'\n    dbType: 'None'\n    connectionString: 'connectionString'\n    setParameters: {\n      'IIS Web Application Name': 'name'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource webApplicationExtension 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: 'packageUri'\n    dbType: 'None'\n    connectionString: 'connectionString'\n    setParameters: {\n      'IIS Web Application Name': 'name'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2637,7 +2637,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:'webApplicationExtension} 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: ${3:'packageUri'}\n    dbType: 'None'\n    connectionString: ${4:'connectionString'}\n    setParameters: {\n      'IIS Web Application Name': ${5:'name'}\n    }\n  }\n}\n"
+      "newText": "resource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:webApplicationExtension} 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: ${3:'packageUri'}\n    dbType: 'None'\n    connectionString: ${4:'connectionString'}\n    setParameters: {\n      'IIS Web Application Name': ${5:'name'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",

@@ -4,8 +4,8 @@ resource /*${1:applicationGateway}*/applicationGateway 'Microsoft.Network/applic
   location: resourceGroup().location
   properties: {
     sku: {
-      name: '/*${3|Standard_Small,Standard_Medium,Standard_Large,WAF_Medium,WAF_Large,Standard_v2,WAF_v2|}'*/'Standard_Small'
-      tier: '/*${4|Standard,WAF,Standard_v2,WAF_v2|}'*/'Standard'
+      name: /*'${3|Standard_Small,Standard_Medium,Standard_Large,WAF_Medium,WAF_Large,Standard_v2,WAF_v2|}'*/'Standard_Small'
+      tier: /*'${4|Standard,WAF,Standard_v2,WAF_v2|}'*/'Standard'
       capacity: /*${5:'capacity'}*/'capacity'
     }
     gatewayIPConfigurations: [

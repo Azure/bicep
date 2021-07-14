@@ -19,7 +19,7 @@ resource /*${2:linuxVMExtensions}*/linuxVMExtensions 'Microsoft.Compute/virtualM
       ]
     }
     protectedSettings: {
-      commandToExecute: 'sh /*${5:customScript.sh}*/customScript.sh'
+      commandToExecute: /*'sh ${5:customScript.sh}'*/'sh customScript.sh'
     }
   }
 }

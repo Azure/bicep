@@ -9,7 +9,7 @@ resource /*${1:azureFunction}*/azureFunction 'Microsoft.Web/sites@2020-12-01' = 
       appSettings: [
         {
           name: 'AzureWebJobsDashboard'
-          value: 'DefaultEndpointsProtocol=https;AccountName=/*${4:storageAccountName1}*/storageAccountName1;AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'*/'value'
+          value: /*'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'*/'value'
         }
         {
           name: 'AzureWebJobsStorage'
