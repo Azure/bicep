@@ -201,7 +201,7 @@ stages:
     - task: NodeTool@0 
       displayName: Setup Node.js
       inputs:
-        versionSpec: 10.x
+        versionSpec: 12.x
     
     - script: npm ci
       displayName: npm ci
