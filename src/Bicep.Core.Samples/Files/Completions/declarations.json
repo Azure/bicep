@@ -1497,7 +1497,7 @@
     "detail": "Logic App Connector",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    name: 'name'\n    apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'logicAppConnectorApi')\n  }\n}\n\n```"
+      "value": "```bicep\nresource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    name: 'name'\n    api: any({\n      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'logicAppConnectorApi')\n    })\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1506,7 +1506,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:logicAppConnector} 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    name: ${3:'name'}\n    apiDefinitionUrl: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, ${4:'logicAppConnectorApi'})\n  }\n}\n"
+      "newText": "resource ${1:logicAppConnector} 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    name: ${3:'name'}\n    api: any({\n      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, ${4:'logicAppConnectorApi'})\n    })\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2106,7 +2106,7 @@
     "detail": "SQL Database Import",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: 'name'\n  location: 'location'\n}\n\nresource sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'name'\n  properties: {\n    storageKeyType: 'StorageAccessKey'\n    storageKey: 'storageKey'\n    storageUri: 'storageUri'\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    operationMode: 'operationMode'\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: 'name'\n  location: 'location'\n}\n\nresource sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: 'StorageAccessKey'\n    storageKey: 'storageKey'\n    storageUri: 'storageUri'\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    operationMode: 'Import'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2115,7 +2115,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: ${1:'name'}\n  location: ${2:'location'}\n}\n\nresource ${3:sqlDatabaseImport} 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: ${4:'name'}\n  properties: {\n    storageKeyType: '${5|StorageAccessKey,SharedAccessKey|}'\n    storageKey: ${6:'storageKey'}\n    storageUri: ${7:'storageUri'}\n    administratorLogin: ${8:'administratorLogin'}\n    administratorLoginPassword: ${9:'administratorLoginPassword'}\n    operationMode: ${10:'operationMode'}\n  }\n}\n"
+      "newText": "resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: ${1:'name'}\n  location: ${2:'location'}\n}\n\nresource ${3:sqlDatabaseImport} 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: '${4|StorageAccessKey,SharedAccessKey|}'\n    storageKey: ${5:'storageKey'}\n    storageUri: ${6:'storageUri'}\n    administratorLogin: ${7:'administratorLogin'}\n    administratorLoginPassword: ${8:'administratorLoginPassword'}\n    operationMode: 'Import'\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2164,7 +2164,7 @@
     "detail": "Storage Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  kind: 'StorageV2'\n  sku: {\n    name: 'Premium_LRS'\n    tier: 'Premium'\n  }\n}\n\n```"
+      "value": "```bicep\nresource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  kind: 'StorageV2'\n  sku: {\n    name: 'Premium_LRS'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2173,7 +2173,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:storageaccount} 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: ${3|'StorageV2','Storage','BlobStorage','BlockBlobStorage','FileStorage'|}\n  sku: {\n    name: ${4:'Premium_LRS'}\n    tier: ${5|'Premium','Standard'|}\n  }\n}\n"
+      "newText": "resource ${1:storageaccount} 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: ${3|'StorageV2','Storage','BlobStorage','BlockBlobStorage','FileStorage'|}\n  sku: {\n    name: ${4:'Premium_LRS'}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2251,7 +2251,7 @@
     "detail": "Virtual WAN",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualWan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    type: 'Standard'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: 'Optimize'\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualWan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: any({\n    type: 'Standard'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: 'Optimize'\n  })\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2260,7 +2260,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    type: ${3|'Standard','Basic'|}\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: ${4|'Optimize','OptimizeAndAllow','All','None'|}\n  }\n}\n"
+      "newText": "resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: any({\n    type: ${3|'Standard','Basic'|}\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: ${4|'Optimize','OptimizeAndAllow','All','None'|}\n  })\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",

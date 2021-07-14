@@ -48,7 +48,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' =
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
-    tier: 'Standard'
   }
 }
 

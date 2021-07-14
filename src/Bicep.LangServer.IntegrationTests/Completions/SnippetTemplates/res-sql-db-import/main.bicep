@@ -1,12 +1,10 @@
 ﻿// $1 = 'sqlDatabase/import'
 // $2 = 'location'
 // $3 = sqlDatabaseImport
-// $4 = 'name'
-// $5 = StorageAccessKey
-// $6 = 'storageKey'
-// $7 = 'storageUri'
-// $8 = 'administratorLogin'
-// $9 = 'administratorLoginPassword'
-// $10 = 'operationMode'
+// $4 = StorageAccessKey
+// $5 = 'storageKey'
+// $6 = 'storageUri'
+// $7 = 'administratorLogin'
+// $8 = 'administratorLoginPassword'
 
 // Insert snippet here

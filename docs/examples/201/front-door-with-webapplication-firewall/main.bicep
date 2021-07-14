@@ -111,7 +111,6 @@ resource resAzFd 'Microsoft.Network/frontdoors@2020-01-01' = {
             '/*'
           ]
           enabledState: 'Enabled'
-          resourceState: 'Enabled'
           routeConfiguration: {
             '@odata.type': '#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration'
             forwardingProtocol: 'HttpsOnly'
@@ -137,7 +136,6 @@ resource resAzFd 'Microsoft.Network/frontdoors@2020-01-01' = {
             '/redirect'
           ]
           enabledState: 'Enabled'
-          resourceState: 'Enabled'
           routeConfiguration: {
             '@odata.type': '#Microsoft.Azure.FrontDoor.Models.FrontdoorRedirectConfiguration'
             customHost: redirectExampleTarget

@@ -89,7 +89,7 @@
     "detail": "evictionPolicy",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Deallocate' | 'Delete'`  \nSpecifies the eviction policy for the Azure Spot virtual machine and Azure Spot scale set. <br><br>For Azure Spot virtual machines, both 'Deallocate' and 'Delete' are supported and the minimum api-version is 2019-03-01. <br><br>For Azure Spot scale sets, both 'Deallocate' and 'Delete' are supported and the minimum api-version is 2017-10-30-preview.  \n"
+      "value": "Type: `'Deallocate' | 'Delete'`  \nSpecifies the eviction policy for the Azure Spot VM/VMSS  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -278,7 +278,7 @@
     "detail": "priority",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Low' | 'Regular' | 'Spot'`  \nSpecifies the priority for the virtual machine. <br><br>Minimum api-version: 2019-03-01.  \n"
+      "value": "Type: `'Low' | 'Regular' | 'Spot'`  \nSpecifies the priority for a standalone virtual machine or the virtual machines in the scale set. <br><br> 'Low' enum will be deprecated in the future, please use 'Spot' as the enum to deploy Azure Spot VM/VMSS.  \n"
     },
     "deprecated": false,
     "preselect": false,

@@ -107,12 +107,16 @@ namespace Bicep.LangServer.IntegrationTests
                 var compilation = new Compilation(TypeProvider, sourceFileGrouping);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
+                var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
+                File.WriteAllText(combinedFileName + ".actual", sourceTextWithDiags);
+
                 if (diagnostics.Any())
                 {
-                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
-                    Execute.Assertion.FailWith($"Expected \"main.combined.bicep\" file to not contain errors or warnings, but found {diagnostics.Count()}. " +
-                        $"Please fix errors/warnings mentioned in below section in \"main.combined.bicep\" file:\n " +
-                        $"{sourceTextWithDiags}");
+                    Execute.Assertion.FailWith(
+                        "Expected {0} file to not contain errors or warnings, but found {1}. Please fix errors/warnings mentioned in below section in {0} file:\n {2}",
+                        "main.combined.bicep",
+                        diagnostics.Count(),
+                        sourceTextWithDiags);
                 }
 
                 bicepContentsReplaced.Should().EqualWithLineByLineDiffOutput(

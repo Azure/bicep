@@ -131,7 +131,7 @@
     "detail": "outputs",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Dictionary<string,Object>`  \nRead-only property  \nList of script outputs.  \n"
+      "value": "Type: `DeploymentScriptPropertiesBaseOutputs`  \nRead-only property  \nList of script outputs.  \n"
     },
     "deprecated": false,
     "preselect": false,
