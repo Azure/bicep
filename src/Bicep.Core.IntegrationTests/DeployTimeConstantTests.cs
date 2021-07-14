@@ -54,7 +54,6 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
   kind: 'StorageV2'
   sku: {
     name: 'Premium_LRS'
-    tier: 'Premium'
   }
 }]
 ");

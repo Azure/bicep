@@ -1668,7 +1668,7 @@ resource sqlDb 'Microsoft.Sql/servers/databases@2020-02-02-preview' existing = {
 }
 
 resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
-  name: 'myTde'
+  name: 'current'
   parent: sqlDb
   properties: {
     status: sqlDatabase.dataEncryption
@@ -1677,11 +1677,12 @@ resource transparentDataEncryption 'Microsoft.Sql/servers/databases/transparentD
 
 output tdeId string = transparentDataEncryption.id
 ");
+            result.Should().NotHaveAnyDiagnostics();
 
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
 
-            evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/myTde");
-            evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/myTde");
+            evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/current");
+            evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/current");
         }
 
         [TestMethod]
@@ -2303,7 +2304,6 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   kind: 'StorageV2'
   sku: {
     name: 'Premium_LRS'
-    tier: 'Premium'
   }
 }
 

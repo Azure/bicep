@@ -68,7 +68,7 @@
     "detail": "connectorOffer",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Small'`  \nThe cassandra connector offer type for the Cosmos DB database C* account.  \n"
+      "value": "Type: `'Small'`  \nThe cassandra connector offer type for the Cosmos DB C* database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -131,7 +131,7 @@
     "detail": "createMode (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Default'`  \nProperties for non-restore Azure Cosmos DB database account requests.  \n"
+      "value": "Type: `'Default'`  \nEnum to indicate the mode of account creation.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -152,7 +152,7 @@
     "detail": "databaseAccountOfferType (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nThe offer type for the database  \n"
+      "value": "Type: `'Standard'`  \nThe offer type for the Cosmos DB database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -425,7 +425,7 @@
     "detail": "locations (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nAn array that contains the georeplication locations enabled for the Cosmos DB account.  \n"
+      "value": "Type: `Location[]`  \nAn array that contains all of the locations enabled for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -488,7 +488,7 @@
     "detail": "publicNetworkAccess",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Disabled' | 'Enabled'`  \nWhether requests from Public Network are allowed.  \n"
+      "value": "Type: `'Disabled' | 'Enabled'`  \nRead-only property  \nWhether requests from Public Network are allowed  \n"
     },
     "deprecated": false,
     "preselect": false,

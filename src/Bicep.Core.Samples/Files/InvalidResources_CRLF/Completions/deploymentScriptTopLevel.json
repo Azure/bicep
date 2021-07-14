@@ -149,7 +149,7 @@
     "detail": "tags",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Dictionary<string,String>`  \nResource tags.  \n"
+      "value": "Type: `DeploymentScriptTags`  \nResource tags.  \n"
     },
     "deprecated": false,
     "preselect": false,

@@ -103,7 +103,7 @@
       "condition": "[not(empty(parameters('sqlLogicalServer').azureActiveDirectoryAdministrator.objectId))]",
       "type": "Microsoft.Sql/servers/administrators",
       "apiVersion": "2021-02-01-preview",
-      "name": "[format('{0}/{1}', parameters('sqlLogicalServer').name, 'activeDirectory')]",
+      "name": "[format('{0}/{1}', parameters('sqlLogicalServer').name, 'ActiveDirectory')]",
       "properties": {
         "administratorType": "ActiveDirectory",
         "login": "[parameters('sqlLogicalServer').azureActiveDirectoryAdministrator.name]",
@@ -132,7 +132,7 @@
       "condition": "[and(and(parameters('sqlLogicalServer').azureDefender.enabled, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
       "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
       "apiVersion": "2021-02-01-preview",
-      "name": "[format('{0}/{1}', parameters('sqlLogicalServer').name, 'Default')]",
+      "name": "[format('{0}/{1}', parameters('sqlLogicalServer').name, 'default')]",
       "properties": {
         "recurringScans": {
           "isEnabled": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.recurringScans]",
@@ -150,7 +150,7 @@
     {
       "type": "Microsoft.Sql/servers/auditingSettings",
       "apiVersion": "2021-02-01-preview",
-      "name": "[format('{0}/{1}', parameters('sqlLogicalServer').name, 'Default')]",
+      "name": "[format('{0}/{1}', parameters('sqlLogicalServer').name, 'default')]",
       "properties": {
         "state": "[if(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs, 'Enabled', 'Disabled')]",
         "auditActionsAndGroups": "[if(not(empty(parameters('sqlLogicalServer').auditActionsAndGroups)), parameters('sqlLogicalServer').auditActionsAndGroups, variables('defaultAuditActionsAndGroups'))]",
@@ -190,7 +190,7 @@
     },
     {
       "condition": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs]",
-      "type": "microsoft.insights/diagnosticSettings",
+      "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', parameters('sqlLogicalServer').name, 'master')]",
       "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
@@ -208,7 +208,7 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/auditingSettings', parameters('sqlLogicalServer').name, 'Default')]",
+        "[resourceId('Microsoft.Sql/servers/auditingSettings', parameters('sqlLogicalServer').name, 'default')]",
         "dummyDeployments",
         "sqlDatabases",
         "[resourceId('Microsoft.Sql/servers', parameters('sqlLogicalServer').name)]"
@@ -216,7 +216,7 @@
     },
     {
       "condition": "[not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name))]",
-      "type": "microsoft.insights/diagnosticSettings",
+      "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', parameters('sqlLogicalServer').name, 'master')]",
       "name": "sendLogsAndMetrics",
@@ -399,7 +399,7 @@
               "condition": "[parameters('sqlDatabase').longTermBackup.enabled]",
               "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
               "apiVersion": "2021-02-01-preview",
-              "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'Default')]",
+              "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'default')]",
               "properties": {
                 "weeklyRetention": "[parameters('sqlDatabase').longTermBackup.weeklyRetention]",
                 "monthlyRetention": "[parameters('sqlDatabase').longTermBackup.monthlyRetention]",
@@ -416,7 +416,7 @@
               "condition": "[and(and(parameters('sqlDatabase').azureDefender.enabled, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
               "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
               "apiVersion": "2021-02-01-preview",
-              "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'Default')]",
+              "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1], 'default')]",
               "properties": {
                 "recurringScans": {
                   "isEnabled": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans]",
@@ -434,7 +434,7 @@
             },
             {
               "condition": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs]",
-              "type": "microsoft.insights/diagnosticSettings",
+              "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
               "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
@@ -455,7 +455,7 @@
             },
             {
               "condition": "[not(empty(parameters('sqlDatabase').diagnosticLogsAndMetrics.name))]",
-              "type": "microsoft.insights/diagnosticSettings",
+              "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
               "name": "sendLogsAndMetrics",

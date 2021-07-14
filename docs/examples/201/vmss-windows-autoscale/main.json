@@ -208,7 +208,7 @@
       ]
     },
     {
-      "type": "microsoft.insights/autoscalesettings",
+      "type": "Microsoft.Insights/autoscalesettings",
       "apiVersion": "2015-04-01",
       "name": "cpuautoscale",
       "location": "[parameters('location')]",

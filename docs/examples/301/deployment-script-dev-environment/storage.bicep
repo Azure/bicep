@@ -13,12 +13,6 @@ param name string
 param sku string = 'Standard_LRS'
 
 @allowed([
-  'Standard'
-  'Premium'
-])
-param tier string = 'Standard'
-
-@allowed([
   'Storage'
   'StorageV2'
   'BlobStorage'
@@ -40,7 +34,6 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   location: location
   sku: {
     name: sku
-    tier: tier
   }
   kind: kind
   properties: {
