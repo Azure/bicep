@@ -38,13 +38,6 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var outputDirectory = GetUniqueTestOutputPath(testContext);
 
-            testContext.WriteLine($"Manifest prefix: {manifestFilePrefix}");
-            testContext.WriteLine("Manifest names:");
-            foreach(var manifestName in containingAssembly.GetManifestResourceNames())
-            {
-                testContext.WriteLine($"  {manifestName}");
-            }
-
             var filesSaved = false;
             foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix,  StringComparison.Ordinal)))
             {
