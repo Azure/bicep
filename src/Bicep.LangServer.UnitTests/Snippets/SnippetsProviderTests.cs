@@ -755,7 +755,16 @@ resource /*${2:dnsRecord}*/dnsRecord 'Microsoft.Network/dnsZones//*${3|A,AAAA,CN
   name: /*${4:'name'}*/'name'
   properties: {
     TTL: 3600
-    '/*${5|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}*/ARecords': []
+    mode: /*'${5|Detection,Prevention|}'*/'Detection'
+    /*'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${6:'appServicePlan'}'*/'resource': 'Resource'
+    '/*${7|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}*/ARecords': []
+    precision: /*${8:-1}*/-1
+    appSettings: [
+    {
+      name: 'AzureWebJobsDashboard'
+      value: /*'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'*/'value'
+    }
+    id: /*$0*/
   }
 }";
 
@@ -772,7 +781,16 @@ resource ${2:dnsRecord} 'Microsoft.Network/dnsZones/${3|A,AAAA,CNAME,MX,NS,PTR,S
   name: ${4:'name'}
   properties: {
     TTL: 3600
-    '${5|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}': []
+    mode: '${5|Detection,Prevention|}'
+    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${6:'appServicePlan'}': 'Resource'
+    '${7|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}': []
+    precision: ${8:-1}
+    appSettings: [
+    {
+      name: 'AzureWebJobsDashboard'
+      value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'
+    }
+    id: $0
   }
 }");
         }

@@ -1,18 +1,18 @@
 ﻿// SQL Database Import
 resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
-  name: ${1:'name'}
-  location: ${2:'location'}
+  name: /*${1:'name'}*/'sqlDatabase/Import'
+  location: /*${2:'location'}*/'location'
 }
 
-resource ${3:sqlDatabaseImport} 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {
+resource /*${3:sqlDatabaseImport}*/sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {
   parent: sqlServerDatabase
   name: 'import'
   properties: {
-    storageKeyType: '${4|StorageAccessKey,SharedAccessKey|}'
-    storageKey: ${5:'storageKey'}
-    storageUri: ${6:'storageUri'}
-    administratorLogin: ${7:'administratorLogin'}
-    administratorLoginPassword: ${8:'administratorLoginPassword'}
+    storageKeyType: /*'${4|StorageAccessKey,SharedAccessKey|}'*/'StorageAccessKey'
+    storageKey: /*${5:'storageKey'}*/'storageKey'
+    storageUri: /*${6:'storageUri'}*/'storageUri'
+    administratorLogin: /*${7:'administratorLogin'}*/'administratorLogin'
+    administratorLoginPassword: /*${8:'administratorLoginPassword'}*/'administratorLoginPassword'
     operationMode: 'Import'
   }
 }

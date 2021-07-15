@@ -1,6 +1,6 @@
 ﻿// Virtual Network
-resource ${1:virtualNetwork} 'Microsoft.Network/virtualNetworks@2019-11-01' = {
-  name: ${2:'name'}
+resource /*${1:virtualNetwork}*/virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
+  name: /*${2:'name'}*/'name'
   location: resourceGroup().location
   properties: {
     addressSpace: {
