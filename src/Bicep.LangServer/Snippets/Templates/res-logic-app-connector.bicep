@@ -3,9 +3,9 @@ resource /*${1:logicAppConnector}*/logicAppConnector 'Microsoft.Web/connections@
   name: /*${2:'name'}*/'name'
   location: resourceGroup().location
   properties: {
-    name: ${3:'name'}
+    name: /*${3:'name'}*/'name'
     api: any({
-      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, ${4:'logicAppConnectorApi'})
+      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, /*${4:'logicAppConnectorApi'}*/'logicAppConnectorApi')
     })
   }
 }

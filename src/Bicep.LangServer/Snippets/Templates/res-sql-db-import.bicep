@@ -8,11 +8,11 @@ resource /*${3:sqlDatabaseImport}*/sqlDatabaseImport 'Microsoft.Sql/servers/data
   parent: sqlServerDatabase
   name: 'import'
   properties: {
-    storageKeyType: '${4|StorageAccessKey,SharedAccessKey|}'
-    storageKey: ${5:'storageKey'}
-    storageUri: ${6:'storageUri'}
-    administratorLogin: ${7:'administratorLogin'}
-    administratorLoginPassword: ${8:'administratorLoginPassword'}
+    storageKeyType: /*'${4|StorageAccessKey,SharedAccessKey|}'*/'StorageAccessKey'
+    storageKey: /*${5:'storageKey'}*/'storageKey'
+    storageUri: /*${6:'storageUri'}*/'storageUri'
+    administratorLogin: /*${7:'administratorLogin'}*/'administratorLogin'
+    administratorLoginPassword: /*${8:'administratorLoginPassword'}*/'administratorLoginPassword'
     operationMode: 'Import'
   }
 }

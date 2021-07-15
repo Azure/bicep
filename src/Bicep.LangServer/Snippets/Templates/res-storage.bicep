@@ -4,6 +4,6 @@ resource /*${1:storageaccount}*/storageaccount 'Microsoft.Storage/storageAccount
   location: resourceGroup().location
   kind: /*${3|'StorageV2','Storage','BlobStorage','BlockBlobStorage','FileStorage'|}*/'StorageV2'
   sku: {
-    name: ${4:'Premium_LRS'}
+    name: /*${4:'Premium_LRS'}*/'Premium_LRS'
   }
 }
