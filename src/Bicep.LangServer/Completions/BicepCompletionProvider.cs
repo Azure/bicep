@@ -333,7 +333,6 @@ namespace Bicep.LanguageServer.Completions
                     sourceFile.FileUri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison));
             }
 
-
             bool IsArmTemplateFileLike(Uri fileUri)
             {
                 if (PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension))
