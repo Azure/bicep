@@ -183,24 +183,22 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [DataTestMethod]
-        [DataRow("", 2, new string[0])]
-        [DataRow("aaaa\nbbbb", 0, new string[0])]
-        [DataRow("aaaa", 2, new[] { "aaaa" })]
-        [DataRow("aaaa\nbbbb", 2, new[] { "aaaa", "bbbb" })]
-        [DataRow("aaaa\nbbbb\ncccc", 2, new[] { "aaaa", "bbbb" })]
-        [DataRow("aaaa\nbbbb\ncccc\r\ndddd", 2, new[] { "aaaa", "bbbb" })]
-        [DataRow("aaaa\nbbbb\ncccc\r\ndddd", 8, new[] { "aaaa", "bbbb", "cccc", "dddd" })]
-        public void EnumerateLines_ReturnsLines(string contents, int numberOfLines, string[] expectedLines)
+        [DataRow("", 2, true, "")]
+        [DataRow("a", 2, true, "a")]
+        [DataRow("aa", 2, true, "aa")]
+        [DataRow("aaaa\nbbbbb", 2, true, "aa")]
+        public void TryReadAtMostNCharacters_RegardlessFileContentLength_ReturnsAtMostNCharaters(string fileContents, int n, bool expectedResult, string expectedContents)
         {
             var fileResolver = new FileResolver();
             var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
             var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
 
-            File.WriteAllText(tempFile, contents);
+            File.WriteAllText(tempFile, fileContents);
 
-            var lines = fileResolver.EnumerateLines(tempFileUri, Encoding.UTF8, numberOfLines);
+            var result = fileResolver.TryReadAtMostNCharaters(tempFileUri, Encoding.UTF8, n, out var readContents);
 
-            lines.Should().Equal(expectedLines);
+            result.Should().Be(expectedResult);
+            readContents.Should().Be(expectedContents);
         }
     }
 }

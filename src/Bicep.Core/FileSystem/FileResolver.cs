@@ -150,21 +150,36 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public IEnumerable<string> EnumerateLines(Uri fileUri, Encoding fileEncoding, int numberOfLines)
+        public bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
         {
-            if (!fileUri.IsFile)
+            if (!fileUri.IsFile || n <= 0)
             {
-                yield break;
+                fileContents = null;
+                return false;
             }
 
-            using var fileStream = File.OpenRead(fileUri.LocalPath);
-            using var sr = new StreamReader(fileStream, fileEncoding, true);
-
-            while (numberOfLines > 0 && sr.ReadLine() is { } line)
+            try
             {
-                numberOfLines--;
+                if (Directory.Exists(fileUri.LocalPath))
+                {
+                    // Docs suggest this is the error to throw when we give a directory. 
+                    // A trailing backslash causes windows not to throw this exception.
+                    throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
+                }
 
-                yield return line;
+                using var fileStream = File.OpenRead(fileUri.LocalPath);
+                using var sr = new StreamReader(fileStream, fileEncoding, true);
+                
+                var buffer = new char[n];
+                n = sr.ReadBlock(buffer, 0, n);
+
+                fileContents = new string(buffer.Take(n).ToArray());
+                return true;
+            }
+            catch (Exception)
+            {
+                fileContents = null;
+                return false;
             }
         }
 

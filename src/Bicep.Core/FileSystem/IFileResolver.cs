@@ -21,14 +21,15 @@ namespace Bicep.Core.FileSystem
         bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, Encoding fileEncoding, int maxCharacters, [NotNullWhen(true)] out Encoding? detectedEncoding);
+
+        bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents);
+
         /// <summary>
         /// Tries to resolve a child file path relative to a parent module file path.
         /// </summary>
         /// <param name="parentFileUri">The file URI of the parent.</param>
         /// <param name="childFilePath">The file path of the child.</param>
         Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath);
-
-        IEnumerable<string> EnumerateLines(Uri fileUri, Encoding fileEncoding, int numberOfLines);
 
         /// <summary>
         /// Tries to get Directories given a uri and pattern. Both argument and returned URIs MUST have a trailing '/'

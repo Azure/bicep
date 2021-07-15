@@ -57,21 +57,16 @@ namespace Bicep.Core.FileSystem
             return true;
         }
 
-        public IEnumerable<string> EnumerateLines(Uri fileUri, Encoding fileEncoding, int numberOfLines)
+        public bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
         {
-            if (!fileLookup.TryGetValue(fileUri, out var fileContents))
+            if (!fileLookup.TryGetValue(fileUri, out fileContents))
             {
-                yield break;
+                fileContents = null;
+                return false;
             }
 
-            using var reader = new StringReader(fileContents);
-
-            while (numberOfLines > 0 && reader.ReadLine() is { } line)
-            {
-                numberOfLines--;
-
-                yield return line;
-            }
+            fileContents = new string(fileContents.Take(n).ToArray());
+            return true;
         }
 
         public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)

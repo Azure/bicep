@@ -337,24 +337,16 @@ namespace Bicep.LanguageServer.Completions
                     return true;
                 }
 
-                if (PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
-                    PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension))
+                if (!PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) &&
+                    !PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension))
                 {
-                    try
-                    {
-                        foreach (var line in this.FileResolver.EnumerateLines(fileUri, Encoding.UTF8, 200))
-                        {
-                            if (LanguageConstants.ArmTemplateSchemaRegex.IsMatch(line))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // Ignore I/O exceptions.
-                        return false;
-                    }
+                    return false;
+                }
+
+                if (FileResolver.TryReadAtMostNCharaters(fileUri, Encoding.UTF8, 2000, out var fileContents) &&
+                    LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents))
+                {
+                    return true;
                 }
 
                 return false;

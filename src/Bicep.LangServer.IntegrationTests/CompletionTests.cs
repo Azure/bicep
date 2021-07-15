@@ -817,15 +817,16 @@ module mod2 './template3.jsonc' = {}
 module mod2 './|' = {}
 ");
             var mainFile = SourceFileFactory.CreateBicepFile(mainUri.ToUri(), mainFileText);
+            var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
 
             var fileTextsByUri = new Dictionary<Uri, string>
             {
                 [mainUri.ToUri()] = mainFileText,
                 [armTemplateUri1.ToUri()] = "",
-                [armTemplateUri2.ToUri()] = @"{ ""schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"" }",
+                [armTemplateUri2.ToUri()] = @$"{{ ""schema"": ""{schema}"" }}",
                 [armTemplateUri3.ToUri()] = @"{}",
-                [armTemplateUri4.ToUri()] = string.Join('\n', Enumerable.Repeat("hello", 199)) + "\nhttps://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                [armTemplateUri5.ToUri()] = string.Join('\n', Enumerable.Repeat("hello", 200)) + "\nhttps://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                [armTemplateUri4.ToUri()] = new string('x', 2000 - schema.Length) + schema,
+                [armTemplateUri5.ToUri()] = new string('x', 2002 - schema.Length) + schema,
                 [jsonUri1.ToUri()] = "{}",
                 [jsonUri2.ToUri()] = @"[{ ""name"": ""value"" }]",
                 [bicepModuleUri1.ToUri()] = "param foo string",
