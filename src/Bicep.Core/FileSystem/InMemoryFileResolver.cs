@@ -57,6 +57,18 @@ namespace Bicep.Core.FileSystem
             return true;
         }
 
+        public bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
+        {
+            if (!fileLookup.TryGetValue(fileUri, out fileContents))
+            {
+                fileContents = null;
+                return false;
+            }
+
+            fileContents = new string(fileContents.Take(n).ToArray());
+            return true;
+        }
+
         public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
         {
             if (!Uri.TryCreate(parentFileUri, childFilePath, out var relativeUri))

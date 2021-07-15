@@ -43,8 +43,6 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-
-
         public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, Encoding fileEncoding, int maxCharacters, [NotNullWhen(true)] out Encoding? detectedEncoding)
         {
             if (!fileUri.IsFile)
@@ -148,6 +146,39 @@ namespace Bicep.Core.FileSystem
                 // instead of handling each one separately let's just trust the message we get
                 failureBuilder = x => x.ErrorOccurredReadingFile(exception.Message);
                 fileBase64 = null;
+                return false;
+            }
+        }
+
+        public bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
+        {
+            if (!fileUri.IsFile || n <= 0)
+            {
+                fileContents = null;
+                return false;
+            }
+
+            try
+            {
+                if (Directory.Exists(fileUri.LocalPath))
+                {
+                    // Docs suggest this is the error to throw when we give a directory. 
+                    // A trailing backslash causes windows not to throw this exception.
+                    throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
+                }
+
+                using var fileStream = File.OpenRead(fileUri.LocalPath);
+                using var sr = new StreamReader(fileStream, fileEncoding, true);
+                
+                var buffer = new char[n];
+                n = sr.ReadBlock(buffer, 0, n);
+
+                fileContents = new string(buffer.Take(n).ToArray());
+                return true;
+            }
+            catch (Exception)
+            {
+                fileContents = null;
                 return false;
             }
         }

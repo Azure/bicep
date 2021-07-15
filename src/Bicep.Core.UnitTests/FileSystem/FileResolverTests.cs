@@ -181,5 +181,24 @@ namespace Bicep.Core.UnitTests.FileSystem
             Directory.CreateDirectory(tempChildDir);
             fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempChildDir)).Should().BeTrue();
         }
+
+        [DataTestMethod]
+        [DataRow("", 2, true, "")]
+        [DataRow("a", 2, true, "a")]
+        [DataRow("aa", 2, true, "aa")]
+        [DataRow("aaaa\nbbbbb", 2, true, "aa")]
+        public void TryReadAtMostNCharacters_RegardlessFileContentLength_ReturnsAtMostNCharaters(string fileContents, int n, bool expectedResult, string expectedContents)
+        {
+            var fileResolver = new FileResolver();
+            var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
+            var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
+
+            File.WriteAllText(tempFile, fileContents);
+
+            var result = fileResolver.TryReadAtMostNCharaters(tempFileUri, Encoding.UTF8, n, out var readContents);
+
+            result.Should().Be(expectedResult);
+            readContents.Should().Be(expectedContents);
+        }
     }
 }
