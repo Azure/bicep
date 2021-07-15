@@ -45,6 +45,16 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        public static string GetDisplayName(MethodInfo info, object[] row)
+        {
+            row.Should().HaveCount(3);
+            row[0].Should().BeOfType<DataSet>();
+            row[1].Should().BeOfType<string>();
+            row[2].Should().BeAssignableTo<IList<Position>>();
+
+            return $"{info.Name}_{((DataSet)row[0]).Name}_{row[1]}";
+        }
+
         [TestMethod]
         public async Task EmptyFileShouldProduceDeclarationCompletions()
         {
@@ -1011,16 +1021,6 @@ module mod2 './|' = {}
             };
 
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, expectedLocation, actualLocation, "because ");
-        }
-
-        private static string GetDisplayName(MethodInfo info, object[] row)
-        {
-            row.Should().HaveCount(3);
-            row[0].Should().BeOfType<DataSet>();
-            row[1].Should().BeOfType<string>();
-            row[2].Should().BeAssignableTo<IList<Position>>();
-
-            return $"{info.Name}_{((DataSet)row[0]).Name}_{row[1]}";
         }
 
         private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
