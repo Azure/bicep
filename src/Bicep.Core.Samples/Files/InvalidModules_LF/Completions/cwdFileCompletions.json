@@ -4,7 +4,7 @@
     "kind": "folder",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_ChildModules/",
+    "sortText": "3_ChildModules/",
     "filterText": "'ChildModules/'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
@@ -21,7 +21,7 @@
     "kind": "folder",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_Completions/",
+    "sortText": "3_Completions/",
     "filterText": "'Completions/'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
@@ -171,6 +171,34 @@
     "textEdit": {
       "range": {},
       "newText": "'moduleb.bicep'"
+    }
+  },
+  {
+    "label": "modulec.json",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_modulec.json",
+    "filterText": "'modulec.json'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'modulec.json'"
+    }
+  },
+  {
+    "label": "moduled.json",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_moduled.json",
+    "filterText": "'moduled.json'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'moduled.json'"
     }
   },
   {
