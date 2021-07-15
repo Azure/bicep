@@ -291,31 +291,72 @@ namespace Bicep.LanguageServer.Completions
                 files = FileResolver.GetFiles(queryParent, "");
                 dirs = FileResolver.GetDirectories(queryParent, "");
             }
-            // "./" will not be preserved when making relative Uris. We have to go and manually add it.
-            // Prioritize .bicep files higher than other files.
-            var fileItems = files
-                .Where(file => file != model.SourceFile.FileUri)
-                .Where(file => file.Segments.Last().EndsWith(LanguageConstants.LanguageFileExtension))
-                .Select(file => CreateModulePathCompletionBuilder(
-                    file.Segments.Last(),
-                    (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(file).ToString(),
-                    context.ReplacementRange,
-                    CompletionItemKind.File,
-                    file.Segments.Last().EndsWith(LanguageConstants.LanguageId) ? CompletionPriority.High : CompletionPriority.Medium)
-                .Build())
-                .ToList();
 
+            // Prioritize .bicep files higher than other files.
+            var bicepFileItems = CreateFileCompletionItems(files, cwdUri, IsBicepFile, CompletionPriority.High);
+            var armTemplateFileItems = CreateFileCompletionItems(files, cwdUri, IsArmTemplateFileLike, CompletionPriority.Medium);
             var dirItems = dirs
-                .Select(dir => CreateModulePathCompletionBuilder(
-                    dir.Segments.Last(),
-                    (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir).ToString(),
-                    context.ReplacementRange,
-                    CompletionItemKind.Folder,
-                    CompletionPriority.Medium)
-                .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
-                .Build())
-                .ToList();
-            return fileItems.Concat(dirItems);
+                .Select(dir =>
+                    CreateModulePathCompletionBuilder(
+                        dir.Segments.Last(),
+                        // "./" will not be preserved when making relative Uris. We have to go and manually add it.
+                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir).ToString(),
+                        context.ReplacementRange,
+                        CompletionItemKind.Folder,
+                        CompletionPriority.Low)
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .Build());
+
+            return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
+
+            // Local functions.
+            IEnumerable<CompletionItem> CreateFileCompletionItems(IEnumerable<Uri> fileUris, Uri cwdUri, Predicate<Uri> predicate, CompletionPriority priority) => fileUris
+                .Where(fileUri => fileUri != model.SourceFile.FileUri && predicate(fileUri))
+                .Select(fileUri =>
+                    CreateModulePathCompletionBuilder(
+                        fileUri.Segments.Last(),
+                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(fileUri).ToString(),
+                        context.ReplacementRange,
+                        CompletionItemKind.File,
+                        priority)
+                    .Build());
+
+            bool IsBicepFile(Uri fileUri)
+            {
+                if (PathHelper.HasBicepExtension(fileUri))
+                {
+                    return true;
+                }
+
+                return model.Compilation.SourceFileGrouping.SourceFiles.Any(sourceFile =>
+                    sourceFile is BicepFile &&
+                    sourceFile.FileUri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison));
+            }
+
+
+            bool IsArmTemplateFileLike(Uri fileUri)
+            {
+                if (PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension))
+                {
+                    return true;
+                }
+
+                if (model.Compilation.SourceFileGrouping.SourceFiles.Any(sourceFile =>
+                        sourceFile is ArmTemplateFile &&
+                        sourceFile.FileUri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison)))
+                {
+                    return true;
+                }
+
+                if ((PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
+                    PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension)) &&
+                    this.FileResolver.TryRead(fileUri, out var fileContents, out var _, Encoding.UTF8, 2000, out var _))
+                {
+                    return LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents);
+                }
+
+                return false;
+            }
         }
 
         private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation compitation, BicepCompletionContext context)

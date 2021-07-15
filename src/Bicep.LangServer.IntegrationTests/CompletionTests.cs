@@ -786,14 +786,59 @@ var nullLit = |n|ull|
             await RunCompletionScenarioTest(this.TestContext, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
-        private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)
+        [TestMethod]
+        public async Task RequestModulePathCompletions_ArmTemplateFilesInDir_ReturnsCompletionsIncludingArmTemplatePaths()
         {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
-            var completions = await RequestCompletions(client, bicepFile, cursors);
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            var armTemplateUri1 = DocumentUri.FromFileSystemPath("/path/to/template1.arm");
+            var armTemplateUri2 = DocumentUri.FromFileSystemPath("/path/to/template2.json");
+            var armTemplateUri3 = DocumentUri.FromFileSystemPath("/path/to/template3.jsonc");
+            var jsonUri1 = DocumentUri.FromFileSystemPath("/path/to/json1.json");
+            var jsonUri2 = DocumentUri.FromFileSystemPath("/path/to/json2.json");
+            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
+            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/module2.bicep");
+            var bicepModuleUri3 = DocumentUri.FromFileSystemPath("/path/to/module3.bicep");
 
-            assertAction(completions);
+            var (mainFileText, cursors) = ParserHelper.GetFileWithCursors(@"
+module mod1 './module1.txt' = {}
+module mod2 './template3.jsonc' = {}
+module mod2 './|' = {}
+");
+            var mainFile = SourceFileFactory.CreateBicepFile(mainUri.ToUri(), mainFileText);
+
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [mainUri.ToUri()] = mainFileText,
+                [armTemplateUri1.ToUri()] = "",
+                [armTemplateUri2.ToUri()] = @"{ ""schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"" }",
+                [armTemplateUri3.ToUri()] = @"{}",
+                [jsonUri1.ToUri()] = "{}",
+                [jsonUri2.ToUri()] = @"[{ ""name"": ""value"" }]",
+                [bicepModuleUri1.ToUri()] = "param foo string",
+                [bicepModuleUri2.ToUri()] = "param bar bool",
+                [bicepModuleUri3.ToUri()] = "",
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(
+                TestContext,
+                mainFileText,
+                mainUri,
+                resourceTypeProvider: BuiltInTestTypes.Create(),
+                fileResolver: fileResolver);
+
+            var completionLists = await RequestCompletions(client, mainFile, cursors);
+            completionLists.Should().HaveCount(1);
+
+            var completionItems = completionLists.Single()!.Items;
+            completionItems.Should().SatisfyRespectively(
+                x => x.Label.Should().Be("module1.txt"),
+                x => x.Label.Should().Be("module2.bicep"),
+                x => x.Label.Should().Be("module3.bicep"),
+                x => x.Label.Should().Be("template1.arm"),
+                x => x.Label.Should().Be("template2.json"),
+                x => x.Label.Should().Be("template3.jsonc"));
         }
 
         [TestMethod]
@@ -968,9 +1013,7 @@ var nullLit = |n|ull|
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
-        private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
-
-        public static string GetDisplayName(MethodInfo info, object[] row)
+        private static string GetDisplayName(MethodInfo info, object[] row)
         {
             row.Should().HaveCount(3);
             row[0].Should().BeOfType<DataSet>();
@@ -978,6 +1021,18 @@ var nullLit = |n|ull|
             row[2].Should().BeAssignableTo<IList<Position>>();
 
             return $"{info.Name}_{((DataSet)row[0]).Name}_{row[1]}";
+        }
+
+        private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
+
+        private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var completions = await RequestCompletions(client, bicepFile, cursors);
+
+            assertAction(completions);
         }
 
         private static string FormatPosition(Position position) => $"({position.Line}, {position.Character})";
