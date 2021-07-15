@@ -181,5 +181,26 @@ namespace Bicep.Core.UnitTests.FileSystem
             Directory.CreateDirectory(tempChildDir);
             fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempChildDir)).Should().BeTrue();
         }
+
+        [DataTestMethod]
+        [DataRow("", 2, new string[0])]
+        [DataRow("aaaa\nbbbb", 0, new string[0])]
+        [DataRow("aaaa", 2, new[] { "aaaa" })]
+        [DataRow("aaaa\nbbbb", 2, new[] { "aaaa", "bbbb" })]
+        [DataRow("aaaa\nbbbb\ncccc", 2, new[] { "aaaa", "bbbb" })]
+        [DataRow("aaaa\nbbbb\ncccc\r\ndddd", 2, new[] { "aaaa", "bbbb" })]
+        [DataRow("aaaa\nbbbb\ncccc\r\ndddd", 8, new[] { "aaaa", "bbbb", "cccc", "dddd" })]
+        public void EnumerateLines_ReturnsLines(string contents, int numberOfLines, string[] expectedLines)
+        {
+            var fileResolver = new FileResolver();
+            var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
+            var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
+
+            File.WriteAllText(tempFile, contents);
+
+            var lines = fileResolver.EnumerateLines(tempFileUri, Encoding.UTF8, numberOfLines);
+
+            lines.Should().Equal(expectedLines);
+        }
     }
 }

@@ -57,6 +57,23 @@ namespace Bicep.Core.FileSystem
             return true;
         }
 
+        public IEnumerable<string> EnumerateLines(Uri fileUri, Encoding fileEncoding, int numberOfLines)
+        {
+            if (!fileLookup.TryGetValue(fileUri, out var fileContents))
+            {
+                yield break;
+            }
+
+            using var reader = new StringReader(fileContents);
+
+            while (numberOfLines > 0 && reader.ReadLine() is { } line)
+            {
+                numberOfLines--;
+
+                yield return line;
+            }
+        }
+
         public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
         {
             if (!Uri.TryCreate(parentFileUri, childFilePath, out var relativeUri))

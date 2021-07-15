@@ -43,8 +43,6 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-
-
         public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, Encoding fileEncoding, int maxCharacters, [NotNullWhen(true)] out Encoding? detectedEncoding)
         {
             if (!fileUri.IsFile)
@@ -149,6 +147,24 @@ namespace Bicep.Core.FileSystem
                 failureBuilder = x => x.ErrorOccurredReadingFile(exception.Message);
                 fileBase64 = null;
                 return false;
+            }
+        }
+
+        public IEnumerable<string> EnumerateLines(Uri fileUri, Encoding fileEncoding, int numberOfLines)
+        {
+            if (!fileUri.IsFile)
+            {
+                yield break;
+            }
+
+            using var fileStream = File.OpenRead(fileUri.LocalPath);
+            using var sr = new StreamReader(fileStream, fileEncoding, true);
+
+            while (numberOfLines > 0 && sr.ReadLine() is { } line)
+            {
+                numberOfLines--;
+
+                yield return line;
             }
         }
 

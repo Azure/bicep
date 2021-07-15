@@ -321,17 +321,7 @@ namespace Bicep.LanguageServer.Completions
                         priority)
                     .Build());
 
-            bool IsBicepFile(Uri fileUri)
-            {
-                if (PathHelper.HasBicepExtension(fileUri))
-                {
-                    return true;
-                }
-
-                return model.Compilation.SourceFileGrouping.SourceFiles.Any(sourceFile =>
-                    sourceFile is BicepFile &&
-                    sourceFile.FileUri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison));
-            }
+            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
 
             bool IsArmTemplateFileLike(Uri fileUri)
             {
@@ -347,11 +337,24 @@ namespace Bicep.LanguageServer.Completions
                     return true;
                 }
 
-                if ((PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
-                    PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension)) &&
-                    this.FileResolver.TryRead(fileUri, out var fileContents, out var _, Encoding.UTF8, 2000, out var _))
+                if (PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
+                    PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension))
                 {
-                    return LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents);
+                    try
+                    {
+                        foreach (var line in this.FileResolver.EnumerateLines(fileUri, Encoding.UTF8, 200))
+                        {
+                            if (LanguageConstants.ArmTemplateSchemaRegex.IsMatch(line))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore I/O exceptions.
+                        return false;
+                    }
                 }
 
                 return false;

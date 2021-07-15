@@ -803,6 +803,8 @@ var nullLit = |n|ull|
             var armTemplateUri1 = DocumentUri.FromFileSystemPath("/path/to/template1.arm");
             var armTemplateUri2 = DocumentUri.FromFileSystemPath("/path/to/template2.json");
             var armTemplateUri3 = DocumentUri.FromFileSystemPath("/path/to/template3.jsonc");
+            var armTemplateUri4 = DocumentUri.FromFileSystemPath("/path/to/template4.json");
+            var armTemplateUri5 = DocumentUri.FromFileSystemPath("/path/to/template5.json");
             var jsonUri1 = DocumentUri.FromFileSystemPath("/path/to/json1.json");
             var jsonUri2 = DocumentUri.FromFileSystemPath("/path/to/json2.json");
             var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
@@ -822,6 +824,8 @@ module mod2 './|' = {}
                 [armTemplateUri1.ToUri()] = "",
                 [armTemplateUri2.ToUri()] = @"{ ""schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"" }",
                 [armTemplateUri3.ToUri()] = @"{}",
+                [armTemplateUri4.ToUri()] = string.Join('\n', Enumerable.Repeat("hello", 199)) + "\nhttps://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                [armTemplateUri5.ToUri()] = string.Join('\n', Enumerable.Repeat("hello", 200)) + "\nhttps://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                 [jsonUri1.ToUri()] = "{}",
                 [jsonUri2.ToUri()] = @"[{ ""name"": ""value"" }]",
                 [bicepModuleUri1.ToUri()] = "param foo string",
@@ -843,12 +847,12 @@ module mod2 './|' = {}
 
             var completionItems = completionLists.Single()!.Items;
             completionItems.Should().SatisfyRespectively(
-                x => x.Label.Should().Be("module1.txt"),
                 x => x.Label.Should().Be("module2.bicep"),
                 x => x.Label.Should().Be("module3.bicep"),
                 x => x.Label.Should().Be("template1.arm"),
                 x => x.Label.Should().Be("template2.json"),
-                x => x.Label.Should().Be("template3.jsonc"));
+                x => x.Label.Should().Be("template3.jsonc"),
+                x => x.Label.Should().Be("template4.json"));
         }
 
         [TestMethod]

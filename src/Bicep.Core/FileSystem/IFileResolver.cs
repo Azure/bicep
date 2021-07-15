@@ -28,6 +28,7 @@ namespace Bicep.Core.FileSystem
         /// <param name="childFilePath">The file path of the child.</param>
         Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath);
 
+        IEnumerable<string> EnumerateLines(Uri fileUri, Encoding fileEncoding, int numberOfLines);
 
         /// <summary>
         /// Tries to get Directories given a uri and pattern. Both argument and returned URIs MUST have a trailing '/'
