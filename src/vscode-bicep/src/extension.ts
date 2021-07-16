@@ -9,6 +9,7 @@ import {
 import { launchLanguageServiceWithProgressReport } from "./language";
 import { BicepVisualizerViewManager } from "./visualizer";
 import {
+  BuildCommand,
   CommandManager,
   ShowSourceCommand,
   ShowVisualizerCommand,
