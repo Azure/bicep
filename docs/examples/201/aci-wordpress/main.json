@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12550037993522335025"
+      "templateHash": "13421738269395297232"
     }
   },
   "parameters": {
@@ -212,7 +212,7 @@
           {
             "azureFile": {
               "shareName": "[variables('wpShareName')]",
-              "storageAccountKey": "[listKeys(parameters('storageAccountName'), '2019-06-01').keys[0].value]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]",
               "storageAccountName": "[parameters('storageAccountName')]"
             },
             "name": "wordpressfile"
@@ -220,7 +220,7 @@
           {
             "azureFile": {
               "shareName": "[variables('sqlShareName')]",
-              "storageAccountKey": "[listKeys(parameters('storageAccountName'), '2019-06-01').keys[0].value]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]",
               "storageAccountName": "[parameters('storageAccountName')]"
             },
             "name": "mysqlfile"

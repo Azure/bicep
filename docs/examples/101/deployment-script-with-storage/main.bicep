@@ -31,7 +31,7 @@ resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
     azCliVersion: '2.0.80'
     storageAccountSettings: {
       storageAccountName: stg.name
-      storageAccountKey: listKeys(stg.id, stg.apiVersion).keys[0].value
+      storageAccountKey: stg.listKeys().keys[0].value
     }
     scriptContent: scriptToExecute
     cleanupPreference: 'OnSuccess'

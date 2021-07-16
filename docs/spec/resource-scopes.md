@@ -94,30 +94,6 @@ resource lockResource 'Microsoft.Authorization/locks@2016-09-01' = {
 }
 ```
 
-### Parent-child syntax
-
-You can declare the child resource as a top-level resource just like the parent. To do this, specify the `parent` property on the child with the value set to the symbolic name of the parent. With this syntax you still need to declare the full resource type, but the `name` of the child resource is only the name of the child.
-
-```bicep
-resource myParent 'My.Rp/parentType@2020-01-01' = {
-  name: 'myParent'
-  location: 'West US'
-}
-
-resource myChild 'My.Rp/parentType/childType@2020-01-01' = {
-  parent: myParent // pass parent reference
-  name: 'myChild' // don't require the full name to be formatted with '/' characters
-}
-
-output childProp string = myChild.properties.someProp
-```
-
-Referencing the child resource symbolic name works the same as referencing the parent.
-
-**Note:** the `name` property rules are different than ARM Templates, which requires concatenating the parent and child name together separated by `/`.
-
-Alternatively, you can use the [nested resource syntax](./resources.md#resource-nesting) to declare child resources.
-
 ## Allowed combinations of scopes
 
 This feature is limited to the same scoping constraints that exist within ARM Deployments today.

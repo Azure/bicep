@@ -66,7 +66,7 @@ resource dScriptWp 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = 
     azPowerShellVersion: '3.0'
     storageAccountSettings: {
       storageAccountName: stg.name
-      storageAccountKey: listKeys(stg.id, stg.apiVersion).keys[0].value
+      storageAccountKey: stg.listKeys().keys[0].value
     }
     scriptContent: wpScriptToExecute
     cleanupPreference: 'OnSuccess'
@@ -91,7 +91,7 @@ resource dScriptSql 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
     azPowerShellVersion: '3.0'
     storageAccountSettings: {
       storageAccountName: stg.name
-      storageAccountKey: listKeys(stg.id, stg.apiVersion).keys[0].value
+      storageAccountKey: stg.listKeys().keys[0].value
     }
     scriptContent: sqlScriptToExecute
     cleanupPreference: 'OnSuccess'
@@ -179,7 +179,7 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
       {
         azureFile: {
           shareName: wpShareName
-          storageAccountKey: listKeys(stg.name, stg.apiVersion).keys[0].value
+          storageAccountKey: stg.listKeys().keys[0].value
           storageAccountName: stg.name
         }
         name: 'wordpressfile'
@@ -187,7 +187,7 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
       {
         azureFile: {
           shareName: sqlShareName
-          storageAccountKey: listKeys(stg.name, stg.apiVersion).keys[0].value
+          storageAccountKey: stg.listKeys().keys[0].value
           storageAccountName: stg.name
         }
         name: 'mysqlfile'

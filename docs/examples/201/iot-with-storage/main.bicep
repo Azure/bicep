@@ -50,7 +50,7 @@ resource iot 'microsoft.devices/iotHubs@2020-03-01' = {
         storageContainers: [
           {
             // really need a listConnectionString() function
-            connectionString: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(stg.id, stg.apiVersion).keys[0].value}'
+            connectionString: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${stg.listKeys().keys[0].value}'
             containerName: storageContainerName
             fileNameFormat: '{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}'
             batchFrequencyInSeconds: 100

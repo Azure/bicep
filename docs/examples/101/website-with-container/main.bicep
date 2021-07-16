@@ -8,8 +8,10 @@ param acrResourceGroup string = resourceGroup().name
 param acrSubscription string = subscription().subscriptionId
 
 // external ACR info
-var containerRegistryId = resourceId(acrSubscription, acrResourceGroup, 'Microsoft.ContainerRegistry/registries', acrName)
-var acrApiVersion = '2019-05-01'
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' existing = {
+  scope: resourceGroup(acrSubscription, acrResourceGroup)
+  name: acrName
+}
 
 var websiteName = '${name}-site'
 
@@ -29,7 +31,7 @@ resource site 'microsoft.web/sites@2020-06-01' = {
         }
         {
           name: 'DOCKER_REGISTRY_SERVER_PASSWORD'
-          value: listCredentials(containerRegistryId, acrApiVersion).passwords[0].value
+          value: containerRegistry.listCredentials().passwords[0].value
         }
         {
           name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
