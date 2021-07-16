@@ -121,7 +121,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01'
           readOnly: false
           shareName: fileShareName
           storageAccountName: storageAccount.name
-          storageAccountKey: listKeys(storageAccount.name, storageAccount.apiVersion).keys[0].value
+          storageAccountKey: storageAccount.listKeys().keys[0].value
         }
       }
     ]
