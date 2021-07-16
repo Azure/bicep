@@ -21,6 +21,30 @@ namespace Bicep.Core.IntegrationTests
     public class ScenarioTests
     {
         [TestMethod]
+        // https://github.com/azure/bicep/issues/3636
+        public void Test_Issue3636()
+        {
+            var stringLength = 200;
+            var lineCount = 10000;
+
+            Random random = new Random();
+            string RandomString(int length)
+            {
+                const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                return new string(Enumerable.Repeat(chars, length)
+                  .Select(s => s[random.Next(s.Length)]).ToArray());
+            }
+
+            var file = "";
+            for (var i = 0; i < lineCount; i++)
+            {
+                file += $"output test{i} string = '{RandomString(stringLength)}'\n";
+            }
+
+            CompilationHelper.Compile(file).Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         // https://github.com/azure/bicep/issues/746
         public void Test_Issue746()
         {

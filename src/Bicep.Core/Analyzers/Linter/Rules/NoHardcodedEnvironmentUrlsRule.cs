@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -66,10 +67,17 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            var watch = Stopwatch.StartNew();
+            
             if (this.DisallowedHosts.HasValue && this.DisallowedHosts.Value.Any())
             {
                 var visitor = new Visitor(this.hostRegex, this.excludedRegex);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
+
+                watch.Stop();
+                
+                Debug.Assert(false, $"Time taken: {watch.ElapsedMilliseconds}ms");
+
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
 
