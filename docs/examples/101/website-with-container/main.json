@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11999846140491966445"
+      "templateHash": "14151585724625675119"
     }
   },
   "parameters": {
@@ -28,6 +28,14 @@
     "dockerImageAndTag": {
       "type": "string",
       "defaultValue": "app/frontend:latest"
+    },
+    "acrResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "acrSubscription": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]"
     }
   },
   "functions": [],
@@ -54,7 +62,7 @@
             },
             {
               "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName')), '2019-05-01').passwords[0].value]"
+              "value": "[listCredentials(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('acrSubscription'), parameters('acrResourceGroup')), 'Microsoft.ContainerRegistry/registries', parameters('acrName')), '2019-05-01').passwords[0].value]"
             },
             {
               "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
