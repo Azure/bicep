@@ -15,7 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepBuildCommandHandler : ExecuteTypedCommandHandlerBase<string, Stream>
+    public class BicepBuildCommandHandler : ExecuteTypedCommandHandlerBase<string>
     {
         private readonly ICompilationManager CompilationManager;
 
@@ -25,24 +25,51 @@ namespace Bicep.LanguageServer.Handlers
             CompilationManager = compilationManager;
         }
 
-        public override Task<Unit> Handle(string documentUri, Stream stream, CancellationToken cancellationToken)
+        public override Task<Unit> Handle(string bicepFilePath, CancellationToken cancellationToken)
         {
-            var context = CompilationManager.GetCompilation(DocumentUri.Parse(documentUri));
+            DocumentUri uri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var context = CompilationManager.GetCompilation(uri);
 
             if (context == null)
             {
                 throw new InvalidOperationException($"Unable to get compilaction context");
             }
 
-            var emitter = new TemplateEmitter(context.Compilation.GetEntrypointSemanticModel(), string.Empty);
-            var result = emitter.Emit(stream);
+            string? compiledFilePath = GetCompiledFilePath(bicepFilePath);
 
-            if (result.Diagnostics.Any())
+            if (!string.IsNullOrWhiteSpace(compiledFilePath))
             {
-                throw new Exception("Stuff went wrong");
+                var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+                using (fileStream)
+                {
+                    var emitter = new TemplateEmitter(context.Compilation.GetEntrypointSemanticModel(), string.Empty);
+                    var result = emitter.Emit(fileStream);
+
+                    if (result.Diagnostics.Any())
+                    {
+                        throw new Exception("Stuff went wrong");
+                    }
+                }
             }
 
             return Unit.Task;
+        }
+
+        private string? GetCompiledFilePath(string bicepFilePath)
+        {
+            string? fileNameWithoutExtension = Path.GetFileNameWithoutExtension(bicepFilePath);
+
+            if (!string.IsNullOrWhiteSpace(fileNameWithoutExtension))
+            {
+                string? folder = Path.GetDirectoryName(bicepFilePath);
+
+                if (!string.IsNullOrWhiteSpace(folder))
+                {
+                    return Path.Combine(folder, fileNameWithoutExtension + ".json");
+                }
+            }
+
+            return null;
         }
     }
 }

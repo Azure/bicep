@@ -1,29 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import vscode from "vscode";
+import { IAzExtOutputChannel } from "vscode-azureextensionui";
+import { LanguageClient } from "vscode-languageclient/node";
 
-import { BicepVisualizerViewManager } from "../visualizer";
 import { Command } from "./types";
 
 export class BuildCommand implements Command {
   public readonly id = "bicep.build";
 
   public constructor(
-    private readonly viewManager: BicepVisualizerViewManager
+    private readonly client: LanguageClient,
+    private readonly outputChannel: IAzExtOutputChannel
   ) {}
 
-  public async execute(): Promise<vscode.TextEditor | undefined> {
-    if (this.viewManager.activeDocumentUri) {
-      const document = await vscode.workspace.openTextDocument(
-        this.viewManager.activeDocumentUri
-      );
+  public async execute(documentUri?: vscode.Uri | undefined) {
+    try {
+      if (documentUri == null) {
+        return;
+      }
 
-      return await vscode.window.showTextDocument(
-        document,
-        vscode.ViewColumn.One
-      );
+      return await this.client.sendRequest("workspace/executeCommand", {
+        command: "build",
+        arguments: [documentUri.fsPath],
+      });
+    } catch (err) {
+      this.outputChannel.appendLine(`Error: ${err}`);
     }
-
-    return undefined;
   }
 }
