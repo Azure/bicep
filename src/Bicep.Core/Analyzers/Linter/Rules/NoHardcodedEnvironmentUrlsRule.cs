@@ -59,11 +59,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// </summary>
         /// <returns></returns>
         public Regex CreateDisallowedHostRegex() =>
-            new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|\s|^|/){Regex.Escape(h)}")),
-                        RegexOptions.Compiled|RegexOptions.IgnoreCase);
+            new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|'|\s|^|/){Regex.Escape(h)}")),
+                        RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public Regex CreateExcludedHostsRegex() =>
-            new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|\s|^|/){Regex.Escape(h)}")),
+            new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|'|\s|^|/){Regex.Escape(h)}")),
                         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
@@ -91,13 +91,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitStringSyntax(StringSyntax syntax)
             {
-                foreach (var segment in syntax.SegmentValues)
+                foreach (var token in syntax.StringTokens)
                 {
-                    var disallowedMatches = this.hostRegex.Matches(segment);
+                    var disallowedMatches = this.hostRegex.Matches(token.Text);
 
                     if (disallowedMatches.Any())
                     {
-                        var exclusionMatches = exclusionRegex.Matches(segment);
+                        var exclusionMatches = exclusionRegex.Matches(token.Text);
 
                         // does this segment have a host match
                         foreach (Match match in disallowedMatches)
@@ -112,7 +112,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             {
                                 // create a span for the specific identified instance
                                 // to allow for multiple instances in a single syntax
-                                this.DisallowedHostSpans[new TextSpan(syntax.Span.Position + match.Index, match.Length)] = match.Value;
+                                this.DisallowedHostSpans[new TextSpan(token.Span.Position + match.Index, match.Length)] = match.Value;
                             }
                         }
                     }
