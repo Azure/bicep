@@ -25,6 +25,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<LinterAnalyzer> linterAnalyzerLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> parameterTypePropertiesLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> outputTypePropertiesLazy;
+        private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver)
         {
@@ -58,6 +59,9 @@ namespace Bicep.Core.Semantics
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
             this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer());
+
+            // lazy load single use diagnostic set
+            this.allDiagnostics = new Lazy<IEnumerable<IDiagnostic>>(() => AssembleDiagnostics(default));
 
             this.parameterTypePropertiesLazy = new Lazy<ImmutableArray<TypeProperty>>(() =>
             {
@@ -161,16 +165,27 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
-        /// Gets all the diagnostics sorted by span position ascending. This includes lexer, parser, and semantic diagnostics.
+        /// Cached diagnostics from compilation
         /// </summary>
-        public IEnumerable<IDiagnostic> GetAllDiagnostics(ConfigHelper? overrideConfig = default) =>
-            GetParseDiagnostics()
+        public IEnumerable<IDiagnostic> GetAllDiagnostics(ConfigHelper? overrideConfig = default)
+        {
+            if (overrideConfig == default)
+            {
+                return allDiagnostics.Value;
+            }
+            return AssembleDiagnostics(overrideConfig);
+        }
+
+        private IEnumerable<IDiagnostic> AssembleDiagnostics(ConfigHelper? overrideConfig)
+        {
+            return GetParseDiagnostics()
             .Concat(GetSemanticDiagnostics())
             .Concat(GetAnalyzerDiagnostics(overrideConfig))
             .OrderBy(diag => diag.Span.Position);
+        }
 
         public bool HasErrors()
-            => GetAllDiagnostics().Any(x => x.Level == DiagnosticLevel.Error);
+            => allDiagnostics.Value.Any(x => x.Level == DiagnosticLevel.Error);
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.TypeManager.GetTypeInfo(syntax);
 
