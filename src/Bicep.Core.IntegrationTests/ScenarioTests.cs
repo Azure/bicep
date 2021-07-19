@@ -25,7 +25,7 @@ namespace Bicep.Core.IntegrationTests
         public void Test_Issue3636()
         {
             var stringLength = 200;
-            var lineCount = 10000;
+            var lineCount = 100; // increase this number to 10,000 for more intense test
 
             Random random = new Random();
             string RandomString(int length)
@@ -35,12 +35,18 @@ namespace Bicep.Core.IntegrationTests
                   .Select(s => s[random.Next(s.Length)]).ToArray());
             }
 
-            var file = "";
+            var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
             for (var i = 0; i < lineCount; i++)
             {
-                file += $"output test{i} string = '{RandomString(stringLength)}'\n";
+                var randStr = RandomString(stringLength);
+                file += $"output testa{i} string = '{randStr} ${{adminuser}} {randStr}'\n";
+                file += $"output testb{i} string = '{randStr} ${{adminstring}} {randStr}'\n";
             }
 
+            // not a true test for existing diagnostics
+            // this is a trigger to allow timing within the
+            // linter rules - timing must be readded to
+            // initially added to time NoHardcodedEnvironmentUrlsRule
             CompilationHelper.Compile(file).Should().NotHaveAnyDiagnostics();
         }
 

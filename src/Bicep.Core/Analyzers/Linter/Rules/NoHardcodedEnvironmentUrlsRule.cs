@@ -21,6 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "no-hardcoded-env-urls";
 
         public ImmutableArray<string>? DisallowedHosts;
+
         private ImmutableArray<string>? ExcludedHosts;
 
         private readonly Lazy<Regex> hostRegexLazy;
@@ -41,9 +42,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override void Configure(IConfigurationRoot config)
         {
             base.Configure(config);
-            this.DisallowedHosts = GetArray(nameof(DisallowedHosts).ToLower(), Array.Empty<string>())
+            this.DisallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
-            this.ExcludedHosts = GetArray(nameof(ExcludedHosts).ToLower(), Array.Empty<string>())
+            this.ExcludedHosts = GetArray(nameof(ExcludedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
         }
 
@@ -59,7 +60,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// <returns></returns>
         public Regex CreateDisallowedHostRegex() =>
             new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|\s|^|/){Regex.Escape(h)}")),
-                        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                        RegexOptions.Compiled|RegexOptions.IgnoreCase);
 
         public Regex CreateExcludedHostsRegex() =>
             new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|\s|^|/){Regex.Escape(h)}")),
@@ -67,20 +68,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            var watch = Stopwatch.StartNew();
-            
             if (this.DisallowedHosts.HasValue && this.DisallowedHosts.Value.Any())
             {
                 var visitor = new Visitor(this.hostRegex, this.excludedRegex);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
-
-                watch.Stop();
-                
-                Debug.Assert(false, $"Time taken: {watch.ElapsedMilliseconds}ms");
-
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
-
             return Enumerable.Empty<IDiagnostic>();
         }
 
@@ -100,25 +93,31 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 foreach (var segment in syntax.SegmentValues)
                 {
-                    var exclusionMatches = exclusionRegex.Matches(segment);
+                    var disallowedMatches = this.hostRegex.Matches(segment);
 
-                    // does this segment have a host match
-                    foreach (Match match in this.hostRegex.Matches(segment))
+                    if (disallowedMatches.Any())
                     {
-                        // exclusion is found containing the host match
-                        var isExcluded = exclusionMatches.Any(exclusionMatch =>
-                           match.Index > exclusionMatch.Index
-                           && match.Index + match.Length <= exclusionMatch.Index + exclusionMatch.Length);
+                        var exclusionMatches = exclusionRegex.Matches(segment);
 
-                        if (!isExcluded)
+                        // does this segment have a host match
+                        foreach (Match match in disallowedMatches)
                         {
-                            // create a span for the specific identified instance
-                            // to allow for multiple instances in a single syntax
-                            this.DisallowedHostSpans[new TextSpan(syntax.Span.Position+match.Index, match.Length)] = match.Value;
+
+                            // exclusion is found containing the host match
+                            var isExcluded = exclusionMatches.Any(exclusionMatch =>
+                               match.Index > exclusionMatch.Index
+                               && match.Index + match.Length <= exclusionMatch.Index + exclusionMatch.Length);
+
+                            if (!isExcluded)
+                            {
+                                // create a span for the specific identified instance
+                                // to allow for multiple instances in a single syntax
+                                this.DisallowedHostSpans[new TextSpan(syntax.Span.Position + match.Index, match.Length)] = match.Value;
+                            }
                         }
                     }
-                    base.VisitStringSyntax(syntax);
                 }
+                base.VisitStringSyntax(syntax);
             }
         }
     }
