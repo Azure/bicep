@@ -42,6 +42,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override void Configure(IConfigurationRoot config)
         {
             base.Configure(config);
+
             this.DisallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
             this.MinimumHostLength = this.DisallowedHosts.Value.Min(h => h.Length);
