@@ -178,6 +178,7 @@ dotnet_diagnostic.CA5392.severity = warning
 # Do not use unsafe DllImportSearchPath value
 dotnet_diagnostic.CA5393.severity = warning
 # Do not use insecure randomness
+dotnet_diagnostic.CA5394.severity = warning
 # Miss HttpVerb attribute for action methods
 dotnet_diagnostic.CA5395.severity = warning
 # Set HttpOnly to true for HttpCookie
