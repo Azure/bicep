@@ -167,7 +167,8 @@
         },
         {
           "command": "bicep.build",
-          "when": "resourceLangId == bicep"
+          "when": "resourceLangId == bicep",
+          "group": "navigation"
         }
       ],
       "editor/title/context": [

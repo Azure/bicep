@@ -15,15 +15,6 @@ export async function executeHoverProviderCommand(
   );
 }
 
-export async function executeBuildCommand(
-  documentUri: vscode.Uri
-): Promise<vscode.ViewColumn | undefined> {
-  return await vscode.commands.executeCommand(
-    "bicep.build",
-    documentUri
-  );
-}
-
 export async function executeCompletionItemProviderCommand(
   documentUri: vscode.Uri,
   position: vscode.Position
