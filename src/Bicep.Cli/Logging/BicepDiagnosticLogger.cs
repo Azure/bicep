@@ -15,10 +15,12 @@ namespace Bicep.Cli.Logging
     public class BicepDiagnosticLogger : IDiagnosticLogger
     {
         private readonly ILogger logger;
+        private readonly InvocationContext invocationContext;
 
-        public BicepDiagnosticLogger(ILogger logger)
+        public BicepDiagnosticLogger(ILogger logger, InvocationContext invocationContext)
         {
             this.logger = logger;
+            this.invocationContext = invocationContext;
             this.ErrorCount = 0;
             this.WarningCount = 0;
         }
@@ -42,8 +44,8 @@ namespace Bicep.Cli.Logging
         public void LogSummary() 
         {
             var summary = $"Build {(this.ErrorCount > 0 ? "failed" : "succeeded")}: {this.WarningCount} Warning(s), {this.ErrorCount} Error(s)";
-            
-            this.logger.Log(ToLogLevel(DiagnosticLevel.Info), summary);
+
+            invocationContext.OutputWriter.WriteLine(summary);
         }
 
         public int ErrorCount { get; private set; }
