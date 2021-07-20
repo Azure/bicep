@@ -35,7 +35,7 @@ namespace Bicep.LangServer.UnitTests
             var context = provider.Create(workspace, fileUri);
 
             context.Compilation.Should().NotBeNull();
-            // TOOD: remove Where when the support of modifiers is dropped.
+            // TODO: remove Where when the support of modifiers is dropped.
             context.Compilation.GetEntrypointSemanticModel()
                    .GetAllDiagnostics(new ConfigHelper().GetDisabledLinterConfig())
                    .Where(d => d.Code != "BCP161").Should().BeEmpty();

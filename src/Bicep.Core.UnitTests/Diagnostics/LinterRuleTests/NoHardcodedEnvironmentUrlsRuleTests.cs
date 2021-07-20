@@ -106,7 +106,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(1, @"
         param p1 string
         param p2 string
-        var a = '${p1}azuredatalakestore.net${p2}'
+        var a = '${p1} azuredatalakestore.net${p2}'
+        ")]
+        [DataRow(1, @"
+        param p1 string
+        param p2 string
+        var a = '${p1} azuredatalakestore.net$ {p2}'
         ")]
         [DataTestMethod]
         public void InsideStringInterpolation(int diagnosticCount, string text)
