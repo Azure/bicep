@@ -136,16 +136,6 @@ namespace Bicep.Core.Analyzers.Linter
                                             null, null);
         }
 
-        /// <summary>
-        /// Internal method intended to allow easy configuration
-        /// override in Unit Testing
-        /// </summary>
-        /// <param name="overrideConfig"></param>
-        internal void OverrideConfig(ConfigHelper overrideConfig)
-        {
-            this.configHelper = overrideConfig;
-        }
-
         internal IDiagnostic CreateInternalErrorDiagnostic(string analyzerName, string message)
         {
             return new AnalyzerDiagnostic(

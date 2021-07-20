@@ -24,23 +24,22 @@ namespace Bicep.Core.IntegrationTests
         // https://github.com/azure/bicep/issues/3636
         public void Test_Issue3636()
         {
-            var stringLength = 200;
+            var maxStringLength = 50;
             var lineCount = 100; // increase this number to 10,000 for more intense test
-
             Random random = new Random();
-            string RandomString(int length)
+
+            string randomString()
             {
                 const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                return new string(Enumerable.Repeat(chars, length)
+                return new string(Enumerable.Repeat(chars, random.Next(maxStringLength))
                   .Select(s => s[random.Next(s.Length)]).ToArray());
             }
 
             var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
             for (var i = 0; i < lineCount; i++)
             {
-                var randStr = RandomString(stringLength);
-                file += $"output testa{i} string = '{randStr} ${{adminuser}} {randStr}'\n";
-                file += $"output testb{i} string = '{randStr} ${{adminstring}} {randStr}'\n";
+                file += $"output testa{i} string = '{randomString()} ${{adminuser}} {randomString()}'\n";
+                file += $"output testb{i} string = '{randomString()} ${{adminstring}} {randomString()}'\n";
             }
 
             // not a true test for existing diagnostics
