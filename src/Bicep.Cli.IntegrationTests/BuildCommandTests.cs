@@ -40,7 +40,7 @@ namespace Bicep.Cli.IntegrationTests
         // TODO: handle variant linter messaging for each data test
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void Build_Valid_SingleFile_ShouldSucceed_WithBuildSummary(DataSet dataSet)
+        public void Build_Valid_SingleFile_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -50,7 +50,6 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(0);
-                output.Should().MatchRegex(BuildSummarySucceededRegex);
                 AssertNoErrors(error);
             }
 
@@ -107,7 +106,6 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(1);
-                output.Should().MatchRegex(BuildSummaryFailedRegex);
                 error.Should().ContainAll(diagnostics);
             }
         }
@@ -142,20 +140,6 @@ output myOutput string = 'hello!'
 
             File.Exists(outputFilePath).Should().BeTrue();
             result.Should().Be(0);
-            output.Should().MatchRegex(BuildSummarySucceededRegex);
-        }
-
-        [TestMethod]
-        public void Build_WithNoSummary_ShouldSucceed_WithNoSummary()
-        {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
-
-            var (_, error, result) = Bicep("build", "--no-summary", bicepPath);
-
-            result.Should().Be(0);
-            error.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -189,15 +173,12 @@ output myOutput string = 'hello!'
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
-            output.Should().MatchRegex(BuildSummarySucceededRegex);
         }
 
         [DataRow("DoesNotExist.bicep", new[] { "--stdout" }, @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("DoesNotExist.bicep", new[] { "--stdout", "--no-summary" }, @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
         [DataRow("DoesNotExist.bicep", new[] { "--outdir", "." }, @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
         [DataRow("DoesNotExist.bicep", new[] { "--outfile", "file1" }, @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
         [DataRow("WrongDir\\Fake.bicep", new[] { "--stdout" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", new[] { "--stdout", "--no-summary" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir\\Fake.bicep", new[] { "--outdir", "." }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir\\Fake.bicep", new[] { "--outfile", "file1" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
@@ -207,7 +188,6 @@ output myOutput string = 'hello!'
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(expectedErrorRegex);
         }
 
         [TestMethod]
