@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Xml.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
@@ -24,15 +25,23 @@ namespace Bicep.Core.IntegrationTests
         // https://github.com/azure/bicep/issues/3636
         public void Test_Issue3636()
         {
-            var maxStringLength = 50;
             var lineCount = 100; // increase this number to 10,000 for more intense test
+
+            int generateRandomInt(int minVal = 0, int maxVal = 50)
+            {
+                var rnd = new byte[4];
+                using var rng = new RNGCryptoServiceProvider();
+                rng.GetBytes(rnd);
+                var i = Math.Abs(BitConverter.ToInt32(rnd, 0));
+                return Convert.ToInt32(i % (maxVal - minVal + 1) + minVal);
+            }
             Random random = new Random();
 
             string randomString()
             {
                 const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                return new string(Enumerable.Repeat(chars, random.Next(maxStringLength))
-                  .Select(s => s[random.Next(s.Length)]).ToArray());
+                return new string(Enumerable.Repeat(chars, generateRandomInt())
+                  .Select(s => s[generateRandomInt(0, s.Length)]).ToArray());
             }
 
             var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
