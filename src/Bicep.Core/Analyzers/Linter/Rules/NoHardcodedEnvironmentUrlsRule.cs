@@ -63,11 +63,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// </summary>
         /// <returns></returns>
         public Regex CreateDisallowedHostRegex() =>
-            new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|'|\s|^|/){Regex.Escape(h)}")),
+            new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|'|{{|}}|\s|^|/){Regex.Escape(h)}")),
                         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public Regex CreateExcludedHostsRegex() =>
-            new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|'|\s|^|/){Regex.Escape(h)}")),
+            new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|'|{{|}}|\s|^|/){Regex.Escape(h)}")),
                         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
