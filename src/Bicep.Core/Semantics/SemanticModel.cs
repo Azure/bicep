@@ -152,12 +152,8 @@ namespace Bicep.Core.Semantics
         /// <returns></returns>
         public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics(ConfigHelper? overrideConfig = default)
         {
-            if (overrideConfig != default)
-            {
-                LinterAnalyzer.OverrideConfig(overrideConfig);
-            }
-
             var diagnostics = LinterAnalyzer.Analyze(this, overrideConfig);
+
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             diagnosticWriter.WriteMultiple(diagnostics);
 
@@ -209,7 +205,8 @@ namespace Bicep.Core.Semantics
                     return null;
                 }
 
-                var typeProperty = TypeAssignmentVisitor.UnwrapType(baseType) switch {
+                var typeProperty = TypeAssignmentVisitor.UnwrapType(baseType) switch
+                {
                     ObjectType x => x.Properties.TryGetValue(property, out var tp) ? tp : null,
                     DiscriminatedObjectType x => x.TryGetDiscriminatorProperty(property),
                     _ => null
@@ -226,46 +223,46 @@ namespace Bicep.Core.Semantics
             switch (syntax)
             {
                 case InstanceFunctionCallSyntax ifc:
-                {
-                    var baseType = GetDeclaredType(ifc.BaseExpression);
-
-                    if (baseType is null)
                     {
+                        var baseType = GetDeclaredType(ifc.BaseExpression);
+
+                        if (baseType is null)
+                        {
+                            return null;
+                        }
+
+                        switch (TypeAssignmentVisitor.UnwrapType(baseType))
+                        {
+                            case NamespaceType namespaceType when SourceFile.Hierarchy.GetParent(ifc) is DecoratorSyntax:
+                                return namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name);
+                            case ObjectType objectType:
+                                return objectType.MethodResolver.TryGetSymbol(ifc.Name);
+                        }
+
                         return null;
                     }
-
-                    switch (TypeAssignmentVisitor.UnwrapType(baseType))
-                    {
-                        case NamespaceType namespaceType when SourceFile.Hierarchy.GetParent(ifc) is DecoratorSyntax:
-                            return namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name);
-                        case ObjectType objectType:
-                            return objectType.MethodResolver.TryGetSymbol(ifc.Name);
-                    }
-
-                    return null;
-                }
                 case PropertyAccessSyntax propertyAccess:
-                {
-                    var baseType = GetDeclaredType(propertyAccess.BaseExpression);
-                    var property = propertyAccess.PropertyName.IdentifierName;
+                    {
+                        var baseType = GetDeclaredType(propertyAccess.BaseExpression);
+                        var property = propertyAccess.PropertyName.IdentifierName;
 
-                    return GetPropertySymbol(baseType, property);
-                }
+                        return GetPropertySymbol(baseType, property);
+                    }
                 case ObjectPropertySyntax objectProperty:
-                {
-                    if (Binder.GetParent(objectProperty) is not {} parentSyntax)
                     {
-                        return null;
-                    }
-                    
-                    var baseType = GetDeclaredType(parentSyntax);
-                    if (objectProperty.TryGetKeyText() is not {} property)
-                    {
-                        return null;
-                    }
+                        if (Binder.GetParent(objectProperty) is not { } parentSyntax)
+                        {
+                            return null;
+                        }
 
-                    return GetPropertySymbol(baseType, property);
-                }
+                        var baseType = GetDeclaredType(parentSyntax);
+                        if (objectProperty.TryGetKeyText() is not { } property)
+                        {
+                            return null;
+                        }
+
+                        return GetPropertySymbol(baseType, property);
+                    }
             }
 
             return this.Binder.GetSymbolInfo(syntax);
