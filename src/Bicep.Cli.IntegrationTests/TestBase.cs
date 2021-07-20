@@ -16,9 +16,6 @@ namespace Bicep.Cli.IntegrationTests
 {
     public class TestBase
     {
-        protected const string BuildSummaryFailedRegex = @"Build failed: (\d*) Warning\(s\), ([1-9][0-9]*) Error\(s\)";
-        protected const string BuildSummarySucceededRegex = @"Build succeeded: (\d*) Warning\(s\), 0 Error\(s\)";
-
         protected static (string output, string error, int result) Bicep(params string[] args)
         {
             return TextWriterHelper.InvokeWriterAction((@out, err) =>

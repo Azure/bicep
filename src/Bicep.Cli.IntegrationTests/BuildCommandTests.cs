@@ -51,7 +51,6 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().BeEmpty();
-                error.Should().MatchRegex(BuildSummarySucceededRegex);
                 AssertNoErrors(error);
             }
 
@@ -80,7 +79,6 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
-                error.Should().MatchRegex(BuildSummarySucceededRegex);
                 AssertNoErrors(error);
             }
 
@@ -110,7 +108,6 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(1);
                 output.Should().BeEmpty();
-                error.Should().MatchRegex(BuildSummaryFailedRegex);
                 error.Should().ContainAll(diagnostics);
             }
         }
@@ -126,7 +123,6 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(BuildSummaryFailedRegex);
 
             var diagnostics = GetAllDiagnostics(bicepFilePath);
             error.Should().ContainAll(diagnostics);
@@ -146,7 +142,6 @@ output myOutput string = 'hello!'
 
             File.Exists(outputFilePath).Should().BeTrue();
             result.Should().Be(0);
-            error.Should().MatchRegex(BuildSummarySucceededRegex);
         }
 
         [TestMethod]
@@ -193,7 +188,6 @@ output myOutput string = 'hello!'
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
-            error.Should().MatchRegex(BuildSummarySucceededRegex);
         }
 
         [DataRow("DoesNotExist.bicep", new[] { "--stdout" }, @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
