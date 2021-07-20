@@ -36,6 +36,7 @@
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
   "activationEvents": [
     "onLanguage:bicep",
+    "onCommand:bicep.build",
     "onCommand:bicep.openVisualizer",
     "onCommand:bicep.openVisualizerToSide",
     "onWebviewPanel:bicep.visualizer"
