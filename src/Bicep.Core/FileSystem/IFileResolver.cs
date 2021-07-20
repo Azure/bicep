@@ -46,10 +46,16 @@ namespace Bicep.Core.FileSystem
         IEnumerable<Uri> GetFiles(Uri fileUri, string pattern);
 
         /// <summary>
-        /// Check whether specified URI exsists (depends on URI types). fileUri MUST have a trailing '/'
+        /// Check whether specified directory URI exsists (depends on URI types). fileUri MUST have a trailing '/'
         /// </summary>
         /// <param name="fileUri">The fileUri to test</param>
         bool TryDirExists(Uri fileUri);
+
+        /// <summary>
+        /// Check whether specified file URI exsists (depends on URI types)
+        /// </summary>
+        /// <param name="fileUri">The fileUri to test</param>
+        bool TryFileExists(Uri fileUri);
 
 
         /// <summary>

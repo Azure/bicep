@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer.Handlers
                     propertyAccesses.Push(propertyAccessSyntax.PropertyName.IdentifierName);
                     syntax = propertyAccessSyntax.BaseExpression;
                 }
-                
+
                 if (syntax is VariableAccessSyntax ancestor
                     && semanticModel.GetSymbolInfo(ancestor) is DeclaredSymbol ancestorSymbol)
                 {
@@ -122,7 +122,8 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<LocationOrLocationLinks> GetModuleDefinitionLocationAsync(Uri requestDocumentUri, string path, SyntaxBase originalSelectionSyntax, CompilationContext context)
         {
-            if (fileResolver.TryResolveFilePath(requestDocumentUri, path.Replace("'", string.Empty)) is Uri moduleUri)
+            if (fileResolver.TryResolveFilePath(requestDocumentUri, path.Replace("'", string.Empty)) is Uri moduleUri
+            &&  fileResolver.TryFileExists(moduleUri))
             {
                 return await Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
                 {

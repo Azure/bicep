@@ -26,7 +26,7 @@ namespace Bicep.Core.FileSystem
                 failureBuilder = null;
                 if (Directory.Exists(fileUri.LocalPath))
                 {
-                    // Docs suggest this is the error to throw when we give a directory. 
+                    // Docs suggest this is the error to throw when we give a directory.
                     // A trailing backslash causes windows not to throw this exception.
                     throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
                 }
@@ -58,13 +58,13 @@ namespace Bicep.Core.FileSystem
                 failureBuilder = null;
                 if (Directory.Exists(fileUri.LocalPath))
                 {
-                    // Docs suggest this is the error to throw when we give a directory. 
+                    // Docs suggest this is the error to throw when we give a directory.
                     // A trailing backslash causes windows not to throw this exception.
                     throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
                 }
                 using var fileStream = File.OpenRead(fileUri.LocalPath);
                 using var sr = new StreamReader(fileStream, fileEncoding, true);
-                
+
                 Span<char> buffer = stackalloc char[LanguageConstants.MaxLiteralCharacterLimit + 1];
                 var sb = new StringBuilder();
                 while (!sr.EndOfStream)
@@ -107,7 +107,7 @@ namespace Bicep.Core.FileSystem
                 failureBuilder = null;
                 if (Directory.Exists(fileUri.LocalPath))
                 {
-                    // Docs suggest this is the error to throw when we give a directory. 
+                    // Docs suggest this is the error to throw when we give a directory.
                     // A trailing backslash causes windows not to throw this exception.
                     throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
                 }
@@ -162,14 +162,14 @@ namespace Bicep.Core.FileSystem
             {
                 if (Directory.Exists(fileUri.LocalPath))
                 {
-                    // Docs suggest this is the error to throw when we give a directory. 
+                    // Docs suggest this is the error to throw when we give a directory.
                     // A trailing backslash causes windows not to throw this exception.
                     throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
                 }
 
                 using var fileStream = File.OpenRead(fileUri.LocalPath);
                 using var sr = new StreamReader(fileStream, fileEncoding, true);
-                
+
                 var buffer = new char[n];
                 n = sr.ReadBlock(buffer, 0, n);
 
@@ -214,6 +214,11 @@ namespace Bicep.Core.FileSystem
         public bool TryDirExists(Uri fileUri)
         {
             return fileUri.IsFile && Directory.Exists(fileUri.LocalPath);
+        }
+
+        public bool TryFileExists(Uri fileUri)
+        {
+            return fileUri.IsFile && File.Exists(fileUri.LocalPath);
         }
 
     }
