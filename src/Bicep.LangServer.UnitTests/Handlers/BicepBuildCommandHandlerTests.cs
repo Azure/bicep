@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,25 +30,26 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow("")]
         [DataRow("   ")]
         [DataTestMethod]
-        public async Task Handle_WithInvalidInputFilePath_ReturnsEmptyString(string path)
+        public void Handle_WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer);
 
-            string expected = await bicepBuildCommandHandler.Handle(path, CancellationToken.None);
+            Action sut = () => bicepBuildCommandHandler.Handle(path, CancellationToken.None);
 
-            expected.Should().BeEmpty();
+            sut.Should().Throw<ArgumentException>().WithMessage("Invalid input file");
         }
 
         [TestMethod]
-        public async Task Handle_WithNullContext_RetursEmptyString()
+        public void Handle_WithNullContext_ShouldThrowInvalidOperationException()
         {
             DocumentUri documentUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, false);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer);
-            string expected = await bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
 
-            expected.Should().BeEmpty();
+            Action sut = () => bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
+
+            sut.Should().Throw<InvalidOperationException>().WithMessage("Unable to get compilation context");
         }
 
         [TestMethod]

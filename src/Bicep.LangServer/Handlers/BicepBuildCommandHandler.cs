@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.JsonRpc;
@@ -14,12 +16,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
+    // This handler is used to generate compiled .json file for given a bicep file path.
+    // It returns build succeeded/failed message, which can be displayed approriately in IDE output window
     public class BicepBuildCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager CompilationManager;
 
         public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer)
-            : base("build", serializer)
+            : base(LanguageConstants.Build, serializer)
         {
             CompilationManager = compilationManager;
         }
@@ -28,7 +32,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
-                return Task.FromResult(string.Empty);
+                throw new ArgumentException("Invalid input file");
             }
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
@@ -40,20 +44,19 @@ namespace Bicep.LanguageServer.Handlers
         private string GenerateCompiledFileAndReturnBuildOutputMessage(string bicepFilePath, DocumentUri documentUri)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Build started...");
 
             string? compiledFilePath = GetCompiledFilePath(bicepFilePath, sb, out string bicepFile, out string compiledFile);
 
             if (string.IsNullOrWhiteSpace(compiledFilePath))
             {
-                return string.Empty;
+                throw new ArgumentException($"Invalid input file");
             }
 
             CompilationContext? context = CompilationManager.GetCompilation(documentUri);
 
             if (context is null)
             {
-                return string.Empty;
+                throw new InvalidOperationException($"Unable to get compilation context");
             }
 
             FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -82,10 +85,10 @@ namespace Bicep.LanguageServer.Handlers
 
             if (string.IsNullOrWhiteSpace(bicepFileWithoutExtension) || string.IsNullOrWhiteSpace(folder))
             {
-                sb.AppendLine("Unable to find file name without extension or folder of the specified path " + bicepFilePath);
                 return null;
             }
 
+            sb.AppendLine("Build started...");
             sb.AppendLine("bicep build " + bicepFile);
 
             compiledFile = bicepFileWithoutExtension + ".json";
