@@ -33,8 +33,6 @@ namespace Azure.Bicep.MSBuild
             builder.AppendSwitch("--outfile");
             builder.AppendFileNameIfNotNull(this.OutputFile);
 
-            builder.AppendSwitch("--no-summary");
-
             return builder.ToString();
         }
 
