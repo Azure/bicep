@@ -27,6 +27,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var lineCount = 100; // increase this number to 10,000 for more intense test
 
+            // use this crypto random number gen to avoid CI warning
             int generateRandomInt(int minVal = 0, int maxVal = 50)
             {
                 var rnd = new byte[4];
@@ -41,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 return new string(Enumerable.Repeat(chars, generateRandomInt())
-                  .Select(s => s[generateRandomInt(0, s.Length)]).ToArray());
+                  .Select(s => s[generateRandomInt(0, s.Length-1)]).ToArray());
             }
 
             var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
