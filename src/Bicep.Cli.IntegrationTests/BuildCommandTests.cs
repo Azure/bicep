@@ -50,6 +50,7 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(0);
+                output.Should().BeEmpty();
                 AssertNoErrors(error);
             }
 
@@ -106,6 +107,7 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(1);
+                output.Should().BeEmpty();
                 error.Should().ContainAll(diagnostics);
             }
         }
@@ -127,7 +129,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Build_WithOutFile_ShouldSucceed_WithSummary()
+        public void Build_WithOutFile_ShouldSucceed()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
 output myOutput string = 'hello!'
