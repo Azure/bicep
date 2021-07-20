@@ -48,7 +48,10 @@ namespace Bicep.Cli.Commands
 
             if (args.NoSummary is false)
             {
-                diagnosticLogger.LogSummary();
+                if(args.OutputToStdOut is false)
+                {
+                    diagnosticLogger.LogSummary();
+                }
             }
 
             // return non-zero exit code on errors
