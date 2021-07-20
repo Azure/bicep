@@ -50,8 +50,7 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(0);
-                output.Should().BeEmpty();
-                error.Should().MatchRegex(BuildSummarySucceededRegex);
+                output.Should().MatchRegex(BuildSummarySucceededRegex);
                 AssertNoErrors(error);
             }
 
@@ -69,7 +68,7 @@ namespace Bicep.Cli.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void Build_Valid_SingleFile_ToStdOut_ShouldSucceed_WithBuildSummary(DataSet dataSet)
+        public void Build_Valid_SingleFile_ToStdOut_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -80,7 +79,6 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
-                error.Should().MatchRegex(BuildSummarySucceededRegex);
                 AssertNoErrors(error);
             }
 
@@ -109,8 +107,7 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 result.Should().Be(1);
-                output.Should().BeEmpty();
-                error.Should().MatchRegex(BuildSummaryFailedRegex);
+                output.Should().MatchRegex(BuildSummaryFailedRegex);
                 error.Should().ContainAll(diagnostics);
             }
         }
@@ -126,7 +123,6 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(BuildSummaryFailedRegex);
 
             var diagnostics = GetAllDiagnostics(bicepFilePath);
             error.Should().ContainAll(diagnostics);
@@ -142,11 +138,11 @@ output myOutput string = 'hello!'
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var (_, error, result) = Bicep("build", "--outfile", outputFilePath, bicepPath);
+            var (output, error, result) = Bicep("build", "--outfile", outputFilePath, bicepPath);
 
             File.Exists(outputFilePath).Should().BeTrue();
             result.Should().Be(0);
-            error.Should().MatchRegex(BuildSummarySucceededRegex);
+            output.Should().MatchRegex(BuildSummarySucceededRegex);
         }
 
         [TestMethod]
@@ -189,11 +185,11 @@ output myOutput string = 'hello!'
             var expectedOutputFile = Path.Combine(outputFileDir, "input.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (_, error, result) = Bicep("build", "--outdir", outputFileDir, bicepPath);
+            var (output, error, result) = Bicep("build", "--outdir", outputFileDir, bicepPath);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
-            error.Should().MatchRegex(BuildSummarySucceededRegex);
+            output.Should().MatchRegex(BuildSummarySucceededRegex);
         }
 
         [DataRow("DoesNotExist.bicep", new[] { "--stdout" }, @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
