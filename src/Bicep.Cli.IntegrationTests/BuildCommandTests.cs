@@ -140,6 +140,8 @@ output myOutput string = 'hello!'
 
             File.Exists(outputFilePath).Should().BeTrue();
             result.Should().Be(0);
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -158,7 +160,7 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
-        public void Build_WithOutDir_ShouldSucceed_WithSummary()
+        public void Build_WithOutDir_ShouldSucceed()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
 output myOutput string = 'hello!'
@@ -172,6 +174,8 @@ output myOutput string = 'hello!'
             var (output, error, result) = Bicep("build", "--outdir", outputFileDir, bicepPath);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
+            output.Should().BeEmpty();
+            error.Should().BeEmpty();
             result.Should().Be(0);
         }
 

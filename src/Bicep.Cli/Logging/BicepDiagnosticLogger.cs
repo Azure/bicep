@@ -15,12 +15,10 @@ namespace Bicep.Cli.Logging
     public class BicepDiagnosticLogger : IDiagnosticLogger
     {
         private readonly ILogger logger;
-        private readonly InvocationContext invocationContext;
 
-        public BicepDiagnosticLogger(ILogger logger, InvocationContext invocationContext)
+        public BicepDiagnosticLogger(ILogger logger)
         {
             this.logger = logger;
-            this.invocationContext = invocationContext;
             this.ErrorCount = 0;
             this.WarningCount = 0;
         }
