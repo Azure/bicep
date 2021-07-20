@@ -137,6 +137,13 @@
         "category": "bicep"
       }
     ],
+    "keybindings": [
+      {
+          "command": "bicep.build",
+          "key": "ctrl+shift+b",
+          "when": "resourceLangId == bicep"
+      }
+    ],
     "menus": {
       "editor/title": [
         {
@@ -159,8 +166,7 @@
         },
         {
           "command": "bicep.build",
-          "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "when": "resourceLangId == bicep"
         }
       ],
       "editor/title/context": [

@@ -4,18 +4,18 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Emit;
 using Bicep.LanguageServer.CompilationManager;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepBuildCommandHandler : ExecuteTypedCommandHandlerBase<string>
+    public class BicepBuildCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager CompilationManager;
 
@@ -25,17 +25,20 @@ namespace Bicep.LanguageServer.Handlers
             CompilationManager = compilationManager;
         }
 
-        public override Task<Unit> Handle(string bicepFilePath, CancellationToken cancellationToken)
+        public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
         {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Build started...");
+
+            string? compiledFilePath = GetCompiledFilePath(bicepFilePath, sb, out string compiledFileName);
+
             DocumentUri uri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var context = CompilationManager.GetCompilation(uri);
 
             if (context == null)
             {
-                throw new InvalidOperationException($"Unable to get compilaction context");
+                throw new InvalidOperationException($"Unable to get compilation context");
             }
-
-            string? compiledFilePath = GetCompiledFilePath(bicepFilePath);
 
             if (!string.IsNullOrWhiteSpace(compiledFilePath))
             {
@@ -47,28 +50,37 @@ namespace Bicep.LanguageServer.Handlers
 
                     if (result.Diagnostics.Any())
                     {
-                        throw new Exception("Stuff went wrong");
+                        sb.AppendLine("Build failed. Input file has errors. Please fix the errors and try build command again");
+                    }
+                    else
+                    {
+                        sb.AppendLine("Build succeeded. Created compiled file: " + compiledFileName);
                     }
                 }
             }
 
-            return Unit.Task;
+            return Task.FromResult<string>(sb.ToString());
         }
 
-        private string? GetCompiledFilePath(string bicepFilePath)
+        private string? GetCompiledFilePath(string bicepFilePath, StringBuilder sb, out string compiledFileName)
         {
             string? fileNameWithoutExtension = Path.GetFileNameWithoutExtension(bicepFilePath);
+            string? fileName = Path.GetFileName(bicepFilePath);
+            compiledFileName = string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(fileNameWithoutExtension))
+            if (!string.IsNullOrWhiteSpace(fileNameWithoutExtension) || string.IsNullOrWhiteSpace(fileName))
             {
+                compiledFileName = fileNameWithoutExtension + ".json";
+                sb.AppendLine("bicep build " + fileName);
                 string? folder = Path.GetDirectoryName(bicepFilePath);
 
                 if (!string.IsNullOrWhiteSpace(folder))
                 {
-                    return Path.Combine(folder, fileNameWithoutExtension + ".json");
+                    return Path.Combine(folder, compiledFileName);
                 }
             }
 
+            sb.AppendLine("Unable to find file name or folder of the specified path " + bicepFilePath);
             return null;
         }
     }
