@@ -20,41 +20,41 @@
   },
   "functions": [],
   "variables": {
-    "uniquestr": "[uniqueString(resourceGroup().id)]",
-    "appconfigName": "[format('myappconfig{0}', variables('uniquestr'))]",
-    "flag01name": "flag01",
-    "flag02name": "flag02",
-    "ffcontenttype": "application/vnd.microsoft.appconfig.ff+json;charset=utf-8"
+    "uniqueStr": "[uniqueString(resourceGroup().id)]",
+    "appConfigName": "[format('myappconfig{0}', variables('uniqueStr'))]",
+    "flag01Name": "flag01",
+    "flag02Name": "flag02",
+    "ffContentType": "application/vnd.microsoft.appconfig.ff+json;charset=utf-8"
   },
   "resources": [
     {
       "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
       "apiVersion": "2021-03-01-preview",
-      "name": "[format('{0}/{1}', variables('appconfigName'), format('.appconfig.featureflag~2F{0}', variables('flag01name')))]",
+      "name": "[format('{0}/{1}', variables('appConfigName'), format('.appconfig.featureflag~2F{0}', variables('flag01Name')))]",
       "properties": {
-        "value": "[format('{{\t\"id\": \"{0}\",\t\"description\": \"\",\t\"enabled\": false,\t\"conditions\": {{\t\t\"client_filters\": []\t}}}}', variables('flag01name'))]",
-        "contentType": "[variables('ffcontenttype')]"
+        "value": "[format('{{\t\"id\": \"{0}\",\t\"description\": \"\",\t\"enabled\": false,\t\"conditions\": {{\t\t\"client_filters\": []\t}}}}', variables('flag01Name'))]",
+        "contentType": "[variables('ffContentType')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appconfigName'))]"
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigName'))]"
       ]
     },
     {
       "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
       "apiVersion": "2021-03-01-preview",
-      "name": "[format('{0}/{1}', variables('appconfigName'), format('.appconfig.featureflag~2F{0}', variables('flag02name')))]",
+      "name": "[format('{0}/{1}', variables('appConfigName'), format('.appconfig.featureflag~2F{0}', variables('flag02Name')))]",
       "properties": {
-        "value": "[format('{{\t\"id\": \"{0}\",\t\"description\": \"\",\t\"enabled\": false,\t\"conditions\": {{\t\t\"client_filters\": []\t}}}}', variables('flag02name'))]",
-        "contentType": "[variables('ffcontenttype')]"
+        "value": "[format('{{\t\"id\": \"{0}\",\t\"description\": \"\",\t\"enabled\": false,\t\"conditions\": {{\t\t\"client_filters\": []\t}}}}', variables('flag02Name'))]",
+        "contentType": "[variables('ffContentType')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appconfigName'))]"
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigName'))]"
       ]
     },
     {
       "type": "Microsoft.AppConfiguration/configurationStores",
       "apiVersion": "2021-03-01-preview",
-      "name": "[variables('appconfigName')]",
+      "name": "[variables('appConfigName')]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "[parameters('appConfigSku')]"
@@ -64,7 +64,7 @@
   "outputs": {
     "connstr": {
       "type": "string",
-      "value": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appconfigName')), '2021-03-01-preview').value[0].ConnectionString]"
+      "value": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigName')), '2021-03-01-preview').value[0].ConnectionString]"
     }
   }
 }
