@@ -6,7 +6,8 @@ import { LanguageClient } from "vscode-languageclient/node";
 
 export class BuildCommand implements Command {
   public readonly id = "bicep.build";
-  public readonly outputChannel = vscode.window.createOutputChannel("Build");
+  public readonly outputChannel =
+    vscode.window.createOutputChannel("Bicep Operations");
 
   public constructor(private readonly client: LanguageClient) {}
 

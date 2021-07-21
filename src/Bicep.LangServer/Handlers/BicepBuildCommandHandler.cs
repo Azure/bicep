@@ -2,14 +2,18 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
+using Bicep.Core.Text;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -61,9 +65,12 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             SemanticModel semanticModel = context.Compilation.GetEntrypointSemanticModel();
-            if (semanticModel.GetAllDiagnostics().Any())
+            KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile = context.Compilation.GetAllDiagnosticsByBicepFile()
+                .FirstOrDefault(x => x.Key.FileUri == documentUri.ToUri());
+
+            if (diagnosticsByFile.Value.Any())
             {
-                sb.AppendLine("Build failed. Please fix errors in " + bicepFile);
+                AppendDiagnosticsMessage(diagnosticsByFile, bicepFile, sb);
                 return sb.ToString();
             }
 
@@ -72,10 +79,26 @@ namespace Bicep.LanguageServer.Handlers
                 TemplateEmitter emitter = new TemplateEmitter(semanticModel, ThisAssembly.AssemblyFileVersion);
                 EmitResult result = emitter.Emit(fileStream);
 
-                sb.AppendLine("Build succeeded. Created compiled file: " + compiledFile);
+                sb.AppendLine("Build succeeded. Created transpiled ARM template: " + compiledFile);
             }
 
             return sb.ToString();
+        }
+
+        private void AppendDiagnosticsMessage(KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile, string bicepFile, StringBuilder sb)
+        {
+            sb.AppendLine("Build failed. Please fix below errors in " + bicepFile + " :");
+
+            IEnumerable<IDiagnostic> diagnostics = diagnosticsByFile.Value;
+            IReadOnlyList<int> lineStarts = diagnosticsByFile.Key.LineStarts;
+
+            for (int i = 0; i < diagnostics.Count(); i++)
+            {
+                IDiagnostic diagnostic = diagnostics.ElementAt(i);
+                var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+
+                sb.AppendLine((i+1) + ". " + diagnostic.Message + " bicep(" + diagnostic.Code + "). " + "[" + (startLine + 1) + ", " + (startChar + 1) + "]");
+            }
         }
 
         private string? GetCompiledFilePath(string bicepFilePath, StringBuilder sb, out string bicepFile, out string compiledFile)

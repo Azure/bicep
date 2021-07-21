@@ -35,8 +35,8 @@ namespace Bicep.LangServer.UnitTests
 
             return bicepCompilationManager;
         }
-         
-        private static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)
+
+        public static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)
         {
             var document = Repository.Create<ITextDocumentLanguageServer>();
             document
@@ -47,7 +47,7 @@ namespace Bicep.LangServer.UnitTests
             return document;
         }
 
-        private static Mock<ILanguageServerFacade> CreateMockServer(Mock<ITextDocumentLanguageServer> document)
+        public static Mock<ILanguageServerFacade> CreateMockServer(Mock<ITextDocumentLanguageServer> document)
         {
             var server = Repository.Create<ILanguageServerFacade>();
             server
@@ -65,7 +65,7 @@ namespace Bicep.LangServer.UnitTests
             return server;
         }
 
-        private static ICompilationProvider CreateEmptyCompilationProvider() =>
+        public static ICompilationProvider CreateEmptyCompilationProvider() =>
             new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), new InMemoryFileResolver(new Dictionary<Uri, string>()));
 
     }
