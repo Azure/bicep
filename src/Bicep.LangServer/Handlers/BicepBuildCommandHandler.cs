@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Emit;
+using Bicep.Core.Semantics;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -59,16 +60,18 @@ namespace Bicep.LanguageServer.Handlers
                 throw new InvalidOperationException($"Unable to get compilation context");
             }
 
-            FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-            TemplateEmitter emitter = new TemplateEmitter(context.Compilation.GetEntrypointSemanticModel(), ThisAssembly.AssemblyFileVersion);
-            EmitResult result = emitter.Emit(fileStream);
-
-            if (result.Diagnostics.Any())
+            SemanticModel semanticModel = context.Compilation.GetEntrypointSemanticModel();
+            if (semanticModel.GetAllDiagnostics().Any())
             {
                 sb.AppendLine("Build failed. Please fix errors in " + bicepFile);
+                return sb.ToString();
             }
-            else
+
+            using (FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
+                TemplateEmitter emitter = new TemplateEmitter(semanticModel, ThisAssembly.AssemblyFileVersion);
+                EmitResult result = emitter.Emit(fileStream);
+
                 sb.AppendLine("Build succeeded. Created compiled file: " + compiledFile);
             }
 
