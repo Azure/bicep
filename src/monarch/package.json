@@ -14,7 +14,7 @@
     "jest": "^27.0.6",
     "jest-esm-transformer": "^1.0.0",
     "monaco-editor-core": "^0.26.0",
-    "ts-jest": "^27.0.3",
+    "ts-jest": "^27.0.4",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
   },
