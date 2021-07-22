@@ -36,6 +36,7 @@ const GraphContainer = styled.div`
   top: 0px;
   bottom: 0px;
   right: 0px;
+  overflow: hidden;
 `;
 
 const GraphComponent: VFC<GraphProps> = ({ elements }) => {
