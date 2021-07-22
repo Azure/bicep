@@ -136,44 +136,44 @@
       "editor/title": [
         {
           "command": "bicep.showVisualizerToSide",
-          "when": "editorLangId == bicep",
+          "when": "editorLangId == bicep && commandsRegistered",
           "alt": "bicep.showVisualizer",
           "group": "navigation"
         },
         {
           "command": "bicep.showSource",
-          "when": "bicepVisualizerFocus",
+          "when": "bicepVisualizerFocus && commandsRegistered",
           "group": "navigation"
         }
       ],
       "explorer/context": [
         {
           "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep && commandsRegistered",
           "group": "navigation"
         }
       ],
       "editor/title/context": [
         {
           "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep && commandsRegistered",
           "group": "1_open"
         }
       ],
       "commandPalette": [
         {
           "command": "bicep.showVisualizer",
-          "when": "editorLangId == bicep",
+          "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
         {
           "command": "bicep.showVisualizerToSide",
-          "when": "editorLangId == bicep",
+          "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
         {
           "command": "bicep.showSource",
-          "when": "bicepVisualizerFocus",
+          "when": "bicepVisualizerFocus && commandsRegistered",
           "group": "navigation"
         }
       ]
