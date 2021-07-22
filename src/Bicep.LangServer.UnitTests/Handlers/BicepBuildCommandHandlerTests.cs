@@ -3,9 +3,9 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
@@ -29,7 +29,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly ISerializer Serializer = Repository.Create<ISerializer>().Object;
 
-        [DataRow("invalid_path")]
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
@@ -47,7 +46,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void Handle_WithNullContext_ShouldThrowInvalidOperationException()
         {
-            DocumentUri documentUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, false);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer);
 
@@ -59,7 +59,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task Handle_WithValidPath_AndErrorsInInputFile_ReturnsBuildFailedMessage()
         {
-            DocumentUri documentUri = DocumentUri.Parse("test.bicep");
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, @"targetScope
 
 // #completionTest(12) -> empty
@@ -76,11 +77,9 @@ targetScope = { }
 targetScope = true
 ", true);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object);
-            string expected = await bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
+            string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
-            expected.Should().BeEquivalentToIgnoringNewlines(@"Build started...
-bicep build test.bicep
-Build failed. Please fix below errors in test.bicep :
+            expected.Should().BeEquivalentToIgnoringNewlines(@"Build failed. Please fix below errors in input.bicep:
 1. The ""targetScope"" cannot be declared multiple times in one file. bicep(BCP112). [1, 1]
 2. Expected the ""="" character at this location. bicep(BCP018). [1, 12]
 3. Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. bicep(BCP009). [1, 12]
@@ -99,6 +98,20 @@ Build failed. Please fix below errors in test.bicep :
         }
 
         [TestMethod]
+        public async Task Handle_WhenCompiledFileAlreadyExists_ReturnsBuildFailedMessage()
+        {
+            string outputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, outputPath);
+            FileHelper.SaveResultFile(TestContext, "input.json", string.Empty, outputPath);
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object);
+            string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
+
+            expected.Should().Be(@"Build failed. input.json already exists.");
+        }
+
+        [TestMethod]
         public async Task Handle_WithValidPath_AndNoErrorsInInputFile_ReturnsBuildSucceededMessage()
         {
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
@@ -107,10 +120,7 @@ Build failed. Please fix below errors in test.bicep :
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
-            expected.Should().BeEquivalentToIgnoringNewlines(@"Build started...
-bicep build input.bicep
-Build succeeded. Created transpiled ARM template: input.json
-");
+            expected.Should().Be(@"Build succeeded. Created file input.json");
         }
     }
 }

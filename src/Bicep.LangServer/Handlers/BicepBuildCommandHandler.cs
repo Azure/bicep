@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
@@ -48,13 +49,12 @@ namespace Bicep.LanguageServer.Handlers
 
         private string GenerateCompiledFileAndReturnBuildOutputMessage(string bicepFilePath, DocumentUri documentUri)
         {
-            StringBuilder sb = new StringBuilder();
+            string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
+            string compiledFile = Path.GetFileName(compiledFilePath);
 
-            string? compiledFilePath = GetCompiledFilePath(bicepFilePath, sb, out string bicepFile, out string compiledFile);
-
-            if (string.IsNullOrWhiteSpace(compiledFilePath))
+            if (File.Exists(compiledFilePath))
             {
-                throw new ArgumentException($"Invalid input file");
+                return "Build failed. " + compiledFile + " already exists.";
             }
 
             CompilationContext? context = CompilationManager.GetCompilation(documentUri);
@@ -67,27 +67,26 @@ namespace Bicep.LanguageServer.Handlers
             SemanticModel semanticModel = context.Compilation.GetEntrypointSemanticModel();
             KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile = context.Compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == documentUri.ToUri());
+            StringBuilder sb = new StringBuilder();
 
             if (diagnosticsByFile.Value.Any())
             {
-                AppendDiagnosticsMessage(diagnosticsByFile, bicepFile, sb);
+                AppendDiagnosticsMessage(diagnosticsByFile, Path.GetFileName(bicepFilePath), sb);
                 return sb.ToString();
             }
 
-            using (FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite))
             {
                 TemplateEmitter emitter = new TemplateEmitter(semanticModel, ThisAssembly.AssemblyFileVersion);
                 EmitResult result = emitter.Emit(fileStream);
 
-                sb.AppendLine("Build succeeded. Created transpiled ARM template: " + compiledFile);
+                return "Build succeeded. Created file " + compiledFile;
             }
-
-            return sb.ToString();
         }
 
         private void AppendDiagnosticsMessage(KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile, string bicepFile, StringBuilder sb)
         {
-            sb.AppendLine("Build failed. Please fix below errors in " + bicepFile + " :");
+            sb.AppendLine("Build failed. Please fix below errors in " + bicepFile + ":");
 
             IEnumerable<IDiagnostic> diagnostics = diagnosticsByFile.Value;
             IReadOnlyList<int> lineStarts = diagnosticsByFile.Key.LineStarts;
@@ -99,27 +98,6 @@ namespace Bicep.LanguageServer.Handlers
 
                 sb.AppendLine((i+1) + ". " + diagnostic.Message + " bicep(" + diagnostic.Code + "). " + "[" + (startLine + 1) + ", " + (startChar + 1) + "]");
             }
-        }
-
-        private string? GetCompiledFilePath(string bicepFilePath, StringBuilder sb, out string bicepFile, out string compiledFile)
-        {
-            compiledFile = string.Empty;
-            bicepFile = Path.GetFileName(bicepFilePath);
-
-            string? bicepFileWithoutExtension = Path.GetFileNameWithoutExtension(bicepFilePath);
-            string? folder = Path.GetDirectoryName(bicepFilePath);
-
-            if (string.IsNullOrWhiteSpace(bicepFileWithoutExtension) || string.IsNullOrWhiteSpace(folder))
-            {
-                return null;
-            }
-
-            sb.AppendLine("Build started...");
-            sb.AppendLine("bicep build " + bicepFile);
-
-            compiledFile = bicepFileWithoutExtension + ".json";
-
-            return Path.Combine(folder, compiledFile);
         }
     }
 }
