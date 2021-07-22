@@ -88,10 +88,10 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ModuleBodySnippetInsertion",
           "Properties": {
             "name": "required-properties"
-          }
+          },
+          "EventName": "ModuleBodySnippetInsertion"
         }
       ]
     }
@@ -117,10 +117,10 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ModuleBodySnippetInsertion",
           "Properties": {
             "name": "{}"
-          }
+          },
+          "EventName": "ModuleBodySnippetInsertion"
         }
       ]
     }
