@@ -177,7 +177,6 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-	$0
 }");
                 });
         }
@@ -229,7 +228,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-	$0
 }");
                 });
         }
@@ -237,7 +235,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNestedResource_ShouldReturnSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             ResourceType resourceType = new ResourceType(
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/certificates@2019-06-01"),
                 ResourceScope.ResourceGroup,
@@ -278,7 +275,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-	$0
 }");
                 });
         }
@@ -330,7 +326,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
 	}
 	kind: $5
 	hostPoolType: $6
-	$0
 }");
                 });
         }
@@ -358,7 +353,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetNestedResourceDeclarationSnippets_WithChildResources_ShouldReturnCustomAndDefaultResourceSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             ResourceTypeReference resourceTypeReference = ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts@2019-06-01");
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(resourceTypeReference);
@@ -401,7 +395,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetNestedResourceDeclarationSnippets_WithNoChildResources_ShouldReturnDefaultResourceSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             ResourceTypeReference resourceTypeReference = ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/runbooks@2019-06-01");
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetNestedResourceDeclarationSnippets(resourceTypeReference);
@@ -420,8 +413,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithDiscriminatedObjectTypeAndNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
-
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("discKey", new StringLiteralType("keyA")),
@@ -456,8 +447,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnRequiredPropertiesSnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
-
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("discKey", new StringLiteralType("keyA")),
@@ -499,7 +488,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: 'keyA'
 	location: $1
-	$0
 }");
                 },
                 x =>
@@ -509,7 +497,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
-	$0
 }");
                 });
         }
@@ -517,7 +504,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetModuleBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
@@ -541,7 +527,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetModuleBodyCompletionSnippets_WithRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -568,7 +553,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-	$0
 }");
                 });
         }
@@ -576,7 +560,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
@@ -599,7 +582,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -625,7 +607,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-	$0
 }");
                 });
         }
@@ -633,8 +614,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
-
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("discKey", new StringLiteralType("keyA")),
@@ -664,8 +643,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            SnippetsProvider snippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
-
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("discKey", new StringLiteralType("keyA")),
@@ -702,7 +679,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: 'keyA'
 	location: $1
-	$0
 }");
                 },
                 x =>
@@ -712,7 +688,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
-	$0
 }");
                 });
         }

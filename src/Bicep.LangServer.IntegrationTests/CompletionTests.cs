@@ -493,7 +493,6 @@ var test2 = /|* block c|omment *|/
 		azCliVersion: $3
 		retentionInterval: $4
 	}
-	$0
 }");
                 },
                 c =>
@@ -509,7 +508,6 @@ var test2 = /|* block c|omment *|/
 		azPowerShellVersion: $3
 		retentionInterval: $4
 	}
-	$0
 }");
                 },
                 c =>

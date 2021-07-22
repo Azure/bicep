@@ -73,7 +73,7 @@
     "detail": "Required properties",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n\tname: \n\tlocation: \n\t\n}\n```"
+      "value": "```bicep\n{\n\tname: \n\tlocation: \n}\n```"
     },
     "deprecated": false,
     "preselect": true,
@@ -82,17 +82,17 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n\tname: $1\n\tlocation: $2\n\t$0\n}"
+      "newText": "{\n\tname: $1\n\tlocation: $2\n}"
     },
     "command": {
       "command": "bicep.Telemetry",
       "arguments": [
         {
+          "EventName": "ResourceBodySnippetInsertion",
           "Properties": {
             "name": "required-properties",
             "type": "Microsoft.Network/dnsZones@2018-05-01"
-          },
-          "EventName": "ResourceBodySnippetInsertion"
+          }
         }
       ]
     }
@@ -118,11 +118,11 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
+          "EventName": "ResourceBodySnippetInsertion",
           "Properties": {
             "name": "snippet",
             "type": "Microsoft.Network/dnsZones@2018-05-01"
-          },
-          "EventName": "ResourceBodySnippetInsertion"
+          }
         }
       ]
     }
@@ -148,11 +148,11 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
+          "EventName": "ResourceBodySnippetInsertion",
           "Properties": {
             "name": "{}",
             "type": "Microsoft.Network/dnsZones@2018-05-01"
-          },
-          "EventName": "ResourceBodySnippetInsertion"
+          }
         }
       ]
     }

@@ -330,11 +330,9 @@ namespace Bicep.LanguageServer.Snippets
 
             if (sb.Length > 0)
             {
-                // Insert open curly at the beginning
+                // Enclose within curly braces
                 sb.Insert(0, "{\n");
-
-                // Append final tab stop
-                sb.Append("\t$0\n}");
+                sb.Append("}");
 
                 return new Snippet(sb.ToString(), CompletionPriority.Medium, label, RequiredPropertiesDescription);
             }
