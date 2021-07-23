@@ -1,22 +1,33 @@
-// $1 = azureFunction
+// $1 = serverfarms
 // $2 = 'name'
-// $3 = 'serverFarmName'
-// $4 = storageAccountName1
-// $5 = 'storageAccountID1'
-// $6 = storageAccountName2
-// $7 = 'storageAccountID2'
-// $8 = storageAccountName3
-// $9 = 'storageAccountID3'
-// $10 = 'applicationInsightsName'
-// $11 = dotnet
+// $3 = insightsComponents
+// $4 = 'name'
+// $5 = azureFunction
+// $6 = 'name'
+// $7 = storageAccountName1
+// $8 = 'storageAccountID1'
+// $9 = storageAccountName2
+// $10 = 'storageAccountID2'
+// $11 = storageAccountName3
+// $12 = 'storageAccountID3'
+// $13 = 'name'
+// $14 = dotnet
 
+
+resource serverfarms 'Microsoft.Web/serverfarms@2021-01-15' existing = {
+  name: 'name'
+}
+
+resource insightsComponents 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: 'name'
+}
 
 resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
   name: 'name'
   location: resourceGroup().location
   kind: 'functionapp'
   properties: {
-    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'serverFarmName')
+    serverFarmId: serverfarms.id
     siteConfig: {
       appSettings: [
         {
@@ -41,7 +52,7 @@ resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: reference(resourceId('microsoft.insights/components/', 'applicationInsightsName'), '2015-05-01').InstrumentationKey
+          value: reference(insightsComponents.id, '2015-05-01').InstrumentationKey
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
