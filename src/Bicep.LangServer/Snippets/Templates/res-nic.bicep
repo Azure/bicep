@@ -1,15 +1,24 @@
 ﻿// Network Interface
-resource /*${1:networkInterface}*/networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {
-  name: /*${2:'name'}*/'name'
+resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+  name: /*${1:'name'}*/'name'
+}
+
+resource /*${2:'subnet'}*/subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {
+  parent: vnet
+  name: /*${3:'name'}*/'name'
+}
+
+resource /*${4:networkInterface}*/networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {
+  name: /*${5:'name'}*/'name'
   location: resourceGroup().location
   properties: {
     ipConfigurations: [
       {
-        name: /*${3:'name'}*/'name'
+        name: /*${6:'name'}*/'name'
         properties: {
-          privateIPAllocationMethod: /*'${4|Dynamic,Static|}'*/'Dynamic'
+          privateIPAllocationMethod: /*'${7|Dynamic,Static|}'*/'Dynamic'
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', /*${5:'virtualNetwork'}*/'virtualNetwork', /*${6:'subnet'}*/'subnet')
+            id: subnet.id
           }
         }
       }
