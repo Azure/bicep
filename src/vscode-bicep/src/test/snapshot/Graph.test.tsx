@@ -16,6 +16,7 @@ describe("component Graph", () => {
         top: 0px;
         bottom: 0px;
         right: 0px;
+        overflow: hidden;
       }
 
       <div

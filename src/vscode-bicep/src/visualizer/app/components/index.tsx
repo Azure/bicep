@@ -12,6 +12,7 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     display: flex;
+    overflow: hidden;
   }
 
   #root {
@@ -20,6 +21,7 @@ const GlobalStyle = createGlobalStyle`
     background-image: radial-gradient(circle at 1px 1px, #3f3f3f 1px, transparent 0);
     background-size: 24px 24px;
     background-position: 12px 12px;
+    overflow: hidden;
   }
 `;
 

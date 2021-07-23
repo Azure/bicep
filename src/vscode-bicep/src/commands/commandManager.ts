@@ -6,15 +6,23 @@ import { Disposable } from "../utils/disposable";
 import { Command } from "./types";
 
 export class CommandManager extends Disposable {
-  public registerCommand<T extends Command>(command: T): void {
-    this.register(
-      vscode.commands.registerCommand(command.id, command.execute, command)
+  private static commandsRegistredContextKey = "commandsRegistered";
+
+  public async registerCommands<T extends [Command, ...Command[]]>(
+    ...commands: T
+  ): Promise<void> {
+    commands.map((command) => this.registerCommand(command));
+
+    await vscode.commands.executeCommand(
+      "setContext",
+      CommandManager.commandsRegistredContextKey,
+      true
     );
   }
 
-  public registerCommands<T extends [Command, ...Command[]]>(
-    ...commands: T
-  ): void {
-    commands.map((command) => this.registerCommand(command));
+  private registerCommand<T extends Command>(command: T): void {
+    this.register(
+      vscode.commands.registerCommand(command.id, command.execute, command)
+    );
   }
 }
