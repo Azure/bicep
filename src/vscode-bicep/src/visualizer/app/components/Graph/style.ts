@@ -3,7 +3,8 @@
 import { Stylesheet } from "cytoscape";
 import { DefaultTheme } from "styled-components";
 
-import moduleSvg from "../../assets/icons/graph/module.svg";
+import { importResourceIconInline } from "../../assets/icons/azure";
+import moduleIcon from "../../assets/icons/azure/general/10802-icon-service-Folder-Blank.svg";
 
 function escapeXml(text: string) {
   return text.replace(/[<>&'"]/g, (c) => {
@@ -51,10 +52,10 @@ export async function createChildlessNodeBackgroundUri(
   isCollection: boolean,
   theme: DefaultTheme
 ): Promise<string> {
-  const iconSvg =
-    type !== "<module>"
-      ? (await import("../../assets/icons/graph/resource.svg")).default
-      : moduleSvg;
+  const icon =
+    type !== "<module>" ? await importResourceIconInline(type) : moduleIcon;
+
+  console.log(icon);
 
   type = type.split("/").pop() ?? type;
   type += isCollection ? "[]" : "";
@@ -64,13 +65,17 @@ export async function createChildlessNodeBackgroundUri(
     <svg xmlns="http://www.w3.org/2000/svg" width="220" height="80" viewBox="0 0 220 80">
       <g transform="translate(12, 16)">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48">
-          ${iconSvg}
+          ${icon}
         </svg>
       </g>
-      <text x="72" y="36" font-family="${theme.fontFamily}" font-size="16" fill="${foregroundColor}">
+      <text x="72" y="36" font-family="${
+        theme.fontFamily
+      }" font-size="16" fill="${foregroundColor}">
        ${escapeXml(truncate(symbol, 17))}
       </text>
-      <text x="72" y="56" font-family="${theme.fontFamily}" font-size="12" fill="${foregroundSecondaryColor}">
+      <text x="72" y="56" font-family="${
+        theme.fontFamily
+      }" font-size="12" fill="${foregroundSecondaryColor}">
        ${escapeXml(truncate(type, 23))}
       </text>
     </svg>
@@ -90,9 +95,11 @@ export function createContainerNodeBackgroundUri(
   const backgroundSvg = `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>
     <svg xmlns="http://www.w3.org/2000/svg">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18">
-        ${moduleSvg}
+        ${moduleIcon}
       </svg>
-      <text x="28" y="14" font-family="${theme.fontFamily}" font-size="12" fill="${foregroundSecondaryColor}">
+      <text x="28" y="14" font-family="${
+        theme.fontFamily
+      }" font-size="12" fill="${foregroundSecondaryColor}">
        ${escapeXml(truncate(symbol, 37))}
       </text>
     </svg>
