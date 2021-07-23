@@ -7,7 +7,6 @@ import { App } from "./App";
 
 const GlobalStyle = createGlobalStyle`
   body {
-    font-family: Segoe UI, Helvetica Neue, Helvetica, sans-serif;
     height: 100vh;
     margin: 0;
     padding: 0;

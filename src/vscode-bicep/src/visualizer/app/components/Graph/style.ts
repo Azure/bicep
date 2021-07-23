@@ -67,10 +67,10 @@ export async function createChildlessNodeBackgroundUri(
           ${iconSvg}
         </svg>
       </g>
-      <text x="72" y="36" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="16" fill="${foregroundColor}">
+      <text x="72" y="36" font-family="${theme.fontFamily}" font-size="16" fill="${foregroundColor}">
        ${escapeXml(truncate(symbol, 17))}
       </text>
-      <text x="72" y="56" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="12" fill="${foregroundSecondaryColor}">
+      <text x="72" y="56" font-family="${theme.fontFamily}" font-size="12" fill="${foregroundSecondaryColor}">
        ${escapeXml(truncate(type, 23))}
       </text>
     </svg>
@@ -92,7 +92,7 @@ export function createContainerNodeBackgroundUri(
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18">
         ${moduleSvg}
       </svg>
-      <text x="28" y="14" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="12" fill="${foregroundSecondaryColor}">
+      <text x="28" y="14" font-family="${theme.fontFamily}" font-size="12" fill="${foregroundSecondaryColor}">
        ${escapeXml(truncate(symbol, 37))}
       </text>
     </svg>

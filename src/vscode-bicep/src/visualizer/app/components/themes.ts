@@ -1,6 +1,11 @@
 import { DefaultTheme } from "styled-components";
 
+const fontFamily = getComputedStyle(document.body)
+  .getPropertyValue("--vscode-font-family")
+  .replace(/"/g, "");
+
 export const darkTheme: DefaultTheme = {
+  fontFamily,
   common: {
     foregroundColor: "#ffffff",
     foregroundSecondaryColor: "#c1c1c1",
@@ -9,7 +14,8 @@ export const darkTheme: DefaultTheme = {
   },
   canvas: {
     backgroundColor: "#111111",
-    backgroundImage: "radial-gradient(circle at 1px 1px, #3f3f3f 1px, transparent 0)",
+    backgroundImage:
+      "radial-gradient(circle at 1px 1px, #3f3f3f 1px, transparent 0)",
   },
   graph: {
     childlessNode: {
@@ -29,12 +35,12 @@ export const darkTheme: DefaultTheme = {
       width: 2,
       opacity: 0.6,
       color: "#c1c1c1",
-    }
+    },
   },
 };
 
-
 export const lightTheme: DefaultTheme = {
+  fontFamily,
   common: {
     foregroundColor: "#323130",
     foregroundSecondaryColor: "#484644",
@@ -43,7 +49,8 @@ export const lightTheme: DefaultTheme = {
   },
   canvas: {
     backgroundColor: "#ffffff",
-    backgroundImage: "radial-gradient(circle at 1px 1px, #a0a6af 1px, transparent 0)",
+    backgroundImage:
+      "radial-gradient(circle at 1px 1px, #a0a6af 1px, transparent 0)",
   },
   graph: {
     childlessNode: {
@@ -63,11 +70,12 @@ export const lightTheme: DefaultTheme = {
       width: 2,
       opacity: 0.6,
       color: "#484644",
-    }
+    },
   },
 };
 
 export const highContrastTheme: DefaultTheme = {
+  fontFamily,
   common: {
     foregroundColor: "White",
     foregroundSecondaryColor: "Yellow",
@@ -96,6 +104,6 @@ export const highContrastTheme: DefaultTheme = {
       width: 2,
       opacity: 1,
       color: "Yellow",
-    }
+    },
   },
 };

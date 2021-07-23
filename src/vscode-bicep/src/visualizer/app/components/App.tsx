@@ -32,6 +32,8 @@ async function mapToElements(
     return [];
   }
 
+  console.log(theme.fontFamily);
+
   const nodes = await Promise.all(
     graph.nodes.map(async (node) => {
       const idSegments = node.id.split("::");
