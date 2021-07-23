@@ -1,6 +1,7 @@
-﻿// $1 = webApplication
+﻿// $1 = webServerFarms
 // $2 = 'name'
-// $3 = appServicePlan
-// $4 = 'appServicePlan'
+// $3 = webApplication
+// $4 = 'name'
+// $5 = appServicePlan
 
 // Insert snippet here

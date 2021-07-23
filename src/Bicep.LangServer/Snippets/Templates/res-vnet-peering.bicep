@@ -1,13 +1,17 @@
 // Virtual Network Peering
-resource /*${1:peering}*/peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
-  name: /*${2:'virtualNetwork/name'}*/'virtualNetwork/name'
+resource /*${1:virtualNetworks}*/virtualNetworks 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+  name:  /*${2:'name'}*/'name'
+} 
+
+resource /*${3:peering}*/peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
+  name: /*${4:'virtualNetwork/name'}*/'virtualNetwork/name'
   properties: {
-    allowVirtualNetworkAccess: /*${3|true,false|}*/true
-    allowForwardedTraffic: /*${4|true,false|}*/true
-    allowGatewayTransit: /*${5|true,false|}*/true
-    useRemoteGateways: /*${6|true,false|}*/true
+    allowVirtualNetworkAccess: /*${5|true,false|}*/true
+    allowForwardedTraffic: /*${6|true,false|}*/true
+    allowGatewayTransit: /*${7|true,false|}*/true
+    useRemoteGateways: /*${8|true,false|}*/true
     remoteVirtualNetwork: {
-      id: resourceId('Microsoft.Network/virtualNetworks', /*${7:'REQUIRED'}*/'REQUIRED')
+      id: virtualNetworks.id
     }
   }
 }
