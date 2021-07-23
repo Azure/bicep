@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { DefaultTheme } from "styled-components";
 
 const fontFamily = getComputedStyle(document.body)
