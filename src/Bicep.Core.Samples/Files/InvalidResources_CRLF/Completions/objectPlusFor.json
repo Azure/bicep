@@ -82,7 +82,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n\tname: $1\n\tlocation: $2\n}"
+      "newText": "{\n\tname: $1\n\tlocation: $2\n$0}"
     },
     "command": {
       "command": "bicep.Telemetry",

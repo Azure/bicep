@@ -111,7 +111,8 @@ namespace Bicep.LangServer.IntegrationTests
                 File.Exists(combinedFileName).Should().BeTrue($"Combined snippet file \"{combinedSourceFileName}\" should be checked in");
 
                 var combinedFileUri = PathHelper.FilePathToFileUrl(combinedFileName);
-                var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string> {
+                var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
+                {
                     [combinedFileUri] = bicepContentsReplaced,
                 }, combinedFileUri, BicepTestConstants.FileResolver);
                 var compilation = new Compilation(TypeProvider, sourceFileGrouping);
@@ -493,7 +494,7 @@ var test2 = /|* block c|omment *|/
 		azCliVersion: $3
 		retentionInterval: $4
 	}
-}");
+$0}");
                 },
                 c =>
                 {
@@ -508,7 +509,7 @@ var test2 = /|* block c|omment *|/
 		azPowerShellVersion: $3
 		retentionInterval: $4
 	}
-}");
+$0}");
                 },
                 c =>
                 {
