@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { Stylesheet } from "cytoscape";
+import { DefaultTheme } from "styled-components";
 
 import moduleSvg from "../../assets/icons/graph/module.svg";
-
-const backgroundColor = "#333333";
-const backgroundColorSecondary = "#3f3f3f";
-const foregroundColor = "#ffffff";
-const foregroundColorSecondary = "#c1c1c1";
-const errorColor = "red";
 
 function escapeXml(text: string) {
   return text.replace(/[<>&'"]/g, (c) => {
@@ -53,7 +48,8 @@ function createDataUri(svg: string) {
 export async function createChildlessNodeBackgroundUri(
   symbol: string,
   type: string,
-  isCollection: boolean
+  isCollection: boolean,
+  theme: DefaultTheme
 ): Promise<string> {
   const iconSvg =
     type !== "<module>"
@@ -63,6 +59,7 @@ export async function createChildlessNodeBackgroundUri(
   type = type.split("/").pop() ?? type;
   type += isCollection ? "[]" : "";
 
+  const { foregroundColor, foregroundSecondaryColor } = theme.common;
   const backgroundSvg = `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>
     <svg xmlns="http://www.w3.org/2000/svg" width="220" height="80" viewBox="0 0 220 80">
       <g transform="translate(12, 16)">
@@ -73,7 +70,7 @@ export async function createChildlessNodeBackgroundUri(
       <text x="72" y="36" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="16" fill="${foregroundColor}">
        ${escapeXml(truncate(symbol, 17))}
       </text>
-      <text x="72" y="56" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="12" fill="${foregroundColorSecondary}">
+      <text x="72" y="56" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="12" fill="${foregroundSecondaryColor}">
        ${escapeXml(truncate(type, 23))}
       </text>
     </svg>
@@ -82,18 +79,20 @@ export async function createChildlessNodeBackgroundUri(
   return createDataUri(backgroundSvg);
 }
 
-export async function createContainerNodeBackgroundUri(
+export function createContainerNodeBackgroundUri(
   symbol: string,
-  isCollection: boolean
-): Promise<string> {
+  isCollection: boolean,
+  theme: DefaultTheme
+): string {
   symbol += isCollection ? " <collection>" : "";
 
+  const { foregroundSecondaryColor } = theme.common;
   const backgroundSvg = `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>
     <svg xmlns="http://www.w3.org/2000/svg">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18">
         ${moduleSvg}
       </svg>
-      <text x="28" y="14" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="12" fill="#9c9c9c">
+      <text x="28" y="14" font-family="Helvetica Neue, Helvetica, sans-serif" font-size="12" fill="${foregroundSecondaryColor}">
        ${escapeXml(truncate(symbol, 37))}
       </text>
     </svg>
@@ -102,45 +101,57 @@ export async function createContainerNodeBackgroundUri(
   return createDataUri(backgroundSvg);
 }
 
-export const stylesheet: Stylesheet[] = [
-  {
-    selector: "node:childless",
-    style: {
-      shape: "round-rectangle",
-      width: 220,
-      height: 80,
-      "background-color": backgroundColor,
-      "background-image": "data(backgroundDataUri)",
-      "border-width": 1,
-      "border-color": (node) =>
-        node.data("hasError") === true ? errorColor : backgroundColorSecondary,
-      "border-opacity": 0.8,
+export function createStylesheet(theme: DefaultTheme): Stylesheet[] {
+  const {
+    common: { errorIndicatorColor },
+    graph: { childlessNode, containerNode, edge },
+  } = theme;
+
+  return [
+    {
+      selector: "node:childless",
+      style: {
+        shape: "round-rectangle",
+        width: 220,
+        height: 80,
+        "background-color": childlessNode.backgroundColor,
+        "background-image": "data(backgroundDataUri)",
+        "border-width": childlessNode.borderWidth,
+        "border-color": (node) =>
+          node.data("hasError") === true
+            ? errorIndicatorColor
+            : childlessNode.borderColor,
+        "border-opacity": childlessNode.borderOpacity,
+      },
     },
-  },
-  {
-    selector: "node:parent",
-    style: {
-      shape: "round-rectangle",
-      "background-color": backgroundColor,
-      "background-image": "data(backgroundDataUri)",
-      "background-position-x": 12,
-      "background-position-y": 8,
-      "border-width": 1,
-      "border-color": (node) =>
-        node.data("hasError") === true ? errorColor : foregroundColorSecondary,
-      "background-blacken": 0.4,
-      "background-opacity": 0.1,
-      "padding-top": "40px",
+    {
+      selector: "node:parent",
+      style: {
+        shape: "round-rectangle",
+        "background-color": containerNode.backgroundColor,
+        "background-image": "data(backgroundDataUri)",
+        "background-position-x": 12,
+        "background-position-y": 8,
+        "border-width": containerNode.borderWidth,
+        "border-color": (node) =>
+          node.data("hasError") === true
+            ? errorIndicatorColor
+            : containerNode.borderColor,
+        "border-opacity": containerNode.borderOpacity,
+        "background-opacity": containerNode.backgroundOpacity,
+        "padding-top": "40px",
+      },
     },
-  },
-  {
-    selector: "edge",
-    style: {
-      width: 2,
-      color: foregroundColor,
-      opacity: 0.5,
-      "curve-style": "bezier",
-      "target-arrow-shape": "triangle",
+    {
+      selector: "edge",
+      style: {
+        width: 2,
+        "line-color": edge.color,
+        "target-arrow-color": edge.color,
+        opacity: edge.opacity,
+        "curve-style": "bezier",
+        "target-arrow-shape": "triangle",
+      },
     },
-  },
-];
+  ];
+}

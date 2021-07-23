@@ -22,6 +22,23 @@ describe("component App", () => {
       Array [
         .c0 {
         position: absolute;
+        left: 0px;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+        overflow: hidden;
+        background-color: #111111;
+        background-image: radial-gradient(circle at 1px 1px,#3f3f3f 1px,transparent 0);
+        background-size: 24px 24px;
+        background-position: 12px 12px;
+      }
+
+      <div
+          className="c0"
+        />,
+        .c0 {
+        position: absolute;
+        height: 32px;
         left: 20px;
         bottom: 20px;
         display: -webkit-box;
@@ -40,7 +57,7 @@ describe("component App", () => {
       .c1 {
         width: 8px;
         height: 8px;
-        background-color: green;
+        background-color: Green;
         border-radius: 50%;
         color: white;
         margin-top: 2px;
@@ -57,18 +74,6 @@ describe("component App", () => {
             There is no resources or modules in the file. Nothing to render.
           </div>
         </div>,
-        .c0 {
-        position: absolute;
-        left: 0px;
-        top: 0px;
-        bottom: 0px;
-        right: 0px;
-        overflow: hidden;
-      }
-
-      <div
-          className="c0"
-        />,
       ]
     `);
   });
