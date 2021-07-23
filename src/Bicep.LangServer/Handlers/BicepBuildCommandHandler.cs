@@ -67,12 +67,10 @@ namespace Bicep.LanguageServer.Handlers
             SemanticModel semanticModel = context.Compilation.GetEntrypointSemanticModel();
             KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile = context.Compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == documentUri.ToUri());
-            StringBuilder sb = new StringBuilder();
 
             if (diagnosticsByFile.Value.Any())
             {
-                AppendDiagnosticsMessage(diagnosticsByFile, Path.GetFileName(bicepFilePath), sb);
-                return sb.ToString();
+                return GetDiagnosticsMessage(diagnosticsByFile);
             }
 
             using (FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite))
@@ -84,20 +82,24 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        private void AppendDiagnosticsMessage(KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile, string bicepFile, StringBuilder sb)
+        private string GetDiagnosticsMessage(KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile)
         {
-            sb.AppendLine("Build failed. Please fix below errors in " + bicepFile + ":");
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Build failed. Please fix below errors:");
 
-            IEnumerable<IDiagnostic> diagnostics = diagnosticsByFile.Value;
             IReadOnlyList<int> lineStarts = diagnosticsByFile.Key.LineStarts;
 
-            for (int i = 0; i < diagnostics.Count(); i++)
+            foreach (IDiagnostic diagnostic in diagnosticsByFile.Value)
             {
-                IDiagnostic diagnostic = diagnostics.ElementAt(i);
-                var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+                (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
 
-                sb.AppendLine((i+1) + ". " + diagnostic.Message + " bicep(" + diagnostic.Code + "). " + "[" + (startLine + 1) + ", " + (startChar + 1) + "]");
+                // Build a code description link if the Uri is assigned
+                var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
+
+                sb.AppendLine($"{diagnosticsByFile.Key.FileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
             }
+
+            return sb.ToString();
         }
     }
 }

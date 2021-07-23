@@ -59,14 +59,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task Handle_WithValidPath_AndErrorsInInputFile_ReturnsBuildFailedMessage()
         {
-            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            DocumentUri documentUri = DocumentUri.From("input.bicep");
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, @"targetScope
 
-// #completionTest(12) -> empty
+ #completionTest(12) -> empty
 targetScope 
 
-// #completionTest(13,14) -> targetScopes
+ #completionTest(13,14) -> targetScopes
 targetScope = 
 
 
@@ -77,23 +76,27 @@ targetScope = { }
 targetScope = true
 ", true);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object);
-            string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
+            string expected = await bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
 
-            expected.Should().BeEquivalentToIgnoringNewlines(@"Build failed. Please fix below errors in input.bicep:
-1. The ""targetScope"" cannot be declared multiple times in one file. bicep(BCP112). [1, 1]
-2. Expected the ""="" character at this location. bicep(BCP018). [1, 12]
-3. Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. bicep(BCP009). [1, 12]
-4. The ""targetScope"" cannot be declared multiple times in one file. bicep(BCP112). [4, 1]
-5. Expected the ""="" character at this location. bicep(BCP018). [4, 13]
-6. Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. bicep(BCP009). [4, 13]
-7. The ""targetScope"" cannot be declared multiple times in one file. bicep(BCP112). [7, 1]
-8. Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. bicep(BCP009). [7, 15]
-9. The ""targetScope"" cannot be declared multiple times in one file. bicep(BCP112). [10, 1]
-10. Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""'asdfds'"". bicep(BCP033). [10, 15]
-11. The ""targetScope"" cannot be declared multiple times in one file. bicep(BCP112). [12, 1]
-12. Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""object"". bicep(BCP033). [12, 15]
-13. The ""targetScope"" cannot be declared multiple times in one file. bicep(BCP112). [14, 1]
-14. Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""bool"". bicep(BCP033). [14, 15]
+            expected.Should().BeEquivalentToIgnoringNewlines(@"Build failed. Please fix below errors:
+/input.bicep(1,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
+/input.bicep(1,12) : Error BCP018: Expected the ""="" character at this location.
+/input.bicep(1,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
+/input.bicep(3,2) : Error BCP007: This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.
+/input.bicep(3,2) : Error BCP001: The following token is not recognized: ""#"".
+/input.bicep(4,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
+/input.bicep(4,13) : Error BCP018: Expected the ""="" character at this location.
+/input.bicep(4,13) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
+/input.bicep(6,2) : Error BCP007: This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.
+/input.bicep(6,2) : Error BCP001: The following token is not recognized: ""#"".
+/input.bicep(7,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
+/input.bicep(7,15) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
+/input.bicep(10,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
+/input.bicep(10,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""'asdfds'"".
+/input.bicep(12,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
+/input.bicep(12,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""object"".
+/input.bicep(14,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
+/input.bicep(14,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""bool"".
 ");
         }
 
