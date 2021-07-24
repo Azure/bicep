@@ -1207,7 +1207,7 @@
     "detail": "Azure Functions (v2)",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource azureFunction 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'serverFarmName')\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName1;AccountKey=${listKeys('storageAccountID1', '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName2;AccountKey=${listKeys('storageAccountID2', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName3;AccountKey=${listKeys('storageAccountID3', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower('name')\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference(resourceId('microsoft.insights/components/', 'applicationInsightsName'), '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: 'dotnet'\n        }\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource serverfarms 'Microsoft.Web/serverfarms@2021-01-15' existing = {\n  name: 'name'\n}\n\nresource insightsComponents 'Microsoft.Insights/components@2020-02-02' existing = {\n  name: 'name'\n}\n\nresource azureFunction 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: serverfarms.id\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName1;AccountKey=${listKeys('storageAccountID1', '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName2;AccountKey=${listKeys('storageAccountID2', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName3;AccountKey=${listKeys('storageAccountID3', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower('name')\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference(insightsComponents.id, '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: 'dotnet'\n        }\n      ]\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1216,7 +1216,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:azureFunction} 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${3:'serverFarmName'})\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${4:storageAccountName1};AccountKey=${listKeys(${5:'storageAccountID1'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${6:storageAccountName2};AccountKey=${listKeys(${7:'storageAccountID2'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${8:storageAccountName3};AccountKey=${listKeys(${9:'storageAccountID3'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower(${2:'name'})\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference(resourceId('microsoft.insights/components/', ${10:'applicationInsightsName'}), '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: '${11|dotnet,node,java|}'\n        }\n      ]\n    }\n  }\n}\n"
+      "newText": "resource ${1:serverfarms} 'Microsoft.Web/serverfarms@2021-01-15' existing = {\n  name: ${2:'name'}\n}\n\nresource ${3:insightsComponents} 'Microsoft.Insights/components@2020-02-02' existing = {\n  name: ${4:'name'}\n}\n\nresource ${5:azureFunction} 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${6:'name'}\n  location: resourceGroup().location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: serverfarms.id\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${7:storageAccountName1};AccountKey=${listKeys(${8:'storageAccountID1'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${9:storageAccountName2};AccountKey=${listKeys(${10:'storageAccountID2'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${11:storageAccountName3};AccountKey=${listKeys(${12:'storageAccountID3'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower(${13:'name'})\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference(insightsComponents.id, '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: '${14|dotnet,node,java|}'\n        }\n      ]\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -1555,7 +1555,7 @@
     "detail": "Media Services account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    storageAccounts: [\n      {\n        id: resourceId('Microsoft.Storage/storageAccounts', 'mediaServiceStorageAccount')\n        type: 'Primary'\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {\n  name: 'name'\n}\n\nresource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    storageAccounts: [\n      {\n        id: storageAccount.id\n        type: 'Primary'\n      }\n    ]\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1564,7 +1564,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:mediaServices} 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    storageAccounts: [\n      {\n        id: resourceId('Microsoft.Storage/storageAccounts', ${3:'mediaServiceStorageAccount'})\n        type: '${4|Primary,Secondary|}'\n      }\n    ]\n  }\n}\n"
+      "newText": "resource ${1:storageAccount} 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {\n  name: ${2:'name'}\n}\n\nresource ${3:mediaServices} 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: ${4:'name'}\n  location: resourceGroup().location\n  properties: {\n    storageAccounts: [\n      {\n        id: storageAccount.id\n        type: '${5|Primary,Secondary|}'\n      }\n    ]\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -1613,7 +1613,7 @@
     "detail": "Network Interface",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork', 'subnet')\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {\n  name: 'name'\n}\n\nresource 'subnet' 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {\n  parent: vnet\n  name: 'name'\n}\n\nresource networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: subnet.id\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1622,7 +1622,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:networkInterface} 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          privateIPAllocationMethod: '${4|Dynamic,Static|}'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${5:'virtualNetwork'}, ${6:'subnet'})\n          }\n        }\n      }\n    ]\n  }\n}\n"
+      "newText": "resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {\n  name: ${1:'name'}\n}\n\nresource ${2:'subnet'} 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {\n  parent: vnet\n  name: ${3:'name'}\n}\n\nresource ${4:networkInterface} 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: ${5:'name'}\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${6:'name'}\n        properties: {\n          privateIPAllocationMethod: '${7|Dynamic,Static|}'\n          subnet: {\n            id: subnet.id\n          }\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2512,7 +2512,7 @@
     "detail": "Virtual Network Peering",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: 'virtualNetwork/name'\n  properties: {\n    allowVirtualNetworkAccess: true\n    allowForwardedTraffic: true\n    allowGatewayTransit: true\n    useRemoteGateways: true\n    remoteVirtualNetwork: {\n      id: resourceId('Microsoft.Network/virtualNetworks', 'REQUIRED')\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualNetworks 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {\n  name:  'name'\n} \n\nresource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: 'virtualNetwork/name'\n  properties: {\n    allowVirtualNetworkAccess: true\n    allowForwardedTraffic: true\n    allowGatewayTransit: true\n    useRemoteGateways: true\n    remoteVirtualNetwork: {\n      id: virtualNetworks.id\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2521,7 +2521,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:peering} 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: ${2:'virtualNetwork/name'}\n  properties: {\n    allowVirtualNetworkAccess: ${3|true,false|}\n    allowForwardedTraffic: ${4|true,false|}\n    allowGatewayTransit: ${5|true,false|}\n    useRemoteGateways: ${6|true,false|}\n    remoteVirtualNetwork: {\n      id: resourceId('Microsoft.Network/virtualNetworks', ${7:'REQUIRED'})\n    }\n  }\n}\n"
+      "newText": "resource ${1:virtualNetworks} 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {\n  name:  ${2:'name'}\n} \n\nresource ${3:peering} 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: ${4:'virtualNetwork/name'}\n  properties: {\n    allowVirtualNetworkAccess: ${5|true,false|}\n    allowForwardedTraffic: ${6|true,false|}\n    allowGatewayTransit: ${7|true,false|}\n    useRemoteGateways: ${8|true,false|}\n    remoteVirtualNetwork: {\n      id: virtualNetworks.id\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2570,7 +2570,7 @@
     "detail": "VPN Virtual Network Connection",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource vpnVnetConnection 'Microsoft.Network/connections@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    virtualNetworkGateway1: {\n      id: resourceId('Microsoft.Network/virtualNetworkGateways', 'vnetGateway')\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: resourceId('Microsoft.Network/localNetworkGateways', 'localGateway')\n      properties:{}\n    }\n    connectionType: 'IPsec'\n    routingWeight: 0\n    sharedKey: 'sharedkey'\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualNetworkGateways 'Microsoft.Network/virtualNetworkGateways@2021-02-01' existing = {\n  name: 'name'\n}\n\nresource localNetworkGateways 'Microsoft.Network/localNetworkGateways@2021-02-01' existing = {\n  name: 'name'\n}\n\nresource vpnVnetConnection 'Microsoft.Network/connections@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    virtualNetworkGateway1: {\n      id: virtualNetworkGateways.id\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: localNetworkGateways.id\n      properties:{}\n    }\n    connectionType: 'IPsec'\n    routingWeight: 0\n    sharedKey: 'sharedkey'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2579,7 +2579,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:vpnVnetConnection} 'Microsoft.Network/connections@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    virtualNetworkGateway1: {\n      id: resourceId('Microsoft.Network/virtualNetworkGateways', ${3:'vnetGateway'})\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: resourceId('Microsoft.Network/localNetworkGateways', ${4:'localGateway'})\n      properties:{}\n    }\n    connectionType: '${5|IPsec,Vnet2Vnet,ExpressRoute,VPNClient|}'\n    routingWeight: ${6:0}\n    sharedKey: ${7:'sharedkey'}\n  }\n}\n"
+      "newText": "resource ${1:virtualNetworkGateways} 'Microsoft.Network/virtualNetworkGateways@2021-02-01' existing = {\n  name: ${2:'name'}\n}\n\nresource ${3:localNetworkGateways} 'Microsoft.Network/localNetworkGateways@2021-02-01' existing = {\n  name: ${4:'name'}\n}\n\nresource ${5:vpnVnetConnection} 'Microsoft.Network/connections@2020-11-01' = {\n  name: ${6:'name'}\n  location: resourceGroup().location\n  properties: {\n    virtualNetworkGateway1: {\n      id: virtualNetworkGateways.id\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: localNetworkGateways.id\n      properties:{}\n    }\n    connectionType: '${7|IPsec,Vnet2Vnet,ExpressRoute,VPNClient|}'\n    routingWeight: ${8:0}\n    sharedKey: ${9:'sharedkey'}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2599,7 +2599,7 @@
     "detail": "VPN Virtual Network Gateway",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork', 'subnet')\n          }\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', 'publicIPAddress')\n          }\n        }\n      }\n    ]\n    sku: {\n      name: 'Basic'\n      tier: 'Basic'\n    }\n    gatewayType: 'Vpn'\n    vpnType: 'PolicyBased'\n    enableBgp: true\n  }\n}\n\n```"
+      "value": "```bicep\nresource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {\n  name: 'name'\n}\n\nresource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {\n  parent: vnet\n  name: 'name'\n}\n\nresource publicIPAdresses 'Microsoft.Network/publicIPAddresses@2021-02-01' existing = {\n  name: 'name'\n}\n\nresource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: subnet.id\n          }\n          publicIPAddress: {\n            id: publicIPAdresses.id\n          }\n        }\n      }\n    ]\n    sku: {\n      name: 'Basic'\n      tier: 'Basic'\n    }\n    gatewayType: 'Vpn'\n    vpnType: 'PolicyBased'\n    enableBgp: true\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2608,7 +2608,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:virtualNetworkGateway} 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${3:'name'}\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: resourceId('Microsoft.Network/virtualNetworks/subnets', ${4:'virtualNetwork'}, ${5:'subnet'})\n          }\n          publicIPAddress: {\n            id: resourceId('Microsoft.Network/publicIPAddresses', ${6:'publicIPAddress'})\n          }\n        }\n      }\n    ]\n    sku: {\n      name: '${7|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n      tier: '${8|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n    }\n    gatewayType: '${9|Vpn,ExpressRoute|}'\n    vpnType: '${10|PolicyBased,RouteBased|}'\n    enableBgp: ${11|true,false|}\n  }\n}\n"
+      "newText": "resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {\n  name: ${1:'name'}\n}\n\nresource ${2:subnet} 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {\n  parent: vnet\n  name: ${3:'name'}\n}\n\nresource ${4:publicIPAdresses} 'Microsoft.Network/publicIPAddresses@2021-02-01' existing = {\n  name: ${5:'name'}\n}\n\nresource ${6:virtualNetworkGateway} 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: ${7:'name'}\n  location: resourceGroup().location\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${8:'name'}\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: subnet.id\n          }\n          publicIPAddress: {\n            id: publicIPAdresses.id\n          }\n        }\n      }\n    ]\n    sku: {\n      name: '${9|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n      tier: '${10|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n    }\n    gatewayType: '${11|Vpn,ExpressRoute|}'\n    vpnType: '${12|PolicyBased,RouteBased|}'\n    enableBgp: ${13|true,false|}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2628,7 +2628,7 @@
     "detail": "Web Application",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2018-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'appServicePlan')\n  }\n}\n```"
+      "value": "```bicep\nresource webServerFarms 'Microsoft.Web/serverfarms@2021-01-15' existing = {\n  name: 'name'\n} \n\nresource webApplication 'Microsoft.Web/sites@2018-11-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'\n  }\n  properties: {\n    serverFarmId: webServerFarms.id\n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2637,7 +2637,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:webApplication} 'Microsoft.Web/sites@2018-11-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${3:appServicePlan}': 'Resource'\n  }\n  properties: {\n    serverFarmId: resourceId('Microsoft.Web/serverfarms', ${4:'appServicePlan'})\n  }\n}"
+      "newText": "resource ${1:webServerFarms} 'Microsoft.Web/serverfarms@2021-01-15' existing = {\n  name: ${2:'name'}\n} \n\nresource ${3:webApplication} 'Microsoft.Web/sites@2018-11-01' = {\n  name: ${4:'name'}\n  location: resourceGroup().location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${5:appServicePlan}': 'Resource'\n  }\n  properties: {\n    serverFarmId: webServerFarms.id\n  }\n}"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2686,7 +2686,7 @@
     "detail": "WVD AppGroup",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'friendlyName'\n    applicationGroupType: 'Desktop'\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', 'REQUIRED')\n  }\n}\n\n```"
+      "value": "```bicep\nresource desktopVirtualizationHostPools 'Microsoft.DesktopVirtualization/hostPools@2021-05-13-preview' existing = {\n  name: 'name'\n} \n\nresource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    friendlyName: 'friendlyName'\n    applicationGroupType: 'Desktop'\n    hostPoolArmPath: desktopVirtualizationHostPools.id\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2695,7 +2695,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:applicationGroup} 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${3:'friendlyName'}\n    applicationGroupType: ${4|'Desktop','RemoteApp'|}\n    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', ${5:'REQUIRED'})\n  }\n}\n"
+      "newText": "resource ${1:desktopVirtualizationHostPools} 'Microsoft.DesktopVirtualization/hostPools@2021-05-13-preview' existing = {\n  name: ${2:'name'}\n} \n\nresource ${3:applicationGroup} 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${4:'name'}\n  location: resourceGroup().location\n  properties: {\n    friendlyName: ${5:'friendlyName'}\n    applicationGroupType: ${6|'Desktop','RemoteApp'|}\n    hostPoolArmPath: desktopVirtualizationHostPools.id\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
