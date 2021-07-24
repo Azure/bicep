@@ -19,6 +19,9 @@ using Bicep.Core.Parsing;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using SymbolKind = Bicep.Core.Semantics.SymbolKind;
+using System.Linq;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -54,7 +57,7 @@ namespace Bicep.LanguageServer.Handlers
                                 matchingNodes, (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
                     && matchingNodes[^1] is Token stringToken)
                 {
-                    return GetModuleDefinitionLocationAsync(request.TextDocument.Uri.ToUri(), stringToken.Text, stringToken, context);
+                    return GetModuleDefinitionLocationAsync(request.TextDocument.Uri.ToUri(), stringToken.Text, stringToken, context, new Range() { Start = new Position(0, 0), End = new Position(0, 0) });
                 }
                 return Task.FromResult(new LocationOrLocationLinks());
             }
@@ -76,61 +79,134 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     // If the symbol is a module, we need to redirect the user to the module file
                     // note: module.name, should refer to the declaration of the module in the current file
-                    if (ancestorSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclarationSyntax
-                    && !string.Equals(propertyAccesses.Peek(), LanguageConstants.ResourceNamePropertyName)
-                    && moduleDeclarationSyntax.Path is StringSyntax pathStringSyntax
-                    && pathStringSyntax.StringTokens is ImmutableArray<Token> stringTokens
-                    && stringTokens.Length == 1
-                    && stringTokens[0] is Token stringToken
-                    && stringToken.Type == TokenType.StringComplete)
+                    // mod.name is the only non-special case for modules
+                    if (ancestorSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclarationSyntax)
                     {
-                        // TODO direct user to the output that they clicked on instead of head of file
-                        return GetModuleDefinitionLocationAsync(request.TextDocument.Uri.ToUri(), stringToken.Text, result.Origin, context);
+                        // outputs: go to module's outputs
+                        if (string.Equals(propertyAccesses.Peek(), LanguageConstants.ModuleOutputsPropertyName))
+                        {
+                            propertyAccesses.Pop();
+                            if (moduleDeclarationSyntax.TryGetPath() is StringSyntax pathSyntax
+                            && pathSyntax.StringTokens is ImmutableArray<Token> stringTokens
+                            && stringTokens.Length == 1
+                            && stringTokens[0] is Token stringToken
+                            && stringToken.Type == TokenType.StringComplete
+                            && fileResolver.TryResolveFilePath(request.TextDocument.Uri.ToUri(), stringToken.Text.Replace("'", string.Empty)) is Uri moduleUri
+                            && fileResolver.TryFileExists(moduleUri))
+                            {
+                                CompilationContext? moduleContext = null;
+                                // if the file's been opened in the workspace, we should be able to get its compilation
+                                if (this.compilationManager.GetCompilation(DocumentUri.From(moduleUri)) is CompilationContext existingModuleContext)
+                                {
+                                    moduleContext = existingModuleContext;
+                                }
+                                // otherwise, we have to add it manually
+                                else if (fileResolver.TryRead(moduleUri, out var fileContents, out var _))
+                                {
+                                    this.compilationManager.UpsertCompilation(DocumentUri.From(moduleUri), 0, fileContents, LanguageConstants.LanguageId);
+                                    moduleContext = this.compilationManager.GetCompilation(DocumentUri.From(moduleUri));
+                                }
+                                if (moduleContext == null)
+                                {
+                                    return Task.FromResult(new LocationOrLocationLinks());
+                                }
+                                // get rid of "outputs"
+                                // specific output variable
+                                if (propertyAccesses.TryPop(out var outputName)
+                                && moduleContext.Compilation.GetEntrypointSemanticModel().Root.Declarations
+                                    .FirstOrDefault(d => d.Kind == SymbolKind.Output && string.Equals(d.Name, outputName)) is OutputSymbol symbol)
+                                {
+                                    return GetModuleDefinitionLocationAsync(
+                                        request.TextDocument.Uri.ToUri(),
+                                        stringToken.Text,
+                                        result.Origin,
+                                        context,
+                                        symbol.DeclaringSyntax.ToRange(moduleContext.LineStarts));
+                                }
+                                // go to the first output declared in the file
+                                else if (moduleContext.Compilation.GetEntrypointSemanticModel().Root.Declarations.FirstOrDefault(d => d.Kind == SymbolKind.Output) is OutputSymbol firstOutputSymbol)
+                                {
+                                    return GetModuleDefinitionLocationAsync(
+                                        request.TextDocument.Uri.ToUri(),
+                                        stringToken.Text,
+                                        result.Origin,
+                                        context,
+                                        firstOutputSymbol.DeclaringSyntax.ToRange(moduleContext.LineStarts));
+                                }
+                            }
+                        }
+                        // params don't do anything
+                        else if (string.Equals(propertyAccesses.Peek(), LanguageConstants.ModuleParamsPropertyName))
+                        {
+                            return Task.FromResult(new LocationOrLocationLinks());
+                        }
                     }
 
-                    // Otherwise, we redirect user to the specified parameter, variable, resource or output declaration
-                    // TODO direct user to the property that they clicked on instead of the declaration of the symbol
-                    return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
+                    // Otherwise, we redirect user to the specified module, variable, or resource declaration
+                    if (GetObjectSyntaxFromDeclaration(ancestorSymbol.DeclaringSyntax) is ObjectSyntax objectSyntax
+                        && ObjectSyntaxExtensions.SafeGetPropertyByNameRecursive(objectSyntax, propertyAccesses.ToArray()) is ObjectPropertySyntax resultingSyntax)
                     {
-                        OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
-                        TargetUri = request.TextDocument.Uri,
-                        TargetRange = ancestorSymbol.DeclaringSyntax.ToRange(result.Context.LineStarts),
-                        TargetSelectionRange = ancestorSymbol.NameSyntax.ToRange(result.Context.LineStarts)
-                    })));
+                        return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
+                        {
+                            OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
+                            TargetUri = request.TextDocument.Uri,
+                            TargetRange = resultingSyntax.ToRange(result.Context.LineStarts),
+                            TargetSelectionRange = resultingSyntax.ToRange(result.Context.LineStarts)
+                        })));
+                    }
                 }
                 return Task.FromResult(new LocationOrLocationLinks());
             }
 
             if (result.Symbol is DeclaredSymbol declaration)
             {
-                return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
-                {
-                    // source of the link
-                    OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
-                    TargetUri = request.TextDocument.Uri,
-
-                    // entire span of the variable
-                    TargetRange = declaration.DeclaringSyntax.ToRange(result.Context.LineStarts),
-
-                    // span of the variable name
-                    TargetSelectionRange = declaration.NameSyntax.ToRange(result.Context.LineStarts)
-                })));
+                return DeclaredDefinitionLocationAsync(request, result, declaration);
             }
 
             return Task.FromResult(new LocationOrLocationLinks());
         }
 
-        private async Task<LocationOrLocationLinks> GetModuleDefinitionLocationAsync(Uri requestDocumentUri, string path, SyntaxBase originalSelectionSyntax, CompilationContext context)
+        private static ObjectSyntax? GetObjectSyntaxFromDeclaration(SyntaxBase syntax) => syntax switch
+        {
+            ResourceDeclarationSyntax resourceDeclarationSyntax when resourceDeclarationSyntax.TryGetBody() is ObjectSyntax objectSyntax => objectSyntax,
+            ModuleDeclarationSyntax moduleDeclarationSyntax when moduleDeclarationSyntax.TryGetBody() is ObjectSyntax objectSyntax => objectSyntax,
+            VariableDeclarationSyntax variableDeclarationSyntax when variableDeclarationSyntax.Value is ObjectSyntax objectSyntax => objectSyntax,
+            VariableDeclarationSyntax variableDeclarationSyntax when variableDeclarationSyntax.Value is ObjectSyntax objectSyntax => objectSyntax,
+            _ => null,
+        };
+
+        private static Task<LocationOrLocationLinks> DeclaredDefinitionLocationAsync(DefinitionParams request, SymbolResolutionResult result, DeclaredSymbol declaration)
+        {
+            return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
+            {
+                // source of the link
+                OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
+                TargetUri = request.TextDocument.Uri,
+
+                // entire span of the variable
+                TargetRange = declaration.DeclaringSyntax.ToRange(result.Context.LineStarts),
+
+                // span of the variable name
+                TargetSelectionRange = declaration.NameSyntax.ToRange(result.Context.LineStarts)
+            })));
+        }
+
+        private async Task<LocationOrLocationLinks> GetModuleDefinitionLocationAsync(
+            Uri requestDocumentUri,
+            string path,
+            SyntaxBase originalSelectionSyntax,
+            CompilationContext context,
+            Range targetTange)
         {
             if (fileResolver.TryResolveFilePath(requestDocumentUri, path.Replace("'", string.Empty)) is Uri moduleUri
-            &&  fileResolver.TryFileExists(moduleUri))
+            && fileResolver.TryFileExists(moduleUri))
             {
                 return await Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
                 {
                     OriginSelectionRange = originalSelectionSyntax.ToRange(context.LineStarts),
                     TargetUri = DocumentUri.From(moduleUri),
-                    TargetRange = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range() { Start = new Position(0, 0), End = new Position(0, 0) },
-                    TargetSelectionRange = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range() { Start = new Position(0, 0), End = new Position(0, 0) }
+                    TargetRange = targetTange,
+                    TargetSelectionRange = targetTange
                 })));
             }
             return await Task.FromResult(new LocationOrLocationLinks());
