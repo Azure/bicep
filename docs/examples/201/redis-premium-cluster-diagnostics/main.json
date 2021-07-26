@@ -100,7 +100,7 @@
       }
     },
     {
-      "type": "microsoft.insights/diagnosticSettings",
+      "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Cache/redis/{0}', parameters('redisCacheName'))]",
       "name": "[parameters('redisCacheName')]",
