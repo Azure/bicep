@@ -8,6 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Deployments.Core.Entities;
+using Azure.Deployments.Core.Helpers;
+using Azure.Deployments.Core.Json;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -16,6 +19,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -52,7 +56,9 @@ namespace Bicep.LanguageServer.Handlers
             string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
             string compiledFile = Path.GetFileName(compiledFilePath);
 
-            if (File.Exists(compiledFilePath))
+            // If the template exists and contains bicep generator metadata, we can go ahead and replace the file.
+            // If not, we'll fail the build.
+            if (File.Exists(compiledFilePath) && !TemplateContainsBicepGeneratorMetadata(File.ReadAllText(compiledFilePath)))
             {
                 return "Build failed. " + compiledFile + " already exists.";
             }
@@ -100,6 +106,25 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             return sb.ToString();
+        }
+
+
+        // Returns true if the template contains bicep _generator metadata, false otherwise
+        public bool TemplateContainsBicepGeneratorMetadata(string template)
+        {
+            if (!string.IsNullOrEmpty(template))
+            {
+                JToken jtoken = template.FromJson<JToken>();
+                if (TemplateHelpers.TryGetTemplateGeneratorObject(jtoken, out DeploymentTemplateGeneratorMetadata generator))
+                {
+                    if (generator.Name == "bicep")
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

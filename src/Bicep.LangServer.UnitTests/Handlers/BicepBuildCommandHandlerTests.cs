@@ -125,5 +125,67 @@ targetScope = true
 
             expected.Should().Be(@"Build succeeded. Created file input.json");
         }
+
+        [DataRow(null)]
+        [DataRow("")]
+        [DataRow("   ")]
+        [DataTestMethod]
+        public void TemplateContainsBicepGeneratorMetadata_WithInvalidInput_ReturnsFalse(string template)
+        {
+            ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer);
+
+            bool actual = bicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
+
+            Assert.IsFalse(actual);
+        }
+
+        [TestMethod]
+        public void TemplateContainsBicepGeneratorMetadata_WithBicepGeneratorMetadataInInput_ReturnsTrue()
+        {
+            ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer);
+            string template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.4.491.37184"",
+      ""templateHash"": ""583008187481737995""
+    }
+  },
+  ""functions"": [],
+  ""resources"": []
+}";
+
+            bool actual = bicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
+
+            Assert.IsTrue(actual);
+        }
+
+        [TestMethod]
+        public void TemplateContainsBicepGeneratorMetadata_WithoutBicepGeneratorMetadataInInput_ReturnsFalse()
+        {
+            ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer);
+            string template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""test"",
+      ""version"": ""0.4.491.37184"",
+      ""templateHash"": ""583008187481737995""
+    }
+  },
+  ""functions"": [],
+  ""resources"": []
+}";
+
+            bool actual = bicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
+
+            Assert.IsFalse(actual);
+        }
     }
 }
