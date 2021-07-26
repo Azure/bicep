@@ -4141,7 +4141,7 @@
     "detail": "Required properties",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n\tname: \n\t\n}\n```"
+      "value": "```bicep\n{\n\tname: \n}\n```"
     },
     "deprecated": false,
     "preselect": true,
@@ -4150,7 +4150,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n\tname: $1\n\t$0\n}"
+      "newText": "{\n\tname: $1\n}$0"
     },
     "command": {
       "command": "bicep.Telemetry",
