@@ -177,7 +177,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-$0}");
+}$0");
                 });
         }
 
@@ -228,7 +228,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-$0}");
+}$0");
                 });
         }
 
@@ -275,7 +275,7 @@ $0}");
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-$0}");
+}$0");
                 });
         }
 
@@ -326,7 +326,7 @@ $0}");
 	}
 	kind: $5
 	hostPoolType: $6
-$0}");
+}$0");
                 });
         }
 
@@ -488,7 +488,7 @@ $0}");
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: 'keyA'
 	location: $1
-$0}");
+}$0");
                 },
                 x =>
                 {
@@ -497,7 +497,7 @@ $0}");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
-$0}");
+}$0");
                 });
         }
 
@@ -553,7 +553,7 @@ $0}");
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-$0}");
+}$0");
                 });
         }
 
@@ -607,7 +607,7 @@ $0}");
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
 	location: $2
-$0}");
+}$0");
                 });
         }
 
@@ -679,7 +679,7 @@ $0}");
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: 'keyA'
 	location: $1
-$0}");
+}$0");
                 },
                 x =>
                 {
@@ -688,7 +688,7 @@ $0}");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
 	name: $1
-$0}");
+}$0");
                 });
         }
 

@@ -494,7 +494,7 @@ var test2 = /|* block c|omment *|/
 		azCliVersion: $3
 		retentionInterval: $4
 	}
-$0}");
+}$0");
                 },
                 c =>
                 {
@@ -509,7 +509,7 @@ $0}");
 		azPowerShellVersion: $3
 		retentionInterval: $4
 	}
-$0}");
+}$0");
                 },
                 c =>
                 {
