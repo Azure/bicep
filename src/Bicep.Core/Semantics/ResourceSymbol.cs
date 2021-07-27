@@ -33,9 +33,6 @@ namespace Bicep.Core.Semantics
 
         public ResourceType? TryGetResourceType() => ResourceType.TryUnwrap(this.Type);
 
-        public ResourceTypeReference GetResourceTypeReference() =>
-            this.TryGetResourceTypeReference() ??  throw new ArgumentException($"Resource symbol does not have a valid type (found {this.Type.Name})");
-
         public ResourceTypeReference? TryGetResourceTypeReference() => this.TryGetResourceType()?.TypeReference;
 
         public ObjectType? TryGetBodyObjectType() => this.TryGetResourceType()?.Body.Type as ObjectType;

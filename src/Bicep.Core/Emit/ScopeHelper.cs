@@ -52,9 +52,9 @@ namespace Bicep.Core.Emit
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
 
-        private static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, ObjectPropertySyntax? scopeProperty)
+        private static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, SyntaxBase? scopeValue)
         {
-            if (scopeProperty is null)
+            if (scopeValue is null)
             {
                 // no scope provided - use the target scope for the file
                 if (!supportedScopes.HasFlag(semanticModel.TargetScope))
@@ -66,23 +66,23 @@ namespace Bicep.Core.Emit
                 return null;
             }
 
-            var (scopeSymbol, indexExpression) = scopeProperty.Value switch
+            var (scopeSymbol, indexExpression) = scopeValue switch
             {
                 // scope indexing can only happen with references to module or resource collections
                 ArrayAccessSyntax { BaseExpression: VariableAccessSyntax baseVariableAccess } arrayAccess => (semanticModel.GetSymbolInfo(baseVariableAccess), arrayAccess.IndexExpression),
 
                 // all other scope expressions
-                _ => (semanticModel.GetSymbolInfo(scopeProperty.Value), null)
+                _ => (semanticModel.GetSymbolInfo(scopeValue), null)
             };
                 
-            var scopeType = semanticModel.GetTypeInfo(scopeProperty.Value);
+            var scopeType = semanticModel.GetTypeInfo(scopeValue);
 
             switch (scopeType)
             {
                 case TenantScopeType type:
                     if (!supportedScopes.HasFlag(ResourceScope.Tenant))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Tenant, supportedScopes);
+                        logInvalidScopeFunc(scopeValue, ResourceScope.Tenant, supportedScopes);
                         return null;
                     }
 
@@ -91,7 +91,7 @@ namespace Bicep.Core.Emit
                 case ManagementGroupScopeType type:
                     if (!supportedScopes.HasFlag(ResourceScope.ManagementGroup))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.ManagementGroup, supportedScopes);
+                        logInvalidScopeFunc(scopeValue, ResourceScope.ManagementGroup, supportedScopes);
                         return null;
                     }
 
@@ -104,7 +104,7 @@ namespace Bicep.Core.Emit
                 case SubscriptionScopeType type:
                     if (!supportedScopes.HasFlag(ResourceScope.Subscription))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Subscription, supportedScopes);
+                        logInvalidScopeFunc(scopeValue, ResourceScope.Subscription, supportedScopes);
                         return null;
                     }
 
@@ -117,7 +117,7 @@ namespace Bicep.Core.Emit
                 case ResourceGroupScopeType type:
                     if (!supportedScopes.HasFlag(ResourceScope.ResourceGroup))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.ResourceGroup, supportedScopes);
+                        logInvalidScopeFunc(scopeValue, ResourceScope.ResourceGroup, supportedScopes);
                         return null;
                     }
 
@@ -140,38 +140,27 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    if (targetResource.Symbol.Type is ErrorType)
-                    {
-                        // the scope resource has errors
-                        return null;
-                    }
-
-                    var resourceType = targetResource.Symbol.TryGetResourceType() ?? throw new NotImplementedException($"Target resource symbol has an unexpected type '{targetResource.Symbol.GetType().Name}'.");
-
-                    if (StringComparer.OrdinalIgnoreCase.Equals(resourceType.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeResourceGroup))
+                    if (StringComparer.OrdinalIgnoreCase.Equals(targetResource.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeResourceGroup))
                     {
                         // special-case 'Microsoft.Resources/resourceGroups' in order to allow it to create a resourceGroup-scope resource
-                        var rgScopeProperty = targetResource.Symbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
-                        var rgNameProperty = targetResource.Symbol.SafeGetBodyProperty(LanguageConstants.ResourceNamePropertyName);
-
                         // ignore diagnostics - these will be collected separately in the pass over resources
                         var hasErrors = false;
-                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, resourceType.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, rgScopeProperty);
-                        if (rgNameProperty is not null && !hasErrors)
+                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.ScopeSyntax);
+                        if (!hasErrors)
                         {
                             if (!supportedScopes.HasFlag(ResourceScope.ResourceGroup))
                             {
-                                logInvalidScopeFunc(scopeProperty.Value, ResourceScope.ResourceGroup, supportedScopes);
+                                logInvalidScopeFunc(scopeValue, ResourceScope.ResourceGroup, supportedScopes);
                                 return null;
                             }
 
-                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = rgNameProperty.Value, IndexExpression = indexExpression };
+                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = targetResource.NameSyntax, IndexExpression = indexExpression };
                         }
                     }
 
                     if (!supportedScopes.HasFlag(ResourceScope.Resource))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Resource, supportedScopes);
+                        logInvalidScopeFunc(scopeValue, ResourceScope.Resource, supportedScopes);
                         return null;
                     }
 
@@ -184,7 +173,7 @@ namespace Bicep.Core.Emit
                         // we log this error only when we have single module without an index expression or
                         // a module collection with an index expression
                         // otherwise, the errors produced by the type check are sufficient
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Module, supportedScopes);
+                        logInvalidScopeFunc(scopeValue, ResourceScope.Module, supportedScopes);
                     }
                     
                     return null;
@@ -262,7 +251,7 @@ namespace Bicep.Core.Emit
                         context,
                         converter,
                         context.ResourceScopeData[resource],
-                        resource.GetResourceTypeReference().FullyQualifiedType,
+                        resource.TypeReference.FullyQualifiedType,
                         converter.GetResourceNameSegments(resource));
 
                     return ExpressionConverter.GenerateExtensionResourceId(
@@ -293,7 +282,7 @@ namespace Bicep.Core.Emit
                         context,
                         converter,
                         context.ResourceScopeData[resource],
-                        resource.GetResourceTypeReference().FullyQualifiedType,
+                        resource.TypeReference.FullyQualifiedType,
                         converter.GetResourceNameSegments(resource));
 
                     return ExpressionConverter.GenerateExtensionResourceId(
@@ -396,7 +385,7 @@ namespace Bicep.Core.Emit
 
         private static void ValidateResourceScopeRestrictions(SemanticModel semanticModel, IReadOnlyDictionary<ResourceMetadata, ScopeData> scopeInfo, ResourceMetadata resource, Action<DiagnosticBuilder.DiagnosticBuilderDelegate> writeScopeDiagnostic)
         {
-            if (resource.IsExistingResource())
+            if (resource.IsExistingResource)
             {
                 // we don't have any cross-scope restrictions on 'existing' resource declarations
                 return;
@@ -440,7 +429,7 @@ namespace Bicep.Core.Emit
                 => diagnosticWriter.Write(positionable, x => x.UnsupportedResourceScope(suppliedScope, supportedScopes));
 
             var scopeInfo = new Dictionary<ResourceMetadata, ScopeData>();
-            var ancestorsLookup = semanticModel.GetAllResources()
+            var ancestorsLookup = semanticModel.AllResources
                 .ToDictionary(
                     x => x,
                     x => semanticModel.ResourceAncestors.GetAncestors(x));
@@ -449,28 +438,20 @@ namespace Bicep.Core.Emit
             // this is because we want to avoid recomputing the scope for child resources which inherit it from their parents.
             foreach (var (resource, ancestors) in ancestorsLookup.OrderBy(kvp => kvp.Value.Length))
             {
-                if (resource.Symbol.TryGetResourceType() is not {} resourceType)
-                {
-                    // missing type should be caught during type validation
-                    continue;
-                }
-
-                var scopeProperty = resource.Symbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
-
                 if (ancestors.Any())
                 {
-                    if (scopeProperty is not null)
+                    if (resource.ScopeSyntax is not null)
                     {
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
-                        diagnosticWriter.Write(scopeProperty.Value, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Symbol.Name));
+                        diagnosticWriter.Write(resource.ScopeSyntax, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Symbol.Name));
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
                         continue;
                     }
 
                     var firstAncestor = ancestors.First();
-                    if (!resource.IsExistingResource() && 
-                        firstAncestor.Resource.IsExistingResource() && 
-                        firstAncestor.Resource.Symbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName) is {} firstAncestorScope)
+                    if (!resource.IsExistingResource && 
+                        firstAncestor.Resource.IsExistingResource && 
+                        firstAncestor.Resource.ScopeSyntax is {} firstAncestorScope)
                     {
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
                         diagnosticWriter.Write(resource.Symbol.DeclaringResource.Value, x => x.ScopeDisallowedForAncestorResource(firstAncestor.Resource.Symbol.Name));
@@ -489,7 +470,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resourceType.ValidParentScopes, resource.Symbol.DeclaringResource.Value, scopeProperty);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.ScopeSyntax);
 
                 if (scopeData is null)
                 {
@@ -499,15 +480,13 @@ namespace Bicep.Core.Emit
                 scopeInfo[resource] = scopeData;
             }
 
-            foreach (var resourceToValidate in semanticModel.GetAllResources())
+            foreach (var resourceToValidate in semanticModel.AllResources)
             {
-                var scopeProperty = resourceToValidate.Symbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
-                
                 ValidateResourceScopeRestrictions(
                     semanticModel,
                     scopeInfo,
                     resourceToValidate,
-                    buildDiagnostic => diagnosticWriter.Write(scopeProperty?.Value ?? resourceToValidate.Symbol.DeclaringResource.Value, buildDiagnostic));
+                    buildDiagnostic => diagnosticWriter.Write(resourceToValidate.ScopeSyntax ?? resourceToValidate.Symbol.DeclaringResource.Value, buildDiagnostic));
             }
 
             return scopeInfo.ToImmutableDictionary();
@@ -577,8 +556,8 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var scopeProperty = moduleSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, LogInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Value, scopeProperty);
+                var scopeValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, LogInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Value, scopeValue);
 
                 if (scopeData is null)
                 {
@@ -588,7 +567,7 @@ namespace Bicep.Core.Emit
                 ValidateNestedTemplateScopeRestrictions(
                     semanticModel,
                     scopeData,
-                    buildDiagnostic => diagnosticWriter.Write(scopeProperty?.Value ?? moduleSymbol.DeclaringModule.Value, buildDiagnostic));
+                    buildDiagnostic => diagnosticWriter.Write(scopeValue ?? moduleSymbol.DeclaringModule.Value, buildDiagnostic));
 
                 scopeInfo[moduleSymbol] = scopeData;
             }

@@ -91,7 +91,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return syntax;
             }
 
-            foreach (var otherResource in semanticModel.GetAllResources())
+            foreach (var otherResource in semanticModel.AllResources)
             {
                 var otherResourceSymbol = otherResource.Symbol;
 

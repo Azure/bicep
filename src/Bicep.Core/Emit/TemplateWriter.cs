@@ -265,9 +265,9 @@ namespace Bicep.Core.Emit
             jsonWriter.WritePropertyName("resources");
             jsonWriter.WriteStartArray();
 
-            foreach (var resource in this.context.SemanticModel.GetAllResources())
+            foreach (var resource in this.context.SemanticModel.AllResources)
             {
-                if (resource.IsExistingResource())
+                if (resource.IsExistingResource)
                 {
                     continue;
                 }
@@ -298,8 +298,6 @@ namespace Bicep.Core.Emit
         private void EmitResource(JsonTextWriter jsonWriter, ResourceMetadata resource, ExpressionEmitter emitter)
         {
             jsonWriter.WriteStartObject();
-
-            var typeReference = resource.GetResourceTypeReference();
 
             // Note: conditions STACK with nesting.
             //
@@ -380,8 +378,8 @@ namespace Bicep.Core.Emit
                 throw new InvalidOperationException("nested loops are not supported");
             }
 
-            emitter.EmitProperty("type", typeReference.FullyQualifiedType);
-            emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
+            emitter.EmitProperty("type", resource.TypeReference.FullyQualifiedType);
+            emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
             if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
             {
                 ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);

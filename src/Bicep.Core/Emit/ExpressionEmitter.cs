@@ -93,7 +93,7 @@ namespace Bicep.Core.Emit
 
         public void EmitUnqualifiedResourceId(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resource), indexExpression, newContext);
+            var converterForContext = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
 
             var unqualifiedResourceId = converterForContext.GetUnqualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(unqualifiedResourceId);
@@ -103,7 +103,7 @@ namespace Bicep.Core.Emit
 
         public void EmitResourceIdReference(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = this.converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resource), indexExpression, newContext);
+            var converterForContext = this.converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
 
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
@@ -325,14 +325,14 @@ namespace Bicep.Core.Emit
                 };
 
                 if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not {} resource ||
-                    !string.Equals(resource.GetResourceTypeReference().FullyQualifiedType, "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
+                    !string.Equals(resource.TypeReference.FullyQualifiedType, "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
                 }
 
                 var keyVaultId = instanceFunctionCall.BaseExpression switch
                 {
-                    ArrayAccessSyntax arrayAccessSyntax => converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resource), arrayAccessSyntax.IndexExpression, instanceFunctionCall)
+                    ArrayAccessSyntax arrayAccessSyntax => converter.CreateConverterForIndexReplacement(resource.NameSyntax, arrayAccessSyntax.IndexExpression, instanceFunctionCall)
                                                                     .GetFullyQualifiedResourceId(resource),
                     _ => converter.GetFullyQualifiedResourceId(resource)
                 };

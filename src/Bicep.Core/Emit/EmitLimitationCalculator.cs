@@ -90,9 +90,9 @@ namespace Bicep.Core.Emit
 
         private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
         {
-            foreach (var resource in semanticModel.GetAllResources())
+            foreach (var resource in semanticModel.AllResources)
             {
-                if (resource.IsExistingResource())
+                if (resource.IsExistingResource)
                 {
                     // 'existing' resources are not being deployed so duplicates are allowed
                     continue;
@@ -109,28 +109,21 @@ namespace Bicep.Core.Emit
                     resourceScope = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
-                if (resource.Symbol.TryGetResourceType() is not {} resourceType || 
-                    resource.Symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
+                if (resource.NameSyntax is not StringSyntax namePropertyValue)
                 {
                     //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
                     continue;
                 }
 
-                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
+                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FullyQualifiedType, namePropertyValue);
             }
         }
 
         public static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            foreach (var resource in semanticModel.GetAllResources())
+            foreach (var resource in semanticModel.AllResources)
             {
-                if (resource.Symbol.TryGetResourceType() is not {} resourceType)
-                {
-                    continue;
-                }
-
-                var resourceName = resource.Symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName);
-                if (resourceName is not StringSyntax resourceNameString)
+                if (resource.NameSyntax is not StringSyntax resourceNameString)
                 {
                     // not easy to do analysis if it's not a string!
                     continue;
@@ -143,13 +136,13 @@ namespace Bicep.Core.Emit
                     // e.g. '{parent.name}/child' or 'parent/child'
                     if (resourceNameString.SegmentValues.Any(v => v.Contains('/')))
                     {
-                        diagnosticWriter.Write(resourceName, x => x.ChildResourceNameContainsQualifiers());
+                        diagnosticWriter.Write(resource.NameSyntax, x => x.ChildResourceNameContainsQualifiers());
                     }
                 }
                 else
                 {
                     var slashCount = resourceNameString.SegmentValues.Sum(x => x.Count(y => y == '/'));
-                    var expectedSlashCount = resourceType.TypeReference.Types.Length - 1;
+                    var expectedSlashCount = resource.TypeReference.Types.Length - 1;
 
                     // Try to detect cases where someone has applied nested/parent resource declaration naming to a top-level resource - e.g. 'child'.
                     if (resourceNameString.IsInterpolated())
@@ -158,7 +151,7 @@ namespace Bicep.Core.Emit
                         // So we can only accurately show a diagnostic if there are TOO MANY '/' characters.
                         if (slashCount > expectedSlashCount)
                         {   
-                            diagnosticWriter.Write(resourceName, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                            diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                     else
@@ -166,7 +159,7 @@ namespace Bicep.Core.Emit
                         // We know exactly how many '/' characters must be present, because we have a string literal. So expect an exact match.
                         if (slashCount != expectedSlashCount)
                         {
-                            diagnosticWriter.Write(resourceName, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                            diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                 }
@@ -175,9 +168,9 @@ namespace Bicep.Core.Emit
 
         public static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            foreach (var resource in semanticModel.GetAllResources())
+            foreach (var resource in semanticModel.AllResources)
             {
-                if (resource.IsExistingResource())
+                if (resource.IsExistingResource)
                 {
                     // existing resource syntax doesn't result in deployment but instead is
                     // used as a convenient way of constructing a symbolic name

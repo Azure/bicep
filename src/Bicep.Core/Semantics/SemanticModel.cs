@@ -26,6 +26,8 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<LinterAnalyzer> linterAnalyzerLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> parameterTypePropertiesLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> outputTypePropertiesLazy;
+
+        private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver)
@@ -61,6 +63,8 @@ namespace Bicep.Core.Semantics
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
             this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer());
+
+            this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
 
             // lazy load single use diagnostic set
             this.allDiagnostics = new Lazy<IEnumerable<IDiagnostic>>(() => AssembleDiagnostics(default));
@@ -120,6 +124,8 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<TypeProperty> ParameterTypeProperties => this.parameterTypePropertiesLazy.Value;
 
         public ImmutableArray<TypeProperty> OutputTypeProperties => this.outputTypePropertiesLazy.Value;
+
+        public ImmutableArray<ResourceMetadata> AllResources => allResourcesLazy.Value;
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
@@ -194,17 +200,6 @@ namespace Bicep.Core.Semantics
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) => this.TypeManager.GetDeclaredTypeAssignment(syntax);
 
         public Symbol? GetSymbolParent(Symbol symbol) => this.symbolHierarchyLazy.Value.GetParent(symbol);
-
-        public IEnumerable<ResourceMetadata> GetAllResources()
-        {
-            foreach (var resourceSymbol in ResourceSymbolVisitor.GetAllResources(Root))
-            {
-                if (this.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is {} resource)
-                {
-                    yield return resource;
-                }
-            }
-        }
 
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
@@ -299,6 +294,20 @@ namespace Bicep.Core.Semantics
                     return accumulated;
                 },
                 accumulated => accumulated);
+
+        private ImmutableArray<ResourceMetadata> GetAllResourceMetadata()
+        {
+            var resources = ImmutableArray.CreateBuilder<ResourceMetadata>();
+            foreach (var resourceSymbol in ResourceSymbolVisitor.GetAllResources(Root))
+            {
+                if (this.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is {} resource)
+                {
+                    resources.Add(resource);
+                }
+            }
+
+            return resources.ToImmutable();
+        }
 
         /// <summary>
         /// Gets the file that was compiled.

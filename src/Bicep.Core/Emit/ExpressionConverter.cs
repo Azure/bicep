@@ -135,7 +135,7 @@ namespace Bicep.Core.Emit
                                 // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
                                 var convertedArgs = instanceFunctionCall.Arguments.SelectArray(a => ConvertExpression(a.Expression));
                                 var resourceIdExpression = GetFullyQualifiedResourceId(resource);
-                                var apiVersionExpression = new JTokenExpression(resource.GetResourceTypeReference().ApiVersion);
+                                var apiVersionExpression = new JTokenExpression(resource.TypeReference.ApiVersion);
 
                                 var listArgs = convertedArgs.Length switch {
                                     0 => new LanguageExpression[] { resourceIdExpression, apiVersionExpression, },
@@ -192,7 +192,7 @@ namespace Bicep.Core.Emit
                 if (context.SemanticModel.ResourceMetadata.TryLookup(arrayAccess.BaseExpression) is {} resource &&
                     resource.Symbol.IsCollection)
                 {
-                    var resourceConverter = this.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resource), arrayAccess.IndexExpression, arrayAccess);
+                    var resourceConverter = this.CreateConverterForIndexReplacement(resource.NameSyntax, arrayAccess.IndexExpression, arrayAccess);
 
                     // TODO: Can this return a language expression?
                     return resourceConverter.ToFunctionExpression(arrayAccess.BaseExpression);
@@ -226,7 +226,7 @@ namespace Bicep.Core.Emit
                     case "id":
                         // the ID is dependent on the name expression which could involve locals in case of a resource collection
                         return this
-                            .CreateConverterForIndexReplacement(GetResourceNameSyntax(resource), indexExpression, propertyAccess)
+                            .CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, propertyAccess)
                             .GetFullyQualifiedResourceId(resource);
                     case "name":
                         // the name is dependent on the name expression which could involve locals in case of a resource collection
@@ -234,17 +234,17 @@ namespace Bicep.Core.Emit
                         // Note that we don't want to return the fully-qualified resource name in the case of name property access.
                         // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                         return this
-                            .CreateConverterForIndexReplacement(GetResourceNameSyntax(resource), indexExpression, propertyAccess)
-                            .ConvertExpression(GetResourceNameSyntax(resource));
+                            .CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, propertyAccess)
+                            .ConvertExpression(resource.NameSyntax);
                     case "type":
-                        return new JTokenExpression(resource.GetResourceTypeReference().FullyQualifiedType);
+                        return new JTokenExpression(resource.TypeReference.FullyQualifiedType);
                     case "apiVersion":
-                        return new JTokenExpression(resource.GetResourceTypeReference().ApiVersion);
+                        return new JTokenExpression(resource.TypeReference.ApiVersion);
                     case "properties":
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
                         return this
-                            .CreateConverterForIndexReplacement(GetResourceNameSyntax(resource), indexExpression, propertyAccess)
+                            .CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, propertyAccess)
                             .GetReferenceExpression(resource, false);
                     default:
                         return null;
@@ -338,26 +338,20 @@ namespace Bicep.Core.Emit
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceMetadata resource)
         {
-            var typeReference = resource.GetResourceTypeReference();
+            var typeReference = resource.TypeReference;
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
-            var nameSyntax = GetResourceNameSyntax(resource);
+            var nameSyntax = resource.NameSyntax;
             var nameExpression = ConvertExpression(nameSyntax);
 
             if (ancestors.Length > 0)
             {
                 var firstAncestorNameLength = typeReference.Types.Length - ancestors.Length;
 
-                SyntaxBase? indexExpression = null;
-                if (resource.Symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is ArrayAccessSyntax arraySyntax)
-                {
-                    indexExpression = arraySyntax.IndexExpression;
-                }
-
-                var resourceName = ConvertExpression(GetResourceNameSyntax(resource));
+                var resourceName = ConvertExpression(resource.NameSyntax);
 
                 var parentNames = ancestors.SelectMany((x, i) =>
                 {
-                    var nameSyntax = GetResourceNameSyntax(x.Resource);
+                    var nameSyntax = x.Resource.NameSyntax;
                     var nameExpression = CreateConverterForIndexReplacement(nameSyntax, x.IndexExpression, x.Resource.Symbol.NameSyntax)
                         .ConvertExpression(nameSyntax);
 
@@ -388,7 +382,7 @@ namespace Bicep.Core.Emit
 
         public LanguageExpression GetFullyQualifiedResourceName(ResourceMetadata resource)
         {
-            var nameValueSyntax = GetResourceNameSyntax(resource);
+            var nameValueSyntax = resource.NameSyntax;
 
             // For a nested resource we need to compute the name
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
@@ -411,12 +405,6 @@ namespace Bicep.Core.Emit
             return CreateFunction("format", new JTokenExpression(formatString).AsEnumerable().Concat(nameSegments));
         }
 
-        public static SyntaxBase GetResourceNameSyntax(ResourceMetadata resource)
-        {
-            // this condition should have already been validated by the type checker
-            return resource.Symbol.UnsafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName);
-        }
-
         private LanguageExpression GetModuleNameExpression(ModuleSymbol moduleSymbol)
         {
             SyntaxBase nameValueSyntax = GetModuleNameSyntax(moduleSymbol);
@@ -435,7 +423,7 @@ namespace Bicep.Core.Emit
                 context,
                 this,
                 context.ResourceScopeData[resource],
-                resource.GetResourceTypeReference().FullyQualifiedType,
+                resource.TypeReference.FullyQualifiedType,
                 GetResourceNameSegments(resource));
         }
 
@@ -445,7 +433,7 @@ namespace Bicep.Core.Emit
                 context,
                 this,
                 context.ResourceScopeData[resource],
-                resource.GetResourceTypeReference().FullyQualifiedType,
+                resource.TypeReference.FullyQualifiedType,
                 GetResourceNameSegments(resource));
         }
 
@@ -475,17 +463,17 @@ namespace Bicep.Core.Emit
                 return CreateFunction(
                     "reference",
                     GetFullyQualifiedResourceId(resource),
-                    new JTokenExpression(resource.GetResourceTypeReference().ApiVersion),
+                    new JTokenExpression(resource.TypeReference.ApiVersion),
                     new JTokenExpression("full"));
             }
 
-            if (resource.IsExistingResource())
+            if (resource.IsExistingResource)
             {
                 // we must include an API version for an existing resource, because it cannot be inferred from any deployed template resource
                 return CreateFunction(
                     "reference",
                     GetFullyQualifiedResourceId(resource),
-                    new JTokenExpression(resource.GetResourceTypeReference().ApiVersion));
+                    new JTokenExpression(resource.TypeReference.ApiVersion));
             }
 
             return CreateFunction(
