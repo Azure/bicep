@@ -17,14 +17,14 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
         private readonly ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
 
-        public Binder(BicepFile bicepFile, ISymbolContext symbolContext)
+        public Binder(BicepFile bicepFile, ISymbolContext symbolContext, IResourceTypeProvider typeProvider)
         {
             // TODO use lazy or some other pattern for init
             this.bicepFile = bicepFile;
             this.TargetScope = SyntaxHelper.GetTargetScope(bicepFile);
             var (declarations, outermostScopes) = DeclarationVisitor.GetDeclarations(bicepFile, symbolContext);
             var uniqueDeclarations = GetUniqueDeclarations(declarations);
-            var builtInNamespaces = GetBuiltInNamespaces(this.TargetScope);
+            var builtInNamespaces = GetBuiltInNamespaces(typeProvider, this.TargetScope);
             this.bindings = GetBindings(bicepFile, uniqueDeclarations, builtInNamespaces, outermostScopes);
             this.cyclesBySymbol = GetCyclesBySymbol(bicepFile, this.bindings);
 
@@ -69,9 +69,9 @@ namespace Bicep.Core.Semantics
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         }
 
-        private static ImmutableDictionary<string, NamespaceSymbol> GetBuiltInNamespaces(ResourceScope targetScope)
+        private static ImmutableDictionary<string, NamespaceSymbol> GetBuiltInNamespaces(IResourceTypeProvider typeProvider, ResourceScope targetScope)
         {
-            var namespaces = new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(targetScope) };
+            var namespaces = new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(typeProvider, targetScope) };
 
             return namespaces.ToImmutableDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
         }

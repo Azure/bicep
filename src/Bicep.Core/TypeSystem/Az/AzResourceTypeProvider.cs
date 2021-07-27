@@ -95,7 +95,7 @@ namespace Bicep.Core.TypeSystem.Az
                 CreateGenericResourceBody(typeReference, p => true));
         }
 
-        private static ResourceType SetBicepResourceProperties(ResourceType resourceType, ResourceTypeGenerationFlags flags)
+        private ResourceType SetBicepResourceProperties(ResourceType resourceType, ResourceTypeGenerationFlags flags)
         {
             var bodyType = resourceType.Body.Type;
 
@@ -153,7 +153,7 @@ namespace Bicep.Core.TypeSystem.Az
             return new ResourceType(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
         }
 
-        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        private ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
             // Local function.
             static TypeProperty UpdateFlags(TypeProperty typeProperty, TypePropertyFlags flags) =>
@@ -246,7 +246,7 @@ namespace Bicep.Core.TypeSystem.Az
                 functions);
         }
 
-        private static IEnumerable<FunctionOverload> GetBicepMethods(ResourceTypeReference resourceType)
+        private IEnumerable<FunctionOverload> GetBicepMethods(ResourceTypeReference resourceType)
         {
             yield return new FunctionWildcardOverloadBuilder("list*", new Regex("^list[a-zA-Z]*"))
                 .WithReturnType(LanguageConstants.Any)
