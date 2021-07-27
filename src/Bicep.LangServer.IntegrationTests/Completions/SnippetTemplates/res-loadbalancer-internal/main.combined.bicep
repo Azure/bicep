@@ -1,17 +1,33 @@
-// $1 = loadBalancerInternal
-// $2 = 'name'
+// $1 = 'name'
+// $2 = subnet
 // $3 = 'name'
-// $4 = '0.0.0.0'
-// $5 = 'virtualNetwork'
-// $6 = 'subnet'
+// $4 = backendAddressPool
+// $5 = 'loadBalancerExternal/loadBalancerBackEndPool'
+// $6 = loadBalancerInternal
 // $7 = 'name'
 // $8 = 'name'
-// $9 = Tcp
-// $10 = 80
-// $11 = 80
-// $12 = 'name'
-// $13 = Tcp
+// $9 = '0.0.0.0'
+// $10 = 'name'
+// $11 = 'name'
+// $12 = Tcp
+// $13 = 80
 // $14 = 80
+// $15 = 'name'
+// $16 = Tcp
+// $17 = 80
+
+resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+  name: 'name'
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {
+  parent: vnet
+  name: 'name'
+}
+
+resource backendAddressPool 'Microsoft.Network/loadBalancers/backendAddressPools@2021-02-01' existing = {
+  name: 'loadBalancerExternal/loadBalancerBackEndPool'
+}
 
 resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
   name: 'name'
@@ -24,7 +40,7 @@ resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
           privateIPAddress: '0.0.0.0'
           privateIPAllocationMethod: 'Static'
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork', 'subnet')
+            id: subnet.id
           }
         }
       }
@@ -39,10 +55,10 @@ resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
         name: 'name'
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'name', 'name')
+            id: 'id'
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'name', 'name')
+            id: backendAddressPool.id
           }
           protocol: 'Tcp'
           frontendPort: 80
@@ -50,7 +66,7 @@ resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
           enableFloatingIP: false
           idleTimeoutInMinutes: 5
           probe: {
-            id: resourceId('Microsoft.Network/loadBalancers/probes', 'name', 'name')
+            id: 'id'
           }
         }
       }

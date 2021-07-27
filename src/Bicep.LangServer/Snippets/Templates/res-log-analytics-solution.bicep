@@ -1,17 +1,21 @@
 ﻿// Log Analytics Solution
-resource /*${1:logAnalyticsSolution}*/logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
+resource /*${1:operationalInsightsWorkspace}*/operationalInsightsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: /*${2:'name'}*/'name'
+}
+
+resource /*${3:logAnalyticsSolution}*/logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
+  name: /*${4:'name'}*/'name'
   location: resourceGroup().location
   properties: {
-    workspaceResourceId: resourceId('Microsoft.OperationalInsights/workspaces', /*${3:'logAnalyticsWorkspace'}*/'logAnalyticsWorkspace')
+    workspaceResourceId: operationalInsightsWorkspace.id
     containedResources: [
-      resourceId('Microsoft.OperationalInsights/workspaces/views', /*${3:'logAnalyticsWorkspace'}*/'logAnalyticsWorkspace', /*${4:'logAnalyticsSolution'}*/'logAnalyticsSolution')
+      /*${5:'id'}*/'id'
     ]
   }
   plan: {
-    name: /*${5:'name'}*/'name'
-    product: /*${6:'product'}*/'product'
-    publisher: /*${7:'publisher'}*/'publisher'
-    promotionCode: /*${8:'promotionCode'}*/'promotionCode'
+    name: /*${6:'name'}*/'name'
+    product: /*${7:'product'}*/'product'
+    publisher: /*${8:'publisher'}*/'publisher'
+    promotionCode: /*${9:'promotionCode'}*/'promotionCode'
   }
 }

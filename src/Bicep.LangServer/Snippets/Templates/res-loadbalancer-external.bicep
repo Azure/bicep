@@ -1,64 +1,72 @@
 ﻿// External Load Balancer
-resource /*${1:loadBalancerExternal}*/loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
+resource /*${1:publicIPAddresses}*/publicIPAddresses 'Microsoft.Network/publicIPAddresses@2021-02-01' existing = {
   name: /*${2:'name'}*/'name'
+}
+
+resource /*${3:backendAddressPool}*/backendAddressPool 'Microsoft.Network/loadBalancers/backendAddressPools@2021-02-01' existing = {
+  name: /*${4:'loadBalancerExternal/loadBalancerBackEndPool'}*/'loadBalancerExternal/loadBalancerBackEndPool'
+}
+
+resource /*${5:loadBalancerExternal}*/loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
+  name: /*${6:'name'}*/'name'
   location: resourceGroup().location
   properties: {
     frontendIPConfigurations: [
       {
-        name: /*${3:'name'}*/'name'
+        name: /*${7:'name'}*/'name'
         properties: {
           publicIPAddress: {
-            id: resourceId('Microsoft.Network/publicIPAddresses', /*${4:'publicIP'}*/'publicIP')
+            id: publicIPAddresses.id
           }
         }
       }
     ]
     backendAddressPools: [
       {
-        name: /*${5:'name'}*/'name'
+        name: /*${8:'name'}*/'name'
       }
     ]
     inboundNatRules: [
       {
-        name: /*${6:'name'}*/'name'
+        name: /*${9:'name'}*/'name'
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', /*${2:'name'}*/'name', /*${3:'name'}*/'name')
+            id: /*${10:'id'}*/'id'
           }
-          protocol: /*'${7|Tcp,Udp,All|}'*/'Tcp'
-          frontendPort: /*${8:50001}*/50001
-          backendPort: /*${9:3389}*/3389
+          protocol: /*'${11|Tcp,Udp,All|}'*/'Tcp'
+          frontendPort: /*${12:50001}*/50001
+          backendPort: /*${13:3389}*/3389
           enableFloatingIP: false
         }
       }
     ]
     loadBalancingRules: [
       {
-        name: /*${10:'name'}*/'name'
+        name: /*${14:'name'}*/'name'
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', /*${2:'name'}*/'name', /*${3:'name'}*/'name')
+             id: /*${15:'id'}*/'id'
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', /*${2:'name'}*/'name', /*${5:'name'}*/'name')
+            id: backendAddressPool.id
           }
-          protocol: /*'${11|Tcp,Udp,All|}'*/'Tcp'
-          frontendPort: /*${12:80}*/80
-          backendPort: /*${13:80}*/80
+          protocol: /*'${16|Tcp,Udp,All|}'*/'Tcp'
+          frontendPort: /*${17:80}*/80
+          backendPort: /*${18:80}*/80
           enableFloatingIP: false
           idleTimeoutInMinutes: 5
           probe: {
-            id: resourceId('Microsoft.Network/loadBalancers/probes', /*${2:'name'}*/'name', /*${14:'name'}*/'name')
+            id: /*${19:'id'}*/'id'
           }
         }
       }
     ]
     probes: [
       {
-        name: /*${14:'name'}*/'name'
+        name: /*${20:'name'}*/'name'
         properties: {
-          protocol: /*'${15|Tcp,Udp,All|}'*/'Tcp'
-          port: /*${16:80}*/80
+          protocol: /*'${21|Tcp,Udp,All|}'*/'Tcp'
+          port: /*${22:80}*/80
           intervalInSeconds: 5
           numberOfProbes: 2
         }
