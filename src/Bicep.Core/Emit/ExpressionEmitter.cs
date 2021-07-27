@@ -7,6 +7,7 @@ using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -90,21 +91,21 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitUnqualifiedResourceId(ResourceSymbol resourceSymbol, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitUnqualifiedResourceId(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resourceSymbol), indexExpression, newContext);
+            var converterForContext = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resource), indexExpression, newContext);
 
-            var unqualifiedResourceId = converterForContext.GetUnqualifiedResourceId(resourceSymbol);
+            var unqualifiedResourceId = converterForContext.GetUnqualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(unqualifiedResourceId);
 
             writer.WriteValue(serialized);
         }
 
-        public void EmitResourceIdReference(ResourceSymbol resourceSymbol, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitResourceIdReference(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = this.converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resourceSymbol), indexExpression, newContext);
+            var converterForContext = this.converter.CreateConverterForIndexReplacement(ExpressionConverter.GetResourceNameSyntax(resource), indexExpression, newContext);
 
-            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resourceSymbol);
+            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
@@ -120,9 +121,9 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public LanguageExpression GetFullyQualifiedResourceName(ResourceSymbol resourceSymbol)
+        public LanguageExpression GetFullyQualifiedResourceName(ResourceMetadata resource)
         {
-            return converter.GetFullyQualifiedResourceName(resourceSymbol);
+            return converter.GetFullyQualifiedResourceName(resource);
         }
 
         public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
@@ -317,13 +318,13 @@ namespace Bicep.Core.Emit
         {
             if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison))
             {
-                var objectSymbol = instanceFunctionCall.BaseExpression switch
+                var baseSyntax = instanceFunctionCall.BaseExpression switch
                 {
-                    ArrayAccessSyntax arrayAccessSyntax => context.SemanticModel.GetSymbolInfo(arrayAccessSyntax.BaseExpression),
-                    _ => context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression)
+                    ArrayAccessSyntax arrayAccessSyntax => arrayAccessSyntax.BaseExpression,
+                    _ => instanceFunctionCall.BaseExpression,
                 };
 
-                if (objectSymbol is not ResourceSymbol resource ||
+                if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not {} resource ||
                     !string.Equals(resource.GetResourceTypeReference().FullyQualifiedType, "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");

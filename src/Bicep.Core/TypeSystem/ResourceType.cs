@@ -27,5 +27,13 @@ namespace Bicep.Core.TypeSystem
         public ITypeReference Body { get; }
 
         public ResourceScope Scope => ResourceScope.Resource;
+
+        public static ResourceType? TryUnwrap(TypeSymbol typeSymbol)
+            => typeSymbol switch
+            {
+                ResourceType resourceType => resourceType,
+                ArrayType { Item: ResourceType resourceType } => resourceType,
+                _ => null
+            };
     }
 }

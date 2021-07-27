@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
@@ -19,7 +20,7 @@ namespace Bicep.Core.Emit
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
             var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
-            var resourceScopeData = ScopeHelper.GetResoureScopeInfo(model, diagnosticWriter);
+            var resourceScopeData = ScopeHelper.GetResourceScopeInfo(model, diagnosticWriter);
 
             DeployTimeConstantValidator.Validate(model, diagnosticWriter);
             ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
@@ -34,7 +35,7 @@ namespace Bicep.Core.Emit
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
 
-        private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
+        private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
         {
             // This method only checks, if in one deployment we do not have 2 or more resources with this same name in one deployment to avoid template validation error
             // This will not check resource constraints such as necessity of having unique virtual network names within resource group
@@ -87,61 +88,48 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData)
+        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
         {
-            foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
+            foreach (var resource in semanticModel.GetAllResources())
             {
-                if (resource.DeclaringResource.IsExistingResource())
+                if (resource.IsExistingResource())
                 {
                     // 'existing' resources are not being deployed so duplicates are allowed
                     continue;
                 }
 
                 // Determine the scope - this is either something like a resource group/subscription or another resource
-                ResourceSymbol? scopeSymbol;
-                if (resourceScopeData.TryGetValue(resource, out var scopeData) && scopeData.ResourceScopeSymbol is ResourceSymbol)
+                ResourceMetadata? resourceScope;
+                if (resourceScopeData.TryGetValue(resource, out var scopeData) && scopeData.ResourceScope is {} scopeMetadata)
                 {
-                    scopeSymbol = scopeData.ResourceScopeSymbol;
+                    resourceScope = scopeMetadata;
                 }
                 else
                 {
-                    scopeSymbol = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
+                    resourceScope = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
-                var resourceType = resource.Type switch
-                {
-                    ResourceType singleType => singleType,
-                    ArrayType { Item: ResourceType itemType } => itemType,
-                    _ => null
-                };
-
-                if (resourceType is null || resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
+                if (resource.Symbol.TryGetResourceType() is not {} resourceType || 
+                    resource.Symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
                 {
                     //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
                     continue;
                 }
 
-                yield return new ResourceDefinition(resource.Name, scopeSymbol, resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
+                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
             }
         }
 
         public static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
+            foreach (var resource in semanticModel.GetAllResources())
             {
-                var resourceType = semanticModel.GetTypeInfo(resource.DeclaringSyntax) switch
-                {
-                    ResourceType singletype => singletype,
-                    ArrayType { Item: ResourceType itemType } => itemType,
-                    _ => null
-                };
-
-                if(resourceType is null)
+                if (resource.Symbol.TryGetResourceType() is not {} resourceType)
                 {
                     continue;
                 }
 
-                var resourceName = resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName);
+                var resourceName = resource.Symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName);
                 if (resourceName is not StringSyntax resourceNameString)
                 {
                     // not easy to do analysis if it's not a string!
@@ -187,9 +175,9 @@ namespace Bicep.Core.Emit
 
         public static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            foreach (var resource in semanticModel.Root.GetAllResourceDeclarations())
+            foreach (var resource in semanticModel.GetAllResources())
             {
-                if(resource.DeclaringResource.IsExistingResource())
+                if (resource.IsExistingResource())
                 {
                     // existing resource syntax doesn't result in deployment but instead is
                     // used as a convenient way of constructing a symbolic name
@@ -198,14 +186,14 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                if(resource.DeclaringResource.Value is not ForSyntax @for || @for.ItemVariable is not { } itemVariable)
+                if (resource.Symbol.DeclaringResource.Value is not ForSyntax @for || @for.ItemVariable is not { } itemVariable)
                 {
                     // invariant identifiers are only a concern for resource loops
                     // this is not a resource loop OR the item variable is malformed
                     continue;
                 }
 
-                if(resource.TryGetBodyObjectType() is not { } bodyType)
+                if (resource.Symbol.TryGetBodyObjectType() is not { } bodyType)
                 {
                     // unable to get the object type
                     continue;
@@ -218,7 +206,7 @@ namespace Bicep.Core.Emit
                     .OrderBy(property => property.Name, LanguageConstants.IdentifierComparer);
 
                 var propertyMap = expectedVariantPropertiesForType
-                    .Select(property => (property, value: resource.SafeGetBodyPropertyValue(property.Name)))
+                    .Select(property => (property, value: resource.Symbol.SafeGetBodyPropertyValue(property.Name)))
                     // exclude missing or malformed property values
                     .Where(pair => pair.value is not null and not SkippedTriviaSyntax)
                     .ToImmutableDictionary(pair => pair.property, pair => pair.value!);
@@ -233,7 +221,7 @@ namespace Bicep.Core.Emit
                 var indexVariable = @for.IndexVariable;
                 if (propertyMap.All(pair => IsInvariant(semanticModel, itemVariable, indexVariable, pair.Value)))
                 {
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(resource.NameSyntax).ForExpressionContainsLoopInvariants(itemVariable.Name.IdentifierName, indexVariable?.Name.IdentifierName, expectedVariantPropertiesForType.Select(p => p.Name)));
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(resource.Symbol.NameSyntax).ForExpressionContainsLoopInvariants(itemVariable.Name.IdentifierName, indexVariable?.Name.IdentifierName, expectedVariantPropertiesForType.Select(p => p.Name)));
                 }
             }
         }

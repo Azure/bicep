@@ -102,7 +102,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[55:56) [BCP018 (Error)] Expected the "(" character at this location. (CodeDescription: none) |{|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
 }
 
 // empty condition
@@ -112,7 +111,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[56:57) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
 }
 
 // #completionTest(57, 59) -> symbols
@@ -121,7 +119,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[61:62) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
 }
 
 // invalid condition type
@@ -130,7 +127,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[55:60) [BCP046 (Error)] Expected a value of type "bool". (CodeDescription: none) |(123)|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
 }
 
 // runtime functions are no allowed in resource conditions
@@ -139,7 +135,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[57:66) [BCP066 (Error)] Function "reference" is not valid at this location. It can only be used in resource declarations. (CodeDescription: none) |reference|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
@@ -147,7 +142,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[57:65) [BCP066 (Error)] Function "listKeys" is not valid at this location. It can only be used in resource declarations. (CodeDescription: none) |listKeys|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
 }
 
 // duplicate property at the top level
@@ -175,7 +169,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
   properties: {
     foo: 'a'
 //@[4:7) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |foo|
@@ -189,7 +182,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
   properties: {
     foo: 'a'
 //@[4:7) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |foo|
@@ -203,7 +195,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
-//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
   location: [
 //@[12:18) [BCP036 (Error)] The property "location" expected a value of type "string" but the provided value is of type "array". (CodeDescription: none) |[\r\n  ]|
   ]

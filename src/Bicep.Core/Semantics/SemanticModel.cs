@@ -10,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
@@ -54,7 +55,8 @@ namespace Bicep.Core.Semantics
 
                 return hierarchy;
             });
-            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(sourceFile, Binder));
+            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(this));
+            this.ResourceMetadata = new ResourceMetadataCache(this);
 
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
@@ -110,6 +112,8 @@ namespace Bicep.Core.Semantics
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
 
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
+
+        public ResourceMetadataCache ResourceMetadata { get; }
 
         private LinterAnalyzer LinterAnalyzer => linterAnalyzerLazy.Value;
 
@@ -190,6 +194,17 @@ namespace Bicep.Core.Semantics
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) => this.TypeManager.GetDeclaredTypeAssignment(syntax);
 
         public Symbol? GetSymbolParent(Symbol symbol) => this.symbolHierarchyLazy.Value.GetParent(symbol);
+
+        public IEnumerable<ResourceMetadata> GetAllResources()
+        {
+            foreach (var resourceSymbol in ResourceSymbolVisitor.GetAllResources(Root))
+            {
+                if (this.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is {} resource)
+                {
+                    yield return resource;
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,

@@ -91,8 +91,10 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return syntax;
             }
 
-            foreach (var otherResourceSymbol in semanticModel.Root.GetAllResourceDeclarations())
+            foreach (var otherResource in semanticModel.GetAllResources())
             {
+                var otherResourceSymbol = otherResource.Symbol;
+
                 if (otherResourceSymbol.Type is not ResourceType otherResourceType ||
                     otherResourceType.TypeReference.Types.Length != resourceType.TypeReference.Types.Length - 1 ||
                     !resourceType.TypeReference.TypesString.StartsWith($"{otherResourceType.TypeReference.TypesString}/", StringComparison.OrdinalIgnoreCase))

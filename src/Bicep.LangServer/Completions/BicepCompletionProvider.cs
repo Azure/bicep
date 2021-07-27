@@ -442,8 +442,8 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax &&
                 model.GetDeclaredType(resourceDeclarationSyntax) is ResourceType resourceType)
             {
-                bool isResourceNested = model.GetSymbolInfo(resourceDeclarationSyntax) is ResourceSymbol resourceSymbol &&
-                    model.ResourceAncestors.GetAncestors(resourceSymbol).Any(x => x.AncestorType == ResourceAncestorType.Nested);
+                bool isResourceNested = model.ResourceMetadata.TryLookup(resourceDeclarationSyntax) is {} resource &&
+                    model.ResourceAncestors.GetAncestors(resource).Any(x => x.AncestorType == ResourceAncestorType.Nested);
                 IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
 
                 foreach (Snippet snippet in snippets)

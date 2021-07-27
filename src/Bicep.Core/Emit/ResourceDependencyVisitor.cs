@@ -50,20 +50,20 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (this.model.GetSymbolInfo(syntax) is not ResourceSymbol resourceSymbol)
+            if (model.ResourceMetadata.TryLookup(syntax) is not {} resource)
             {
                 // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
                 return;
             }
 
             // Resource ancestors are always dependencies.
-            var ancestors = this.model.ResourceAncestors.GetAncestors(resourceSymbol);
+            var ancestors = this.model.ResourceAncestors.GetAncestors(resource);
 
             // save previous declaration as we may call this recursively
             var prevDeclaration = this.currentDeclaration;
 
-            this.currentDeclaration = resourceSymbol;
-            this.resourceDependencies[resourceSymbol] = new HashSet<ResourceDependency>(ancestors.Select(a => new ResourceDependency(a.Resource, a.IndexExpression)));
+            this.currentDeclaration = resource.Symbol;
+            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select(a => new ResourceDependency(a.Resource.Symbol, a.IndexExpression)));
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration
