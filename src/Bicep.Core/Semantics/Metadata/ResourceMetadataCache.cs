@@ -73,10 +73,6 @@ namespace Bicep.Core.Semantics.Metadata
         {
             switch (syntax)
             {
-                case VariableDeclarationSyntax variableDeclarationSyntax:
-                {
-                    return this.TryLookup(variableDeclarationSyntax.Value);
-                }
                 case ResourceAccessSyntax _:
                 case VariableAccessSyntax _:
                 {
