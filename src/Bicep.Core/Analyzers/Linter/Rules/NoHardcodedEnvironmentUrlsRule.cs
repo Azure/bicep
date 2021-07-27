@@ -24,19 +24,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private int MinimumHostLength;
         private bool HasHosts;
 
-        private readonly Lazy<Regex> hostRegexLazy;
-        private Regex hostRegex => hostRegexLazy.Value;
-
-        private readonly Lazy<Regex> excludedRegexLazy;
-        private Regex excludedRegex => excludedRegexLazy.Value;
-
         public NoHardcodedEnvironmentUrlsRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
         {
-            this.hostRegexLazy = new Lazy<Regex>(CreateDisallowedHostRegex);
-            this.excludedRegexLazy = new Lazy<Regex>(CreateExcludedHostsRegex);
         }
 
         public override void Configure(IConfigurationRoot config)
@@ -55,26 +47,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
             => string.Format("{0} Found this disallowed host: \"{1}\"", this.Description, values.First());
 
-        /// <summary>
-        /// Note that this regex requires the match to be at a subdomain boundary
-        /// so that there is not a partial match "mid-word". The subdomain must
-        /// be proceeded by a text break (., or slash, or space) or at the beginning
-        /// of a line.
-        /// </summary>
-        /// <returns></returns>
-        public Regex CreateDisallowedHostRegex() =>
-            new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|'|{{|}}|\s|^|/){Regex.Escape(h)}")),
-                        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        public Regex CreateExcludedHostsRegex() =>
-            new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|'|{{|}}|\s|^|/){Regex.Escape(h)}")),
-                        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             if (HasHosts)
             {
-                var visitor = new Visitor(this.hostRegex, this.MinimumHostLength, this.excludedRegex);
+                var visitor = new Visitor(this.DisallowedHosts ?? ImmutableArray<string>.Empty, this.MinimumHostLength, this.ExcludedHosts ?? ImmutableArray<string>.Empty);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
@@ -84,15 +61,32 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private class Visitor : SyntaxVisitor
         {
             public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new Dictionary<TextSpan, string>();
-            private readonly Regex hostRegex;
+            private readonly ImmutableArray<string> disallowedHosts;
             private readonly int minHostLen;
-            private readonly Regex exclusionRegex;
+            private readonly ImmutableArray<string> excludedHosts;
 
-            public Visitor(Regex disallowedRegex, int minHostLen, Regex exclusionRegex)
+            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts)
             {
-                this.hostRegex = disallowedRegex;
+                this.disallowedHosts = disallowedHosts;
                 this.minHostLen = minHostLen;
-                this.exclusionRegex = exclusionRegex;
+                this.excludedHosts = excludedHosts;
+            }
+
+            public static IEnumerable<(int Index, int Length, string Value)> FindMatches(string needle, string haystack)
+            {
+                var matchIndex = -1;
+                var startIndex = 0;
+                do
+                {
+                    matchIndex = haystack.IndexOf(needle, startIndex, StringComparison.OrdinalIgnoreCase);
+                    if (matchIndex > -1)
+                    {
+                        // NOTE: I haven't represented the original regex in full fidelity here - we're missing the check for subdomains. I don't see that adding significant overhead however
+                        yield return (Index: matchIndex, Length: needle.Length, Value: haystack.Substring(startIndex, needle.Length));
+                    }
+
+                    startIndex = matchIndex + needle.Length;
+                } while (matchIndex != -1);
             }
 
             public override void VisitStringSyntax(StringSyntax syntax)
@@ -105,14 +99,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         // shortcut check by testing length of token
                         if (token.Text.Length >= minHostLen)
                         {
-                            var disallowedMatches = this.hostRegex.Matches(token.Text);
+                            var disallowedMatches = disallowedHosts
+                                .SelectMany(host => FindMatches(host, token.Text))
+                                .ToImmutableArray();
 
                             if (disallowedMatches.Any())
                             {
-                                var exclusionMatches = exclusionRegex.Matches(token.Text);
+                                var exclusionMatches = excludedHosts
+                                    .SelectMany(host => FindMatches(host, token.Text))
+                                    .ToImmutableArray();
 
                                 // does this segment have a host match
-                                foreach (Match match in disallowedMatches)
+                                foreach (var match in disallowedMatches)
                                 {
 
                                     // exclusion is found containing the host match
