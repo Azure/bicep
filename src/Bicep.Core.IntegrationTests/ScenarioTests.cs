@@ -2355,5 +2355,40 @@ output secret string = secret
 
             result.Should().NotHaveAnyDiagnostics();
         }
+
+        // https://github.com/Azure/bicep/issues/3617
+        [TestMethod]
+        public void Test_Issue3617()
+        {
+            var result = CompilationHelper.Compile(@"
+param eventGridSystemTopicName string
+param subscription object
+param endPointPropertiesWithIdentity object
+param endPointProperties object
+param defaultAdvancedFilterObject object
+
+resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2020-10-15-preview' = {
+  name: '${eventGridSystemTopicName}/${subscription.name}'
+  properties: {
+    deliveryWithResourceIdentity: subscription.destination.useIdentity ? endPointPropertiesWithIdentity[toLower(subscription.destination.type)] : null
+    destination: subscription.destination.useIdentity ? null : endPointProperties[toLower(subscription.destination.type)]
+    filter: {
+      subjectBeginsWith: subscription.filter.beginsWith
+      subjectEndsWith: subscription.filter.endsWith
+      includedEventTypes: subscription.filter.eventTypes
+      isSubjectCaseSensitive: subscription.filter.caseSensitive
+      enableAdvancedFilteringOnArrays: subscription.filter.enableAdvancedFilteringOnArrays
+      advancedFilters: [for advancedFilter in subscription.filter.advancedFilters: {
+        key: advancedFilter.key
+        operatorType: advancedFilter.operator
+        value: union(defaultAdvancedFilterObject, advancedFilter).value
+        values: union(defaultAdvancedFilterObject, advancedFilter).values
+      }]
+    }
+  }
+}
+");
+            result.Should().NotHaveAnyDiagnostics();
+        }
     }
 }
