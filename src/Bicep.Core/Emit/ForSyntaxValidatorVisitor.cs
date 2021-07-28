@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
+using System;
 
 namespace Bicep.Core.Emit
 {
@@ -20,6 +17,12 @@ namespace Bicep.Core.Emit
         private readonly SemanticModel semanticModel;
 
         private SyntaxBase? activeLoopCapableTopLevelDeclaration = null;
+
+        // this is used to block property for-expression usages in object properties that are children of operators or function calls
+        // null - not in an expression
+        // true - property loop allowed IF other rules are satisfied as well
+        // false - property loop definitely NOT allowed
+        private bool? isPropertyLoopPotentiallyAllowed = null;
 
         private int propertyLoopCount = 0;
 
@@ -186,6 +189,31 @@ namespace Bicep.Core.Emit
             base.VisitResourceAccessSyntax(syntax);
         }
 
+        protected override void VisitInternal(SyntaxBase node)
+        {
+            var previousIsPropertyLoopPotentiallyAllowed = this.isPropertyLoopPotentiallyAllowed;
+
+            var isAllowed = IsPropertyLoopUsagePossibleInside(node);
+            this.isPropertyLoopPotentiallyAllowed = (previousIsPropertyLoopPotentiallyAllowed, isAllowed) switch
+            {
+                // expression nodes live inside non-expression nodes, so any value replaces null
+                (null, _) => isAllowed,
+
+                // once it's not allowed, it can't be allowed deeper in the tree
+                (false, _) => false,
+
+                // once we are in an expression, the children can only be expression nodes, so true or false can replace the true value
+                (true, not null) => isAllowed,
+
+                // non-expression nodes (like tokens) can live inside an expression node, but do not alter the decision
+                (true, null) => previousIsPropertyLoopPotentiallyAllowed
+            };
+
+            base.VisitInternal(node);
+
+            this.isPropertyLoopPotentiallyAllowed = previousIsPropertyLoopPotentiallyAllowed;
+        }
+
         private void ValidateDirectAccessToResourceOrModuleCollection(SyntaxBase variableOrResourceAccessSyntax)
         {
             var symbol = this.semanticModel.GetSymbolInfo(variableOrResourceAccessSyntax);
@@ -226,9 +254,9 @@ namespace Bicep.Core.Emit
             }
 
             // could be a property loop
-            if(!this.IsPropertyLoop(syntax))
+            if(this.isPropertyLoopPotentiallyAllowed is false || !this.IsPropertyLoop(syntax))
             {
-                // not a proeprty loop
+                // not a property loop or property loop inside an operator or function call
                 return false;
             }
 
@@ -245,6 +273,25 @@ namespace Bicep.Core.Emit
         private static bool IsPropertyLoop(SyntaxBase? parent, ForSyntax syntax)
         {
             return parent is ObjectPropertySyntax property && ReferenceEquals(property.Value, syntax);
+        }
+
+        /// <summary>
+        /// We cannot compile for-expressions when they are inside function calls or operators. This function
+        /// checks if the specified node allows for-expression usage.
+        /// </summary>
+        /// <param name="syntax">The node to check</param>
+        /// <returns></returns>
+        private static bool? IsPropertyLoopUsagePossibleInside(SyntaxBase syntax)
+        {
+            if(syntax is not ExpressionSyntax)
+            {
+                // not an expression but need to distinguish this state from "not allowed" in an expression node
+                return null;
+            }
+
+            // property loops can be used as long as the path to get to the property is constructed via object or array literals
+            // operators or function calls prevent usage of property loops inside
+            return syntax is ObjectSyntax or ObjectPropertySyntax or ArraySyntax or ArrayItemSyntax;
         }
 
         private bool IsTopLevelLoop(ForSyntax syntax)
