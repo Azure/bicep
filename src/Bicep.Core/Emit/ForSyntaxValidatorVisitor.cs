@@ -18,11 +18,29 @@ namespace Bicep.Core.Emit
 
         private SyntaxBase? activeLoopCapableTopLevelDeclaration = null;
 
+        private enum PropertyLoopCapability
+        {
+            /// <summary>
+            /// Node is not derived from expression syntax so property loop capability depends on other nodes in the hierarchy.
+            /// </summary>
+            Inconclusive,
+
+            /// <summary>
+            /// Property loops are not allowed due to nodes that prevent such usage.
+            /// </summary>
+            DisallowedInExpression,
+
+            /// <summary>
+            /// Property loops may be allowed.
+            /// </summary>
+            PotentiallyAllowed
+        }
+
         // this is used to block property for-expression usages in object properties that are children of operators or function calls
         // null - not in an expression
         // true - property loop allowed IF other rules are satisfied as well
         // false - property loop definitely NOT allowed
-        private bool? isPropertyLoopPotentiallyAllowed = null;
+        private PropertyLoopCapability isPropertyLoopPotentiallyAllowed = PropertyLoopCapability.Inconclusive;
 
         private int propertyLoopCount = 0;
 
@@ -197,16 +215,18 @@ namespace Bicep.Core.Emit
             this.isPropertyLoopPotentiallyAllowed = (previousIsPropertyLoopPotentiallyAllowed, isAllowed) switch
             {
                 // expression nodes live inside non-expression nodes, so any value replaces null
-                (null, _) => isAllowed,
+                (PropertyLoopCapability.Inconclusive, _) => isAllowed,
 
                 // once it's not allowed, it can't be allowed deeper in the tree
-                (false, _) => false,
+                (PropertyLoopCapability.DisallowedInExpression, _) => PropertyLoopCapability.DisallowedInExpression,
 
                 // once we are in an expression, the children can only be expression nodes, so true or false can replace the true value
-                (true, not null) => isAllowed,
+                (PropertyLoopCapability.PotentiallyAllowed, not PropertyLoopCapability.Inconclusive) => isAllowed,
 
                 // non-expression nodes (like tokens) can live inside an expression node, but do not alter the decision
-                (true, null) => previousIsPropertyLoopPotentiallyAllowed
+                (PropertyLoopCapability.PotentiallyAllowed, PropertyLoopCapability.Inconclusive) => previousIsPropertyLoopPotentiallyAllowed,
+
+                _ => throw new NotImplementedException("Unexpected value of property loop capability.")
             };
 
             base.VisitInternal(node);
@@ -254,7 +274,7 @@ namespace Bicep.Core.Emit
             }
 
             // could be a property loop
-            if(this.isPropertyLoopPotentiallyAllowed is false || !this.IsPropertyLoop(syntax))
+            if(this.isPropertyLoopPotentiallyAllowed == PropertyLoopCapability.DisallowedInExpression || !this.IsPropertyLoop(syntax))
             {
                 // not a property loop or property loop inside an operator or function call
                 return false;
@@ -281,17 +301,24 @@ namespace Bicep.Core.Emit
         /// </summary>
         /// <param name="syntax">The node to check</param>
         /// <returns></returns>
-        private static bool? IsPropertyLoopUsagePossibleInside(SyntaxBase syntax)
+        private static PropertyLoopCapability IsPropertyLoopUsagePossibleInside(SyntaxBase syntax)
         {
-            if(syntax is not ExpressionSyntax)
-            {
-                // not an expression but need to distinguish this state from "not allowed" in an expression node
-                return null;
-            }
-
             // property loops can be used as long as the path to get to the property is constructed via object or array literals
             // operators or function calls prevent usage of property loops inside
-            return syntax is ObjectSyntax or ObjectPropertySyntax or ArraySyntax or ArrayItemSyntax;
+            switch(syntax)
+            {
+                case not ExpressionSyntax:
+                    return PropertyLoopCapability.Inconclusive;
+
+                case ObjectSyntax:
+                case ObjectPropertySyntax:
+                case ArraySyntax:
+                case ArrayItemSyntax:
+                    return PropertyLoopCapability.PotentiallyAllowed;
+
+                default:
+                    return PropertyLoopCapability.DisallowedInExpression;
+            }
         }
 
         private bool IsTopLevelLoop(ForSyntax syntax)
