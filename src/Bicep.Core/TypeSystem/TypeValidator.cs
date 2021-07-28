@@ -377,45 +377,50 @@ namespace Bicep.Core.TypeSystem
             // Let's not do this just yet, and see if a use-case arises.
 
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
-            if (discriminatorType is not StringLiteralType stringLiteralDiscriminator)
+            switch(discriminatorType)
             {
-                diagnosticWriter.Write(
-                    config.OriginSyntax ?? expression,
-                    x => x.PropertyTypeMismatch(ShouldWarn(targetType), TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
-                return LanguageConstants.Any;
-            }
+                case AnyType:
+                    return LanguageConstants.Any;
 
-            if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectReference))
-            {
-                // no matches
-                var discriminatorCandidates = targetType.UnionMembersByKey.Keys.OrderBy(x => x);
-                bool shouldWarn = ShouldWarn(targetType);
-
-                diagnosticWriter.Write(
-                    config.OriginSyntax ?? discriminatorProperty.Value,
-                    x =>
+                case StringLiteralType stringLiteralDiscriminator:
+                    if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectReference))
                     {
-                        var sourceDeclaration = TryGetSourceDeclaration(config);
+                        // no matches
+                        var discriminatorCandidates = targetType.UnionMembersByKey.Keys.OrderBy(x => x);
+                        bool shouldWarn = ShouldWarn(targetType);
 
-                        if (sourceDeclaration is null && SpellChecker.GetSpellingSuggestion(stringLiteralDiscriminator.Name, discriminatorCandidates) is { } suggestion)
-                        {
+                        diagnosticWriter.Write(
+                            config.OriginSyntax ?? discriminatorProperty.Value,
+                            x =>
+                            {
+                                var sourceDeclaration = TryGetSourceDeclaration(config);
+
+                                if (sourceDeclaration is null && SpellChecker.GetSpellingSuggestion(stringLiteralDiscriminator.Name, discriminatorCandidates) is { } suggestion)
+                                {
                             // only look up suggestions if we're not sourcing this type from another declaration.
                             return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestion);
-                        }
+                                }
 
-                        return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
-                    });
+                                return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
+                            });
 
-                return LanguageConstants.Any;
+                        return LanguageConstants.Any;
+                    }
+
+                    if (selectedObjectReference.Type is not ObjectType selectedObjectType)
+                    {
+                        throw new InvalidOperationException($"Discriminated type {targetType.Name} contains non-object member");
+                    }
+
+                    // we have a match!
+                    return NarrowObjectType(config, expression, selectedObjectType);
+
+                default:
+                    diagnosticWriter.Write(
+                        config.OriginSyntax ?? expression,
+                        x => x.PropertyTypeMismatch(ShouldWarn(targetType), TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
+                    return LanguageConstants.Any;
             }
-
-            if (selectedObjectReference.Type is not ObjectType selectedObjectType)
-            {
-                throw new InvalidOperationException($"Discriminated type {targetType.Name} contains non-object member");
-            }
-
-            // we have a match!
-            return NarrowObjectType(config, expression, selectedObjectType);
         }
 
         private TypeSymbol NarrowObjectType(TypeValidatorConfig config, ObjectSyntax expression, ObjectType targetType)
