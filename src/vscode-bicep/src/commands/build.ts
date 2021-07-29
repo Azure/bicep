@@ -18,15 +18,19 @@ export class BuildCommand implements Command {
       return;
     }
 
-    const buildOutput: string = await this.client.sendRequest(
-      "workspace/executeCommand",
-      {
-        command: "build",
-        arguments: [documentUri.fsPath],
-      }
-    );
+    try {
+      const buildOutput: string = await this.client.sendRequest(
+        "workspace/executeCommand",
+        {
+          command: "build",
+          arguments: [documentUri.fsPath],
+        }
+      );
 
-    appendToOutputChannel(this.outputChannel, buildOutput);
+      appendToOutputChannel(this.outputChannel, buildOutput);
+    } catch (err) {
+      appendToOutputChannel(this.outputChannel, err.message);
+    }
   }
 }
 
