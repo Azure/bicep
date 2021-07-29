@@ -199,7 +199,7 @@
     "@types/cytoscape": "^3.14.17",
     "@types/jest": "^26.0.24",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.4.3",
+    "@types/node": "^16.4.7",
     "@types/react": "^17.0.15",
     "@types/react-dom": "^17.0.9",
     "@types/react-test-renderer": "^17.0.1",
@@ -233,7 +233,7 @@
     "typescript": "^4.3.5",
     "vsce": "^1.96.1",
     "vscode-test": "^1.6.1",
-    "webpack": "^5.47.0",
+    "webpack": "^5.47.1",
     "webpack-cli": "^4.7.2"
   },
   "dependencies": {
