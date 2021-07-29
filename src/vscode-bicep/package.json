@@ -36,6 +36,7 @@
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
   "activationEvents": [
     "onLanguage:bicep",
+    "onCommand:bicep.build",
     "onCommand:bicep.openVisualizer",
     "onCommand:bicep.openVisualizerToSide",
     "onWebviewPanel:bicep.visualizer"
@@ -130,6 +131,18 @@
         "title": "Open Source",
         "category": "bicep",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "bicep.build",
+        "title": "Build",
+        "category": "bicep"
+      }
+    ],
+    "keybindings": [
+      {
+          "command": "bicep.build",
+          "key": "ctrl+shift+b",
+          "when": "resourceLangId == bicep"
       }
     ],
     "menus": {
@@ -150,6 +163,11 @@
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
+          "command": "bicep.build",
+          "when": "resourceLangId == bicep",
           "group": "navigation"
         }
       ],

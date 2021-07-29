@@ -9,6 +9,7 @@ import {
 import { launchLanguageServiceWithProgressReport } from "./language";
 import { BicepVisualizerViewManager } from "./visualizer";
 import {
+  BuildCommand,
   CommandManager,
   ShowSourceCommand,
   ShowVisualizerCommand,
@@ -58,6 +59,7 @@ export async function activate(
     await extension
       .register(new CommandManager())
       .registerCommands(
+        new BuildCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager)
