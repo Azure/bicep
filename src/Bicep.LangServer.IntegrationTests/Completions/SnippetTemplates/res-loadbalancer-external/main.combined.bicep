@@ -1,33 +1,23 @@
-// $1 = publicIPAddresses
+// $1 = loadBalancerExternal
 // $2 = 'name'
-// $3 = backendAddressPool
-// $4 = 'loadBalancerExternal/loadBalancerBackEndPool'
-// $5 = loadBalancerExternal
+// $3 = 'name'
+// $4 = 'publicIPAddresses.id'
+// $5 = 'name'
 // $6 = 'name'
-// $7 = 'name'
-// $8 = 'name'
-// $9 = 'name'
-// $10 = 'id'
-// $11 = Tcp
-// $12 = 50001
-// $13 = 3389
-// $14 = 'name'
-// $15 = 'id'
-// $16 = Tcp
-// $17 = 80
-// $18 = 80
-// $19 = 'id'
-// $20 = 'name'
-// $21 = Tcp
-// $22 = 80
-
-resource publicIPAddresses 'Microsoft.Network/publicIPAddresses@2021-02-01' existing = {
-  name: 'name'
-}
-
-resource backendAddressPool 'Microsoft.Network/loadBalancers/backendAddressPools@2021-02-01' existing = {
-  name: 'loadBalancerExternal/loadBalancerBackEndPool'
-}
+// $7 = 'frontendIPConfiguration.id'
+// $8 = Tcp
+// $9 = 50001
+// $10 = 3389
+// $11 = 'name'
+// $12 = 'frontendIPConfiguration.id'
+// $13 = 'backendAddressPool.id'
+// $14 = Tcp
+// $15 = 80
+// $16 = 80
+// $17 = 'probe.id'
+// $18 = 'name'
+// $19 = Tcp
+// $20 = 80
 
 resource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
   name: 'name'
@@ -38,7 +28,7 @@ resource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
         name: 'name'
         properties: {
           publicIPAddress: {
-            id: publicIPAddresses.id
+            id: 'publicIPAddresses.id'
           }
         }
       }
@@ -53,7 +43,7 @@ resource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
         name: 'name'
         properties: {
           frontendIPConfiguration: {
-            id: 'id'
+            id: 'frontendIPConfiguration.id'
           }
           protocol: 'Tcp'
           frontendPort: 50001
@@ -67,10 +57,10 @@ resource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
         name: 'name'
         properties: {
           frontendIPConfiguration: {
-             id: 'id'
+             id: 'frontendIPConfiguration.id'
           }
           backendAddressPool: {
-            id: backendAddressPool.id
+            id: 'backendAddressPool.id'
           }
           protocol: 'Tcp'
           frontendPort: 80
@@ -78,7 +68,7 @@ resource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
           enableFloatingIP: false
           idleTimeoutInMinutes: 5
           probe: {
-            id: 'id'
+            id: 'probe.id'
           }
         }
       }

@@ -1,33 +1,19 @@
-// $1 = 'name'
-// $2 = subnet
+// $1 = loadBalancerInternal
+// $2 = 'name'
 // $3 = 'name'
-// $4 = backendAddressPool
-// $5 = 'loadBalancerExternal/loadBalancerBackEndPool'
-// $6 = loadBalancerInternal
+// $4 = '0.0.0.0'
+// $5 = 'subnet.id'
+// $6 = 'name'
 // $7 = 'name'
-// $8 = 'name'
-// $9 = '0.0.0.0'
-// $10 = 'name'
-// $11 = 'name'
-// $12 = Tcp
-// $13 = 80
-// $14 = 80
-// $15 = 'name'
-// $16 = Tcp
-// $17 = 80
-
-resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
-  name: 'name'
-}
-
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {
-  parent: vnet
-  name: 'name'
-}
-
-resource backendAddressPool 'Microsoft.Network/loadBalancers/backendAddressPools@2021-02-01' existing = {
-  name: 'loadBalancerExternal/loadBalancerBackEndPool'
-}
+// $8 = 'frontendIPConfiguration.id'
+// $9 = 'backendAddressPool.id'
+// $10 = Tcp
+// $11 = 80
+// $12 = 80
+// $13 = 'probe.id'
+// $14 = 'name'
+// $15 = Tcp
+// $16 = 80
 
 resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
   name: 'name'
@@ -40,7 +26,7 @@ resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
           privateIPAddress: '0.0.0.0'
           privateIPAllocationMethod: 'Static'
           subnet: {
-            id: subnet.id
+            id: 'subnet.id'
           }
         }
       }
@@ -55,10 +41,10 @@ resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
         name: 'name'
         properties: {
           frontendIPConfiguration: {
-            id: 'id'
+            id: 'frontendIPConfiguration.id'
           }
           backendAddressPool: {
-            id: backendAddressPool.id
+            id: 'backendAddressPool.id'
           }
           protocol: 'Tcp'
           frontendPort: 80
@@ -66,7 +52,7 @@ resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
           enableFloatingIP: false
           idleTimeoutInMinutes: 5
           probe: {
-            id: 'id'
+            id: 'probe.id'
           }
         }
       }
