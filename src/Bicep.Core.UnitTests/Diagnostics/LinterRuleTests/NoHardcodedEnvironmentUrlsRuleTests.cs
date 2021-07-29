@@ -4,17 +4,8 @@
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
-using Bicep.Core.Text;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 // TODO: Test with different configs
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -22,6 +13,71 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class NoHardcodedEnvironmentUrlsRuleTests : LinterRuleTestsBase
     {
+        [DataRow(1, @"
+        param param1 string
+        var location = 'management.core.windows.net'
+        output sub int = sum
+        ")]
+        [DataRow(1, @"
+        param param1 string
+        var location = 'http://management.core.windows.net'
+        output sub int = sum
+        ")]
+        [DataRow(0, @"
+        param param1 string
+        var location = 'http://schema.management.azure.com'
+        output sub int = sum
+        ")]
+        [DataRow(1, @"
+        param param1 string
+        var location = 'https://management.core.windows.net'
+        output sub int = sum
+        ")]
+        [DataRow(0, @"
+        param param1 string
+        var location = 'https://schema.management.azure.com'
+        output sub int = sum
+        ")]
+        [DataRow(0, @"
+        param param1 string
+        var location = 'https://zzzzzz.schema.management.azure.com'
+        output sub int = sum
+        ")]
+        [DataRow(1, @"
+        param param1 string
+        var location = 'http://MANAGEMENT.core.windows.net'
+        output sub int = sum
+        ")]
+        [DataRow(1, @"
+        param param1 string
+        var location = 'http://MANAGEMENT.core.windows.net'
+        output sub int = sum
+        ")]
+        [DataRow(1, @"
+        resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
+          name: 'name'
+          location: resourceGroup().location
+          sku: {
+            name: 'azuredatalakestore.net'
+            capacity: 1
+          }
+        }
+        ")]
+        [DataRow(0, @"
+        resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
+          name: 'name'
+          location: resourceGroup().location
+          sku: {
+            name: 'http://schema.management.azure.com'
+            capacity: 1
+          }
+        }
+        //")]
+        [DataTestMethod]
+        public void Simple(int diagnosticCount, string text)
+        {
+            CompileAndTest(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
+        }
 
         [DataRow(1, @"
         param p1 string
@@ -65,6 +121,60 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void InsideExpressions(int diagnosticCount, string text)
         {
             CompileAndTest(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
+        }
+
+        [DataTestMethod]
+        [DataRow("azure.schema.management.azure.com", false)]
+        [DataRow("aschema.management.azure.com", false)]
+        [DataRow("azure.aschema.management.azure.com", false)]
+        [DataRow("management.azure.com", true)]
+        [DataRow("http://management.azure.com", true)]
+        [DataRow("https://management.azure.com", true)]
+        [DataRow("subdomain1.management.azure.com", false)]
+        [DataRow("http://subdomain1.management.azure.com", false)]
+        [DataRow("https://subdomain1.management.azure.com", false)]
+        [DataRow("othermanagement.azure.com", false)]
+        [DataRow("azure.schema.mannnnagement.azure.com", false)]
+        [DataRow("management.azzzzure.com", false)]
+        [DataRow("http://management.azzzzure.com", false)]
+        [DataRow("https://management.azzzzure.com", false)]
+        [DataRow("subdomain1.management.azzzure.com", false)]
+        [DataRow("http://subdomain1.manageeeement.azure.com", false)]
+        [DataRow("https://subdomain1.managemeeeent.azure.com", false)]
+        public void DisallowedHostsMatchingTest(string testString, bool isMatch)
+        {
+            var rule = new NoHardcodedEnvironmentUrlsRule();
+            var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
+            rule.Configure(configHelper.Config);
+
+            Assert.AreEqual(isMatch, actual: rule.DisallowedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.Visitor.FindMatches(host, testString, false).Any()));
+        }
+
+        [DataTestMethod]
+        [DataRow("schema.management.azure.com", true)]
+        [DataRow("http://schema.management.azure.com", true)]
+        [DataRow("https://schema.management.azure.com", true)]
+        [DataRow("subany.schema.management.azure.com", false)]
+        [DataRow("http://subany.schema.management.azure.com", false)]
+        [DataRow("https://subany.schema.management.azure.com", false)]
+        [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", false)]
+        [DataRow("aschema.management.azure.com", false)]
+        [DataRow("azure.aschema.management.azure.com", false)]
+        [DataRow("management.azure.com", false)]
+        [DataRow("http://management.azure.com", false)]
+        [DataRow("https://management.azure.com", false)]
+        [DataRow("subdomain1.management.azure.com", false)]
+        [DataRow("http://subdomain1.management.azure.com", false)]
+        [DataRow("https://subdomain1.management.azure.com", false)]
+        [DataRow("all the world is a stage, but subdomain1.management.azure.com should not be hardcoded", false)]
+        [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", false)]
+        public void ExcludedHostsMatchingTest(string testString, bool isMatch)
+        {
+            var rule = new NoHardcodedEnvironmentUrlsRule();
+            var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
+            rule.Configure(configHelper.Config);
+
+            Assert.AreEqual(isMatch, rule.ExcludedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.Visitor.FindMatches(host, testString, true).Any()));
         }
     }
 }

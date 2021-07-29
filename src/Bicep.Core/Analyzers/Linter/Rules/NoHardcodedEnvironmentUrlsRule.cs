@@ -6,9 +6,11 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -18,9 +20,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "no-hardcoded-env-urls";
 
-        public ImmutableArray<string>? DisallowedHosts;
+        private ImmutableArray<string>? disallowedHosts;
+        public IEnumerable<string> DisallowedHosts => disallowedHosts.HasValue ? disallowedHosts.Value : Array.Empty<string>();
 
-        private ImmutableArray<string>? ExcludedHosts;
+        private ImmutableArray<string>? excludedHosts;
+        public IEnumerable<string> ExcludedHosts => excludedHosts.HasValue ? excludedHosts.Value : Array.Empty<string>();
+
         private int MinimumHostLength;
         private bool HasHosts;
 
@@ -35,13 +40,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             base.Configure(config);
 
-            this.DisallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
+            this.disallowedHosts = GetArray(nameof(disallowedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
-            this.MinimumHostLength = this.DisallowedHosts.Value.Min(h => h.Length);
-            this.ExcludedHosts = GetArray(nameof(ExcludedHosts), Array.Empty<string>())
+            this.MinimumHostLength = this.disallowedHosts.Value.Min(h => h.Length);
+            this.excludedHosts = GetArray(nameof(excludedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
 
-            this.HasHosts = this.DisallowedHosts?.Any() ?? false;
+            this.HasHosts = this.disallowedHosts?.Any() ?? false;
         }
 
         public override string FormatMessage(params object[] values)
@@ -51,14 +56,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             if (HasHosts)
             {
-                var visitor = new Visitor(this.DisallowedHosts ?? ImmutableArray<string>.Empty, this.MinimumHostLength, this.ExcludedHosts ?? ImmutableArray<string>.Empty);
+                var visitor = new Visitor(this.disallowedHosts ?? ImmutableArray<string>.Empty, this.MinimumHostLength, this.excludedHosts ?? ImmutableArray<string>.Empty);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
             return Enumerable.Empty<IDiagnostic>();
         }
 
-        private class Visitor : SyntaxVisitor
+        public class Visitor : SyntaxVisitor
         {
             public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new Dictionary<TextSpan, string>();
             private readonly ImmutableArray<string> disallowedHosts;
@@ -72,21 +77,86 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.excludedHosts = excludedHosts;
             }
 
-            public static IEnumerable<(int Index, int Length, string Value)> FindMatches(string needle, string haystack)
+            private enum matchTypes { exact, subdomain, substring }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="hostname"></param>
+            /// <param name="srcText"></param>
+            /// <param name="exactSubdomain">set to true for exclusions</param>
+            /// <returns></returns>
+            public static IEnumerable<(int Index, int Length, string Value)> FindMatches(string hostname, string srcText, bool exactSubdomain)
             {
                 var matchIndex = -1;
                 var startIndex = 0;
+
                 do
                 {
-                    matchIndex = haystack.IndexOf(needle, startIndex, StringComparison.OrdinalIgnoreCase);
+                    matchIndex = srcText.IndexOf(hostname, startIndex, StringComparison.OrdinalIgnoreCase);
                     if (matchIndex > -1)
                     {
-                        // NOTE: I haven't represented the original regex in full fidelity here - we're missing the check for subdomains. I don't see that adding significant overhead however
-                        yield return (Index: matchIndex, Length: needle.Length, Value: haystack.Substring(startIndex, needle.Length));
+                        bool matchIsAtEnd = (matchIndex + hostname.Length) == srcText.Length;
+
+                        //After finding a match we need to know if the end of the match is the logical end of a domain or just part of a string
+                        // i.e. azuredatalake.net is should not match azuredatalake.net.com or azuredatalak.netware, etc.
+                        // we can only know this by looking for the string to end where the match ends or find the match
+                        // immediately followed by a valid separator
+
+                        if (!matchIsLeadingSubstring())                    {
+                            var matchType = getMatchType();
+
+                            // return all exact matches
+                            // substrings and subdomains are not a match
+                            if (matchType == matchTypes.exact)
+                            {
+                                var matchText = srcText.Substring(matchIndex, hostname.Length);
+                                yield return (Index: matchIndex, Length: hostname.Length, Value: matchText);
+                            }
+                        }
+                    }
+                    startIndex = matchIndex + hostname.Length;
+                } while (matchIndex != -1);
+
+                bool matchIsLeadingSubstring()
+                {
+                    if(matchIndex + hostname.Length == srcText.Length)
+                    {
+                        return false;
+                    }
+                    var trailingChar = srcText[matchIndex+hostname.Length]; // next char after match
+
+                    // is a substring is trailing char is a char or digit
+                    return Char.IsLetterOrDigit(trailingChar);
+                }
+
+                matchTypes getMatchType()
+                {
+                    // should call this method unless we know it's not 0, adding this safeguard.
+                    if (matchIndex == 0)
+                    {
+                        return matchTypes.exact;
                     }
 
-                    startIndex = matchIndex + needle.Length;
-                } while (matchIndex != -1);
+                    var prevChar = srcText[matchIndex - 1];
+
+                    // assumption is that if the string is preceded by a . it is a subdomain
+                    // otherwise if the preceding char is a letter or number it is a different subdomain
+                    if (prevChar == '.')
+                    {
+                        return matchTypes.subdomain;
+                    }
+
+                    if (Char.IsLetterOrDigit(prevChar))
+                    {
+                        return matchTypes.substring;
+                    }
+
+                    // if not a subdomain and not just a substring
+                    // then we have another delimiter that makes
+                    // this an exact match
+                    return matchTypes.exact;
+                }
             }
 
             public override void VisitStringSyntax(StringSyntax syntax)
@@ -100,13 +170,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         if (token.Text.Length >= minHostLen)
                         {
                             var disallowedMatches = disallowedHosts
-                                .SelectMany(host => FindMatches(host, token.Text))
+                                .SelectMany(host => FindMatches(host, token.Text, false))
                                 .ToImmutableArray();
 
                             if (disallowedMatches.Any())
                             {
                                 var exclusionMatches = excludedHosts
-                                    .SelectMany(host => FindMatches(host, token.Text))
+                                    .SelectMany(host => FindMatches(host, token.Text, true))
                                     .ToImmutableArray();
 
                                 // does this segment have a host match
