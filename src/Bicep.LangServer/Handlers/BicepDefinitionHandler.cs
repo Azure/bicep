@@ -199,7 +199,6 @@ namespace Bicep.LanguageServer.Handlers
             ResourceDeclarationSyntax resourceDeclarationSyntax when resourceDeclarationSyntax.TryGetBody() is ObjectSyntax objectSyntax => objectSyntax,
             ModuleDeclarationSyntax moduleDeclarationSyntax when moduleDeclarationSyntax.TryGetBody() is ObjectSyntax objectSyntax => objectSyntax,
             VariableDeclarationSyntax variableDeclarationSyntax when variableDeclarationSyntax.Value is ObjectSyntax objectSyntax => objectSyntax,
-            VariableDeclarationSyntax variableDeclarationSyntax when variableDeclarationSyntax.Value is ObjectSyntax objectSyntax => objectSyntax,
             _ => null,
         };
 
@@ -211,10 +210,8 @@ namespace Bicep.LanguageServer.Handlers
                 OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
                 TargetUri = request.TextDocument.Uri,
 
-                // entire span of the variable
+                // entire span of the declaredSymbol
                 TargetRange = declaration.DeclaringSyntax.ToRange(result.Context.LineStarts),
-
-                // span of the variable name
                 TargetSelectionRange = declaration.NameSyntax.ToRange(result.Context.LineStarts)
             })));
         }

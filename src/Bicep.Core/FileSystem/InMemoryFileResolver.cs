@@ -88,7 +88,7 @@ namespace Bicep.Core.FileSystem
         public bool TryFileExists(Uri fileUri)
         {
             return this.fileLookup.Keys
-                .Any(key => !string.Equals(key.ToString(), fileUri.ToString()));
+                .Any(key => string.Equals(key.ToString(), fileUri.ToString()));
         }
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
