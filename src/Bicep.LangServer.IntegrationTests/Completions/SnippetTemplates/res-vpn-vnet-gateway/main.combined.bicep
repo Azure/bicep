@@ -1,14 +1,29 @@
-// $1 = virtualNetworkGateway
-// $2 = 'name'
+// $1 = 'name'
+// $2 = subnet
 // $3 = 'name'
-// $4 = 'virtualNetwork'
-// $5 = 'subnet'
-// $6 = 'publicIPAddress'
-// $7 = Basic
-// $8 = Basic
-// $9 = Vpn
-// $10 = PolicyBased
-// $11 = true
+// $4 = publicIPAdresses
+// $5 = 'name'
+// $6 = virtualNetworkGateway
+// $7 = 'name'
+// $8 = 'name'
+// $9 = Basic
+// $10 = Basic
+// $11 = Vpn
+// $12 = PolicyBased
+// $13 = true
+
+resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+  name: 'name'
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {
+  parent: vnet
+  name: 'name'
+}
+
+resource publicIPAdresses 'Microsoft.Network/publicIPAddresses@2021-02-01' existing = {
+  name: 'name'
+}
 
 resource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {
   name: 'name'
@@ -20,10 +35,10 @@ resource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork', 'subnet')
+            id: subnet.id
           }
           publicIPAddress: {
-            id: resourceId('Microsoft.Network/publicIPAddresses', 'publicIPAddress')
+            id: publicIPAdresses.id
           }
         }
       }

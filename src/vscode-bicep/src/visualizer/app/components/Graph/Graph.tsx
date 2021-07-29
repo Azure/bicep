@@ -3,11 +3,13 @@
 import { useEffect, useRef, VFC, memo } from "react";
 import cytoscape from "cytoscape";
 import elk from "cytoscape-elk";
-import styled from "styled-components";
-import { stylesheet } from "./style";
+import styled, { DefaultTheme, withTheme } from "styled-components";
+
+import { createStylesheet } from "./style";
 
 interface GraphProps {
   elements: cytoscape.ElementDefinition[];
+  theme: DefaultTheme;
 }
 
 const layoutOptions = {
@@ -36,9 +38,14 @@ const GraphContainer = styled.div`
   top: 0px;
   bottom: 0px;
   right: 0px;
+  overflow: hidden;
+  background-color: ${({ theme }) => theme.canvas.backgroundColor};
+  background-image: ${({ theme }) => theme.canvas.backgroundImage};
+  background-size: 24px 24px;
+  background-position: 12px 12px;
 `;
 
-const GraphComponent: VFC<GraphProps> = ({ elements }) => {
+const GraphComponent: VFC<GraphProps> = ({ elements, theme }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cytoscapeRef = useRef<cytoscape.Core>();
   const layoutRef = useRef<cytoscape.Layouts>();
@@ -54,7 +61,7 @@ const GraphComponent: VFC<GraphProps> = ({ elements }) => {
         maxZoom: 1,
         wheelSensitivity: 0.1,
         autounselectify: true,
-        style: stylesheet,
+        style: createStylesheet(theme),
       });
 
       cy.on("layoutstart", () => cy.maxZoom(1));
@@ -69,14 +76,21 @@ const GraphComponent: VFC<GraphProps> = ({ elements }) => {
     }
   }, [elements]);
 
+  useEffect(() => {
+    if (cytoscapeRef.current) {
+      cytoscapeRef.current.style(createStylesheet(theme));
+    }
+  }, [theme]);
+
   useEffect(() => () => cytoscapeRef.current?.destroy(), []);
 
-  return <GraphContainer ref={containerRef} />;
+  return <GraphContainer ref={containerRef} theme={theme} />;
 };
 
 export const Graph = memo(
-  GraphComponent,
+  withTheme(GraphComponent),
   (prevProps, nextProps) =>
+    prevProps.theme === nextProps.theme &&
     prevProps.elements.length === nextProps.elements.length &&
     prevProps.elements.every((prevElement, i) => {
       const prevData = prevElement.data;

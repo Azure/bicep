@@ -38,15 +38,11 @@ export async function activate(
   context: vscode.ExtensionContext
 ): Promise<void> {
   const extension = BicepExtension.create(context);
-
   const outputChannel = createAzExtOutputChannel("Bicep", "bicep");
+
   extension.register(outputChannel);
   extension.register(createLogger(context, outputChannel));
-
-  registerUIExtensionVariables({
-    context,
-    outputChannel,
-  });
+  registerUIExtensionVariables({ context, outputChannel });
 
   await activateWithTelemetryAndErrorHandling(async () => {
     const languageClient = await launchLanguageServiceWithProgressReport(
@@ -54,17 +50,18 @@ export async function activate(
       outputChannel
     );
 
-    // Register commands.
-    const commandManager = extension.register(new CommandManager());
     const viewManager = extension.register(
       new BicepVisualizerViewManager(extension.extensionUri, languageClient)
     );
 
-    commandManager.registerCommands(
-      new ShowVisualizerCommand(viewManager),
-      new ShowVisualizerToSideCommand(viewManager),
-      new ShowSourceCommand(viewManager)
-    );
+    // Register commands.
+    await extension
+      .register(new CommandManager())
+      .registerCommands(
+        new ShowVisualizerCommand(viewManager),
+        new ShowVisualizerToSideCommand(viewManager),
+        new ShowSourceCommand(viewManager)
+      );
   });
 }
 

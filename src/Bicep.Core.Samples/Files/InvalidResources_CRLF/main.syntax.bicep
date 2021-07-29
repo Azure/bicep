@@ -11268,4 +11268,566 @@ var issue3000stgManagedByExtended = issue3000stg.managedByExtended
 //@[48:49)   Dot |.|
 //@[49:66)   IdentifierSyntax
 //@[49:66)    Identifier |managedByExtended|
-//@[66:66) EndOfFile ||
+//@[66:70) NewLine |\r\n\r\n|
+
+param dataCollectionRule object
+//@[0:31) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:24)  IdentifierSyntax
+//@[6:24)   Identifier |dataCollectionRule|
+//@[25:31)  TypeSyntax
+//@[25:31)   Identifier |object|
+//@[31:33) NewLine |\r\n|
+param tags object
+//@[0:17) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:10)  IdentifierSyntax
+//@[6:10)   Identifier |tags|
+//@[11:17)  TypeSyntax
+//@[11:17)   Identifier |object|
+//@[17:21) NewLine |\r\n\r\n|
+
+var defaultLogAnalyticsWorkspace = {
+//@[0:88) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:32)  IdentifierSyntax
+//@[4:32)   Identifier |defaultLogAnalyticsWorkspace|
+//@[33:34)  Assignment |=|
+//@[35:88)  ObjectSyntax
+//@[35:36)   LeftBrace |{|
+//@[36:38)   NewLine |\r\n|
+  subscriptionId: subscription().subscriptionId
+//@[2:47)   ObjectPropertySyntax
+//@[2:16)    IdentifierSyntax
+//@[2:16)     Identifier |subscriptionId|
+//@[16:17)    Colon |:|
+//@[18:47)    PropertyAccessSyntax
+//@[18:32)     FunctionCallSyntax
+//@[18:30)      IdentifierSyntax
+//@[18:30)       Identifier |subscription|
+//@[30:31)      LeftParen |(|
+//@[31:32)      RightParen |)|
+//@[32:33)     Dot |.|
+//@[33:47)     IdentifierSyntax
+//@[33:47)      Identifier |subscriptionId|
+//@[47:49)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = [for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+//@[0:364) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:31)  IdentifierSyntax
+//@[9:31)   Identifier |logAnalyticsWorkspaces|
+//@[32:85)  StringSyntax
+//@[32:85)   StringComplete |'Microsoft.OperationalInsights/workspaces@2020-10-01'|
+//@[86:94)  Identifier |existing|
+//@[95:96)  Assignment |=|
+//@[97:364)  ForSyntax
+//@[97:98)   LeftSquare |[|
+//@[98:101)   Identifier |for|
+//@[102:123)   LocalVariableSyntax
+//@[102:123)    IdentifierSyntax
+//@[102:123)     Identifier |logAnalyticsWorkspace|
+//@[124:126)   Identifier |in|
+//@[127:181)   PropertyAccessSyntax
+//@[127:158)    PropertyAccessSyntax
+//@[127:145)     VariableAccessSyntax
+//@[127:145)      IdentifierSyntax
+//@[127:145)       Identifier |dataCollectionRule|
+//@[145:146)     Dot |.|
+//@[146:158)     IdentifierSyntax
+//@[146:158)      Identifier |destinations|
+//@[158:159)    Dot |.|
+//@[159:181)    IdentifierSyntax
+//@[159:181)     Identifier |logAnalyticsWorkspaces|
+//@[181:182)   Colon |:|
+//@[183:363)   ObjectSyntax
+//@[183:184)    LeftBrace |{|
+//@[184:186)    NewLine |\r\n|
+  name: logAnalyticsWorkspace.name
+//@[2:34)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:34)     PropertyAccessSyntax
+//@[8:29)      VariableAccessSyntax
+//@[8:29)       IdentifierSyntax
+//@[8:29)        Identifier |logAnalyticsWorkspace|
+//@[29:30)      Dot |.|
+//@[30:34)      IdentifierSyntax
+//@[30:34)       Identifier |name|
+//@[34:36)    NewLine |\r\n|
+  scope: resourceGroup( union( defaultLogAnalyticsWorkspace, logAnalyticsWorkspace ).subscriptionId, logAnalyticsWorkspace.resourceGroup )
+//@[2:138)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:138)     FunctionCallSyntax
+//@[9:22)      IdentifierSyntax
+//@[9:22)       Identifier |resourceGroup|
+//@[22:23)      LeftParen |(|
+//@[24:100)      FunctionArgumentSyntax
+//@[24:99)       PropertyAccessSyntax
+//@[24:84)        FunctionCallSyntax
+//@[24:29)         IdentifierSyntax
+//@[24:29)          Identifier |union|
+//@[29:30)         LeftParen |(|
+//@[31:60)         FunctionArgumentSyntax
+//@[31:59)          VariableAccessSyntax
+//@[31:59)           IdentifierSyntax
+//@[31:59)            Identifier |defaultLogAnalyticsWorkspace|
+//@[59:60)          Comma |,|
+//@[61:82)         FunctionArgumentSyntax
+//@[61:82)          VariableAccessSyntax
+//@[61:82)           IdentifierSyntax
+//@[61:82)            Identifier |logAnalyticsWorkspace|
+//@[83:84)         RightParen |)|
+//@[84:85)        Dot |.|
+//@[85:99)        IdentifierSyntax
+//@[85:99)         Identifier |subscriptionId|
+//@[99:100)       Comma |,|
+//@[101:136)      FunctionArgumentSyntax
+//@[101:136)       PropertyAccessSyntax
+//@[101:122)        VariableAccessSyntax
+//@[101:122)         IdentifierSyntax
+//@[101:122)          Identifier |logAnalyticsWorkspace|
+//@[122:123)        Dot |.|
+//@[123:136)        IdentifierSyntax
+//@[123:136)         Identifier |resourceGroup|
+//@[137:138)      RightParen |)|
+//@[138:140)    NewLine |\r\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+//@[0:837) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |dataCollectionRuleRes|
+//@[31:82)  StringSyntax
+//@[31:82)   StringComplete |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
+//@[83:84)  Assignment |=|
+//@[85:837)  ObjectSyntax
+//@[85:86)   LeftBrace |{|
+//@[86:88)   NewLine |\r\n|
+  name: dataCollectionRule.name
+//@[2:31)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:31)    PropertyAccessSyntax
+//@[8:26)     VariableAccessSyntax
+//@[8:26)      IdentifierSyntax
+//@[8:26)       Identifier |dataCollectionRule|
+//@[26:27)     Dot |.|
+//@[27:31)     IdentifierSyntax
+//@[27:31)      Identifier |name|
+//@[31:33)   NewLine |\r\n|
+  location: dataCollectionRule.location
+//@[2:39)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:39)    PropertyAccessSyntax
+//@[12:30)     VariableAccessSyntax
+//@[12:30)      IdentifierSyntax
+//@[12:30)       Identifier |dataCollectionRule|
+//@[30:31)     Dot |.|
+//@[31:39)     IdentifierSyntax
+//@[31:39)      Identifier |location|
+//@[39:41)   NewLine |\r\n|
+  tags: tags
+//@[2:12)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |tags|
+//@[6:7)    Colon |:|
+//@[8:12)    VariableAccessSyntax
+//@[8:12)     IdentifierSyntax
+//@[8:12)      Identifier |tags|
+//@[12:14)   NewLine |\r\n|
+  kind: dataCollectionRule.kind
+//@[2:31)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:31)    PropertyAccessSyntax
+//@[8:26)     VariableAccessSyntax
+//@[8:26)      IdentifierSyntax
+//@[8:26)       Identifier |dataCollectionRule|
+//@[26:27)     Dot |.|
+//@[27:31)     IdentifierSyntax
+//@[27:31)      Identifier |kind|
+//@[31:33)   NewLine |\r\n|
+  properties: {
+//@[2:625)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:625)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    description: dataCollectionRule.description
+//@[4:47)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |description|
+//@[15:16)      Colon |:|
+//@[17:47)      PropertyAccessSyntax
+//@[17:35)       VariableAccessSyntax
+//@[17:35)        IdentifierSyntax
+//@[17:35)         Identifier |dataCollectionRule|
+//@[35:36)       Dot |.|
+//@[36:47)       IdentifierSyntax
+//@[36:47)        Identifier |description|
+//@[47:49)     NewLine |\r\n|
+    destinations: union(empty(dataCollectionRule.destinations.azureMonitorMetrics.name) ? {} : {
+//@[4:460)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |destinations|
+//@[16:17)      Colon |:|
+//@[18:460)      FunctionCallSyntax
+//@[18:23)       IdentifierSyntax
+//@[18:23)        Identifier |union|
+//@[23:24)       LeftParen |(|
+//@[24:215)       FunctionArgumentSyntax
+//@[24:214)        TernaryOperationSyntax
+//@[24:87)         FunctionCallSyntax
+//@[24:29)          IdentifierSyntax
+//@[24:29)           Identifier |empty|
+//@[29:30)          LeftParen |(|
+//@[30:86)          FunctionArgumentSyntax
+//@[30:86)           PropertyAccessSyntax
+//@[30:81)            PropertyAccessSyntax
+//@[30:61)             PropertyAccessSyntax
+//@[30:48)              VariableAccessSyntax
+//@[30:48)               IdentifierSyntax
+//@[30:48)                Identifier |dataCollectionRule|
+//@[48:49)              Dot |.|
+//@[49:61)              IdentifierSyntax
+//@[49:61)               Identifier |destinations|
+//@[61:62)             Dot |.|
+//@[62:81)             IdentifierSyntax
+//@[62:81)              Identifier |azureMonitorMetrics|
+//@[81:82)            Dot |.|
+//@[82:86)            IdentifierSyntax
+//@[82:86)             Identifier |name|
+//@[86:87)          RightParen |)|
+//@[88:89)         Question |?|
+//@[90:92)         ObjectSyntax
+//@[90:91)          LeftBrace |{|
+//@[91:92)          RightBrace |}|
+//@[93:94)         Colon |:|
+//@[95:214)         ObjectSyntax
+//@[95:96)          LeftBrace |{|
+//@[96:98)          NewLine |\r\n|
+      azureMonitorMetrics: {
+//@[6:109)          ObjectPropertySyntax
+//@[6:25)           IdentifierSyntax
+//@[6:25)            Identifier |azureMonitorMetrics|
+//@[25:26)           Colon |:|
+//@[27:109)           ObjectSyntax
+//@[27:28)            LeftBrace |{|
+//@[28:30)            NewLine |\r\n|
+        name: dataCollectionRule.destinations.azureMonitorMetrics.name
+//@[8:70)            ObjectPropertySyntax
+//@[8:12)             IdentifierSyntax
+//@[8:12)              Identifier |name|
+//@[12:13)             Colon |:|
+//@[14:70)             PropertyAccessSyntax
+//@[14:65)              PropertyAccessSyntax
+//@[14:45)               PropertyAccessSyntax
+//@[14:32)                VariableAccessSyntax
+//@[14:32)                 IdentifierSyntax
+//@[14:32)                  Identifier |dataCollectionRule|
+//@[32:33)                Dot |.|
+//@[33:45)                IdentifierSyntax
+//@[33:45)                 Identifier |destinations|
+//@[45:46)               Dot |.|
+//@[46:65)               IdentifierSyntax
+//@[46:65)                Identifier |azureMonitorMetrics|
+//@[65:66)              Dot |.|
+//@[66:70)              IdentifierSyntax
+//@[66:70)               Identifier |name|
+//@[70:72)            NewLine |\r\n|
+      }
+//@[6:7)            RightBrace |}|
+//@[7:9)          NewLine |\r\n|
+    },{
+//@[4:5)          RightBrace |}|
+//@[5:6)        Comma |,|
+//@[6:250)       FunctionArgumentSyntax
+//@[6:250)        ObjectSyntax
+//@[6:7)         LeftBrace |{|
+//@[7:9)         NewLine |\r\n|
+      logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+//@[6:234)         ObjectPropertySyntax
+//@[6:18)          IdentifierSyntax
+//@[6:18)           Identifier |logAnalytics|
+//@[18:19)          Colon |:|
+//@[20:234)          ForSyntax
+//@[20:21)           LeftSquare |[|
+//@[21:24)           Identifier |for|
+//@[25:51)           ForVariableBlockSyntax
+//@[25:26)            LeftParen |(|
+//@[26:47)            LocalVariableSyntax
+//@[26:47)             IdentifierSyntax
+//@[26:47)              Identifier |logAnalyticsWorkspace|
+//@[47:48)            Comma |,|
+//@[49:50)            LocalVariableSyntax
+//@[49:50)             IdentifierSyntax
+//@[49:50)              Identifier |i|
+//@[50:51)            RightParen |)|
+//@[52:54)           Identifier |in|
+//@[55:109)           PropertyAccessSyntax
+//@[55:86)            PropertyAccessSyntax
+//@[55:73)             VariableAccessSyntax
+//@[55:73)              IdentifierSyntax
+//@[55:73)               Identifier |dataCollectionRule|
+//@[73:74)             Dot |.|
+//@[74:86)             IdentifierSyntax
+//@[74:86)              Identifier |destinations|
+//@[86:87)            Dot |.|
+//@[87:109)            IdentifierSyntax
+//@[87:109)             Identifier |logAnalyticsWorkspaces|
+//@[109:110)           Colon |:|
+//@[111:233)           ObjectSyntax
+//@[111:112)            LeftBrace |{|
+//@[112:114)            NewLine |\r\n|
+        name: logAnalyticsWorkspace.destinationName
+//@[8:51)            ObjectPropertySyntax
+//@[8:12)             IdentifierSyntax
+//@[8:12)              Identifier |name|
+//@[12:13)             Colon |:|
+//@[14:51)             PropertyAccessSyntax
+//@[14:35)              VariableAccessSyntax
+//@[14:35)               IdentifierSyntax
+//@[14:35)                Identifier |logAnalyticsWorkspace|
+//@[35:36)              Dot |.|
+//@[36:51)              IdentifierSyntax
+//@[36:51)               Identifier |destinationName|
+//@[51:53)            NewLine |\r\n|
+        workspaceResourceId: logAnalyticsWorkspaces[i].id
+//@[8:57)            ObjectPropertySyntax
+//@[8:27)             IdentifierSyntax
+//@[8:27)              Identifier |workspaceResourceId|
+//@[27:28)             Colon |:|
+//@[29:57)             PropertyAccessSyntax
+//@[29:54)              ArrayAccessSyntax
+//@[29:51)               VariableAccessSyntax
+//@[29:51)                IdentifierSyntax
+//@[29:51)                 Identifier |logAnalyticsWorkspaces|
+//@[51:52)               LeftSquare |[|
+//@[52:53)               VariableAccessSyntax
+//@[52:53)                IdentifierSyntax
+//@[52:53)                 Identifier |i|
+//@[53:54)               RightSquare |]|
+//@[54:55)              Dot |.|
+//@[55:57)              IdentifierSyntax
+//@[55:57)               Identifier |id|
+//@[57:59)            NewLine |\r\n|
+      }]
+//@[6:7)            RightBrace |}|
+//@[7:8)           RightSquare |]|
+//@[8:10)         NewLine |\r\n|
+    })
+//@[4:5)         RightBrace |}|
+//@[5:6)       RightParen |)|
+//@[6:8)     NewLine |\r\n|
+    dataSources: dataCollectionRule.dataSources
+//@[4:47)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |dataSources|
+//@[15:16)      Colon |:|
+//@[17:47)      PropertyAccessSyntax
+//@[17:35)       VariableAccessSyntax
+//@[17:35)        IdentifierSyntax
+//@[17:35)         Identifier |dataCollectionRule|
+//@[35:36)       Dot |.|
+//@[36:47)       IdentifierSyntax
+//@[36:47)        Identifier |dataSources|
+//@[47:49)     NewLine |\r\n|
+    dataFlows: dataCollectionRule.dataFlows
+//@[4:43)     ObjectPropertySyntax
+//@[4:13)      IdentifierSyntax
+//@[4:13)       Identifier |dataFlows|
+//@[13:14)      Colon |:|
+//@[15:43)      PropertyAccessSyntax
+//@[15:33)       VariableAccessSyntax
+//@[15:33)        IdentifierSyntax
+//@[15:33)         Identifier |dataCollectionRule|
+//@[33:34)       Dot |.|
+//@[34:43)       IdentifierSyntax
+//@[34:43)        Identifier |dataFlows|
+//@[43:45)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+//@[0:445) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:31)  IdentifierSyntax
+//@[9:31)   Identifier |dataCollectionRuleRes2|
+//@[32:83)  StringSyntax
+//@[32:83)   StringComplete |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
+//@[84:85)  Assignment |=|
+//@[86:445)  ObjectSyntax
+//@[86:87)   LeftBrace |{|
+//@[87:89)   NewLine |\r\n|
+  name: dataCollectionRule.name
+//@[2:31)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:31)    PropertyAccessSyntax
+//@[8:26)     VariableAccessSyntax
+//@[8:26)      IdentifierSyntax
+//@[8:26)       Identifier |dataCollectionRule|
+//@[26:27)     Dot |.|
+//@[27:31)     IdentifierSyntax
+//@[27:31)      Identifier |name|
+//@[31:33)   NewLine |\r\n|
+  location: dataCollectionRule.location
+//@[2:39)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:39)    PropertyAccessSyntax
+//@[12:30)     VariableAccessSyntax
+//@[12:30)      IdentifierSyntax
+//@[12:30)       Identifier |dataCollectionRule|
+//@[30:31)     Dot |.|
+//@[31:39)     IdentifierSyntax
+//@[31:39)      Identifier |location|
+//@[39:41)   NewLine |\r\n|
+  tags: tags
+//@[2:12)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |tags|
+//@[6:7)    Colon |:|
+//@[8:12)    VariableAccessSyntax
+//@[8:12)     IdentifierSyntax
+//@[8:12)      Identifier |tags|
+//@[12:14)   NewLine |\r\n|
+  kind: dataCollectionRule.kind
+//@[2:31)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:31)    PropertyAccessSyntax
+//@[8:26)     VariableAccessSyntax
+//@[8:26)      IdentifierSyntax
+//@[8:26)       Identifier |dataCollectionRule|
+//@[26:27)     Dot |.|
+//@[27:31)     IdentifierSyntax
+//@[27:31)      Identifier |kind|
+//@[31:33)   NewLine |\r\n|
+  properties: {
+//@[2:232)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:232)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    description: dataCollectionRule.description
+//@[4:47)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |description|
+//@[15:16)      Colon |:|
+//@[17:47)      PropertyAccessSyntax
+//@[17:35)       VariableAccessSyntax
+//@[17:35)        IdentifierSyntax
+//@[17:35)         Identifier |dataCollectionRule|
+//@[35:36)       Dot |.|
+//@[36:47)       IdentifierSyntax
+//@[36:47)        Identifier |description|
+//@[47:49)     NewLine |\r\n|
+    destinations: empty([]) ? [for x in []: {}] : [for x in []: {}]
+//@[4:67)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |destinations|
+//@[16:17)      Colon |:|
+//@[18:67)      TernaryOperationSyntax
+//@[18:27)       FunctionCallSyntax
+//@[18:23)        IdentifierSyntax
+//@[18:23)         Identifier |empty|
+//@[23:24)        LeftParen |(|
+//@[24:26)        FunctionArgumentSyntax
+//@[24:26)         ArraySyntax
+//@[24:25)          LeftSquare |[|
+//@[25:26)          RightSquare |]|
+//@[26:27)        RightParen |)|
+//@[28:29)       Question |?|
+//@[30:47)       ForSyntax
+//@[30:31)        LeftSquare |[|
+//@[31:34)        Identifier |for|
+//@[35:36)        LocalVariableSyntax
+//@[35:36)         IdentifierSyntax
+//@[35:36)          Identifier |x|
+//@[37:39)        Identifier |in|
+//@[40:42)        ArraySyntax
+//@[40:41)         LeftSquare |[|
+//@[41:42)         RightSquare |]|
+//@[42:43)        Colon |:|
+//@[44:46)        ObjectSyntax
+//@[44:45)         LeftBrace |{|
+//@[45:46)         RightBrace |}|
+//@[46:47)        RightSquare |]|
+//@[48:49)       Colon |:|
+//@[50:67)       ForSyntax
+//@[50:51)        LeftSquare |[|
+//@[51:54)        Identifier |for|
+//@[55:56)        LocalVariableSyntax
+//@[55:56)         IdentifierSyntax
+//@[55:56)          Identifier |x|
+//@[57:59)        Identifier |in|
+//@[60:62)        ArraySyntax
+//@[60:61)         LeftSquare |[|
+//@[61:62)         RightSquare |]|
+//@[62:63)        Colon |:|
+//@[64:66)        ObjectSyntax
+//@[64:65)         LeftBrace |{|
+//@[65:66)         RightBrace |}|
+//@[66:67)        RightSquare |]|
+//@[67:69)     NewLine |\r\n|
+    dataSources: dataCollectionRule.dataSources
+//@[4:47)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |dataSources|
+//@[15:16)      Colon |:|
+//@[17:47)      PropertyAccessSyntax
+//@[17:35)       VariableAccessSyntax
+//@[17:35)        IdentifierSyntax
+//@[17:35)         Identifier |dataCollectionRule|
+//@[35:36)       Dot |.|
+//@[36:47)       IdentifierSyntax
+//@[36:47)        Identifier |dataSources|
+//@[47:49)     NewLine |\r\n|
+    dataFlows: dataCollectionRule.dataFlows
+//@[4:43)     ObjectPropertySyntax
+//@[4:13)      IdentifierSyntax
+//@[4:13)       Identifier |dataFlows|
+//@[13:14)      Colon |:|
+//@[15:43)      PropertyAccessSyntax
+//@[15:33)       VariableAccessSyntax
+//@[15:33)        IdentifierSyntax
+//@[15:33)         Identifier |dataCollectionRule|
+//@[33:34)       Dot |.|
+//@[34:43)       IdentifierSyntax
+//@[34:43)        Identifier |dataFlows|
+//@[43:45)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

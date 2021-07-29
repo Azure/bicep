@@ -10,6 +10,7 @@ interface StatusBarProps {
 
 const StatusBarContainer = styled.div`
   position: absolute;
+  height: 32px;
   left: 20px;
   bottom: 20px;
   display: flex;
@@ -20,7 +21,10 @@ const StatusBarContainer = styled.div`
 const StatusCircle = styled.div<{ hasErrors: boolean }>`
   width: 8px;
   height: 8px;
-  background-color: ${(props) => (props.hasErrors ? "red" : "green")};
+  background-color: ${({ hasErrors, theme }) =>
+    hasErrors
+      ? theme.common.errorIndicatorColor
+      : theme.common.errorFreeIndicatorColor};
   border-radius: 50%;
   color: white;
   margin-top: 2px;

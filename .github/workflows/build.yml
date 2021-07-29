@@ -124,7 +124,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v2.0.1
+        uses: codecov/codecov-action@v2.0.2
         with:
           flags: dotnet
 
@@ -189,7 +189,7 @@ jobs:
         uses: actions/setup-dotnet@v1.8.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v2.3.0
         with:
           node-version: 10.x
 
@@ -264,7 +264,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v2.3.0
         with:
           node-version: 12.x
 
@@ -315,7 +315,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v2.0.1
+        uses: codecov/codecov-action@v2.0.2
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
@@ -347,7 +347,7 @@ jobs:
         uses: actions/setup-dotnet@v1.8.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v2.3.0
         with:
           node-version: 14.x
       
@@ -384,7 +384,7 @@ jobs:
         uses: actions/setup-dotnet@v1.8.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v2.3.0
         with:
           node-version: 14.x
       
