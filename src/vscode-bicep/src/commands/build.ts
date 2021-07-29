@@ -26,10 +26,9 @@ export class BuildCommand implements Command {
           arguments: [documentUri.fsPath],
         }
       );
-
       appendToOutputChannel(this.outputChannel, buildOutput);
     } catch (err) {
-      appendToOutputChannel(this.outputChannel, err.message);
+      this.client.error("Build failed", err.message, true);
     }
   }
 }
