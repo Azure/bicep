@@ -1,12 +1,7 @@
-// $1 = webServerFarms
+// $1 = webApplication
 // $2 = 'name'
-// $3 = webApplication
-// $4 = 'name'
-// $5 = appServicePlan
-
-resource webServerFarms 'Microsoft.Web/serverfarms@2021-01-15' existing = {
-  name: 'name'
-} 
+// $3 = appServicePlan
+// $4 = 'webServerFarms.id'
 
 resource webApplication 'Microsoft.Web/sites@2018-11-01' = {
   name: 'name'
@@ -15,6 +10,6 @@ resource webApplication 'Microsoft.Web/sites@2018-11-01' = {
     'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'
   }
   properties: {
-    serverFarmId: webServerFarms.id
+    serverFarmId: 'webServerFarms.id'
   }
 }// Insert snippet here

@@ -1,11 +1,9 @@
-﻿// $1 = virtualNetworkGateways
+﻿// $1 = vpnVnetConnection
 // $2 = 'name'
-// $3 = localNetworkGateways
-// $4 = 'name'
-// $5 = vpnVnetConnection
-// $6 = 'name'
-// $7 = IPsec
-// $8 = 0
-// $9 = 'sharedkey'
+// $3 = 'virtualNetworkGateways.id'
+// $4 = 'localNetworkGateways.id'
+// $5 = IPsec
+// $6 = 0
+// $7 = 'sharedkey'
 
 // Insert snippet here

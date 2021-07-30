@@ -1,12 +1,7 @@
-// $1 = storageAccount
+// $1 = mediaServices
 // $2 = 'name'
-// $3 = mediaServices
-// $4 = 'name'
-// $5 = Primary
-
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
-  name: 'name'
-}
+// $3 = 'storageAccount.id'
+// $4 = Primary
 
 resource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {
   name: 'name'
@@ -14,7 +9,7 @@ resource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {
   properties: {
     storageAccounts: [
       {
-        id: storageAccount.id
+        id: 'storageAccount.id'
         type: 'Primary'
       }
     ]

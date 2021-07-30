@@ -1,7 +1,6 @@
-﻿// $1 = storageAccount
+﻿// $1 = mediaServices
 // $2 = 'name'
-// $3 = mediaServices
-// $4 = 'name'
-// $5 = Primary
+// $3 = 'storageAccount.id'
+// $4 = Primary
 
 // Insert snippet here
