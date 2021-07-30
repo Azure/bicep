@@ -19,11 +19,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void ExpectPass(string text)
         {
-            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
-            {
-                var errors = GetDiagnostics(PreferInterpolationRule.Code, text);
-                errors.Should().HaveCount(0, $"expecting linter rule to pass");
-            }
+            AssertRuleCodeDiagnostics(PreferInterpolationRule.Code, text, diags => {
+                diags.Should().HaveCount(0, $"expecting linter rule to pass");
+            });
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)
@@ -33,15 +31,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void ExpectDiagnosticWithFix(string text, string[] expectedFixes)
         {
-            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
-            {
-                var errors = GetDiagnostics(PreferInterpolationRule.Code, text);
-                errors.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
+            AssertRuleCodeDiagnostics(PreferInterpolationRule.Code, text, diags => {
+                diags.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
 
-                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-                var a = errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
-            }
+                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
+                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
+                var a = diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
+            });
         }
 
         [DataRow(@"

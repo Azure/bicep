@@ -58,8 +58,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 var visitor = new Visitor(this.disallowedHosts ?? ImmutableArray<string>.Empty, this.MinimumHostLength, this.excludedHosts ?? ImmutableArray<string>.Empty);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
+
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
+
             return Enumerable.Empty<IDiagnostic>();
         }
 
@@ -79,83 +81,56 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private enum matchTypes { exact, subdomain, substring }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="hostname"></param>
-            /// <param name="srcText"></param>
-            /// <param name="exactSubdomain">set to true for exclusions</param>
-            /// <returns></returns>
-            public static IEnumerable<(int Index, int Length, string Value)> FindMatches(string hostname, string srcText, bool exactSubdomain)
+            public static IEnumerable<(TextSpan RelativeSpan, string Value)> FindHostnameMatches(string hostname, string srcText)
             {
-                var matchIndex = -1;
-                var startIndex = 0;
-
-                do
+                bool isExactDomainMatch(int index)
                 {
-                    matchIndex = srcText.IndexOf(hostname, startIndex, StringComparison.OrdinalIgnoreCase);
-                    if (matchIndex > -1)
-                    {
-                        bool matchIsAtEnd = (matchIndex + hostname.Length) == srcText.Length;
+                    var leadingAlnum = index > 0 && 
+                        char.IsLetterOrDigit(srcText[index - 1]);
+                    var trailingAlnum = index + hostname.Length < srcText.Length && 
+                        char.IsLetterOrDigit(srcText[index + hostname.Length]);
 
-                        //After finding a match we need to know if the end of the match is the logical end of a domain or just part of a string
-                        // i.e. azuredatalake.net is should not match azuredatalake.net.com or azuredatalak.netware, etc.
-                        // we can only know this by looking for the string to end where the match ends or find the match
-                        // immediately followed by a valid separator
-
-                        if (!matchIsLeadingSubstring())                    {
-                            var matchType = getMatchType();
-
-                            // return all exact matches
-                            // substrings and subdomains are not a match
-                            if (matchType == matchTypes.exact)
-                            {
-                                var matchText = srcText.Substring(matchIndex, hostname.Length);
-                                yield return (Index: matchIndex, Length: hostname.Length, Value: matchText);
-                            }
-                        }
-                    }
-                    startIndex = matchIndex + hostname.Length;
-                } while (matchIndex != -1);
-
-                bool matchIsLeadingSubstring()
-                {
-                    if(matchIndex + hostname.Length == srcText.Length)
-                    {
-                        return false;
-                    }
-                    var trailingChar = srcText[matchIndex+hostname.Length]; // next char after match
-
-                    // is a substring is trailing char is a char or digit
-                    return Char.IsLetterOrDigit(trailingChar);
+                    return !leadingAlnum && !trailingAlnum;
                 }
 
-                matchTypes getMatchType()
+                if (hostname.Length == 0)
                 {
-                    // should call this method unless we know it's not 0, adding this safeguard.
-                    if (matchIndex == 0)
+                    // ensure we terminate - the below for-loop uses this value to increment
+                    yield break;
+                }
+
+                var matchIndex = -1;
+                for (var startIndex = 0; startIndex <= srcText.Length - hostname.Length; startIndex = matchIndex + hostname.Length)
+                {
+                    matchIndex = srcText.IndexOf(hostname, startIndex, StringComparison.OrdinalIgnoreCase);
+                    if (matchIndex < 0)
                     {
-                        return matchTypes.exact;
+                        // we haven't foud any instances of the hostname
+                        yield break;
                     }
 
-                    var prevChar = srcText[matchIndex - 1];
-
-                    // assumption is that if the string is preceded by a . it is a subdomain
-                    // otherwise if the preceding char is a letter or number it is a different subdomain
-                    if (prevChar == '.')
+                    // check preceeding and trailing chars to verify we're not dealing with a substring
+                    if (isExactDomainMatch(matchIndex))
                     {
-                        return matchTypes.subdomain;
+                        var matchText = srcText.Substring(matchIndex, hostname.Length);
+                        yield return (RelativeSpan: new TextSpan(matchIndex, hostname.Length), Value: matchText);
+                    }
+                }
+            }
+
+            public IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)
+            {
+                TextSpan? prevSpan = null;
+                foreach (var match in matches.OrderBy(x => x.RelativeSpan.Position).ThenByDescending(x => x.RelativeSpan.Length))
+                {
+                    if (prevSpan is not null && TextSpan.AreOverlapping(match.RelativeSpan, prevSpan))
+                    {
+                        continue;
                     }
 
-                    if (Char.IsLetterOrDigit(prevChar))
-                    {
-                        return matchTypes.substring;
-                    }
+                    yield return match;
 
-                    // if not a subdomain and not just a substring
-                    // then we have another delimiter that makes
-                    // this an exact match
-                    return matchTypes.exact;
+                    prevSpan = match.RelativeSpan;
                 }
             }
 
@@ -170,30 +145,29 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         if (token.Text.Length >= minHostLen)
                         {
                             var disallowedMatches = disallowedHosts
-                                .SelectMany(host => FindMatches(host, token.Text, false))
+                                .SelectMany(host => FindHostnameMatches(host, token.Text))
                                 .ToImmutableArray();
 
-                            if (disallowedMatches.Any())
+                            if (!disallowedMatches.Any())
                             {
-                                var exclusionMatches = excludedHosts
-                                    .SelectMany(host => FindMatches(host, token.Text, true))
-                                    .ToImmutableArray();
+                                break;
+                            }
 
-                                // does this segment have a host match
-                                foreach (var match in disallowedMatches)
+                            var exclusionMatches = excludedHosts
+                                .SelectMany(host => FindHostnameMatches(host, token.Text))
+                                .ToImmutableArray();
+
+                            foreach (var match in RemoveOverlapping(disallowedMatches))
+                            {
+                                // exclusion is found containing the host match
+                                var hasExclusion = exclusionMatches.Any(exclusionMatch =>
+                                    TextSpan.AreOverlapping(exclusionMatch.RelativeSpan, match.RelativeSpan));
+
+                                if (!hasExclusion)
                                 {
-
-                                    // exclusion is found containing the host match
-                                    var isExcluded = exclusionMatches.Any(exclusionMatch =>
-                                       match.Index > exclusionMatch.Index
-                                       && match.Index + match.Length <= exclusionMatch.Index + exclusionMatch.Length);
-
-                                    if (!isExcluded)
-                                    {
-                                        // create a span for the specific identified instance
-                                        // to allow for multiple instances in a single syntax
-                                        this.DisallowedHostSpans[new TextSpan(token.Span.Position + match.Index, match.Length)] = match.Value;
-                                    }
+                                    // create a span for the specific identified instance
+                                    // to allow for multiple instances in a single syntax
+                                    this.DisallowedHostSpans[new TextSpan(token.Span.Position + match.RelativeSpan.Position, match.RelativeSpan.Length)] = match.Value;
                                 }
                             }
                         }

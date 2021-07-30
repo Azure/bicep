@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 // TODO: Test with different configs
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -13,6 +13,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class NoHardcodedEnvironmentUrlsRuleTests : LinterRuleTestsBase
     {
+        [DataRow(0, @"
+        param password string
+        var sum = 1 + 3
+        output sub int = sum
+        ")]
+        [DataRow(0, @"
+        param param1 string
+        var location = 'somehost.com'
+        output sub int = sum
+        ")]
         [DataRow(1, @"
         param param1 string
         var location = 'management.core.windows.net'
@@ -72,7 +82,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             capacity: 1
           }
         }
-        //")]
+        ")]
         [DataTestMethod]
         public void Simple(int diagnosticCount, string text)
         {
@@ -124,15 +134,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [DataTestMethod]
-        [DataRow("azure.schema.management.azure.com", false)]
-        [DataRow("aschema.management.azure.com", false)]
-        [DataRow("azure.aschema.management.azure.com", false)]
+        // valid matches
+        [DataRow("azure.schema.management.azure.com", true)]
+        [DataRow("aschema.management.azure.com", true)]
+        [DataRow("azure.aschema.management.azure.com", true)]
         [DataRow("management.azure.com", true)]
         [DataRow("http://management.azure.com", true)]
         [DataRow("https://management.azure.com", true)]
-        [DataRow("subdomain1.management.azure.com", false)]
-        [DataRow("http://subdomain1.management.azure.com", false)]
-        [DataRow("https://subdomain1.management.azure.com", false)]
+        [DataRow("subdomain1.management.azure.com", true)]
+        [DataRow("http://subdomain1.management.azure.com", true)]
+        [DataRow("https://subdomain1.management.azure.com", true)]
+        // should not match
         [DataRow("othermanagement.azure.com", false)]
         [DataRow("azure.schema.mannnnagement.azure.com", false)]
         [DataRow("management.azzzzure.com", false)]
@@ -147,17 +159,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
             rule.Configure(configHelper.Config);
 
-            Assert.AreEqual(isMatch, actual: rule.DisallowedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.Visitor.FindMatches(host, testString, false).Any()));
+            Assert.AreEqual(isMatch, actual: rule.DisallowedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.Visitor.FindHostnameMatches(host, testString).Any()));
         }
 
         [DataTestMethod]
+        // valid matches
         [DataRow("schema.management.azure.com", true)]
         [DataRow("http://schema.management.azure.com", true)]
         [DataRow("https://schema.management.azure.com", true)]
-        [DataRow("subany.schema.management.azure.com", false)]
-        [DataRow("http://subany.schema.management.azure.com", false)]
-        [DataRow("https://subany.schema.management.azure.com", false)]
-        [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", false)]
+        [DataRow("subany.schema.management.azure.com", true)]
+        [DataRow("http://subany.schema.management.azure.com", true)]
+        [DataRow("https://subany.schema.management.azure.com", true)]
+        [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", true)]
+        // should not match
         [DataRow("aschema.management.azure.com", false)]
         [DataRow("azure.aschema.management.azure.com", false)]
         [DataRow("management.azure.com", false)]
@@ -167,14 +181,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("http://subdomain1.management.azure.com", false)]
         [DataRow("https://subdomain1.management.azure.com", false)]
         [DataRow("all the world is a stage, but subdomain1.management.azure.com should not be hardcoded", false)]
-        [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", false)]
+        [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", true)]
         public void ExcludedHostsMatchingTest(string testString, bool isMatch)
         {
             var rule = new NoHardcodedEnvironmentUrlsRule();
             var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
             rule.Configure(configHelper.Config);
 
-            Assert.AreEqual(isMatch, rule.ExcludedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.Visitor.FindMatches(host, testString, true).Any()));
+            Assert.AreEqual(isMatch, rule.ExcludedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.Visitor.FindHostnameMatches(host, testString).Any()));
         }
     }
 }
