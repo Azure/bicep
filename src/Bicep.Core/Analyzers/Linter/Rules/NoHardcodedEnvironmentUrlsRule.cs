@@ -18,8 +18,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "no-hardcoded-env-urls";
 
         private ImmutableArray<string>? disallowedHosts;
+        public ImmutableArray<string> DisallowedHosts => disallowedHosts.HasValue ? disallowedHosts.Value : ImmutableArray<string>.Empty;
 
         private ImmutableArray<string>? excludedHosts;
+        public ImmutableArray<string> ExcludedHosts => excludedHosts.HasValue ? excludedHosts.Value : ImmutableArray<string>.Empty;
 
         private int MinimumHostLength;
         private bool HasHosts;
@@ -35,10 +37,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             base.Configure(config);
 
-            this.disallowedHosts = GetArray(nameof(disallowedHosts), Array.Empty<string>())
+            this.disallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
             this.MinimumHostLength = this.disallowedHosts.Value.Min(h => h.Length);
-            this.excludedHosts = GetArray(nameof(excludedHosts), Array.Empty<string>())
+            this.excludedHosts = GetArray(nameof(ExcludedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
 
             this.HasHosts = this.disallowedHosts?.Any() ?? false;
@@ -51,13 +53,50 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             if (HasHosts)
             {
-                var visitor = new Visitor(this.disallowedHosts ?? ImmutableArray<string>.Empty, this.MinimumHostLength, this.excludedHosts ?? ImmutableArray<string>.Empty);
+                var visitor = new Visitor(this.DisallowedHosts, this.MinimumHostLength, this.ExcludedHosts);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
 
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
 
             return Enumerable.Empty<IDiagnostic>();
+        }
+
+        public static IEnumerable<(TextSpan RelativeSpan, string Value)> FindHostnameMatches(string hostname, string srcText)
+        {
+            bool isExactDomainMatch(int index)
+            {
+                var leadingAlnum = index > 0 && 
+                    char.IsLetterOrDigit(srcText[index - 1]);
+                var trailingAlnum = index + hostname.Length < srcText.Length && 
+                    char.IsLetterOrDigit(srcText[index + hostname.Length]);
+
+                return !leadingAlnum && !trailingAlnum;
+            }
+
+            if (hostname.Length == 0)
+            {
+                // ensure we terminate - the below for-loop uses this value to increment
+                yield break;
+            }
+
+            var matchIndex = -1;
+            for (var startIndex = 0; startIndex <= srcText.Length - hostname.Length; startIndex = matchIndex + hostname.Length)
+            {
+                matchIndex = srcText.IndexOf(hostname, startIndex, StringComparison.OrdinalIgnoreCase);
+                if (matchIndex < 0)
+                {
+                    // we haven't foud any instances of the hostname
+                    yield break;
+                }
+
+                // check preceding and trailing chars to verify we're not dealing with a substring
+                if (isExactDomainMatch(matchIndex))
+                {
+                    var matchText = srcText.Substring(matchIndex, hostname.Length);
+                    yield return (RelativeSpan: new TextSpan(matchIndex, hostname.Length), Value: matchText);
+                }
+            }
         }
 
         private sealed class Visitor : SyntaxVisitor
@@ -72,43 +111,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.disallowedHosts = disallowedHosts;
                 this.minHostLen = minHostLen;
                 this.excludedHosts = excludedHosts;
-            }
-
-            public static IEnumerable<(TextSpan RelativeSpan, string Value)> FindHostnameMatches(string hostname, string srcText)
-            {
-                bool isExactDomainMatch(int index)
-                {
-                    var leadingAlnum = index > 0 && 
-                        char.IsLetterOrDigit(srcText[index - 1]);
-                    var trailingAlnum = index + hostname.Length < srcText.Length && 
-                        char.IsLetterOrDigit(srcText[index + hostname.Length]);
-
-                    return !leadingAlnum && !trailingAlnum;
-                }
-
-                if (hostname.Length == 0)
-                {
-                    // ensure we terminate - the below for-loop uses this value to increment
-                    yield break;
-                }
-
-                var matchIndex = -1;
-                for (var startIndex = 0; startIndex <= srcText.Length - hostname.Length; startIndex = matchIndex + hostname.Length)
-                {
-                    matchIndex = srcText.IndexOf(hostname, startIndex, StringComparison.OrdinalIgnoreCase);
-                    if (matchIndex < 0)
-                    {
-                        // we haven't foud any instances of the hostname
-                        yield break;
-                    }
-
-                    // check preceeding and trailing chars to verify we're not dealing with a substring
-                    if (isExactDomainMatch(matchIndex))
-                    {
-                        var matchText = srcText.Substring(matchIndex, hostname.Length);
-                        yield return (RelativeSpan: new TextSpan(matchIndex, hostname.Length), Value: matchText);
-                    }
-                }
             }
 
             public IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)

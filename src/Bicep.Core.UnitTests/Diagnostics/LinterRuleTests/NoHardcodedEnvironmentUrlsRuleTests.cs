@@ -159,7 +159,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
             rule.Configure(configHelper.Config);
 
-            Assert.AreEqual(isMatch, actual: rule.DisallowedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.Visitor.FindHostnameMatches(host, testString).Any()));
+            Assert.AreEqual(isMatch, actual: rule.DisallowedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.FindHostnameMatches(host, testString).Any()));
         }
 
         [DataTestMethod]
@@ -188,7 +188,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
             rule.Configure(configHelper.Config);
 
-            Assert.AreEqual(isMatch, rule.ExcludedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.Visitor.FindHostnameMatches(host, testString).Any()));
+            Assert.AreEqual(isMatch, rule.ExcludedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.FindHostnameMatches(host, testString).Any()));
         }
     }
 }
