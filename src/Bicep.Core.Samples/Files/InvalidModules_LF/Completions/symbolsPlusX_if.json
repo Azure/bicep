@@ -2234,6 +2234,20 @@
     }
   },
   {
+    "label": "secureModule2",
+    "kind": "module",
+    "detail": "secureModule2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_secureModule2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "secureModule2"
+    }
+  },
+  {
     "label": "singleModuleForRuntimeCheck",
     "kind": "module",
     "detail": "singleModuleForRuntimeCheck",
