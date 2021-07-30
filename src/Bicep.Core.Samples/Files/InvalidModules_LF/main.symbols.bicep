@@ -702,6 +702,14 @@ module secureModule1 'moduleb.bicep' = {
   }
 }
 
+module secureModule2 'BAD_MODULE_PATH.bicep' = {
+//@[7:20) Module secureModule2. Type: error. Declaration start char: 0, length: 134
+  name: 'secureModule2'
+  params: {       
+    secret: kv.getSecret('mySecret')
+  }
+}
+
 module issue3000 'empty.bicep' = {
 //@[7:16) Module issue3000. Type: module. Declaration start char: 0, length: 305
   name: 'issue3000Module'
