@@ -1,13 +1,8 @@
-// $1 = desktopVirtualizationHostPools
+// $1 = applicationGroup
 // $2 = 'name'
-// $3 = applicationGroup
-// $4 = 'name'
-// $5 = 'friendlyName'
-// $6 = 'Desktop'
-
-resource desktopVirtualizationHostPools 'Microsoft.DesktopVirtualization/hostPools@2021-05-13-preview' existing = {
-  name: 'name'
-} 
+// $3 = 'friendlyName'
+// $4 = 'Desktop'
+// $5 = 'desktopVirtualizationHostPools.id'
 
 resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
   name: 'name'
@@ -15,7 +10,7 @@ resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@201
   properties: {
     friendlyName: 'friendlyName'
     applicationGroupType: 'Desktop'
-    hostPoolArmPath: desktopVirtualizationHostPools.id
+    hostPoolArmPath: 'desktopVirtualizationHostPools.id'
   }
 }
 // Insert snippet here

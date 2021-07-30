@@ -1,9 +1,7 @@
-﻿// $1 = 'name'
-// $2 = subnet
+﻿// $1 = networkInterface
+// $2 = 'name'
 // $3 = 'name'
-// $4 = networkInterface
-// $5 = 'name'
-// $6 = 'name'
-// $7 = Dynamic
+// $4 = Dynamic
+// $5 = 'subnet.id'
 
 // Insert snippet here
