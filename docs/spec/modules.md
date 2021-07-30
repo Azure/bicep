@@ -108,7 +108,7 @@ module secretModule './secretModule.bicep' = {
 ```
 
 ### Notes
-* Key Vault must have `enabledForDeployment` property set to `true`
+* Key Vault must have `enabledForTemplateDeployment` property set to `true`
 * Key Vault and secret must exist before entire deployment starts.
 * Secret version is optional. It defaults to latest version if omitted.
 
