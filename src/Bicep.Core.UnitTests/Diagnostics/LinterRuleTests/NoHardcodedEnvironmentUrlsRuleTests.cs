@@ -1,20 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
-using Bicep.Core.Text;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 // TODO: Test with different configs
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -162,14 +153,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("subdomain1.management.azzzure.com", false)]
         [DataRow("http://subdomain1.manageeeement.azure.com", false)]
         [DataRow("https://subdomain1.managemeeeent.azure.com", false)]
-        public void DisallowedHostsRegexTest(string host, bool isMatch)
+        public void DisallowedHostsMatchingTest(string testString, bool isMatch)
         {
             var rule = new NoHardcodedEnvironmentUrlsRule();
             var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
             rule.Configure(configHelper.Config);
 
-            var regex = rule.CreateDisallowedHostRegex();
-            Assert.AreEqual(isMatch, regex.IsMatch(host));
+            Assert.AreEqual(isMatch, actual: rule.DisallowedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.FindHostnameMatches(host, testString).Any()));
         }
 
         [DataTestMethod]
@@ -192,14 +182,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("https://subdomain1.management.azure.com", false)]
         [DataRow("all the world is a stage, but subdomain1.management.azure.com should not be hardcoded", false)]
         [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", true)]
-        public void ExcludedHostsRegexTest(string host, bool isMatch)
+        public void ExcludedHostsMatchingTest(string testString, bool isMatch)
         {
             var rule = new NoHardcodedEnvironmentUrlsRule();
             var configHelper = new ConfigHelper(); // this ensures configuration is loaded from resources
             rule.Configure(configHelper.Config);
 
-            var regex = rule.CreateExcludedHostsRegex();
-            Assert.AreEqual(isMatch, regex.IsMatch(host));
+            Assert.AreEqual(isMatch, rule.ExcludedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.FindHostnameMatches(host, testString).Any()));
         }
     }
 }
