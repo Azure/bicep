@@ -6,13 +6,10 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -21,10 +18,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "no-hardcoded-env-urls";
 
         private ImmutableArray<string>? disallowedHosts;
-        public IEnumerable<string> DisallowedHosts => disallowedHosts.HasValue ? disallowedHosts.Value : Array.Empty<string>();
 
         private ImmutableArray<string>? excludedHosts;
-        public IEnumerable<string> ExcludedHosts => excludedHosts.HasValue ? excludedHosts.Value : Array.Empty<string>();
 
         private int MinimumHostLength;
         private bool HasHosts;
@@ -65,7 +60,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return Enumerable.Empty<IDiagnostic>();
         }
 
-        public class Visitor : SyntaxVisitor
+        private sealed class Visitor : SyntaxVisitor
         {
             public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new Dictionary<TextSpan, string>();
             private readonly ImmutableArray<string> disallowedHosts;
@@ -78,8 +73,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.minHostLen = minHostLen;
                 this.excludedHosts = excludedHosts;
             }
-
-            private enum matchTypes { exact, subdomain, substring }
 
             public static IEnumerable<(TextSpan RelativeSpan, string Value)> FindHostnameMatches(string hostname, string srcText)
             {
