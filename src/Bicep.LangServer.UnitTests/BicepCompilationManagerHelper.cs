@@ -26,7 +26,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace());
+            BicepCompilationManager bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace(), new FileResolver());
 
             if (upsertCompilation)
             {

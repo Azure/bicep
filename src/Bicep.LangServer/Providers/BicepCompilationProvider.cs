@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
@@ -24,10 +25,9 @@ namespace Bicep.LanguageServer.Providers
             this.fileResolver = fileResolver;
         }
 
-        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri)
+        public CompilationContext Create(SourceFileGrouping sourceFileGrouping, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, documentUri.ToUri());
-            var compilation = new Compilation(resourceTypeProvider, sourceFileGrouping);
+            var compilation = new Compilation(resourceTypeProvider, sourceFileGrouping, modelLookup);
 
             return new CompilationContext(compilation);
         }

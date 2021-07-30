@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.TypeSystem;
@@ -17,8 +18,11 @@ using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Bicep.LanguageServer.Utils;
 
 namespace Bicep.LanguageServer
 {
@@ -71,11 +75,15 @@ namespace Bicep.LanguageServer
 
                 onOptionsFunc(options);
             });
+
+            Trace.Listeners.Add(new ServerLogTraceListener(server));
         }
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
             await server.Initialize(cancellationToken);
+
+            server.LogInfo($"Running on processId {Environment.ProcessId}");
 
             await server.WaitForExit;
         }

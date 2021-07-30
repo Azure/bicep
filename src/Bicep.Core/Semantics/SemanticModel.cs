@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
@@ -29,6 +30,8 @@ namespace Bicep.Core.Semantics
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver)
         {
+            Trace.Write($"Reloading {sourceFile.FileUri}");
+
             Compilation = compilation;
             SourceFile = sourceFile;
             FileResolver = fileResolver;
