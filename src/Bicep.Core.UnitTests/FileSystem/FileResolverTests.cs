@@ -171,15 +171,15 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             // make parent dir
             Directory.CreateDirectory(tempDir);
-            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempDir)).Should().BeTrue();
-            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempFile)).Should().BeFalse();
+            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempDir)).Should().BeTrue();
+            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempFile)).Should().BeFalse();
             // add a file to parent dir
             File.WriteAllText(tempFile, "abcd\r\ndef");
-            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempDir)).Should().BeTrue();
-            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempFile)).Should().BeFalse();
+            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempDir)).Should().BeTrue();
+            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempFile)).Should().BeFalse();
             // make child dir
             Directory.CreateDirectory(tempChildDir);
-            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempChildDir)).Should().BeTrue();
+            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempChildDir)).Should().BeTrue();
         }
 
         [DataTestMethod]

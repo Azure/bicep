@@ -9,6 +9,7 @@ using Azure.Deployments.Core.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
@@ -417,7 +418,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static Uri? GetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, string filePath, SyntaxBase filePathArgument)
         {
-            if (!SourceFileGroupingBuilder.ValidateFilePath(filePath, out var validateFilePathFailureBuilder))
+            if (!LocalModuleReference.Validate(filePath, out var validateFilePathFailureBuilder))
             {
                 diagnostics.Write(validateFilePathFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument)));
                 return null;
