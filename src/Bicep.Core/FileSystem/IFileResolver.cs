@@ -55,7 +55,7 @@ namespace Bicep.Core.FileSystem
         /// Check whether specified file URI exsists (depends on URI types)
         /// </summary>
         /// <param name="fileUri">The fileUri to test</param>
-        bool TryFileExists(Uri fileUri);
+        bool FileExists(Uri fileUri);
 
 
         /// <summary>

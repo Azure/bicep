@@ -17,10 +17,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using System;
 using Bicep.Core.Parsing;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using Bicep.Core;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using System.Linq;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -32,60 +32,54 @@ namespace Bicep.LanguageServer.Handlers
 
         private readonly IFileResolver fileResolver;
 
-        public BicepDefinitionHandler(ISymbolResolver symbolResolver, ICompilationManager compilationManager, IFileResolver fileResolver) : base()
+        private readonly IWorkspace workspace;
+
+        public BicepDefinitionHandler(ISymbolResolver symbolResolver, ICompilationManager compilationManager, IFileResolver fileResolver, IWorkspace workspace) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
             this.fileResolver = fileResolver;
+            this.workspace = workspace;
         }
 
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {
             var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
-            if (context == null)
+            if (context is null)
             {
                 return Task.FromResult(new LocationOrLocationLinks());
             }
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
-            if (result == null)
+            // No parent Symbol: ad hoc syntax matching
+            if (result is null)
             {
-                // Currently we only definition handler for a non symbol bound to implement module path goto.
-                // try to resolve module path syntax from given offset using syntax matching.
-                int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
-                var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
-                if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(
-                                matchingNodes, (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
-                    && matchingNodes[^1] is Token stringToken)
-                {
-                    // goto beginning of the module file.
-                    return GetModuleDefinitionLocationAsync(
-                        request.TextDocument.Uri.ToUri(),
-                        stringToken.Text, stringToken, context,
-                        new Range() { Start = new Position(0, 0), End = new Position(0, 0) });
-                }
-                return Task.FromResult(new LocationOrLocationLinks());
+                return HandleUnboundSymbolLocationAsync(request, context);
             }
+            // Declared symbols: go to definition
             else if (result.Symbol is DeclaredSymbol declaration)
             {
                 return DeclaredDefinitionLocationAsync(request, result, declaration);
             }
+            // Object property: currently only used for module param goto
             else if (result.Origin is ObjectPropertySyntax objectPropertySyntax)
             {
-                // Currently only used for module param goto
                 int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
                 var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
+                // matchingNodes[0] should be ProgramSyntax
                 if (matchingNodes[1] is ModuleDeclarationSyntax moduleDeclarationSyntax)
                 {
+                    // capture the property accesses leading to this specific property access
                     var propertyAccesses = matchingNodes.OfType<ObjectPropertySyntax>()
-                    .Select(node => node.TryGetKeyText())
-                    .Where(s => s != null).ToList();
+                        .Select(node => node.TryGetKeyText())
+                        .OfType<string>().ToList();
                     // only two level of traversals: mod.outputs.<outputName> or mod.params.<parameterName>
                     if (propertyAccesses.Count == 2)
                     {
-                        return GetModuleSymbolLocationAsync(request, result, context, moduleDeclarationSyntax, propertyAccesses[0]!, propertyAccesses[1]!);
+                        return GetModuleSymbolLocationAsync(result, context, moduleDeclarationSyntax, propertyAccesses[0], propertyAccesses[1]);
                     }
                 }
             }
+            // Used for module, variable or resource property access
             else if (result.Symbol is PropertySymbol)
             {
                 var semanticModel = context.Compilation.GetEntrypointSemanticModel();
@@ -95,6 +89,7 @@ namespace Bicep.LanguageServer.Handlers
                 var propertyAccesses = new List<string>();
                 while (syntax is PropertyAccessSyntax propertyAccessSyntax)
                 {
+                    // since we are traversing bottom up, add this access to the beginning of the list
                     propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName.IdentifierName);
                     syntax = propertyAccessSyntax.BaseExpression;
                 }
@@ -103,16 +98,16 @@ namespace Bicep.LanguageServer.Handlers
                     && semanticModel.GetSymbolInfo(ancestor) is DeclaredSymbol ancestorSymbol)
                 {
                     // If the symbol is a module, we need to redirect the user to the module file
-                    // note: module.name doesn't follow this: it should refer to the declaration of the module in the current file
-                    if (ancestorSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclarationSyntax
-                    && propertyAccesses.Count == 2)
+                    // note: module.name doesn't follow this: it should refer to the declaration of the module in the current file, like regular variable and resource property accesses
+                    if (propertyAccesses.Count == 2
+                    && ancestorSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclarationSyntax)
                     {
-                        return GetModuleSymbolLocationAsync(request, result, context, moduleDeclarationSyntax, propertyAccesses[0], propertyAccesses[1]);
+                        return GetModuleSymbolLocationAsync(result, context, moduleDeclarationSyntax, propertyAccesses[0], propertyAccesses[1]);
                     }
 
                     // Otherwise, we redirect user to the specified module, variable, or resource declaration
                     if (GetObjectSyntaxFromDeclaration(ancestorSymbol.DeclaringSyntax) is ObjectSyntax objectSyntax
-                        && ObjectSyntaxExtensions.SafeGetPropertyByNameRecursive(objectSyntax, propertyAccesses.ToArray()) is ObjectPropertySyntax resultingSyntax)
+                        && ObjectSyntaxExtensions.SafeGetPropertyByNameRecursive(objectSyntax, propertyAccesses) is ObjectPropertySyntax resultingSyntax)
                     {
                         return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
                         {
@@ -123,69 +118,66 @@ namespace Bicep.LanguageServer.Handlers
                         })));
                     }
                 }
-                return Task.FromResult(new LocationOrLocationLinks());
             }
+            return Task.FromResult(new LocationOrLocationLinks());
+        }
 
+        private Task<LocationOrLocationLinks> HandleUnboundSymbolLocationAsync(DefinitionParams request, CompilationContext context)
+        {
+            // Currently we only definition handler for a non symbol bound to implement module path goto.
+            // try to resolve module path syntax from given offset using tail matching.
+            int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
+            var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
+            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(
+                matchingNodes,
+                (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
+                && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
+                && matchingNodes[^2] is StringSyntax stringToken
+                && context.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+            {
+                // goto beginning of the module file.
+                return GetModuleDefinitionLocationAsync(
+                    bicepFile.FileUri,
+                    stringToken,
+                    context,
+                    new Range { Start = new Position(0, 0), End = new Position(0, 0) });
+            }
+            // all other unbound syntax nodes return no 
             return Task.FromResult(new LocationOrLocationLinks());
         }
 
         private Task<LocationOrLocationLinks> GetModuleSymbolLocationAsync(
-            DefinitionParams request,
             SymbolResolutionResult result,
             CompilationContext context,
             ModuleDeclarationSyntax moduleDeclarationSyntax,
             string propertyType,
             string propertyName)
         {
-            if (moduleDeclarationSyntax.TryGetPath() is StringSyntax pathSyntax
-            && pathSyntax.StringTokens is ImmutableArray<Token> stringTokens
-            && stringTokens.Length == 1
-            && stringTokens[0] is Token stringToken
-            && stringToken.Type == TokenType.StringComplete
-            && fileResolver.TryResolveFilePath(request.TextDocument.Uri.ToUri(), stringToken.Text.Replace("'", string.Empty)) is Uri moduleUri
-            && fileResolver.TryFileExists(moduleUri))
+            if (context.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile
+            && context.Compilation.GetSemanticModel(bicepFile) is SemanticModel moduleModel)
             {
-                CompilationContext? moduleContext = null;
-                // if the file's been opened in the workspace, we should be able to get its compilation
-                if (this.compilationManager.GetCompilation(DocumentUri.From(moduleUri)) is CompilationContext existingModuleContext)
-                {
-                    moduleContext = existingModuleContext;
-                }
-                // otherwise, we have to add it manually
-                else if (fileResolver.TryRead(moduleUri, out var fileContents, out var _))
-                {
-                    this.compilationManager.UpsertCompilation(DocumentUri.From(moduleUri), 0, fileContents, LanguageConstants.LanguageId);
-                    moduleContext = this.compilationManager.GetCompilation(DocumentUri.From(moduleUri));
-                }
-                if (moduleContext == null)
-                {
-                    return Task.FromResult(new LocationOrLocationLinks());
-                }
-
                 switch (propertyType)
                 {
                     case LanguageConstants.ModuleOutputsPropertyName:
-                        if (moduleContext.Compilation.GetEntrypointSemanticModel().Root.OutputDeclarations
+                        if (moduleModel.Root.OutputDeclarations
                         .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is OutputSymbol outputSymbol)
                         {
                             return GetModuleDefinitionLocationAsync(
-                                request.TextDocument.Uri.ToUri(),
-                                stringToken.Text,
+                                bicepFile.FileUri,
                                 result.Origin,
                                 context,
-                                outputSymbol.DeclaringSyntax.ToRange(moduleContext.LineStarts));
+                                outputSymbol.DeclaringSyntax.ToRange(bicepFile.LineStarts));
                         }
                         break;
                     case LanguageConstants.ModuleParamsPropertyName:
-                        if (moduleContext.Compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations
+                        if (moduleModel.Root.ParameterDeclarations
                         .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is ParameterSymbol parameterSymbol)
                         {
                             return GetModuleDefinitionLocationAsync(
-                                request.TextDocument.Uri.ToUri(),
-                                stringToken.Text,
+                                bicepFile.FileUri,
                                 result.Origin,
                                 context,
-                                parameterSymbol.DeclaringSyntax.ToRange(moduleContext.LineStarts));
+                                parameterSymbol.DeclaringSyntax.ToRange(bicepFile.LineStarts));
                         }
                         break;
                 }
@@ -217,24 +209,18 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private async Task<LocationOrLocationLinks> GetModuleDefinitionLocationAsync(
-            Uri requestDocumentUri,
-            string path,
+            Uri moduleUri,
             SyntaxBase originalSelectionSyntax,
             CompilationContext context,
             Range targetTange)
         {
-            if (fileResolver.TryResolveFilePath(requestDocumentUri, path.Replace("'", string.Empty)) is Uri moduleUri
-            && fileResolver.TryFileExists(moduleUri))
+            return await Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
             {
-                return await Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
-                {
-                    OriginSelectionRange = originalSelectionSyntax.ToRange(context.LineStarts),
-                    TargetUri = DocumentUri.From(moduleUri),
-                    TargetRange = targetTange,
-                    TargetSelectionRange = targetTange
-                })));
-            }
-            return await Task.FromResult(new LocationOrLocationLinks());
+                OriginSelectionRange = originalSelectionSyntax.ToRange(context.LineStarts),
+                TargetUri = DocumentUri.From(moduleUri),
+                TargetRange = targetTange,
+                TargetSelectionRange = targetTange
+            })));
         }
 
         protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()

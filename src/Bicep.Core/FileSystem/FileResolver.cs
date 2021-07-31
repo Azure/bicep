@@ -216,7 +216,7 @@ namespace Bicep.Core.FileSystem
             return fileUri.IsFile && Directory.Exists(fileUri.LocalPath);
         }
 
-        public bool TryFileExists(Uri fileUri)
+        public bool FileExists(Uri fileUri)
         {
             return fileUri.IsFile && File.Exists(fileUri.LocalPath);
         }

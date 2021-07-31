@@ -68,15 +68,15 @@ namespace Bicep.Core.Syntax
             return result;
         }
 
-        public static ObjectPropertySyntax? SafeGetPropertyByNameRecursive(this ObjectSyntax syntax, string[] propertyAccesses)
+        public static ObjectPropertySyntax? SafeGetPropertyByNameRecursive(this ObjectSyntax syntax, IList<string> propertyAccesses)
         {
             var currentSyntax = syntax;
-            for (int i = 0; i < propertyAccesses.Length; i++)
+            for (int i = 0; i < propertyAccesses.Count; i++)
             {
                 if (currentSyntax.SafeGetPropertyByName(propertyAccesses[i]) is ObjectPropertySyntax propertySyntax)
                 {
                     // we have found our last property access
-                    if (i == propertyAccesses.Length-1)
+                    if (i == propertyAccesses.Count-1)
                     {
                         return propertySyntax;
                     }
