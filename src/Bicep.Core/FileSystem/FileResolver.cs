@@ -211,10 +211,8 @@ namespace Bicep.Core.FileSystem
             return Directory.GetFiles(fileUri.LocalPath, pattern).Select(s => new Uri(s));
         }
 
-        public bool TryDirExists(Uri fileUri)
-        {
-            return fileUri.IsFile && Directory.Exists(fileUri.LocalPath);
-        }
+        public bool DirExists(Uri fileUri) => fileUri.IsFile && Directory.Exists(fileUri.LocalPath);
 
+        public bool FileExists(Uri uri) => uri.IsFile && File.Exists(uri.LocalPath);
     }
 }
