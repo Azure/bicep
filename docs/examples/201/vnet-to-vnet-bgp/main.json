@@ -5,12 +5,15 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4649085311515098157"
+      "templateHash": "12917985767158582767"
     }
   },
   "parameters": {
     "sharedKey": {
-      "type": "secureString"
+      "type": "secureString",
+      "metadata": {
+        "description": "The shared key used to establish connection between the two vNet Gateways."
+      }
     },
     "gatewaySku": {
       "type": "string",
@@ -21,24 +24,30 @@
         "VpnGw1",
         "VpnGw2",
         "VpnGw3"
-      ]
+      ],
+      "metadata": {
+        "description": "The SKU for the VPN Gateway. Cannot be Basic SKU."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location of the resources"
+      }
     }
   },
   "functions": [],
   "variables": {
     "vnet1cfg": {
-      "name": "[format('vnet1-{0}', parameters('location'))]",
+      "name": "[format('vNet1-{0}', parameters('location'))]",
       "addressSpacePrefix": "10.0.0.0/23",
       "subnetName": "subnet1",
       "subnetPrefix": "10.0.0.0/24",
-      "gatewayName": "vpngw1",
+      "gatewayName": "vNet1-Gateway",
       "gatewaySubnetPrefix": "10.0.1.224/27",
-      "gatewayPublicIPName": "gw1pip",
-      "connectionName": "vnet1-to-vnet2",
+      "gatewayPublicIPName": "[format('gw1pip{0}', uniqueString(resourceGroup().id))]",
+      "connectionName": "vNet1-to-vNet2",
       "asn": 65010
     },
     "vnet2cfg": {
@@ -46,11 +55,11 @@
       "addressSpacePrefix": "10.0.2.0/23",
       "subnetName": "subnet1",
       "subnetPrefix": "10.0.2.0/24",
-      "gatewayName": "vpngw2",
+      "gatewayName": "vnet2-Gateway",
       "gatewaySubnetPrefix": "10.0.3.224/27",
-      "gatewayPublicIPName": "gw2pip",
+      "gatewayPublicIPName": "[format('gw2pip{0}', uniqueString(resourceGroup().id))]",
       "connectionName": "vnet2-to-vnet1",
-      "asn": 65020
+      "asn": 65050
     }
   },
   "resources": [
@@ -71,15 +80,20 @@
             "properties": {
               "addressPrefix": "[variables('vnet1cfg').subnetPrefix]"
             }
-          },
-          {
-            "name": "GatewaySubnet",
-            "properties": {
-              "addressPrefix": "[variables('vnet1cfg').gatewaySubnetPrefix]"
-            }
           }
         ]
       }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2021-02-01",
+      "name": "[format('{0}/{1}', variables('vnet1cfg').name, 'GatewaySubnet')]",
+      "properties": {
+        "addressPrefix": "[variables('vnet1cfg').gatewaySubnetPrefix]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet1cfg').name)]"
+      ]
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
@@ -98,15 +112,20 @@
             "properties": {
               "addressPrefix": "[variables('vnet2cfg').subnetPrefix]"
             }
-          },
-          {
-            "name": "GatewaySubnet",
-            "properties": {
-              "addressPrefix": "[variables('vnet2cfg').gatewaySubnetPrefix]"
-            }
           }
         ]
       }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2021-02-01",
+      "name": "[format('{0}/{1}', variables('vnet2cfg').name, 'GatewaySubnet')]",
+      "properties": {
+        "addressPrefix": "[variables('vnet2cfg').gatewaySubnetPrefix]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet2cfg').name)]"
+      ]
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
@@ -134,11 +153,11 @@
       "properties": {
         "ipConfigurations": [
           {
-            "name": "vnet1gwipconfig",
+            "name": "vnet1GatewayConfig",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[format('{0}/subnets/GatewaySubnet', resourceId('Microsoft.Network/virtualNetworks', variables('vnet1cfg').name))]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet1cfg').name, 'GatewaySubnet')]"
               },
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnet1cfg').gatewayPublicIPName)]"
@@ -159,22 +178,22 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnet1cfg').gatewayPublicIPName)]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet1cfg').name)]"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet1cfg').name, 'GatewaySubnet')]"
       ]
     },
     {
       "type": "Microsoft.Network/virtualNetworkGateways",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-05-01",
       "name": "[variables('vnet2cfg').gatewayName]",
       "location": "[parameters('location')]",
       "properties": {
         "ipConfigurations": [
           {
-            "name": "vnet2gwipconfig",
+            "name": "vNet2GatewayConfig",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[format('{0}/subnets/GatewaySubnet', resourceId('Microsoft.Network/virtualNetworks', variables('vnet2cfg').name))]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet2cfg').name, 'GatewaySubnet')]"
               },
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnet2cfg').gatewayPublicIPName)]"
@@ -195,12 +214,12 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnet2cfg').gatewayPublicIPName)]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet2cfg').name)]"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet2cfg').name, 'GatewaySubnet')]"
       ]
     },
     {
       "type": "Microsoft.Network/connections",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-05-01",
       "name": "[variables('vnet1cfg').connectionName]",
       "location": "[parameters('location')]",
       "properties": {
@@ -224,7 +243,7 @@
     },
     {
       "type": "Microsoft.Network/connections",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-05-01",
       "name": "[variables('vnet2cfg').connectionName]",
       "location": "[parameters('location')]",
       "properties": {

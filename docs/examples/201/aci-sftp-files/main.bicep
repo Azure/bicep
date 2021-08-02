@@ -1,10 +1,21 @@
+@description('Storage account type')
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+])
 param storageAccountType string = 'Standard_LRS'
+
+@description('Name of file share to be created')
 param fileShareName string = 'sftpfileshare'
+
+@description('Username to use for SFTP access')
 param sftpUser string
 
+@description('Password to use for SFTP access')
 @secure()
 param sftpPassword string
 
+@description('Primary location for resources')
 param location string = resourceGroup().location
 
 var scriptName = 'createFileShare'
@@ -24,6 +35,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: roleAssignmentName
+  scope: storageAccount
   properties: {
     roleDefinitionId: roleDefinitionId
     principalId: managedIdentity.properties.principalId
@@ -31,16 +43,13 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: storageAccountName
   location: location
   sku: {
     name: storageAccountType
   }
   kind: 'StorageV2'
-  dependsOn: [
-    roleAssignment // need to create a slight delay for the roleAssignment to replicate before the deployment script can run
-  ]
 }
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -121,11 +130,11 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01'
           readOnly: false
           shareName: fileShareName
           storageAccountName: storageAccount.name
-          storageAccountKey: storageAccount.listKeys().keys[0].value
+          storageAccountKey: listKeys(storageAccount.name, storageAccount.apiVersion).keys[0].value
         }
       }
     ]
   }
 }
 
-output containerIpv4Address string = containerGroup.properties.ipAddress.ip
+output containerIPv4Address string = containerGroup.properties.ipAddress.ip
