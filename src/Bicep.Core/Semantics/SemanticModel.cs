@@ -10,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
@@ -25,6 +26,8 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<LinterAnalyzer> linterAnalyzerLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> parameterTypePropertiesLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> outputTypePropertiesLazy;
+
+        private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver)
@@ -54,11 +57,14 @@ namespace Bicep.Core.Semantics
 
                 return hierarchy;
             });
-            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(sourceFile, Binder));
+            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(this));
+            this.ResourceMetadata = new ResourceMetadataCache(this);
 
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
             this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer());
+
+            this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
 
             // lazy load single use diagnostic set
             this.allDiagnostics = new Lazy<IEnumerable<IDiagnostic>>(() => AssembleDiagnostics(default));
@@ -111,11 +117,15 @@ namespace Bicep.Core.Semantics
 
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
+        public ResourceMetadataCache ResourceMetadata { get; }
+
         private LinterAnalyzer LinterAnalyzer => linterAnalyzerLazy.Value;
 
         public ImmutableArray<TypeProperty> ParameterTypeProperties => this.parameterTypePropertiesLazy.Value;
 
         public ImmutableArray<TypeProperty> OutputTypeProperties => this.outputTypePropertiesLazy.Value;
+
+        public ImmutableArray<ResourceMetadata> AllResources => allResourcesLazy.Value;
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
@@ -284,6 +294,20 @@ namespace Bicep.Core.Semantics
                     return accumulated;
                 },
                 accumulated => accumulated);
+
+        private ImmutableArray<ResourceMetadata> GetAllResourceMetadata()
+        {
+            var resources = ImmutableArray.CreateBuilder<ResourceMetadata>();
+            foreach (var resourceSymbol in ResourceSymbolVisitor.GetAllResources(Root))
+            {
+                if (this.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is {} resource)
+                {
+                    resources.Add(resource);
+                }
+            }
+
+            return resources.ToImmutable();
+        }
 
         /// <summary>
         /// Gets the file that was compiled.
