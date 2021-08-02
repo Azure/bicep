@@ -13,6 +13,7 @@ using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Registry;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -27,16 +28,38 @@ namespace Bicep.LanguageServer
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
         private readonly IFileResolver fileResolver;
+        private readonly IModuleRestoreScheduler scheduler;
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
 
-        public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider, IWorkspace workspace, IFileResolver fileResolver)
+        public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider, IWorkspace workspace, IFileResolver fileResolver, IModuleRestoreScheduler scheduler)
         {
             this.server = server;
             this.provider = provider;
             this.workspace = workspace;
             this.fileResolver = fileResolver;
+            this.scheduler = scheduler;
+        }
+
+        public void RefreshCompilation(DocumentUri documentUri)
+        {
+            if(this.GetCompilation(documentUri) is null)
+            {
+                // the compilation we are refreshing no longer exists
+                return;
+            }
+
+            // TODO: This likely has a race condition if the user is modifying the file at the same time
+            var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
+            var (_, removedTrees) = UpdateCompilationInternal(documentUri, null, modelLookup, Enumerable.Empty<ISourceFile>());
+            foreach (var (entrypointUri, context) in activeContexts)
+            {
+                if (removedTrees.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
+                {
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, Enumerable.Empty<ISourceFile>());
+                }
+            }
         }
 
         public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null)
@@ -146,15 +169,13 @@ namespace Bicep.LanguageServer
             return closedFiles.ToImmutableArray();
         }
 
-        private void UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles)
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles)
         {
             try
             {
-                var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, documentUri.ToUri());
-
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri, 
-                    (documentUri) => this.provider.Create(sourceFileGrouping, documentUri, modelLookup.ToImmutableDictionary()),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary()),
                     (documentUri, prevContext) => {
                         var sourceDependencies = removedFiles
                             .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
@@ -170,7 +191,7 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        return this.provider.Create(sourceFileGrouping, documentUri, modelLookup.ToImmutableDictionary());
+                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary());
                     });
 
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
@@ -179,13 +200,18 @@ namespace Bicep.LanguageServer
                     modelLookup[sourceFile] = context.Compilation.GetSemanticModel(sourceFile);
                 }
 
-                workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
+                // this completes immediately
+                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.ModulesToRestore);
+
+                var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
 
                 // convert all the diagnostics to LSP diagnostics
                 var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
                 // publish all the diagnostics
                 this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
+
+                return output;
             }
             catch (Exception exception)
             {
@@ -208,10 +234,11 @@ namespace Bicep.LanguageServer
                 // the file is no longer in a state that can be parsed
                 // clear all info to prevent cascading failures elsewhere
                 var closedFiles = CloseCompilationInternal(documentUri, version, fatalError.AsEnumerable());
+
+                return (ImmutableArray<ISourceFile>.Empty, closedFiles);
             }
         }
 
-        // TODO: Remove the lexer part when we stop it from emitting errors
         private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<Diagnostic> diagnostics)

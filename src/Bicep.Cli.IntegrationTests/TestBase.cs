@@ -3,7 +3,9 @@
 
 using Bicep.Cli.UnitTests;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
@@ -37,7 +39,8 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
         {
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping);
 
             var output = new List<string>();

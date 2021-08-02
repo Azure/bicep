@@ -213,7 +213,8 @@ namespace Bicep.LanguageServer.Snippets
                 ImmutableHashSet.Create<ISourceFile>(bicepFile),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),
                 ImmutableDictionary.Create<ISourceFile, ImmutableHashSet<ISourceFile>>(),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>());
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
+                ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
             Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();

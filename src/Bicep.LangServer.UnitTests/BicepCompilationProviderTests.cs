@@ -7,8 +7,10 @@ using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -33,15 +35,14 @@ namespace Bicep.LangServer.UnitTests
         {
             var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
             var fileResolver = CreateFileResolver(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver));
 
-            var provider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver);
-
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, new Workspace(), fileUri.ToUri());
+            var provider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, dispatcher);
 
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
-            var context = provider.Create(sourceFileGrouping, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
+            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
 
             context.Compilation.Should().NotBeNull();
             // TODO: remove Where when the support of modifiers is dropped.

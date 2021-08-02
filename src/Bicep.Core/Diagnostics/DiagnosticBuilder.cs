@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
+using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -1108,6 +1110,37 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
+
+            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes) => new(
+                TextSpan,
+                "BCP189",
+                (allowedSchemes.Contains(ModuleReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme=>!string.Equals(scheme, ModuleReferenceSchemes.Local, StringComparison.Ordinal))) switch
+                {
+                    (false, false) => "Module references are not supported in this context.",
+                    (false, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}",
+                    (true, false) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file.",
+                    (true, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}",
+                });
+
+            // TODO: This error is context sensitive:
+            // - In CLI, it's permanent and only likely to occur with bicep build --no-restore.
+            // - In VS code, it's transient until the background restore finishes.
+            //
+            // Should it be split into two separate errors instead?
+            public ErrorDiagnostic ModuleRequiresRestore(string moduleRef) => new(
+                TextSpan,
+                "BCP190",
+                $"The module with reference \"{moduleRef}\" has not been restored.");
+
+            public ErrorDiagnostic ModuleRestoreFailed(string moduleRef) => new(
+                TextSpan,
+                "BCP191",
+                $"Unable to restore the module with reference \"{moduleRef}\".");
+
+            public ErrorDiagnostic ModuleRestoreFailedWithMessage(string moduleRef, string message) => new(
+                TextSpan,
+                "BCP192",
+                $"Unable to restore the module with reference \"{moduleRef}\": {message}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

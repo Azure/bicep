@@ -5,10 +5,14 @@ using System;
 using System.Collections.Generic;
 using Bicep.Core;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Registry;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -26,7 +30,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace(), new FileResolver());
+            BicepCompilationManager bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace(), new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             if (upsertCompilation)
             {
@@ -65,8 +69,18 @@ namespace Bicep.LangServer.UnitTests
             return server;
         }
 
-        public static ICompilationProvider CreateEmptyCompilationProvider() =>
-            new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), new InMemoryFileResolver(new Dictionary<Uri, string>()));
+        public static ICompilationProvider CreateEmptyCompilationProvider()
+        {
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>());
+            return new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver)));
+        }
 
+        public static Mock<IModuleRestoreScheduler> CreateMockScheduler()
+        {
+            var scheduler = Repository.Create<IModuleRestoreScheduler>();
+            scheduler.Setup(m => m.RequestModuleRestore(It.IsAny<ICompilationManager>(), It.IsAny<DocumentUri>(), It.IsAny<IEnumerable<ModuleDeclarationSyntax>>()));
+
+            return scheduler;
+        }
     }
 }
