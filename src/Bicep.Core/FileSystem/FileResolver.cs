@@ -213,6 +213,6 @@ namespace Bicep.Core.FileSystem
 
         public bool DirExists(Uri fileUri) => fileUri.IsFile && Directory.Exists(fileUri.LocalPath);
 
-        public bool Exists(Uri uri) => uri.IsFile && File.Exists(uri.LocalPath);
+        public bool FileExists(Uri uri) => uri.IsFile && File.Exists(uri.LocalPath);
     }
 }

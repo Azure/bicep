@@ -52,10 +52,10 @@ namespace Bicep.Core.FileSystem
         bool DirExists(Uri fileUri);
 
         /// <summary>
-        /// Checks if the specified URI exists.
+        /// Checks if the specified file URI exists.
         /// </summary>
         /// <param name="uri">The URI to test.</param>
-        bool Exists(Uri uri);
+        bool FileExists(Uri uri);
 
         /// <summary>
         /// Tries to read a file and encode it as base64 string. If an exception is encoutered, returns null and sets a non-null failureMessage.
