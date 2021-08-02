@@ -3,9 +3,9 @@ resource /*${1:logAnalyticsSolution}*/logAnalyticsSolution 'Microsoft.Operations
   name: /*${2:'name'}*/'name'
   location: resourceGroup().location
   properties: {
-    workspaceResourceId: resourceId('Microsoft.OperationalInsights/workspaces', /*${3:'logAnalyticsWorkspace'}*/'logAnalyticsWorkspace')
+    workspaceResourceId: /*${3:'operationalInsightsWorkspace.id'}*/'operationalInsightsWorkspace.id'
     containedResources: [
-      resourceId('Microsoft.OperationalInsights/workspaces/views', /*${3:'logAnalyticsWorkspace'}*/'logAnalyticsWorkspace', /*${4:'logAnalyticsSolution'}*/'logAnalyticsSolution')
+      /*${4:'view.id'}*/'view.id'
     ]
   }
   plan: {

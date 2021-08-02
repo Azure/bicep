@@ -46,6 +46,10 @@ namespace Bicep.Core.Emit
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
+            if (semanticModel.GetTypeInfo(syntax).IsError())
+            {
+                return; //suppressing checking this module. it couldn't be read therefore diagnostics emitted might be misleading
+            }
             using var _ = elementsRecorder.Scope(VisitedElement.Module);
             base.VisitModuleDeclarationSyntax(syntax);
         }

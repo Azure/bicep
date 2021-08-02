@@ -356,6 +356,30 @@ output exposed string = mySecret
                 parameterToken.SelectToken("$.reference.secretVersion")!.Should().DeepEqual("[variables('secrets')[copyIndex()].version]");
             }
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3526
+        /// </summary>
+        [TestMethod]
+        public void NoDiagnosticsForModuleWithABadPath()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module secret 'BAD_PATH_MODULE.bicep' = {
+  name: 'secret'
+  params: {
+    notSecret: kv.getSecret('mySecret','secretversionguid')
+  }
+}
+"));
+
+            result.Should().NotGenerateATemplate();
+            result.Should().NotHaveDiagnosticsWithCodes(new[] { "BCP180" }, "Function placement should not be evaluated on a module that couldn't be read.");
+        }
     }
 }
 

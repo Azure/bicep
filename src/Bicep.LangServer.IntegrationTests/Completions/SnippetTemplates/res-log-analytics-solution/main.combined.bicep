@@ -1,7 +1,7 @@
 // $1 = logAnalyticsSolution
 // $2 = 'name'
-// $3 = 'logAnalyticsWorkspace'
-// $4 = 'logAnalyticsSolution'
+// $3 = 'operationalInsightsWorkspace.id'
+// $4 = 'view.id'
 // $5 = 'name'
 // $6 = 'product'
 // $7 = 'publisher'
@@ -11,9 +11,9 @@ resource logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-
   name: 'name'
   location: resourceGroup().location
   properties: {
-    workspaceResourceId: resourceId('Microsoft.OperationalInsights/workspaces', 'logAnalyticsWorkspace')
+    workspaceResourceId: 'operationalInsightsWorkspace.id'
     containedResources: [
-      resourceId('Microsoft.OperationalInsights/workspaces/views', 'logAnalyticsWorkspace', 'logAnalyticsSolution')
+      'view.id'
     ]
   }
   plan: {

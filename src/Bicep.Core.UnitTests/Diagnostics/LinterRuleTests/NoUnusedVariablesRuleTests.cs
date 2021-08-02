@@ -23,20 +23,18 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedVars)
         {
-            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
-            {
-                var errors = GetDiagnostics(NoUnusedVariablesRule.Code, text);
+            AssertRuleCodeDiagnostics(NoUnusedVariablesRule.Code, text, diags => {
                 if (unusedVars.Any())
                 {
                     var rule = new NoUnusedVariablesRule();
                     string[] expectedMessages = unusedVars.Select(p => rule.GetMessage(p)).ToArray();
-                    errors.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
+                    diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
                 }
                 else
                 {
-                    errors.Should().BeEmpty();
+                    diags.Should().BeEmpty();
                 }
-            }
+            });
         }
 
         [DataRow(@"

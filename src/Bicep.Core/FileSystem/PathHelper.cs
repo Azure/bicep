@@ -70,7 +70,7 @@ namespace Bicep.Core.FileSystem
             if (string.Equals(Path.GetExtension(path), TemplateOutputExtension, PathComparison))
             {
                 // throwing because this could lead to us destroying the input file if extensions get mixed up.
-                throw new ArgumentException($"The specified file already already has the '{TemplateOutputExtension}' extension.");
+                throw new ArgumentException($"The specified file already has the '{TemplateOutputExtension}' extension.");
             }
 
             return Path.ChangeExtension(path, TemplateOutputExtension);
@@ -81,7 +81,7 @@ namespace Bicep.Core.FileSystem
             if (string.Equals(Path.GetExtension(path), BicepExtension, PathComparison))
             {
                 // throwing because this could lead to us destroying the input file if extensions get mixed up.
-                throw new ArgumentException($"The specified file already already has the '{BicepExtension}' extension.");
+                throw new ArgumentException($"The specified file already has the '{BicepExtension}' extension.");
             }
 
             return Path.ChangeExtension(path, BicepExtension);

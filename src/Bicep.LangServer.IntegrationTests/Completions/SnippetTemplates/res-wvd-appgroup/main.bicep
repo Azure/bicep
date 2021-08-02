@@ -1,8 +1,7 @@
-﻿// $1 = desktopVirtualizationHostPools
+﻿// $1 = applicationGroup
 // $2 = 'name'
-// $3 = applicationGroup
-// $4 = 'name'
-// $5 = 'friendlyName'
-// $6 = 'Desktop'
+// $3 = 'friendlyName'
+// $4 = 'Desktop'
+// $5 = 'desktopVirtualizationHostPools.id'
 
 // Insert snippet here

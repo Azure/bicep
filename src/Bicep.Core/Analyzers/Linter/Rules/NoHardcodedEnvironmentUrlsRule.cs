@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -18,81 +17,116 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "no-hardcoded-env-urls";
 
-        public ImmutableArray<string>? DisallowedHosts;
+        private ImmutableArray<string>? disallowedHosts;
+        public ImmutableArray<string> DisallowedHosts => disallowedHosts.HasValue ? disallowedHosts.Value : ImmutableArray<string>.Empty;
 
-        private ImmutableArray<string>? ExcludedHosts;
+        private ImmutableArray<string>? excludedHosts;
+        public ImmutableArray<string> ExcludedHosts => excludedHosts.HasValue ? excludedHosts.Value : ImmutableArray<string>.Empty;
+
         private int MinimumHostLength;
         private bool HasHosts;
-
-        private readonly Lazy<Regex> hostRegexLazy;
-        private Regex hostRegex => hostRegexLazy.Value;
-
-        private readonly Lazy<Regex> excludedRegexLazy;
-        private Regex excludedRegex => excludedRegexLazy.Value;
 
         public NoHardcodedEnvironmentUrlsRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
             docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
         {
-            this.hostRegexLazy = new Lazy<Regex>(CreateDisallowedHostRegex);
-            this.excludedRegexLazy = new Lazy<Regex>(CreateExcludedHostsRegex);
         }
 
         public override void Configure(IConfigurationRoot config)
         {
             base.Configure(config);
 
-            this.DisallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
+            this.disallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
-            this.MinimumHostLength = this.DisallowedHosts.Value.Min(h => h.Length);
-            this.ExcludedHosts = GetArray(nameof(ExcludedHosts), Array.Empty<string>())
+            this.MinimumHostLength = this.disallowedHosts.Value.Min(h => h.Length);
+            this.excludedHosts = GetArray(nameof(ExcludedHosts), Array.Empty<string>())
                                     .ToImmutableArray();
 
-            this.HasHosts = this.DisallowedHosts?.Any() ?? false;
+            this.HasHosts = this.disallowedHosts?.Any() ?? false;
         }
 
         public override string FormatMessage(params object[] values)
             => string.Format("{0} Found this disallowed host: \"{1}\"", this.Description, values.First());
 
-        /// <summary>
-        /// Note that this regex requires the match to be at a subdomain boundary
-        /// so that there is not a partial match "mid-word". The subdomain must
-        /// be proceeded by a text break (., or slash, or space) or at the beginning
-        /// of a line.
-        /// </summary>
-        /// <returns></returns>
-        public Regex CreateDisallowedHostRegex() =>
-            new Regex(string.Join('|', this.DisallowedHosts!.Value.Select(h => $@"(?<=\.|'|{{|}}|\s|^|/){Regex.Escape(h)}")),
-                        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        public Regex CreateExcludedHostsRegex() =>
-            new Regex(string.Join('|', this.ExcludedHosts!.Value.Select(h => $@"(?<=\.|'|{{|}}|\s|^|/){Regex.Escape(h)}")),
-                        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             if (HasHosts)
             {
-                var visitor = new Visitor(this.hostRegex, this.MinimumHostLength, this.excludedRegex);
+                var visitor = new Visitor(this.DisallowedHosts, this.MinimumHostLength, this.ExcludedHosts);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
+
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
             }
+
             return Enumerable.Empty<IDiagnostic>();
         }
 
-        private class Visitor : SyntaxVisitor
+        public static IEnumerable<(TextSpan RelativeSpan, string Value)> FindHostnameMatches(string hostname, string srcText)
+        {
+            bool isExactDomainMatch(int index)
+            {
+                var leadingAlnum = index > 0 && 
+                    char.IsLetterOrDigit(srcText[index - 1]);
+                var trailingAlnum = index + hostname.Length < srcText.Length && 
+                    char.IsLetterOrDigit(srcText[index + hostname.Length]);
+
+                return !leadingAlnum && !trailingAlnum;
+            }
+
+            if (hostname.Length == 0)
+            {
+                // ensure we terminate - the below for-loop uses this value to increment
+                yield break;
+            }
+
+            var matchIndex = -1;
+            for (var startIndex = 0; startIndex <= srcText.Length - hostname.Length; startIndex = matchIndex + hostname.Length)
+            {
+                matchIndex = srcText.IndexOf(hostname, startIndex, StringComparison.OrdinalIgnoreCase);
+                if (matchIndex < 0)
+                {
+                    // we haven't foud any instances of the hostname
+                    yield break;
+                }
+
+                // check preceding and trailing chars to verify we're not dealing with a substring
+                if (isExactDomainMatch(matchIndex))
+                {
+                    var matchText = srcText.Substring(matchIndex, hostname.Length);
+                    yield return (RelativeSpan: new TextSpan(matchIndex, hostname.Length), Value: matchText);
+                }
+            }
+        }
+
+        private sealed class Visitor : SyntaxVisitor
         {
             public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new Dictionary<TextSpan, string>();
-            private readonly Regex hostRegex;
+            private readonly ImmutableArray<string> disallowedHosts;
             private readonly int minHostLen;
-            private readonly Regex exclusionRegex;
+            private readonly ImmutableArray<string> excludedHosts;
 
-            public Visitor(Regex disallowedRegex, int minHostLen, Regex exclusionRegex)
+            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts)
             {
-                this.hostRegex = disallowedRegex;
+                this.disallowedHosts = disallowedHosts;
                 this.minHostLen = minHostLen;
-                this.exclusionRegex = exclusionRegex;
+                this.excludedHosts = excludedHosts;
+            }
+
+            public IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)
+            {
+                TextSpan? prevSpan = null;
+                foreach (var match in matches.OrderBy(x => x.RelativeSpan.Position).ThenByDescending(x => x.RelativeSpan.Length))
+                {
+                    if (prevSpan is not null && TextSpan.AreOverlapping(match.RelativeSpan, prevSpan))
+                    {
+                        continue;
+                    }
+
+                    yield return match;
+
+                    prevSpan = match.RelativeSpan;
+                }
             }
 
             public override void VisitStringSyntax(StringSyntax syntax)
@@ -105,27 +139,30 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         // shortcut check by testing length of token
                         if (token.Text.Length >= minHostLen)
                         {
-                            var disallowedMatches = this.hostRegex.Matches(token.Text);
+                            var disallowedMatches = disallowedHosts
+                                .SelectMany(host => FindHostnameMatches(host, token.Text))
+                                .ToImmutableArray();
 
-                            if (disallowedMatches.Any())
+                            if (!disallowedMatches.Any())
                             {
-                                var exclusionMatches = exclusionRegex.Matches(token.Text);
+                                break;
+                            }
 
-                                // does this segment have a host match
-                                foreach (Match match in disallowedMatches)
+                            var exclusionMatches = excludedHosts
+                                .SelectMany(host => FindHostnameMatches(host, token.Text))
+                                .ToImmutableArray();
+
+                            foreach (var match in RemoveOverlapping(disallowedMatches))
+                            {
+                                // exclusion is found containing the host match
+                                var hasExclusion = exclusionMatches.Any(exclusionMatch =>
+                                    TextSpan.AreOverlapping(exclusionMatch.RelativeSpan, match.RelativeSpan));
+
+                                if (!hasExclusion)
                                 {
-
-                                    // exclusion is found containing the host match
-                                    var isExcluded = exclusionMatches.Any(exclusionMatch =>
-                                       match.Index > exclusionMatch.Index
-                                       && match.Index + match.Length <= exclusionMatch.Index + exclusionMatch.Length);
-
-                                    if (!isExcluded)
-                                    {
-                                        // create a span for the specific identified instance
-                                        // to allow for multiple instances in a single syntax
-                                        this.DisallowedHostSpans[new TextSpan(token.Span.Position + match.Index, match.Length)] = match.Value;
-                                    }
+                                    // create a span for the specific identified instance
+                                    // to allow for multiple instances in a single syntax
+                                    this.DisallowedHostSpans[new TextSpan(token.Span.Position + match.RelativeSpan.Position, match.RelativeSpan.Length)] = match.Value;
                                 }
                             }
                         }
