@@ -74,6 +74,14 @@ namespace Bicep.Core.Extensions
                 }
             }
         }
+
+        public static ILookup<T, T> InvertLookup<T>(this ILookup<T, T> source)
+            => source.SelectMany(group => group.Select(val => (group.Key, val)))
+                .ToLookup(x => x.val, x => x.Key);
+
+        public static ImmutableDictionary<TKey, ImmutableHashSet<TValue>> ToImmutableDictionary<TKey, TValue>(this ILookup<TKey, TValue> source)
+            where TKey : notnull
+            => source.ToImmutableDictionary(x => x.Key, x => x.ToImmutableHashSet());
     }
 }
 

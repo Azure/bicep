@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -59,14 +60,14 @@ namespace Bicep.Core.Workspaces
                 throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to return a BicepFile.");
             }
 
-            var sourceFileParentLookup = this.ReportFailuresForCycles();
+            var sourceFileDependencies = this.ReportFailuresForCycles();
 
             return new SourceFileGrouping(
                 fileResolver,
                 entryPoint,
                 sourceFilesByUri.Values.ToImmutableHashSet(),
                 sourceFilesByModuleDeclaration.ToImmutableDictionary(),
-                sourceFileParentLookup.ToImmutableDictionary(x => x.Key, x => x.ToImmutableHashSet()),
+                sourceFileDependencies.InvertLookup().ToImmutableDictionary(),
                 errorBuildersByModuleDeclaration.ToImmutableDictionary());
         }
 
@@ -254,7 +255,7 @@ namespace Bicep.Core.Workspaces
                     .Select(moduleDeclaration => this.sourceFilesByModuleDeclaration[moduleDeclaration])
                     .Distinct()
                     .Select(referencedFile => (sourceFile, referencedFile)))
-                .ToLookup(x => x.referencedFile, x => x.sourceFile);
+                .ToLookup(x => x.sourceFile, x => x.referencedFile);
 
             var cycles = CycleDetector<ISourceFile>.FindCycles(sourceFileGraph);
             foreach (var (moduleDeclaration, moduleSourceFile) in sourceFilesByModuleDeclaration)
@@ -267,7 +268,7 @@ namespace Bicep.Core.Workspaces
                     }
                     else
                     {
-                        errorBuildersByModuleDeclaration[moduleDeclaration] = x => x.CyclicModule(cycle.Reverse().Select(x => x.FileUri.LocalPath));
+                        errorBuildersByModuleDeclaration[moduleDeclaration] = x => x.CyclicModule(cycle.Select(x => x.FileUri.LocalPath));
                     }
                 }
             }
