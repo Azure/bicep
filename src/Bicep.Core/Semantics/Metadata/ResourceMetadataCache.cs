@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -62,11 +64,14 @@ namespace Bicep.Core.Semantics.Metadata
     {
         private readonly SemanticModel semanticModel;
         private readonly ConcurrentDictionary<ResourceSymbol, ResourceMetadata> symbolLookup;
+        private readonly Lazy<ImmutableDictionary<ResourceDeclarationSyntax, ResourceSymbol>> resourceSymbols;
 
         public ResourceMetadataCache(SemanticModel semanticModel)
         {
             this.semanticModel = semanticModel;
             this.symbolLookup = new();
+            this.resourceSymbols = new(() => ResourceSymbolVisitor.GetAllResources(semanticModel.Root)
+                .ToImmutableDictionary(x => x.DeclaringResource));
         }
 
         protected override ResourceMetadata? Calculate(SyntaxBase syntax)
@@ -87,8 +92,7 @@ namespace Bicep.Core.Semantics.Metadata
                 case ResourceDeclarationSyntax resourceDeclarationSyntax:
                 {
                     // Skip analysis for ErrorSymbol and similar cases, these are invalid cases, and won't be emitted.
-                    var symbol = semanticModel.GetSymbolInfo(syntax) as ResourceSymbol;
-                    if (symbol is null || 
+                    if (!resourceSymbols.Value.TryGetValue(resourceDeclarationSyntax, out var symbol) || 
                         symbol.TryGetResourceType() is not {} resourceType ||
                         symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not {} nameSyntax)
                     {
