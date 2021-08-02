@@ -152,9 +152,9 @@ namespace Bicep.LangServer.IntegrationTests
         {
             // Module path
             return index > 1
-            && accumulated[index-2] is ModuleDeclarationSyntax
+            && accumulated[index] is StringSyntax
             && accumulated[index-1] is IdentifierSyntax
-            && accumulated[index] is StringSyntax;
+            && accumulated[index-2] is ModuleDeclarationSyntax;
         }
 
         private static LocationLink ValidateDefinitionResponse(LocationOrLocationLinks response)
