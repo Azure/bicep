@@ -9,6 +9,6 @@ namespace Bicep.Core.UnitTests
     {
         public const string DevAssemblyFileVersion = "dev";
         public const string GeneratorTemplateHashPath = "metadata._generator.templateHash";
-        public static readonly FileResolver FileResolver = new ();        
+        public static readonly FileResolver FileResolver = new();
     }
 }

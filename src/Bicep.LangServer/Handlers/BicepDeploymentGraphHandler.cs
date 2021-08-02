@@ -88,8 +88,8 @@ namespace Bicep.LanguageServer.Handlers
 
                     if (symbol is ResourceSymbol resourceSymbol)
                     {
-                        var resourceType = TryGetTypeReference(resourceSymbol)?.FullyQualifiedType ?? "<unknown>";
-                        var isCollection = resourceSymbol.Type is ArrayType { Item: ResourceType };
+                        var resourceType = resourceSymbol.TryGetResourceTypeReference()?.FullyQualifiedType ?? "<unknown>";
+                        var isCollection = resourceSymbol.IsCollection;
                         var resourceSpan = resourceSymbol.DeclaringResource.Span;
                         var range = resourceSpan.ToRange(context.LineStarts);
                         var resourceHasError = errors.Any(error => TextSpan.AreOverlapping(resourceSpan, error.Span));
@@ -105,7 +105,7 @@ namespace Bicep.LanguageServer.Handlers
                             ? Path.GetFullPath(Path.Combine(directory, moduleRelativePath))
                             : null;
 
-                        var isCollection = moduleSymbol.Type is ArrayType { Item: ModuleType };
+                        var isCollection = moduleSymbol.IsCollection;
                         var moduleSpan = moduleSymbol.DeclaringModule.Span;
                         var range = moduleSpan.ToRange(context.LineStarts);
                         var moduleHasError = errors.Any(error => TextSpan.AreOverlapping(moduleSpan, error.Span));
@@ -152,12 +152,5 @@ namespace Bicep.LanguageServer.Handlers
                 edges.OrderBy(edge => $"{edge.SourceId}>{edge.TargetId}"),
                 entrySemanticModel.GetAllDiagnostics().Count(x => x.Level == DiagnosticLevel.Error));
         }
-
-        private static ResourceTypeReference? TryGetTypeReference(ResourceSymbol resourceSymbol) => resourceSymbol.Type switch
-        {
-            ResourceType resourceType => resourceType.TypeReference,
-            ArrayType { Item: ResourceType resourceType } => resourceType.TypeReference,
-            _ => null
-        };
     }
 }

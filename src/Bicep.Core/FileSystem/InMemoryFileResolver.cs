@@ -79,11 +79,9 @@ namespace Bicep.Core.FileSystem
             return relativeUri;
         }
 
-        public bool TryDirExists(Uri fileUri)
-        {
-            return this.fileLookup.Keys
-                .Any(key => key.ToString().StartsWith(fileUri.ToString()));
-        }
+        public bool DirExists(Uri fileUri) => this.fileLookup.Keys.Any(key => key.ToString().StartsWith(fileUri.ToString()));
+
+        public bool FileExists(Uri uri) => this.fileLookup.ContainsKey(uri);
 
         public bool FileExists(Uri fileUri)
         {

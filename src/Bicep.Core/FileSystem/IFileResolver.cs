@@ -11,7 +11,7 @@ namespace Bicep.Core.FileSystem
     public interface IFileResolver
     {
         /// <summary>
-        /// Tries to read a file contents to string. If an exception is encoutered, returns null and sets a non-null failureMessage.
+        /// Tries to read a file contents to string. If an exception is encountered, returns null and sets a non-null failureMessage.
         /// </summary>
         /// <param name="fileUri">The file URI to read.</param>
         /// <param name="fileContents">The contents of the file, if successful.</param>
@@ -46,17 +46,16 @@ namespace Bicep.Core.FileSystem
         IEnumerable<Uri> GetFiles(Uri fileUri, string pattern);
 
         /// <summary>
-        /// Check whether specified directory URI exsists (depends on URI types). fileUri MUST have a trailing '/'
+        /// Check whether specified URI's directory exists if specified URI is a file:// URI. fileUri MUST have a trailing '/'
         /// </summary>
         /// <param name="fileUri">The fileUri to test</param>
-        bool TryDirExists(Uri fileUri);
+        bool DirExists(Uri fileUri);
 
         /// <summary>
-        /// Check whether specified file URI exsists (depends on URI types)
+        /// Checks if the specified file URI exists.
         /// </summary>
-        /// <param name="fileUri">The fileUri to test</param>
-        bool FileExists(Uri fileUri);
-
+        /// <param name="uri">The URI to test.</param>
+        bool FileExists(Uri uri);
 
         /// <summary>
         /// Tries to read a file and encode it as base64 string. If an exception is encoutered, returns null and sets a non-null failureMessage.

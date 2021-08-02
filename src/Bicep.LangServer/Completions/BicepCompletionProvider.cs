@@ -281,7 +281,7 @@ namespace Bicep.LanguageServer.Completions
 
             // technically bicep files do not have to follow the bicep extension, so
             // we are not enforcing *.bicep get files command
-            if (FileResolver.TryDirExists(query))
+            if (FileResolver.DirExists(query))
             {
                 files = FileResolver.GetFiles(query, string.Empty);
                 dirs = FileResolver.GetDirectories(query, string.Empty);
@@ -442,9 +442,8 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax &&
                 model.GetDeclaredType(resourceDeclarationSyntax) is ResourceType resourceType)
             {
-                bool isResourceNested = model.GetSymbolInfo(resourceDeclarationSyntax) is ResourceSymbol resourceSymbol &&
-                    model.ResourceAncestors.GetAncestors(resourceSymbol).Any(x => x.AncestorType == ResourceAncestorType.Nested);
-                IEnumerable<Snippet> snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
+                var isResourceNested = model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(resourceDeclarationSyntax) is {};
+                var snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
 
                 foreach (Snippet snippet in snippets)
                 {

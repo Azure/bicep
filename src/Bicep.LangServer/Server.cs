@@ -3,10 +3,12 @@
 using System;
 using System.IO;
 using System.IO.Pipelines;
+using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
@@ -14,6 +16,7 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +80,9 @@ namespace Bicep.LanguageServer
         {
             await server.Initialize(cancellationToken);
 
+            var scheduler = server.GetService<IModuleRestoreScheduler>();
+            scheduler.Start();
+
             await server.WaitForExit;
         }
 
@@ -88,12 +94,15 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver));
             services.AddSingleton<IFileResolver>(services => fileResolver);
+            services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
+            services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
+            services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
         }
     }
 }

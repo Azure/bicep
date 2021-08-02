@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
@@ -81,8 +82,6 @@ namespace Bicep.Core.Semantics
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
-
-        public IEnumerable<ResourceSymbol> GetAllResourceDeclarations() => ResourceSymbolVisitor.GetAllResources(this);
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
         {
