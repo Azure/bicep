@@ -46,7 +46,7 @@ async function launchLanguageService(
     args: [languageServerPath],
     options: {
       env: process.env,
-    }
+    },
   };
 
   const serverOptions: lsp.ServerOptions = {
