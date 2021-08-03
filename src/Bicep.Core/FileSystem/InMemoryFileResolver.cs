@@ -83,11 +83,6 @@ namespace Bicep.Core.FileSystem
 
         public bool FileExists(Uri uri) => this.fileLookup.ContainsKey(uri);
 
-        public bool FileExists(Uri fileUri)
-        {
-            return this.fileLookup.ContainsKey(fileUri);
-        }
-
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
         {
             return Enumerable.Empty<Uri>();

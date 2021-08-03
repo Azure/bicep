@@ -58,17 +58,17 @@ namespace Bicep.LanguageServer.Handlers
             // Declared symbols: go to definition
             else if (result.Symbol is DeclaredSymbol declaration)
             {
-                return DeclaredDefinitionLocationAsync(request, result, declaration);
+                return HandleDeclaredDefinitionLocationAsync(request, result, declaration);
             }
             // Object property: currently only used for module param goto
             else if (result.Origin is ObjectPropertySyntax objectPropertySyntax)
             {
-                return GetObjectPropertyLocationAsync(request, result, context);
+                return HandleObjectPropertyLocationAsync(request, result, context);
             }
             // Used for module (name), variable or resource property access
             else if (result.Symbol is PropertySymbol)
             {
-                return GetPropertyLocationAsync(request, result, context);
+                return HandlePropertyLocationAsync(request, result, context);
             }
             return Task.FromResult(new LocationOrLocationLinks()); 
         }
@@ -89,11 +89,11 @@ namespace Bicep.LanguageServer.Handlers
                 (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
                 && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                 && matchingNodes[^2] is StringSyntax stringToken
-                && context.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+                && context.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile)
             {
                 // goto beginning of the module file.
                 return GetModuleDefinitionLocationAsync(
-                    bicepFile.FileUri,
+                    sourceFile.FileUri,
                     stringToken,
                     context,
                     new Range { Start = new Position(0, 0), End = new Position(0, 0) });
@@ -102,7 +102,7 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(new LocationOrLocationLinks());
         }
 
-        private static Task<LocationOrLocationLinks> DeclaredDefinitionLocationAsync(DefinitionParams request, SymbolResolutionResult result, DeclaredSymbol declaration)
+        private static Task<LocationOrLocationLinks> HandleDeclaredDefinitionLocationAsync(DefinitionParams request, SymbolResolutionResult result, DeclaredSymbol declaration)
         {
             return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
             {
@@ -116,7 +116,7 @@ namespace Bicep.LanguageServer.Handlers
             })));
         }
 
-        private Task<LocationOrLocationLinks> GetObjectPropertyLocationAsync(DefinitionParams request, SymbolResolutionResult result, CompilationContext context)
+        private Task<LocationOrLocationLinks> HandleObjectPropertyLocationAsync(DefinitionParams request, SymbolResolutionResult result, CompilationContext context)
         {
             int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
@@ -136,7 +136,7 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(new LocationOrLocationLinks()); 
         }
 
-        private Task<LocationOrLocationLinks> GetPropertyLocationAsync(DefinitionParams request, SymbolResolutionResult result, CompilationContext context)
+        private Task<LocationOrLocationLinks> HandlePropertyLocationAsync(DefinitionParams request, SymbolResolutionResult result, CompilationContext context)
         {
                 var semanticModel = context.Compilation.GetEntrypointSemanticModel();
 
@@ -191,7 +191,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     case LanguageConstants.ModuleOutputsPropertyName:
                         if (moduleModel.Root.OutputDeclarations
-                        .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is OutputSymbol outputSymbol)
+                            .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is OutputSymbol outputSymbol)
                         {
                             return GetModuleDefinitionLocationAsync(
                                 bicepFile.FileUri,
@@ -202,7 +202,7 @@ namespace Bicep.LanguageServer.Handlers
                         break;
                     case LanguageConstants.ModuleParamsPropertyName:
                         if (moduleModel.Root.ParameterDeclarations
-                        .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is ParameterSymbol parameterSymbol)
+                            .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is ParameterSymbol parameterSymbol)
                         {
                             return GetModuleDefinitionLocationAsync(
                                 bicepFile.FileUri,
