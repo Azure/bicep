@@ -47,6 +47,7 @@ namespace Bicep.Core.TypeSystem.Az
                 .WithDescription("Obtains a reference to a resource.")
                 .WithRequiredParameter("type", LanguageConstants.String, "The type of the resource")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                .WithFlags(FunctionFlags.RequiresInlining)
                 .Build();
         }
     }

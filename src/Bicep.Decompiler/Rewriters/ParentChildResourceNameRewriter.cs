@@ -93,23 +93,24 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             foreach (var otherResource in semanticModel.AllResources)
             {
-                var otherResourceSymbol = otherResource.Symbol;
+                if (otherResource.Symbol is null)
+                {
+                    continue;
+                }
 
-                if (otherResourceSymbol.Type is not ResourceType otherResourceType ||
-                    otherResourceType.TypeReference.Types.Length != resourceType.TypeReference.Types.Length - 1 ||
-                    !resourceType.TypeReference.TypesString.StartsWith($"{otherResourceType.TypeReference.TypesString}/", StringComparison.OrdinalIgnoreCase))
+                if (otherResource.TypeReference.Types.Length != resourceType.TypeReference.Types.Length - 1 ||
+                    !resourceType.TypeReference.TypesString.StartsWith($"{otherResource.TypeReference.TypesString}/", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
                 // The other resource is a parent type to this one. check if we can refactor the name.
-                if (otherResourceSymbol.DeclaringResource.TryGetBody() is not ObjectSyntax otherResourceBody ||
-                    otherResourceBody.SafeGetPropertyByName("name") is not ObjectPropertySyntax otherResourceNameProp)
+                if (otherResource.NameSyntax.Length != 1)
                 {
                     continue;
                 }
 
-                if (TryGetReplacementChildName(resourceName, otherResourceNameProp.Value, otherResourceSymbol) is not {} newName)
+                if (TryGetReplacementChildName(resourceName, otherResource.NameSyntax.Single(), otherResource.Symbol) is not {} newName)
                 {
                     continue;
                 }
@@ -118,7 +119,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 var parentProp = new ObjectPropertySyntax(
                     SyntaxFactory.CreateIdentifier(LanguageConstants.ResourceParentPropertyName),
                     SyntaxFactory.ColonToken,
-                    SyntaxFactory.CreateVariableAccess(otherResourceSymbol.Name));
+                    SyntaxFactory.CreateVariableAccess(otherResource.Symbol.Name));
 
                 var replacementBody = new ObjectSyntax(
                     resourceBody.OpenBrace,

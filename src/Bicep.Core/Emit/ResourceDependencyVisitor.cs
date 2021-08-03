@@ -63,7 +63,21 @@ namespace Bicep.Core.Emit
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = resource.Symbol;
-            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select(a => new ResourceDependency(a.Resource.Symbol, a.IndexExpression)));
+
+            var parents = new HashSet<ResourceDependency>();
+            var parent = resource.Parent;
+            while (parent is not null)
+            {
+                if (parent.Metadata.Symbol is not null)
+                {
+                    // a parent resource symbol is always a dependency
+                    parents.Add(new ResourceDependency(parent.Metadata.Symbol, parent.IndexExpression));
+                }
+
+                parent = parent.Metadata.Parent;
+            }
+
+            this.resourceDependencies[resource.Symbol] = parents;
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration

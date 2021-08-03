@@ -257,7 +257,7 @@ namespace Bicep.Core.Emit
                     var parentResourceId = FormatFullyQualifiedResourceId(
                         context,
                         converter,
-                        context.ResourceScopeData[resource],
+                        ScopeHelper.ValidateScope(context.SemanticModel, (_, _, _) => {}, resource.Type.ValidParentScopes, resource.Body, resource.ScopeSyntax) ?? new ScopeHelper.ScopeData { RequestedScope = context.SemanticModel.TargetScope },
                         resource.TypeReference.FullyQualifiedType,
                         converter.GetResourceNameSegments(resource));
 
@@ -288,7 +288,7 @@ namespace Bicep.Core.Emit
                     var parentResourceId = FormatUnqualifiedResourceId(
                         context,
                         converter,
-                        context.ResourceScopeData[resource],
+                        ScopeHelper.ValidateScope(context.SemanticModel, (_, _, _) => {}, resource.Type.ValidParentScopes, resource.Body, resource.ScopeSyntax) ?? new ScopeHelper.ScopeData { RequestedScope = context.SemanticModel.TargetScope },
                         resource.TypeReference.FullyQualifiedType,
                         converter.GetResourceNameSegments(resource));
 

@@ -115,42 +115,37 @@ namespace Bicep.Core.Emit
 
             switch (functionCall)
             {
+                case {} when context.SemanticModel.ResourceMetadata.TryLookup(functionCall) is {} resource:
+                    return GetReferenceExpression(resource, true);
                 case FunctionCallSyntax function:
                     return ConvertFunction(
                         function.Name.IdentifierName,
                         function.Arguments.Select(a => ConvertExpression(a.Expression)));
 
-                case InstanceFunctionCallSyntax instanceFunctionCall:
-                    var baseSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
-
-                    switch (baseSymbol)
+                case InstanceFunctionCallSyntax ifc when context.SemanticModel.ResourceMetadata.TryLookup(ifc.BaseExpression) is {} baseResource:
+                    if (ifc.Name.IdentifierName.StartsWithOrdinalInsensitively("list"))
                     {
-                        case NamespaceSymbol namespaceSymbol:
-                            return ConvertFunction(
-                                instanceFunctionCall.Name.IdentifierName,
-                                instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
-                        case ResourceSymbol _ when context.SemanticModel.ResourceMetadata.TryLookup(instanceFunctionCall.BaseExpression) is {} resource:
-                            if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively("list"))
-                            {
-                                // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
-                                var convertedArgs = instanceFunctionCall.Arguments.SelectArray(a => ConvertExpression(a.Expression));
-                                var resourceIdExpression = GetFullyQualifiedResourceId(resource);
-                                var apiVersionExpression = new JTokenExpression(resource.TypeReference.ApiVersion);
+                        // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
+                        var convertedArgs = ifc.Arguments.SelectArray(a => ConvertExpression(a.Expression));
+                        var resourceIdExpression = GetFullyQualifiedResourceId(baseResource);
+                        var apiVersionExpression = new JTokenExpression(baseResource.TypeReference.ApiVersion);
 
-                                var listArgs = convertedArgs.Length switch {
-                                    0 => new LanguageExpression[] { resourceIdExpression, apiVersionExpression, },
-                                    _ => new LanguageExpression[] { resourceIdExpression, }.Concat(convertedArgs),
-                                };
+                        var listArgs = convertedArgs.Length switch {
+                            0 => new LanguageExpression[] { resourceIdExpression, apiVersionExpression, },
+                            _ => new LanguageExpression[] { resourceIdExpression, }.Concat(convertedArgs),
+                        };
 
-                                return CreateFunction(instanceFunctionCall.Name.IdentifierName, listArgs);
-                            }
-                            
-                            break;
-                    }                 
-                    throw new InvalidOperationException($"Unrecognized base expression {baseSymbol?.Kind}");
-                default:
-                    throw new NotImplementedException($"Cannot emit unexpected expression of type {functionCall.GetType().Name}");
+                        return CreateFunction(ifc.Name.IdentifierName, listArgs);
+                    }
+
+                    break;
+                case InstanceFunctionCallSyntax ifc when context.SemanticModel.GetSymbolInfo(ifc.BaseExpression) is NamespaceSymbol namespaceSymbol:
+                    return ConvertFunction(
+                        ifc.Name.IdentifierName,
+                        ifc.Arguments.Select(a => ConvertExpression(a.Expression)));
             }
+
+            throw new NotImplementedException($"Cannot emit unexpected expression of type {functionCall?.GetType().Name}");
         }
 
         public ExpressionConverter CreateConverterForIndexReplacement(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
@@ -248,7 +243,7 @@ namespace Bicep.Core.Emit
                         // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                         return this
                             .CreateConverterForIndexReplacement(resource, indexExpression, propertyAccess)
-                            .ConvertExpression(GetResourceNameSyntax(resource));
+                            .ConvertExpression(resource.NameSyntax.Last()); // TODO: double check this behavior works!
                     case "type":
                         return new JTokenExpression(resource.TypeReference.FullyQualifiedType);
                     case "apiVersion":
@@ -387,26 +382,15 @@ namespace Bicep.Core.Emit
 
         public LanguageExpression GetFullyQualifiedResourceName(ResourceMetadata resource)
         {
-            if (resource.Parent is null && resource.Symbol is not null)
+            if (resource.Parent is null && resource.NameSyntax.Length == 1)
             {
-                var nameValueSyntax = GetResourceNameSyntax(resource.Symbol);
-
-                return ConvertExpression(nameValueSyntax);
+                return ConvertExpression(resource.NameSyntax.Single());
             }
 
             var nameSegments = GetResourceNameSegments(resource);
             if (nameSegments.Length == 1)
             {
-                return nameSegments.First();
-            }
-            
-            var nameValueSyntax = resource.NameSyntax;
-
-            // For a nested resource we need to compute the name
-            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
-            if (ancestors.Length == 0)
-            {
-                return ConvertExpression(nameValueSyntax);
+                return nameSegments.Single();
             }
 
             // Build an expression like '${parent.name}/${child.name}'
@@ -439,7 +423,7 @@ namespace Bicep.Core.Emit
             return ScopeHelper.FormatUnqualifiedResourceId(
                 context,
                 this,
-                context.ResourceScopeData[resource],
+                ScopeHelper.ValidateScope(context.SemanticModel, (_, _, _) => {}, resource.Type.ValidParentScopes, resource.Body, resource.ScopeSyntax) ?? new ScopeHelper.ScopeData { RequestedScope = context.SemanticModel.TargetScope },
                 resource.TypeReference.FullyQualifiedType,
                 GetResourceNameSegments(resource));
         }
@@ -449,7 +433,7 @@ namespace Bicep.Core.Emit
             return ScopeHelper.FormatFullyQualifiedResourceId(
                 context,
                 this,
-                context.ResourceScopeData[resource],
+                ScopeHelper.ValidateScope(context.SemanticModel, (_, _, _) => {}, resource.Type.ValidParentScopes, resource.Body, resource.ScopeSyntax) ?? new ScopeHelper.ScopeData { RequestedScope = context.SemanticModel.TargetScope },
                 resource.TypeReference.FullyQualifiedType,
                 GetResourceNameSegments(resource));
         }
