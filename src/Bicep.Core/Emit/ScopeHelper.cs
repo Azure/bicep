@@ -52,14 +52,14 @@ namespace Bicep.Core.Emit
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
 
-        private static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, SyntaxBase? scopeValue)
+        public static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, IPositionable body, SyntaxBase? scopeValue)
         {
             if (scopeValue is null)
             {
                 // no scope provided - use the target scope for the file
                 if (!supportedScopes.HasFlag(semanticModel.TargetScope))
                 {
-                    logInvalidScopeFunc(bodySyntax, semanticModel.TargetScope, supportedScopes);
+                    logInvalidScopeFunc(body, semanticModel.TargetScope, supportedScopes);
                     return null;
                 }
 
@@ -133,7 +133,7 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    if (targetResource.Symbol.IsCollection && indexExpression is null)
+                    if (targetResource.Symbol?.IsCollection == true && indexExpression is null)
                     {
                         // the target is a resource collection, but the user didn't apply an array indexer to it
                         // the type check will produce a good error
@@ -145,7 +145,7 @@ namespace Bicep.Core.Emit
                         // special-case 'Microsoft.Resources/resourceGroups' in order to allow it to create a resourceGroup-scope resource
                         // ignore diagnostics - these will be collected separately in the pass over resources
                         var hasErrors = false;
-                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.ScopeSyntax);
+                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Body, targetResource.ScopeSyntax);
                         if (!hasErrors)
                         {
                             if (!supportedScopes.HasFlag(ResourceScope.ResourceGroup))
@@ -154,7 +154,14 @@ namespace Bicep.Core.Emit
                                 return null;
                             }
 
-                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = targetResource.NameSyntax, IndexExpression = indexExpression };
+                            if (targetResource.NameSyntax.Length != 1)
+                            {
+                                // should have already validated that resource group can only have one name segment
+                                // TODO: Add a test for this.
+                                return null;
+                            }
+
+                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = targetResource.NameSyntax[0], IndexExpression = indexExpression };
                         }
                     }
 
@@ -391,7 +398,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (semanticModel.Binder.TryGetCycle(resource.Symbol) is not null)
+            if (resource.Symbol is not null && semanticModel.Binder.TryGetCycle(resource.Symbol) is not null)
             {
                 return;
             }
@@ -443,7 +450,7 @@ namespace Bicep.Core.Emit
                     if (resource.ScopeSyntax is not null)
                     {
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
-                        diagnosticWriter.Write(resource.ScopeSyntax, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Symbol.Name));
+                        diagnosticWriter.Write(resource.ScopeSyntax, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Symbol?.Name ?? "<unknown>"));
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
                         continue;
                     }
@@ -454,12 +461,12 @@ namespace Bicep.Core.Emit
                         firstAncestor.Resource.ScopeSyntax is {} firstAncestorScope)
                     {
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
-                        diagnosticWriter.Write(resource.Symbol.DeclaringResource.Value, x => x.ScopeDisallowedForAncestorResource(firstAncestor.Resource.Symbol.Name));
+                        diagnosticWriter.Write(resource.Body, x => x.ScopeDisallowedForAncestorResource(firstAncestor.Resource.Symbol?.Name ?? "<unknown>"));
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
                         continue;
                     }
 
-                    if (semanticModel.Binder.TryGetCycle(resource.Symbol) is not null)
+                    if (resource.Symbol is not null && semanticModel.Binder.TryGetCycle(resource.Symbol) is not null)
                     {
                         continue;
                     }
@@ -470,7 +477,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.ScopeSyntax);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Body, resource.ScopeSyntax);
 
                 if (scopeData is null)
                 {
@@ -486,7 +493,7 @@ namespace Bicep.Core.Emit
                     semanticModel,
                     scopeInfo,
                     resourceToValidate,
-                    buildDiagnostic => diagnosticWriter.Write(resourceToValidate.ScopeSyntax ?? resourceToValidate.Symbol.DeclaringResource.Value, buildDiagnostic));
+                    buildDiagnostic => diagnosticWriter.Write(resourceToValidate.ScopeSyntax ?? resourceToValidate.Body, buildDiagnostic));
             }
 
             return scopeInfo.ToImmutableDictionary();

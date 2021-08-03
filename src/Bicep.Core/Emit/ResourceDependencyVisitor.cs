@@ -50,7 +50,7 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (model.ResourceMetadata.TryLookup(syntax) is not {} resource)
+            if (model.ResourceMetadata.TryLookup(syntax) is not {} resource || resource.Symbol is null)
             {
                 // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
                 return;

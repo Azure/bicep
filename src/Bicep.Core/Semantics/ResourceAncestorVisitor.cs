@@ -39,7 +39,7 @@ namespace Bicep.Core.Semantics
                     this.ancestry.Add(resource, new ResourceAncestor(ResourceAncestorType.Nested, parentResource, null));
                 }
             }
-            else if (resource.Symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax)
+            else if (resource.Symbol?.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax)
             {
                 SyntaxBase? indexExpression = null;
                 if (referenceParentSyntax is ArrayAccessSyntax arrayAccess)

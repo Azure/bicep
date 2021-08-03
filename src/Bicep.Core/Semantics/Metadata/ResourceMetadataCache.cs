@@ -3,7 +3,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Linq;
+using Bicep.Core.Emit;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics.Metadata
 {
@@ -36,6 +39,24 @@ namespace Bicep.Core.Semantics.Metadata
 
                     break;
                 }
+                case FunctionCallSyntaxBase functionCall:
+                {
+                    if (this.semanticModel.GetTypeInfo(functionCall) is not ResourceType resourceType)
+                    {
+                        break;
+                    }
+
+                    var scopeSyntax = (functionCall as InstanceFunctionCallSyntax)?.BaseExpression;
+
+                    return new ResourceMetadata(
+                        resourceType,
+                        functionCall.Arguments.Skip(1).Select(x => x.Expression).ToImmutableArray(),
+                        null,
+                        functionCall,
+                        null,
+                        scopeSyntax,
+                        true);
+                }
                 case ResourceDeclarationSyntax resourceDeclarationSyntax:
                 {
                     // Skip analysis for ErrorSymbol and similar cases, these are invalid cases, and won't be emitted.
@@ -53,8 +74,9 @@ namespace Bicep.Core.Semantics.Metadata
                         {
                             return new(
                                 resourceType,
-                                nameSyntax,
+                                ImmutableArray<SyntaxBase>.Empty.Add(nameSyntax),
                                 symbol,
+                                symbol.DeclaringResource.Value,
                                 new(parentMetadata,  null, true),
                                 symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName),
                                 symbol.DeclaringResource.IsExistingResource());
@@ -74,8 +96,9 @@ namespace Bicep.Core.Semantics.Metadata
                         {
                             return new(
                                 resourceType,
-                                nameSyntax,
+                                ImmutableArray<SyntaxBase>.Empty.Add(nameSyntax),
                                 symbol,
+                                symbol.DeclaringResource.Value,
                                 new(parentMetadata, indexExpression, false),
                                 symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName),
                                 symbol.DeclaringResource.IsExistingResource());
@@ -85,8 +108,9 @@ namespace Bicep.Core.Semantics.Metadata
                     {
                         return new(
                             resourceType,
-                            nameSyntax,
+                            ImmutableArray<SyntaxBase>.Empty.Add(nameSyntax),
                             symbol,
+                            symbol.DeclaringResource.Value,
                             null,
                             symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName),
                             symbol.DeclaringResource.IsExistingResource());

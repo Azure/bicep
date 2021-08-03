@@ -93,7 +93,7 @@ namespace Bicep.Core.Emit
 
         public void EmitUnqualifiedResourceId(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
+            var converterForContext = converter.CreateConverterForIndexReplacement(resource, indexExpression, newContext);
 
             var unqualifiedResourceId = converterForContext.GetUnqualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(unqualifiedResourceId);
@@ -103,7 +103,7 @@ namespace Bicep.Core.Emit
 
         public void EmitResourceIdReference(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = this.converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
+            var converterForContext = this.converter.CreateConverterForIndexReplacement(resource, indexExpression, newContext);
 
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
@@ -332,7 +332,7 @@ namespace Bicep.Core.Emit
 
                 var keyVaultId = instanceFunctionCall.BaseExpression switch
                 {
-                    ArrayAccessSyntax arrayAccessSyntax => converter.CreateConverterForIndexReplacement(resource.NameSyntax, arrayAccessSyntax.IndexExpression, instanceFunctionCall)
+                    ArrayAccessSyntax arrayAccessSyntax => converter.CreateConverterForIndexReplacement(resource, arrayAccessSyntax.IndexExpression, instanceFunctionCall)
                                                                     .GetFullyQualifiedResourceId(resource),
                     _ => converter.GetFullyQualifiedResourceId(resource)
                 };

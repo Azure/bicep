@@ -92,7 +92,7 @@ namespace Bicep.Core.Emit
         {
             foreach (var resource in semanticModel.AllResources)
             {
-                if (resource.IsExistingResource)
+                if (resource.IsExistingResource || resource.Symbol is null)
                 {
                     // 'existing' resources are not being deployed so duplicates are allowed
                     continue;
@@ -109,7 +109,7 @@ namespace Bicep.Core.Emit
                     resourceScope = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
-                if (resource.NameSyntax is not StringSyntax namePropertyValue)
+                if (resource.NameSyntax.Length != 1 || resource.NameSyntax[0] is not StringSyntax namePropertyValue)
                 {
                     //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
                     continue;
@@ -123,7 +123,7 @@ namespace Bicep.Core.Emit
         {
             foreach (var resource in semanticModel.AllResources)
             {
-                if (resource.NameSyntax is not StringSyntax resourceNameString)
+                if (resource.NameSyntax.Length != 1 || resource.NameSyntax[0] is not StringSyntax resourceNameString)
                 {
                     // not easy to do analysis if it's not a string!
                     continue;
@@ -136,7 +136,7 @@ namespace Bicep.Core.Emit
                     // e.g. '{parent.name}/child' or 'parent/child'
                     if (resourceNameString.SegmentValues.Any(v => v.Contains('/')))
                     {
-                        diagnosticWriter.Write(resource.NameSyntax, x => x.ChildResourceNameContainsQualifiers());
+                        diagnosticWriter.Write(resourceNameString, x => x.ChildResourceNameContainsQualifiers());
                     }
                 }
                 else
@@ -151,7 +151,7 @@ namespace Bicep.Core.Emit
                         // So we can only accurately show a diagnostic if there are TOO MANY '/' characters.
                         if (slashCount > expectedSlashCount)
                         {   
-                            diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                            diagnosticWriter.Write(resourceNameString, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                     else
@@ -159,7 +159,7 @@ namespace Bicep.Core.Emit
                         // We know exactly how many '/' characters must be present, because we have a string literal. So expect an exact match.
                         if (slashCount != expectedSlashCount)
                         {
-                            diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                            diagnosticWriter.Write(resourceNameString, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                 }
@@ -179,7 +179,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                if (resource.Symbol.DeclaringResource.Value is not ForSyntax @for || @for.ItemVariable is not { } itemVariable)
+                if (resource.Symbol?.DeclaringResource.Value is not ForSyntax @for || @for.ItemVariable is not { } itemVariable)
                 {
                     // invariant identifiers are only a concern for resource loops
                     // this is not a resource loop OR the item variable is malformed

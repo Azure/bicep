@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -10,8 +12,9 @@ namespace Bicep.Core.Semantics.Metadata
     {
         public ResourceMetadata(
             ResourceType type,
-            SyntaxBase nameSyntax,
-            ResourceSymbol symbol,
+            ImmutableArray<SyntaxBase> nameSyntax,
+            ResourceSymbol? symbol,
+            IPositionable body,
             ResourceMetadataParent? parent,
             SyntaxBase? scopeSyntax,
             bool isExistingResource)
@@ -20,12 +23,15 @@ namespace Bicep.Core.Semantics.Metadata
             Type = type;
             NameSyntax = nameSyntax;
             Symbol = symbol;
+            Body = body;
             Parent = parent;
             ScopeSyntax = scopeSyntax;
             IsExistingResource = isExistingResource;
         }
 
-        public ResourceSymbol Symbol { get; }
+        public ResourceSymbol? Symbol { get; }
+
+        public IPositionable Body { get; }
 
         public ResourceTypeReference TypeReference => Type.TypeReference;
 
@@ -33,7 +39,7 @@ namespace Bicep.Core.Semantics.Metadata
 
         public ResourceMetadataParent? Parent { get; }
 
-        public SyntaxBase NameSyntax { get; }
+        public ImmutableArray<SyntaxBase> NameSyntax { get; }
 
         public SyntaxBase? ScopeSyntax { get; }
 

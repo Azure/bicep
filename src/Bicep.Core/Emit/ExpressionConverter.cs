@@ -153,6 +153,19 @@ namespace Bicep.Core.Emit
             }
         }
 
+        public ExpressionConverter CreateConverterForIndexReplacement(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
+        {
+            if (resource.Symbol is null || resource.NameSyntax.Length != 1)
+            {
+                return this;
+            }
+
+            return CreateConverterForIndexReplacement(
+                resource.NameSyntax[0],
+                indexExpression,
+                newContext);
+        }
+
         public ExpressionConverter CreateConverterForIndexReplacement(SyntaxBase nameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
             var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(nameSyntax, newContext);
@@ -190,9 +203,9 @@ namespace Bicep.Core.Emit
             if (arrayAccess.BaseExpression is VariableAccessSyntax || arrayAccess.BaseExpression is ResourceAccessSyntax)
             {
                 if (context.SemanticModel.ResourceMetadata.TryLookup(arrayAccess.BaseExpression) is {} resource &&
-                    resource.Symbol.IsCollection)
+                    resource.Symbol?.IsCollection == true)
                 {
-                    var resourceConverter = this.CreateConverterForIndexReplacement(resource.NameSyntax, arrayAccess.IndexExpression, arrayAccess);
+                    var resourceConverter = this.CreateConverterForIndexReplacement(resource, arrayAccess.IndexExpression, arrayAccess);
 
                     // TODO: Can this return a language expression?
                     return resourceConverter.ToFunctionExpression(arrayAccess.BaseExpression);
@@ -226,7 +239,7 @@ namespace Bicep.Core.Emit
                     case "id":
                         // the ID is dependent on the name expression which could involve locals in case of a resource collection
                         return this
-                            .CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, propertyAccess)
+                            .CreateConverterForIndexReplacement(resource, indexExpression, propertyAccess)
                             .GetFullyQualifiedResourceId(resource);
                     case "name":
                         // the name is dependent on the name expression which could involve locals in case of a resource collection
@@ -234,8 +247,8 @@ namespace Bicep.Core.Emit
                         // Note that we don't want to return the fully-qualified resource name in the case of name property access.
                         // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                         return this
-                            .CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, propertyAccess)
-                            .ConvertExpression(resource.NameSyntax);
+                            .CreateConverterForIndexReplacement(resource, indexExpression, propertyAccess)
+                            .ConvertExpression(GetResourceNameSyntax(resource));
                     case "type":
                         return new JTokenExpression(resource.TypeReference.FullyQualifiedType);
                     case "apiVersion":
@@ -244,7 +257,7 @@ namespace Bicep.Core.Emit
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
                         return this
-                            .CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, propertyAccess)
+                            .CreateConverterForIndexReplacement(resource, indexExpression, propertyAccess)
                             .GetReferenceExpression(resource, false);
                     default:
                         return null;
@@ -336,52 +349,57 @@ namespace Bicep.Core.Emit
                 new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
         }
 
-        public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceMetadata resource)
+        public ImmutableArray<LanguageExpression> GetResourceNameSegments(ResourceMetadata resource)
         {
-            var typeReference = resource.TypeReference;
-            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
-            var nameSyntax = resource.NameSyntax;
-            var nameExpression = ConvertExpression(nameSyntax);
+            var output = new List<LanguageExpression>();
 
-            if (ancestors.Length > 0)
+            if (resource.Parent is not null)
             {
-                var firstAncestorNameLength = typeReference.Types.Length - ancestors.Length;
+                var parentNameExpressions = CreateConverterForIndexReplacement(resource, resource.Parent.IndexExpression, resource.NameSyntax.First())
+                    .GetResourceNameSegments(resource.Parent.Metadata);
 
-                var resourceName = ConvertExpression(resource.NameSyntax);
-
-                var parentNames = ancestors.SelectMany((x, i) =>
-                {
-                    var nameSyntax = x.Resource.NameSyntax;
-                    var nameExpression = CreateConverterForIndexReplacement(nameSyntax, x.IndexExpression, x.Resource.Symbol.NameSyntax)
-                        .ConvertExpression(nameSyntax);
-
-                    if (i == 0 && firstAncestorNameLength > 1)
-                    {
-                        return Enumerable.Range(0, firstAncestorNameLength).Select(
-                            (_, i) => AppendProperties(
-                                CreateFunction("split", nameExpression, new JTokenExpression("/")),
-                                new JTokenExpression(i)));
-                    }
-
-                    return nameExpression.AsEnumerable();
-                });
-
-                return parentNames.Concat(resourceName.AsEnumerable());
+                output.AddRange(parentNameExpressions);
             }
 
-            if (typeReference.Types.Length == 1)
+            if (resource.NameSyntax.Length == resource.TypeReference.Types.Length - output.Count)
             {
-                return nameExpression.AsEnumerable();
+                output.AddRange(resource.NameSyntax.Select(x => ConvertExpression(x)));
+            }
+            else if (resource.NameSyntax.Length == 1)
+            {
+                var nameSyntax = resource.NameSyntax.Single();
+                var nameExpression = ConvertExpression(nameSyntax);
+
+                var splitNames = Enumerable.Range(0, resource.TypeReference.Types.Length).Select(
+                    (_, i) => AppendProperties(
+                        CreateFunction("split", nameExpression, new JTokenExpression("/")),
+                        new JTokenExpression(i)));
+ 
+                output.AddRange(splitNames);
+            }
+            else
+            {
+                throw new InvalidOperationException("...");
             }
 
-            return typeReference.Types.Select(
-                (type, i) => AppendProperties(
-                    CreateFunction("split", nameExpression, new JTokenExpression("/")),
-                    new JTokenExpression(i)));
+            return output.ToImmutableArray();
         }
 
         public LanguageExpression GetFullyQualifiedResourceName(ResourceMetadata resource)
         {
+            if (resource.Parent is null && resource.Symbol is not null)
+            {
+                var nameValueSyntax = GetResourceNameSyntax(resource.Symbol);
+
+                return ConvertExpression(nameValueSyntax);
+            }
+
+            var nameSegments = GetResourceNameSegments(resource);
+            if (nameSegments.Length == 1)
+            {
+                return nameSegments.First();
+            }
+            
             var nameValueSyntax = resource.NameSyntax;
 
             // For a nested resource we need to compute the name
@@ -398,7 +416,6 @@ namespace Bicep.Core.Emit
             //
             // args.Length = 1 (format string) + N (ancestor names) + 1 (resource name)
 
-            var nameSegments = GetResourceNameSegments(resource);
             // {0}/{1}/{2}....
             var formatString = string.Join("/", nameSegments.Select((_, i) => $"{{{i}}}"));
 

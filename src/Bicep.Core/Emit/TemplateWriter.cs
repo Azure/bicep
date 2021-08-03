@@ -299,6 +299,11 @@ namespace Bicep.Core.Emit
         {
             jsonWriter.WriteStartObject();
 
+            if (resource.Symbol is null)
+            {
+                throw new InvalidOperationException("Cannot generate resource for null symbol");
+            }
+
             // Note: conditions STACK with nesting.
             //
             // Children inherit the conditions of their parents, etc. This avoids a problem
@@ -311,13 +316,13 @@ namespace Bicep.Core.Emit
             foreach (var ancestor in ancestors)
             {
                 if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
-                    ancestor.Resource.Symbol.DeclaringResource.Value is IfConditionSyntax ifCondition)
+                    ancestor.Resource.Symbol?.DeclaringResource.Value is IfConditionSyntax ifCondition)
                 {
                     conditions.Add(ifCondition.ConditionExpression);
                 }
 
                 if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
-                    ancestor.Resource.Symbol.DeclaringResource.Value is ForSyntax @for)
+                    ancestor.Resource.Symbol?.DeclaringResource.Value is ForSyntax @for)
                 {
                     loops.Add((ancestor.Resource.Symbol.Name, @for, null));
                 }
