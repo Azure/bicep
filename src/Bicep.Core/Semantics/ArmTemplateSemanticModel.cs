@@ -25,7 +25,7 @@ namespace Bicep.Core.Semantics
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
         {
-            Trace.Write($"Building semantic model for {sourceFile.FileUri}");
+            Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
             this.SourceFile = sourceFile;
 

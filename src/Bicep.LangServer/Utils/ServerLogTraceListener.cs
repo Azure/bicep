@@ -18,18 +18,12 @@ namespace Bicep.LanguageServer.Utils
 
         public override void Write(string? message)
         {
-            if (message is not null)
-            {
-                server.Log(new LogMessageParams { Type = MessageType.Log, Message = message});
-            }
+            server.Log(new LogMessageParams { Type = MessageType.Log, Message = $"TRACE: {message}" });
         }
 
         public override void WriteLine(string? message)
         {
-            if (message is not null)
-            {
-                server.Log(new LogMessageParams { Type = MessageType.Log, Message = message});
-            }
+            server.Log(new LogMessageParams { Type = MessageType.Log, Message = $"TRACE: {message}" });
         }
     }
 }

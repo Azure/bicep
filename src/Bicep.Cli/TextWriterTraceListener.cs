@@ -18,18 +18,12 @@ namespace Bicep.Cli
 
         public override void Write(string? message)
         {
-            if (message is not null)
-            {
-                textWriter.Write(message);
-            }
+            textWriter.WriteLine($"TRACE: {message}");
         }
 
         public override void WriteLine(string? message)
         {
-            if (message is not null)
-            {
-                textWriter.WriteLine(message);
-            }
+            textWriter.WriteLine($"TRACE: {message}");
         }
     }
 }
