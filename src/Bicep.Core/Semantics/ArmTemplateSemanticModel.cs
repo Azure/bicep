@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
@@ -24,6 +25,8 @@ namespace Bicep.Core.Semantics
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
         {
+            Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
+
             this.SourceFile = sourceFile;
 
             this.targetScopeLazy = new(() =>

@@ -15,6 +15,7 @@ using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.Runtime;
 
 namespace Bicep.Cli
@@ -44,7 +45,12 @@ namespace Bicep.Cli
 
         public int Run(string[] args)
         {
-            ServiceProvider serviceProvider = ConfigureServices();
+            var serviceProvider = ConfigureServices();
+
+            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
+            {
+                Trace.Listeners.Add(new TextWriterTraceListener(this.invocationContext.OutputWriter));
+            }
 
             try
             {

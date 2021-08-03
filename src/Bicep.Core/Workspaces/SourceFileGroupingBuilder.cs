@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
@@ -97,13 +98,14 @@ namespace Bicep.Core.Workspaces
                 throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to return a BicepFile.");
             }
 
-            this.ReportFailuresForCycles();
+            var sourceFileDependencies = this.ReportFailuresForCycles();
 
             return new SourceFileGrouping(
                 fileResolver,
                 entryPoint,
                 sourceFilesByUri.Values.ToImmutableHashSet(),
                 sourceFilesByModuleDeclaration.ToImmutableDictionary(),
+                sourceFileDependencies.InvertLookup().ToImmutableDictionary(),
                 errorBuildersByModuleDeclaration.ToImmutableDictionary(),
                 modulesToInit.ToImmutableHashSet());
         }
@@ -215,7 +217,7 @@ namespace Bicep.Core.Workspaces
             return sourceFile;
         }
 
-        private void ReportFailuresForCycles()
+        private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()
         {
             var sourceFileGraph = this.sourceFilesByUri.Values
                 .SelectMany(sourceFile => GetModuleDeclarations(sourceFile)
@@ -226,20 +228,22 @@ namespace Bicep.Core.Workspaces
                 .ToLookup(x => x.sourceFile, x => x.referencedFile);
 
             var cycles = CycleDetector<ISourceFile>.FindCycles(sourceFileGraph);
-            foreach (var kvp in sourceFilesByModuleDeclaration)
+            foreach (var (moduleDeclaration, moduleSourceFile) in sourceFilesByModuleDeclaration)
             {
-                if (cycles.TryGetValue(kvp.Value, out var cycle))
+                if (cycles.TryGetValue(moduleSourceFile, out var cycle))
                 {
                     if (cycle.Length == 1)
                     {
-                        errorBuildersByModuleDeclaration[kvp.Key] = x => x.CyclicModuleSelfReference();
+                        errorBuildersByModuleDeclaration[moduleDeclaration] = x => x.CyclicModuleSelfReference();
                     }
                     else
                     {
-                        errorBuildersByModuleDeclaration[kvp.Key] = x => x.CyclicModule(cycle.Select(x => x.FileUri.LocalPath));
+                        errorBuildersByModuleDeclaration[moduleDeclaration] = x => x.CyclicModule(cycle.Select(x => x.FileUri.LocalPath));
                     }
                 }
             }
+
+            return sourceFileGraph;
         }
 
         private static IEnumerable<ModuleDeclarationSyntax> GetModuleDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile

@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -15,18 +16,20 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping)
+        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.SourceFileGrouping = sourceFileGrouping;
             this.ResourceTypeProvider = resourceTypeProvider;
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
-                sourceFile => new Lazy<ISemanticModel>(() => sourceFile switch
-                {
-                    BicepFile bicepFile => new SemanticModel(this, bicepFile, SourceFileGrouping.FileResolver),
-                    ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
-                    _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
-                }));
+                sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ? 
+                    new(existingModel) : 
+                    new Lazy<ISemanticModel>(() => sourceFile switch
+                    {
+                        BicepFile bicepFile => new SemanticModel(this, bicepFile, SourceFileGrouping.FileResolver),
+                        ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
+                        _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
+                    }));
         }
 
         public SourceFileGrouping SourceFileGrouping { get; }

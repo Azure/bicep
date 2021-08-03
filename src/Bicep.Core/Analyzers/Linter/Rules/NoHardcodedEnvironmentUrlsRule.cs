@@ -64,14 +64,23 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public static IEnumerable<(TextSpan RelativeSpan, string Value)> FindHostnameMatches(string hostname, string srcText)
         {
-            bool isExactDomainMatch(int index)
-            {
-                var leadingAlnum = index > 0 && 
-                    char.IsLetterOrDigit(srcText[index - 1]);
-                var trailingAlnum = index + hostname.Length < srcText.Length && 
-                    char.IsLetterOrDigit(srcText[index + hostname.Length]);
+            // This code is executed VERY frequently, so we need to be ultra-careful making changes here.
+            // For a compilation, runtime is ~O(number_of_modules * avg_number_of_viable_string_tokens * number_of_hostnames).
+            // In the language service, we recompile on every keypress.
 
-                return !leadingAlnum && !trailingAlnum;
+            bool hasLeadingOrTrailingAlphaNumericChar(int index)
+            {
+                if (index > 0 && char.IsLetterOrDigit(srcText[index - 1]))
+                {
+                    return true;
+                }
+
+                if (index + hostname.Length < srcText.Length && char.IsLetterOrDigit(srcText[index + hostname.Length]))
+                {
+                    return true;
+                }
+
+                return false;
             }
 
             if (hostname.Length == 0)
@@ -91,7 +100,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
 
                 // check preceding and trailing chars to verify we're not dealing with a substring
-                if (isExactDomainMatch(matchIndex))
+                if (!hasLeadingOrTrailingAlphaNumericChar(matchIndex))
                 {
                     var matchText = srcText.Substring(matchIndex, hostname.Length);
                     yield return (RelativeSpan: new TextSpan(matchIndex, hostname.Length), Value: matchText);
@@ -169,6 +178,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
                 }
                 base.VisitStringSyntax(syntax);
+            }
+
+            public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+            {
+                // Skip resource 'type' strings - there's no reason to perform analysis on them
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Value);
+            }
+
+            public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+            {
+                // Skip resource 'path' strings - there's no reason to perform analysis on them
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Value);
             }
         }
     }

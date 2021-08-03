@@ -212,6 +212,7 @@ namespace Bicep.LanguageServer.Snippets
                 bicepFile,
                 ImmutableHashSet.Create<ISourceFile>(bicepFile),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),
+                ImmutableDictionary.Create<ISourceFile, ImmutableHashSet<ISourceFile>>(),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
                 ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
