@@ -17,6 +17,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceMapping;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
@@ -509,6 +510,9 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteStartObject();
 
+            // Save current line (start of resource) for source map
+            int startLine = jsonWriter.CurrentLine;
+
             // Note: conditions STACK with nesting.
             //
             // Children inherit the conditions of their parents, etc. This avoids a problem
@@ -645,6 +649,10 @@ namespace Bicep.Core.Emit
             {
                 emitter.EmitProperty(property, val);
             }
+
+            // create mapping between resource line range and bicep line
+            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, resource.Symbol.DeclaringResource.GetPosition());
+            sourceMap.AddMapping(startLine, jsonWriter.CurrentLine, bicepLine + 1);
 
             jsonWriter.WriteEndObject();
 

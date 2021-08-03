@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceMapping;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
