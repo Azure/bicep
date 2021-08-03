@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver)
         {
-            Debug.Write($"Building semantic model for {sourceFile.FileUri}");
+            Trace.Write($"Building semantic model for {sourceFile.FileUri}");
 
             Compilation = compilation;
             SourceFile = sourceFile;
