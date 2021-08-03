@@ -14,7 +14,9 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceMapping;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
@@ -88,10 +90,13 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
 
+        public readonly SourceMap sourceMap;
+
         public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
+            this.sourceMap = new SourceMap();
         }
 
         public void Write(JsonTextWriter writer)
@@ -112,7 +117,7 @@ namespace Bicep.Core.Emit
             // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject
             // instead of writing to a JsonWriter and converting it to JToken at the end
             using var stringWriter = new StringWriter();
-            using var jsonWriter = new JsonTextWriter(stringWriter);
+            using var jsonWriter = new ArmJsonTextWriter(stringWriter);
             var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
@@ -318,7 +323,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitResources(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitResources(ArmJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             jsonWriter.WritePropertyName("resources");
             if (context.Settings.EnableSymbolicNames)
@@ -382,9 +387,12 @@ namespace Bicep.Core.Emit
             return null;
         }
 
-        private void EmitResource(JsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
+        private void EmitResource(ArmJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
         {
             jsonWriter.WriteStartObject();
+
+            // Save current line (start of resource) for source map
+            int startLine = jsonWriter.CurrentLine;
 
             // Note: conditions STACK with nesting.
             //
@@ -522,6 +530,10 @@ namespace Bicep.Core.Emit
             {
                 emitter.EmitProperty(property, val);
             }
+
+            // create mapping between resource line range and bicep line
+            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, resource.Symbol.DeclaringResource.GetPosition());
+            sourceMap.AddMapping(startLine, jsonWriter.CurrentLine, bicepLine + 1);
 
             jsonWriter.WriteEndObject();
         }
