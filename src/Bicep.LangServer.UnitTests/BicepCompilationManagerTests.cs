@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -22,6 +23,7 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -465,6 +467,133 @@ namespace Bicep.LangServer.UnitTests
                 .All(message => string.Equals(message, expectedMessage) == false)
                 .Should().BeTrue();
         }
-      }
+        
+
+        [TestMethod]
+        public void SemanticModels_should_only_be_reloaded_on_sourcefile_or_dependent_sourcefile_changes()
+        {
+            var uris = (
+                main: new Uri("file:///main.bicep"),
+                moduleA: new Uri("file:///moduleA.bicep"),
+                moduleB: new Uri("file:///moduleB.bicep"),
+                moduleC: new Uri("file:///moduleC.bicep")
+            );
+
+            var fileDict = new Dictionary<Uri, string>
+            {
+                [uris.main] = @"
+module moduleA './moduleA.bicep' = {
+  name: 'moduleA'
+}
+module moduleC './moduleC.bicep' = {
+  name: 'moduleC'
+}
+",
+                [uris.moduleA] = @"
+module moduleB './moduleB.bicep' = {
+  name: 'moduleB'
+}
+",
+                [uris.moduleB] = @"
+",
+                [uris.moduleC] = @"
+",
+            };
+
+            var diagsReceieved = new List<PublishDiagnosticsParams>();
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => diagsReceieved.Add(p));
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
+
+            var fileResolver = new InMemoryFileResolver(fileDict);
+            var compilationProvider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver)));
+
+            var compilationManager = new BicepCompilationManager(server.Object, compilationProvider, new Workspace(), fileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object);
+
+            diagsReceieved.Should().BeEmpty();
+
+            IReadOnlyDictionary<Uri, Compilation> GetCompilations() => new Dictionary<Uri, Compilation>
+            {
+                [uris.main] = compilationManager!.GetCompilation(uris.main)!.Compilation,
+                [uris.moduleA] = compilationManager.GetCompilation(uris.moduleA)!.Compilation,
+                [uris.moduleB] = compilationManager.GetCompilation(uris.moduleB)!.Compilation,
+                [uris.moduleC] = compilationManager.GetCompilation(uris.moduleC)!.Compilation,
+            };
+
+            void EnsureSemanticModelsAndSourceFilesDeduplicated()
+            {
+                var allCompilations = GetCompilations();
+                var distinctSourceFiles = allCompilations.Values.SelectMany(x => x.SourceFileGrouping.SourceFiles).Distinct(ReferenceEqualityComparer.Instance);
+                var distinctSemanticModels = allCompilations.Values.SelectMany(x => x.SourceFileGrouping.SourceFiles.Select(y => x.GetSemanticModel(y))).Distinct(ReferenceEqualityComparer.Instance);
+
+                distinctSourceFiles.Should().HaveCount(4);
+                distinctSemanticModels.Should().HaveCount(4);
+            }
+
+            // open the main file
+            {
+                compilationManager.UpsertCompilation(uris.main, 1, fileDict[uris.main], "bicep");
+
+                diagsReceieved.Should().SatisfyRespectively(
+                    x => x.Uri.Should().Equals(uris.main)
+                );
+                diagsReceieved.Clear();
+            }
+
+            // open all files
+            {
+                compilationManager.UpsertCompilation(uris.moduleA, 1, fileDict[uris.moduleA], "bicep");
+                compilationManager.UpsertCompilation(uris.moduleB, 1, fileDict[uris.moduleB], "bicep");
+                compilationManager.UpsertCompilation(uris.moduleC, 1, fileDict[uris.moduleC], "bicep");
+                diagsReceieved.Clear();
+
+                EnsureSemanticModelsAndSourceFilesDeduplicated();
+            }
+
+            // upserting moduleA should only retrigger necessary recompilations
+            {
+                compilationManager.UpsertCompilation(uris.moduleA, 2, fileDict[uris.moduleA], "bicep");
+
+                diagsReceieved.Should().SatisfyRespectively(
+                    x => x.Uri.Should().Equals(uris.main),
+                    x => x.Uri.Should().Equals(uris.moduleA)
+                );
+                diagsReceieved.Clear();
+
+                var compilations = GetCompilations();
+                var moduleBSource = compilations[uris.moduleB].SourceFileGrouping.EntryPoint;
+                var moduleBModel = compilations[uris.moduleB].GetSemanticModel(moduleBSource);
+
+                compilations[uris.main].GetSemanticModel(moduleBSource).Should().BeSameAs(moduleBModel);
+                compilations[uris.moduleA].GetSemanticModel(moduleBSource).Should().BeSameAs(moduleBModel);
+
+                EnsureSemanticModelsAndSourceFilesDeduplicated();
+            }
+
+            // upserting moduleC should only retrigger necessary recompilations
+            {
+                compilationManager.UpsertCompilation(uris.moduleC, 2, fileDict[uris.moduleC], "bicep");
+
+                diagsReceieved.Should().SatisfyRespectively(
+                    x => x.Uri.Should().Equals(uris.main),
+                    x => x.Uri.Should().Equals(uris.moduleC)
+                );
+                diagsReceieved.Clear();
+
+                EnsureSemanticModelsAndSourceFilesDeduplicated();
+            }
+
+            // upserting main should only retrigger necessary recompilations
+            {
+                compilationManager.UpsertCompilation(uris.main, 3, fileDict[uris.main], "bicep");
+
+                diagsReceieved.Should().SatisfyRespectively(
+                    x => x.Uri.Should().Equals(uris.main)
+                );
+                diagsReceieved.Clear();
+
+                EnsureSemanticModelsAndSourceFilesDeduplicated();
+            }
+        }
+    }
 }
 
