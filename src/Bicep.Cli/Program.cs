@@ -47,7 +47,10 @@ namespace Bicep.Cli
         {
             var serviceProvider = ConfigureServices();
 
-            Trace.Listeners.Add(new TextWriterTraceListener(this.invocationContext.OutputWriter));
+            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
+            {
+                Trace.Listeners.Add(new TextWriterTraceListener(this.invocationContext.OutputWriter));
+            }
 
             try
             {

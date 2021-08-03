@@ -44,6 +44,9 @@ async function launchLanguageService(
   const serverExecutable: lsp.Executable = {
     command: dotnetCommandPath,
     args: [languageServerPath],
+    options: {
+      env: process.env,
+    }
   };
 
   const serverOptions: lsp.ServerOptions = {

@@ -78,8 +78,6 @@ namespace Bicep.LanguageServer
 
                 onOptionsFunc(options);
             });
-
-            Trace.Listeners.Add(new ServerLogTraceListener(server));
         }
 
         public async Task RunAsync(CancellationToken cancellationToken)
@@ -87,6 +85,11 @@ namespace Bicep.LanguageServer
             await server.Initialize(cancellationToken);
 
             server.LogInfo($"Running on processId {Environment.ProcessId}");
+
+            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
+            {
+                Trace.Listeners.Add(new ServerLogTraceListener(server));
+            }
 
             var scheduler = server.GetService<IModuleRestoreScheduler>();
             scheduler.Start();
