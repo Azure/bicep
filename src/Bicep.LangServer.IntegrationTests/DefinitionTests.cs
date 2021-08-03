@@ -15,7 +15,6 @@ using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -131,8 +130,13 @@ namespace Bicep.LangServer.IntegrationTests
                 // visit children only if current node is not bound
                 continuationFunction: (accumulated, syntax) => IsUnboundNode(symbolTable, syntax));
 
-            foreach (var syntax in unboundNodes)
+            for (int i = 0; i < unboundNodes.Count(); i++)
             {
+                var syntax = unboundNodes[i];
+                if (ValidUnboundNode(unboundNodes, i))
+                {
+                    continue;
+                }
                 var response = await client.RequestDefinition(new DefinitionParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
@@ -142,6 +146,15 @@ namespace Bicep.LangServer.IntegrationTests
                 // go to definition on a syntax node that isn't bound to a symbol should produce an empty response
                 response.Should().BeEmpty();
             }
+        }
+
+        private bool ValidUnboundNode(List<SyntaxBase> accumulated, int index)
+        {
+            // Module path
+            return index > 1
+            && accumulated[index] is StringSyntax
+            && accumulated[index-1] is IdentifierSyntax
+            && accumulated[index-2] is ModuleDeclarationSyntax;
         }
 
         private static LocationLink ValidateDefinitionResponse(LocationOrLocationLinks response)

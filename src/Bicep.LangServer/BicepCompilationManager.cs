@@ -203,7 +203,7 @@ namespace Bicep.LanguageServer
                     Message = exception.Message,
                     Code = new DiagnosticCode("Fatal")
                 };
-                
+
                 // the file is no longer in a state that can be parsed
                 // clear all info to prevent cascading failures elsewhere
                 var closedFiles = CloseCompilationInternal(documentUri, version, fatalError.AsEnumerable());

@@ -43,7 +43,7 @@ namespace Bicep.Core.FileSystem
                 return false;
             }
             if (maxCharacters > 0)
-            {                
+            {
                 if (fileContents.Length > maxCharacters)
                 {
                     failureBuilder = x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxCharacters, "characters");
@@ -114,7 +114,7 @@ namespace Bicep.Core.FileSystem
                     return false;
                 }
             }
-            fileBase64 = Convert.ToBase64String(bytes);           
+            fileBase64 = Convert.ToBase64String(bytes);
             return true;
         }
     }

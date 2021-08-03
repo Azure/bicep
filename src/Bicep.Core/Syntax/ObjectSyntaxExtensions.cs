@@ -68,6 +68,38 @@ namespace Bicep.Core.Syntax
             return result;
         }
 
+        public static ObjectPropertySyntax? SafeGetPropertyByNameRecursive(this ObjectSyntax syntax, IList<string> propertyAccesses)
+        {
+            var currentSyntax = syntax;
+            for (int i = 0; i < propertyAccesses.Count; i++)
+            {
+                if (currentSyntax.SafeGetPropertyByName(propertyAccesses[i]) is ObjectPropertySyntax propertySyntax)
+                {
+                    // we have found our last property access
+                    if (i == propertyAccesses.Count-1)
+                    {
+                        return propertySyntax;
+                    }
+                    // we have successfully gone one level deeper into the object
+                    else if (propertySyntax.Value is ObjectSyntax propertyObjectSyntax)
+                    {
+                        currentSyntax = propertyObjectSyntax;
+                    }
+                    // our path isn't fully traversed yet and we hit a terminal value (not an object)
+                    else
+                    {
+                        break;
+                    }
+                }
+                // we couldn't even find this property on the object
+                else
+                {
+                   break;
+                }
+            }
+            return null;
+        }
+
         public static ObjectSyntax MergeProperty(this ObjectSyntax? syntax, string propertyName, string propertyValue) =>
             syntax.MergeProperty(propertyName, SyntaxFactory.CreateStringLiteral(propertyValue));
 
