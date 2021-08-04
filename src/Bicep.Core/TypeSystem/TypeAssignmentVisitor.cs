@@ -77,6 +77,9 @@ namespace Bicep.Core.TypeSystem
             return assignedTypes.Values.SelectMany(x => x.Diagnostics);
         }
 
+        public ImmutableArray<SyntaxBase> GetSyntaxMatching(Func<TypeSymbol, bool> filterFunc)
+            => assignedTypes.Where(x => filterFunc(x.Value.Reference.Type)).Select(x => x.Key).ToImmutableArray();
+
         public FunctionOverload? GetMatchedFunctionOverload(FunctionCallSyntaxBase syntax)
         {
             Visit(syntax);

@@ -257,7 +257,7 @@ namespace Bicep.Core.Emit
                     var parentResourceId = FormatFullyQualifiedResourceId(
                         context,
                         converter,
-                        ScopeHelper.ValidateScope(context.SemanticModel, (_, _, _) => {}, resource.Type.ValidParentScopes, resource.Body, resource.ScopeSyntax) ?? new ScopeHelper.ScopeData { RequestedScope = context.SemanticModel.TargetScope },
+                        context.ResourceScopeData[resource],
                         resource.TypeReference.FullyQualifiedType,
                         converter.GetResourceNameSegments(resource));
 
@@ -288,7 +288,7 @@ namespace Bicep.Core.Emit
                     var parentResourceId = FormatUnqualifiedResourceId(
                         context,
                         converter,
-                        ScopeHelper.ValidateScope(context.SemanticModel, (_, _, _) => {}, resource.Type.ValidParentScopes, resource.Body, resource.ScopeSyntax) ?? new ScopeHelper.ScopeData { RequestedScope = context.SemanticModel.TargetScope },
+                        context.ResourceScopeData[resource],
                         resource.TypeReference.FullyQualifiedType,
                         converter.GetResourceNameSegments(resource));
 
@@ -435,8 +435,14 @@ namespace Bicep.Core.Emit
             void logInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes)
                 => diagnosticWriter.Write(positionable, x => x.UnsupportedResourceScope(suppliedScope, supportedScopes));
 
+            var resources = semanticModel.TypeManager
+                .GetSyntaxMatching(x => x is ResourceType)
+                .Select(x => semanticModel.ResourceMetadata.TryLookup(x)!)
+                .Where(x => x is not null)
+                .Distinct();
+
             var scopeInfo = new Dictionary<ResourceMetadata, ScopeData>();
-            var ancestorsLookup = semanticModel.AllResources
+            var ancestorsLookup = resources
                 .ToDictionary(
                     x => x,
                     x => semanticModel.ResourceAncestors.GetAncestors(x));

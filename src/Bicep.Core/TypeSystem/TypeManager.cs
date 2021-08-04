@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
@@ -39,6 +40,8 @@ namespace Bicep.Core.TypeSystem
 
         public FunctionOverload? GetMatchedFunctionOverload(FunctionCallSyntaxBase syntax)
             => typeAssignmentVisitor.GetMatchedFunctionOverload(syntax);
-
+            
+        public ImmutableArray<SyntaxBase> GetSyntaxMatching(Func<TypeSymbol, bool> filterFunc)
+            => typeAssignmentVisitor.GetSyntaxMatching(filterFunc);
     }
 }

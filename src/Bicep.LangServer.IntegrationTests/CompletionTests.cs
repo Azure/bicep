@@ -967,6 +967,35 @@ module mod2 './|' = {}
                 });
         }
 
+        [TestMethod]
+        public async Task Resource_function_property_access_snippets_are_available()
+        {
+            string fileWithCursors = @"
+var test = resource('Microsoft.Storage/storageAccounts@2021-04-01', 'asdf')
+var test2 = resourceGroup('asdfs').resource('Microsoft.Storage/storageAccounts@2021-04-01', 'asdf')
+
+resource test3 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: 'asdf'
+}
+
+var abc = {
+  abc: test.properties.|
+  def: test2.properties.|
+  ghi: test3.properties.|
+}
+";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, resourceTypeProvider: TypeProvider);
+            var completionLists = await RequestCompletions(client, bicepFile, cursors);
+
+            completionLists.Should().SatisfyRespectively(
+                x => x!.Should().Contain(x => x.Label == "provisioningState"),
+                x => x!.Should().Contain(x => x.Label == "provisioningState"),
+                x => x!.Should().Contain(x => x.Label == "provisioningState")
+            );
+        }
+
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
         {
             foreach (var completionList in completionLists)

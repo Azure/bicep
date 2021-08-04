@@ -530,9 +530,14 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
+            if (type is null)
+            {
+                return null;
+            }
+
             // could not get the declared type via syntax
             // let's use the type info instead
-            switch (type)
+            switch (TypeAssignmentVisitor.UnwrapType(type))
             {
                 case ObjectType objectType:
                     // lookup declared property
