@@ -2,46 +2,46 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
 {
-    public class PositionTrackingJsonTextWriter : JsonTextWriter
     {
+
+
         private class PositionTrackingTextWriter : TextWriter
         {
-            private readonly TextWriter _internalWriter;
+            private readonly TextWriter internalWriter;
 
-            public int CurrentPos;
+        public int CurrentPos;
+        public int CurrentLine;
 
-            public List<int> CommaPositions = new();
 
-            public PositionTrackingTextWriter(TextWriter textWriter)
-            {
-                _internalWriter = textWriter;
-            }
-
-            public override Encoding Encoding => _internalWriter.Encoding;
-
-            public override void Write(char value)
-            {
-                if (value == ',')
-                {
-                    CommaPositions.Add(CurrentPos);
-                }
-
-                _internalWriter.Write(value);
-
-                CurrentPos++;
-            }
+        public PositionTrackingTextWriter(TextWriter textWriter)
+        {
         }
 
-        public int CurrentPos => _trackingWriter.CurrentPos;
-        public List<int> CommaPositions => _trackingWriter.CommaPositions;
 
-        private readonly PositionTrackingTextWriter _trackingWriter;
+        public override void Write(char value)
+        {
+            {
+            }
+
+
+            CurrentPos++;
+
+            if (value == '\n') // check for carriage return char?
+            {
+                _endOfLine = true;
+            }
+        }
+    }
+
+        public int CurrentPos => _trackingWriter.CurrentPos;
+        
 
         public static PositionTrackingJsonTextWriter Create(TextWriter textWriter)
         {
