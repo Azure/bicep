@@ -65,7 +65,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
                 new { name = "sibling", type = "My.RP/parentType/childType@2020-01-02", },
             };
 
-            model.AllResources.Select(x => x.Symbol)
+            model.AllResources.Select(x => x.Symbol!)
               .Select(s => new { name = s.Name, type = (s.Type as ResourceType)?.TypeReference.FormatName(), })
               .OrderBy(n => n.name)
               .Should().BeEquivalentTo(expected);
@@ -104,7 +104,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
                 new { name = "parent", type = "My.RP/parentType@2020-01-01", },
             };
 
-            model.AllResources.Select(x => x.Symbol)
+            model.AllResources.Select(x => x.Symbol!)
               .Select(s => new { name = s.Name, type = (s.Type as ResourceType)?.TypeReference.FormatName(), })
               .OrderBy(n => n.name)
               .Should().BeEquivalentTo(expected);
@@ -154,19 +154,19 @@ output fromGrandchild string = parent::child::grandchild.properties.style
 
             model.GetAllDiagnostics().Should().BeEmpty();
 
-            var parent = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent");
+            var parent = model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "parent");
             var references = model.FindReferences(parent);
             references.Should().HaveCount(6);
 
-            var child = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "child");
+            var child = model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "child");
             references = model.FindReferences(child);
             references.Should().HaveCount(6);
 
-            var grandchild = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "grandchild");
+            var grandchild = model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "grandchild");
             references = model.FindReferences(grandchild);
             references.Should().HaveCount(4);
 
-            var sibling = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "sibling");
+            var sibling = model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "sibling");
             references = model.FindReferences(sibling);
             references.Should().HaveCount(1);
 
@@ -417,13 +417,13 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().Should().BeEmpty();
 
-            var parent = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent").DeclaringSyntax)!;
+            var parent = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "parent").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
-            var child = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "child").DeclaringSyntax)!;
+            var child = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "child").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
-            var grandchild = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "grandchild").DeclaringSyntax)!;
+            var grandchild = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "grandchild").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new[] { parent, child, }); // order matters
         }
 
@@ -466,19 +466,19 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().Should().BeEmpty();
 
-            var parent = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent").DeclaringSyntax)!;
+            var parent = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "parent").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
-            var child = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "child").DeclaringSyntax)!;
+            var child = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "child").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
-            var childGrandChild = model.ResourceMetadata.TryLookup(child.Symbol.DeclaringResource.GetBody().Resources.Single())!;
+            var childGrandChild = model.ResourceMetadata.TryLookup(child.Symbol!.DeclaringResource.GetBody().Resources.Single())!;
             model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, child, });
 
-            var sibling = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "sibling").DeclaringSyntax)!;
+            var sibling = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol!).Single(r => r.Name == "sibling").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
-            var siblingGrandChild = model.ResourceMetadata.TryLookup(sibling.Symbol.DeclaringResource.GetBody().Resources.Single())!;
+            var siblingGrandChild = model.ResourceMetadata.TryLookup(sibling.Symbol!.DeclaringResource.GetBody().Resources.Single())!;
             model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, sibling, });
         }
 

@@ -196,6 +196,31 @@
     ]
   },
   {
+    "name": "resource",
+    "description": "Obtains a reference to a resource.",
+    "fixedParameters": [
+      {
+        "name": "type",
+        "description": "The type of the resource",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
+    "flags": "requiresInlining",
+    "typeSignature": "(type: string, ... : string): resource",
+    "parameterTypeSignatures": [
+      "type: string",
+      "... : string"
+    ]
+  },
+  {
     "name": "resourceGroup",
     "description": "Returns the current resource group scope. **This function can only be used in resourceGroup deployments.**",
     "fixedParameters": [],

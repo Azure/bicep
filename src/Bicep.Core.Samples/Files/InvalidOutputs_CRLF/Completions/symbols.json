@@ -685,6 +685,23 @@
     }
   },
   {
+    "label": "resource",
+    "kind": "function",
+    "detail": "resource()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_resource",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "resourceGroup",
     "kind": "function",
     "detail": "resourceGroup()",
