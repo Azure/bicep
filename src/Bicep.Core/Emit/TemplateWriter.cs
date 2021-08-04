@@ -300,12 +300,13 @@ namespace Bicep.Core.Emit
 
         private void EmitResource(ArmJsonTextWriter jsonWriter, ResourceSymbol resourceSymbol, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteStartObject();
-
-            var typeReference = resourceSymbol.GetResourceTypeReference();
 
             // Save current line (start of resource) for source map
             int startLine = jsonWriter.CurrentLine;
+
+            jsonWriter.WriteStartObject();
+
+            var typeReference = resourceSymbol.GetResourceTypeReference();
 
             // Note: conditions STACK with nesting.
             //
