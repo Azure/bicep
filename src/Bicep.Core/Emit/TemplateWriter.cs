@@ -25,6 +25,8 @@ using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using System.Diagnostics;
+
 
 namespace Bicep.Core.Emit
 {
@@ -86,15 +88,15 @@ namespace Bicep.Core.Emit
             if (targetScope.HasFlag(ResourceScope.Subscription))
             {
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
-            }
+        private readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
 
+        public Dictionary<int, (string, int)>? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-        private readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
 
-        public Dictionary<int, (string, int)>? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
+        public readonly SourceMap sourceMap;
 
         public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
@@ -500,18 +502,20 @@ namespace Bicep.Core.Emit
                 && arguments.ToList()[0].Expression is IntegerLiteralSyntax integerLiteral)
             {
                 return integerLiteral.Value;
-            }
-            return null;
-        }
-
-        private void EmitResource(PositionTrackingJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
-        {
             int startPos = jsonWriter.CurrentPos;
 
             jsonWriter.WriteStartObject();
 
+        }
+
+        private void EmitResource(PositionTrackingJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
+        {
+            jsonWriter.WriteStartObject();
+
             // Save current line (start of resource) for source map
             int startLine = jsonWriter.CurrentLine;
+
+            jsonWriter.WriteStartObject();
 
             // Note: conditions STACK with nesting.
             //
