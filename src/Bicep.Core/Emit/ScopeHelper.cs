@@ -436,7 +436,7 @@ namespace Bicep.Core.Emit
                 => diagnosticWriter.Write(positionable, x => x.UnsupportedResourceScope(suppliedScope, supportedScopes));
 
             var resources = semanticModel.TypeManager
-                .GetSyntaxMatching(x => x is ResourceType)
+                .GetSyntaxMatching(x => x is ResourceType or ArrayType { Item: ResourceType })
                 .Select(x => semanticModel.ResourceMetadata.TryLookup(x)!)
                 .Where(x => x is not null)
                 .Distinct();
