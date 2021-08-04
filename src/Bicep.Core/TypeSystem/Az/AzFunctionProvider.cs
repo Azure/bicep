@@ -50,5 +50,36 @@ namespace Bicep.Core.TypeSystem.Az
                 .WithFlags(FunctionFlags.RequiresInlining)
                 .Build();
         }
+
+        public static FunctionOverload GetChildOverload(IResourceTypeProvider typeProvider, ResourceTypeReference parentTypeReference)
+        {
+            return new FunctionOverloadBuilder("child")
+                .WithDynamicReturnType((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                    var argsArray = arguments.ToArray();
+
+                    if (argsArray.Length < 1)
+                    {
+                        // should have already been validated
+                        return ErrorType.Empty();
+                    }
+
+                    if (argsArray[0].Expression is not StringSyntax typeSyntax ||
+                        typeSyntax.TryGetLiteralValue() is not {} typeString ||
+                        ResourceTypeReference.TryCombine(parentTypeReference, new [] { typeString }) is not {} typeReference)
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(argsArray[0]).InvalidResourceType());
+                    }
+
+                    // TODO type checking for constant name
+
+                    return typeProvider.GetType(typeReference, ResourceTypeGenerationFlags.PermitLiteralNameProperty | ResourceTypeGenerationFlags.ExistingResource);
+                }, LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource))
+                // TODO fix up the descriptions and param names
+                .WithDescription("Obtains a child reference to a resource.")
+                .WithRequiredParameter("type", LanguageConstants.String, "The type of the resource")
+                .WithRequiredParameter("resourceName", LanguageConstants.String, "The child resource name")
+                .WithFlags(FunctionFlags.RequiresInlining)
+                .Build();
+        }
     }
 }

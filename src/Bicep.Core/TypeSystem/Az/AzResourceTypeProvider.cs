@@ -256,6 +256,8 @@ namespace Bicep.Core.TypeSystem.Az
                 .WithFlags(FunctionFlags.RequiresInlining)
                 .Build();
 
+            yield return AzFunctionProvider.GetChildOverload(this, resourceType);
+
             switch (resourceType.FullyQualifiedType.ToLowerInvariant())
             {
                 case "microsoft.keyvault/vaults":

@@ -46,6 +46,20 @@ namespace Bicep.Core.Semantics.Metadata
                         break;
                     }
 
+                    if (functionCall.Name.IdentifierName == "child" &&
+                        functionCall is InstanceFunctionCallSyntax ifc &&
+                        this.Calculate(ifc.BaseExpression) is {} parentResource)
+                    {
+                        return new ResourceMetadata(
+                            resourceType,
+                            functionCall.Arguments.Skip(1).Select(x => x.Expression).ToImmutableArray(),
+                            null,
+                            functionCall,
+                            new(parentResource, null, false),
+                            null,
+                            true);
+                    }
+
                     var scopeSyntax = (functionCall as InstanceFunctionCallSyntax)?.BaseExpression;
 
                     return new ResourceMetadata(
