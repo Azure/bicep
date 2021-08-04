@@ -2,17 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Json;
 using Azure.Deployments.Expression.Expressions;
-using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceMapping;
 using Bicep.Core.Syntax;
@@ -21,8 +23,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Bicep.Core.Semantics.Metadata;
-using System.Diagnostics;
 
 namespace Bicep.Core.Emit
 {
@@ -89,7 +89,6 @@ namespace Bicep.Core.Emit
         }
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-
         public readonly SourceMap sourceMap;
 
         public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
@@ -389,10 +388,10 @@ namespace Bicep.Core.Emit
 
         private void EmitResource(ArmJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteStartObject();
-
             // Save current line (start of resource) for source map
             int startLine = jsonWriter.CurrentLine;
+
+            jsonWriter.WriteStartObject();
 
             // Note: conditions STACK with nesting.
             //
