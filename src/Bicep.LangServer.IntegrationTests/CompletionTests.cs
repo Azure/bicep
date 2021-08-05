@@ -555,7 +555,8 @@ output string test2 = testRes.properties.|
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("id property"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("name property"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("properties property"),
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("type property")),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("type property"),
+                        d => d.Detail.Should().Equals("child()")), // TODO: figure out why MarkupContent is null
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports reading."),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),

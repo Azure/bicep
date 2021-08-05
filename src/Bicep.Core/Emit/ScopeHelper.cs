@@ -52,7 +52,7 @@ namespace Bicep.Core.Emit
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
 
-        public static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, IPositionable body, SyntaxBase? scopeValue)
+        private static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, IPositionable body, SyntaxBase? scopeValue)
         {
             if (scopeValue is null)
             {

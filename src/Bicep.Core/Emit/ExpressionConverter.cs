@@ -350,7 +350,7 @@ namespace Bicep.Core.Emit
 
             if (resource.Parent is not null)
             {
-                var parentNameExpressions = CreateConverterForIndexReplacement(resource, resource.Parent.IndexExpression, resource.NameSyntax.First())
+                var parentNameExpressions = CreateConverterForIndexReplacement(resource.Parent.Metadata, resource.Parent.IndexExpression, resource.NameSyntax.First())
                     .GetResourceNameSegments(resource.Parent.Metadata);
 
                 output.AddRange(parentNameExpressions);
