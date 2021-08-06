@@ -20,4 +20,3 @@ resource expressRouteGateways 'Microsoft.Network/expressRouteGateways@2021-02-01
   }
 }
 // Insert snippet here
-
