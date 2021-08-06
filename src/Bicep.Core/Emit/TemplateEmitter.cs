@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceMapping;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
@@ -18,11 +19,13 @@ namespace Bicep.Core.Emit
         /// Assembly File Version to emit into the metadata
         /// </summary>
         private readonly string assemblyFileVersion;
+        private SourceMap sourceMap;
 
         public TemplateEmitter(SemanticModel model, string assemblyFileVersion)
         {
             this.model = model;
             this.assemblyFileVersion = assemblyFileVersion;
+            this.sourceMap = new SourceMap();
         }
 
         /// <summary>
@@ -41,7 +44,9 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(this.model, this.assemblyFileVersion).Write(writer);
+            var emitter = new TemplateWriter(this.model, this.assemblyFileVersion);
+            emitter.Write(writer);
+            this.sourceMap = emitter.sourceMap;
         });
 
         /// <summary>
@@ -55,7 +60,9 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(this.model, this.assemblyFileVersion).Write(writer);
+            var emitter = new TemplateWriter(this.model, this.assemblyFileVersion);
+            emitter.Write(writer);
+            this.sourceMap = emitter.sourceMap;
         });
 
         /// <summary>
@@ -64,7 +71,9 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The json writer to write the template</param>
         public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() =>
         {
-            new TemplateWriter(this.model, this.assemblyFileVersion).Write(writer);
+            var emitter = new TemplateWriter(this.model, this.assemblyFileVersion);
+            emitter.Write(writer);
+            this.sourceMap = emitter.sourceMap;
         });
 
         private EmitResult EmitOrFail(Action write)
@@ -79,7 +88,7 @@ namespace Bicep.Core.Emit
 
             write();
 
-            return new EmitResult(EmitStatus.Succeeded, diagnostics);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics, sourceMap);
         }
     }
 }
