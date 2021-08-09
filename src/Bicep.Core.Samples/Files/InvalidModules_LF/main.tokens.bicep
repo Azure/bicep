@@ -2574,6 +2574,40 @@ module secureModule1 'moduleb.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module secureModule2 'BAD_MODULE_PATH.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:20) Identifier |secureModule2|
+//@[21:44) StringComplete |'BAD_MODULE_PATH.bicep'|
+//@[45:46) Assignment |=|
+//@[47:48) LeftBrace |{|
+//@[48:49) NewLine |\n|
+  name: 'secureModule2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:23) StringComplete |'secureModule2'|
+//@[23:24) NewLine |\n|
+  params: {       
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[18:19) NewLine |\n|
+    secret: kv.getSecret('mySecret')
+//@[4:10) Identifier |secret|
+//@[10:11) Colon |:|
+//@[12:14) Identifier |kv|
+//@[14:15) Dot |.|
+//@[15:24) Identifier |getSecret|
+//@[24:25) LeftParen |(|
+//@[25:35) StringComplete |'mySecret'|
+//@[35:36) RightParen |)|
+//@[36:37) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 module issue3000 'empty.bicep' = {
 //@[0:6) Identifier |module|
 //@[7:16) Identifier |issue3000|

@@ -2132,3 +2132,55 @@ var issue3000stgManagedBy = issue3000stg.managedBy
 var issue3000stgManagedByExtended = issue3000stg.managedByExtended
 //@[4:33) [no-unused-vars (Warning)] Variable "issue3000stgManagedByExtended" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |issue3000stgManagedByExtended|
 //@[49:66) [BCP187 (Warning)] The property "managedByExtended" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedByExtended|
+
+param dataCollectionRule object
+param tags object
+
+var defaultLogAnalyticsWorkspace = {
+  subscriptionId: subscription().subscriptionId
+}
+
+resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = [for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+  name: logAnalyticsWorkspace.name
+  scope: resourceGroup( union( defaultLogAnalyticsWorkspace, logAnalyticsWorkspace ).subscriptionId, logAnalyticsWorkspace.resourceGroup )
+}]
+
+resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+  name: dataCollectionRule.name
+  location: dataCollectionRule.location
+  tags: tags
+  kind: dataCollectionRule.kind
+  properties: {
+    description: dataCollectionRule.description
+    destinations: union(empty(dataCollectionRule.destinations.azureMonitorMetrics.name) ? {} : {
+      azureMonitorMetrics: {
+        name: dataCollectionRule.destinations.azureMonitorMetrics.name
+      }
+    },{
+      logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+//@[21:24) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
+        name: logAnalyticsWorkspace.destinationName
+        workspaceResourceId: logAnalyticsWorkspaces[i].id
+      }]
+    })
+    dataSources: dataCollectionRule.dataSources
+    dataFlows: dataCollectionRule.dataFlows
+  }
+}
+
+resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+  name: dataCollectionRule.name
+  location: dataCollectionRule.location
+  tags: tags
+  kind: dataCollectionRule.kind
+  properties: {
+    description: dataCollectionRule.description
+    destinations: empty([]) ? [for x in []: {}] : [for x in []: {}]
+//@[18:67) [BCP036 (Warning)] The property "destinations" expected a value of type "DataCollectionRuleDestinations | null" but the provided value is of type "object[] | object[]". (CodeDescription: none) |empty([]) ? [for x in []: {}] : [for x in []: {}]|
+//@[31:34) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
+//@[51:54) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
+    dataSources: dataCollectionRule.dataSources
+    dataFlows: dataCollectionRule.dataFlows
+  }
+}
+

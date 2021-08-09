@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -40,8 +41,8 @@ namespace Bicep.Core.TypeSystem
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFileResolver fileResolver;
-        private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
-        private readonly IDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
+        private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
+        private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
 
         public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, ITypeManager typeManager, IBinder binder, IFileResolver fileResolver)
         {
@@ -49,8 +50,8 @@ namespace Bicep.Core.TypeSystem
             this.typeManager = typeManager;
             this.binder = binder;
             this.fileResolver = fileResolver;
-            assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
-            matchedFunctionOverloads = new Dictionary<FunctionCallSyntaxBase, FunctionOverload>();
+            assignedTypes = new();
+            matchedFunctionOverloads = new();
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -82,22 +83,11 @@ namespace Bicep.Core.TypeSystem
             return matchedFunctionOverloads.TryGetValue(syntax, out var overload) ? overload : null;
         }
 
-        private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc)
-        {
-            if (assignedTypes.ContainsKey(syntax))
-            {
-                return;
-            }
-
-            var cyclicErrorType = CheckForCyclicError(syntax);
-            if (cyclicErrorType != null)
-            {
-                assignedTypes[syntax] = new TypeAssignment(cyclicErrorType);
-                return;
-            }
-
-            assignedTypes[syntax] = assignFunc();
-        }
+        private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc) =>
+            assignedTypes.GetOrAdd(syntax, key =>
+                CheckForCyclicError(key) is { } cyclicErrorType
+                    ? new TypeAssignment(cyclicErrorType)
+                    : assignFunc());
 
         private void AssignType(SyntaxBase syntax, Func<ITypeReference> assignFunc)
             => AssignTypeWithCaching(syntax, () => new TypeAssignment(assignFunc()));
@@ -959,12 +949,7 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Create(errors.Concat(errorSymbol.GetDiagnostics()));
 
                     case FunctionSymbol function:
-                        var (type, matchedOverload) = GetFunctionSymbolType(function, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, errors, diagnostics);
-                        if (matchedOverload is not null)
-                        {
-                            matchedFunctionOverloads.Add(syntax, matchedOverload);
-                        }
-                        return type;
+                        return GetFunctionSymbolType(function, syntax, errors, diagnostics);
 
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
@@ -1063,12 +1048,7 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Create(errors.Concat(errorSymbol.GetDiagnostics()));
 
                     case FunctionSymbol functionSymbol:
-                        var (type, matchedOverload) = GetFunctionSymbolType(functionSymbol, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, errors, diagnostics);
-                        if (matchedOverload is not null)
-                        {
-                            matchedFunctionOverloads.Add(syntax, matchedOverload);
-                        }
-                        return type;
+                        return GetFunctionSymbolType(functionSymbol, syntax, errors, diagnostics);
 
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
@@ -1193,16 +1173,14 @@ namespace Bicep.Core.TypeSystem
             errors.AddRange(reference.Type.GetDiagnostics());
         }
 
-        private (TypeSymbol typeSymbol, FunctionOverload? matchedOverload) GetFunctionSymbolType(
+        private TypeSymbol GetFunctionSymbolType(
             FunctionSymbol function,
-            Token openParen,
-            Token closeParen,
-            ImmutableArray<FunctionArgumentSyntax> argumentSyntaxes,
+            FunctionCallSyntaxBase syntax,
             IList<ErrorDiagnostic> errors,
             IDiagnosticWriter diagnosticWriter)
         {
             // Recover argument type errors so we can continue type checking for the parent function call.
-            var argumentTypes = this.GetRecoveredArgumentTypes(argumentSyntaxes).ToImmutableArray();
+            var argumentTypes = this.GetRecoveredArgumentTypes(syntax.Arguments).ToImmutableArray();
             var matches = FunctionResolver.GetMatches(
                 function,
                 argumentTypes,
@@ -1219,7 +1197,7 @@ namespace Bicep.Core.TypeSystem
                         var parameterTypes = typeMismatches.Select(tm => tm.ParameterType).ToList();
                         var argumentType = typeMismatches[0].ArgumentType;
                         var signatures = typeMismatches.Select(tm => tm.Source.TypeSignature).ToList();
-                        var argumentSyntax = argumentSyntaxes[typeMismatches[0].ArgumentIndex];
+                        var argumentSyntax = syntax.Arguments[typeMismatches[0].ArgumentIndex];
 
                         errors.Add(DiagnosticBuilder.ForPosition(argumentSyntax).CannotResolveFunctionOverload(signatures, argumentType, parameterTypes));
                     }
@@ -1228,14 +1206,14 @@ namespace Bicep.Core.TypeSystem
                         // Choose the type mismatch that has the largest index as the best one.
                         var (_, argumentIndex, argumentType, parameterType) = typeMismatches.OrderBy(tm => tm.ArgumentIndex).Last();
 
-                        errors.Add(DiagnosticBuilder.ForPosition(argumentSyntaxes[argumentIndex]).ArgumentTypeMismatch(argumentType, parameterType));
+                        errors.Add(DiagnosticBuilder.ForPosition(syntax.Arguments[argumentIndex]).ArgumentTypeMismatch(argumentType, parameterType));
                     }
                 }
                 else
                 {
                     // Argument type mismatch wins over count mismatch. Handle count mismatch only when there's no type mismatch.
                     var (actualCount, mininumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
-                    var argumentsSpan = TextSpan.Between(openParen, closeParen);
+                    var argumentsSpan = TextSpan.Between(syntax.OpenParen, syntax.CloseParen);
 
                     errors.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, mininumArgumentCount, maximumArgumentCount));
                 }
@@ -1243,16 +1221,17 @@ namespace Bicep.Core.TypeSystem
 
             if (PropagateErrorType(errors))
             {
-                return (ErrorType.Create(errors), null);
+                return ErrorType.Create(errors);
             }
 
             if (matches.Count == 1)
             {
-
                 // we have an exact match or a single ambiguous match
                 var matchedOverload = matches.Single();
+                matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
+
                 // return its type
-                return (matchedOverload.ReturnTypeBuilder(binder, fileResolver, diagnosticWriter, argumentSyntaxes, argumentTypes), matchedOverload);
+                return matchedOverload.ReturnTypeBuilder(binder, fileResolver, diagnosticWriter, syntax.Arguments, argumentTypes);
             }
 
             // function arguments are ambiguous (due to "any" type)
@@ -1260,7 +1239,7 @@ namespace Bicep.Core.TypeSystem
             // unfortunately our language lacks a good type checking construct
             // and we also don't want users to have to use the converter functions to work around it
             // instead, we will return the "any" type to short circuit the type checking for those cases
-            return (LanguageConstants.Any, null);
+            return LanguageConstants.Any;
         }
 
         /// <summary>

@@ -34,6 +34,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
         count: agentCount
         vmSize: agentVMSize
         osType: 'Linux'
+        mode: 'System'
       }
     ]
     linuxProfile: {

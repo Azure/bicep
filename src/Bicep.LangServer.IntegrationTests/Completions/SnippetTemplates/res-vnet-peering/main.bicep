@@ -4,6 +4,6 @@
 // $4 = true
 // $5 = true
 // $6 = true
-// $7 = 'REQUIRED'
+// $7 = 'virtualNetworks.id'
 
 // Insert snippet here

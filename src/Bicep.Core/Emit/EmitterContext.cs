@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 
 namespace Bicep.Core.Emit
 {
@@ -26,6 +27,6 @@ namespace Bicep.Core.Emit
 
         public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData => SemanticModel.EmitLimitationInfo.ModuleScopeData;
 
-        public ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> ResourceScopeData => SemanticModel.EmitLimitationInfo.ResourceScopeData;
+        public ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> ResourceScopeData => SemanticModel.EmitLimitationInfo.ResourceScopeData;
     }
 }

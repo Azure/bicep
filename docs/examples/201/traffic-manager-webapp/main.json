@@ -5,33 +5,45 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17027918076956104922"
+      "templateHash": "7725203689471739007"
     }
   },
   "parameters": {
     "uniqueDnsName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Relative DNS name for the traffic manager profile, resulting FQDN will be <uniqueDnsName>.trafficmanager.net, must be globally unique."
+      }
     },
     "uniqueDnsNameForWebApp": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Relative DNS name for the WebApps, must be globally unique.  An index will be appended for each Web App."
+      }
     },
-    "serverFarmName": {
-      "type": "string"
-    },
-    "trafficManagerName": {
-      "type": "string"
+    "appServicePlanName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the App Service Plan that is being created"
+      }
     },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]"
+    },
+    "trafficManagerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the trafficManager being created"
+      }
     }
   },
   "functions": [],
   "resources": [
     {
       "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('serverFarmName')]",
+      "apiVersion": "2020-12-01",
+      "name": "[parameters('appServicePlanName')]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "S1",
@@ -40,19 +52,19 @@
     },
     {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-12-01",
       "name": "[parameters('uniqueDnsNameForWebApp')]",
       "location": "[parameters('location')]",
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
       ]
     },
     {
       "type": "Microsoft.Network/trafficmanagerprofiles",
-      "apiVersion": "2018-04-01",
+      "apiVersion": "2018-08-01",
       "name": "[parameters('trafficManagerName')]",
       "location": "global",
       "properties": {

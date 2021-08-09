@@ -21,24 +21,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void ExpectPass(string text)
         {
-            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
-            {
-                var errors = GetDiagnostics(SimplifyInterpolationRule.Code, text);
-                errors.Should().HaveCount(0, $"expecting linter rule to pass");
-            }
+            AssertRuleCodeDiagnostics(SimplifyInterpolationRule.Code, text, diags => {
+                diags.Should().HaveCount(0, $"expecting linter rule to pass");
+            });
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)
         {
-            using (new AssertionScope($"linter errors for this code:\n{text}\n"))
-            {
-                var errors = GetDiagnostics(SimplifyInterpolationRule.Code, text);
-                errors.Should().HaveCount(1, $"expected one fix per testcase");
+            AssertRuleCodeDiagnostics(SimplifyInterpolationRule.Code, text, diags => {
+                diags.Should().HaveCount(1, $"expected one fix per testcase");
 
-                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-                errors.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Be(expectedFix);
-            }
+                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
+                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
+                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Be(expectedFix);
+            });
         }
 
         [DataRow(

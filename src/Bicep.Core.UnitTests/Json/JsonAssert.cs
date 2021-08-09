@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions.Primitives;
 using JsonDiffPatchDotNet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 using System;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Security.Cryptography;
 using System.Xml.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
@@ -20,6 +22,44 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ScenarioTests
     {
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/3636
+        public void Test_Issue3636()
+        {
+            var lineCount = 100; // increase this number to 10,000 for more intense test
+
+            // use this crypto random number gen to avoid CI warning
+            int generateRandomInt(int minVal = 0, int maxVal = 50)
+            {
+                var rnd = new byte[4];
+                using var rng = new RNGCryptoServiceProvider();
+                rng.GetBytes(rnd);
+                var i = Math.Abs(BitConverter.ToInt32(rnd, 0));
+                return Convert.ToInt32(i % (maxVal - minVal + 1) + minVal);
+            }
+            Random random = new Random();
+
+            string randomString()
+            {
+                const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                return new string(Enumerable.Repeat(chars, generateRandomInt())
+                  .Select(s => s[generateRandomInt(0, s.Length-1)]).ToArray());
+            }
+
+            var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
+            for (var i = 0; i < lineCount; i++)
+            {
+                file += $"output testa{i} string = '{randomString()} ${{adminuser}} {randomString()}'\n";
+                file += $"output testb{i} string = '{randomString()} ${{adminstring}} {randomString()}'\n";
+            }
+
+            // not a true test for existing diagnostics
+            // this is a trigger to allow timing within the
+            // linter rules - timing must be readded to
+            // initially added to time NoHardcodedEnvironmentUrlsRule
+            CompilationHelper.Compile(file).Should().NotHaveAnyDiagnostics();
+        }
+
         [TestMethod]
         // https://github.com/azure/bicep/issues/746
         public void Test_Issue746()
@@ -1715,7 +1755,7 @@ resource p2 'Microsoft.Network/dnsZones@2018-05-01' = {
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"parent\""),
                 ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing2\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
-                ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.")
+                ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
             });
             result.Template.Should().BeNull();
         }
@@ -2142,7 +2182,7 @@ targetScope = 'managementGroup'
 
 module mgDeploy 'managementGroup.bicep' = {
   name: 'mgDeploy'
-  params: {    
+  params: {
   }
   scope: managementGroup('test')
 }
@@ -2156,7 +2196,7 @@ resource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01'
     policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/10ee2ea2-fb4d-45b8-a7e9-a2e770044cd9'
     displayName: 'Sample policy assignment'
     description: 'Sample policy'
-    enforcementMode: 'Default'    
+    enforcementMode: 'Default'
   }
 }
 "));
@@ -2261,7 +2301,7 @@ var v = {
 
 module simple 'simple.bicep' = {
   name: 's2'
-  params: 
+  params:
 }
 
 output v object = v
@@ -2313,6 +2353,87 @@ output secret string = secret
 
             result.Template.Should().NotHaveValueAtPath("$.variables['secret']", "the listKeys() output should be in-lined and not generate a variable");
             result.Template.Should().HaveValueAtPath("$.outputs['secret'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id, 'alfran')), '2021-02-01').keys[0].value]", "the listKeys() output should be in-lined");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/3558
+        [TestMethod]
+        public void Test_Issue3558()
+        {
+            var result = CompilationHelper.Compile(@"
+param dataCollectionRule object
+param tags object
+
+var defaultLogAnalyticsWorkspace = {
+  subscriptionId: subscription().subscriptionId
+}
+
+resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = [for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+  name: logAnalyticsWorkspace.name
+  scope: resourceGroup( union( defaultLogAnalyticsWorkspace, logAnalyticsWorkspace ).subscriptionId, logAnalyticsWorkspace.resourceGroup )
+}]
+
+resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+  name: dataCollectionRule.name
+  location: dataCollectionRule.location
+  tags: tags
+  kind: dataCollectionRule.kind
+  properties: {
+    description: dataCollectionRule.description
+    destinations: union(empty(dataCollectionRule.destinations.azureMonitorMetrics.name) ? {} : {
+      azureMonitorMetrics: {
+        name: dataCollectionRule.destinations.azureMonitorMetrics.name
+      }
+    },{
+      logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+        name: logAnalyticsWorkspace.destinationName
+        workspaceResourceId: logAnalyticsWorkspaces[i].id
+      }]
+    })
+    dataSources: dataCollectionRule.dataSources
+    dataFlows: dataCollectionRule.dataFlows
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP138", DiagnosticLevel.Error, "For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties.")
+            });
+        }
+
+        [TestMethod]
+        public void Test_Issue3617()
+        {
+            var result = CompilationHelper.Compile(@"
+param eventGridSystemTopicName string
+param subscription object
+param endPointPropertiesWithIdentity object
+param endPointProperties object
+param defaultAdvancedFilterObject object
+
+resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2020-10-15-preview' = {
+  name: '${eventGridSystemTopicName}/${subscription.name}'
+  properties: {
+    deliveryWithResourceIdentity: subscription.destination.useIdentity ? endPointPropertiesWithIdentity[toLower(subscription.destination.type)] : null
+    destination: subscription.destination.useIdentity ? null : endPointProperties[toLower(subscription.destination.type)]
+    filter: {
+      subjectBeginsWith: subscription.filter.beginsWith
+      subjectEndsWith: subscription.filter.endsWith
+      includedEventTypes: subscription.filter.eventTypes
+      isSubjectCaseSensitive: subscription.filter.caseSensitive
+      enableAdvancedFilteringOnArrays: subscription.filter.enableAdvancedFilteringOnArrays
+      advancedFilters: [for advancedFilter in subscription.filter.advancedFilters: {
+        key: advancedFilter.key
+        operatorType: advancedFilter.operator
+        value: union(defaultAdvancedFilterObject, advancedFilter).value
+        values: union(defaultAdvancedFilterObject, advancedFilter).values
+      }]
+    }
+  }
+}
+");
 
             result.Should().NotHaveAnyDiagnostics();
         }

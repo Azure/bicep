@@ -212,7 +212,9 @@ namespace Bicep.LanguageServer.Snippets
                 bicepFile,
                 ImmutableHashSet.Create<ISourceFile>(bicepFile),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>());
+                ImmutableDictionary.Create<ISourceFile, ImmutableHashSet<ISourceFile>>(),
+                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
+                ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
             Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
@@ -333,8 +335,8 @@ namespace Bicep.LanguageServer.Snippets
                 // Insert open curly at the beginning
                 sb.Insert(0, "{\n");
 
-                // Append final tab stop
-                sb.Append("\t$0\n}");
+                // Insert final tab stop outside the top level object
+                sb.Append("}$0");
 
                 return new Snippet(sb.ToString(), CompletionPriority.Medium, label, RequiredPropertiesDescription);
             }

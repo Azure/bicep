@@ -2,7 +2,6 @@
 // $2 = 'name'
 // $3 = 'name'
 // $4 = Dynamic
-// $5 = 'virtualNetwork'
-// $6 = 'subnet'
+// $5 = 'subnet.id'
 
 // Insert snippet here

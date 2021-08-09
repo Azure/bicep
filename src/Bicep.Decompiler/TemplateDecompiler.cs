@@ -8,8 +8,10 @@ using System.Linq;
 using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.Registry;
 using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -54,7 +56,7 @@ namespace Bicep.Decompiler
                 {
                     var moduleRelativePath = SyntaxHelper.TryGetModulePath(module, out _);
                     if (moduleRelativePath == null ||
-                        !SourceFileGroupingBuilder.ValidateFilePath(moduleRelativePath, out _) ||
+                        !LocalModuleReference.Validate(moduleRelativePath, out _) ||
                         !Uri.TryCreate(bicepUri, moduleRelativePath, out var moduleUri))
                     {
                         // Do our best, but keep going if we fail to resolve a module file
@@ -105,7 +107,8 @@ namespace Bicep.Decompiler
         {
             var hasChanges = false;
             var fileResolver = new FileResolver();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, entryUri);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
             var compilation = new Compilation(resourceTypeProvider, sourceFileGrouping);
 
             foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
@@ -123,7 +126,7 @@ namespace Bicep.Decompiler
                     var newFile = new BicepFile(fileUri, ImmutableArray<int>.Empty, newProgramSyntax);
                     workspace.UpsertSourceFile(newFile);
 
-                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, entryUri);
+                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
                     compilation = new Compilation(resourceTypeProvider, sourceFileGrouping);
                 }
             }

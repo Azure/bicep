@@ -4,7 +4,7 @@
 // $4 = true
 // $5 = true
 // $6 = true
-// $7 = 'REQUIRED'
+// $7 = 'virtualNetworks.id'
 
 resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
   name: 'virtualNetwork/name'
@@ -14,7 +14,7 @@ resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-
     allowGatewayTransit: true
     useRemoteGateways: true
     remoteVirtualNetwork: {
-      id: resourceId('Microsoft.Network/virtualNetworks', 'REQUIRED')
+      id: 'virtualNetworks.id'
     }
   }
 }

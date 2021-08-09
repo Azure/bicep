@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Bicep.Core.TypeSystem
     {
         // maps syntax nodes to their declared types
         // processed nodes found not to have a declared type will have a null value
-        private readonly IDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new Dictionary<SyntaxBase, DeclaredTypeAssignment?>();
+        private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
 
         private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly ITypeManager typeManager;
@@ -31,24 +32,8 @@ namespace Bicep.Core.TypeSystem
             this.binder = binder;
         }
 
-        public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
-        {
-            if (this.declaredTypes.TryGetValue(syntax, out var assignment))
-            {
-                // syntax node has already been processed
-                // return result as-is (even if null)
-                return assignment;
-            }
-
-            // the node has not been processed
-            // figure out the type
-            var newAssignment = GetTypeAssignment(syntax);
-
-            // cache the result
-            this.declaredTypes[syntax] = newAssignment;
-
-            return newAssignment;
-        }
+        public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) =>
+            this.declaredTypes.GetOrAdd(syntax, key => GetTypeAssignment(key));
 
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.GetDeclaredTypeAssignment(syntax)?.Reference.Type;
 

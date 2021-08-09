@@ -5,7 +5,7 @@ resource /*${1:mediaServices}*/mediaServices 'Microsoft.Media/mediaServices@2020
   properties: {
     storageAccounts: [
       {
-        id: resourceId('Microsoft.Storage/storageAccounts', /*${3:'mediaServiceStorageAccount'}*/'mediaServiceStorageAccount')
+        id: /*${3:'storageAccount.id'}*/'storageAccount.id'
         type: /*'${4|Primary,Secondary|}'*/'Primary'
       }
     ]

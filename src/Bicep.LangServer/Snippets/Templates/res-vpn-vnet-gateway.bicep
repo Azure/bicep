@@ -9,20 +9,20 @@ resource /*${1:virtualNetworkGateway}*/virtualNetworkGateway 'Microsoft.Network/
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', /*${4:'virtualNetwork'}*/'virtualNetwork', /*${5:'subnet'}*/'subnet')
+            id: /*${4:'subnet.id'}*/'subnet.id'
           }
           publicIPAddress: {
-            id: resourceId('Microsoft.Network/publicIPAddresses', /*${6:'publicIPAddress'}*/'publicIPAddress')
+            id: /*${5:'publicIPAdresses.id'}*/'publicIPAdresses.id'
           }
         }
       }
     ]
     sku: {
-      name: /*'${7|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'*/'Basic'
-      tier: /*'${8|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'*/'Basic'
+      name: /*'${6|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'*/'Basic'
+      tier: /*'${7|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'*/'Basic'
     }
-    gatewayType: /*'${9|Vpn,ExpressRoute|}'*/'Vpn'
-    vpnType: /*'${10|PolicyBased,RouteBased|}'*/'PolicyBased'
-    enableBgp: /*${11|true,false|}*/true
+    gatewayType: /*'${8|Vpn,ExpressRoute|}'*/'Vpn'
+    vpnType: /*'${9|PolicyBased,RouteBased|}'*/'PolicyBased'
+    enableBgp: /*${10|true,false|}*/true
   }
 }

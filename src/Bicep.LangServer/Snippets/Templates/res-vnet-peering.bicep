@@ -7,7 +7,7 @@ resource /*${1:peering}*/peering 'Microsoft.Network/virtualNetworks/virtualNetwo
     allowGatewayTransit: /*${5|true,false|}*/true
     useRemoteGateways: /*${6|true,false|}*/true
     remoteVirtualNetwork: {
-      id: resourceId('Microsoft.Network/virtualNetworks', /*${7:'REQUIRED'}*/'REQUIRED')
+      id: /*${7:'virtualNetworks.id'}*/'virtualNetworks.id'
     }
   }
 }

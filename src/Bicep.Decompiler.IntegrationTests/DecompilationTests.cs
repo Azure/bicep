@@ -21,6 +21,10 @@ using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests.Configuration;
+using Bicep.Core.Modules;
+using Bicep.Core.Registry;
+using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -96,8 +100,8 @@ namespace Bicep.Core.IntegrationTests
             var workspace = new Workspace();
             workspace.UpsertSourceFiles(bicepFiles);
 
-            var fileResolver = new FileResolver();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, workspace, bicepUri);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, bicepUri);
             var compilation = new Compilation(typeProvider, sourceFileGrouping);
             var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile(new ConfigHelper().GetDisabledLinterConfig());
 

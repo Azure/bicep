@@ -20,6 +20,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Bicep.Core.Semantics.Metadata;
 
 namespace Bicep.Core.Emit
 {
@@ -268,14 +269,14 @@ namespace Bicep.Core.Emit
             jsonWriter.WritePropertyName("resources");
             jsonWriter.WriteStartArray();
 
-            foreach (var resourceSymbol in this.context.SemanticModel.Root.GetAllResourceDeclarations())
+            foreach (var resource in this.context.SemanticModel.AllResources)
             {
-                if (resourceSymbol.DeclaringResource.IsExistingResource())
+                if (resource.IsExistingResource)
                 {
                     continue;
                 }
 
-                this.EmitResource(jsonWriter, resourceSymbol, emitter);
+                this.EmitResource(jsonWriter, resource, emitter);
             }
 
             foreach (var moduleSymbol in this.context.SemanticModel.Root.ModuleDeclarations)
@@ -298,15 +299,13 @@ namespace Bicep.Core.Emit
             };
         }
 
-        private void EmitResource(ArmJsonTextWriter jsonWriter, ResourceSymbol resourceSymbol, ExpressionEmitter emitter)
+        private void EmitResource(ArmJsonTextWriter jsonWriter, ResourceMetadata resource, ExpressionEmitter emitter)
         {
 
             // Save current line (start of resource) for source map
             int startLine = jsonWriter.CurrentLine;
 
             jsonWriter.WriteStartObject();
-
-            var typeReference = resourceSymbol.GetResourceTypeReference();
 
             // Note: conditions STACK with nesting.
             //
@@ -316,24 +315,24 @@ namespace Bicep.Core.Emit
             var conditions = new List<SyntaxBase>();
             var loops = new List<(string name, ForSyntax @for, SyntaxBase? input)>();
 
-            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resourceSymbol);
+            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
             foreach (var ancestor in ancestors)
             {
                 if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
-                    ancestor.Resource.DeclaringResource.Value is IfConditionSyntax ifCondition)
+                    ancestor.Resource.Symbol.DeclaringResource.Value is IfConditionSyntax ifCondition)
                 {
                     conditions.Add(ifCondition.ConditionExpression);
                 }
 
                 if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
-                    ancestor.Resource.DeclaringResource.Value is ForSyntax @for)
+                    ancestor.Resource.Symbol.DeclaringResource.Value is ForSyntax @for)
                 {
-                    loops.Add((ancestor.Resource.Name, @for, null));
+                    loops.Add((ancestor.Resource.Symbol.Name, @for, null));
                 }
             }
 
             // Unwrap the 'real' resource body if there's a condition
-            var body = resourceSymbol.DeclaringResource.Value;
+            var body = resource.Symbol.DeclaringResource.Value;
             switch (body)
             {
                 case IfConditionSyntax ifCondition:
@@ -342,7 +341,7 @@ namespace Bicep.Core.Emit
                     break;
 
                 case ForSyntax @for:
-                    loops.Add((resourceSymbol.Name, @for, null));
+                    loops.Add((resource.Symbol.Name, @for, null));
                     if (@for.Body is IfConditionSyntax loopFilter)
                     {
                         body = loopFilter.Body;
@@ -379,7 +378,7 @@ namespace Bicep.Core.Emit
 
             if (loops.Count == 1)
             {
-                var batchSize = GetBatchSize(resourceSymbol.DeclaringResource);
+                var batchSize = GetBatchSize(resource.Symbol.DeclaringResource);
                 emitter.EmitProperty("copy", () => emitter.EmitCopyObject(loops[0].name, loops[0].@for, loops[0].input, batchSize: batchSize));
             }
             else if (loops.Count > 1)
@@ -387,21 +386,21 @@ namespace Bicep.Core.Emit
                 throw new InvalidOperationException("nested loops are not supported");
             }
 
-            emitter.EmitProperty("type", typeReference.FullyQualifiedType);
-            emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
-            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resourceSymbol, out var scopeData))
+            emitter.EmitProperty("type", resource.TypeReference.FullyQualifiedType);
+            emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
             {
-                ScopeHelper.EmitResourceScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter, body);
+                ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);
             }
 
-            emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resourceSymbol));
+            emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resource));
 
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
-            this.EmitDependsOn(jsonWriter, resourceSymbol, emitter, body);
+            this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
 
             // create mapping between resource line range and bicep line
-            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, resourceSymbol.DeclaringResource.GetPosition());
+            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, resource.Symbol.DeclaringResource.GetPosition());
             sourceMap.AddMapping(startLine, jsonWriter.CurrentLine, bicepLine + 1);
 
             jsonWriter.WriteEndObject();
@@ -589,7 +588,10 @@ namespace Bicep.Core.Emit
                             break;
                         }
 
-                        emitter.EmitResourceIdReference(resourceDependency, dependency.IndexExpression, newContext);
+                        var resource = context.SemanticModel.ResourceMetadata.TryLookup(resourceDependency.DeclaringSyntax) ??
+                            throw new ArgumentException($"Unable to find resource metadata for dependency '{dependency.Resource.Name}'");
+
+                        emitter.EmitResourceIdReference(resource, dependency.IndexExpression, newContext);
                         break;
                     case ModuleSymbol moduleDependency:
                         if (moduleDependency.IsCollection && dependency.IndexExpression == null)

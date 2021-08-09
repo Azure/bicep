@@ -9,7 +9,7 @@ resource /*${1:networkInterface}*/networkInterface 'Microsoft.Network/networkInt
         properties: {
           privateIPAllocationMethod: /*'${4|Dynamic,Static|}'*/'Dynamic'
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', /*${5:'virtualNetwork'}*/'virtualNetwork', /*${6:'subnet'}*/'subnet')
+            id: /*${5:'subnet.id'}*/'subnet.id'
           }
         }
       }

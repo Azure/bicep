@@ -1944,3 +1944,62 @@ var issue3000stgManagedBy = issue3000stg.managedBy
 //@[4:25) Variable issue3000stgManagedBy. Type: string. Declaration start char: 0, length: 50
 var issue3000stgManagedByExtended = issue3000stg.managedByExtended
 //@[4:33) Variable issue3000stgManagedByExtended. Type: (never)[]. Declaration start char: 0, length: 66
+
+param dataCollectionRule object
+//@[6:24) Parameter dataCollectionRule. Type: object. Declaration start char: 0, length: 31
+param tags object
+//@[6:10) Parameter tags. Type: object. Declaration start char: 0, length: 17
+
+var defaultLogAnalyticsWorkspace = {
+//@[4:32) Variable defaultLogAnalyticsWorkspace. Type: object. Declaration start char: 0, length: 88
+  subscriptionId: subscription().subscriptionId
+}
+
+resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = [for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+//@[102:123) Local logAnalyticsWorkspace. Type: any. Declaration start char: 102, length: 21
+//@[9:31) Resource logAnalyticsWorkspaces. Type: Microsoft.OperationalInsights/workspaces@2020-10-01[]. Declaration start char: 0, length: 364
+  name: logAnalyticsWorkspace.name
+  scope: resourceGroup( union( defaultLogAnalyticsWorkspace, logAnalyticsWorkspace ).subscriptionId, logAnalyticsWorkspace.resourceGroup )
+}]
+
+resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+//@[9:30) Resource dataCollectionRuleRes. Type: Microsoft.Insights/dataCollectionRules@2021-04-01. Declaration start char: 0, length: 837
+  name: dataCollectionRule.name
+  location: dataCollectionRule.location
+  tags: tags
+  kind: dataCollectionRule.kind
+  properties: {
+    description: dataCollectionRule.description
+    destinations: union(empty(dataCollectionRule.destinations.azureMonitorMetrics.name) ? {} : {
+      azureMonitorMetrics: {
+        name: dataCollectionRule.destinations.azureMonitorMetrics.name
+      }
+    },{
+      logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+//@[26:47) Local logAnalyticsWorkspace. Type: any. Declaration start char: 26, length: 21
+//@[49:50) Local i. Type: int. Declaration start char: 49, length: 1
+        name: logAnalyticsWorkspace.destinationName
+        workspaceResourceId: logAnalyticsWorkspaces[i].id
+      }]
+    })
+    dataSources: dataCollectionRule.dataSources
+    dataFlows: dataCollectionRule.dataFlows
+  }
+}
+
+resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+//@[9:31) Resource dataCollectionRuleRes2. Type: Microsoft.Insights/dataCollectionRules@2021-04-01. Declaration start char: 0, length: 445
+  name: dataCollectionRule.name
+  location: dataCollectionRule.location
+  tags: tags
+  kind: dataCollectionRule.kind
+  properties: {
+    description: dataCollectionRule.description
+    destinations: empty([]) ? [for x in []: {}] : [for x in []: {}]
+//@[35:36) Local x. Type: any. Declaration start char: 35, length: 1
+//@[55:56) Local x. Type: any. Declaration start char: 55, length: 1
+    dataSources: dataCollectionRule.dataSources
+    dataFlows: dataCollectionRule.dataFlows
+  }
+}
+
