@@ -9,6 +9,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 
@@ -103,6 +104,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new List<string> { $"<value_{index}" };
             }
 
+            if (parameter.ParameterType == typeof(ImmutableArray<string>))
+            {
+                return new[] { $"<value_{index}" }.ToImmutableArray();
+            }
+
             if (parameter.ParameterType == typeof(Uri))
             {
                 return new Uri("file:///path/to/main.bicep");
@@ -144,7 +150,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return ResourceScope.ResourceGroup;
             }
 
-            return $"<param_{index}>";
+            if (parameter.ParameterType == typeof(string) || parameter.ParameterType == typeof(IEnumerable<char>))
+            {
+                return $"<param_{index}>";
+            }
+
+            throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
         }
     }
 }

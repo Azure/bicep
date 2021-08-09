@@ -4,7 +4,7 @@ resource /*${1:azureFunction}*/azureFunction 'Microsoft.Web/sites@2020-12-01' = 
   location: resourceGroup().location
   kind: 'functionapp'
   properties: {
-    serverFarmId: resourceId('Microsoft.Web/serverfarms', /*${3:'serverFarmName'}*/'serverFarmName')
+    serverFarmId: /*${3:'serverfarms.id'}*/'serverfarms.id'
     siteConfig: {
       appSettings: [
         {
@@ -21,7 +21,7 @@ resource /*${1:azureFunction}*/azureFunction 'Microsoft.Web/sites@2020-12-01' = 
         }
         {
           name: 'WEBSITE_CONTENTSHARE'
-          value: /*toLower(${2:'name'})*/'value'
+          value: /*toLower(${10:'name'})*/'value'
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
@@ -29,11 +29,11 @@ resource /*${1:azureFunction}*/azureFunction 'Microsoft.Web/sites@2020-12-01' = 
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: reference(resourceId('microsoft.insights/components/', /*${10:'applicationInsightsName'}*/'applicationInsightsName'), '2015-05-01').InstrumentationKey
+          value: reference(/*${11:'insightsComponents.id'}*/'insightsComponents.id', '2015-05-01').InstrumentationKey
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: /*'${11|dotnet,node,java|}'*/'dotnet'
+          value: /*'${12|dotnet,node,java|}'*/'dotnet'
         }
       ]
     }

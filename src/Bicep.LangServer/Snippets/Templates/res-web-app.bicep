@@ -6,6 +6,6 @@ resource /*${1:webApplication}*/webApplication 'Microsoft.Web/sites@2018-11-01' 
     /*'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${3:appServicePlan}'*/resource: 'Resource'
   }
   properties: {
-    serverFarmId: resourceId('Microsoft.Web/serverfarms', /*${4:'appServicePlan'}*/'appServicePlan')
+    serverFarmId: /*${4:'webServerFarms.id'}*/'webServerFarms.id'
   }
 }

@@ -46,11 +46,6 @@ namespace Bicep.Cli.Commands
                 }
             }
 
-            if (args.NoSummary is false)
-            {
-                diagnosticLogger.LogSummary();
-            }
-
             // return non-zero exit code on errors
            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }

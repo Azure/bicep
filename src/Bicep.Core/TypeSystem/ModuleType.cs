@@ -23,5 +23,13 @@ namespace Bicep.Core.TypeSystem
         public ITypeReference Body { get; }
 
         public ResourceScope Scope => ResourceScope.Module;
+
+        public static ModuleType? TryUnwrap(TypeSymbol typeSymbol)
+            => typeSymbol switch
+            {
+                ModuleType moduleType => moduleType,
+                ArrayType { Item: ModuleType moduleType } => moduleType,
+                _ => null
+            };
     }
 }

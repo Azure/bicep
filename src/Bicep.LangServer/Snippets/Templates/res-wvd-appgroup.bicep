@@ -5,6 +5,6 @@ resource /*${1:applicationGroup}*/applicationGroup 'Microsoft.DesktopVirtualizat
   properties: {
     friendlyName: /*${3:'friendlyName'}*/'friendlyName'
     applicationGroupType: /*${4|'Desktop','RemoteApp'|}*/'Desktop'
-    hostPoolArmPath: resourceId('Microsoft.DesktopVirtualization/hostpools', /*${5:'REQUIRED'}*/'REQUIRED')
+    hostPoolArmPath: /*${5:'desktopVirtualizationHostPools.id'}*/'desktopVirtualizationHostPools.id'
   }
 }

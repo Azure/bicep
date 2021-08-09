@@ -724,6 +724,14 @@ module secureModule1 'moduleb.bicep' = {
   }
 }
 
+module secureModule2 'BAD_MODULE_PATH.bicep' = {
+//@[21:44) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/BAD_MODULE_PATH.bicep'. (CodeDescription: none) |'BAD_MODULE_PATH.bicep'|
+  name: 'secureModule2'
+  params: {       
+    secret: kv.getSecret('mySecret')
+  }
+}
+
 module issue3000 'empty.bicep' = {
   name: 'issue3000Module'
   params: {}

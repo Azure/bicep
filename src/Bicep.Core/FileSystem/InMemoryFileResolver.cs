@@ -43,7 +43,7 @@ namespace Bicep.Core.FileSystem
                 return false;
             }
             if (maxCharacters > 0)
-            {                
+            {
                 if (fileContents.Length > maxCharacters)
                 {
                     failureBuilder = x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxCharacters, "characters");
@@ -79,11 +79,9 @@ namespace Bicep.Core.FileSystem
             return relativeUri;
         }
 
-        public bool TryDirExists(Uri fileUri)
-        {
-            return this.fileLookup.Keys
-                .Any(key => key.ToString().StartsWith(fileUri.ToString()));
-        }
+        public bool DirExists(Uri fileUri) => this.fileLookup.Keys.Any(key => key.ToString().StartsWith(fileUri.ToString()));
+
+        public bool FileExists(Uri uri) => this.fileLookup.ContainsKey(uri);
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
         {
@@ -116,7 +114,7 @@ namespace Bicep.Core.FileSystem
                     return false;
                 }
             }
-            fileBase64 = Convert.ToBase64String(bytes);           
+            fileBase64 = Convert.ToBase64String(bytes);
             return true;
         }
     }

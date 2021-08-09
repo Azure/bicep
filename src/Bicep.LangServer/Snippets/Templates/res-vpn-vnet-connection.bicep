@@ -4,11 +4,11 @@ resource /*${1:vpnVnetConnection}*/vpnVnetConnection 'Microsoft.Network/connecti
   location: resourceGroup().location
   properties: {
     virtualNetworkGateway1: {
-      id: resourceId('Microsoft.Network/virtualNetworkGateways', /*${3:'vnetGateway'}*/'vnetGateway')
+      id: /*${3:'virtualNetworkGateways.id'}*/'virtualNetworkGateways.id'
       properties:{}
     }
     localNetworkGateway2: {
-      id: resourceId('Microsoft.Network/localNetworkGateways', /*${4:'localGateway'}*/'localGateway')
+      id: /*${4:'localNetworkGateways.id'}*/'localNetworkGateways.id'
       properties:{}
     }
     connectionType: /*'${5|IPsec,Vnet2Vnet,ExpressRoute,VPNClient|}'*/'IPsec'

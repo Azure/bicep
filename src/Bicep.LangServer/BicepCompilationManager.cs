@@ -7,10 +7,13 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Registry;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -24,15 +27,39 @@ namespace Bicep.LanguageServer
         private readonly IWorkspace workspace;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
+        private readonly IFileResolver fileResolver;
+        private readonly IModuleRestoreScheduler scheduler;
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
 
-        public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider, IWorkspace workspace)
+        public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider, IWorkspace workspace, IFileResolver fileResolver, IModuleRestoreScheduler scheduler)
         {
             this.server = server;
             this.provider = provider;
             this.workspace = workspace;
+            this.fileResolver = fileResolver;
+            this.scheduler = scheduler;
+        }
+
+        public void RefreshCompilation(DocumentUri documentUri)
+        {
+            if(this.GetCompilation(documentUri) is null)
+            {
+                // the compilation we are refreshing no longer exists
+                return;
+            }
+
+            // TODO: This likely has a race condition if the user is modifying the file at the same time
+            var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
+            var (_, removedTrees) = UpdateCompilationInternal(documentUri, null, modelLookup, Enumerable.Empty<ISourceFile>());
+            foreach (var (entrypointUri, context) in activeContexts)
+            {
+                if (removedTrees.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
+                {
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, Enumerable.Empty<ISourceFile>());
+                }
+            }
         }
 
         public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null)
@@ -43,18 +70,18 @@ namespace Bicep.LanguageServer
                 var firstChanges = workspace.UpsertSourceFile(newFile);
                 var removedFiles = firstChanges.removed;
 
+                var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
                 if (newFile is BicepFile)
                 {
                     // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
-                    var secondChanges = UpdateCompilationInternal(documentUri, version);
-                    removedFiles = removedFiles.Concat(secondChanges.removed).ToImmutableArray();
+                    UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles);
                 }
 
                 foreach (var (entrypointUri, context) in activeContexts)
                 {
                     if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                     {
-                        UpdateCompilationInternal(entrypointUri, null);
+                        UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles);
                     }
                 }
             }
@@ -94,11 +121,13 @@ namespace Bicep.LanguageServer
             }
 
             workspace.RemoveSourceFiles(removedFiles);
+
+            var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
             foreach (var (entrypointUri, context) in activeContexts)
             {
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    UpdateCompilationInternal(entrypointUri, null);
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles);
                 }
             }
         }
@@ -140,16 +169,41 @@ namespace Bicep.LanguageServer
             return closedFiles.ToImmutableArray();
         }
 
-        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version)
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles)
         {
             try
             {
-                var context = this.provider.Create(workspace, documentUri);
+                var context = this.activeContexts.AddOrUpdate(
+                    documentUri, 
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary()),
+                    (documentUri, prevContext) => {
+                        var sourceDependencies = removedFiles
+                            .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
+                            .ToImmutableHashSet();
+
+                        // check for semantic models that we can safely reuse from the previous compilation
+                        foreach (var sourceFile in prevContext.Compilation.SourceFileGrouping.SourceFiles)
+                        {
+                            if (!modelLookup.ContainsKey(sourceFile) && !sourceDependencies.Contains(sourceFile))
+                            {
+                                // if we have a file with no dependencies on the modified file(s), we can reuse the previous model
+                                modelLookup[sourceFile] = prevContext.Compilation.GetSemanticModel(sourceFile);
+                            }
+                        }
+
+                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary());
+                    });
+
+                foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
+                {
+                    // store all the updated models as other compilations may be able to reuse them
+                    modelLookup[sourceFile] = context.Compilation.GetSemanticModel(sourceFile);
+                }
+
+                // this completes immediately
+                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.ModulesToRestore);
 
                 var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
-
-                // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
-                this.activeContexts[documentUri] = context;
 
                 // convert all the diagnostics to LSP diagnostics
                 var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
@@ -176,7 +230,7 @@ namespace Bicep.LanguageServer
                     Message = exception.Message,
                     Code = new DiagnosticCode("Fatal")
                 };
-                
+
                 // the file is no longer in a state that can be parsed
                 // clear all info to prevent cascading failures elsewhere
                 var closedFiles = CloseCompilationInternal(documentUri, version, fatalError.AsEnumerable());
@@ -185,7 +239,6 @@ namespace Bicep.LanguageServer
             }
         }
 
-        // TODO: Remove the lexer part when we stop it from emitting errors
         private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<Diagnostic> diagnostics)

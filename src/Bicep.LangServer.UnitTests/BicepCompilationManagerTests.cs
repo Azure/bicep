@@ -2,21 +2,28 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Semantics;
+using Bicep.Core.Registry;
+using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Registry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -38,11 +45,11 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument(p => receivedParams = p);
-            var server = CreateMockServer(document);
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUri();
             var workspace = new Workspace();
-            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
+            var manager = BicepCompilationManagerHelper.CreateCompilationManager(uri, string.Empty);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -69,15 +76,15 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument(p => receivedParams = p);
-            var server = CreateMockServer(document);
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUri();
 
             var originalFile = SourceFileFactory.CreateArmTemplateFile(uri, "{}");
             var workspace = new Workspace();
             workspace.UpsertSourceFile(originalFile);
 
-            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -105,8 +112,8 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument(p => receivedParams = p);
-            var server = CreateMockServer(document);
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName);
             var workspace = new Workspace();
 
@@ -115,7 +122,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -154,8 +161,8 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument(p => receivedParams = p);
-            var server = CreateMockServer(document);
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName);
             var workspace = new Workspace();
 
@@ -164,7 +171,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -226,8 +233,8 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument(p => receivedParams = p);
-            var server = CreateMockServer(document);
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName);
             var workspace = new Workspace();
 
@@ -236,7 +243,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), workspace);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -296,7 +303,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var server = Repository.Create<ILanguageServerFacade>();
 
-            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), new Workspace(), new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -308,11 +315,10 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument(p => receivedParams = p);
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
-            var server = CreateMockServer(document);
-
-            var manager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace());
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), new Workspace(), new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -338,13 +344,12 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument(p => receivedParams = p);
-
-            var server = CreateMockServer(document);
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
             var provider = Repository.Create<ICompilationProvider>();
             const string expectedMessage = "Internal bicep exception.";
-            provider.Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>())).Throws(new InvalidOperationException(expectedMessage));
+            provider.Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>(), It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>())).Throws(new InvalidOperationException(expectedMessage));
 
             var uri = DocumentUri.File(this.TestContext.TestName);
             var workspace = new Workspace();
@@ -354,7 +359,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace);
+            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             // upsert should fail because of the mock fatal exception
             manager.UpsertCompilation(uri, BaseVersion, "fake", languageId);
@@ -396,9 +401,8 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument(p => receivedParams = p);
-
-            var server = CreateMockServer(document);
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
             var provider = Repository.Create<ICompilationProvider>();
             const string expectedMessage = "Internal bicep exception.";
@@ -409,8 +413,8 @@ namespace Bicep.LangServer.UnitTests
             // start by failing
             bool failUpsert = true;
             provider
-                .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>()))
-                .Returns<IReadOnlyWorkspace, DocumentUri>((workspace, documentUri) => failUpsert ? throw new InvalidOperationException(expectedMessage) : CreateEmptyCompilationProvider().Create(workspace, documentUri));
+                .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>(), It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>()))
+                .Returns<IReadOnlyWorkspace, DocumentUri, ImmutableDictionary<ISourceFile, ISemanticModel>>((grouping, documentUri, modelLookup) => failUpsert ? throw new InvalidOperationException(expectedMessage) : BicepCompilationManagerHelper.CreateEmptyCompilationProvider().Create(grouping, documentUri, modelLookup));
 
             var workspace = new Workspace();
 
@@ -419,7 +423,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace);
+            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             // upsert should fail because of the mock fatal exception
             manager.UpsertCompilation(uri, version, "fake", languageId);
@@ -463,38 +467,133 @@ namespace Bicep.LangServer.UnitTests
                 .All(message => string.Equals(message, expectedMessage) == false)
                 .Should().BeTrue();
         }
+        
 
-        private static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)
+        [TestMethod]
+        public void SemanticModels_should_only_be_reloaded_on_sourcefile_or_dependent_sourcefile_changes()
         {
-            var document = Repository.Create<ITextDocumentLanguageServer>();
-            document
-                .Setup(m => m.SendNotification(It.IsAny<MediatR.IRequest>()))
-                .Callback<MediatR.IRequest>((p) => callback((PublishDiagnosticsParams)p))
-                .Verifiable();
+            var uris = (
+                main: new Uri("file:///main.bicep"),
+                moduleA: new Uri("file:///moduleA.bicep"),
+                moduleB: new Uri("file:///moduleB.bicep"),
+                moduleC: new Uri("file:///moduleC.bicep")
+            );
 
-            return document;
+            var fileDict = new Dictionary<Uri, string>
+            {
+                [uris.main] = @"
+module moduleA './moduleA.bicep' = {
+  name: 'moduleA'
+}
+module moduleC './moduleC.bicep' = {
+  name: 'moduleC'
+}
+",
+                [uris.moduleA] = @"
+module moduleB './moduleB.bicep' = {
+  name: 'moduleB'
+}
+",
+                [uris.moduleB] = @"
+",
+                [uris.moduleC] = @"
+",
+            };
+
+            var diagsReceieved = new List<PublishDiagnosticsParams>();
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => diagsReceieved.Add(p));
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
+
+            var fileResolver = new InMemoryFileResolver(fileDict);
+            var compilationProvider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver)));
+
+            var compilationManager = new BicepCompilationManager(server.Object, compilationProvider, new Workspace(), fileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object);
+
+            diagsReceieved.Should().BeEmpty();
+
+            IReadOnlyDictionary<Uri, Compilation> GetCompilations() => new Dictionary<Uri, Compilation>
+            {
+                [uris.main] = compilationManager!.GetCompilation(uris.main)!.Compilation,
+                [uris.moduleA] = compilationManager.GetCompilation(uris.moduleA)!.Compilation,
+                [uris.moduleB] = compilationManager.GetCompilation(uris.moduleB)!.Compilation,
+                [uris.moduleC] = compilationManager.GetCompilation(uris.moduleC)!.Compilation,
+            };
+
+            void EnsureSemanticModelsAndSourceFilesDeduplicated()
+            {
+                var allCompilations = GetCompilations();
+                var distinctSourceFiles = allCompilations.Values.SelectMany(x => x.SourceFileGrouping.SourceFiles).Distinct(ReferenceEqualityComparer.Instance);
+                var distinctSemanticModels = allCompilations.Values.SelectMany(x => x.SourceFileGrouping.SourceFiles.Select(y => x.GetSemanticModel(y))).Distinct(ReferenceEqualityComparer.Instance);
+
+                distinctSourceFiles.Should().HaveCount(4);
+                distinctSemanticModels.Should().HaveCount(4);
+            }
+
+            // open the main file
+            {
+                compilationManager.UpsertCompilation(uris.main, 1, fileDict[uris.main], "bicep");
+
+                diagsReceieved.Should().SatisfyRespectively(
+                    x => x.Uri.Should().Equals(uris.main)
+                );
+                diagsReceieved.Clear();
+            }
+
+            // open all files
+            {
+                compilationManager.UpsertCompilation(uris.moduleA, 1, fileDict[uris.moduleA], "bicep");
+                compilationManager.UpsertCompilation(uris.moduleB, 1, fileDict[uris.moduleB], "bicep");
+                compilationManager.UpsertCompilation(uris.moduleC, 1, fileDict[uris.moduleC], "bicep");
+                diagsReceieved.Clear();
+
+                EnsureSemanticModelsAndSourceFilesDeduplicated();
+            }
+
+            // upserting moduleA should only retrigger necessary recompilations
+            {
+                compilationManager.UpsertCompilation(uris.moduleA, 2, fileDict[uris.moduleA], "bicep");
+
+                diagsReceieved.Should().SatisfyRespectively(
+                    x => x.Uri.Should().Equals(uris.main),
+                    x => x.Uri.Should().Equals(uris.moduleA)
+                );
+                diagsReceieved.Clear();
+
+                var compilations = GetCompilations();
+                var moduleBSource = compilations[uris.moduleB].SourceFileGrouping.EntryPoint;
+                var moduleBModel = compilations[uris.moduleB].GetSemanticModel(moduleBSource);
+
+                compilations[uris.main].GetSemanticModel(moduleBSource).Should().BeSameAs(moduleBModel);
+                compilations[uris.moduleA].GetSemanticModel(moduleBSource).Should().BeSameAs(moduleBModel);
+
+                EnsureSemanticModelsAndSourceFilesDeduplicated();
+            }
+
+            // upserting moduleC should only retrigger necessary recompilations
+            {
+                compilationManager.UpsertCompilation(uris.moduleC, 2, fileDict[uris.moduleC], "bicep");
+
+                diagsReceieved.Should().SatisfyRespectively(
+                    x => x.Uri.Should().Equals(uris.main),
+                    x => x.Uri.Should().Equals(uris.moduleC)
+                );
+                diagsReceieved.Clear();
+
+                EnsureSemanticModelsAndSourceFilesDeduplicated();
+            }
+
+            // upserting main should only retrigger necessary recompilations
+            {
+                compilationManager.UpsertCompilation(uris.main, 3, fileDict[uris.main], "bicep");
+
+                diagsReceieved.Should().SatisfyRespectively(
+                    x => x.Uri.Should().Equals(uris.main)
+                );
+                diagsReceieved.Clear();
+
+                EnsureSemanticModelsAndSourceFilesDeduplicated();
+            }
         }
-
-        private static Mock<ILanguageServerFacade> CreateMockServer(Mock<ITextDocumentLanguageServer> document)
-        {
-            var server = Repository.Create<ILanguageServerFacade>();
-            server
-                .Setup(m => m.TextDocument)
-                .Returns(document.Object);
-
-            var window = Repository.Create<IWindowLanguageServer>();
-            window
-                .Setup(m => m.SendNotification(It.IsAny<LogMessageParams>()));
-
-            server
-                .Setup(m => m.Window)
-                .Returns(window.Object);
-
-            return server;
-        }
-
-        private static ICompilationProvider CreateEmptyCompilationProvider() =>
-            new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), new InMemoryFileResolver(new Dictionary<Uri, string>()));
     }
 }
 

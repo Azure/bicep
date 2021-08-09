@@ -70,7 +70,6 @@ namespace Bicep.Cli.UnitTests
             bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
             bulidOrDecompileArguments!.OutputDir.Should().BeNull();
             bulidOrDecompileArguments!.OutputFile.Should().BeNull();
-            bulidOrDecompileArguments!.NoSummary.Should().BeFalse();
         }
 
         [TestMethod]
@@ -85,7 +84,6 @@ namespace Bicep.Cli.UnitTests
             bulidOrDecompileArguments!.OutputToStdOut.Should().BeTrue();
             bulidOrDecompileArguments!.OutputDir.Should().BeNull();
             bulidOrDecompileArguments!.OutputFile.Should().BeNull();
-            bulidOrDecompileArguments!.NoSummary.Should().BeFalse();
         }
 
         [TestMethod]
@@ -100,7 +98,6 @@ namespace Bicep.Cli.UnitTests
             bulidOrDecompileArguments!.OutputToStdOut.Should().BeTrue();
             bulidOrDecompileArguments!.OutputDir.Should().BeNull();
             bulidOrDecompileArguments!.OutputFile.Should().BeNull();
-            bulidOrDecompileArguments!.NoSummary.Should().BeFalse();
         }
 
         [TestMethod]
@@ -116,7 +113,6 @@ namespace Bicep.Cli.UnitTests
             bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
             bulidOrDecompileArguments!.OutputDir.Should().Be(".");
             bulidOrDecompileArguments!.OutputFile.Should().BeNull();
-            bulidOrDecompileArguments!.NoSummary.Should().BeFalse();
         }
 
 
@@ -132,24 +128,8 @@ namespace Bicep.Cli.UnitTests
             bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
             bulidOrDecompileArguments!.OutputDir.Should().BeNull();
             bulidOrDecompileArguments!.OutputFile.Should().Be("jsonFile");
-            bulidOrDecompileArguments!.NoSummary.Should().BeFalse();
         }
 
-
-        [TestMethod]
-        public void Build_with_noSummary_parameter_should_parse_correctly()
-        {
-            var arguments = ArgumentParser.TryParse(new[] {"build", "--no-summary", "file1"});
-            var bulidOrDecompileArguments = (BuildArguments?) arguments;
-
-            // using classic assert so R# understands the value is not null
-            Assert.IsNotNull(arguments);
-            bulidOrDecompileArguments!.InputFile.Should().Be("file1");
-            bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
-            bulidOrDecompileArguments!.OutputDir.Should().BeNull();
-            bulidOrDecompileArguments!.OutputFile.Should().BeNull();
-            bulidOrDecompileArguments!.NoSummary.Should().BeTrue();
-        }
 
         [TestMethod]
         public void Version_argument_should_return_VersionArguments_instance()

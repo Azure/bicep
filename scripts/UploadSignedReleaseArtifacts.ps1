@@ -29,6 +29,15 @@ param (
 
 $ErrorActionPreference = 'Stop';
 
+if($PSVersionTable.PSEdition -ne 'Core')
+{
+  # The Compress-Archive cmdlet on Windows PowerShell uses \ as the directory separator charactor
+  # when creating .zip files. When extracted on a non-Windows machine, \ is a valid file name character
+  # so the user gets a flat list of files instead of directories and subdirectories.
+  # This was fixed in PS Core/.net 5.
+  Write-Error "This script requires PowerShell Core to run.";
+}
+
 $org = 'https://dev.azure.com/msazure/';
 $project = 'One';
 $pipelineName = 'BicepMirror-Official'

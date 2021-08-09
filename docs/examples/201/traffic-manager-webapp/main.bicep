@@ -1,11 +1,18 @@
+@description('Relative DNS name for the traffic manager profile, resulting FQDN will be <uniqueDnsName>.trafficmanager.net, must be globally unique.')
 param uniqueDnsName string
+
+@description('Relative DNS name for the WebApps, must be globally unique.  An index will be appended for each Web App.')
 param uniqueDnsNameForWebApp string
-param serverFarmName string
-param trafficManagerName string
+
+@description('Name of the App Service Plan that is being created')
+param appServicePlanName string
 param location string = resourceGroup().location
 
-resource serverFarm 'Microsoft.Web/serverfarms@2020-06-01' = {
-  name: serverFarmName
+@description('Name of the trafficManager being created')
+param trafficManagerName string
+
+resource appServicePlan 'Microsoft.Web/serverFarms@2020-12-01' = {
+  name: appServicePlanName
   location: location
   sku: {
     name: 'S1'
@@ -13,15 +20,15 @@ resource serverFarm 'Microsoft.Web/serverfarms@2020-06-01' = {
   }
 }
 
-resource webSite 'Microsoft.Web/sites@2020-06-01' = {
+resource webSite 'Microsoft.Web/sites@2020-12-01' = {
   name: uniqueDnsNameForWebApp
   location: location
   properties: {
-    serverFarmId: serverFarm.id
+    serverFarmId: appServicePlan.id
   }
 }
 
-resource trafficManagerProfile 'Microsoft.Network/trafficmanagerprofiles@2018-04-01' = {
+resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-08-01' = {
   name: trafficManagerName
   location: 'global'
   properties: {

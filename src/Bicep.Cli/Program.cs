@@ -8,11 +8,14 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.Runtime;
 
 namespace Bicep.Cli
@@ -27,7 +30,7 @@ namespace Bicep.Cli
         }
 
         public static int Main(string[] args)
-        {            
+        {
             string profilePath = MulticoreJIT.GetMulticoreJITPath();
             ProfileOptimization.SetProfileRoot(profilePath);
             ProfileOptimization.StartProfile("bicep.profile");
@@ -42,7 +45,12 @@ namespace Bicep.Cli
 
         public int Run(string[] args)
         {
-            ServiceProvider serviceProvider = ConfigureServices();
+            var serviceProvider = ConfigureServices();
+
+            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
+            {
+                Trace.Listeners.Add(new TextWriterTraceListener(this.invocationContext.OutputWriter));
+            }
 
             try
             {
@@ -101,7 +109,9 @@ namespace Bicep.Cli
                 // Handles the context of this invocation
                 .AddSingleton(invocationContext)
 
-                // Adds the various services that
+                // Adds the various services required by the commands
+                .AddSingleton<IFileResolver, FileResolver>()
+                .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
                 .AddSingleton<CompilationService>()

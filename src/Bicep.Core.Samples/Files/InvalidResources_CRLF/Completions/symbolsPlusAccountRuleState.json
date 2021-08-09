@@ -674,6 +674,54 @@
     ]
   },
   {
+    "label": "dataCollectionRule",
+    "kind": "field",
+    "detail": "dataCollectionRule",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dataCollectionRule",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dataCollectionRule"
+    }
+  },
+  {
+    "label": "dataCollectionRuleRes",
+    "kind": "interface",
+    "detail": "dataCollectionRuleRes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dataCollectionRuleRes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dataCollectionRuleRes"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "dataCollectionRuleRes2",
+    "kind": "interface",
+    "detail": "dataCollectionRuleRes2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dataCollectionRuleRes2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dataCollectionRuleRes2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "dataUri",
     "kind": "function",
     "detail": "dataUri()",
@@ -722,6 +770,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "defaultLogAnalyticsWorkspace",
+    "kind": "variable",
+    "detail": "defaultLogAnalyticsWorkspace",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_defaultLogAnalyticsWorkspace",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "defaultLogAnalyticsWorkspace"
     }
   },
   {
@@ -2729,6 +2791,23 @@
     "command": {
       "command": "editor.action.triggerParameterHints"
     }
+  },
+  {
+    "label": "logAnalyticsWorkspaces",
+    "kind": "interface",
+    "detail": "logAnalyticsWorkspaces",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_logAnalyticsWorkspaces",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "logAnalyticsWorkspaces"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "loopForRuntimeCheck",
@@ -5085,6 +5164,20 @@
     "textEdit": {
       "range": {},
       "newText": "sys"
+    }
+  },
+  {
+    "label": "tags",
+    "kind": "field",
+    "detail": "tags",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_tags",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "tags"
     }
   },
   {
