@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.UnitTests.Assertions;
@@ -57,7 +58,30 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         [TestMethod]
-        public async Task Handle_WithValidPath_AndErrorsInInputFile_ReturnsBuildFailedMessage()
+        public async Task Handle_WithValidPath_AndOnlyWarningsAndInfoInInputFile_ReturnsBuildSucceededMessage()
+        {
+            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            FileHelper.SaveResultFile(TestContext, "encoding.txt", @"Π π Φ φ", testOutputPath, Encoding.UTF8);
+
+            string bicepFileContents = @"var textLoadEncoding = loadTextContent('encoding.txt', 'us-ascii')
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'dnsZone'
+  location: 'global'
+}";
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
+            Uri bicepFileUri = new Uri(bicepFilePath);
+
+            DocumentUri documentUri = DocumentUri.From(bicepFileUri);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object);
+            string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
+
+            expected.Should().Be(@"Build succeeded. Created file input.json");
+        }
+
+        [TestMethod]
+        public async Task Handle_WithValidPath_AndErrorsAndWarningsInInputFile_ReturnsBuildFailedMessage()
         {
             DocumentUri documentUri = DocumentUri.From("input.bicep");
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, @"targetScope
@@ -74,6 +98,7 @@ targetScope = 'asdfds'
 targetScope = { }
 
 targetScope = true
+param accountName string = 'testAccount'
 ", true);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object);
             string expected = await bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
@@ -97,6 +122,7 @@ targetScope = true
 /input.bicep(12,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""object"".
 /input.bicep(14,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
 /input.bicep(14,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""bool"".
+/input.bicep(15,7) : Warning no-unused-params: Parameter ""accountName"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]
 ");
         }
 
@@ -131,7 +157,12 @@ targetScope = true
         [TestMethod]
         public async Task Handle_WithValidPath_AndNoErrorsInInputFile_ReturnsBuildSucceededMessage()
         {
-            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'name'
+  location: 'global'
+}
+
+");
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object);
