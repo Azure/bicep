@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer.Handlers
             KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile = context.Compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == documentUri.ToUri());
 
-            if (diagnosticsByFile.Value.Any())
+            if (diagnosticsByFile.Value.Any(x => x.Level == DiagnosticLevel.Error))
             {
                 return GetDiagnosticsMessage(diagnosticsByFile);
             }
