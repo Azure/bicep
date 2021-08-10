@@ -7,7 +7,7 @@ resource virtualHub 'Microsoft.Network/virtualHubs@2021-02-01' = {
   }
 }
 
-resource /*${2:'ipConfiguration'}*/ipConfiguration 'Microsoft.Network/virtualHubs/ipConfigurations@2021-02-01' = {
+resource /*${2:ipConfiguration}*/ipConfiguration 'Microsoft.Network/virtualHubs/ipConfigurations@2021-02-01' = {
   name: /*${3:'name'}*/'name'
   parent: virtualHub
   properties: {
