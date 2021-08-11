@@ -19,3 +19,4 @@ resource automationVariable 'Microsoft.Automation/automationAccounts/variables@2
   }
 }
 // Insert snippet here
+

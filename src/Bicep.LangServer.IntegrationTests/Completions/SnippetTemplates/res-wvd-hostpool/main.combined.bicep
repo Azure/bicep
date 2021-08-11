@@ -16,3 +16,4 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview'
   }
 }
 // Insert snippet here
+

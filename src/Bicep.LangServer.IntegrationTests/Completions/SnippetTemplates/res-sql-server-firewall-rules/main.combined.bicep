@@ -24,3 +24,4 @@ resource sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2020-11-01-
   }
 }
 // Insert snippet here
+

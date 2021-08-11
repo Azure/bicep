@@ -77,3 +77,4 @@ resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015
   }
 }
 // Insert snippet here
+

@@ -14,3 +14,4 @@ resource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {
   }
 }
 // Insert snippet here
+
