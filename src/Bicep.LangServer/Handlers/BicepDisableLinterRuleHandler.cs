@@ -49,7 +49,6 @@ namespace Bicep.LanguageServer.Handlers
 
             File.WriteAllText(configFilePath, updatedBicepConfig);
 
-
             return await Unit.Task;
         }
 

@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
