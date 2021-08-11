@@ -215,7 +215,7 @@
   "devDependencies": {
     "@types/copy-webpack-plugin": "^8.0.1",
     "@types/cytoscape": "^3.14.17",
-    "@types/jest": "^26.0.24",
+    "@types/jest": "^27.0.0",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.4.13",
     "@types/react": "^17.0.16",
