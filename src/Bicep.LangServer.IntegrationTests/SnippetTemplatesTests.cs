@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -16,7 +18,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    public class SnippetTemplatesTests 
+    public class SnippetTemplatesTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -26,7 +28,11 @@ namespace Bicep.LangServer.IntegrationTests
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void VerifySnippetTemplatesAreErrorFree(CompletionData completionData)
         {
-            var mainUri = new Uri("file:///main.bicep");
+            string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
+
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(SnippetTemplatesTests).Assembly, pathPrefix);
+
+            var mainUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, "main.bicep"));
             var bicepContents = completionData.SnippetText;
             var files = new Dictionary<Uri, string>
             {
@@ -38,7 +44,7 @@ namespace Bicep.LangServer.IntegrationTests
             // specify it in module snippet template
             if (prefix == "module")
             {
-                var paramUri = new Uri("file:///param.bicep");
+                var paramUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, "param.bicep"));
                 files.Add(paramUri, "param myParam string = 'test'");
             }
 
@@ -47,8 +53,6 @@ namespace Bicep.LangServer.IntegrationTests
 
             if (semanticModel.HasErrors())
             {
-                string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
-                var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(CompletionTests).Assembly, pathPrefix);
                 var errors = semanticModel.GetAllDiagnostics().Where(x => x.Level == DiagnosticLevel.Error);
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContents, "\n", errors, diag => OutputHelper.GetDiagLoggingString(bicepContents, outputDirectory, diag));
                 Assert.Fail("Template with prefix {0} contains errors. Please fix following errors:\n {1}", completionData.Prefix, sourceTextWithDiags);
