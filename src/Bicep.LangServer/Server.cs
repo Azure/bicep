@@ -74,6 +74,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepSemanticTokensHandler>()
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
+                    .WithHandler<BicepDisableLinterRuleHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 
                 onOptionsFunc(options);
