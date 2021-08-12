@@ -24,3 +24,4 @@ resource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
   }
 }
 // Insert snippet here
+

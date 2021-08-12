@@ -12,3 +12,4 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
   }
 }
 // Insert snippet here
+

@@ -6,3 +6,4 @@ resource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2
   location: resourceGroup().location
 }
 // Insert snippet here
+

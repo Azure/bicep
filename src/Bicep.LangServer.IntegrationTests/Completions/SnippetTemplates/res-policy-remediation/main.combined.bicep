@@ -19,3 +19,4 @@ resource policyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = 
   }
 }
 // Insert snippet here
+

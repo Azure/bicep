@@ -32,3 +32,4 @@ resource appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {
   }
 }
 // Insert snippet here
+
