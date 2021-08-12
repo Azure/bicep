@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "@azure-tools/tmlanguage-generator": "^0.1.4",
+    "tmlanguage-generator": "^0.2.0",
     "@types/html-escaper": "^3.0.0",
     "@types/jest": "^27.0.0",
     "@types/node": "^16.4.13",
