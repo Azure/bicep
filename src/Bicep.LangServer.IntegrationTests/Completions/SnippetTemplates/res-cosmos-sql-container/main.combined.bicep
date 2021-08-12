@@ -59,3 +59,4 @@ resource sqlContainerName 'Microsoft.DocumentDb/databaseAccounts/apis/databases/
   }
 }
 // Insert snippet here
+

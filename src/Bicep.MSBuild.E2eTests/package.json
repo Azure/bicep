@@ -4,9 +4,9 @@
   "dependencies": {},
   "devDependencies": {
     "@types/cross-spawn": "^6.0.2",
-    "@types/jest": "^26.0.24",
-    "@typescript-eslint/eslint-plugin": "^4.29.0",
-    "@typescript-eslint/parser": "^4.29.0",
+    "@types/jest": "^27.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/parser": "^4.29.1",
     "cross-spawn": "^7.0.3",
     "jest": "^27.0.6",
     "prettier": "^2.3.2",

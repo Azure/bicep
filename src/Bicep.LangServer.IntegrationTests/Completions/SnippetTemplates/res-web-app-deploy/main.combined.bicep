@@ -22,3 +22,4 @@ resource webApplicationExtension 'Microsoft.Web/sites/extensions@2020-12-01' = {
   }
 }
 // Insert snippet here
+
