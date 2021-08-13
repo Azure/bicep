@@ -231,11 +231,9 @@ namespace Bicep.LanguageServer
                     Code = new DiagnosticCode("Fatal")
                 };
 
-                // the file is no longer in a state that can be parsed
-                // clear all info to prevent cascading failures elsewhere
-                var closedFiles = CloseCompilationInternal(documentUri, version, fatalError.AsEnumerable());
+                this.PublishDocumentDiagnostics(documentUri, version, fatalError.AsEnumerable());
 
-                return (ImmutableArray<ISourceFile>.Empty, closedFiles);
+                return (ImmutableArray<ISourceFile>.Empty, ImmutableArray<ISourceFile>.Empty);
             }
         }
 
