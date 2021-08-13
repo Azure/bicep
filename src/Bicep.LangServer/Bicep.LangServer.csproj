@@ -11,11 +11,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.2" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="./Snippets/Templates/*.bicep" LogicalName="$([System.String]::new('Snippets/Templates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\vscode-bicep\schemas\bicepconfig.schema.json">
+      <Link>bicepconfig.schema.json</Link>
+    </EmbeddedResource>
+  </ItemGroup>	
 
 </Project>
