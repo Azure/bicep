@@ -13,8 +13,6 @@ namespace Bicep.Core.Configuration
 {
     public class ConfigHelper
     {
-        private const string SettingsFileName = "bicepconfig.json";
-
         /// <summary>
         /// Property exposes the configuration root
         /// that is currently loaded
@@ -39,7 +37,7 @@ namespace Bicep.Core.Configuration
             // load the default settings from file embedded as resource
             var assembly = Assembly.GetExecutingAssembly();
             var names = assembly.GetManifestResourceNames();
-            var defaultConfigResourceName = names.FirstOrDefault(n => n.EndsWith(SettingsFileName));
+            var defaultConfigResourceName = names.FirstOrDefault(n => n.EndsWith(LanguageConstants.BicepConfigSettingsFileName));
 
             // keep this stream open until after Build() call
             using (var defaultConfigStream = assembly.GetManifestResourceStream(defaultConfigResourceName))
@@ -87,7 +85,7 @@ namespace Bicep.Core.Configuration
               {
                   while (!string.IsNullOrEmpty(nextDir))
                   {
-                      var fileName = Path.Combine(nextDir, SettingsFileName);
+                      var fileName = Path.Combine(nextDir, LanguageConstants.BicepConfigSettingsFileName);
                       if (File.Exists(fileName))
                       {
                           return fileName;
