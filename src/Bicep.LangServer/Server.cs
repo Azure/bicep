@@ -3,7 +3,6 @@
 using System;
 using System.IO;
 using System.IO.Pipelines;
-using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
@@ -24,8 +23,8 @@ using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Bicep.LanguageServer.Utils;
+using Bicep.LanguageServer.Configuration;
 
 namespace Bicep.LanguageServer
 {
@@ -38,6 +37,8 @@ namespace Bicep.LanguageServer
             public IResourceTypeProvider? ResourceTypeProvider { get; set; }
 
             public IFileResolver? FileResolver { get; set; }
+
+            public IBicepConfigChangeHandler? BicepConfigChangeHandler { get; set; }
         }
 
         private readonly OmnisharpLanguageServer server;
@@ -104,6 +105,7 @@ namespace Bicep.LanguageServer
             // without manually constructing up the graph
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver));
+            services.AddSingleton<IBicepConfigChangeHandler>(services => creationOptions.BicepConfigChangeHandler ?? new BicepConfigChangeHandler(fileResolver));
             services.AddSingleton<IFileResolver>(services => fileResolver);
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
@@ -113,6 +115,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
+            services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
             services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
         }
     }
