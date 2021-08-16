@@ -117,7 +117,6 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
-            services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
         }
     }
 }
