@@ -55,7 +55,7 @@ namespace Bicep.LanguageServer.Configuration
         private bool ShouldUpsertCompilation(FileChangeType fileChangeType, Uri bicepConfigUri)
         {
             // When fileChangeType is "Changed", we don't want to retrigger compilation for every key stroke.
-            // We'll check the validity of file against the schema. Once the file is valid, we'll retrigger compilation. 
+            // We'll check the validity of file against the schema and retrigger compilation only if the file is valid
             if (fileChangeType == FileChangeType.Changed)
             {
                 return fileResolver.TryRead(bicepConfigUri, out string? bicepConfigFileContents, out ErrorBuilderDelegate _) &&
@@ -75,6 +75,8 @@ namespace Bicep.LanguageServer.Configuration
             }
             catch
             {
+                // We want to push error dignostics in case of invalid bicepconfig.json.
+                // We won't be able to apply validation until user fixes issues in config file
                 return true;
             }
         }
