@@ -9,6 +9,6 @@ namespace Bicep.LanguageServer.Configuration
 {
     public interface IBicepConfigChangeHandler
     {
-        void RetriggerCompilationOfAllSourceFilesInWorkspace(ICompilationManager compilationManager, FileEvent bicepConfigFileEvent, IWorkspace workspace);
+        void RetriggerCompilationOfSourceFilesInWorkspace(ICompilationManager compilationManager, FileEvent bicepConfigFileEvent, IWorkspace workspace);
     }
 }
