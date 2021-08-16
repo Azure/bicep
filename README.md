@@ -35,13 +35,13 @@ Bicep code is transpiled to standard ARM Template JSON files, which effectively 
 To get going with Bicep:
 
 1. **Start by [installing the tooling](./docs/installing.md).**
-1. **Complete the [Bicep tutorial](./docs/tutorial/01-simple-template.md)**
+2. **Complete the [Bicep Learning Path](https://docs.microsoft.com/learn/paths/bicep-deploy/)**
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VS Code Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
 
-If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](./docs/decompiling.md).
+If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](https://docs.microsoft.com/azure/azure-resource-manager/bicep/decompile).
 
-Full details of how the bicep language works can be found in the [Bicep documentation](https://github.com/Azure/bicep/tree/main/docs) and there is a rich library of [examples](https://github.com/Azure/bicep/tree/main/docs/examples) to help you get a jumpstart.
+Full details of how the bicep language works can be found in the [Bicep documentation](https://docs.microsoft.com/azure/azure-resource-manager/bicep/) and there is a rich library of [examples](https://github.com/Azure/bicep/tree/main/docs/examples) to help you get a jumpstart.
 
 ## How does Bicep work?
 
