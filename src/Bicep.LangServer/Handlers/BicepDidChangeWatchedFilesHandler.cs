@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (bicepConfigFileChangeEvents.Any())
             {
-                bicepConfigChangeHandler.RetriggerCompilationOfAllSourceFilesInWorkspace(compilationManager, bicepConfigFileChangeEvents.First(), workspace);
+                bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(compilationManager, bicepConfigFileChangeEvents.First(), workspace);
             }
 
             compilationManager.HandleFileChanges(fileEvents);
