@@ -34,6 +34,7 @@ namespace Bicep.LanguageServer.Handlers
             Container<FileEvent> fileEvents = request.Changes;
             IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => x.Uri.Path.EndsWith(LanguageConstants.BicepConfigSettingsFileName));
 
+            // Retrigger compilation of source files in workspace when local bicepconfig.json file is edited
             if (bicepConfigFileChangeEvents.Any())
             {
                 bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(compilationManager, bicepConfigFileChangeEvents.First(), workspace);

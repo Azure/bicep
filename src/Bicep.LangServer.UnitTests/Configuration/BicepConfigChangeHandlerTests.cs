@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -25,6 +26,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
     [TestClass]
     public class BicepConfigChangeHandlerTests
     {
+        private readonly BicepConfigChangeHandler bicepConfigChangeHandler = new(BicepTestConstants.FileResolver);
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -271,30 +274,28 @@ namespace Bicep.LangServer.UnitTests.Configuration
         {
             PublishDiagnosticsParams? receivedParams = null;
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
-            var server = BicepCompilationManagerHelper.CreateMockServer(document);
+            ILanguageServerFacade server = BicepCompilationManagerHelper.CreateMockServer(document).Object;
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath, Encoding.UTF8);
-            var uri = DocumentUri.File(bicepFilePath);
             var workspace = new Workspace();
-            ISourceFile sourceFile = SourceFileFactory.CreateSourceFile(uri.ToUri(), bicepFileContents);
+            ISourceFile sourceFile = SourceFileFactory.CreateSourceFile(new Uri(bicepFilePath), bicepFileContents);
             workspace.UpsertSourceFile(sourceFile);
 
-            var bicepCompilationManager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
+            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             string bicepConfigFilePath = string.Empty;
-            DocumentUri documentUri = DocumentUri.From("some_path");
+            DocumentUri bicepConfigDocumentUri = DocumentUri.From("some_path");
 
             if (saveBicepConfigFile)
             {
                 bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath, Encoding.UTF8);
-                documentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
+                bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             }
-
-            BicepConfigChangeHandler bicepConfigChangeHandler = new BicepConfigChangeHandler(new FileResolver());
 
             FileEvent fileEvent = new FileEvent
             {
-                Uri = documentUri,
+                Uri = bicepConfigDocumentUri,
                 Type = fileChangeType
             };
 
