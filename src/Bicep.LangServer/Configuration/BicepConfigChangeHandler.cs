@@ -17,7 +17,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.LanguageServer.Configuration
 {
-    public class BicepConfigChangeHandler: IBicepConfigChangeHandler
+    public class BicepConfigChangeHandler : IBicepConfigChangeHandler
     {
         private JSchema bicepConfigSchema;
         private readonly IFileResolver fileResolver;
@@ -33,13 +33,11 @@ namespace Bicep.LanguageServer.Configuration
             bicepConfigSchema = JSchema.Parse(streamReader.ReadToEnd());
         }
 
-        public void RetriggerCompilationOfAllSourceFilesInWorkspace(ICompilationManager compilationManager, FileEvent bicepConfigFileEvent, IWorkspace workspace)
+        public void RetriggerCompilationOfSourceFilesInWorkspace(ICompilationManager compilationManager, FileEvent bicepConfigFileEvent, IWorkspace workspace)
         {
             Uri bicepConfigUri = bicepConfigFileEvent.Uri.ToUri();
 
-            if (fileResolver.TryRead(bicepConfigUri, out string? bicepConfigFileContents, out ErrorBuilderDelegate _) &&
-                bicepConfigFileContents is not null &&
-                IsBicepConfigValid(bicepConfigFileContents))
+            if (ShouldUpsertCompilation(bicepConfigFileEvent.Type, bicepConfigUri))
             {
                 foreach (ISourceFile sourceFile in workspace.GetSourceFilesForDirectory(bicepConfigUri))
                 {
@@ -52,6 +50,20 @@ namespace Bicep.LanguageServer.Configuration
                     }
                 }
             }
+        }
+
+        private bool ShouldUpsertCompilation(FileChangeType fileChangeType, Uri bicepConfigUri)
+        {
+            // When fileChangeType is "Changed", we don't want to retrigger compilation for every key stroke.
+            // We'll check the validity of file against the schema. Once the file is valid, we'll retrigger compilation. 
+            if (fileChangeType == FileChangeType.Changed)
+            {
+                return fileResolver.TryRead(bicepConfigUri, out string? bicepConfigFileContents, out ErrorBuilderDelegate _) &&
+                    bicepConfigFileContents is not null &&
+                    IsBicepConfigValid(bicepConfigFileContents);
+            }
+
+            return true;
         }
 
         private bool IsBicepConfigValid(string bicepConfig)
