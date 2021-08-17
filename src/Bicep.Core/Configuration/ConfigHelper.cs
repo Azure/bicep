@@ -6,13 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace Bicep.Core.Configuration
 {
     public class ConfigHelper
     {
+        private const string defaultConfigResourceName = "Bicep.Core.Configuration.bicepconfig.json";
+
         /// <summary>
         /// Property exposes the configuration root
         /// that is currently loaded
@@ -36,8 +37,6 @@ namespace Bicep.Core.Configuration
 
             // load the default settings from file embedded as resource
             var assembly = Assembly.GetExecutingAssembly();
-            var names = assembly.GetManifestResourceNames();
-            var defaultConfigResourceName = names.FirstOrDefault(n => n.EndsWith(LanguageConstants.BicepConfigSettingsFileName));
 
             // keep this stream open until after Build() call
             using (var defaultConfigStream = assembly.GetManifestResourceStream(defaultConfigResourceName))
