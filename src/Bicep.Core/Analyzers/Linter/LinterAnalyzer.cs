@@ -12,7 +12,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -31,9 +30,9 @@ namespace Bicep.Core.Analyzers.Linter
         // TODO: This should be controlled by a core component, not an analyzer
         public const string FailedRuleCode = "linter-internal-error";
 
-        public LinterAnalyzer()
+        public LinterAnalyzer(ConfigHelper configHelper)
         {
-            this.activeConfigHelper = this.defaultConfigHelper;
+            this.activeConfigHelper = configHelper;
             (RuleSet, RuleCreationErrors) = CreateLinterRules();
         }
 

@@ -31,13 +31,14 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver)
+        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, ConfigHelper configHelper)
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
             Compilation = compilation;
             SourceFile = sourceFile;
             FileResolver = fileResolver;
+            ConfigHelper = configHelper;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
@@ -65,7 +66,7 @@ namespace Bicep.Core.Semantics
 
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
-            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer());
+            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer(configHelper));
 
             this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
 
@@ -111,6 +112,8 @@ namespace Bicep.Core.Semantics
         public ISymbolContext SymbolContext { get; }
 
         public Compilation Compilation { get; }
+
+        public ConfigHelper ConfigHelper { get; }
 
         public ITypeManager TypeManager { get; }
 

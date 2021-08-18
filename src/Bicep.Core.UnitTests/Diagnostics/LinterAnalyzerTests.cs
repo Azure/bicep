@@ -1,28 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Analyzers;
-using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
     [TestClass]
     public class LinterAnalyzerTests
     {
+        private readonly ConfigHelper configHelper = new();
+
         [TestMethod]
         public void HasBuiltInRules()
         {
-            var linter = new LinterAnalyzer();
+            var linter = new LinterAnalyzer(configHelper);
             linter.GetRuleSet().Should().NotBeEmpty();
         }
 
@@ -35,14 +37,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(NoUnusedVariablesRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {
-            var linter = new LinterAnalyzer();
+            var linter = new LinterAnalyzer(configHelper);
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);
         }
 
         [TestMethod]
         public void AllRulesHaveUniqueDetails()
         {
-            var analyzer = new LinterAnalyzer();
+            var analyzer = new LinterAnalyzer(configHelper);
             var ruleSet = analyzer.GetRuleSet();
 
             var codeSet = ruleSet.Select(r => r.Code).ToHashSet();
@@ -55,7 +57,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllRulesEnabledByDefault()
         {
-            var analyzer = new LinterAnalyzer();
+            var analyzer = new LinterAnalyzer(configHelper);
             var ruleSet = analyzer.GetRuleSet();
             ruleSet.Should().OnlyContain(r => r.IsEnabled());
         }
@@ -63,7 +65,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllRulesHaveDescription()
         {
-            var analyzer = new LinterAnalyzer();
+            var analyzer = new LinterAnalyzer(configHelper);
             var ruleSet = analyzer.GetRuleSet();
             ruleSet.Should().OnlyContain(r => r.Description.Length > 0);
         }
