@@ -6,3 +6,4 @@ resource logicApp 'Microsoft.Logic/integrationAccounts@2016-06-01' = {
   location: resourceGroup().location
 }
 // Insert snippet here
+
