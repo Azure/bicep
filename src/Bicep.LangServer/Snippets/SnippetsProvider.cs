@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -66,6 +67,7 @@ namespace Bicep.LanguageServer.Snippets
             "properties"
         };
         private readonly IFileResolver fileResolver;
+        private ConfigHelper? configHelper;
 
         public SnippetsProvider(IFileResolver fileResolver)
         {
@@ -216,7 +218,13 @@ namespace Bicep.LanguageServer.Snippets
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
                 ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
-            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
+            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configHelper: configHelper);
+
+            if (configHelper is null)
+            {
+                configHelper = compilation.ConfigHelper;
+            }
+
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 
             return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);

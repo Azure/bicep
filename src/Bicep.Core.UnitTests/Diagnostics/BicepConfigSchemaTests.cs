@@ -1,20 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
-using Bicep.Core.Semantics;
-using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Configuration;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
@@ -23,9 +18,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class BicepConfigSchemaTests
     {
+        private readonly ConfigHelper configHelper = new();
+
         private (IBicepAnalyzerRule[] rules, JObject configSchema) GetRulesAndSchema()
         {
-            var linter = new LinterAnalyzer();
+            var linter = new LinterAnalyzer(configHelper);
             var ruleSet = linter.GetRuleSet();
             ruleSet.Should().NotBeEmpty();
 

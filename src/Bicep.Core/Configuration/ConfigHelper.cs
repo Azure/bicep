@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
 
 namespace Bicep.Core.Configuration
 {
     public class ConfigHelper
     {
-        private const string defaultConfigResourceName = "Bicep.Core.Configuration.bicepconfig.json";
+        private const string bicepConfigResourceName = "Bicep.Core.Configuration.bicepconfig.json";
 
         /// <summary>
         /// Property exposes the configuration root
@@ -39,7 +39,7 @@ namespace Bicep.Core.Configuration
             var assembly = Assembly.GetExecutingAssembly();
 
             // keep this stream open until after Build() call
-            using (var defaultConfigStream = assembly.GetManifestResourceStream(defaultConfigResourceName))
+            using (var defaultConfigStream = assembly.GetManifestResourceStream(bicepConfigResourceName))
             {
                 Debug.Assert(defaultConfigStream != null, "Default configuration file should exist as embedded resource.");
                 configBuilder.AddJsonStream(defaultConfigStream);

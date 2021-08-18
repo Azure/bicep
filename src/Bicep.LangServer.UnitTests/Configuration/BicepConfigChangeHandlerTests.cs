@@ -130,7 +130,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RetriggerCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldNotRetriggerCompilation()
+        public void RetriggerCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRetriggerCompilation()
         {
             string bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -155,10 +155,24 @@ namespace Bicep.LangServer.UnitTests.Configuration
                                                          out Mock<ITextDocumentLanguageServer> document,
                                                          out Container<Diagnostic>? diagnostics);
 
-            // Shouldn't push diagnostics
-            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
+            // Should push diagnostics
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
-            diagnostics.Should().BeNullOrEmpty();
+            diagnostics.Should().NotBeNullOrEmpty();
+            diagnostics!.Count().Should().Be(1);
+
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                    x.Severity.Should().Be(DiagnosticSeverity.Warning);
+                    x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                    x.Range.Should().Be(new Range
+                    {
+                        Start = new Position(0, 6),
+                        End = new Position(0, 24)
+                    });
+                });
         }
 
 

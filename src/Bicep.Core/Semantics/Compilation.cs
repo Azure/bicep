@@ -16,21 +16,33 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null, ConfigHelper? configHelper = null)
         {
             this.SourceFileGrouping = sourceFileGrouping;
             this.ResourceTypeProvider = resourceTypeProvider;
+
+            if (configHelper is null)
+            {
+                ConfigHelper = new ConfigHelper();
+            }
+            else
+            {
+                ConfigHelper = configHelper;
+            }
+
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
-                sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ? 
-                    new(existingModel) : 
+                sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ?
+                    new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch
                     {
-                        BicepFile bicepFile => new SemanticModel(this, bicepFile, SourceFileGrouping.FileResolver),
+                        BicepFile bicepFile => new SemanticModel(this, bicepFile, SourceFileGrouping.FileResolver, ConfigHelper),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
         }
+
+        public ConfigHelper ConfigHelper { get; }
 
         public SourceFileGrouping SourceFileGrouping { get; }
 
