@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
@@ -62,7 +63,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null)
+        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null, bool reloadBicepConfig = false)
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
@@ -74,7 +75,7 @@ namespace Bicep.LanguageServer
                 if (newFile is BicepFile)
                 {
                     // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
-                    UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles);
+                    UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, reloadBicepConfig);
                 }
 
                 foreach (var (entrypointUri, context) in activeContexts)
@@ -169,7 +170,7 @@ namespace Bicep.LanguageServer
             return closedFiles.ToImmutableArray();
         }
 
-        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles)
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false)
         {
             try
             {
@@ -191,7 +192,17 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary());
+                        ConfigHelper? configHelper = null;
+ 
+                        if (!reloadBicepConfig &&
+                        activeContexts.TryGetValue(documentUri, out CompilationContext? compilationContext) &&
+                        compilationContext is not null &&
+                        compilationContext.Compilation.ConfigHelper is ConfigHelper previousConfigHelper)
+                        {
+                            configHelper = previousConfigHelper;
+                        }
+
+                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configHelper);
                     });
 
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
