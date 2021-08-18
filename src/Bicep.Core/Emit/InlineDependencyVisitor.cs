@@ -16,6 +16,7 @@ namespace Bicep.Core.Emit
     {
         private readonly SemanticModel model;
         private readonly IDictionary<VariableSymbol, bool> shouldInlineCache;
+        private readonly HashSet<VariableSymbol> shouldNotInlineCache;
 
         private VariableSymbol? currentDeclaration;
 
@@ -28,6 +29,7 @@ namespace Bicep.Core.Emit
         {
             this.model = model;
             this.shouldInlineCache = new Dictionary<VariableSymbol, bool>();
+            this.shouldNotInlineCache = new HashSet<VariableSymbol>();
             this.targetVariable = targetVariable;
             this.currentDeclaration = null;
 
@@ -64,7 +66,7 @@ namespace Bicep.Core.Emit
         public static bool ShouldInlineVariable(SemanticModel model, VariableDeclarationSyntax variable, out ImmutableArray<string> variableAccessChain)
         {
             variableAccessChain = ImmutableArray<string>.Empty;
-            if(model.GetSymbolInfo(variable) is not VariableSymbol variableSymbol)
+            if (model.GetSymbolInfo(variable) is not VariableSymbol variableSymbol)
             {
                 // we have errors - assume this is not meant to be inlined
                 return false;
@@ -73,7 +75,7 @@ namespace Bicep.Core.Emit
             var visitor = new InlineDependencyVisitor(model, variable);
             visitor.Visit(variable);
 
-            if(!visitor.shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline) || !shouldInline)
+            if (!visitor.shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline) || !shouldInline)
             {
                 return false;
             }
@@ -154,7 +156,7 @@ namespace Bicep.Core.Emit
 
                         shouldInline = shouldInlineCache[variableSymbol];
 
-                        if(shouldInline && this.targetVariable is not null && this.capturedSequence is null)
+                        if (shouldInline && this.targetVariable is not null && this.capturedSequence is null)
                         {
                             // this point is where the decision is made to inline the variable
                             // the variable access stack will be the deepest here
@@ -168,9 +170,18 @@ namespace Bicep.Core.Emit
 
                     // if we depend on a variable that requires inlining, then we also require inlining
                     bool newValue = shouldInlineCache[currentDeclaration] || shouldInline;
-                    SetCache(newValue);
+                    SetInlineCache(newValue);
 
                     this.currentStack = previousStack;
+                    return;
+
+                case ResourceSymbol:
+                case ModuleSymbol:
+                    if (this.currentDeclaration is not null && !this.shouldNotInlineCache.Contains(this.currentDeclaration))
+                    {
+                        //inline only if declaration wasn't explicitly excluded from inlining, to avoid inlining usages which are permitted
+                        SetInlineCache(true);
+                    }
                     return;
             }
         }
@@ -236,11 +247,11 @@ namespace Bicep.Core.Emit
                 // This means that we may encounter a DiscriminatedObjectType. For now we should accept this limitation,
                 // and move to using the assigned type once https://github.com/Azure/bicep/issues/1177 is fixed.
                 case ResourceSymbol resourceSymbol when resourceSymbol.TryGetBodyObjectType() is { } bodyObjectType:
-                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSymbol));
+                    SetNotInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSymbol));
                     return;
 
                 case ModuleSymbol moduleSymbol when moduleSymbol.TryGetBodyObjectType() is { } bodyObjectType:
-                    SetCache(!ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
+                    SetNotInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
                     return;
             }
         }
@@ -261,16 +272,27 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case FunctionSymbol functionSymbol:
-                    SetCache(shouldInlineCache[currentDeclaration] || functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining));
+                    SetInlineCache(shouldInlineCache[currentDeclaration] || functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining));
                     return;
             }
         }
 
-        private void SetCache(bool shouldInline)
+        private void SetInlineCache(bool shouldInline)
         {
             if (this.currentDeclaration is not null)
             {
                 this.shouldInlineCache[this.currentDeclaration] = shouldInline;
+            }
+        }
+        private void SetNotInlineCache(bool shouldNotInline)
+        {
+            if (this.currentDeclaration is not null)
+            {
+                this.shouldInlineCache[this.currentDeclaration] = !shouldNotInline;
+                if (shouldNotInline)
+                {
+                    this.shouldNotInlineCache.Add(this.currentDeclaration);
+                }
             }
         }
     }

@@ -129,7 +129,7 @@ namespace Bicep.Core.Emit
                             return ConvertFunction(
                                 instanceFunctionCall.Name.IdentifierName,
                                 instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
-                        case ResourceSymbol _ when context.SemanticModel.ResourceMetadata.TryLookup(instanceFunctionCall.BaseExpression) is {} resource:
+                        case ResourceSymbol _ when context.SemanticModel.ResourceMetadata.TryLookup(instanceFunctionCall.BaseExpression) is { } resource:
                             if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively("list"))
                             {
                                 // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
@@ -137,16 +137,17 @@ namespace Bicep.Core.Emit
                                 var resourceIdExpression = GetFullyQualifiedResourceId(resource);
                                 var apiVersionExpression = new JTokenExpression(resource.TypeReference.ApiVersion);
 
-                                var listArgs = convertedArgs.Length switch {
+                                var listArgs = convertedArgs.Length switch
+                                {
                                     0 => new LanguageExpression[] { resourceIdExpression, apiVersionExpression, },
                                     _ => new LanguageExpression[] { resourceIdExpression, }.Concat(convertedArgs),
                                 };
 
                                 return CreateFunction(instanceFunctionCall.Name.IdentifierName, listArgs);
                             }
-                            
+
                             break;
-                    }                 
+                    }
                     throw new InvalidOperationException($"Unrecognized base expression {baseSymbol?.Kind}");
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {functionCall.GetType().Name}");
@@ -189,7 +190,7 @@ namespace Bicep.Core.Emit
             // variable replaced with <loop array expression>[this array access' index expression]
             if (arrayAccess.BaseExpression is VariableAccessSyntax || arrayAccess.BaseExpression is ResourceAccessSyntax)
             {
-                if (context.SemanticModel.ResourceMetadata.TryLookup(arrayAccess.BaseExpression) is {} resource &&
+                if (context.SemanticModel.ResourceMetadata.TryLookup(arrayAccess.BaseExpression) is { } resource &&
                     resource.Symbol.IsCollection)
                 {
                     var resourceConverter = this.CreateConverterForIndexReplacement(resource.NameSyntax, arrayAccess.IndexExpression, arrayAccess);
@@ -266,7 +267,7 @@ namespace Bicep.Core.Emit
             }
 
             if ((propertyAccess.BaseExpression is VariableAccessSyntax || propertyAccess.BaseExpression is ResourceAccessSyntax) &&
-                context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is {} resource &&
+                context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is { } resource &&
                 ConvertResourcePropertyAccess(resource, indexExpression: null) is { } convertedSingle)
             {
                 // we are doing property access on a single resource
@@ -276,7 +277,7 @@ namespace Bicep.Core.Emit
 
             if (propertyAccess.BaseExpression is ArrayAccessSyntax propArrayAccess &&
                 (propArrayAccess.BaseExpression is VariableAccessSyntax || propArrayAccess.BaseExpression is ResourceAccessSyntax) &&
-                context.SemanticModel.ResourceMetadata.TryLookup(propArrayAccess.BaseExpression) is {} resourceCollection &&
+                context.SemanticModel.ResourceMetadata.TryLookup(propArrayAccess.BaseExpression) is { } resourceCollection &&
                 ConvertResourcePropertyAccess(resourceCollection, propArrayAccess.IndexExpression) is { } convertedCollection)
             {
 
@@ -308,26 +309,46 @@ namespace Bicep.Core.Emit
             // is this a (<child>.outputs).<prop> propertyAccess?
             if (propertyAccess.BaseExpression is PropertyAccessSyntax childPropertyAccess && childPropertyAccess.PropertyName.IdentifierName == LanguageConstants.ModuleOutputsPropertyName)
             {
-                // is <child> a variable which points to a non-collection module symbol?
-                if (childPropertyAccess.BaseExpression is VariableAccessSyntax grandChildVariableAccess &&
-                    context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is ModuleSymbol { IsCollection: false } outputsModuleSymbol)
+                switch (childPropertyAccess.BaseExpression)
                 {
-                    return AppendProperties(
-                        this.GetModuleOutputsReferenceExpression(outputsModuleSymbol),
-                        new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
-                        new JTokenExpression("value"));
-                }
+                    // is <child> a variable which points to a variable that requires in-lining?
+                    case VariableAccessSyntax grandChildVariableAccess
+                        when context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is VariableSymbol variableSymbol &&
+                             context.VariablesToInline.Contains(variableSymbol):
+                        {
+                            //execute variable in-lining
+                            if (ConvertVariableAccess(grandChildVariableAccess) is FunctionExpression moduleReferenceExpression)
+                            {
+                                // we assume that this will generate a proper reference function to a deployment resource.
+                                // If not then the deployment will fail as the template will be malformed but that should have been caught before
 
-                // is <child> an array access operating on a module collection
-                if (childPropertyAccess.BaseExpression is ArrayAccessSyntax grandChildArrayAccess &&
-                    grandChildArrayAccess.BaseExpression is VariableAccessSyntax grandGrandChildVariableAccess &&
-                    context.SemanticModel.GetSymbolInfo(grandGrandChildVariableAccess) is ModuleSymbol { IsCollection: true } outputsModuleCollectionSymbol)
-                {
-                    var updatedConverter = this.CreateConverterForIndexReplacement(GetModuleNameSyntax(outputsModuleCollectionSymbol), grandChildArrayAccess.IndexExpression, propertyAccess);
-                    return AppendProperties(
-                        updatedConverter.GetModuleOutputsReferenceExpression(outputsModuleCollectionSymbol),
-                        new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
-                        new JTokenExpression("value"));
+                                return AppendProperties(moduleReferenceExpression,
+                                    new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
+                                    new JTokenExpression("value"));
+                            }
+                            break;
+                        }
+
+                    // is <child> a variable which points to a non-collection module symbol?
+                    case VariableAccessSyntax grandChildVariableAccess
+                        when context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is ModuleSymbol { IsCollection: false } outputsModuleSymbol:
+                        {
+                            return AppendProperties(
+                                this.GetModuleOutputsReferenceExpression(outputsModuleSymbol),
+                                new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
+                                new JTokenExpression("value"));
+                        }
+
+                    // is <child> an array access operating on a module collection
+                    case ArrayAccessSyntax { BaseExpression: VariableAccessSyntax grandGrandChildVariableAccess } grandChildArrayAccess
+                        when context.SemanticModel.GetSymbolInfo(grandGrandChildVariableAccess) is ModuleSymbol { IsCollection: true } outputsModuleCollectionSymbol:
+                        {
+                            var updatedConverter = this.CreateConverterForIndexReplacement(GetModuleNameSyntax(outputsModuleCollectionSymbol), grandChildArrayAccess.IndexExpression, propertyAccess);
+                            return AppendProperties(
+                                updatedConverter.GetModuleOutputsReferenceExpression(outputsModuleCollectionSymbol),
+                                new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
+                                new JTokenExpression("value"));
+                        }
                 }
             }
 
@@ -584,13 +605,10 @@ namespace Bicep.Core.Emit
                     }
                     return CreateFunction("variables", new JTokenExpression(name));
 
-                case ResourceSymbol resourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(variableAccessSyntax) is {} resource:
+                case ResourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(variableAccessSyntax) is { } resource:
                     return GetReferenceExpression(resource, true);
 
                 case ModuleSymbol moduleSymbol:
-                    // referencing a module directly should be blocked at an earlier stage - there is nothing great we can codegen here.
-                    Debug.Fail("Found direct module variable access");
-
                     return GetModuleOutputsReferenceExpression(moduleSymbol);
 
                 case LocalVariableSymbol localVariableSymbol:
@@ -603,7 +621,7 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertResourceAccess(ResourceAccessSyntax resourceAccessSyntax)
         {
-            if (context.SemanticModel.ResourceMetadata.TryLookup(resourceAccessSyntax) is {} resource)
+            if (context.SemanticModel.ResourceMetadata.TryLookup(resourceAccessSyntax) is { } resource)
             {
                 return GetReferenceExpression(resource, true);
             }
