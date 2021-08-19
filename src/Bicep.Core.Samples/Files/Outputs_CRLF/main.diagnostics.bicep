@@ -1,18 +1,23 @@
 
+@description('string output description')
 output myStr string = 'hello'
 
+@description('int output description')
 output myInt int = 7
 output myOtherInt int = 20 / 13 + 80 % -4
 
+@description('bool output description')
 output myBool bool = !false
 output myOtherBool bool = true
 
+@description('object array description')
 output suchEmpty array = [
 ]
 
 output suchEmpty2 object = {
 }
 
+@description('object output description')
 output obj object = {
   a: 'a'
   b: 12
@@ -65,3 +70,4 @@ output paramWithOverlappingOutput string = paramWithOverlappingOutput
 
 // top-level output loops are supported
 output generatedArray array = [for i in range(0,10): i]
+

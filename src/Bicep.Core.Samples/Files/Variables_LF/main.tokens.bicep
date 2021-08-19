@@ -1,7 +1,14 @@
 
 //@[0:1) NewLine |\n|
-// an int variable
-//@[18:19) NewLine |\n|
+// int
+//@[6:7) NewLine |\n|
+@description('an int variable')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:30) StringComplete |'an int variable'|
+//@[30:31) RightParen |)|
+//@[31:32) NewLine |\n|
 var myInt = 42
 //@[0:3) Identifier |var|
 //@[4:9) Identifier |myInt|
@@ -9,8 +16,15 @@ var myInt = 42
 //@[12:14) Integer |42|
 //@[14:16) NewLine |\n\n|
 
-// a string variable
-//@[20:21) NewLine |\n|
+// string
+//@[9:10) NewLine |\n|
+@description('a string variable')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:32) StringComplete |'a string variable'|
+//@[32:33) RightParen |)|
+//@[33:34) NewLine |\n|
 var myStr = 'str'
 //@[0:3) Identifier |var|
 //@[4:9) Identifier |myStr|
@@ -157,6 +171,13 @@ var bracketStringInExpression = concat('[', '\'test\'',']')
 
 // booleans
 //@[11:12) NewLine |\n|
+@description('a bool variable')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:30) StringComplete |'a bool variable'|
+//@[30:31) RightParen |)|
+//@[31:32) NewLine |\n|
 var myTruth = true
 //@[0:3) Identifier |var|
 //@[4:11) Identifier |myTruth|
@@ -187,6 +208,13 @@ var myEmptyArray = [ ]
 
 // object
 //@[9:10) NewLine |\n|
+@description('a object variable')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:32) StringComplete |'a object variable'|
+//@[32:33) RightParen |)|
+//@[33:34) NewLine |\n|
 var myObj = {
 //@[0:3) Identifier |var|
 //@[4:9) Identifier |myObj|
@@ -281,6 +309,13 @@ var myObj = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@description('a object with interp')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:35) StringComplete |'a object with interp'|
+//@[35:36) RightParen |)|
+//@[36:37) NewLine |\n|
 var objWithInterp = {
 //@[0:3) Identifier |var|
 //@[4:17) Identifier |objWithInterp|

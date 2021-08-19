@@ -1,7 +1,19 @@
 
 //@[0:2) NewLine |\r\n|
+@description('string output description')
+//@[0:72) OutputDeclarationSyntax
+//@[0:41)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:41)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:40)    FunctionArgumentSyntax
+//@[13:40)     StringSyntax
+//@[13:40)      StringComplete |'string output description'|
+//@[40:41)    RightParen |)|
+//@[41:43)  NewLine |\r\n|
 output myStr string = 'hello'
-//@[0:29) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myStr|
@@ -12,8 +24,20 @@ output myStr string = 'hello'
 //@[22:29)   StringComplete |'hello'|
 //@[29:33) NewLine |\r\n\r\n|
 
+@description('int output description')
+//@[0:60) OutputDeclarationSyntax
+//@[0:38)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:38)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:37)    FunctionArgumentSyntax
+//@[13:37)     StringSyntax
+//@[13:37)      StringComplete |'int output description'|
+//@[37:38)    RightParen |)|
+//@[38:40)  NewLine |\r\n|
 output myInt int = 7
-//@[0:20) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myInt|
@@ -49,8 +73,20 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@[40:41)      Integer |4|
 //@[41:45) NewLine |\r\n\r\n|
 
+@description('bool output description')
+//@[0:68) OutputDeclarationSyntax
+//@[0:39)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:39)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:38)    FunctionArgumentSyntax
+//@[13:38)     StringSyntax
+//@[13:38)      StringComplete |'bool output description'|
+//@[38:39)    RightParen |)|
+//@[39:41)  NewLine |\r\n|
 output myBool bool = !false
-//@[0:27) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:13)  IdentifierSyntax
 //@[7:13)   Identifier |myBool|
@@ -74,8 +110,20 @@ output myOtherBool bool = true
 //@[26:30)   TrueKeyword |true|
 //@[30:34) NewLine |\r\n\r\n|
 
+@description('object array description')
+//@[0:71) OutputDeclarationSyntax
+//@[0:40)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:40)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:39)    FunctionArgumentSyntax
+//@[13:39)     StringSyntax
+//@[13:39)      StringComplete |'object array description'|
+//@[39:40)    RightParen |)|
+//@[40:42)  NewLine |\r\n|
 output suchEmpty array = [
-//@[0:29) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:16)  IdentifierSyntax
 //@[7:16)   Identifier |suchEmpty|
@@ -104,8 +152,20 @@ output suchEmpty2 object = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+@description('object output description')
+//@[0:221) OutputDeclarationSyntax
+//@[0:41)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:41)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:40)    FunctionArgumentSyntax
+//@[13:40)     StringSyntax
+//@[13:40)      StringComplete |'object output description'|
+//@[40:41)    RightParen |)|
+//@[41:43)  NewLine |\r\n|
 output obj object = {
-//@[0:178) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |obj|
@@ -531,4 +591,6 @@ output generatedArray array = [for i in range(0,10): i]
 //@[53:54)    IdentifierSyntax
 //@[53:54)     Identifier |i|
 //@[54:55)   RightSquare |]|
-//@[55:55) EndOfFile ||
+//@[55:57) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

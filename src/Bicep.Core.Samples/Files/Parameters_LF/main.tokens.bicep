@@ -5,6 +5,13 @@
 
 // parameters without default value
 //@[35:36) NewLine |\n|
+@description('this is myString')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:31) StringComplete |'this is myString'|
+//@[31:32) RightParen |)|
+//@[32:33) NewLine |\n|
 param myString string
 //@[0:5) Identifier |param|
 //@[6:14) Identifier |myString|
@@ -23,6 +30,28 @@ param myBool bool
 
 // parameters with default value
 //@[32:33) NewLine |\n|
+@description('this is myString2')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:32) StringComplete |'this is myString2'|
+//@[32:33) RightParen |)|
+//@[33:34) NewLine |\n|
+@metadata({
+//@[0:1) At |@|
+//@[1:9) Identifier |metadata|
+//@[9:10) LeftParen |(|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+  description: 'overwrite but still valid'
+//@[2:13) Identifier |description|
+//@[13:14) Colon |:|
+//@[15:42) StringComplete |'overwrite but still valid'|
+//@[42:43) NewLine |\n|
+})
+//@[0:1) RightBrace |}|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
 param myString2 string = 'string value'
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |myString2|
@@ -61,6 +90,33 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
 //@[23:24) NewLine |\n|
+@description('this is foo')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:26) StringComplete |'this is foo'|
+//@[26:27) RightParen |)|
+//@[27:28) NewLine |\n|
+@metadata({
+//@[0:1) At |@|
+//@[1:9) Identifier |metadata|
+//@[9:10) LeftParen |(|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+  description: 'overwrite but still valid'
+//@[2:13) Identifier |description|
+//@[13:14) Colon |:|
+//@[15:42) StringComplete |'overwrite but still valid'|
+//@[42:43) NewLine |\n|
+  another: 'just for fun'
+//@[2:9) Identifier |another|
+//@[9:10) Colon |:|
+//@[11:25) StringComplete |'just for fun'|
+//@[25:26) NewLine |\n|
+})
+//@[0:1) RightBrace |}|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
 param foo object = {
 //@[0:5) Identifier |param|
 //@[6:9) Identifier |foo|

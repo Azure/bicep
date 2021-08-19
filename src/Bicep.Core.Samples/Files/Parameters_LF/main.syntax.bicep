@@ -5,8 +5,20 @@
 
 // parameters without default value
 //@[35:36) NewLine |\n|
+@description('this is myString')
+//@[0:54) ParameterDeclarationSyntax
+//@[0:32)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:32)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:31)    FunctionArgumentSyntax
+//@[13:31)     StringSyntax
+//@[13:31)      StringComplete |'this is myString'|
+//@[31:32)    RightParen |)|
+//@[32:33)  NewLine |\n|
 param myString string
-//@[0:21) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |myString|
@@ -32,8 +44,43 @@ param myBool bool
 
 // parameters with default value
 //@[32:33) NewLine |\n|
+@description('this is myString2')
+//@[0:131) ParameterDeclarationSyntax
+//@[0:33)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:33)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:32)    FunctionArgumentSyntax
+//@[13:32)     StringSyntax
+//@[13:32)      StringComplete |'this is myString2'|
+//@[32:33)    RightParen |)|
+//@[33:34)  NewLine |\n|
+@metadata({
+//@[0:57)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:57)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:56)    FunctionArgumentSyntax
+//@[10:56)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+  description: 'overwrite but still valid'
+//@[2:42)      ObjectPropertySyntax
+//@[2:13)       IdentifierSyntax
+//@[2:13)        Identifier |description|
+//@[13:14)       Colon |:|
+//@[15:42)       StringSyntax
+//@[15:42)        StringComplete |'overwrite but still valid'|
+//@[42:43)      NewLine |\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
 param myString2 string = 'string value'
-//@[0:39) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |myString2|
@@ -95,8 +142,51 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
 //@[23:24) NewLine |\n|
+@description('this is foo')
+//@[0:344) ParameterDeclarationSyntax
+//@[0:27)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:27)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:26)    FunctionArgumentSyntax
+//@[13:26)     StringSyntax
+//@[13:26)      StringComplete |'this is foo'|
+//@[26:27)    RightParen |)|
+//@[27:28)  NewLine |\n|
+@metadata({
+//@[0:83)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:83)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:82)    FunctionArgumentSyntax
+//@[10:82)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+  description: 'overwrite but still valid'
+//@[2:42)      ObjectPropertySyntax
+//@[2:13)       IdentifierSyntax
+//@[2:13)        Identifier |description|
+//@[13:14)       Colon |:|
+//@[15:42)       StringSyntax
+//@[15:42)        StringComplete |'overwrite but still valid'|
+//@[42:43)      NewLine |\n|
+  another: 'just for fun'
+//@[2:25)      ObjectPropertySyntax
+//@[2:9)       IdentifierSyntax
+//@[2:9)        Identifier |another|
+//@[9:10)       Colon |:|
+//@[11:25)       StringSyntax
+//@[11:25)        StringComplete |'just for fun'|
+//@[25:26)      NewLine |\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
 param foo object = {
-//@[0:232) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:9)  IdentifierSyntax
 //@[6:9)   Identifier |foo|

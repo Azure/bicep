@@ -1,11 +1,13 @@
 
-// an int variable
+// int
+@description('an int variable')
 var myInt = 42
-//@[4:9) Variable myInt. Type: int. Declaration start char: 0, length: 14
+//@[4:9) Variable myInt. Type: int. Declaration start char: 0, length: 46
 
-// a string variable
+// string
+@description('a string variable')
 var myStr = 'str'
-//@[4:9) Variable myStr. Type: 'str'. Declaration start char: 0, length: 17
+//@[4:9) Variable myStr. Type: 'str'. Declaration start char: 0, length: 51
 var curliesWithNoInterp = '}{1}{'
 //@[4:23) Variable curliesWithNoInterp. Type: '}{1}{'. Declaration start char: 0, length: 33
 var interp1 = 'abc${123}def'
@@ -44,8 +46,9 @@ var bracketStringInExpression = concat('[', '\'test\'',']')
 //@[4:29) Variable bracketStringInExpression. Type: string. Declaration start char: 0, length: 59
 
 // booleans
+@description('a bool variable')
 var myTruth = true
-//@[4:11) Variable myTruth. Type: bool. Declaration start char: 0, length: 18
+//@[4:11) Variable myTruth. Type: bool. Declaration start char: 0, length: 50
 var myFalsehood = false
 //@[4:15) Variable myFalsehood. Type: bool. Declaration start char: 0, length: 23
 
@@ -55,8 +58,9 @@ var myEmptyArray = [ ]
 //@[4:16) Variable myEmptyArray. Type: array. Declaration start char: 0, length: 22
 
 // object
+@description('a object variable')
 var myObj = {
-//@[4:9) Variable myObj. Type: object. Declaration start char: 0, length: 204
+//@[4:9) Variable myObj. Type: object. Declaration start char: 0, length: 238
   a: 'a'
   b: -12
   c: true
@@ -77,8 +81,9 @@ var myObj = {
   }
 }
 
+@description('a object with interp')
 var objWithInterp = {
-//@[4:17) Variable objWithInterp. Type: object. Declaration start char: 0, length: 116
+//@[4:17) Variable objWithInterp. Type: object. Declaration start char: 0, length: 153
   '${myStr}': 1
   'abc${myStr}def': 2
   '${interp1}abc${interp2}': '${interp1}abc${interp2}'

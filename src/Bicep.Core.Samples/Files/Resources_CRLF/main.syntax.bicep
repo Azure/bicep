@@ -1,5 +1,19 @@
+
+//@[0:2) NewLine |\r\n|
+@description('this is basicStorage')
+//@[0:221) ResourceDeclarationSyntax
+//@[0:36)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:36)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:35)    FunctionArgumentSyntax
+//@[13:35)     StringSyntax
+//@[13:35)      StringComplete |'this is basicStorage'|
+//@[35:36)    RightParen |)|
+//@[36:38)  NewLine |\r\n|
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-//@[0:183) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:21)  IdentifierSyntax
 //@[9:21)   Identifier |basicStorage|
@@ -56,8 +70,20 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+@description('this is dnsZone')
+//@[0:136) ResourceDeclarationSyntax
+//@[0:31)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:31)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:30)    FunctionArgumentSyntax
+//@[13:30)     StringSyntax
+//@[13:30)      StringComplete |'this is dnsZone'|
+//@[30:31)    RightParen |)|
+//@[31:33)  NewLine |\r\n|
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
-//@[0:103) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:16)  IdentifierSyntax
 //@[9:16)   Identifier |dnsZone|
@@ -1603,9 +1629,22 @@ param shouldDeployVm bool = true
 //@[26:27)   Assignment |=|
 //@[28:32)   BooleanLiteralSyntax
 //@[28:32)    TrueKeyword |true|
-//@[32:34) NewLine |\r\n|
+//@[32:36) NewLine |\r\n\r\n|
+
+@description('this is vmWithCondition')
+//@[0:304) ResourceDeclarationSyntax
+//@[0:39)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:39)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:38)    FunctionArgumentSyntax
+//@[13:38)     StringSyntax
+//@[13:38)      StringComplete |'this is vmWithCondition'|
+//@[38:39)    RightParen |)|
+//@[39:41)  NewLine |\r\n|
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
-//@[0:263) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:24)  IdentifierSyntax
 //@[9:24)   Identifier |vmWithCondition|
@@ -1872,8 +1911,20 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+@description('this is existing1')
+//@[0:158) ResourceDeclarationSyntax
+//@[0:33)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:33)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:32)    FunctionArgumentSyntax
+//@[13:32)     StringSyntax
+//@[13:32)      StringComplete |'this is existing1'|
+//@[32:33)    RightParen |)|
+//@[33:35)  NewLine |\r\n|
 resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
-//@[0:123) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:18)  IdentifierSyntax
 //@[9:18)   Identifier |existing1|
@@ -2037,8 +2088,20 @@ var storageAccounts = [
 
 // just a storage account loop
 //@[30:32) NewLine |\r\n|
+@description('this is just a storage account loop')
+//@[0:280) ResourceDeclarationSyntax
+//@[0:51)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:51)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:50)    FunctionArgumentSyntax
+//@[13:50)     StringSyntax
+//@[13:50)      StringComplete |'this is just a storage account loop'|
+//@[50:51)    RightParen |)|
+//@[51:53)  NewLine |\r\n|
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:227) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:25)  IdentifierSyntax
 //@[9:25)   Identifier |storageResources|
@@ -2119,8 +2182,20 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 
 // storage account loop with index
 //@[34:36) NewLine |\r\n|
+@description('this is just a storage account loop with index')
+//@[0:314) ResourceDeclarationSyntax
+//@[0:62)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:62)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:61)    FunctionArgumentSyntax
+//@[13:61)     StringSyntax
+//@[13:61)      StringComplete |'this is just a storage account loop with index'|
+//@[61:62)    RightParen |)|
+//@[62:64)  NewLine |\r\n|
 resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
-//@[0:250) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:34)  IdentifierSyntax
 //@[9:34)   Identifier |storageResourcesWithIndex|
@@ -2215,8 +2290,20 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 
 // basic nested loop
 //@[20:22) NewLine |\r\n|
+@description('this is just a basic nested loo')
+//@[0:394) ResourceDeclarationSyntax
+//@[0:47)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:47)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:46)    FunctionArgumentSyntax
+//@[13:46)     StringSyntax
+//@[13:46)      StringComplete |'this is just a basic nested loo'|
+//@[46:47)    RightParen |)|
+//@[47:49)  NewLine |\r\n|
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:345) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |vnet|

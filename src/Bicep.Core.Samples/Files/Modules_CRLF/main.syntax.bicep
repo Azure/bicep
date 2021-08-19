@@ -1,5 +1,19 @@
+
+//@[0:2) NewLine |\r\n|
+@description('this is deployTimeSuffix param')
+//@[0:89) ParameterDeclarationSyntax
+//@[0:46)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:46)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:45)    FunctionArgumentSyntax
+//@[13:45)     StringSyntax
+//@[13:45)      StringComplete |'this is deployTimeSuffix param'|
+//@[45:46)    RightParen |)|
+//@[46:48)  NewLine |\r\n|
 param deployTimeSuffix string = newGuid()
-//@[0:41) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |deployTimeSuffix|
@@ -14,8 +28,20 @@ param deployTimeSuffix string = newGuid()
 //@[40:41)    RightParen |)|
 //@[41:45) NewLine |\r\n\r\n|
 
+@description('this module a')
+//@[0:248) ModuleDeclarationSyntax
+//@[0:29)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:29)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:28)    FunctionArgumentSyntax
+//@[13:28)     StringSyntax
+//@[13:28)      StringComplete |'this module a'|
+//@[28:29)    RightParen |)|
+//@[29:31)  NewLine |\r\n|
 module modATest './modulea.bicep' = {
-//@[0:217) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:15)  IdentifierSyntax
 //@[7:15)   Identifier |modATest|
@@ -105,10 +131,23 @@ module modATest './modulea.bicep' = {
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:7) NewLine |\r\n\r\n\r\n|
 
+
+@description('this module b')
+//@[0:132) ModuleDeclarationSyntax
+//@[0:29)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:29)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:28)    FunctionArgumentSyntax
+//@[13:28)     StringSyntax
+//@[13:28)      StringComplete |'this module b'|
+//@[28:29)    RightParen |)|
+//@[29:31)  NewLine |\r\n|
 module modB './child/moduleb.bicep' = {
-//@[0:101) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:11)  IdentifierSyntax
 //@[7:11)   Identifier |modB|
@@ -149,8 +188,20 @@ module modB './child/moduleb.bicep' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+@description('this is just module b with a condition')
+//@[0:199) ModuleDeclarationSyntax
+//@[0:54)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:54)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:53)    FunctionArgumentSyntax
+//@[13:53)     StringSyntax
+//@[13:53)      StringComplete |'this is just module b with a condition'|
+//@[53:54)    RightParen |)|
+//@[54:56)  NewLine |\r\n|
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
-//@[0:143) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:24)  IdentifierSyntax
 //@[7:24)   Identifier |modBWithCondition|
@@ -961,9 +1012,22 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 /*
   valid loop cases
 */ 
-//@[3:5) NewLine |\r\n|
+//@[3:7) NewLine |\r\n\r\n|
+
+@description('this is myModules')
+//@[0:158) VariableDeclarationSyntax
+//@[0:33)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:33)   FunctionCallSyntax
+//@[1:12)    IdentifierSyntax
+//@[1:12)     Identifier |description|
+//@[12:13)    LeftParen |(|
+//@[13:32)    FunctionArgumentSyntax
+//@[13:32)     StringSyntax
+//@[13:32)      StringComplete |'this is myModules'|
+//@[32:33)    RightParen |)|
+//@[33:35)  NewLine |\r\n|
 var myModules = [
-//@[0:123) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:13)  IdentifierSyntax
 //@[4:13)   Identifier |myModules|
@@ -3059,4 +3123,6 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 
 
 // END: Key Vault Secret Reference
-//@[34:34) EndOfFile ||
+//@[34:36) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

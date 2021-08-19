@@ -3,11 +3,16 @@
 */
 
 // parameters without default value
+@description('this is myString')
 param myString string
 param myInt int
 param myBool bool
 
 // parameters with default value
+@description('this is myString2')
+@metadata({
+  description: 'overwrite but still valid'
+})
 param myString2 string = 'string value'
 param myInt2 int = 42
 param myTruth bool = true
@@ -15,6 +20,11 @@ param myFalsehood bool = false
 param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
+@description('this is foo')
+@metadata({
+  description: 'overwrite but still valid'
+  another: 'just for fun'
+})
 param foo object = {
   enabled: true
   name: 'this is my object'
