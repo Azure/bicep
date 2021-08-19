@@ -24,6 +24,7 @@ using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using System.Linq;
 using Bicep.Core.UnitTests;
+using Bicep.Core.Configuration;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -31,7 +32,7 @@ namespace Bicep.LangServer.IntegrationTests
     {
         private const int DefaultTimeout = 20000;
 
-        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver, new ConfigHelper(loadDefaultConfig: true));
 
         public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(TestContext testContext, Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {

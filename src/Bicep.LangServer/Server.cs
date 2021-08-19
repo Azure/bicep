@@ -25,6 +25,7 @@ using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
 using Bicep.LanguageServer.Utils;
 using Bicep.LanguageServer.Configuration;
+using Bicep.Core.Configuration;
 
 namespace Bicep.LanguageServer
 {
@@ -104,7 +105,7 @@ namespace Bicep.LanguageServer
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
-            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver));
+            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver, new ConfigHelper(loadDefaultConfig: true)));
             services.AddSingleton<IBicepConfigChangeHandler>(services => creationOptions.BicepConfigChangeHandler ?? new BicepConfigChangeHandler(fileResolver));
             services.AddSingleton<IFileResolver>(services => fileResolver);
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
