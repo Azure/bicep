@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6821291616674317521"
+      "templateHash": "8744620926749486591"
     }
   },
   "parameters": {
@@ -540,7 +540,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3980450247990997144"
+              "templateHash": "9532999407482268309"
             }
           },
           "parameters": {
@@ -791,6 +791,33 @@
                 "bastionSubnetNsg",
                 "vmSubnetNsg"
               ]
+            },
+            "bastionSubnet": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-08-01",
+              "name": "[format('{0}/{1}', parameters('virtualNetworkName'), variables('bastionSubnetName'))]",
+              "existing": true,
+              "dependsOn": [
+                "virtualNetwork"
+              ]
+            },
+            "aksSubnet": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-08-01",
+              "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('aksSubnetName'))]",
+              "existing": true,
+              "dependsOn": [
+                "virtualNetwork"
+              ]
+            },
+            "vmSubnet": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-08-01",
+              "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('vmSubnetName'))]",
+              "existing": true,
+              "dependsOn": [
+                "virtualNetwork"
+              ]
             }
           },
           "outputs": {
@@ -800,15 +827,15 @@
             },
             "bastionSubnetId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastionSubnetName'))]"
+              "value": "[resourceInfo('bastionSubnet').id]"
             },
             "aksSubnetId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('aksSubnetName'))]"
+              "value": "[resourceInfo('aksSubnet').id]"
             },
             "vmSubnetId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('vmSubnetName'))]"
+              "value": "[resourceInfo('vmSubnet').id]"
             }
           }
         }
@@ -1086,7 +1113,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11032048149506206455"
+              "templateHash": "1017590731374553110"
             }
           },
           "parameters": {
@@ -1256,6 +1283,12 @@
             "logAnalyticsWorkspaceName": "[last(split(parameters('logAnalyticsWorkspaceId'), '/'))]"
           },
           "resources": {
+            "logAnalyticsWorkspace": {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2020-10-01",
+              "name": "[variables('logAnalyticsWorkspaceName')]",
+              "existing": true
+            },
             "blobStorageAccount": {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2021-01-01",
@@ -1362,7 +1395,7 @@
                 "type": "OmsAgentForLinux",
                 "typeHandlerVersion": "1.13",
                 "settings": {
-                  "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').customerId]",
+                  "workspaceId": "[reference('logAnalyticsWorkspace').customerId]",
                   "stopOnMultipleConnections": false
                 },
                 "protectedSettings": {
@@ -1603,7 +1636,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4388375132993984465"
+              "templateHash": "11734190282170748430"
             }
           },
           "parameters": {
@@ -1923,6 +1956,18 @@
             "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]"
           },
           "resources": {
+            "virtualNetwork": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2020-08-01",
+              "name": "[variables('virtualNetworkName')]",
+              "existing": true
+            },
+            "aksSubnet": {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2020-08-01",
+              "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
+              "existing": true
+            },
             "aksCluster": {
               "type": "Microsoft.ContainerService/managedClusters",
               "apiVersion": "2021-02-01",
@@ -1945,7 +1990,7 @@
                     "count": "[parameters('nodePoolCount')]",
                     "vmSize": "[parameters('nodePoolVmSize')]",
                     "osDiskSizeGB": "[parameters('nodePoolOsDiskSizeGB')]",
-                    "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
+                    "vnetSubnetID": "[resourceInfo('aksSubnet').id]",
                     "maxPods": "[parameters('nodePoolMaxPods')]",
                     "osType": "[parameters('nodePoolOsType')]",
                     "maxCount": "[parameters('nodePoolMaxCount')]",

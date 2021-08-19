@@ -218,8 +218,7 @@ namespace Bicep.Core.Emit
             // special cases for certain resource property access. if we recurse normally, we'll end up
             // generating statements like reference(resourceId(...)).id which are not accepted by ARM
 
-            var canUseSymbolicNames = context.Settings.EnableSymbolicNames && !resource.IsExistingResource;
-            switch ((propertyName, canUseSymbolicNames))
+            switch ((propertyName, context.Settings.EnableSymbolicNames))
             {
                 case ("id", true):
                 case ("name", true):
@@ -465,8 +464,9 @@ namespace Bicep.Core.Emit
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, SyntaxBase? indexExpression, bool full)
         {
-            var canUseSymbolicNames = context.Settings.EnableSymbolicNames && !resource.IsExistingResource;
-            var referenceExpression = canUseSymbolicNames ? GenerateSymbolicReference(resource.Symbol.Name, indexExpression) : GetFullyQualifiedResourceId(resource);
+            var referenceExpression = context.Settings.EnableSymbolicNames ? 
+                GenerateSymbolicReference(resource.Symbol.Name, indexExpression) : 
+                GetFullyQualifiedResourceId(resource);
 
             // full gives access to top-level resource properties, but generates a longer statement
             if (full)
@@ -478,7 +478,7 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("full"));
             }
 
-            if (resource.IsExistingResource)
+            if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
             {
                 // we must include an API version for an existing resource, because it cannot be inferred from any deployed template resource
                 return CreateFunction(

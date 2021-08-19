@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7693538682709321188"
+      "templateHash": "7155803990681056397"
     }
   },
   "parameters": {
@@ -72,9 +72,15 @@
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}/{2}', 'existingParent', 'existingChild', 'existingGrandchild')]",
       "properties": {
-        "size": "[reference(resourceId('My.Rp/parentType', 'existingParent'), '2020-12-01').size]",
-        "style": "[reference(resourceId('My.Rp/parentType/childType', 'existingParent', 'existingChild'), '2020-12-01').style]"
+        "size": "[reference('existingParent').size]",
+        "style": "[reference('existingChild').style]"
       }
+    },
+    "existingChild": {
+      "type": "My.Rp/parentType/childType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]",
+      "existing": true
     },
     "conditionGrandchild": {
       "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
@@ -118,6 +124,12 @@
       "properties": {
         "size": "large"
       }
+    },
+    "existingParent": {
+      "type": "My.Rp/parentType",
+      "apiVersion": "2020-12-01",
+      "name": "existingParent",
+      "existing": true
     },
     "conditionParent": {
       "condition": "[parameters('createParent')]",

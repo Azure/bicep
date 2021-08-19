@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11019402845407602547"
+      "templateHash": "11256566999730200145"
     }
   },
   "parameters": {
@@ -92,6 +92,12 @@
     "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]"
   },
   "resources": {
+    "existingVNET": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-04-01",
+      "name": "[parameters('existingVNETName')]",
+      "existing": true
+    },
     "containerSubnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-04-01",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13575590998707686581"
+      "templateHash": "15041521248634199185"
     }
   },
   "parameters": {
@@ -46,6 +46,12 @@
     "farmName": "[format('{0}-farm', parameters('name'))]"
   },
   "resources": {
+    "containerRegistry": {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('acrName')]",
+      "existing": true
+    },
     "site": {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",

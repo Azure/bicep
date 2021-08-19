@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "219926998020305744"
+      "templateHash": "13596067427889900769"
     }
   },
   "parameters": {
@@ -82,6 +82,28 @@
         "moduleWithCalculatedName",
         "optionalWithAllParamsAndManualDependency"
       ]
+    },
+    "kv": {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "testkeyvault",
+      "existing": true
+    },
+    "scopedKv": {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "testkeyvault",
+      "existing": true
+    },
+    "loopedKv": {
+      "copy": {
+        "name": "loopedKv",
+        "count": "[length(variables('vaults'))]"
+      },
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('vaults')[copyIndex()].vaultName]",
+      "existing": true
     },
     "modATest": {
       "type": "Microsoft.Resources/deployments",

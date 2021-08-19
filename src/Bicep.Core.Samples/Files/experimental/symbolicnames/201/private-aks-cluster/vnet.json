@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3980450247990997144"
+      "templateHash": "9532999407482268309"
     }
   },
   "parameters": {
@@ -258,6 +258,33 @@
         "bastionSubnetNsg",
         "vmSubnetNsg"
       ]
+    },
+    "bastionSubnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-08-01",
+      "name": "[format('{0}/{1}', parameters('virtualNetworkName'), variables('bastionSubnetName'))]",
+      "existing": true,
+      "dependsOn": [
+        "virtualNetwork"
+      ]
+    },
+    "aksSubnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-08-01",
+      "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('aksSubnetName'))]",
+      "existing": true,
+      "dependsOn": [
+        "virtualNetwork"
+      ]
+    },
+    "vmSubnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-08-01",
+      "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('vmSubnetName'))]",
+      "existing": true,
+      "dependsOn": [
+        "virtualNetwork"
+      ]
     }
   },
   "outputs": {
@@ -267,15 +294,15 @@
     },
     "bastionSubnetId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastionSubnetName'))]"
+      "value": "[resourceInfo('bastionSubnet').id]"
     },
     "aksSubnetId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('aksSubnetName'))]"
+      "value": "[resourceInfo('aksSubnet').id]"
     },
     "vmSubnetId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('vmSubnetName'))]"
+      "value": "[resourceInfo('vmSubnet').id]"
     }
   }
 }

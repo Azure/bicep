@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4388375132993984465"
+      "templateHash": "11734190282170748430"
     }
   },
   "parameters": {
@@ -327,6 +327,18 @@
     "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]"
   },
   "resources": {
+    "virtualNetwork": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-08-01",
+      "name": "[variables('virtualNetworkName')]",
+      "existing": true
+    },
+    "aksSubnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-08-01",
+      "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
+      "existing": true
+    },
     "aksCluster": {
       "type": "Microsoft.ContainerService/managedClusters",
       "apiVersion": "2021-02-01",
@@ -349,7 +361,7 @@
             "count": "[parameters('nodePoolCount')]",
             "vmSize": "[parameters('nodePoolVmSize')]",
             "osDiskSizeGB": "[parameters('nodePoolOsDiskSizeGB')]",
-            "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
+            "vnetSubnetID": "[resourceInfo('aksSubnet').id]",
             "maxPods": "[parameters('nodePoolMaxPods')]",
             "osType": "[parameters('nodePoolOsType')]",
             "maxCount": "[parameters('nodePoolMaxCount')]",

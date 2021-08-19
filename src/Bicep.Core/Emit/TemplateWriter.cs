@@ -279,7 +279,7 @@ namespace Bicep.Core.Emit
 
             foreach (var resource in this.context.SemanticModel.AllResources)
             {
-                if (resource.IsExistingResource)
+                if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
                 {
                     continue;
                 }
@@ -415,6 +415,12 @@ namespace Bicep.Core.Emit
             }
 
             emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resource));
+
+            if (context.Settings.EnableSymbolicNames && resource.IsExistingResource)
+            {
+                jsonWriter.WritePropertyName("existing");
+                jsonWriter.WriteValue(true);
+            }
 
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 

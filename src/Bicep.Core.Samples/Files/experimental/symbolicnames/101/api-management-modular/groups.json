@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5728933991519155211"
+      "templateHash": "4677486365743673496"
     }
   },
   "parameters": {
@@ -32,6 +32,12 @@
     ]
   },
   "resources": {
+    "parentAPIM": {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2019-01-01",
+      "name": "[parameters('apimInstanceName')]",
+      "existing": true
+    },
     "apimGroup": {
       "copy": {
         "name": "apimGroup",

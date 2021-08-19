@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12993977249715202159"
+      "templateHash": "615088347620878269"
     }
   },
   "parameters": {
@@ -39,6 +39,12 @@
     ]
   },
   "resources": {
+    "parentAPIM": {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2019-01-01",
+      "name": "[parameters('apimInstanceName')]",
+      "existing": true
+    },
     "apiManagementNVPair": {
       "copy": {
         "name": "apiManagementNVPair",

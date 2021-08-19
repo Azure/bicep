@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "851399668796174363"
+      "templateHash": "8972805093647530575"
     }
   },
   "parameters": {
@@ -55,6 +55,12 @@
   },
   "functions": [],
   "resources": {
+    "managedidentity": {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "name": "[parameters('uamiName')]",
+      "existing": true
+    },
     "imageTemplateName_resource": {
       "type": "Microsoft.VirtualMachineImages/imageTemplates",
       "apiVersion": "2020-02-14",
@@ -67,7 +73,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]": {}
+          "[resourceInfo('managedidentity').id]": {}
         }
       },
       "properties": {
@@ -125,10 +131,10 @@
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceGroup().id, resourceInfo('aibdef').id, resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
+      "name": "[guid(resourceGroup().id, resourceInfo('aibdef').id, resourceInfo('managedidentity').id)]",
       "properties": {
         "roleDefinitionId": "[resourceInfo('aibdef').id]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')), '2018-11-30').principalId]",
+        "principalId": "[reference('managedidentity').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
@@ -139,10 +145,10 @@
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
+      "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceInfo('managedidentity').id)]",
       "properties": {
         "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')), '2018-11-30').principalId]",
+        "principalId": "[reference('managedidentity').principalId]",
         "principalType": "ServicePrincipal"
       }
     },

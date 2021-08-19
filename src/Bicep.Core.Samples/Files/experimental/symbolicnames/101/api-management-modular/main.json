@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8739294789694250812"
+      "templateHash": "10475576660461112903"
     }
   },
   "parameters": {
@@ -164,7 +164,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5728933991519155211"
+              "templateHash": "4677486365743673496"
             }
           },
           "parameters": {
@@ -189,6 +189,12 @@
             ]
           },
           "resources": {
+            "parentAPIM": {
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]",
+              "existing": true
+            },
             "apimGroup": {
               "copy": {
                 "name": "apimGroup",
@@ -245,7 +251,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11796925286997680899"
+              "templateHash": "5270394240872424267"
             }
           },
           "parameters": {
@@ -276,6 +282,12 @@
             ]
           },
           "resources": {
+            "parentAPIM": {
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]",
+              "existing": true
+            },
             "apimUser": {
               "copy": {
                 "name": "apimUser",
@@ -323,7 +335,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12993977249715202159"
+              "templateHash": "615088347620878269"
             }
           },
           "parameters": {
@@ -355,6 +367,12 @@
             ]
           },
           "resources": {
+            "parentAPIM": {
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]",
+              "existing": true
+            },
             "apiManagementNVPair": {
               "copy": {
                 "name": "apiManagementNVPair",

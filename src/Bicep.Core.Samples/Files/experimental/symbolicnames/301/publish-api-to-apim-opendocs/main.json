@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5040726080714184498"
+      "templateHash": "10255723875889581476"
     }
   },
   "parameters": {
@@ -73,6 +73,12 @@
     ]
   },
   "resources": {
+    "apiManagementService": {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2020-12-01",
+      "name": "[parameters('apimInstanceName')]",
+      "existing": true
+    },
     "ProductRecords": {
       "copy": {
         "name": "ProductRecords",

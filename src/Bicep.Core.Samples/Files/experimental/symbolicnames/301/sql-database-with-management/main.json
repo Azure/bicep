@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15969359453240800981"
+      "templateHash": "10117403546057752376"
     }
   },
   "parameters": {
@@ -62,7 +62,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13972499330731352154"
+              "templateHash": "2533595266705499980"
             }
           },
           "parameters": {
@@ -127,6 +127,16 @@
             }
           },
           "resources": {
+            "sqlPassKeyVaults": {
+              "copy": {
+                "name": "sqlPassKeyVaults",
+                "count": "[length(parameters('sqlLogicalServers'))]"
+              },
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2021-04-01-preview",
+              "name": "[parameters('sqlLogicalServers')[copyIndex()].passwordFromKeyVault.name]",
+              "existing": true
+            },
             "sqlLogicalServer": {
               "copy": {
                 "name": "sqlLogicalServer",
@@ -165,7 +175,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "997219214003104033"
+                      "templateHash": "926781160633997008"
                     }
                   },
                   "parameters": {
@@ -288,6 +298,13 @@
                         "sqlLogicalServerRes"
                       ]
                     },
+                    "storageAccountVulnerabilityAssessments": {
+                      "condition": "[and(and(parameters('sqlLogicalServer').azureDefender.enabled, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
+                      "type": "Microsoft.Storage/storageAccounts",
+                      "apiVersion": "2021-04-01",
+                      "name": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name]",
+                      "existing": true
+                    },
                     "vulnerabilityAssessments": {
                       "condition": "[and(and(parameters('sqlLogicalServer').azureDefender.enabled, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
                       "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
@@ -299,7 +316,7 @@
                           "emailSubscriptionAdmins": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.emailSubscriptionAdmins]",
                           "emails": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.emails]"
                         },
-                        "storageContainerPath": "[if(not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)), format('{0}{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName), 'Microsoft.Storage/storageAccounts', parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name), '2021-04-01').primaryEndpoints.blob, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.containerName), '')]",
+                        "storageContainerPath": "[if(not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)), format('{0}{1}', reference('storageAccountVulnerabilityAssessments').primaryEndpoints.blob, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.containerName), '')]",
                         "storageAccountAccessKey": "[if(not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)), listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName), 'Microsoft.Storage/storageAccounts', parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name), '2021-04-01').keys[0].value, '')]"
                       },
                       "dependsOn": [
@@ -348,6 +365,23 @@
                         "sqlLogicalServerRes"
                       ]
                     },
+                    "masterDb": {
+                      "condition": "[or(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs, not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)))]",
+                      "type": "Microsoft.Sql/servers/databases",
+                      "apiVersion": "2021-02-01-preview",
+                      "name": "[format('{0}/{1}', parameters('sqlLogicalServer').name, 'master')]",
+                      "existing": true,
+                      "dependsOn": [
+                        "sqlLogicalServerRes"
+                      ]
+                    },
+                    "logAnalyticsWorkspace": {
+                      "condition": "[or(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs, not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)))]",
+                      "type": "Microsoft.OperationalInsights/workspaces",
+                      "apiVersion": "2020-10-01",
+                      "name": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name]",
+                      "existing": true
+                    },
                     "auditDiagnosticSettings": {
                       "condition": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs]",
                       "type": "Microsoft.Insights/diagnosticSettings",
@@ -355,7 +389,7 @@
                       "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', parameters('sqlLogicalServer').name, 'master')]",
                       "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
                       "properties": {
-                        "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlLogicalServer').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlLogicalServer').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)]",
+                        "workspaceId": "[resourceInfo('logAnalyticsWorkspace').id]",
                         "logs": [
                           {
                             "category": "SQLSecurityAuditEvents",
@@ -399,7 +433,7 @@
                             }
                           }
                         ],
-                        "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlLogicalServer').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlLogicalServer').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)]"
+                        "workspaceId": "[resourceInfo('logAnalyticsWorkspace').id]"
                       },
                       "dependsOn": [
                         "dummyDeployments",
@@ -505,7 +539,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "1352096978336243325"
+                              "templateHash": "2335383210768144867"
                             }
                           },
                           "parameters": {
@@ -576,6 +610,13 @@
                                 "transparentDataEncryption"
                               ]
                             },
+                            "storageAccountVulnerabilityAssessments": {
+                              "condition": "[and(and(parameters('sqlDatabase').azureDefender.enabled, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
+                              "type": "Microsoft.Storage/storageAccounts",
+                              "apiVersion": "2021-04-01",
+                              "name": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name]",
+                              "existing": true
+                            },
                             "vulnerabilityAssessments": {
                               "condition": "[and(and(parameters('sqlDatabase').azureDefender.enabled, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
                               "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
@@ -587,7 +628,7 @@
                                   "emailSubscriptionAdmins": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.emailSubscriptionAdmins]",
                                   "emails": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.emails]"
                                 },
-                                "storageContainerPath": "[if(not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)), format('{0}{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName), 'Microsoft.Storage/storageAccounts', parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name), '2021-04-01').primaryEndpoints.blob, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.containerName), '')]",
+                                "storageContainerPath": "[if(not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)), format('{0}{1}', reference('storageAccountVulnerabilityAssessments').primaryEndpoints.blob, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.containerName), '')]",
                                 "storageAccountAccessKey": "[if(not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)), listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName), 'Microsoft.Storage/storageAccounts', parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name), '2021-04-01').keys[0].value, '')]"
                               },
                               "dependsOn": [
@@ -596,6 +637,13 @@
                                 "transparentDataEncryption"
                               ]
                             },
+                            "logAnalyticsWorkspace": {
+                              "condition": "[or(parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs, not(empty(parameters('sqlDatabase').diagnosticLogsAndMetrics.name)))]",
+                              "type": "Microsoft.OperationalInsights/workspaces",
+                              "apiVersion": "2020-10-01",
+                              "name": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.name]",
+                              "existing": true
+                            },
                             "auditDiagnosticSettings": {
                               "condition": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs]",
                               "type": "Microsoft.Insights/diagnosticSettings",
@@ -603,7 +651,7 @@
                               "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
                               "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
                               "properties": {
-                                "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlDatabase').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlDatabase').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlDatabase').diagnosticLogsAndMetrics.name)]",
+                                "workspaceId": "[resourceInfo('logAnalyticsWorkspace').id]",
                                 "logs": [
                                   {
                                     "category": "SQLSecurityAuditEvents",
@@ -642,7 +690,7 @@
                                     }
                                   }
                                 ],
-                                "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlDatabase').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlDatabase').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlDatabase').diagnosticLogsAndMetrics.name)]"
+                                "workspaceId": "[resourceInfo('logAnalyticsWorkspace').id]"
                               },
                               "dependsOn": [
                                 "sqlDb",

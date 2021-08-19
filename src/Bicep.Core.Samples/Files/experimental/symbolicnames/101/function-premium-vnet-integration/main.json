@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15285291298860488325"
+      "templateHash": "5806720333832975496"
     }
   },
   "parameters": {
@@ -194,11 +194,20 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('functionAppName'), 'virtualNetwork')]",
       "properties": {
-        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",
+        "subnetResourceId": "[resourceInfo('subnet').id]",
         "swiftSupported": true
       },
       "dependsOn": [
         "function",
+        "virtualNetwork"
+      ]
+    },
+    "subnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2021-02-01",
+      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subnetName'))]",
+      "existing": true,
+      "dependsOn": [
         "virtualNetwork"
       ]
     }
