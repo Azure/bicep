@@ -386,7 +386,8 @@ namespace Bicep.Core.Emit
             }
 
             emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resource));
-
+            
+            body = EvaluateDecorators(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
@@ -473,6 +474,7 @@ namespace Bicep.Core.Emit
             emitter.EmitProperty("type", NestedDeploymentResourceType);
             emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
+            body = EvaluateDecorators(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type);
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
@@ -620,7 +622,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private static void EmitOutput(JsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
+        private void EmitOutput(JsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
         {
             jsonWriter.WriteStartObject();
 
@@ -632,8 +634,18 @@ namespace Bicep.Core.Emit
             else
             {
                 emitter.EmitProperty("value", outputSymbol.Value);
+                // emit any decorators on this output
+                if (EvaluateDecorators(
+                    outputSymbol.DeclaringOutput, 
+                    SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                    outputSymbol.Type) is ObjectSyntax body)
+                {
+                    foreach (var (property, val) in body.ToNamedPropertyValueDictionary())
+                    {
+                        emitter.EmitProperty(property, val);
+                    }
+                }
             }
-
             jsonWriter.WriteEndObject();
         }
 

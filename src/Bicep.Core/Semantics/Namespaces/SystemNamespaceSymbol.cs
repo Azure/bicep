@@ -703,7 +703,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder("description")
                 .WithDescription("Describes the parameter.")
                 .WithRequiredParameter("text", LanguageConstants.String, "The description.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithFlags(FunctionFlags.AnyDecorator)
                 .WithEvaluator(MergeToTargetObject("metadata", decoratorSyntax => SyntaxFactory.CreateObject(
                     SyntaxFactory.CreateObjectProperty("description", SingleArgumentSelector(decoratorSyntax)).AsEnumerable())))
                 .Build();
