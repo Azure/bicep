@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -31,7 +31,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
-        private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver);
+        private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver, new ConfigHelper(true));
 
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
