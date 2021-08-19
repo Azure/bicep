@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
@@ -18,7 +19,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
-        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver);
+        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver, new ConfigHelper(loadDefaultConfig: true));
 
         [TestMethod]
         public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()

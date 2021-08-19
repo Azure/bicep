@@ -20,9 +20,16 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public IConfigurationRoot Config { get; private set; }
 
-        public ConfigHelper()
+        public ConfigHelper(bool loadDefaultConfig = false)
         {
-            this.Config = BuildConfig(Directory.GetCurrentDirectory());
+            if (loadDefaultConfig)
+            {
+                this.Config = BuildConfig((string?)null);
+            }
+            else
+            {
+                this.Config = BuildConfig(Directory.GetCurrentDirectory());
+            }
         }
 
         private IConfigurationRoot BuildConfig(Uri fileUri)
@@ -80,18 +87,18 @@ namespace Bicep.Core.Configuration
         {
             try
             {
-              while (!string.IsNullOrEmpty(nextDir))
-              {
-                  while (!string.IsNullOrEmpty(nextDir))
-                  {
-                      var fileName = Path.Combine(nextDir, LanguageConstants.BicepConfigSettingsFileName);
-                      if (File.Exists(fileName))
-                      {
-                          return fileName;
-                      }
-                      nextDir = Directory.GetParent(nextDir)?.FullName;
-                  }
-              }
+                while (!string.IsNullOrEmpty(nextDir))
+                {
+                    while (!string.IsNullOrEmpty(nextDir))
+                    {
+                        var fileName = Path.Combine(nextDir, LanguageConstants.BicepConfigSettingsFileName);
+                        if (File.Exists(fileName))
+                        {
+                            return fileName;
+                        }
+                        nextDir = Directory.GetParent(nextDir)?.FullName;
+                    }
+                }
             }
             catch (Exception)
             {
