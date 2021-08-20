@@ -255,7 +255,7 @@
     "webpack-cli": "^4.7.2"
   },
   "dependencies": {
-    "cytoscape": "^3.19.0",
+    "cytoscape": "^3.19.1",
     "cytoscape-elk": "^2.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
