@@ -92,6 +92,9 @@ namespace Bicep.Core
         public const string TypeNameString = "string";
         public const string TypeNameModule = "module";
 
+        public const string DisableLinterRule = "Disable linter rule";
+        public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
+
         /*
          * The following top-level properties must be set deploy-time constant values,
          * and it is safe to read them at deploy-time because their values cannot be changed.

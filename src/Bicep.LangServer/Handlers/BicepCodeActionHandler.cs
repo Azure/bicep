@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Diagnostics;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -40,18 +43,10 @@ namespace Bicep.LanguageServer.Handlers
                 ? PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.End)
                 : requestStartOffset;
 
-            IEnumerable<IDiagnostic> diagnostics;
+            var compilation = compilationContext.Compilation;
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-            try
-            {
-                diagnostics = compilationContext.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
-            }
-            catch
-            {
-                return Task.FromResult(new CommandOrCodeActionContainer());
-            }
-
-            var quickFixes = compilationContext.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics()
+            var quickFixes = diagnostics
                 .Where(fixable =>
                     fixable.Span.ContainsInclusive(requestStartOffset) ||
                     fixable.Span.ContainsInclusive(requestEndOffset) ||
@@ -59,7 +54,20 @@ namespace Bicep.LanguageServer.Handlers
                 .OfType<IFixable>()
                 .SelectMany(fixable => fixable.Fixes.Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix)));
 
-            return Task.FromResult(new CommandOrCodeActionContainer(quickFixes));
+            var disableLinterRules = diagnostics
+                .Where(x =>
+                    x.Span.ContainsInclusive(requestStartOffset) ||
+                    x.Span.ContainsInclusive(requestEndOffset) ||
+                    (requestStartOffset <= x.Span.Position && x.GetEndPosition() <= requestEndOffset))
+                .OfType<IDisableLinterRule>()
+                .Select(x => DisableLinterRule(x.AnalyzerCode, compilation.ConfigHelper.CustomSettingsFileName));
+
+            List<CommandOrCodeAction> commandOrCodeActions = new();
+
+            commandOrCodeActions.AddRange(quickFixes);
+            commandOrCodeActions.AddRange(disableLinterRules);
+
+            return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
         }
 
         public override Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken)
@@ -87,6 +95,25 @@ namespace Bicep.LanguageServer.Handlers
                         })
                     }
                 }
+            };
+        }
+
+        private static CommandOrCodeAction DisableLinterRule(string ruleName, string? bicepConfigFilePath)
+        {
+            Command command;
+            if (string.IsNullOrWhiteSpace(bicepConfigFilePath))
+            {
+                command = Command.Create(LanguageConstants.DisableLinterRuleCommandName, ruleName, string.Empty);
+            }
+            else
+            {
+                command = Command.Create(LanguageConstants.DisableLinterRuleCommandName, ruleName, bicepConfigFilePath);
+            }
+
+            return new CodeAction
+            {
+                Title = LanguageConstants.DisableLinterRule,
+                Command = command
             };
         }
 

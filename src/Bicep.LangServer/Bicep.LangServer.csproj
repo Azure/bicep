@@ -17,5 +17,11 @@
   <ItemGroup>
     <EmbeddedResource Include="./Snippets/Templates/*.bicep" LogicalName="$([System.String]::new('Snippets/Templates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
+	
+  <ItemGroup>
+    <EmbeddedResource Include="..\Bicep.Core\Configuration\bicepconfig.json">
+      <Link>bicepconfig.json</Link>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>
