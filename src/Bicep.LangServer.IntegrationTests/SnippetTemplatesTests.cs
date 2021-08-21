@@ -38,14 +38,18 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 [mainUri] = bicepContents,
             };
-            var prefix = completionData.Prefix;
 
-            // Template - module.bicep requires a path. So we'll create param.bicep file and
-            // specify it in module snippet template
-            if (prefix == "module")
+            // overrides for certain snippets which have contextual dependencies (e.g. external files)
+            switch (completionData.Prefix)
             {
-                var paramUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, "param.bicep"));
-                files.Add(paramUri, "param myParam string = 'test'");
+                case "module":
+                    var paramUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, "param.bicep"));
+                    files.Add(paramUri, "param myParam string = 'test'");
+                    break;
+                case "res-logic-app-from-file":
+                    var requiredFile = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, "REQUIRED"));
+                    files.Add(requiredFile, @"{""definition"":{""$schema"":""https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#"",""contentVersion"":""1.0.0.0"",""outputs"":{}}}");
+                    return;
             }
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
