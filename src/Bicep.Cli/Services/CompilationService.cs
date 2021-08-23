@@ -61,7 +61,7 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping);
+            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping, null);
 
             LogDiagnostics(compilation);
 
