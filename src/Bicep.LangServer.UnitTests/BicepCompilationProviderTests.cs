@@ -41,7 +41,7 @@ namespace Bicep.LangServer.UnitTests
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
-            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
+            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, null);
 
             context.Compilation.Should().NotBeNull();
             // TODO: remove Where when the support of modifiers is dropped.

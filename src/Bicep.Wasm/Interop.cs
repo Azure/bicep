@@ -16,9 +16,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Bicep.Core.Extensions;
 using Bicep.Decompiler;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Wasm
 {
@@ -156,7 +154,7 @@ namespace Bicep.Wasm
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider());
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(resourceTypeProvider, sourceFileGrouping);
+            return new Compilation(resourceTypeProvider, sourceFileGrouping, null);
         }
 
         private static string ReadStreamToEnd(Stream stream)

@@ -54,7 +54,7 @@ namespace Bicep.LangServer.IntegrationTests
                     return;
             }
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver), null);
             var semanticModel = compilation.GetEntrypointSemanticModel();
 
             if (semanticModel.HasErrors())

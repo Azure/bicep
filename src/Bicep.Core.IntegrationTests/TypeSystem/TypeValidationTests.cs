@@ -22,7 +22,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var typeProvider = TestTypeHelper.CreateProviderWithTypes(definedTypes);
 
-            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), null);
             return compilation.GetEntrypointSemanticModel();
         }
 

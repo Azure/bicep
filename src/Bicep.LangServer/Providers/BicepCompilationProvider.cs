@@ -29,21 +29,21 @@ namespace Bicep.LanguageServer.Providers
             this.moduleDispatcher = moduleDispatcher;
         }
 
-        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper = null)
+        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper)
         {
             var syntaxTreeGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, documentUri.ToUri());
             return this.CreateContext(syntaxTreeGrouping, modelLookup, configHelper);
         }
 
-        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper)
         {
             var syntaxTreeGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping);
-            return this.CreateContext(syntaxTreeGrouping, modelLookup);
+            return this.CreateContext(syntaxTreeGrouping, modelLookup, configHelper);
         }
 
-        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper = null)
+        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper)
         {
-            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping, modelLookup, configHelper);
+            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping, configHelper, modelLookup);
             return new CompilationContext(compilation);
         }
     }

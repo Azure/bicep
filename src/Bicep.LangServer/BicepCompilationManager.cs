@@ -174,9 +174,10 @@ namespace Bicep.LanguageServer
         {
             try
             {
+                var configHelper = activeContexts.TryGetValue(documentUri)?.Compilation.ConfigHelper;
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri, 
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary()),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configHelper),
                     (documentUri, prevContext) => {
                         var sourceDependencies = removedFiles
                             .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
@@ -192,14 +193,9 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        ConfigHelper? configHelper = null;
- 
-                        if (!reloadBicepConfig &&
-                        activeContexts.TryGetValue(documentUri, out CompilationContext? compilationContext) &&
-                        compilationContext is not null &&
-                        compilationContext.Compilation.ConfigHelper is ConfigHelper previousConfigHelper)
+                        if (reloadBicepConfig)
                         {
-                            configHelper = previousConfigHelper;
+                            configHelper = null;
                         }
 
                         return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configHelper);
