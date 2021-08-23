@@ -15,8 +15,11 @@ namespace Bicep.Core.Analyzers
         {
             this.Source = $"{LanguageConstants.LanguageId} {analyzerName}";
             AnalyzerCode = code;
+            LinterRuleSpan = span;
         }
 
         public string AnalyzerCode { get; }
+
+        public TextSpan LinterRuleSpan { get; }
     }
 }

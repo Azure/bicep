@@ -5,18 +5,28 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Samples;
+using Bicep.Core.Semantics;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -33,7 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(this.TestContext, out _, out var fileUri);
             var uri = DocumentUri.From(fileUri);
- 
+
             // start language server
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, fileResolver: new FileResolver());
 
@@ -83,6 +93,116 @@ namespace Bicep.LangServer.IntegrationTests
                     }
                 }
             }
+        }
+
+        [TestMethod]
+        public async Task DisableLinterRule_CodeActionInvocation_WithoutBicepConfig_ShouldCreateConfigFileAndDisableRule()
+        {
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
+            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
+            var compilation = GetCompilation(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+
+            // Start language server
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext,
+                bicepFileContents,
+                documentUri,
+                fileResolver: new FileResolver());
+
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+            // Verify linter warning before code action for disabling linter rule is invoked
+            diagnostics.Should().HaveCount(1);
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                });
+
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
+            var disableLinterRuleCodeActionSpan = diagnostics.OfType<IDisableLinterRule>().First().LinterRuleSpan;
+
+            var codeActions = await client.RequestCodeAction(new CodeActionParams
+            {
+                TextDocument = new TextDocumentIdentifier(documentUri),
+                Range = disableLinterRuleCodeActionSpan.ToRange(lineStarts)
+            });
+
+            var disableLinterCodeAction = codeActions.First().CodeAction;
+            var command = disableLinterCodeAction!.Command;
+
+            command!.Should().NotBeNull();
+            command!.Name.Should().Be(LanguageConstants.DisableLinterRuleCommandName);
+
+            await client.Workspace.ExecuteCommand(command);
+
+            var bicepConfigFilePath = GetBicepConfigFilePath(bicepFilePath);
+
+            // Verify diagnostics is cleared
+            GetCompilation(bicepFilePath).GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+
+            // Verify bicepconfig.json file is created after disable linter rule code action is invoked
+            File.Exists(bicepConfigFilePath).Should().BeTrue();
+
+            // Verify bicepconfig.json file contents
+            File.ReadAllText(bicepConfigFilePath).Should().BeEquivalentToIgnoringNewlines(@"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-hardcoded-env-urls"": {
+          ""level"": ""warning"",
+          ""disallowedhosts"": [
+            ""gallery.azure.com"",
+            ""management.core.windows.net"",
+            ""management.azure.com"",
+            ""database.windows.net"",
+            ""core.windows.net"",
+            ""login.microsoftonline.com"",
+            ""graph.windows.net"",
+            ""trafficmanager.net"",
+            ""datalake.azure.net"",
+            ""azuredatalakestore.net"",
+            ""azuredatalakeanalytics.net"",
+            ""vault.azure.net"",
+            ""api.loganalytics.io"",
+            ""asazure.windows.net"",
+            ""region.asazure.windows.net"",
+            ""batch.core.windows.net""
+          ],
+          ""excludedhosts"": [
+            ""schema.management.azure.com""
+          ]
+        },
+        ""no-unused-params"": {
+          ""level"": ""off""
+        }
+      }
+    }
+  }
+}");
+        }
+
+        private string GetBicepConfigFilePath(string bicepFilePath)
+        {
+            var directory = Path.GetDirectoryName(bicepFilePath);
+
+            return Path.Combine(directory!, "bicepconfig.json");
+        }
+
+        private string SaveFile(string fileContents, string fileName, string? testOutputPath)
+        {
+            return FileHelper.SaveResultFile(TestContext, fileName, fileContents, testOutputPath, Encoding.UTF8);
+        }
+
+        private Compilation GetCompilation(string bicepConfigFilePath)
+        {
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Core.Workspaces.Workspace(), PathHelper.FilePathToFileUrl(bicepConfigFilePath));
+
+            return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping);
         }
 
         private static IEnumerable<TextSpan> GetOverlappingSpans(TextSpan span)
