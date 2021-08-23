@@ -1468,7 +1468,7 @@
     "detail": "Logic App",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logicApp 'Microsoft.Logic/integrationAccounts@2016-06-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1477,7 +1477,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:logicApp} 'Microsoft.Logic/integrationAccounts@2016-06-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n"
+      "newText": "resource ${1:logicApp} 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -1515,6 +1515,64 @@
           "EventName": "TopLevelDeclarationSnippetInsertion",
           "Properties": {
             "name": "res-logic-app-connector"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-logic-app-from-file",
+    "kind": "snippet",
+    "detail": "Logic App",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    definition: json(loadTextContent('REQUIRED')).definition\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-logic-app-from-file",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:logicApp} 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    definition: json(loadTextContent(${3:'REQUIRED'})).definition\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-logic-app-from-file"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-logic-app-integration",
+    "kind": "snippet",
+    "detail": "Logic App Integration Account",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource logicAppIntegrationAccount 'Microsoft.Logic/integrationAccounts@2016-06-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-logic-app-integration",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:logicAppIntegrationAccount} 'Microsoft.Logic/integrationAccounts@2016-06-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-logic-app-integration"
           }
         }
       ]
