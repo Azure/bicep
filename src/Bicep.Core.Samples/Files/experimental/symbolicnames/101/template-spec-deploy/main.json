@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7230625219853093482"
+    }
+  },
+  "parameters": {
+    "templateSpecSub": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]"
+    },
+    "templateSpecRg": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "templateSpecName": {
+      "type": "string"
+    },
+    "templateSpecVersion": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "deployTs": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-01-01",
+      "name": "deployTs",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('templateSpecSub'), parameters('templateSpecRg')), 'Microsoft.Resources/templateSpecs/versions', parameters('templateSpecName'), parameters('templateSpecVersion'))]"
+        },
+        "parameters": {}
+      }
+    }
+  }
+}
