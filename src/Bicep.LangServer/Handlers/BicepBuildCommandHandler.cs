@@ -82,7 +82,9 @@ namespace Bicep.LanguageServer.Handlers
 
             using (FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite))
             {
-                TemplateEmitter emitter = new TemplateEmitter(semanticModel, ThisAssembly.AssemblyFileVersion);
+                var emitterSettings = new EmitterSettings(ThisAssembly.AssemblyFileVersion, enableSymbolicNames: false);
+
+                TemplateEmitter emitter = new TemplateEmitter(semanticModel, emitterSettings);
                 EmitResult result = emitter.Emit(fileStream);
 
                 return "Build succeeded. Created file " + compiledFile;

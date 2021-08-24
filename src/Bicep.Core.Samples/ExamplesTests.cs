@@ -112,21 +112,18 @@ namespace Bicep.Core.Samples
             GetExampleData().Should().HaveCountGreaterOrEqualTo(30, "sanity check to ensure we're finding examples to test");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ExampleIsValid(ExampleData example)
+        private void RunExampleTest(ExampleData example, EmitterSettings emitterSettings, string baselineFilePath)
         {
             // save all the files in the containing directory to disk so that we can test module resolution
             var parentStream = GetParentStreamName(example.BicepStreamName);
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
-            var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
+            var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(baselineFilePath));
 
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
             // quiet the linter diagnostics
             var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
@@ -163,10 +160,27 @@ namespace Bicep.Core.Samples
                     actual.Should().EqualWithJsonDiffOutput(
                         TestContext, 
                         exampleExists ? JToken.Parse(File.ReadAllText(jsonFileName)) : new JObject(),
-                        example.JsonStreamName,
+                        baselineFilePath,
                         jsonFileName + ".actual");
                 }
             }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void ExampleIsValid(ExampleData example)
+            => RunExampleTest(example, EmitterSettingsHelper.DefaultTestSettings, example.JsonStreamName);
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void ExampleIsValid_using_experimental_symbolic_names(ExampleData example)
+        {
+            example.JsonStreamName.Should().StartWith("docs/examples/");
+            var symbolicNameJsonOutput = "src/Bicep.Core.Samples/Files/experimental/symbolicnames/" + example.JsonStreamName.Substring("docs/examples/".Length);
+
+            RunExampleTest(example, EmitterSettingsHelper.WithSymbolicNamesEnabled, symbolicNameJsonOutput);
         }
 
         [DataTestMethod]

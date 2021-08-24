@@ -14,15 +14,12 @@ namespace Bicep.Core.Emit
     {
         private readonly SemanticModel model;
 
-        /// <summary>
-        /// Assembly File Version to emit into the metadata
-        /// </summary>
-        private readonly string assemblyFileVersion;
+        private readonly EmitterSettings settings;
 
-        public TemplateEmitter(SemanticModel model, string assemblyFileVersion)
+        public TemplateEmitter(SemanticModel model, EmitterSettings settings)
         {
             this.model = model;
-            this.assemblyFileVersion = assemblyFileVersion;
+            this.settings = settings;
         }
 
         /// <summary>
@@ -41,7 +38,7 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(this.model, this.assemblyFileVersion).Write(writer);
+            new TemplateWriter(this.model, this.settings).Write(writer);
         });
 
         /// <summary>
@@ -55,7 +52,7 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(this.model, this.assemblyFileVersion).Write(writer);
+            new TemplateWriter(this.model, this.settings).Write(writer);
         });
 
         /// <summary>
@@ -64,7 +61,7 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The json writer to write the template</param>
         public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() =>
         {
-            new TemplateWriter(this.model, this.assemblyFileVersion).Write(writer);
+            new TemplateWriter(this.model, this.settings).Write(writer);
         });
 
         private EmitResult EmitOrFail(Action write)

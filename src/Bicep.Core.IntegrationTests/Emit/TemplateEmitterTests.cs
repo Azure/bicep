@@ -41,7 +41,8 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should be successful
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
-            var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), compiledFilePath, BicepTestConstants.DevAssemblyFileVersion);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
+            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -54,6 +55,31 @@ namespace Bicep.Core.IntegrationTests.Emit
                 actualLocation: compiledFilePath);
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void ValidBicep_EmitTemplate_should_produce_expected_symbolicname_template(DataSet dataSet)
+        {
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiledWithSymbolicNames));
+
+            // emitting the template should be successful
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
+            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.WithSymbolicNamesEnabled, compiledFilePath);
+            result.Diagnostics.Should().NotHaveErrors();
+            result.Status.Should().Be(EmitStatus.Succeeded);
+
+            var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
+
+            actual.Should().EqualWithJsonDiffOutput(
+                TestContext, 
+                JToken.Parse(dataSet.CompiledWithSymbolicNames!),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledWithSymbolicNames),
+                actualLocation: compiledFilePath);
+        }
+
         [TestMethod]
         public void TemplateEmitter_output_should_not_include_UTF8_BOM()
         {
@@ -61,7 +87,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, "main.json");
 
             // emitting the template should be successful
-            var result = this.EmitTemplate(sourceFileGrouping, compiledFilePath, BicepTestConstants.DevAssemblyFileVersion);
+            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, compiledFilePath);
             result.Diagnostics.Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -84,7 +110,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             // emitting the template should be successful
             FileResolver fileResolver = BicepTestConstants.FileResolver;
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
-            var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(fileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), memoryStream, BicepTestConstants.DevAssemblyFileVersion);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
+            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, memoryStream);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -111,7 +138,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             // emitting the template should fail
             FileResolver fileResolver = BicepTestConstants.FileResolver;
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
-            var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(fileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), filePath, BicepTestConstants.DevAssemblyFileVersion);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
+            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, filePath);
             result.Diagnostics.Should().NotBeEmpty();
             result.Status.Should().Be(EmitStatus.Failed);
         }
@@ -137,19 +165,19 @@ this
             template.Should().HaveValueAtPath("$.variables.multiline", expected);
         }
 
-        private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, string filePath, string assemblyFileVersion)
+        private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, EmitterSettings emitterSettings, string filePath)
         {
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), assemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             return emitter.Emit(stream);
         }
 
-        private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, MemoryStream memoryStream, string assemblyFileVersion)
+        private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, EmitterSettings emitterSettings, MemoryStream memoryStream)
         {
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), assemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
             TextWriter tw = new StreamWriter(memoryStream);
             return emitter.Emit(tw);

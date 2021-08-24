@@ -38,7 +38,18 @@ namespace Bicep.Cli
 
             BicepDeploymentsInterop.Initialize();
 
-            var program = new Program(new InvocationContext(AzResourceTypeProvider.CreateWithAzTypes(), Console.Out, Console.Error, ThisAssembly.AssemblyFileVersion));
+            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
+            {
+                Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            }
+
+            var settings = new EmitterSettings(ThisAssembly.AssemblyFileVersion, enableSymbolicNames: false);
+            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL"), out var enableSymbolicNames) && enableSymbolicNames)
+            {
+                settings = new EmitterSettings(settings.AssemblyFileVersion, enableSymbolicNames: true);
+            }
+
+            var program = new Program(new InvocationContext(AzResourceTypeProvider.CreateWithAzTypes(), Console.Out, Console.Error, settings));
 
             return program.Run(args);
         }
@@ -46,11 +57,6 @@ namespace Bicep.Cli
         public int Run(string[] args)
         {
             var serviceProvider = ConfigureServices();
-
-            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
-            {
-                Trace.Listeners.Add(new TextWriterTraceListener(this.invocationContext.OutputWriter));
-            }
 
             try
             {

@@ -59,7 +59,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         private static CompilationResult Compile(Compilation compilation)
         {
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
 
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 

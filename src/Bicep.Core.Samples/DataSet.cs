@@ -24,6 +24,7 @@ namespace Bicep.Core.Samples
         public const string TestFileMainSyntax = "main.syntax.bicep";
         public const string TestFileMainFormatted = "main.formatted.bicep";
         public const string TestFileMainCompiled = "main.json";
+        public const string TestFileMainCompiledWithSymbolicNames = "main.symbolicnames.json";
         public const string TestCompletionsDirectory = "Completions";
         public const string TestCompletionsPrefix = TestCompletionsDirectory + "/";
         public const string TestFunctionsDirectory = "Functions";
@@ -38,6 +39,8 @@ namespace Bicep.Core.Samples
         private readonly Lazy<string> lazyDiagnostics;
 
         private readonly Lazy<string>? lazyCompiled;
+
+        private readonly Lazy<string>? lazyCompiledWithSymbolicNames;
 
         private readonly Lazy<string> lazySyntax;
 
@@ -55,6 +58,7 @@ namespace Bicep.Core.Samples
             this.lazyTokens = this.CreateRequired(TestFileMainTokens);
             this.lazyDiagnostics = this.CreateRequired(TestFileMainDiagnostics);
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
+            this.lazyCompiledWithSymbolicNames = this.CreateIffValid(TestFileMainCompiledWithSymbolicNames);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
@@ -72,6 +76,8 @@ namespace Bicep.Core.Samples
         public string Diagnostics => this.lazyDiagnostics.Value;
 
         public string? Compiled => this.lazyCompiled?.Value;
+
+        public string? CompiledWithSymbolicNames => this.lazyCompiledWithSymbolicNames?.Value;
 
         public string Symbols => this.lazySymbols.Value;
 

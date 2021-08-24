@@ -27,6 +27,12 @@ namespace Bicep.Core.UnitTests.Assertions
             actualLocation = GetAbsolutePathRelativeToRepoRoot(actualLocation);
             expectedLocation = GetAbsolutePathRelativeToRepoRoot(expectedLocation);
 
+            if (Path.GetDirectoryName(expectedLocation) is {} parentDir &&
+                !Directory.Exists(parentDir))
+            {
+                Directory.CreateDirectory(parentDir);
+            }
+
             File.Copy(actualLocation, expectedLocation, overwrite: true);
         }
 
