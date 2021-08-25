@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
@@ -23,15 +22,19 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {
+    // Search for bicepconfig.json in DiscoverLocalConfigurationFile(..) in ConfigHelper starts from current directory.
+    // In the below tests, we'll explicitly set the current directory and disable running tests in parallel to avoid conflicts
     [TestClass]
     public class BicepConfigChangeHandlerTests
     {
         private readonly BicepConfigChangeHandler bicepConfigChangeHandler = new(BicepTestConstants.FileResolver);
+        private readonly string CurrentDirectory = Directory.GetCurrentDirectory();
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
+        [DoNotParallelize]
         public void RetriggerCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRetriggerCompilation()
         {
             string bicepFileContents = "param storageAccountName string = 'testAccount'";
@@ -77,6 +80,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
+        [DoNotParallelize]
         public void RetriggerCompilationOfSourceFilesInWorkspace_WithInvalidBicepConfigFile_ShouldRetriggerCompilation()
         {
             string bicepFileContents = "param storageAccountName string = 'testAccount'";
@@ -117,6 +121,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
+        [DoNotParallelize]
         public void RetriggerCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRetriggerCompilation()
         {
             string bicepFileContents = "param storageAccountName string = 'testAccount'";
@@ -163,6 +168,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
 
         [TestMethod]
+        [DoNotParallelize]
         public void RetriggerCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRetriggerCompilation()
         {
             string bicepConfigFileContents = @"{
@@ -227,9 +233,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
             PublishDiagnosticsParams? receivedParams = null;
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             ILanguageServerFacade server = BicepCompilationManagerHelper.CreateMockServer(document).Object;
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
 
-            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath, Encoding.UTF8);
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var workspace = new Workspace();
             ISourceFile sourceFile = SourceFileFactory.CreateSourceFile(new Uri(bicepFilePath), bicepFileContents);
             workspace.UpsertSourceFile(sourceFile);
@@ -240,15 +245,20 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
             if (saveBicepConfigFile)
             {
-                string currentDirectory = Directory.GetCurrentDirectory();
-                testOutputPath = Path.Combine(currentDirectory, Guid.NewGuid().ToString());
-                string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepFileContents, testOutputPath, Encoding.UTF8);
+                string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents);
+                Directory.SetCurrentDirectory(Path.GetDirectoryName(bicepConfigFilePath)!);
                 bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             }
 
             bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(bicepCompilationManager, bicepConfigDocumentUri.ToUri(), workspace, bicepConfigFileContents);
 
             diagnostics = receivedParams?.Diagnostics;
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            Directory.SetCurrentDirectory(CurrentDirectory);
         }
     }
 }
