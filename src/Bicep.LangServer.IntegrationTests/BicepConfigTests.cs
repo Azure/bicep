@@ -270,6 +270,90 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
+        [TestMethod]
+        [DoNotParallelize]
+        public async Task BicepConfigFile_WithError_ShouldRetriggerCompilation()
+        {
+            var fileSystemDict = new Dictionary<Uri, string>();
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                TestContext,
+                options =>
+                {
+                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
+                },
+                fileResolver: new InMemoryFileResolver(fileSystemDict));
+
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
+
+            string bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+";
+
+            string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents);
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(bicepConfigFilePath)!);
+            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
+
+            fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
+
+            // open the main document and verify diagnostics
+            {
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().SatisfyRespectively(
+                    x =>
+                    {
+                        x.Message.Should().Be(@"Could not load configuration file. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 7 | BytePositionInLine: 0.");
+                        x.Severity.Should().Be(DiagnosticSeverity.Error);
+                        x.Range.Should().Be(new Range
+                        {
+                            Start = new Position(0, 0),
+                            End = new Position(1, 0)
+                        });
+                    });
+            }
+
+            // update bicepconfig.json and verify diagnostics
+            {
+                client.TextDocument.DidChangeTextDocument(TextDocumentParamHelper.CreateDidChangeTextDocumentParams(bicepConfigUri, @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}", 2));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().SatisfyRespectively(
+                    x =>
+                    {
+                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                        x.Severity.Should().Be(DiagnosticSeverity.Warning);
+                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                        x.Range.Should().Be(new Range
+                        {
+                            Start = new Position(0, 6),
+                            End = new Position(0, 24)
+                        });
+                    });
+            }
+        }
+
         [TestCleanup]
         public void Cleanup()
         {
