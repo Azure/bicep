@@ -167,7 +167,7 @@
         },
         {
           "command": "bicep.build",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep && commandsRegistered",
           "group": "navigation"
         }
       ],
@@ -176,6 +176,11 @@
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "1_open"
+        },
+        {
+          "command": "bicep.build",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "1_build"
         }
       ],
       "commandPalette": [
