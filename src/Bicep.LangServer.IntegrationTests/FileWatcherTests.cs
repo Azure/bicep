@@ -55,7 +55,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
-                fileResolver: new InMemoryFileResolver(fileSystemDict));
+                creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"
@@ -135,7 +135,7 @@ param requiredInput string
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
-                fileResolver: new InMemoryFileResolver(fileSystemDict));
+                creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"
@@ -202,7 +202,7 @@ param requiredIpnut string
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
-                fileResolver: new InMemoryFileResolver(fileSystemDict));
+                creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"

@@ -1111,16 +1111,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
 
-            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes) => new(
-                TextSpan,
-                "BCP189",
-                (allowedSchemes.Contains(ModuleReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme=>!string.Equals(scheme, ModuleReferenceSchemes.Local, StringComparison.Ordinal))) switch
-                {
-                    (false, false) => "Module references are not supported in this context.",
-                    (false, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}",
-                    (true, false) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file.",
-                    (true, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}",
-                });
+            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
+            {
+                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ModuleReferenceSchemes.Local)));
+
+                return new(
+                    TextSpan,
+                    "BCP189",
+                    (allowedSchemes.Contains(ModuleReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme => !string.Equals(scheme, ModuleReferenceSchemes.Local, StringComparison.Ordinal))) switch
+                    {
+                        (false, false) => "Module references are not supported in this context.",
+                        (false, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {FormatSchemes()}",
+                        (true, false) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file.",
+                        (true, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {FormatSchemes()}",
+                    });
+            }
 
             // TODO: This error is context sensitive:
             // - In CLI, it's permanent and only likely to occur with bicep build --no-restore.
@@ -1141,6 +1146,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP192",
                 $"Unable to restore the module with reference \"{moduleRef}\": {message}");
+
+            public ErrorDiagnostic InvalidOciArtifactReference(string badRef) => new(
+                TextSpan,
+                "BCP193",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. Specify a reference in the format of \"oci:<artifact uri>:<tag>\".");
+
+            public ErrorDiagnostic InvalidNuGetPackageReference(string badRef) => new(
+                TextSpan,
+                "BCP194",
+                $"The specified NuGet package reference \"{badRef}\" is not valid. Specify a reference in the format of \"nuget:<package>@<version>\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

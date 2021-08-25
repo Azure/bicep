@@ -13,6 +13,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Deployments.Templates" Version="1.0.207" />
+		<PackageReference Include="Azure.Identity" Version="1.4.0" />
 		<PackageReference Include="JetBrains.Annotations" Version="2021.1.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -25,6 +26,10 @@
 		<PackageReference Include="Azure.Deployments.Core" Version="1.0.207" />
 		<PackageReference Include="Azure.Bicep.Types" Version="0.1.245" />
 		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.245" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Bicep.Core.RegistryClient\Bicep.Core.RegistryClient.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CoreResources.Designer.cs">

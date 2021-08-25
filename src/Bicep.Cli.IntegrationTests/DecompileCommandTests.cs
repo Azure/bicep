@@ -9,6 +9,7 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -95,11 +96,11 @@ namespace Bicep.Cli.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        public void Decompile_EmptyTemplate_ShouldSucceed()
+        public async Task Decompile_EmptyTemplate_ShouldSucceed()
         {
             var (jsonPath, bicepPath) = Setup(TestContext);
 
-            var (output, error, result) = Bicep("decompile", jsonPath);
+            var (output, error, result) = await Bicep("decompile", jsonPath);
 
             using (new AssertionScope())
             {
@@ -112,9 +113,9 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
+        public async Task Decompile_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
         {
-            var (output, error, result) = Bicep("decompile");
+            var (output, error, result) = await Bicep("decompile");
 
             using (new AssertionScope())
             {
@@ -125,11 +126,11 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_WithNonExistantOutDir_ShouldFail_WithExpectedErrorMessage()
+        public async Task Decompile_WithNonExistantOutDir_ShouldFail_WithExpectedErrorMessage()
         {
             var (jsonPath, outputDir) = Setup(TestContext, ValidTemplate, outputDir: "outputDir");
 
-            var (output, error, result) = Bicep("decompile", "--outdir", outputDir, jsonPath);
+            var (output, error, result) = await Bicep("decompile", "--outdir", outputDir, jsonPath);
 
             using (new AssertionScope())
             {
@@ -140,12 +141,12 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_FileWithErrors_ShouldFail_WithExpectedErrorMessage()
+        public async Task Decompile_FileWithErrors_ShouldFail_WithExpectedErrorMessage()
         {
 
             var (jsonPath, bicepPath) = Setup(TestContext, InvalidTemplate);
 
-            var (output, error, result) = Bicep("decompile", jsonPath);
+            var (output, error, result) = await Bicep("decompile", jsonPath);
 
             using (new AssertionScope())
             {
@@ -158,11 +159,11 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_FileWithNoErrors_ShouldSucceed()
+        public async Task Decompile_FileWithNoErrors_ShouldSucceed()
         {
             var (jsonPath, bicepPath) = Setup(TestContext, ValidTemplate);
 
-            var (output, error, result) = Bicep("decompile", jsonPath);
+            var (output, error, result) = await Bicep("decompile", jsonPath);
 
             using (new AssertionScope())
             {
@@ -174,11 +175,11 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_FileWithErrors_ToStdout_ShouldFail_WithExpectedErrorMessage()
+        public async Task Decompile_FileWithErrors_ToStdout_ShouldFail_WithExpectedErrorMessage()
         {
             var (jsonPath, bicepPath) = Setup(TestContext, InvalidTemplate);
 
-            var (output, error, result) = Bicep("decompile", "--stdout", jsonPath);
+            var (output, error, result) = await Bicep("decompile", "--stdout", jsonPath);
 
             using (new AssertionScope())
             {
@@ -196,11 +197,11 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_FileWithErrors_ToStdout_ShouldSucceed_WithExpectedErrorMessage()
+        public async Task Decompile_FileWithErrors_ToStdout_ShouldSucceed_WithExpectedErrorMessage()
         {
             var (jsonPath, _) = Setup(TestContext, ValidTemplate);
 
-            var (output, error, result) = Bicep("decompile", "--stdout", jsonPath);
+            var (output, error, result) = await Bicep("decompile", "--stdout", jsonPath);
 
             using (new AssertionScope())
             {
@@ -218,11 +219,11 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_FileWithNoErrors_ToOutFile_ShouldSucceed()
+        public async Task Decompile_FileWithNoErrors_ToOutFile_ShouldSucceed()
         {
             var (jsonPath, bicepPath) = Setup(TestContext, ValidTemplate, outputDir: "test.bicep");
 
-            var (output, error, result) = Bicep("decompile", "--outfile", bicepPath, jsonPath);
+            var (output, error, result) = await Bicep("decompile", "--outfile", bicepPath, jsonPath);
 
             using (new AssertionScope())
             {
@@ -235,11 +236,11 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_FileWithNoErrors_ToOutDir_ShouldSucceed()
+        public async Task Decompile_FileWithNoErrors_ToOutDir_ShouldSucceed()
         {
             var (jsonPath, outputDir) = Setup(TestContext, ValidTemplate, outputDir: ".");
 
-            var (output, error, result) = Bicep("decompile", "--outdir", outputDir, jsonPath);
+            var (output, error, result) = await Bicep("decompile", "--outdir", outputDir, jsonPath);
 
             using (new AssertionScope())
             {
@@ -255,11 +256,11 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("DoesNotExist.json")]
         [DataRow("WrongDir\\Fake.json")]
         [DataTestMethod]
-        public void Decompile_InvalidInputPath_ShouldFail_WtihExpectedErrorMessage(string badPath)
+        public async Task Decompile_InvalidInputPath_ShouldFail_WtihExpectedErrorMessage(string badPath)
         {
             var badUri = PathHelper.FilePathToFileUrl(Path.GetFullPath(badPath));
 
-            var (output, error, result) = Bicep("decompile", badUri.LocalPath);
+            var (output, error, result) = await Bicep("decompile", badUri.LocalPath);
 
             using (new AssertionScope())
             {
@@ -273,11 +274,11 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("DoesNotExist.json")]
         [DataRow("WrongDir\\Fake.json")]
         [DataTestMethod]
-        public void Decompile_InvalidInputPath_ToStdout_ShouldFail_WtihExpectedErrorMessage(string badPath)
+        public async Task Decompile_InvalidInputPath_ToStdout_ShouldFail_WtihExpectedErrorMessage(string badPath)
         {
             var badUri = PathHelper.FilePathToFileUrl(Path.GetFullPath(badPath));
 
-            var (output, error, result) = Bicep("decompile", "--stdout", badUri.LocalPath);
+            var (output, error, result) = await Bicep("decompile", "--stdout", badUri.LocalPath);
 
             using (new AssertionScope())
             {
@@ -289,7 +290,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void Decompile_LockedFile_ShouldFail()
+        public async Task Decompile_LockedFile_ShouldFail()
         {
             var (jsonPath, bicepPath) = Setup(TestContext, string.Empty, inputFile: "Empty.json");
 
@@ -298,7 +299,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // keep the output stream open while we attempt to write to it
                 // this should force an access denied error
-                var (output, error, result) = Bicep("decompile", jsonPath);
+                var (output, error, result) = await Bicep("decompile", jsonPath);
 
                 output.Should().BeEmpty();
                 error.AsLines().Should().Contain(DecompilationDisclaimer);

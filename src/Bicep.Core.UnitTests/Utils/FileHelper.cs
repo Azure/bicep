@@ -76,5 +76,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             return outputDirectory;
         }
+
+        public static string GetCacheRootPath(TestContext testContext) => GetUniqueTestOutputPath(testContext);
     }
 }

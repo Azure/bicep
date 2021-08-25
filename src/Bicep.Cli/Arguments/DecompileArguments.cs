@@ -8,7 +8,7 @@ namespace Bicep.Cli.Arguments
 {
     public class DecompileArguments : ArgumentsBase
     {
-        public DecompileArguments(string[] args, string commandName) : base(commandName)
+        public DecompileArguments(string[] args) : base(Constants.Command.Decompile)
         {
             for (var i = 0; i < args.Length; i++)
             {
