@@ -272,7 +272,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [TestMethod]
         [DoNotParallelize]
-        public async Task BicepConfigFile_WithError_ShouldRetriggerCompilation()
+        public async Task InvalidBicepConfigFile_ShouldRetriggerCompilation()
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
