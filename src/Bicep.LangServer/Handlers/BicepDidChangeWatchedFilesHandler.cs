@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer.Handlers
             IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => x.Uri.Path.EndsWith(LanguageConstants.BicepConfigSettingsFileName));
 
             // Retrigger compilation of source files in workspace when local bicepconfig.json file is deleted
-            if (bicepConfigFileChangeEvents.Any(x => x.Type == FileChangeType.Deleted))
+            if (bicepConfigFileChangeEvents.Any())
             {
                 Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
                 bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(compilationManager, uri, workspace, string.Empty);

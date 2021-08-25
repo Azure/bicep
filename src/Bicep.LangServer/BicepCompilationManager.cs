@@ -4,7 +4,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Configuration;
@@ -256,15 +255,7 @@ namespace Bicep.LanguageServer
             }
             else
             {
-                configHelper = new ConfigHelper();
-                if (configHelper.CustomSettingsFileName is not null)
-                {
-                    string? bicepConfigContents = File.ReadAllText(configHelper.CustomSettingsFileName);
-                    Uri uri = new Uri(configHelper.CustomSettingsFileName);
-                    bicepConfig = new BicepConfig(uri, bicepConfigContents);
-
-                    workspace.UpsertActiveBicepConfig(bicepConfig);
-                }
+                configHelper = null;
             }
         }
 

@@ -52,21 +52,27 @@ namespace Bicep.Core.Configuration
                 Debug.Assert(defaultConfigStream != null, "Default configuration file should exist as embedded resource.");
                 configBuilder.AddJsonStream(defaultConfigStream);
 
-                if (bicepConfig is not null &&
-                        !string.IsNullOrWhiteSpace(bicepConfig.Contents) &&
-                        bicepConfig.Uri.LocalPath is string localPath)
-                {
-                    byte[] byteArray = Encoding.UTF8.GetBytes(bicepConfig.Contents);
-                    MemoryStream stream = new MemoryStream(byteArray);
-                    configBuilder.AddJsonStream(stream);
-                    this.CustomSettingsFileName = localPath;
-                }
                 // last added json settings take precedent - add local settings last
-                else if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
+                if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
                 {
-                    // we must set reloadOnChange to false here - if it set to true, then ConfigurationBuilder will initialize 
-                    // a FileSystem.Watcher instance - which has severe performance impact on non-Windows OSes (https://github.com/dotnet/runtime/issues/42036)
-                    configBuilder.AddJsonFile(localConfig, optional: true, reloadOnChange: false);
+                    // bicepconfig.json file was modified but not saved. If the
+                    // file path matches, we'll rebuild the config with updated contents
+                    if (bicepConfig is not null &&
+                        !string.IsNullOrWhiteSpace(bicepConfig.Contents) &&
+                        bicepConfig.Uri.LocalPath is string localPath &&
+                        string.Equals(localPath, localConfig, StringComparison.OrdinalIgnoreCase))
+                    {
+                        byte[] byteArray = Encoding.UTF8.GetBytes(bicepConfig.Contents);
+                        MemoryStream stream = new MemoryStream(byteArray);
+                        configBuilder.AddJsonStream(stream);
+                    }
+                    else
+                    {
+                        // we must set reloadOnChange to false here - if it set to true, then ConfigurationBuilder will initialize 
+                        // a FileSystem.Watcher instance - which has severe performance impact on non-Windows OSes (https://github.com/dotnet/runtime/issues/42036)
+                        configBuilder.AddJsonFile(localConfig, optional: true, reloadOnChange: false);
+                    }
+
                     this.CustomSettingsFileName = localConfig;
                 }
                 else
