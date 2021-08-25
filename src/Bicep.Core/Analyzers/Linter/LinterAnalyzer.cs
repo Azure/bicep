@@ -21,8 +21,6 @@ namespace Bicep.Core.Analyzers.Linter
         public const string AnalyzerName = "core";
         public static string LinterEnabledSetting => $"{SettingsRoot}:{AnalyzerName}:enabled";
         public static string LinterVerboseSetting => $"{SettingsRoot}:{AnalyzerName}:verbose";
-
-        private readonly ConfigHelper defaultConfigHelper = new ConfigHelper();
         private ConfigHelper activeConfigHelper;
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
         private ImmutableArray<IDiagnostic> RuleCreationErrors;
@@ -76,22 +74,12 @@ namespace Bicep.Core.Analyzers.Linter
 
         internal IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel, ConfigHelper? overrideConfig = default)
         {
-            // check for configuration overrides
-            /// typically only used in unit tests
-            this.activeConfigHelper = overrideConfig ?? this.defaultConfigHelper;
+            if (overrideConfig is not null)
+            {
+                this.activeConfigHelper = overrideConfig;
+            }
 
             var diagnostics = new List<IDiagnostic>();
-
-            try
-            {
-                this.activeConfigHelper.LoadConfigurationForSourceFile(semanticModel.SourceFile.FileUri);
-            }
-            catch (Exception ex)
-            {
-                diagnostics.Add(CreateInternalErrorDiagnostic(AnalyzerName, ex.InnerException?.Message ?? ex.Message));
-                // Build a default config to continue with.  This should not fail.
-                this.activeConfigHelper.LoadDefaultConfiguration();
-            }
 
             this.RuleSet.ForEach(r => r.Configure(this.activeConfigHelper.Config));
 

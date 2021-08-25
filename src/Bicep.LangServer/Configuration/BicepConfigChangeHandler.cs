@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.LanguageServer.Configuration
@@ -20,16 +20,24 @@ namespace Bicep.LanguageServer.Configuration
             this.fileResolver = fileResolver;
         }
 
-        public void RetriggerCompilationOfSourceFilesInWorkspace(ICompilationManager compilationManager, FileEvent bicepConfigFileEvent, IWorkspace workspace)
+        public void RetriggerCompilationOfSourceFilesInWorkspace(ICompilationManager compilationManager, Uri bicepConfigUri, IWorkspace workspace, string bicepConfigFileContents)
         {
-            foreach (ISourceFile sourceFile in workspace.GetSourceFilesForDirectory(bicepConfigFileEvent.Uri.ToUri()))
+            // bicepconfig.json file was deleted
+            if (string.IsNullOrWhiteSpace(bicepConfigFileContents))
             {
-                Uri uri = sourceFile.FileUri;
+                workspace.UpsertActiveBicepConfig(null);
+            }
+            else
+            {
+                workspace.UpsertActiveBicepConfig(new BicepConfig(bicepConfigUri, bicepConfigFileContents));
+            }
 
-                if (fileResolver.TryRead(uri, out string? bicepFileContents, out ErrorBuilderDelegate _) &&
+            foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
+            {
+                if (fileResolver.TryRead(sourceFileUri, out string? bicepFileContents, out ErrorBuilderDelegate _) &&
                     !string.IsNullOrWhiteSpace(bicepFileContents))
                 {
-                    compilationManager.UpsertCompilation(DocumentUri.From(uri), null, bicepFileContents, reloadBicepConfig: true);
+                    compilationManager.UpsertCompilation(DocumentUri.From(sourceFileUri), null, bicepFileContents, reloadBicepConfig: true);
                 }
             }
         }

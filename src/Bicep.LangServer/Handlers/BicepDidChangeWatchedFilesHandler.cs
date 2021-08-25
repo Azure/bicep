@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -34,10 +35,11 @@ namespace Bicep.LanguageServer.Handlers
             Container<FileEvent> fileEvents = request.Changes;
             IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => x.Uri.Path.EndsWith(LanguageConstants.BicepConfigSettingsFileName));
 
-            // Retrigger compilation of source files in workspace when local bicepconfig.json file is edited
-            if (bicepConfigFileChangeEvents.Any())
+            // Retrigger compilation of source files in workspace when local bicepconfig.json file is deleted
+            if (bicepConfigFileChangeEvents.Any(x => x.Type == FileChangeType.Deleted))
             {
-                bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(compilationManager, bicepConfigFileChangeEvents.First(), workspace);
+                Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
+                bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(compilationManager, uri, workspace, string.Empty);
             }
 
             compilationManager.HandleFileChanges(fileEvents);

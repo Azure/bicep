@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace Bicep.Core.Configuration
@@ -20,7 +21,7 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public IConfigurationRoot Config { get; private set; }
 
-        public ConfigHelper(bool loadDefaultConfig = false)
+        public ConfigHelper(bool loadDefaultConfig = false, BicepConfig? bicepConfig = null)
         {
             if (loadDefaultConfig)
             {
@@ -28,7 +29,7 @@ namespace Bicep.Core.Configuration
             }
             else
             {
-                this.Config = BuildConfig(Directory.GetCurrentDirectory());
+                this.Config = BuildConfig(Directory.GetCurrentDirectory(), bicepConfig);
             }
         }
 
@@ -38,7 +39,7 @@ namespace Bicep.Core.Configuration
             return BuildConfig(localFolder);
         }
 
-        private IConfigurationRoot BuildConfig(string? localFolder)
+        private IConfigurationRoot BuildConfig(string? localFolder, BicepConfig? bicepConfig = null)
         {
             var configBuilder = new ConfigurationBuilder();
 
@@ -51,8 +52,17 @@ namespace Bicep.Core.Configuration
                 Debug.Assert(defaultConfigStream != null, "Default configuration file should exist as embedded resource.");
                 configBuilder.AddJsonStream(defaultConfigStream);
 
+                if (bicepConfig is not null &&
+                        !string.IsNullOrWhiteSpace(bicepConfig.Contents) &&
+                        bicepConfig.Uri.LocalPath is string localPath)
+                {
+                    byte[] byteArray = Encoding.UTF8.GetBytes(bicepConfig.Contents);
+                    MemoryStream stream = new MemoryStream(byteArray);
+                    configBuilder.AddJsonStream(stream);
+                    this.CustomSettingsFileName = localPath;
+                }
                 // last added json settings take precedent - add local settings last
-                if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
+                else if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
                 {
                     // we must set reloadOnChange to false here - if it set to true, then ConfigurationBuilder will initialize 
                     // a FileSystem.Watcher instance - which has severe performance impact on non-Windows OSes (https://github.com/dotnet/runtime/issues/42036)

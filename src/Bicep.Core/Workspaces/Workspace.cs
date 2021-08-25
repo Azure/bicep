@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Bicep.Core.Configuration;
 
 namespace Bicep.Core.Workspaces
 {
@@ -14,6 +15,7 @@ namespace Bicep.Core.Workspaces
     public class Workspace : IWorkspace
     {
         private readonly IDictionary<Uri, ISourceFile> activeFiles = new Dictionary<Uri, ISourceFile>();
+        private BicepConfig? activeConfig = null;
 
         public bool TryGetSourceFile(Uri fileUri, [NotNullWhen(true)] out ISourceFile? file)
             => activeFiles.TryGetValue(fileUri, out file);
@@ -25,6 +27,13 @@ namespace Bicep.Core.Workspaces
 
         public ImmutableDictionary<Uri, ISourceFile> GetActiveSourceFilesByUri()
             => activeFiles.ToImmutableDictionary();
+
+        public void UpsertActiveBicepConfig(BicepConfig? bicepConfig)
+        {
+            activeConfig = bicepConfig;
+        }
+
+        public BicepConfig? GetActiveBicepConfig() => activeConfig;
 
         public (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFiles(IEnumerable<ISourceFile> files)
         {

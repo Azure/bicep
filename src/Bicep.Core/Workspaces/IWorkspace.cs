@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 
 namespace Bicep.Core.Workspaces
 {
@@ -10,5 +11,9 @@ namespace Bicep.Core.Workspaces
         (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFiles(IEnumerable<ISourceFile> sourceFiles);
 
         void RemoveSourceFiles(IEnumerable<ISourceFile> sourceFiles);
+
+        void UpsertActiveBicepConfig(BicepConfig? bicepConfig);
+
+        BicepConfig? GetActiveBicepConfig();
     }
 }

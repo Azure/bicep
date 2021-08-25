@@ -2,13 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Bicep.Core.Configuration
 {
     public class BicepConfig
     {
+        public BicepConfig(Uri uri, string contents)
+        {
+            Uri = uri;
+            Contents = contents;
+        }
 
+        public Uri Uri { get; }
+
+        public string Contents { get; }
     }
 }
