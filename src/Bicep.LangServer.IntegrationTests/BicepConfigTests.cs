@@ -23,6 +23,7 @@ namespace Bicep.LangServer.IntegrationTests
     // Search for bicepconfig.json in DiscoverLocalConfigurationFile(..) in ConfigHelper starts from current directory.
     // In the below tests, we'll explicitly set the current directory and disable running tests in parallel to avoid conflicts
     [TestClass]
+    [DoNotParallelize]
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class BicepConfigTests
     {
@@ -31,8 +32,7 @@ namespace Bicep.LangServer.IntegrationTests
         private readonly string CurrentDirectory = Directory.GetCurrentDirectory();
 
         [TestMethod]
-        [DoNotParallelize]
-        public async Task BicepConfigFileModification_ShouldRetriggerCompilation()
+        public async Task BicepConfigFileModification_ShouldRefreshCompilation()
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
@@ -110,8 +110,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        [DoNotParallelize]
-        public async Task BicepConfigFileDeletion_ShouldRetriggerCompilation()
+        public async Task BicepConfigFileDeletion_ShouldRefreshCompilation()
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
@@ -197,8 +196,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        [DoNotParallelize]
-        public async Task BicepConfigFileCreation_ShouldRetriggerCompilation()
+        public async Task BicepConfigFileCreation_ShouldRefreshCompilation()
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
@@ -271,8 +269,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        [DoNotParallelize]
-        public async Task InvalidBicepConfigFile_ShouldRetriggerCompilation()
+        public async Task InvalidBicepConfigFile_ShouldRefreshCompilation()
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();

@@ -100,9 +100,9 @@ namespace Bicep.LangServer.UnitTests.Registry
             var thirdSource = new TaskCompletionSource<bool>();
 
             var compilationManager = Repository.Create<ICompilationManager>();
-            compilationManager.Setup(m => m.RefreshCompilation(firstUri)).Callback<DocumentUri>(uri => firstSource.SetResult(true));
-            compilationManager.Setup(m => m.RefreshCompilation(secondUri)).Callback<DocumentUri>(uri => secondSource.SetResult(true));
-            compilationManager.Setup(m => m.RefreshCompilation(thirdUri)).Callback<DocumentUri>(uri => thirdSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(firstUri, It.IsAny<bool>())).Callback<DocumentUri, bool>((uri, reloadBicepConfig) => firstSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(secondUri, It.IsAny<bool>())).Callback<DocumentUri, bool>((uri, reloadBicepConfig) => secondSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(thirdUri, It.IsAny<bool>())).Callback<DocumentUri, bool>((uri, reloadBicepConfig) => thirdSource.SetResult(true));
 
             var firstFileSet = CreateModules("mock:one", "mock:two");
             var secondFileSet = CreateModules("mock:three", "mock:four");

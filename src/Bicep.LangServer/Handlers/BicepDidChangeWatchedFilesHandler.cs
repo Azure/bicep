@@ -19,13 +19,11 @@ namespace Bicep.LanguageServer.Handlers
 {
     public sealed class BicepDidChangeWatchedFilesHandler : DidChangeWatchedFilesHandlerBase
     {
-        private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
         private readonly IWorkspace workspace;
         private readonly ICompilationManager compilationManager;
 
-        public BicepDidChangeWatchedFilesHandler(IBicepConfigChangeHandler bicepConfigChangeHandler, ICompilationManager compilationManager, IWorkspace workspace)
+        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IWorkspace workspace)
         {
-            this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
             this.workspace = workspace;
         }
@@ -35,11 +33,11 @@ namespace Bicep.LanguageServer.Handlers
             Container<FileEvent> fileEvents = request.Changes;
             IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => x.Uri.Path.EndsWith(LanguageConstants.BicepConfigSettingsFileName));
 
-            // Retrigger compilation of source files in workspace when local bicepconfig.json file is deleted
+            // Refresh compilation of source files in workspace when local bicepconfig.json file is deleted
             if (bicepConfigFileChangeEvents.Any())
             {
                 Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
-                bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(compilationManager, uri, workspace, string.Empty);
+                BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(compilationManager, uri, workspace, string.Empty);
             }
 
             compilationManager.HandleFileChanges(fileEvents);

@@ -20,13 +20,11 @@ namespace Bicep.LanguageServer.Handlers
 {
     public class BicepTextDocumentSyncHandler : TextDocumentSyncHandlerBase
     {
-        private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
         private readonly ICompilationManager compilationManager;
         private readonly IWorkspace workspace;
 
-        public BicepTextDocumentSyncHandler(IBicepConfigChangeHandler bicepConfigChangeHandler, ICompilationManager compilationManager, IWorkspace workspace)
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IWorkspace workspace)
         {
-            this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
             this.workspace = workspace;
         }
@@ -44,8 +42,8 @@ namespace Bicep.LanguageServer.Handlers
 
             if (string.Equals(Path.GetFileName(documentUri.Path), LanguageConstants.BicepConfigSettingsFileName))
             {
-                // Retrigger compilation of source files in workspace when local bicepconfig.json file is edited
-                bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(compilationManager, documentUri.ToUri(), workspace, contents);
+                // Refresh compilation of source files in workspace when local bicepconfig.json file is edited
+                BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(compilationManager, documentUri.ToUri(), workspace, contents);
             }
             else
             {
