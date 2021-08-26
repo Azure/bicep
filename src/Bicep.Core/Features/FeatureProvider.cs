@@ -8,11 +8,11 @@ namespace Bicep.Core.Features
 {
     public class FeatureProvider : IFeatureProvider
     {
-        public string CacheRootPath
+        public string CacheRootDirectory
         {
             get
             {
-                var customPath = Environment.GetEnvironmentVariable("BICEP_CACHE");
+                var customPath = Environment.GetEnvironmentVariable("BICEP_CACHE_DIRECTORY");
                 if(string.IsNullOrWhiteSpace(customPath))
                 {
                     return GetDefaultCachePath();

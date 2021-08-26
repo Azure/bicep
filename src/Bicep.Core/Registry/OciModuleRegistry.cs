@@ -25,7 +25,7 @@ namespace Bicep.Core.Registry
         public OciModuleRegistry(IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features)
         {
             this.fileResolver = fileResolver;
-            this.client = new AzureContainerRegistryManager(features.CacheRootPath, new DefaultAzureCredential(), clientFactory);
+            this.client = new AzureContainerRegistryManager(features.CacheRootDirectory, new DefaultAzureCredential(), clientFactory);
         }
 
         public string Scheme => ModuleReferenceSchemes.Oci;

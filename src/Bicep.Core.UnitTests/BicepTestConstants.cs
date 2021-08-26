@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests
             var mock = CreateMockFeaturesProvider(registryEnabled);
 
             var testPath = FileHelper.GetCacheRootPath(testContext);
-            mock.SetupGet(m => m.CacheRootPath).Returns(testPath);
+            mock.SetupGet(m => m.CacheRootDirectory).Returns(testPath);
 
             return mock.Object;
         }
