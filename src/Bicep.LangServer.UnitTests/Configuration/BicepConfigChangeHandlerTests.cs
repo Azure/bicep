@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Bicep.Core.Extensions;
+using Bicep.Core;
 using Bicep.Core.FileSystem;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -25,17 +23,17 @@ namespace Bicep.LangServer.UnitTests.Configuration
     // Search for bicepconfig.json in DiscoverLocalConfigurationFile(..) in ConfigHelper starts from current directory.
     // In the below tests, we'll explicitly set the current directory and disable running tests in parallel to avoid conflicts
     [TestClass]
+    [DoNotParallelize]
     public class BicepConfigChangeHandlerTests
     {
-        private readonly BicepConfigChangeHandler bicepConfigChangeHandler = new(BicepTestConstants.FileResolver);
+        private readonly BicepConfigChangeHandler bicepConfigChangeHandler = new();
         private readonly string CurrentDirectory = Directory.GetCurrentDirectory();
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        [DoNotParallelize]
-        public void RetriggerCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRetriggerCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRefreshCompilation()
         {
             string bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -53,14 +51,11 @@ namespace Bicep.LangServer.UnitTests.Configuration
               }
             }";
 
-            RetriggerCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
                                                          bicepConfigFileContents,
                                                          saveBicepConfigFile: true,
                                                          out Mock<ITextDocumentLanguageServer> document,
                                                          out Container<Diagnostic>? diagnostics);
-
-            // Should push diagnostics
-            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             diagnostics.Should().NotBeNullOrEmpty();
             diagnostics!.Count().Should().Be(1);
@@ -80,8 +75,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        [DoNotParallelize]
-        public void RetriggerCompilationOfSourceFilesInWorkspace_WithInvalidBicepConfigFile_ShouldRetriggerCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
         {
             string bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -95,14 +89,11 @@ namespace Bicep.LangServer.UnitTests.Configuration
                       ""level"": ""warning""
             }";
 
-            RetriggerCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
                                                          bicepConfigFileContents,
                                                          saveBicepConfigFile: true,
                                                          out Mock<ITextDocumentLanguageServer> document,
                                                          out Container<Diagnostic>? diagnostics);
-
-            // Should push diagnostics
-            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             diagnostics.Should().NotBeNullOrEmpty();
             diagnostics!.Count().Should().Be(1);
@@ -121,8 +112,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        [DoNotParallelize]
-        public void RetriggerCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRetriggerCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
         {
             string bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -140,14 +130,11 @@ namespace Bicep.LangServer.UnitTests.Configuration
               }
             }";
 
-            RetriggerCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
                                                          bicepConfigFileContents,
                                                          saveBicepConfigFile: true,
                                                          out Mock<ITextDocumentLanguageServer> document,
                                                          out Container<Diagnostic>? diagnostics);
-
-            // Should push diagnostics
-            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             diagnostics.Should().NotBeNullOrEmpty();
             diagnostics!.Count().Should().Be(1);
@@ -168,8 +155,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
 
         [TestMethod]
-        [DoNotParallelize]
-        public void RetriggerCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRetriggerCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRefreshCompilation()
         {
             string bicepConfigFileContents = @"{
               ""analyzers"": {
@@ -185,31 +171,25 @@ namespace Bicep.LangServer.UnitTests.Configuration
               }
             }";
 
-            RetriggerCompilationOfSourceFilesInWorkspace(string.Empty,
+            RefreshCompilationOfSourceFilesInWorkspace(string.Empty,
                                                          bicepConfigFileContents,
                                                          saveBicepConfigFile: true,
                                                          out Mock<ITextDocumentLanguageServer> document,
                                                          out Container<Diagnostic>? diagnostics);
 
-            // Shouldn't push diagnostics
-            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
-
             diagnostics.Should().BeNullOrEmpty();
         }
 
         [TestMethod]
-        public void RetriggerCompilationOfSourceFilesInWorkspace_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRetriggerCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
         {
             string bicepFileContents = "param storageAccountName string = 'testAccount'";
 
-            RetriggerCompilationOfSourceFilesInWorkspace(bicepFileContents,
+            RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
                                                          string.Empty,
                                                          saveBicepConfigFile: false,
                                                          out Mock<ITextDocumentLanguageServer> document,
                                                          out Container<Diagnostic>? diagnostics);
-
-            // Should push diagnostics
-            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             diagnostics.Should().NotBeNullOrEmpty();
             diagnostics!.Count().Should().Be(1);
@@ -228,7 +208,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 });
         }
 
-        private void RetriggerCompilationOfSourceFilesInWorkspace(string bicepFileContents, string bicepConfigFileContents, bool saveBicepConfigFile, out Mock<ITextDocumentLanguageServer> document, out Container<Diagnostic>? diagnostics)
+        private void RefreshCompilationOfSourceFilesInWorkspace(string bicepFileContents, string bicepConfigFileContents, bool saveBicepConfigFile, out Mock<ITextDocumentLanguageServer> document, out Container<Diagnostic>? diagnostics)
         {
             PublishDiagnosticsParams? receivedParams = null;
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
@@ -236,10 +216,9 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var workspace = new Workspace();
-            ISourceFile sourceFile = SourceFileFactory.CreateSourceFile(new Uri(bicepFilePath), bicepFileContents);
-            workspace.UpsertSourceFile(sourceFile);
 
             var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
+            bicepCompilationManager.UpsertCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
 
             DocumentUri bicepConfigDocumentUri = DocumentUri.From("some_path");
 
@@ -250,7 +229,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             }
 
-            bicepConfigChangeHandler.RetriggerCompilationOfSourceFilesInWorkspace(bicepCompilationManager, bicepConfigDocumentUri.ToUri(), workspace, bicepConfigFileContents);
+            BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(bicepCompilationManager, bicepConfigDocumentUri.ToUri(), workspace, bicepConfigFileContents);
 
             diagnostics = receivedParams?.Diagnostics;
         }
