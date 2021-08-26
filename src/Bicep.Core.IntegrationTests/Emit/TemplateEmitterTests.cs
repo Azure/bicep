@@ -4,21 +4,19 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -48,7 +46,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
             actual.Should().EqualWithJsonDiffOutput(
-                TestContext, 
+                TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
@@ -94,7 +92,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var compiledFilePath = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), actual.ToString(Formatting.Indented));
 
             actual.Should().EqualWithJsonDiffOutput(
-                TestContext, 
+                TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
@@ -135,6 +133,21 @@ this
 
             var expected = string.Join(newlineSequence, new [] { "this", "  is", "    a", "      multiline", "        string", "" });
             template.Should().HaveValueAtPath("$.variables.multiline", expected);
+        }
+
+        [TestMethod]
+        public void TemplateEmitter_should_not_dispose_text_writer()
+        {
+            var (_, _, compilation) = CompilationHelper.Compile(string.Empty);
+
+            var stringBuilder = new StringBuilder();
+            var stringWriter = new StringWriter(stringBuilder);
+
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
+            emitter.Emit(stringWriter);
+
+            // second write should succeed if stringWriter wasn't closed
+            emitter.Emit(stringWriter);
         }
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, string filePath, string assemblyFileVersion)
