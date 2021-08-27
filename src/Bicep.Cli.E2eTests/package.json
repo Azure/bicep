@@ -4,7 +4,7 @@
   "dependencies": {},
   "devDependencies": {
     "cross-spawn": "^7.0.3",
-    "jest": "^27.0.6",
+    "jest": "^27.1.0",
     "prettier": "^2.3.2"
   },
   "scripts": {
