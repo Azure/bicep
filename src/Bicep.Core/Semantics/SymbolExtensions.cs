@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
@@ -39,5 +38,36 @@ namespace Bicep.Core.Semantics
             }
             return false;
         }
+ 
+        public static string? GetDescription(this DeclaredSymbol symbol)
+        {
+            StatementSyntax? statement = symbol switch {
+                ParameterSymbol param => param.DeclaringParameter,
+                VariableSymbol var => var.DeclaringVariable,
+                ModuleSymbol mod => mod.DeclaringModule,
+                ResourceSymbol res => res.DeclaringResource,
+                OutputSymbol @out => @out.DeclaringOutput,
+                _ => null,
+            };
+
+            if (statement is null)
+            {
+                return null;
+            }
+
+            if (statement.Decorators
+                .Select(decoratorSyntax => decoratorSyntax.Expression)
+                .OfType<FunctionCallSyntax>()
+                .Where(function => function.NameEquals("description"))
+                .FirstOrDefault() is FunctionCallSyntax descriptionSyntax
+                && descriptionSyntax.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
+                && stringSyntax.TryGetLiteralValue() is string description)
+            {
+                // markdown requires two spaces before newline to add a linebreak.
+                return description.Replace("\n", "  \n") + "\n";
+            }
+            return null;
+        }
+
     }
 }
