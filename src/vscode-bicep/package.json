@@ -167,7 +167,7 @@
         },
         {
           "command": "bicep.build",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep && commandsRegistered",
           "group": "navigation"
         }
       ],
@@ -176,6 +176,11 @@
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "1_open"
+        },
+        {
+          "command": "bicep.build",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "1_build"
         }
       ],
       "commandPalette": [
@@ -217,8 +222,8 @@
     "@types/cytoscape": "^3.14.17",
     "@types/jest": "^27.0.1",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.6.1",
-    "@types/react": "^17.0.18",
+    "@types/node": "^16.7.1",
+    "@types/react": "^17.0.19",
     "@types/react-dom": "^17.0.9",
     "@types/react-test-renderer": "^17.0.1",
     "@types/semver": "^7.3.8",
@@ -227,9 +232,9 @@
     "@types/vscode": "^1.52.0",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
-    "@typescript-eslint/parser": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.3",
     "copy-webpack-plugin": "^9.0.1",
-    "esbuild-loader": "^2.15.0",
+    "esbuild-loader": "^2.15.1",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-header": "^3.1.1",
@@ -251,7 +256,7 @@
     "typescript": "^4.3.5",
     "vsce": "^1.96.1",
     "vscode-test": "^1.6.1",
-    "webpack": "^5.50.0",
+    "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {

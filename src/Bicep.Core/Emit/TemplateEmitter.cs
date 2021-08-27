@@ -33,7 +33,7 @@ namespace Bicep.Core.Emit
         /// <param name="stream">The stream to write the template</param>
         public EmitResult Emit(Stream stream) => EmitOrFail(() =>
         {
-            using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, true))
+            using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true))
             {
                 Formatting = Formatting.Indented
             };
@@ -49,10 +49,13 @@ namespace Bicep.Core.Emit
         {
             using var writer = new JsonTextWriter(textWriter)
             {
+                // don't close the textWriter when writer is disposed
+                CloseOutput = false,
                 Formatting = Formatting.Indented
             };
 
             new TemplateWriter(this.model, this.settings).Write(writer);
+            writer.Flush();
         });
 
         /// <summary>
