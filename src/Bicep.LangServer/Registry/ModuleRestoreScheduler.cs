@@ -28,7 +28,8 @@ namespace Bicep.LanguageServer.Registry
         private readonly CancellationTokenSource cancellationTokenSource = new();
 
         // block on initial wait until signaled
-        private readonly ManualResetEventSlim manualResetEvent = new(false);
+        // wait times are expected to be long, so we are intentionally not using the Slim variant
+        private readonly ManualResetEvent manualResetEvent = new(false);
 
         private bool disposed = false;
         private Task? consumerTask;
@@ -72,7 +73,15 @@ namespace Bicep.LanguageServer.Registry
                 this.disposed = true;
                 if (this.consumerTask is not null)
                 {
+                    // signal cancellation first
                     this.cancellationTokenSource.Cancel();
+
+                    lock(this.queue)
+                    {
+                        // unblock the background task
+                        // this MUST happen after cancellation is signaled so the task immediately cancels
+                        this.manualResetEvent.Set();
+                    }
 
                     try
                     {
@@ -94,7 +103,10 @@ namespace Bicep.LanguageServer.Registry
             var token = this.cancellationTokenSource.Token;
             while (true)
             {
-                this.manualResetEvent.Wait(token);
+                // the non-slim MRE doesn't support a cancellation token,
+                // so DisposeAsync will signal the task AFTER cancellation to release it
+                this.manualResetEvent.WaitOne();
+                token.ThrowIfCancellationRequested();
 
                 var notifications = new HashSet<CompletionNotification>();
                 var moduleReferences = new List<ModuleReference>();
