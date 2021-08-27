@@ -1,20 +1,20 @@
-@description('string output description')
+@sys.description('string output description')
 output myStr string = 'hello'
 
-@description('int output description')
+@sys.description('int output description')
 output myInt int = 7
 output myOtherInt int = 20 / 13 + 80 % -4
 
-@description('bool output description')
+@sys.description('bool output description')
 output myBool bool = !false
 output myOtherBool bool = true
 
-@description('object array description')
+@sys.description('object array description')
 output suchEmpty array = []
 
 output suchEmpty2 object = {}
 
-@description('object output description')
+@sys.description('object output description')
 output obj object = {
   a: 'a'
   b: 12

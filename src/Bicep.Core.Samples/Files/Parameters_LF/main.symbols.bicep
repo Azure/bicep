@@ -3,21 +3,24 @@
 */
 
 // parameters without default value
-@description('this is myString')
+@sys.description('''
+this is my multi line 
+description for my myString
+''')
 param myString string
-//@[6:14) Parameter myString. Type: string. Declaration start char: 0, length: 54
+//@[6:14) Parameter myString. Type: string. Declaration start char: 0, length: 98
 param myInt int
 //@[6:11) Parameter myInt. Type: int. Declaration start char: 0, length: 15
 param myBool bool
 //@[6:12) Parameter myBool. Type: bool. Declaration start char: 0, length: 17
 
 // parameters with default value
-@description('this is myString2')
+@sys.description('this is myString2')
 @metadata({
   description: 'overwrite but still valid'
 })
 param myString2 string = 'string value'
-//@[6:15) Parameter myString2. Type: string. Declaration start char: 0, length: 131
+//@[6:15) Parameter myString2. Type: string. Declaration start char: 0, length: 135
 param myInt2 int = 42
 //@[6:12) Parameter myInt2. Type: int. Declaration start char: 0, length: 21
 param myTruth bool = true
@@ -28,13 +31,13 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[6:21) Parameter myEscapedString. Type: string. Declaration start char: 0, length: 67
 
 // object default value
-@description('this is foo')
+@sys.description('this is foo')
 @metadata({
   description: 'overwrite but still valid'
   another: 'just for fun'
 })
 param foo object = {
-//@[6:9) Parameter foo. Type: object. Declaration start char: 0, length: 344
+//@[6:9) Parameter foo. Type: object. Declaration start char: 0, length: 348
   enabled: true
   name: 'this is my object'
   priority: 3

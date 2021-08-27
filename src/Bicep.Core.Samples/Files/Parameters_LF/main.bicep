@@ -3,13 +3,16 @@
 */
 
 // parameters without default value
-@description('this is myString')
+@sys.description('''
+this is my multi line 
+description for my myString
+''')
 param myString string
 param myInt int
 param myBool bool
 
 // parameters with default value
-@description('this is myString2')
+@sys.description('this is myString2')
 @metadata({
   description: 'overwrite but still valid'
 })
@@ -20,7 +23,7 @@ param myFalsehood bool = false
 param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
-@description('this is foo')
+@sys.description('this is foo')
 @metadata({
   description: 'overwrite but still valid'
   another: 'just for fun'

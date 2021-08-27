@@ -1099,6 +1099,16 @@ namespace Bicep.LanguageServer.Completions
                     .WithSnippetEdit(replacementRange, snippet)
                     .Build();
             }
+            
+            // trigger follow up completions
+            if (symbol is NamespaceSymbol)
+            {
+                return completion
+                .WithDetail(insertText)
+                .WithPlainTextEdit(replacementRange, insertText + ".")
+                .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                .Build();
+            }
 
             return completion
                 .WithDetail(insertText)

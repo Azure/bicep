@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
@@ -262,6 +263,42 @@ output string test = testRes.prop|erties.rea|donly
         }
 
         [DataTestMethod]
+        public async Task Hovers_are_displayed_on_discription_decorator_objects()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+@description('''this is my module''')
+module test|mod './dummy.bicep' = {
+}
+
+@description('this is my param')
+var test|Param string
+
+@description('this is my var')
+var test|Var string = 'hello'
+
+@description('''this is my
+multiline
+resource''')
+resource test|Res 'Test.Rp/discriminatorTests@2020-01-01' = {
+}
+
+@description('''this is my output''')
+resource test|Output string = 'str'
+");
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n\n"), 
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my param\n\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my var\n\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource\n\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output\n\n"));
+        }
+
+        [DataTestMethod]
         public async Task PropertyHovers_are_displayed_on_partial_discriminator_objects()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -275,7 +312,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```"));
         }
 
         private static void ValidateHover(Hover? hover, Symbol symbol)

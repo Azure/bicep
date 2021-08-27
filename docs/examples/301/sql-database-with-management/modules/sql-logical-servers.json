@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9699595582793397509"
+      "templateHash": "2661741946505281349"
     }
   },
   "parameters": {
@@ -285,7 +285,6 @@
                   "resources": []
                 }
               },
-              "batchSize": 1,
               "dependsOn": [
                 "[resourceId('Microsoft.Sql/servers', parameters('sqlLogicalServer').name)]"
               ]

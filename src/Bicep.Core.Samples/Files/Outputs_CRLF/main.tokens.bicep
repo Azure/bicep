@@ -1,12 +1,14 @@
 
 //@[0:2) NewLine |\r\n|
-@description('string output description')
+@sys.description('string output description')
 //@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:40) StringComplete |'string output description'|
-//@[40:41) RightParen |)|
-//@[41:43) NewLine |\r\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:44) StringComplete |'string output description'|
+//@[44:45) RightParen |)|
+//@[45:47) NewLine |\r\n|
 output myStr string = 'hello'
 //@[0:6) Identifier |output|
 //@[7:12) Identifier |myStr|
@@ -15,13 +17,15 @@ output myStr string = 'hello'
 //@[22:29) StringComplete |'hello'|
 //@[29:33) NewLine |\r\n\r\n|
 
-@description('int output description')
+@sys.description('int output description')
 //@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:37) StringComplete |'int output description'|
-//@[37:38) RightParen |)|
-//@[38:40) NewLine |\r\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:41) StringComplete |'int output description'|
+//@[41:42) RightParen |)|
+//@[42:44) NewLine |\r\n|
 output myInt int = 7
 //@[0:6) Identifier |output|
 //@[7:12) Identifier |myInt|
@@ -44,13 +48,15 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@[40:41) Integer |4|
 //@[41:45) NewLine |\r\n\r\n|
 
-@description('bool output description')
+@sys.description('bool output description')
 //@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:38) StringComplete |'bool output description'|
-//@[38:39) RightParen |)|
-//@[39:41) NewLine |\r\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:42) StringComplete |'bool output description'|
+//@[42:43) RightParen |)|
+//@[43:45) NewLine |\r\n|
 output myBool bool = !false
 //@[0:6) Identifier |output|
 //@[7:13) Identifier |myBool|
@@ -67,13 +73,15 @@ output myOtherBool bool = true
 //@[26:30) TrueKeyword |true|
 //@[30:34) NewLine |\r\n\r\n|
 
-@description('object array description')
+@sys.description('object array description')
 //@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:39) StringComplete |'object array description'|
-//@[39:40) RightParen |)|
-//@[40:42) NewLine |\r\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:43) StringComplete |'object array description'|
+//@[43:44) RightParen |)|
+//@[44:46) NewLine |\r\n|
 output suchEmpty array = [
 //@[0:6) Identifier |output|
 //@[7:16) Identifier |suchEmpty|
@@ -96,13 +104,15 @@ output suchEmpty2 object = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-@description('object output description')
+@sys.description('object output description')
 //@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:40) StringComplete |'object output description'|
-//@[40:41) RightParen |)|
-//@[41:43) NewLine |\r\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:44) StringComplete |'object output description'|
+//@[44:45) RightParen |)|
+//@[45:47) NewLine |\r\n|
 output obj object = {
 //@[0:6) Identifier |output|
 //@[7:10) Identifier |obj|

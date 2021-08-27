@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10302998563739668821"
+      "templateHash": "17667959681982738381"
     }
   },
   "parameters": {
@@ -385,7 +385,7 @@
         ]
       },
       "metadata": {
-        "description": "this is just a basic nested loo"
+        "description": "this is just a basic nested loop"
       }
     },
     {

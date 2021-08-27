@@ -1,18 +1,22 @@
 
 //@[0:2) NewLine |\r\n|
-@description('string output description')
-//@[0:72) OutputDeclarationSyntax
-//@[0:41)  DecoratorSyntax
+@sys.description('string output description')
+//@[0:76) OutputDeclarationSyntax
+//@[0:45)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:41)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:40)    FunctionArgumentSyntax
-//@[13:40)     StringSyntax
-//@[13:40)      StringComplete |'string output description'|
-//@[40:41)    RightParen |)|
-//@[41:43)  NewLine |\r\n|
+//@[1:45)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:44)    FunctionArgumentSyntax
+//@[17:44)     StringSyntax
+//@[17:44)      StringComplete |'string output description'|
+//@[44:45)    RightParen |)|
+//@[45:47)  NewLine |\r\n|
 output myStr string = 'hello'
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
@@ -24,19 +28,23 @@ output myStr string = 'hello'
 //@[22:29)   StringComplete |'hello'|
 //@[29:33) NewLine |\r\n\r\n|
 
-@description('int output description')
-//@[0:60) OutputDeclarationSyntax
-//@[0:38)  DecoratorSyntax
+@sys.description('int output description')
+//@[0:64) OutputDeclarationSyntax
+//@[0:42)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:38)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:37)    FunctionArgumentSyntax
-//@[13:37)     StringSyntax
-//@[13:37)      StringComplete |'int output description'|
-//@[37:38)    RightParen |)|
-//@[38:40)  NewLine |\r\n|
+//@[1:42)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:41)    FunctionArgumentSyntax
+//@[17:41)     StringSyntax
+//@[17:41)      StringComplete |'int output description'|
+//@[41:42)    RightParen |)|
+//@[42:44)  NewLine |\r\n|
 output myInt int = 7
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
@@ -73,19 +81,23 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@[40:41)      Integer |4|
 //@[41:45) NewLine |\r\n\r\n|
 
-@description('bool output description')
-//@[0:68) OutputDeclarationSyntax
-//@[0:39)  DecoratorSyntax
+@sys.description('bool output description')
+//@[0:72) OutputDeclarationSyntax
+//@[0:43)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:39)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:38)    FunctionArgumentSyntax
-//@[13:38)     StringSyntax
-//@[13:38)      StringComplete |'bool output description'|
-//@[38:39)    RightParen |)|
-//@[39:41)  NewLine |\r\n|
+//@[1:43)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:42)    FunctionArgumentSyntax
+//@[17:42)     StringSyntax
+//@[17:42)      StringComplete |'bool output description'|
+//@[42:43)    RightParen |)|
+//@[43:45)  NewLine |\r\n|
 output myBool bool = !false
 //@[0:6)  Identifier |output|
 //@[7:13)  IdentifierSyntax
@@ -110,19 +122,23 @@ output myOtherBool bool = true
 //@[26:30)   TrueKeyword |true|
 //@[30:34) NewLine |\r\n\r\n|
 
-@description('object array description')
-//@[0:71) OutputDeclarationSyntax
-//@[0:40)  DecoratorSyntax
+@sys.description('object array description')
+//@[0:75) OutputDeclarationSyntax
+//@[0:44)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:40)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:39)    FunctionArgumentSyntax
-//@[13:39)     StringSyntax
-//@[13:39)      StringComplete |'object array description'|
-//@[39:40)    RightParen |)|
-//@[40:42)  NewLine |\r\n|
+//@[1:44)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:43)    FunctionArgumentSyntax
+//@[17:43)     StringSyntax
+//@[17:43)      StringComplete |'object array description'|
+//@[43:44)    RightParen |)|
+//@[44:46)  NewLine |\r\n|
 output suchEmpty array = [
 //@[0:6)  Identifier |output|
 //@[7:16)  IdentifierSyntax
@@ -152,19 +168,23 @@ output suchEmpty2 object = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-@description('object output description')
-//@[0:221) OutputDeclarationSyntax
-//@[0:41)  DecoratorSyntax
+@sys.description('object output description')
+//@[0:225) OutputDeclarationSyntax
+//@[0:45)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:41)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:40)    FunctionArgumentSyntax
-//@[13:40)     StringSyntax
-//@[13:40)      StringComplete |'object output description'|
-//@[40:41)    RightParen |)|
-//@[41:43)  NewLine |\r\n|
+//@[1:45)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:44)    FunctionArgumentSyntax
+//@[17:44)     StringSyntax
+//@[17:44)      StringComplete |'object output description'|
+//@[44:45)    RightParen |)|
+//@[45:47)  NewLine |\r\n|
 output obj object = {
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax

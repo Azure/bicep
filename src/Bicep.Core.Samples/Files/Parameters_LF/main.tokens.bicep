@@ -5,13 +5,18 @@
 
 // parameters without default value
 //@[35:36) NewLine |\n|
-@description('this is myString')
+@sys.description('''
 //@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:31) StringComplete |'this is myString'|
-//@[31:32) RightParen |)|
-//@[32:33) NewLine |\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:75) MultilineString |'''\nthis is my multi line \ndescription for my myString\n'''|
+this is my multi line 
+description for my myString
+''')
+//@[3:4) RightParen |)|
+//@[4:5) NewLine |\n|
 param myString string
 //@[0:5) Identifier |param|
 //@[6:14) Identifier |myString|
@@ -30,13 +35,15 @@ param myBool bool
 
 // parameters with default value
 //@[32:33) NewLine |\n|
-@description('this is myString2')
+@sys.description('this is myString2')
 //@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:32) StringComplete |'this is myString2'|
-//@[32:33) RightParen |)|
-//@[33:34) NewLine |\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:36) StringComplete |'this is myString2'|
+//@[36:37) RightParen |)|
+//@[37:38) NewLine |\n|
 @metadata({
 //@[0:1) At |@|
 //@[1:9) Identifier |metadata|
@@ -90,13 +97,15 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
 //@[23:24) NewLine |\n|
-@description('this is foo')
+@sys.description('this is foo')
 //@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:26) StringComplete |'this is foo'|
-//@[26:27) RightParen |)|
-//@[27:28) NewLine |\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:30) StringComplete |'this is foo'|
+//@[30:31) RightParen |)|
+//@[31:32) NewLine |\n|
 @metadata({
 //@[0:1) At |@|
 //@[1:9) Identifier |metadata|

@@ -5,19 +5,26 @@
 
 // parameters without default value
 //@[35:36) NewLine |\n|
-@description('this is myString')
-//@[0:54) ParameterDeclarationSyntax
-//@[0:32)  DecoratorSyntax
+@sys.description('''
+//@[0:98) ParameterDeclarationSyntax
+//@[0:76)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:32)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:31)    FunctionArgumentSyntax
-//@[13:31)     StringSyntax
-//@[13:31)      StringComplete |'this is myString'|
-//@[31:32)    RightParen |)|
-//@[32:33)  NewLine |\n|
+//@[1:76)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:75)    FunctionArgumentSyntax
+//@[17:75)     StringSyntax
+//@[17:75)      MultilineString |'''\nthis is my multi line \ndescription for my myString\n'''|
+this is my multi line 
+description for my myString
+''')
+//@[3:4)    RightParen |)|
+//@[4:5)  NewLine |\n|
 param myString string
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
@@ -44,19 +51,23 @@ param myBool bool
 
 // parameters with default value
 //@[32:33) NewLine |\n|
-@description('this is myString2')
-//@[0:131) ParameterDeclarationSyntax
-//@[0:33)  DecoratorSyntax
+@sys.description('this is myString2')
+//@[0:135) ParameterDeclarationSyntax
+//@[0:37)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:33)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:32)    FunctionArgumentSyntax
-//@[13:32)     StringSyntax
-//@[13:32)      StringComplete |'this is myString2'|
-//@[32:33)    RightParen |)|
-//@[33:34)  NewLine |\n|
+//@[1:37)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:36)    FunctionArgumentSyntax
+//@[17:36)     StringSyntax
+//@[17:36)      StringComplete |'this is myString2'|
+//@[36:37)    RightParen |)|
+//@[37:38)  NewLine |\n|
 @metadata({
 //@[0:57)  DecoratorSyntax
 //@[0:1)   At |@|
@@ -142,19 +153,23 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
 //@[23:24) NewLine |\n|
-@description('this is foo')
-//@[0:344) ParameterDeclarationSyntax
-//@[0:27)  DecoratorSyntax
+@sys.description('this is foo')
+//@[0:348) ParameterDeclarationSyntax
+//@[0:31)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:27)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:26)    FunctionArgumentSyntax
-//@[13:26)     StringSyntax
-//@[13:26)      StringComplete |'this is foo'|
-//@[26:27)    RightParen |)|
-//@[27:28)  NewLine |\n|
+//@[1:31)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:30)    FunctionArgumentSyntax
+//@[17:30)     StringSyntax
+//@[17:30)      StringComplete |'this is foo'|
+//@[30:31)    RightParen |)|
+//@[31:32)  NewLine |\n|
 @metadata({
 //@[0:83)  DecoratorSyntax
 //@[0:1)   At |@|

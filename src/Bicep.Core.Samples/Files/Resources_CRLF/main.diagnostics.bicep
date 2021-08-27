@@ -1,5 +1,5 @@
 
-@description('this is basicStorage')
+@sys.description('this is basicStorage')
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'basicblobs'
   location: 'westus'
@@ -9,7 +9,7 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   }
 }
 
-@description('this is dnsZone')
+@sys.description('this is dnsZone')
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
   name: 'myZone'
   location: 'global'
@@ -234,7 +234,7 @@ resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
 
 param shouldDeployVm bool = true
 
-@description('this is vmWithCondition')
+@sys.description('this is vmWithCondition')
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
   name: 'vmName'
   location: 'westus'
@@ -273,7 +273,7 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
   }
 }
 
-@description('this is existing1')
+@sys.description('this is existing1')
 resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
 //@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/existingExtensionResource@2020-01-01'|
   name: 'existing1'
@@ -307,7 +307,7 @@ var storageAccounts = [
 ]
 
 // just a storage account loop
-@description('this is just a storage account loop')
+@sys.description('this is just a storage account loop')
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
   name: account.name
   location: account.location
@@ -318,7 +318,7 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 }]
 
 // storage account loop with index
-@description('this is just a storage account loop with index')
+@sys.description('this is just a storage account loop with index')
 resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
   name: '${account.name}${i}'
   location: account.location
@@ -329,7 +329,7 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 }]
 
 // basic nested loop
-@description('this is just a basic nested loo')
+@sys.description('this is just a basic nested loop')
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
   name: 'vnet-${i}'
   properties: {

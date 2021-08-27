@@ -1,11 +1,11 @@
 
-@description('this is deployTimeSuffix param')
+@sys.description('this is deployTimeSuffix param')
 param deployTimeSuffix string = newGuid()
-//@[6:22) Parameter deployTimeSuffix. Type: string. Declaration start char: 0, length: 89
+//@[6:22) Parameter deployTimeSuffix. Type: string. Declaration start char: 0, length: 93
 
-@description('this module a')
+@sys.description('this module a')
 module modATest './modulea.bicep' = {
-//@[7:15) Module modATest. Type: module. Declaration start char: 0, length: 248
+//@[7:15) Module modATest. Type: module. Declaration start char: 0, length: 252
   name: 'modATest'
   params: {
     stringParamB: 'hello!'
@@ -22,18 +22,18 @@ module modATest './modulea.bicep' = {
 }
 
 
-@description('this module b')
+@sys.description('this module b')
 module modB './child/moduleb.bicep' = {
-//@[7:11) Module modB. Type: module. Declaration start char: 0, length: 132
+//@[7:11) Module modB. Type: module. Declaration start char: 0, length: 136
   name: 'modB'
   params: {
     location: 'West US'
   }
 }
 
-@description('this is just module b with a condition')
+@sys.description('this is just module b with a condition')
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
-//@[7:24) Module modBWithCondition. Type: module. Declaration start char: 0, length: 199
+//@[7:24) Module modBWithCondition. Type: module. Declaration start char: 0, length: 203
   name: 'modBWithCondition'
   params: {
     location: 'East US'
@@ -149,9 +149,9 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
   valid loop cases
 */ 
 
-@description('this is myModules')
+@sys.description('this is myModules')
 var myModules = [
-//@[4:13) Variable myModules. Type: array. Declaration start char: 0, length: 158
+//@[4:13) Variable myModules. Type: array. Declaration start char: 0, length: 162
   {
     name: 'one'
     location: 'eastus2'

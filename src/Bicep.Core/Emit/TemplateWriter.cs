@@ -158,14 +158,16 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private ObjectSyntax EvaluateDecorators(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
+        private ObjectSyntax EvaluateDecorators(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType, bool skipBatchSize = false)
         {
             var result = input;
             foreach (var decoratorSyntax in statement.Decorators.Reverse())
             {
                 var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
-                if (symbol is FunctionSymbol decoratorSymbol)
+                // batchSize decorator isn't evaluated as merely a property; it is instead handled like a copy object
+                if (symbol is FunctionSymbol decoratorSymbol && 
+                    !(skipBatchSize && string.Equals(symbol.Name, "batchSize", StringComparison.OrdinalIgnoreCase)))
                 {
                     var argumentTypes = decoratorSyntax.Arguments
                         .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
@@ -387,7 +389,7 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resource));
             
-            body = EvaluateDecorators(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
+            body = EvaluateDecorators(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type, skipBatchSize: true);
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
@@ -474,7 +476,7 @@ namespace Bicep.Core.Emit
             emitter.EmitProperty("type", NestedDeploymentResourceType);
             emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
-            body = EvaluateDecorators(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type);
+            body = EvaluateDecorators(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type, skipBatchSize: true);
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);

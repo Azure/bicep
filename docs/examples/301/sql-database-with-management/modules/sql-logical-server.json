@@ -184,7 +184,6 @@
           "resources": []
         }
       },
-      "batchSize": 1,
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', parameters('sqlLogicalServer').name)]"
       ]

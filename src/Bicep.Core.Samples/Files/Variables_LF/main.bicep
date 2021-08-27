@@ -1,10 +1,10 @@
 
 // int
-@description('an int variable')
+@sys.description('an int variable')
 var myInt = 42
 
 // string
-@description('a string variable')
+@sys.description('a string variable')
 var myStr = 'str'
 var curliesWithNoInterp = '}{1}{'
 var interp1 = 'abc${123}def'
@@ -29,7 +29,7 @@ var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
 var bracketStringInExpression = concat('[', '\'test\'',']')
 
 // booleans
-@description('a bool variable')
+@sys.description('a bool variable')
 var myTruth = true
 var myFalsehood = false
 
@@ -37,7 +37,7 @@ var myEmptyObj = { }
 var myEmptyArray = [ ]
 
 // object
-@description('a object variable')
+@sys.description('a object variable')
 var myObj = {
   a: 'a'
   b: -12
@@ -59,7 +59,7 @@ var myObj = {
   }
 }
 
-@description('a object with interp')
+@sys.description('a object with interp')
 var objWithInterp = {
   '${myStr}': 1
   'abc${myStr}def': 2
