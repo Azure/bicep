@@ -5,6 +5,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {
@@ -17,6 +19,11 @@ namespace Bicep.Core.Registry
         /// Gets the scheme used by this registry in module references.
         /// </summary>
         string Scheme { get; }
+
+        /// <summary>
+        /// Gets the capabilities of this registry.
+        /// </summary>
+        RegistryCapabilities Capabilities { get; }
 
         /// <summary>
         /// Attempts to parse the specified unqualified reference or returns a failure builder.
@@ -45,6 +52,13 @@ namespace Bicep.Core.Registry
         /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
         /// </summary>
         /// <param name="references">module references</param>
-        IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate> RestoreModules(IEnumerable<ModuleReference> references);
+        Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references);
+
+        /// <summary>
+        /// Publishes the module at the specified path to the registry.
+        /// </summary>
+        /// <param name="moduleReference">The module reference</param>
+        /// <param name="compiled">The compiled module</param>
+        Task PublishModule(ModuleReference moduleReference, Stream compiled);
     }
 }

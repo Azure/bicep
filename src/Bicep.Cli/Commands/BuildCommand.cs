@@ -5,6 +5,7 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.FileSystem;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
 {
@@ -24,11 +25,11 @@ namespace Bicep.Cli.Commands
             this.writer = writer;
         }
 
-        public int Run(BuildArguments args)
+        public async Task<int> RunAsync(BuildArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
 
-            var compilation = compilationService.Compile(inputPath);
+            var compilation = await compilationService.CompileAsync(inputPath);
 
             if (diagnosticLogger.ErrorCount < 1)
             {

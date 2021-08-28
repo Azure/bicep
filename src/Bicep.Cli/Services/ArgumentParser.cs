@@ -19,13 +19,14 @@ namespace Bicep.Cli.Services
             if (new Regex(Constants.Argument.VersionRegex).IsMatch(args[0]) || new Regex(Constants.Argument.HelpRegex).IsMatch(args[0]))
             {
                 return new RootArguments(args[0], Constants.Command.Root);
-            }    
+            }
 
             // parse verb
             return (args[0].ToLowerInvariant()) switch
             {
-                Constants.Command.Build => new BuildArguments(args[1..], Constants.Command.Build),
-                Constants.Command.Decompile => new DecompileArguments(args[1..], Constants.Command.Decompile),
+                Constants.Command.Build => new BuildArguments(args[1..]),
+                Constants.Command.Decompile => new DecompileArguments(args[1..]),
+                Constants.Command.Publish => new PublishArguments(args[1..]),
                 _ => null,
             };
         }

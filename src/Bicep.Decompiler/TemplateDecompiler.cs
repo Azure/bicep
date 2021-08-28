@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -20,9 +19,20 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Decompiler
 {
-    public static class TemplateDecompiler
+    public class TemplateDecompiler
     {
-        public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, Uri entryJsonUri, Uri entryBicepUri)
+        private readonly IResourceTypeProvider resourceTypeProvider;
+        private readonly IFileResolver fileResolver;
+        private readonly IModuleRegistryProvider registryProvider;
+
+        public TemplateDecompiler(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
+        {
+            this.resourceTypeProvider = resourceTypeProvider;
+            this.fileResolver = fileResolver;
+            this.registryProvider = registryProvider;
+        }
+
+        public (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(Uri entryJsonUri, Uri entryBicepUri)
         {
             var workspace = new Workspace();
             var decompileQueue = new Queue<(Uri, Uri)>();
@@ -70,15 +80,15 @@ namespace Bicep.Decompiler
                 }
             }
 
-            RewriteSyntax(resourceTypeProvider, workspace, entryBicepUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
-            RewriteSyntax(resourceTypeProvider, workspace, entryBicepUri, semanticModel => new DependsOnRemovalRewriter(semanticModel));
-            RewriteSyntax(resourceTypeProvider, workspace, entryBicepUri, semanticModel => new ForExpressionSimplifierRewriter(semanticModel));
+            RewriteSyntax(workspace, entryBicepUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
+            RewriteSyntax(workspace, entryBicepUri, semanticModel => new DependsOnRemovalRewriter(semanticModel));
+            RewriteSyntax(workspace, entryBicepUri, semanticModel => new ForExpressionSimplifierRewriter(semanticModel));
             for (var i = 0; i < 5; i++)
             {
                 // This is a little weird. If there are casing issues nested inside casing issues (e.g. in an object), then the inner casing issue will have no type information
                 // available, as the compilation will not have associated a type with it (since there was no match on the outer object). So we need to correct the outer issue first,
                 // and then move to the inner one. We need to recompute the entire compilation to do this. It feels simpler to just do this in passes over the file, rather than on demand.
-                if (!RewriteSyntax(resourceTypeProvider, workspace, entryBicepUri, semanticModel => new TypeCasingFixerRewriter(semanticModel)))
+                if (!RewriteSyntax(workspace, entryBicepUri, semanticModel => new TypeCasingFixerRewriter(semanticModel)))
                 {
                     break;
                 }
@@ -103,11 +113,10 @@ namespace Bicep.Decompiler
             return filesToSave.ToImmutableDictionary();
         }
 
-        private static bool RewriteSyntax(IResourceTypeProvider resourceTypeProvider, Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
+        private bool RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
             var hasChanges = false;
-            var fileResolver = new FileResolver();
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver));
+            var dispatcher = new ModuleDispatcher(this.registryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
             var compilation = new Compilation(resourceTypeProvider, sourceFileGrouping);
 

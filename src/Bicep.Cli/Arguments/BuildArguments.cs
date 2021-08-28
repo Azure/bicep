@@ -8,7 +8,7 @@ namespace Bicep.Cli.Arguments
 {
     public class BuildArguments : ArgumentsBase
     {
-        public BuildArguments(string[] args, string commandName) : base(commandName)
+        public BuildArguments(string[] args) : base(Constants.Command.Build)
         {
             for (var i = 0; i < args.Length; i++)
             {

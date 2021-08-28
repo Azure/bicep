@@ -27,6 +27,11 @@ namespace Bicep.Cli.Services
             }
         }
 
+        public EmitResult ToStream(Compilation compilation, Stream stream)
+        {
+            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.AssemblyFileVersion).Emit(stream);
+        }
+
         public EmitResult ToStdout(Compilation compilation)
         {
             using var writer = new JsonTextWriter(invocationContext.OutputWriter)
@@ -38,7 +43,6 @@ namespace Bicep.Cli.Services
 
             return emitter.Emit(writer);
         }
-
 
         private static FileStream CreateFileStream(string path)
         {

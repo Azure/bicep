@@ -140,9 +140,9 @@
     ],
     "keybindings": [
       {
-          "command": "bicep.build",
-          "key": "ctrl+shift+b",
-          "when": "resourceLangId == bicep"
+        "command": "bicep.build",
+        "key": "ctrl+shift+b",
+        "when": "resourceLangId == bicep"
       }
     ],
     "menus": {

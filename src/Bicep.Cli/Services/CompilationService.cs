@@ -6,11 +6,11 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.Services
 {
@@ -21,25 +21,32 @@ namespace Bicep.Cli.Services
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
+        private readonly TemplateDecompiler decompiler;
 
-        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleRegistryProvider registryProvider) 
+        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleDispatcher moduleDispatcher, TemplateDecompiler decompiler) 
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
-            this.moduleDispatcher = new ModuleDispatcher(registryProvider);
+            this.moduleDispatcher = moduleDispatcher;
             this.invocationContext = invocationContext;
             this.workspace = new Workspace();
+            this.decompiler = decompiler;
         }
 
-        public Compilation Compile(string inputPath)
+        public async Task<Compilation> CompileAsync(string inputPath)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri);
-            if (moduleDispatcher.RestoreModules(sourceFileGrouping.ModulesToRestore))
+
+            // module references in the file may be malformed
+            // however we still want to surface as many errors as we can for the module refs that are valid
+            // so we will try to restore modules with valid refs and skip everything else
+            // (the diagnostics will be collected during compilation)
+            if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
             {
                 // modules had to be restored - recompile
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, new Workspace(), sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping);
             }
 
             var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping);
@@ -49,21 +56,21 @@ namespace Bicep.Cli.Services
             return compilation;
         }
 
-        public (Uri, ImmutableDictionary<Uri, string>) Decompile(string inputPath, string outputPath)
+        public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)
         {
             inputPath = PathHelper.ResolvePath(inputPath);
             Uri inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             Uri outputUri = PathHelper.FilePathToFileUrl(outputPath);
 
-            var decompilation = TemplateDecompiler.DecompileFileWithModules(invocationContext.ResourceTypeProvider, new FileResolver(), inputUri, outputUri);
+            var decompilation = decompiler.DecompileFileWithModules(inputUri, outputUri);
 
             foreach (var (fileUri, bicepOutput) in decompilation.filesToSave)
             {
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
             }
 
-            _ = Compile(decompilation.entrypointUri.AbsolutePath); // to verify success we recompile and check for syntax errors.
+            _ = await CompileAsync(decompilation.entrypointUri.AbsolutePath); // to verify success we recompile and check for syntax errors.
 
             return decompilation;
         }

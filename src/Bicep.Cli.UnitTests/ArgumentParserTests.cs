@@ -26,31 +26,37 @@ namespace Bicep.Cli.UnitTests
         }
 
         [DataTestMethod]
-        [DataRow(new [] { "build" }, "The input file path was not specified")]
-        [DataRow(new [] { "build", "--stdout" }, "The input file path was not specified")]
-        [DataRow(new [] { "build", "file1", "file2" }, "The input file path cannot be specified multiple times")]
-        [DataRow(new [] { "build", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
-        [DataRow(new [] { "build", "--outdir" }, "The --outdir parameter expects an argument")]
-        [DataRow(new [] { "build", "--outdir", "dir1", "--outdir", "dir2" }, "The --outdir parameter cannot be specified twice")]
-        [DataRow(new [] { "build", "--outfile" }, "The --outfile parameter expects an argument")]
-        [DataRow(new [] { "build", "--outfile", "dir1", "--outfile", "dir2" }, "The --outfile parameter cannot be specified twice")]
-        [DataRow(new [] { "build", "--stdout", "--outfile", "dir1", "file1" }, "The --outfile and --stdout parameters cannot both be used")]
-        [DataRow(new [] { "build", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
-        [DataRow(new [] { "build", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
-        [DataRow(new [] { "build", "--outdir", "dir1", "file1" }, "The specified output directory \"*\" does not exist.")]
-        [DataRow(new [] { "decompile" }, "The input file path was not specified")]
-        [DataRow(new [] { "decompile", "--stdout" }, "The input file path was not specified")]
-        [DataRow(new [] { "decompile", "file1", "file2" }, "The input file path cannot be specified multiple times")]
-        [DataRow(new [] { "decompile", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
-        [DataRow(new [] { "decompile", "--outdir" }, "The --outdir parameter expects an argument")]
-        [DataRow(new [] { "decompile", "--outdir", "dir1", "--outdir", "dir2" }, "The --outdir parameter cannot be specified twice")]
-        [DataRow(new [] { "decompile", "--outfile" }, "The --outfile parameter expects an argument")]
-        [DataRow(new [] { "decompile", "--outfile", "dir1", "--outfile", "dir2" }, "The --outfile parameter cannot be specified twice")]
-        [DataRow(new [] { "decompile", "--stdout", "--outfile", "dir1", "file1" }, "The --outfile and --stdout parameters cannot both be used")]
-        [DataRow(new [] { "decompile", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
-        [DataRow(new [] { "decompile", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
-        [DataRow(new [] { "decompile", "--outdir", "dir1", "file1" }, "The specified output directory \"*\" does not exist.")]
-
+        [DataRow(new[] { "build" }, "The input file path was not specified")]
+        [DataRow(new[] { "build", "--stdout" }, "The input file path was not specified")]
+        [DataRow(new[] { "build", "file1", "file2" }, "The input file path cannot be specified multiple times")]
+        [DataRow(new[] { "build", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
+        [DataRow(new[] { "build", "--outdir" }, "The --outdir parameter expects an argument")]
+        [DataRow(new[] { "build", "--outdir", "dir1", "--outdir", "dir2" }, "The --outdir parameter cannot be specified twice")]
+        [DataRow(new[] { "build", "--outfile" }, "The --outfile parameter expects an argument")]
+        [DataRow(new[] { "build", "--outfile", "dir1", "--outfile", "dir2" }, "The --outfile parameter cannot be specified twice")]
+        [DataRow(new[] { "build", "--stdout", "--outfile", "dir1", "file1" }, "The --outfile and --stdout parameters cannot both be used")]
+        [DataRow(new[] { "build", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
+        [DataRow(new[] { "build", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
+        [DataRow(new[] { "build", "--outdir", "dir1", "file1" }, "The specified output directory \"*\" does not exist.")]
+        [DataRow(new[] { "decompile" }, "The input file path was not specified")]
+        [DataRow(new[] { "decompile", "--stdout" }, "The input file path was not specified")]
+        [DataRow(new[] { "decompile", "file1", "file2" }, "The input file path cannot be specified multiple times")]
+        [DataRow(new[] { "decompile", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
+        [DataRow(new[] { "decompile", "--outdir" }, "The --outdir parameter expects an argument")]
+        [DataRow(new[] { "decompile", "--outdir", "dir1", "--outdir", "dir2" }, "The --outdir parameter cannot be specified twice")]
+        [DataRow(new[] { "decompile", "--outfile" }, "The --outfile parameter expects an argument")]
+        [DataRow(new[] { "decompile", "--outfile", "dir1", "--outfile", "dir2" }, "The --outfile parameter cannot be specified twice")]
+        [DataRow(new[] { "decompile", "--stdout", "--outfile", "dir1", "file1" }, "The --outfile and --stdout parameters cannot both be used")]
+        [DataRow(new[] { "decompile", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
+        [DataRow(new[] { "decompile", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
+        [DataRow(new[] { "decompile", "--outdir", "dir1", "file1" }, "The specified output directory \"*\" does not exist.")]
+        [DataRow(new[] { "publish" }, "The input file path was not specified.")]
+        [DataRow(new[] { "publish", "--fake" }, "Unrecognized parameter \"--fake\"")]
+        [DataRow(new[] { "publish", "--target" }, "The --target parameter expects an argument.")]
+        [DataRow(new[] { "publish", "--target", "foo", "--target" }, "The --target parameter expects an argument.")]
+        [DataRow(new[] { "publish", "--target", "foo", "--target", "foo2" }, "The --target parameter cannot be specified twice.")]
+        [DataRow(new[] { "publish", "file" }, "The target module was not specified.")]
+        [DataRow(new[] { "publish", "file", "file2" }, "The input file path cannot be specified multiple times.")]
         public void Invalid_args_trigger_validation_exceptions(string[] parameters, string expectedException)
         {
             Action parseFunc = () => ArgumentParser.TryParse(parameters);
@@ -232,6 +238,17 @@ namespace Bicep.Cli.UnitTests
             bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
             bulidOrDecompileArguments!.OutputDir.Should().BeNull();
             bulidOrDecompileArguments!.OutputFile.Should().Be("jsonFile");
+        }
+
+        [TestMethod]
+        public void Publish_should_parse_correctly()
+        {
+            var arguments = ArgumentParser.TryParse(new[] { "publish", "file1", "--target", "target1" });
+            arguments.Should().BeOfType<PublishArguments>();
+            var typed = (PublishArguments)arguments!;
+
+            typed.InputFile.Should().Be("file1");
+            typed.TargetModuleReference.Should().Be("target1");
         }
     }
 }

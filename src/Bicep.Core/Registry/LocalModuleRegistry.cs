@@ -7,6 +7,8 @@ using Bicep.Core.Modules;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {
@@ -20,6 +22,8 @@ namespace Bicep.Core.Registry
         }
 
         public string Scheme => ModuleReferenceSchemes.Local;
+
+        public RegistryCapabilities Capabilities => RegistryCapabilities.Default;
 
         public ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => LocalModuleReference.TryParse(reference, out failureBuilder);
 
@@ -38,11 +42,11 @@ namespace Bicep.Core.Registry
             return null;
         }
 
-        public IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate> RestoreModules(IEnumerable<ModuleReference> references)
+        public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references)
         {
             // local modules are already present on the file system
             // and do not require init
-            return ImmutableDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty;
+            return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
         }
 
         public bool IsModuleRestoreRequired(ModuleReference reference) => false;
@@ -56,5 +60,7 @@ namespace Bicep.Core.Registry
 
             throw new ArgumentException($"Reference type '{reference.GetType().Name}' is not supported.");
         }
+
+        public Task PublishModule(ModuleReference moduleReference, Stream compiled) => throw new NotSupportedException("Local modules cannot be published.");
     }
 }
