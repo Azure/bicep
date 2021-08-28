@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -60,6 +61,13 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
+            if (dataSet.HasModulesToPublish)
+            {
+                // ensure something got restored
+                Directory.Exists(settings.Features.CacheRootPath).Should().BeTrue();
+                Directory.EnumerateFiles(settings.Features.CacheRootPath, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+            }
+
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
             File.Exists(compiledFilePath).Should().BeTrue();
 
@@ -92,11 +100,59 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
+            if (dataSet.HasModulesToPublish)
+            {
+                // ensure something got restored
+                Directory.Exists(settings.Features.CacheRootPath).Should().BeTrue();
+                Directory.EnumerateFiles(settings.Features.CacheRootPath, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+            }
+
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
             File.Exists(compiledFilePath).Should().BeTrue();
 
             var actual = JToken.Parse(output);
 
+            actual.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                JToken.Parse(dataSet.Compiled!),
+                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+                actualLocation: compiledFilePath);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithModulesToPublish), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Build_Valid_SingleFile_After_Restore_Should_Succeed(DataSet dataSet)
+        {
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasModulesToPublish), clientFactory);
+
+            var (restoreOutput, restoreError, restoreResult) = await Bicep(settings, "restore", bicepFilePath);
+            using (new AssertionScope())
+            {
+                restoreResult.Should().Be(0);
+                restoreOutput.Should().BeEmpty();
+                restoreError.Should().BeEmpty();
+            }
+
+            // run restore with the same feature settings, so it will use the mock local module cache
+            // but break the client to ensure no outgoing calls are made
+            var settingsWithBrokenClient = settings with { ClientFactory = Repository.Create<IContainerRegistryClientFactory>().Object };
+            var (output, error, result) = await Bicep(settingsWithBrokenClient, "build", "--stdout", "--no-restore", bicepFilePath);
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().NotBeEmpty();
+                AssertNoErrors(error);
+            }
+
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
+            File.Exists(compiledFilePath).Should().BeTrue();
+
+            var actual = JToken.Parse(output);
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
@@ -233,6 +289,11 @@ output myOutput string = 'hello!'
         private static IEnumerable<object[]> GetInvalidDataSets() => DataSets
             .AllDataSets
             .Where(ds => ds.IsValid == false)
+            .ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetValidDataSetsWithModulesToPublish() => DataSets
+            .AllDataSets
+            .Where(ds => ds.IsValid && ds.HasModulesToPublish)
             .ToDynamicTestData();
     }
 }

@@ -12,6 +12,10 @@ namespace Bicep.Cli.Arguments
                 var isLast = args.Length == i + 1;
                 switch (args[i].ToLowerInvariant())
                 {
+                    case "--no-restore":
+                        NoRestore = true;
+                        break;
+
                     case "--target":
                         if(isLast)
                         {
@@ -57,5 +61,7 @@ namespace Bicep.Cli.Arguments
         public string InputFile { get; }
 
         public string TargetModuleReference { get; }
+
+        public bool NoRestore { get; }
     }
 }
