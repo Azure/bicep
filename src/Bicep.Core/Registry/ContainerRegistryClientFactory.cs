@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry
             var options = new ContainerRegistryClientOptions();
 
             // ensure User-Agent mentions us
-            options.Diagnostics.ApplicationId = $"{LanguageConstants.LanguageId} {ThisAssembly.AssemblyFileVersion}";
+            options.Diagnostics.ApplicationId = $"{LanguageConstants.LanguageId}/{ThisAssembly.AssemblyFileVersion}";
 
             return new(registryUri, credential, repository, options);
         }
