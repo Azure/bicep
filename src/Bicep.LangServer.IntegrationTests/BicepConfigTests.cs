@@ -14,6 +14,7 @@ using Bicep.LanguageServer;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -35,17 +36,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepConfigFileModification_ShouldRefreshCompilation()
         {
-            var fileSystemDict = new Dictionary<Uri, string>();
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                serverOptions);
-
+            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener) = await StartServerWithClientConnectionAsync();
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
 
@@ -73,20 +64,13 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Information);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Information,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
 
             // update bicepconfig.json and verify diagnostics
@@ -114,17 +98,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepConfigFileDeletion_ShouldRefreshCompilation()
         {
-            var fileSystemDict = new Dictionary<Uri, string>();
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                serverOptions);
-
+            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener) = await StartServerWithClientConnectionAsync();
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
 
@@ -152,20 +126,13 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Information);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Information,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
 
             // Delete bicepconfig.json and verify diagnostics are based off of default bicepconfig.json
@@ -181,37 +148,20 @@ namespace Bicep.LangServer.IntegrationTests
                     })
                 });
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Warning);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Warning,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
         }
 
         [TestMethod]
         public async Task BicepConfigFileCreation_ShouldRefreshCompilation()
         {
-            var fileSystemDict = new Dictionary<Uri, string>();
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                serverOptions);
-
+            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener) = await StartServerWithClientConnectionAsync();
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
 
@@ -219,20 +169,13 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Warning);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Warning,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
 
             // Create bicepconfig.json and verify diagnostics
@@ -266,37 +209,20 @@ namespace Bicep.LangServer.IntegrationTests
                     })
                 });
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Information);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Information,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
         }
 
         [TestMethod]
         public async Task WithBicepConfigInParentDirectory_WhenNewBicepConfigFileIsAddedToCurrentDirectory_ShouldUseNewlyAddedConfigSettings()
         {
-            var fileSystemDict = new Dictionary<Uri, string>();
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                serverOptions);
-
+            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener) = await StartServerWithClientConnectionAsync();
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
 
@@ -327,20 +253,13 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Information);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Information,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
 
             // create new bicepconfig.json and verify diagnostics
@@ -373,37 +292,20 @@ namespace Bicep.LangServer.IntegrationTests
                     })
                 });
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Warning);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Warning,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
         }
 
         [TestMethod]
         public async Task WithBicepConfigInCurrentDirectory_WhenNewBicepConfigFileIsAddedToParentDirectory_ShouldUseOldConfigSettings()
         {
-            var fileSystemDict = new Dictionary<Uri, string>();
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                serverOptions);
-
+            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener) = await StartServerWithClientConnectionAsync();
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
 
@@ -432,20 +334,13 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Information);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Information,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
 
             // add bicepconfig.json to parent directory and verify diagnostics
@@ -479,37 +374,20 @@ namespace Bicep.LangServer.IntegrationTests
                     })
                 });
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Information);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Information,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
         }
 
         [TestMethod]
         public async Task InvalidBicepConfigFile_ShouldRefreshCompilation()
         {
-            var fileSystemDict = new Dictionary<Uri, string>();
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
-                TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                serverOptions);
-
+            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener) = await StartServerWithClientConnectionAsync();
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
 
@@ -532,19 +410,13 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Could not load configuration file. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 7 | BytePositionInLine: 0.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Error);
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 0),
-                            End = new Position(1, 0)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Could not load configuration file. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 7 | BytePositionInLine: 0.",
+                    mainUri,
+                    DiagnosticSeverity.Error,
+                    new Position(0, 0),
+                    new Position(1, 0),
+                    "Fatal");
             }
 
             // update bicepconfig.json and verify diagnostics
@@ -563,21 +435,54 @@ namespace Bicep.LangServer.IntegrationTests
   }
 }", 2));
 
-                var diagsParams = await diagsListener.WaitNext();
-                diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().SatisfyRespectively(
-                    x =>
-                    {
-                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
-                        x.Severity.Should().Be(DiagnosticSeverity.Warning);
-                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
-                        x.Range.Should().Be(new Range
-                        {
-                            Start = new Position(0, 6),
-                            End = new Position(0, 24)
-                        });
-                    });
+                await VerifyDiagnosticsAsync(diagsListener,
+                    @"Parameter ""storageAccountName"" is declared but never used.",
+                    mainUri,
+                    DiagnosticSeverity.Warning,
+                    new Position(0, 6),
+                    new Position(0, 24),
+                    "https://aka.ms/bicep/linter/no-unused-params");
             }
+        }
+
+        private async Task VerifyDiagnosticsAsync(MultipleMessageListener<PublishDiagnosticsParams> diagsListener,
+            string message,
+            DocumentUri documentUri, 
+            DiagnosticSeverity diagnosticSeverity,
+            Position start,
+            Position end,
+            string code)
+        {
+            var diagsParams = await diagsListener.WaitNext();
+            diagsParams.Uri.Should().Be(documentUri);
+            diagsParams.Diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Message.Should().Be(message);
+                    x.Severity.Should().Be(diagnosticSeverity);
+                    x.Code?.String.Should().Be(code);
+                    x.Range.Should().Be(new Range
+                    {
+                        Start = start,
+                        End = end
+                    });
+                });
+        }
+
+        private async Task<(ILanguageClient, Dictionary<Uri, string>, MultipleMessageListener<PublishDiagnosticsParams>)> StartServerWithClientConnectionAsync()
+        {
+            var fileSystemDict = new Dictionary<Uri, string>();
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                TestContext,
+                options =>
+                {
+                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
+                },
+                serverOptions);
+
+            return (client, fileSystemDict, diagsListener);
         }
 
         [TestCleanup]
