@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {
@@ -14,12 +16,20 @@ namespace Bicep.Core.Registry
     {
         ImmutableArray<string> AvailableSchemes { get; }
 
-        bool ValidateModuleReference(ModuleDeclarationSyntax module, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ModuleReference? TryGetModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        bool IsModuleAvailable(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
+        ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference);
 
-        bool RestoreModules(IEnumerable<ModuleDeclarationSyntax> modules);
+        ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
+
+        Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+
+        Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences);
+
+        Task PublishModule(ModuleReference moduleReference, Stream compiled);
+
+        void PruneRestoreStatuses();
     }
 }

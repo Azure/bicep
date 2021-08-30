@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10839339689322770047"
+      "templateHash": "7657130937459809251"
     }
   },
   "parameters": {
@@ -824,7 +824,7 @@
             "value": "[parameters('bastionName')]"
           },
           "bastionSubnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2019-10-01').outputs.bastionSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet')).outputs.bastionSubnetId.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -1060,13 +1060,13 @@
             "value": "[parameters('blobStorageAccountPrivateEndpointName')]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2019-10-01').outputs.logAnalyticsWorkspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep')).outputs.logAnalyticsWorkspaceId.value]"
           },
           "virtualNetworkId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2019-10-01').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet')).outputs.virtualNetworkResourceId.value]"
           },
           "vmSubnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2019-10-01').outputs.vmSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet')).outputs.vmSubnetId.value]"
           }
         },
         "template": {
@@ -1578,10 +1578,10 @@
             "value": "[parameters('nodePoolVmSize')]"
           },
           "virtualNetworkId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2019-10-01').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet')).outputs.virtualNetworkResourceId.value]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2019-10-01').outputs.logAnalyticsWorkspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep')).outputs.logAnalyticsWorkspaceId.value]"
           }
         },
         "template": {

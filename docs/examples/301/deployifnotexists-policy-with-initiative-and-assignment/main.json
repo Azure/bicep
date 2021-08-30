@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5825216232717295639"
+      "templateHash": "6279515717139489457"
     }
   },
   "parameters": {
@@ -222,13 +222,13 @@
         "mode": "Incremental",
         "parameters": {
           "actionGroupName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2019-10-01').outputs.actionGroupName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup')).outputs.actionGroupName.value]"
           },
           "actionGroupRG": {
             "value": "[parameters('resourceGroupName')]"
           },
           "actionGroupId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2019-10-01').outputs.actionGroupId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup')).outputs.actionGroupId.value]"
           },
           "metricAlertResourceNamespace": {
             "value": "[parameters('metricAlertResourceNamespace')]"
@@ -596,7 +596,7 @@
         "mode": "Incremental",
         "parameters": {
           "bicepExampleInitiativeId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy'), '2019-10-01').outputs.bicepExampleInitiativeId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy')).outputs.bicepExampleInitiativeId.value]"
           },
           "assignmentIdentityLocation": {
             "value": "[parameters('resourceGrouplocation')]"

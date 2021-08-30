@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8928993736616810089"
+      "templateHash": "8771057889619416644"
     }
   },
   "parameters": {
@@ -216,7 +216,7 @@
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('azureVMsSubnetNSGName'))]"
               },
               "routeTable": {
-                "id": "[reference(resourceId('Microsoft.Resources/deployments', 'udrDeploy'), '2019-10-01').outputs.udrId.value]"
+                "id": "[reference(resourceId('Microsoft.Resources/deployments', 'udrDeploy')).outputs.udrId.value]"
               }
             }
           }
@@ -275,13 +275,13 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2019-10-01').outputs.nicId.value]",
+              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1')).outputs.nicId.value]",
               "properties": {
                 "primary": true
               }
             },
             {
-              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2019-10-01').outputs.nicId.value]",
+              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2')).outputs.nicId.value]",
               "properties": {
                 "primary": false
               }
@@ -331,7 +331,7 @@
           "fileUris": [
             "[variables('HVHostSetupScriptUri')]"
           ],
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2019-10-01').outputs.assignedIp.value, reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2019-10-01').outputs.assignedIp.value, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference(resourceId('Microsoft.Resources/deployments', 'createNic1')).outputs.assignedIp.value, reference(resourceId('Microsoft.Resources/deployments', 'createNic2')).outputs.assignedIp.value, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
         }
       },
       "dependsOn": [
@@ -563,7 +563,7 @@
             "value": "Static"
           },
           "staticIpAddress": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2019-10-01').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1')).outputs.assignedIp.value]"
           },
           "nicName": {
             "value": "[parameters('HostNetworkInterface1Name')]"
@@ -675,7 +675,7 @@
             "value": "Static"
           },
           "staticIpAddress": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2019-10-01').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2')).outputs.assignedIp.value]"
           },
           "nicName": {
             "value": "[parameters('HostNetworkInterface2Name')]"
@@ -851,7 +851,7 @@
             "value": "[parameters('ghostedSubnetPrefix')]"
           },
           "nextHopAddress": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2019-10-01').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2')).outputs.assignedIp.value]"
           }
         },
         "template": {

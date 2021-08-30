@@ -3,6 +3,8 @@
 using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -29,6 +31,12 @@ namespace Bicep.Core.Samples
         public const string TestCompletionsPrefix = TestCompletionsDirectory + "/";
         public const string TestFunctionsDirectory = "Functions";
         public const string TestFunctionsPrefix = TestFunctionsDirectory + "/";
+        public const string TestPublishDirectory = "Publish";
+        public const string TestPublishPrefix = TestPublishDirectory + "/";
+
+        public record PublishInfo(string ModuleSource, ModuleMetadata Metadata);
+
+        public record ModuleMetadata(string Target);
 
         public static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '/';
 
@@ -50,6 +58,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<ImmutableDictionary<string, string>> lazyCompletions;
 
+        private readonly Lazy<ImmutableDictionary<string, PublishInfo>> lazyModulesToPublish;
+
         public DataSet(string name)
         {
             this.Name = name;
@@ -62,7 +72,8 @@ namespace Bicep.Core.Samples
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
-            this.lazyCompletions = new Lazy<ImmutableDictionary<string, string>>(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
+            this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
+            this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
         }
 
         public string Name { get; }
@@ -86,6 +97,10 @@ namespace Bicep.Core.Samples
         public string Formatted => this.lazyFormatted.Value;
 
         public ImmutableDictionary<string, string> Completions => this.lazyCompletions.Value;
+
+        public ImmutableDictionary<string, PublishInfo> ModulesToPublish => this.lazyModulesToPublish.Value;
+
+        public bool HasModulesToPublish => this.ModulesToPublish.Any();
 
         // validity is set by naming convention
 
@@ -144,5 +159,45 @@ namespace Bicep.Core.Samples
 
         public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
             => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, fileName);
+
+        private static ImmutableDictionary<string, PublishInfo> ReadPublishData(string streamNamePrefix)
+        {
+            static string GetModuleName(string fileName)
+            {
+                var parts = fileName.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2)
+                {
+                    throw new InvalidOperationException($"File '{fileName}' doesn't match the expected naming convention.");
+                }
+
+                return parts[0];
+            }
+
+            var rawFiles = ReadDataSetDictionary(streamNamePrefix);
+            var uniqueModulesToPublish = rawFiles.Keys.Select(GetModuleName).Distinct();
+
+            var builder = ImmutableDictionary.CreateBuilder<string, PublishInfo>();
+            foreach (var moduleName in uniqueModulesToPublish)
+            {
+                var moduleSourceName = $"{moduleName}.bicep";
+                var moduleMetadataName = $"{moduleName}.metadata.json";
+
+                if(!rawFiles.TryGetValue(moduleSourceName, out var moduleSource))
+                {
+                    throw new AssertFailedException($"The module source file '{moduleSourceName}' is missing.");
+                }
+
+                if(!rawFiles.TryGetValue(moduleMetadataName, out var moduleMetadataText))
+                {
+                    throw new AssertFailedException($"The module metadata file '{moduleMetadataName}' is missing.");
+                }
+
+                var metadata = JsonConvert.DeserializeObject<ModuleMetadata>(moduleMetadataText) ?? throw new AssertFailedException($"Module metadata file '{moduleMetadataName}' deserialized into a null object.");
+
+                builder.Add(moduleName, new PublishInfo(moduleSource, metadata));
+            }
+
+            return builder.ToImmutable();
+        }
     }
 }

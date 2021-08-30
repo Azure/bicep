@@ -13,7 +13,7 @@ using Bicep.Core.RegistryClient.Models;
 
 namespace Bicep.Core.RegistryClient
 {
-    public sealed class BicepRegistryBlobClient
+    public class BicepRegistryBlobClient
     {
         private readonly Uri _endpoint;
         private readonly string _registryName;
@@ -48,7 +48,12 @@ namespace Bicep.Core.RegistryClient
             _blobRestClient = new ContainerRegistryBlobRestClient(_clientDiagnostics, _pipeline, _endpoint.AbsoluteUri);
         }
 
-        public async Task<Response<UploadBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
+        // allows mocking
+        protected BicepRegistryBlobClient()
+        {
+        }
+
+        public virtual async Task<Response<UploadBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
         {
             string digest = DigestHelper.ComputeDigest(DigestHelper.AlgorithmIdentifierSha256, stream);
 
@@ -65,7 +70,7 @@ namespace Bicep.Core.RegistryClient
             return Response.FromValue(new UploadBlobResult(), completeUploadResult.GetRawResponse());
         }
 
-        public async Task<Response<UploadManifestResult>> UploadManifestAsync(Stream stream, UploadManifestOptions options = default, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<UploadManifestResult>> UploadManifestAsync(Stream stream, UploadManifestOptions options = default, CancellationToken cancellationToken = default)
         {
             options ??= new UploadManifestOptions();
 
@@ -76,18 +81,21 @@ namespace Bicep.Core.RegistryClient
             return Response.FromValue(new UploadManifestResult(), response.GetRawResponse());
         }
 
-        public async Task<Response<DownloadManifestResult>> DownloadManifestAsync(string reference, DownloadManifestOptions options = default, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<DownloadManifestResult>> DownloadManifestAsync(string reference, DownloadManifestOptions options = default, CancellationToken cancellationToken = default)
         {
             options ??= new DownloadManifestOptions();
 
             Response<ManifestWrapper> manifestWrapper = await _restClient.GetManifestAsync(_repositoryName, reference, options.MediaType.ToSerialString(), cancellationToken).ConfigureAwait(false);
 
+            manifestWrapper.GetRawResponse().Headers.TryGetValue("Docker-Content-Digest", out var digest);
+
             Stream stream = manifestWrapper.GetRawResponse().ContentStream;
             stream.Position = 0;
-            return Response.FromValue(new DownloadManifestResult(stream), manifestWrapper.GetRawResponse());
+
+            return Response.FromValue(new DownloadManifestResult(digest, stream), manifestWrapper.GetRawResponse());
         }
 
-        public async Task<Response<DownloadBlobResult>> DownloadBlobAsync(string digest, DownloadBlobOptions options = default, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<DownloadBlobResult>> DownloadBlobAsync(string digest, DownloadBlobOptions options = default, CancellationToken cancellationToken = default)
         {
             options ??= new DownloadBlobOptions();
             ResponseWithHeaders<Stream, ContainerRegistryBlobGetBlobHeaders> blobResult = await _blobRestClient.GetBlobAsync(_repositoryName, digest, cancellationToken).ConfigureAwait(false);

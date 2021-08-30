@@ -6,6 +6,7 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
 {
@@ -31,7 +32,7 @@ namespace Bicep.Cli.Commands
             this.writer = writer;
         }
 
-        public int Run(BuildArguments args)
+        public async Task<int> RunAsync(BuildArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
 
@@ -40,7 +41,7 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
             }
 
-            var compilation = compilationService.Compile(inputPath);
+            var compilation = await compilationService.CompileAsync(inputPath);
 
             if (diagnosticLogger.ErrorCount < 1)
             {
