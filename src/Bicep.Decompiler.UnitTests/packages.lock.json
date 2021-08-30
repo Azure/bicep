@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v5.0": {
       "coverlet.collector": {
         "type": "Direct",
-        "requested": "[3.0.3, )",
-        "resolved": "3.0.3",
-        "contentHash": "PdyhdzG2LK7YUEtccObPql+3OuFODaFNeYayxdPoK1eHb2StZoeQf1WMb16QrKiIdi4fs5Kog8jxXtlZOgAEuA=="
+        "requested": "[3.1.0, )",
+        "resolved": "3.1.0",
+        "contentHash": "YzYqSRrjoP5lULBhTDcTOjuM4IDPPi6PhFsl4w8EI4WdZhE6llt7E38Tg4CHyrS+QKwyu1+9OwkdDgluOdoBTw=="
       },
       "FluentAssertions": {
         "type": "Direct",
@@ -35,9 +35,9 @@
       },
       "MSTest.TestAdapter": {
         "type": "Direct",
-        "requested": "[2.2.3, )",
-        "resolved": "2.2.3",
-        "contentHash": "Xxc6+JyELKOmM46CYrHxL9f2LMZGnx1Neh0dr52THZbmVTwlJM1tj0U5RQ50G+wxsfsU8ZfR1HAUugc+64b6TA==",
+        "requested": "[2.2.6, )",
+        "resolved": "2.2.6",
+        "contentHash": "2z5XVBednseou2LXUgtnbkE9PNz0eFZaYyaJfI6VAHaeAx79gk3BE/Sjv6x3AnrzySzhHrVsS9Jr3z7sI7w0XA==",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
           "System.Diagnostics.TextWriterTraceListener": "4.3.0"
@@ -462,8 +462,8 @@
       },
       "Microsoft.PowerShell.CoreCLR.Eventing": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "gsshJYIbjJjlTDGlDntENxMkRd+KWZo0CXF1jLJrpqtF51nmP5AHMKysFXRTPBWTNFmFTZ0tqgazkzF5S92/VA==",
+        "resolved": "7.1.4",
+        "contentHash": "0YaMEm1qYTlCfWJxePBQiQd5bGsBTsU6LZP3nOafBfZNHyp+qLztqJ25nVDsEadPKaYs2SsQNQHycwFLOZK+0w==",
         "dependencies": {
           "System.Diagnostics.EventLog": "5.0.1"
         }
@@ -1506,12 +1506,12 @@
       },
       "System.Management.Automation": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "rXPo+ujbsrraKk7F0VYQLM5oTXUo8bOmd+lnALCNPXaeZZ7pcGLqAfayuGX/Y6sXd4zoOE0jDtF572u4vCR5fg==",
+        "resolved": "7.1.4",
+        "contentHash": "Ivc6HO9rv+eVlE1mGji35N7S4XwbStWhEKcwUvDc7hGKa1O4bKdVev2JDnpSj2eaM8Evcde8ZYa2uEuMSkHmTg==",
         "dependencies": {
           "Microsoft.ApplicationInsights": "2.15.0",
           "Microsoft.Management.Infrastructure": "2.0.0",
-          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.3",
+          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.4",
           "Microsoft.PowerShell.Native": "7.1.0",
           "Microsoft.Win32.Registry.AccessControl": "5.0.0",
           "Newtonsoft.Json": "12.0.3",
@@ -2238,13 +2238,13 @@
           "DiffPlex": "1.7.0",
           "FluentAssertions": "5.10.3",
           "JsonDiffPatch.Net": "2.3.0",
-          "MSTest.TestAdapter": "2.2.3",
+          "MSTest.TestAdapter": "2.2.6",
           "MSTest.TestFramework": "2.2.5",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "Microsoft.PowerShell.SDK": "7.1.3",
           "Moq": "4.16.1",
           "Newtonsoft.Json": "13.0.1",
-          "System.Management.Automation": "7.1.3"
+          "System.Management.Automation": "7.1.4"
         }
       },
       "bicep.decompiler": {
@@ -2323,8 +2323,8 @@
       },
       "Microsoft.PowerShell.CoreCLR.Eventing": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "gsshJYIbjJjlTDGlDntENxMkRd+KWZo0CXF1jLJrpqtF51nmP5AHMKysFXRTPBWTNFmFTZ0tqgazkzF5S92/VA==",
+        "resolved": "7.1.4",
+        "contentHash": "0YaMEm1qYTlCfWJxePBQiQd5bGsBTsU6LZP3nOafBfZNHyp+qLztqJ25nVDsEadPKaYs2SsQNQHycwFLOZK+0w==",
         "dependencies": {
           "System.Diagnostics.EventLog": "5.0.1"
         }
@@ -3023,12 +3023,12 @@
       },
       "System.Management.Automation": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "rXPo+ujbsrraKk7F0VYQLM5oTXUo8bOmd+lnALCNPXaeZZ7pcGLqAfayuGX/Y6sXd4zoOE0jDtF572u4vCR5fg==",
+        "resolved": "7.1.4",
+        "contentHash": "Ivc6HO9rv+eVlE1mGji35N7S4XwbStWhEKcwUvDc7hGKa1O4bKdVev2JDnpSj2eaM8Evcde8ZYa2uEuMSkHmTg==",
         "dependencies": {
           "Microsoft.ApplicationInsights": "2.15.0",
           "Microsoft.Management.Infrastructure": "2.0.0",
-          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.3",
+          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.4",
           "Microsoft.PowerShell.Native": "7.1.0",
           "Microsoft.Win32.Registry.AccessControl": "5.0.0",
           "Newtonsoft.Json": "12.0.3",
@@ -3550,8 +3550,8 @@
       },
       "Microsoft.PowerShell.CoreCLR.Eventing": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "gsshJYIbjJjlTDGlDntENxMkRd+KWZo0CXF1jLJrpqtF51nmP5AHMKysFXRTPBWTNFmFTZ0tqgazkzF5S92/VA==",
+        "resolved": "7.1.4",
+        "contentHash": "0YaMEm1qYTlCfWJxePBQiQd5bGsBTsU6LZP3nOafBfZNHyp+qLztqJ25nVDsEadPKaYs2SsQNQHycwFLOZK+0w==",
         "dependencies": {
           "System.Diagnostics.EventLog": "5.0.1"
         }
@@ -4250,12 +4250,12 @@
       },
       "System.Management.Automation": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "rXPo+ujbsrraKk7F0VYQLM5oTXUo8bOmd+lnALCNPXaeZZ7pcGLqAfayuGX/Y6sXd4zoOE0jDtF572u4vCR5fg==",
+        "resolved": "7.1.4",
+        "contentHash": "Ivc6HO9rv+eVlE1mGji35N7S4XwbStWhEKcwUvDc7hGKa1O4bKdVev2JDnpSj2eaM8Evcde8ZYa2uEuMSkHmTg==",
         "dependencies": {
           "Microsoft.ApplicationInsights": "2.15.0",
           "Microsoft.Management.Infrastructure": "2.0.0",
-          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.3",
+          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.4",
           "Microsoft.PowerShell.Native": "7.1.0",
           "Microsoft.Win32.Registry.AccessControl": "5.0.0",
           "Newtonsoft.Json": "12.0.3",
@@ -4777,8 +4777,8 @@
       },
       "Microsoft.PowerShell.CoreCLR.Eventing": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "gsshJYIbjJjlTDGlDntENxMkRd+KWZo0CXF1jLJrpqtF51nmP5AHMKysFXRTPBWTNFmFTZ0tqgazkzF5S92/VA==",
+        "resolved": "7.1.4",
+        "contentHash": "0YaMEm1qYTlCfWJxePBQiQd5bGsBTsU6LZP3nOafBfZNHyp+qLztqJ25nVDsEadPKaYs2SsQNQHycwFLOZK+0w==",
         "dependencies": {
           "System.Diagnostics.EventLog": "5.0.1"
         }
@@ -5477,12 +5477,12 @@
       },
       "System.Management.Automation": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "rXPo+ujbsrraKk7F0VYQLM5oTXUo8bOmd+lnALCNPXaeZZ7pcGLqAfayuGX/Y6sXd4zoOE0jDtF572u4vCR5fg==",
+        "resolved": "7.1.4",
+        "contentHash": "Ivc6HO9rv+eVlE1mGji35N7S4XwbStWhEKcwUvDc7hGKa1O4bKdVev2JDnpSj2eaM8Evcde8ZYa2uEuMSkHmTg==",
         "dependencies": {
           "Microsoft.ApplicationInsights": "2.15.0",
           "Microsoft.Management.Infrastructure": "2.0.0",
-          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.3",
+          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.4",
           "Microsoft.PowerShell.Native": "7.1.0",
           "Microsoft.Win32.Registry.AccessControl": "5.0.0",
           "Newtonsoft.Json": "12.0.3",
@@ -6004,8 +6004,8 @@
       },
       "Microsoft.PowerShell.CoreCLR.Eventing": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "gsshJYIbjJjlTDGlDntENxMkRd+KWZo0CXF1jLJrpqtF51nmP5AHMKysFXRTPBWTNFmFTZ0tqgazkzF5S92/VA==",
+        "resolved": "7.1.4",
+        "contentHash": "0YaMEm1qYTlCfWJxePBQiQd5bGsBTsU6LZP3nOafBfZNHyp+qLztqJ25nVDsEadPKaYs2SsQNQHycwFLOZK+0w==",
         "dependencies": {
           "System.Diagnostics.EventLog": "5.0.1"
         }
@@ -6686,12 +6686,12 @@
       },
       "System.Management.Automation": {
         "type": "Transitive",
-        "resolved": "7.1.3",
-        "contentHash": "rXPo+ujbsrraKk7F0VYQLM5oTXUo8bOmd+lnALCNPXaeZZ7pcGLqAfayuGX/Y6sXd4zoOE0jDtF572u4vCR5fg==",
+        "resolved": "7.1.4",
+        "contentHash": "Ivc6HO9rv+eVlE1mGji35N7S4XwbStWhEKcwUvDc7hGKa1O4bKdVev2JDnpSj2eaM8Evcde8ZYa2uEuMSkHmTg==",
         "dependencies": {
           "Microsoft.ApplicationInsights": "2.15.0",
           "Microsoft.Management.Infrastructure": "2.0.0",
-          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.3",
+          "Microsoft.PowerShell.CoreCLR.Eventing": "7.1.4",
           "Microsoft.PowerShell.Native": "7.1.0",
           "Microsoft.Win32.Registry.AccessControl": "5.0.0",
           "Newtonsoft.Json": "12.0.3",
