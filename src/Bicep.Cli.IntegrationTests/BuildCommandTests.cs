@@ -64,8 +64,8 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasModulesToPublish)
             {
                 // ensure something got restored
-                Directory.Exists(settings.Features.CacheRootPath).Should().BeTrue();
-                Directory.EnumerateFiles(settings.Features.CacheRootPath, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+                Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();
+                Directory.EnumerateFiles(settings.Features.CacheRootDirectory, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -103,8 +103,8 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasModulesToPublish)
             {
                 // ensure something got restored
-                Directory.Exists(settings.Features.CacheRootPath).Should().BeTrue();
-                Directory.EnumerateFiles(settings.Features.CacheRootPath, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+                Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();
+                Directory.EnumerateFiles(settings.Features.CacheRootDirectory, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
