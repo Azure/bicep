@@ -240,7 +240,7 @@ namespace Bicep.LangServer.IntegrationTests
       ""enabled"": true,
       ""rules"": {
         ""no-unused-params"": {
-          ""level"": ""off""
+          ""level"": ""info""
         }
       }
     }
@@ -264,7 +264,229 @@ namespace Bicep.LangServer.IntegrationTests
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().BeEmpty();
+                diagsParams.Diagnostics.Should().SatisfyRespectively(
+                    x =>
+                    {
+                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                        x.Severity.Should().Be(DiagnosticSeverity.Information);
+                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                        x.Range.Should().Be(new Range
+                        {
+                            Start = new Position(0, 6),
+                            End = new Position(0, 24)
+                        });
+                    });
+            }
+        }
+
+        [TestMethod]
+        public async Task WithBicepConfigInParentDirectory_WhenNewBicepConfigFileIsAddedToCurrentDirectory_ShouldUseNewlyAddedConfigSettings()
+        {
+            var fileSystemDict = new Dictionary<Uri, string>();
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                TestContext,
+                options =>
+                {
+                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
+                },
+                fileResolver: new InMemoryFileResolver(fileSystemDict));
+
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
+
+            string bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+
+            string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents);
+            string? directoryContainingBicepConfigFile = Path.GetDirectoryName(bicepConfigFilePath);
+            DirectoryInfo directoryInfo = Directory.CreateDirectory(Path.Combine(directoryContainingBicepConfigFile!, "BicepConfig"));
+            string currentDirectory = Path.Combine(directoryInfo.FullName);
+            Directory.SetCurrentDirectory(currentDirectory);
+            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
+
+            fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
+
+            // open the main document and verify diagnostics
+            {
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().SatisfyRespectively(
+                    x =>
+                    {
+                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                        x.Severity.Should().Be(DiagnosticSeverity.Information);
+                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                        x.Range.Should().Be(new Range
+                        {
+                            Start = new Position(0, 6),
+                            End = new Position(0, 24)
+                        });
+                    });
+            }
+
+            // create new bicepconfig.json and verify diagnostics
+            {
+                bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}";
+                bicepConfigFilePath = Path.Combine(currentDirectory, "bicepconfig.json");
+                File.WriteAllText(bicepConfigFilePath, bicepConfigFileContents);
+                var newBicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
+
+                fileSystemDict[newBicepConfigUri.ToUri()] = bicepConfigFileContents;
+
+                client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
+                {
+                    Changes = new Container<FileEvent>(new FileEvent
+                    {
+                        Type = FileChangeType.Created,
+                        Uri = newBicepConfigUri,
+                    })
+                });
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().SatisfyRespectively(
+                    x =>
+                    {
+                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                        x.Severity.Should().Be(DiagnosticSeverity.Warning);
+                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                        x.Range.Should().Be(new Range
+                        {
+                            Start = new Position(0, 6),
+                            End = new Position(0, 24)
+                        });
+                    });
+            }
+        }
+
+        [TestMethod]
+        public async Task WithBicepConfigInCurrentDirectory_WhenNewBicepConfigFileIsAddedToParentDirectory_ShouldUseOldConfigSettings()
+        {
+            var fileSystemDict = new Dictionary<Uri, string>();
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                TestContext,
+                options =>
+                {
+                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
+                },
+                fileResolver: new InMemoryFileResolver(fileSystemDict));
+
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            fileSystemDict[mainUri.ToUri()] = @"param storageAccountName string = 'test'";
+
+            string bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+
+            string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents);
+            string currentDirectory = Path.GetDirectoryName(bicepConfigFilePath)!;
+            Directory.SetCurrentDirectory(currentDirectory);
+            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
+
+            fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
+
+            // open the main document and verify diagnostics
+            {
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().SatisfyRespectively(
+                    x =>
+                    {
+                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                        x.Severity.Should().Be(DiagnosticSeverity.Information);
+                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                        x.Range.Should().Be(new Range
+                        {
+                            Start = new Position(0, 6),
+                            End = new Position(0, 24)
+                        });
+                    });
+            }
+
+            // add bicepconfig.json to parent directory and verify diagnostics
+            {
+                DirectoryInfo? parentDirectory = Directory.GetParent(currentDirectory);
+                bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}";
+                string newBicepConfigFilePath = Path.Combine(parentDirectory!.FullName, "bicepconfig.json");
+                File.WriteAllText(newBicepConfigFilePath, bicepConfigFileContents);
+                var newBicepConfigUri = DocumentUri.FromFileSystemPath(newBicepConfigFilePath);
+
+                fileSystemDict[newBicepConfigUri.ToUri()] = bicepConfigFileContents;
+
+                client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
+                {
+                    Changes = new Container<FileEvent>(new FileEvent
+                    {
+                        Type = FileChangeType.Created,
+                        Uri = newBicepConfigUri,
+                    })
+                });
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().SatisfyRespectively(
+                    x =>
+                    {
+                        x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                        x.Severity.Should().Be(DiagnosticSeverity.Information);
+                        x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                        x.Range.Should().Be(new Range
+                        {
+                            Start = new Position(0, 6),
+                            End = new Position(0, 24)
+                        });
+                    });
             }
         }
 
