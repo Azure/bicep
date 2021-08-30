@@ -21,14 +21,7 @@ namespace Bicep.Core.Semantics
             this.SourceFileGrouping = sourceFileGrouping;
             this.ResourceTypeProvider = resourceTypeProvider;
 
-            if (configHelper is null)
-            {
-                ConfigHelper = new ConfigHelper();
-            }
-            else
-            {
-                ConfigHelper = configHelper;
-            }
+            ConfigHelper = configHelper ?? new ConfigHelper();
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
