@@ -33,11 +33,11 @@ namespace Bicep.LanguageServer.Handlers
             Container<FileEvent> fileEvents = request.Changes;
             IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => x.Uri.Path.EndsWith(LanguageConstants.BicepConfigSettingsFileName));
 
-            // Refresh compilation of source files in workspace when local bicepconfig.json file is created or deleted
-            if (bicepConfigFileChangeEvents.Any(x => (x.Type == FileChangeType.Deleted || x.Type == FileChangeType.Created)))
+            // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed 
+            if (bicepConfigFileChangeEvents.Any())
             {
                 Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
-                BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(compilationManager, uri, workspace, string.Empty);
+                BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(compilationManager, uri, workspace, null);
             }
 
             compilationManager.HandleFileChanges(fileEvents);
