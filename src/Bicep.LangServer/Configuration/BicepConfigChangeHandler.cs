@@ -11,10 +11,12 @@ namespace Bicep.LanguageServer.Configuration
 {
     public class BicepConfigChangeHandler
     {
-        public static void RefreshCompilationOfSourceFilesInWorkspace(ICompilationManager compilationManager, Uri bicepConfigUri, IWorkspace workspace, string bicepConfigFileContents)
+        public static void RefreshCompilationOfSourceFilesInWorkspace(ICompilationManager compilationManager, Uri bicepConfigUri, IWorkspace workspace, string? bicepConfigFileContents)
         {
-            // bicepconfig.json file was deleted
-            if (string.IsNullOrWhiteSpace(bicepConfigFileContents))
+            // BicepDidChangeWatchedFilesHandler sends a notification when bicepconfig.json file is created/deleted/changed.
+            // File contents is null in this scenario.
+            // We'll upsert null and have bicepconfig.json loaded from disk in ConfigHelper
+            if (bicepConfigFileContents is null)
             {
                 workspace.UpsertActiveBicepConfig(null);
             }
