@@ -25,6 +25,7 @@ using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
 using Bicep.LanguageServer.Utils;
 using Bicep.Core.Features;
+using Bicep.Core.Configuration;
 
 namespace Bicep.LanguageServer
 {
