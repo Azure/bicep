@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Containers.ContainerRegistry;
+using Azure.Containers.ContainerRegistry.Specialized;
 using Azure.Core;
-using Bicep.Core.RegistryClient;
 using System;
 
 namespace Bicep.Core.Registry
 {
     public class ContainerRegistryClientFactory : IContainerRegistryClientFactory
     {
-        public BicepRegistryBlobClient CreateBlobClient(Uri registryUri, string repository, TokenCredential credential)
+        public ContainerRegistryBlobClient CreateBlobClient(Uri registryUri, string repository, TokenCredential credential)
         {
             var options = new ContainerRegistryClientOptions();
 

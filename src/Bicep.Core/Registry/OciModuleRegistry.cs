@@ -57,7 +57,7 @@ namespace Bicep.Core.Registry
             {
                 using (var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}"))
                 {
-                    var result = await this.client.PullArtifactsync(reference);
+                    var result = await this.client.PullArtifactAsync(reference);
 
                     if (!result.Success)
                     {

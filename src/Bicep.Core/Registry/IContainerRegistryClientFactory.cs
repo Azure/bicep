@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Core;
-using Bicep.Core.RegistryClient;
+using Azure.Containers.ContainerRegistry.Specialized;
 using System;
 
 namespace Bicep.Core.Registry
@@ -13,6 +13,6 @@ namespace Bicep.Core.Registry
     /// <remarks>This exists because we need to inject mock clients in integration tests and because the real client constructor requires parameters.</remarks>
     public interface IContainerRegistryClientFactory
     { 
-        BicepRegistryBlobClient CreateBlobClient(Uri registryUri, string repository, TokenCredential credential);
+        ContainerRegistryBlobClient CreateBlobClient(Uri registryUri, string repository, TokenCredential credential);
     }
 }

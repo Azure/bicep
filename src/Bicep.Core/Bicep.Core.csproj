@@ -29,7 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Bicep.Core.RegistryClient\Bicep.Core.RegistryClient.csproj" />
+	  <ProjectReference Include="..\..\..\azure-sdk-for-net\sdk\containerregistry\Azure.Containers.ContainerRegistry\src\Azure.Containers.ContainerRegistry.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CoreResources.Designer.cs">
