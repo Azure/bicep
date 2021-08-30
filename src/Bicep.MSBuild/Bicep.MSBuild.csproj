@@ -19,6 +19,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework" Version="16.10.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.10.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.11.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>
