@@ -7,7 +7,7 @@ namespace Bicep.Core.Configuration
 {
     public class BicepConfig
     {
-        public BicepConfig(Uri uri, string contents)
+        public BicepConfig(Uri uri, string? contents)
         {
             Uri = uri;
             Contents = contents;
@@ -15,6 +15,6 @@ namespace Bicep.Core.Configuration
 
         public Uri Uri { get; }
 
-        public string Contents { get; }
+        public string? Contents { get; }
     }
 }

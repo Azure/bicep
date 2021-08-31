@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Configuration;
@@ -33,8 +34,7 @@ namespace Bicep.LanguageServer
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
-
-        private ConfigHelper? configHelper;
+        private readonly ConcurrentDictionary<DocumentUri, ConfigHelper> activeConfigHelpers = new ConcurrentDictionary<DocumentUri, ConfigHelper>();
 
         public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider, IWorkspace workspace, IFileResolver fileResolver, IModuleRestoreScheduler scheduler)
         {
@@ -186,8 +186,10 @@ namespace Bicep.LanguageServer
             {
                 if (reloadBicepConfig)
                 {
-                    ReloadBicepConfig();
+                    ReloadBicepConfig(documentUri);
                 }
+
+                activeConfigHelpers.TryGetValue(documentUri, out ConfigHelper? configHelper);
 
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
@@ -223,7 +225,7 @@ namespace Bicep.LanguageServer
                 var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
 
                 // convert all the diagnostics to LSP diagnostics
-                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
+                var diagnostics = GetDiagnosticsFromContext(context, configHelper).ToDiagnostics(context.LineStarts);
 
                 // publish all the diagnostics
                 this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
@@ -254,19 +256,51 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void ReloadBicepConfig()
+        private void ReloadBicepConfig(DocumentUri documentUri)
         {
-            if (workspace.GetActiveBicepConfig() is BicepConfig bicepConfig)
+            var folderContainingBicepFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
+
+            if (folderContainingBicepFile is not null)
             {
-                configHelper = new ConfigHelper(bicepConfig: bicepConfig);
-            }
-            else
-            {
-                configHelper = null;
+                ConfigHelper configHelper;
+                string localBicepConfig = Path.Combine(folderContainingBicepFile, LanguageConstants.BicepConfigSettingsFileName);
+
+                if (File.Exists(localBicepConfig))
+                {
+                    if (workspace.GetBicepConfig(new Uri(localBicepConfig)) is BicepConfig bicepConfig && bicepConfig is not null)
+                    {
+                        configHelper = new ConfigHelper(bicepConfig: bicepConfig, localFolder: folderContainingBicepFile);
+                    }
+                    else
+                    {
+                        configHelper = new ConfigHelper(localFolder: folderContainingBicepFile);
+                    }
+                }
+                else
+                {
+                    string bicepConfigInCurrentDirectory = Path.Combine(Directory.GetCurrentDirectory(), LanguageConstants.BicepConfigSettingsFileName);
+                    Uri bicepConfigUri = new Uri(bicepConfigInCurrentDirectory);
+
+                    if (File.Exists(bicepConfigInCurrentDirectory) &&
+                        workspace.GetBicepConfig(bicepConfigUri) is BicepConfig bicepConfig
+                        && bicepConfig is not null)
+                    {
+                        configHelper = new ConfigHelper(bicepConfig: bicepConfig);
+                    }
+                    else
+                    {
+                        configHelper = new ConfigHelper();
+                    }
+                }
+
+                activeConfigHelpers.AddOrUpdate(
+                    documentUri,
+                    (documentUri) => configHelper,
+                    (documentUri, prevConfigHelper) => configHelper);
             }
         }
 
-        private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics(configHelper);
+        private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context, ConfigHelper? configHelper) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics(configHelper);
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<Diagnostic> diagnostics)
         {

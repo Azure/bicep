@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -15,7 +16,7 @@ namespace Bicep.Core.Workspaces
     public class Workspace : IWorkspace
     {
         private readonly IDictionary<Uri, ISourceFile> activeFiles = new Dictionary<Uri, ISourceFile>();
-        private BicepConfig? activeConfig = null;
+        private readonly ConcurrentDictionary<Uri, BicepConfig> activeBicepConfigs = new ConcurrentDictionary<Uri, BicepConfig>();
 
         public bool TryGetSourceFile(Uri fileUri, [NotNullWhen(true)] out ISourceFile? file)
             => activeFiles.TryGetValue(fileUri, out file);
@@ -28,12 +29,27 @@ namespace Bicep.Core.Workspaces
         public ImmutableDictionary<Uri, ISourceFile> GetActiveSourceFilesByUri()
             => activeFiles.ToImmutableDictionary();
 
-        public void UpsertActiveBicepConfig(BicepConfig? bicepConfig)
+        public void UpsertBicepConfig(Uri uri, BicepConfig bicepConfig)
         {
-            activeConfig = bicepConfig;
+            activeBicepConfigs.AddOrUpdate(
+                uri,
+                (uri) => bicepConfig,
+                (uri, prevConfig) => bicepConfig);
         }
 
-        public BicepConfig? GetActiveBicepConfig() => activeConfig;
+        public BicepConfig? GetBicepConfig(Uri uri)
+        {
+            activeBicepConfigs.TryGetValue(uri, out BicepConfig? bicepConfig);
+            return bicepConfig;
+        }
+
+        public void RemoveBicepConfig(Uri uri)
+        {
+            if (activeBicepConfigs.ContainsKey(uri))
+            {
+                activeBicepConfigs.TryRemove(uri, out _);
+            }
+        }
 
         public (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFiles(IEnumerable<ISourceFile> files)
         {

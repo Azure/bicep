@@ -21,7 +21,7 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public IConfigurationRoot Config { get; private set; }
 
-        public ConfigHelper(bool loadDefaultConfig = false, BicepConfig? bicepConfig = null)
+        public ConfigHelper(bool loadDefaultConfig = false, BicepConfig? bicepConfig = null, string? localFolder = null)
         {
             if (loadDefaultConfig)
             {
@@ -29,7 +29,8 @@ namespace Bicep.Core.Configuration
             }
             else
             {
-                this.Config = BuildConfig(Directory.GetCurrentDirectory(), bicepConfig);
+                localFolder = localFolder ?? Directory.GetCurrentDirectory();
+                this.Config = BuildConfig(localFolder, bicepConfig);
             }
         }
 
