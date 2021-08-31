@@ -1173,6 +1173,35 @@
     }
   },
   {
+    "label": "res-expressroute-gateway",
+    "kind": "snippet",
+    "detail": "ExpressRoute Gateway",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource expressRouteGateways 'Microsoft.Network/expressRouteGateways@2021-02-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    virtualHub: {\n      id: 'virtualHub.id'\n    }\n    autoScaleConfiguration: {\n      bounds: {\n        min: 1\n        max: 1\n      }\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-expressroute-gateway",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:expressRouteGateways} 'Microsoft.Network/expressRouteGateways@2021-02-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    virtualHub: {\n      id: ${3:'virtualHub.id'}\n    }\n    autoScaleConfiguration: {\n      bounds: {\n        min: ${4|1,2,3,4,5,6,7,8|}\n        max: ${5|1,2,3,4,5,6,7,8|}\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-expressroute-gateway"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-firewall",
     "kind": "snippet",
     "detail": "Azure Firewall",
