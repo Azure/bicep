@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -39,17 +38,6 @@ namespace Bicep.LanguageServer.Handlers
             var requestEndOffset = request.Range.Start != request.Range.End
                 ? PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.End)
                 : requestStartOffset;
-
-            IEnumerable<IDiagnostic> diagnostics;
-
-            try
-            {
-                diagnostics = compilationContext.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
-            }
-            catch
-            {
-                return Task.FromResult(new CommandOrCodeActionContainer());
-            }
 
             var quickFixes = compilationContext.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics()
                 .Where(fixable =>
