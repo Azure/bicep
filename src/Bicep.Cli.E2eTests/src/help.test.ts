@@ -1,4 +1,6 @@
-const runBicepCommand = require("../command");
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import { runBicepCommand } from "./command";
 
 describe("bicep --help", () => {
   it("should output help information", () => {

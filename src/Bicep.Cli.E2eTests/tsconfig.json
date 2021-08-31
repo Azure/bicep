@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "outDir": "out",
+        "lib": ["es2016"],
+        "sourceMap": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true
+    },
+    "include": ["src"]
+}
