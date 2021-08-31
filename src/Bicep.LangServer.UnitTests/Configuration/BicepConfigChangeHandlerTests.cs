@@ -20,24 +20,18 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {
-    // Search for bicepconfig.json in DiscoverLocalConfigurationFile(..) in ConfigHelper starts from current directory.
-    // In the below tests, we'll explicitly set the current directory and disable running tests in parallel to avoid conflicts
     [TestClass]
-    [DoNotParallelize]
     public class BicepConfigChangeHandlerTests
     {
-        private readonly BicepConfigChangeHandler bicepConfigChangeHandler = new();
-        private readonly string CurrentDirectory = Directory.GetCurrentDirectory();
-
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRefreshCompilation()
         {
-            string bicepFileContents = "param storageAccountName string = 'testAccount'";
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
-            string bicepConfigFileContents = @"{
+            var bicepConfigFileContents = @"{
               ""analyzers"": {
                 ""core"": {
                   ""verbose"": false,
@@ -52,10 +46,10 @@ namespace Bicep.LangServer.UnitTests.Configuration
             }";
 
             RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
-                                                         bicepConfigFileContents,
-                                                         saveBicepConfigFile: true,
-                                                         out Mock<ITextDocumentLanguageServer> document,
-                                                         out Container<Diagnostic>? diagnostics);
+                                                       bicepConfigFileContents,
+                                                       saveBicepConfigFile: true,
+                                                       out Mock<ITextDocumentLanguageServer> document,
+                                                       out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().NotBeNullOrEmpty();
             diagnostics!.Count().Should().Be(1);
@@ -77,9 +71,9 @@ namespace Bicep.LangServer.UnitTests.Configuration
         [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
         {
-            string bicepFileContents = "param storageAccountName string = 'testAccount'";
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
-            string bicepConfigFileContents = @"{
+            var bicepConfigFileContents = @"{
               ""analyzers"": {
                 ""core"": {
                   ""verbose"": false,
@@ -90,10 +84,10 @@ namespace Bicep.LangServer.UnitTests.Configuration
             }";
 
             RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
-                                                         bicepConfigFileContents,
-                                                         saveBicepConfigFile: true,
-                                                         out Mock<ITextDocumentLanguageServer> document,
-                                                         out Container<Diagnostic>? diagnostics);
+                                                       bicepConfigFileContents,
+                                                       saveBicepConfigFile: true,
+                                                       out Mock<ITextDocumentLanguageServer> document,
+                                                       out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().NotBeNullOrEmpty();
             diagnostics!.Count().Should().Be(1);
@@ -114,9 +108,9 @@ namespace Bicep.LangServer.UnitTests.Configuration
         [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
         {
-            string bicepFileContents = "param storageAccountName string = 'testAccount'";
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
-            string bicepConfigFileContents = @"{
+            var bicepConfigFileContents = @"{
               ""analyzers"": {
                 ""core"": {
                   ""verbose"": false,
@@ -131,10 +125,10 @@ namespace Bicep.LangServer.UnitTests.Configuration
             }";
 
             RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
-                                                         bicepConfigFileContents,
-                                                         saveBicepConfigFile: true,
-                                                         out Mock<ITextDocumentLanguageServer> document,
-                                                         out Container<Diagnostic>? diagnostics);
+                                                       bicepConfigFileContents,
+                                                       saveBicepConfigFile: true,
+                                                       out Mock<ITextDocumentLanguageServer> document,
+                                                       out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().NotBeNullOrEmpty();
             diagnostics!.Count().Should().Be(1);
@@ -157,7 +151,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRefreshCompilation()
         {
-            string bicepConfigFileContents = @"{
+            var bicepConfigFileContents = @"{
               ""analyzers"": {
                 ""core"": {
                   ""verbose"": false,
@@ -172,10 +166,10 @@ namespace Bicep.LangServer.UnitTests.Configuration
             }";
 
             RefreshCompilationOfSourceFilesInWorkspace(string.Empty,
-                                                         bicepConfigFileContents,
-                                                         saveBicepConfigFile: true,
-                                                         out Mock<ITextDocumentLanguageServer> document,
-                                                         out Container<Diagnostic>? diagnostics);
+                                                       bicepConfigFileContents,
+                                                       saveBicepConfigFile: true,
+                                                       out _,
+                                                       out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().BeNullOrEmpty();
         }
@@ -183,13 +177,13 @@ namespace Bicep.LangServer.UnitTests.Configuration
         [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
         {
-            string bicepFileContents = "param storageAccountName string = 'testAccount'";
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
             RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
-                                                         string.Empty,
-                                                         saveBicepConfigFile: false,
-                                                         out Mock<ITextDocumentLanguageServer> document,
-                                                         out Container<Diagnostic>? diagnostics);
+                                                       string.Empty,
+                                                       saveBicepConfigFile: false,
+                                                       out Mock<ITextDocumentLanguageServer> document,
+                                                       out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().NotBeNullOrEmpty();
             diagnostics!.Count().Should().Be(1);
@@ -214,30 +208,26 @@ namespace Bicep.LangServer.UnitTests.Configuration
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             ILanguageServerFacade server = BicepCompilationManagerHelper.CreateMockServer(document).Object;
 
-            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var workspace = new Workspace();
 
             var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
             bicepCompilationManager.UpsertCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
 
-            DocumentUri bicepConfigDocumentUri = DocumentUri.From("some_path");
+            var bicepConfigDocumentUri = DocumentUri.From("some_path");
 
             if (saveBicepConfigFile)
             {
-                string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents);
-                Directory.SetCurrentDirectory(Path.GetDirectoryName(bicepConfigFilePath)!);
+                var directoryContainingBicepFile = Path.GetDirectoryName(bicepFilePath);
+                var bicepConfigFilePath = Path.Combine(directoryContainingBicepFile!, "bicepconfig.json");
+                File.WriteAllText(bicepConfigFilePath, bicepConfigFileContents);
+                FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents);
                 bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             }
 
             BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(bicepCompilationManager, bicepConfigDocumentUri.ToUri(), workspace, bicepConfigFileContents);
 
             diagnostics = receivedParams?.Diagnostics;
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            Directory.SetCurrentDirectory(CurrentDirectory);
         }
     }
 }
