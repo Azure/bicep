@@ -84,7 +84,7 @@ namespace Bicep.Core.Registry
 
             manifestStream.Position = 0;
             // BUG: the client closes the stream :(
-            var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions(ManifestMediaType.OciManifest, moduleReference.Tag));
+            var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions() { Tag = moduleReference.Tag });
         }
 
         public string GetLocalPackageDirectory(OciArtifactModuleReference reference)
