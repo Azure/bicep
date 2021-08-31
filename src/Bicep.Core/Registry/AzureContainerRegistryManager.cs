@@ -67,7 +67,7 @@ namespace Bicep.Core.Registry
             config.ResetStream();
             var configUploadResult = await blobClient.UploadBlobAsync(config.Stream);
 
-            var layerDescriptors = new List<OciDescriptor>(layers.Length);
+            var layerDescriptors = new List<ArtifactBlobDescriptor>(layers.Length);
             foreach (var layer in layers)
             {
                 layer.ResetStream();
@@ -78,9 +78,11 @@ namespace Bicep.Core.Registry
                 var layerUploadResult = await blobClient.UploadBlobAsync(layer.Stream);
             }
 
-            var manifest = new OciManifest(2, configDescriptor, layerDescriptors);
+            var manifest = new OciManifest(configDescriptor, layerDescriptors);
             using var manifestStream = new MemoryStream();
-            OciManifestSerialization.SerializeManifest(manifestStream, manifest);
+
+            // TODO: do this serialization in an overload on blobClient
+            //OciManifestSerialization.SerializeManifest(manifestStream, manifest);
 
             manifestStream.Position = 0;
             // BUG: the client closes the stream :(
@@ -151,14 +153,15 @@ namespace Bicep.Core.Registry
             // the SDK doesn't expose all the manifest properties we need
             // so we need to deserialize the manifest ourselves to get everything
             var stream = manifestResponse.Value.Content;
-            stream.Position = 0;
-            return DeserializeManifest(stream);
+            // TODO: Get this from the DownloadManifest overload
+            //stream.Position = 0;
+            //return DeserializeManifest(stream);
         }
 
         private static async Task ProcessManifest(ContainerRegistryBlobClient client, OciManifest manifest, string modulePath)
         {
             ProcessConfig(manifest.Config);
-            if (manifest.Layers.Length != 1)
+            if (manifest.Layers.Count != 1)
             {
                 throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
             }
@@ -168,7 +171,7 @@ namespace Bicep.Core.Registry
             await ProcessLayer(client, layer, modulePath);
         }
 
-        private static async Task ProcessLayer(ContainerRegistryBlobClient client, OciDescriptor layer, string modulePath)
+        private static async Task ProcessLayer(ContainerRegistryBlobClient client, ArtifactBlobDescriptor layer, string modulePath)
         {
             if(!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
             {
@@ -191,7 +194,7 @@ namespace Bicep.Core.Registry
             await blobResult.Value.Content.CopyToAsync(fileStream);
         }
 
-        private static void ProcessConfig(OciDescriptor config)
+        private static void ProcessConfig(ArtifactBlobDescriptor config)
         {
             // media types are case insensitive
             if(!string.Equals(config.MediaType, BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
@@ -205,18 +208,18 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private static OciManifest DeserializeManifest(Stream stream)
-        {
-            try
-            {
+        //private static OciManifest DeserializeManifest(Stream stream)
+        //{
+        //    try
+        //    {
 
-                return OciManifestSerialization.DeserializeManifest(stream);
-            }
-            catch(Exception exception)
-            {
-                throw new InvalidModuleException("Unable to deserialize the module manifest.", exception);
-            }
-        }
+        //        return OciManifestSerialization.DeserializeManifest(stream);
+        //    }
+        //    catch(Exception exception)
+        //    {
+        //        throw new InvalidModuleException("Unable to deserialize the module manifest.", exception);
+        //    }
+        //}
 
         private class AcrManagerException : Exception
         {

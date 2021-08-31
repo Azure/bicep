@@ -9,18 +9,15 @@ namespace Bicep.Core.Registry.Oci
 {
     public class StreamDescriptor
     {
-        public StreamDescriptor(Stream stream, string mediaType, IDictionary<string, string>? annotations = null)
+        public StreamDescriptor(Stream stream, string mediaType)
         {
             Stream = stream;
             MediaType = mediaType;
-            Annotations = annotations?.ToImmutableDictionary() ?? ImmutableDictionary<string, string>.Empty;
         }
 
         public Stream Stream { get; }
 
         public string MediaType { get; }
-
-        public ImmutableDictionary<string, string> Annotations { get; }
 
         public void ResetStream() => this.Stream.Position = 0;
     }

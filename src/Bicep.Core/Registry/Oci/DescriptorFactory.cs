@@ -5,6 +5,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System;
 using System.Text;
+using Azure.Containers.ContainerRegistry.Specialized;
 
 namespace Bicep.Core.Registry.Oci
 {
@@ -13,14 +14,14 @@ namespace Bicep.Core.Registry.Oci
         public const string AlgorithmIdentifierSha256 = "sha256";
         public const string AlgorithmIdentifierSha512 = "sha512";
 
-        public static OciDescriptor CreateDescriptor(string algorithmIdentifier, StreamDescriptor streamDescriptor)
+        public static ArtifactBlobDescriptor CreateDescriptor(string algorithmIdentifier, StreamDescriptor streamDescriptor)
         {
             var digest = ComputeDigest(algorithmIdentifier, streamDescriptor.Stream);
 
-            return new OciDescriptor(streamDescriptor.MediaType, digest, streamDescriptor.Stream.Length, streamDescriptor.Annotations);
+            return new ArtifactBlobDescriptor(streamDescriptor.MediaType, digest, streamDescriptor.Stream.Length);
         }
 
-        public static string ComputeDigest(string algorithmIdentifier, Stream stream)
+        private static string ComputeDigest(string algorithmIdentifier, Stream stream)
         {
             using var algorithm = CreateHashAlgorithm(algorithmIdentifier);
             var hashValue = algorithm.ComputeHash(stream);
