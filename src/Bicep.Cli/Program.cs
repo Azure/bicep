@@ -44,6 +44,7 @@ namespace Bicep.Cli
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
+
             var program = new Program(new InvocationContext(
                 AzResourceTypeProvider.CreateWithAzTypes(),
                 Console.Out,

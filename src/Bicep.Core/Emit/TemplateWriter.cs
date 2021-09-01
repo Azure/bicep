@@ -19,6 +19,7 @@ using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Semantics.Metadata;
+using System.Diagnostics;
 
 namespace Bicep.Core.Emit
 {
@@ -596,6 +597,7 @@ namespace Bicep.Core.Emit
                     {
                         case (false, _):
                             jsonWriter.WriteValue(resourceDependency.Name);
+                            Debug.Assert(dependency.IndexExpression is null);
                             break;
                         // dependency is on the entire resource collection
                         // write the name of the resource collection as the dependency
@@ -612,6 +614,7 @@ namespace Bicep.Core.Emit
                     {
                         case (false, _):
                             jsonWriter.WriteValue(moduleDependency.Name);
+                            Debug.Assert(dependency.IndexExpression is null);
                             break;
                         // dependency is on the entire resource collection
                         // write the name of the resource collection as the dependency

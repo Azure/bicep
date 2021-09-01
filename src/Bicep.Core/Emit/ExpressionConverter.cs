@@ -251,7 +251,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private LanguageExpression? ConvertModulePropertyAccess(ModuleSymbol moduleSymbol, SyntaxBase? indexExpression, string propertyName)
+        private LanguageExpression? ConvertModulePropertyAccess(ModuleSymbol moduleSymbol, string propertyName)
         {
             switch (propertyName)
             {
@@ -290,7 +290,7 @@ namespace Bicep.Core.Emit
             if (propertyAccess.BaseExpression is VariableAccessSyntax modulePropVariableAccess &&
                 context.SemanticModel.GetSymbolInfo(modulePropVariableAccess) is ModuleSymbol moduleSymbol &&
                 CreateConverterForIndexReplacement(GetModuleNameSyntax(moduleSymbol), null, propertyAccess)
-                    .ConvertModulePropertyAccess(moduleSymbol, null, propertyAccess.PropertyName.IdentifierName) is { } moduleConvertedSingle)
+                    .ConvertModulePropertyAccess(moduleSymbol, propertyAccess.PropertyName.IdentifierName) is { } moduleConvertedSingle)
             {
                 // we are doing property access on a single module
                 // and we are dealing with special case properties
@@ -301,7 +301,7 @@ namespace Bicep.Core.Emit
                 modulePropArrayAccess.BaseExpression is VariableAccessSyntax moduleArrayVariableAccess &&
                 context.SemanticModel.GetSymbolInfo(moduleArrayVariableAccess) is ModuleSymbol moduleCollectionSymbol &&
                 CreateConverterForIndexReplacement(GetModuleNameSyntax(moduleCollectionSymbol), modulePropArrayAccess.IndexExpression, propertyAccess)
-                    .ConvertModulePropertyAccess(moduleCollectionSymbol, modulePropArrayAccess.IndexExpression, propertyAccess.PropertyName.IdentifierName) is { } moduleConvertedCollection)
+                    .ConvertModulePropertyAccess(moduleCollectionSymbol, propertyAccess.PropertyName.IdentifierName) is { } moduleConvertedCollection)
             {
 
                 // we are doing property access on an array access of a module collection
