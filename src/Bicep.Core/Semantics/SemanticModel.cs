@@ -71,7 +71,7 @@ namespace Bicep.Core.Semantics
             this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
 
             // lazy load single use diagnostic set
-            this.allDiagnostics = new Lazy<IEnumerable<IDiagnostic>>(() => AssembleDiagnostics(default));
+            this.allDiagnostics = new Lazy<IEnumerable<IDiagnostic>>(() => AssembleDiagnostics());
 
             this.parameterTypePropertiesLazy = new Lazy<ImmutableArray<TypeProperty>>(() =>
             {
@@ -166,9 +166,9 @@ namespace Bicep.Core.Semantics
         /// Gets all the analyzer diagnostics unsorted.
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics(ConfigHelper? overrideConfig = default)
+        public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics()
         {
-            var diagnostics = LinterAnalyzer.Analyze(this, overrideConfig);
+            var diagnostics = LinterAnalyzer.Analyze(this);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             diagnosticWriter.WriteMultiple(diagnostics);
@@ -179,20 +179,16 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Cached diagnostics from compilation
         /// </summary>
-        public IEnumerable<IDiagnostic> GetAllDiagnostics(ConfigHelper? overrideConfig = default)
+        public IEnumerable<IDiagnostic> GetAllDiagnostics()
         {
-            if (overrideConfig == default)
-            {
-                return allDiagnostics.Value;
-            }
-            return AssembleDiagnostics(overrideConfig);
+            return AssembleDiagnostics();
         }
 
-        private IEnumerable<IDiagnostic> AssembleDiagnostics(ConfigHelper? overrideConfig)
+        private IEnumerable<IDiagnostic> AssembleDiagnostics()
         {
             return GetParseDiagnostics()
             .Concat(GetSemanticDiagnostics())
-            .Concat(GetAnalyzerDiagnostics(overrideConfig))
+            .Concat(GetAnalyzerDiagnostics())
             .OrderBy(diag => diag.Span.Position);
         }
 

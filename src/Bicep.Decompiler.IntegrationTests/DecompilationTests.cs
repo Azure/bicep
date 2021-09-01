@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
@@ -21,9 +20,7 @@ using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests.Configuration;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 
 namespace Bicep.Core.IntegrationTests
@@ -103,7 +100,8 @@ namespace Bicep.Core.IntegrationTests
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, bicepUri);
-            var compilation = new Compilation(typeProvider, sourceFileGrouping, null);
+            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var compilation = new Compilation(typeProvider, sourceFileGrouping, configHelper);
             var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile(new ConfigHelper().GetDisabledLinterConfig());
 
             using (new AssertionScope())

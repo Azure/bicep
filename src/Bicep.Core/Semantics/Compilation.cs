@@ -56,7 +56,7 @@ namespace Bicep.Core.Semantics
         public IReadOnlyDictionary<BicepFile, IEnumerable<IDiagnostic>> GetAllDiagnosticsByBicepFile(ConfigHelper? overrideConfig = default)
             => SourceFileGrouping.SourceFiles.OfType<BicepFile>().ToDictionary(
                 bicepFile => bicepFile,
-                bicepFile => this.GetSemanticModel(bicepFile).GetAllDiagnostics(overrideConfig));
+                bicepFile => this.GetSemanticModel(bicepFile).GetAllDiagnostics());
 
         private T GetSemanticModel<T>(ISourceFile sourceFile) where T : class, ISemanticModel =>
             this.GetSemanticModel(sourceFile) as T ??

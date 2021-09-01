@@ -21,8 +21,9 @@ namespace Bicep.Core.IntegrationTests
         private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
         {
             var typeProvider = TestTypeHelper.CreateProviderWithTypes(definedTypes);
+            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
 
-            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), null);
+            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configHelper);
             return compilation.GetEntrypointSemanticModel();
         }
 
@@ -31,7 +32,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow(TypeSymbolValidationFlags.WarnOnTypeMismatch, DiagnosticLevel.Warning)]
         public void Type_validation_runs_on_compilation_successfully(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags),
             };
             var program = @"
@@ -50,7 +51,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
         [DataRow(TypeSymbolValidationFlags.WarnOnTypeMismatch, DiagnosticLevel.Warning)]
         public void Type_validation_runs_on_compilation_common_failures(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
@@ -66,7 +67,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
                     )),
                     new TypeProperty("nestedObj", new ObjectType(
                         "nestedObj",
-                        validationFlags, 
+                        validationFlags,
                         new [] {
                             new TypeProperty("readOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                             new TypeProperty("writeOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
@@ -123,7 +124,7 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
         [DataRow(TypeSymbolValidationFlags.WarnOnTypeMismatch, DiagnosticLevel.Warning)]
         public void Type_validation_narrowing_on_union_types(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("stringOrInt", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("unspecifiedStringOrInt", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
@@ -168,7 +169,7 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
         [DataRow(TypeSymbolValidationFlags.WarnOnTypeMismatch, DiagnosticLevel.Warning)]
         public void Type_validation_narrowing_on_discriminated_object_types(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
-            var customTypes = new [] {
+            var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", validationFlags, "discKey", new [] {
                             new ObjectType("choiceA", validationFlags, new [] {
@@ -370,7 +371,7 @@ var invalidPropAccess = objectJson.invalidProp
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
-            
+
             GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
             GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
 
@@ -383,7 +384,7 @@ var invalidPropAccess = objectJson.invalidProp
             GetTypeForNamedSymbol(model, "invalidPropAccess").Name.Should().Be("error");
 
             var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
-            model.GetAllDiagnostics(noLinterConfig).Should().SatisfyRespectively(
+            model.GetAllDiagnostics().Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP083", DiagnosticLevel.Error).And.HaveMessage("The type \"object\" does not contain property \"invalidProp\". Did you mean \"validProp\"?")
             );
         }
@@ -396,11 +397,10 @@ var invalidJson = json('{""prop"": ""value')
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
-            
+
             GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("error");
 
-            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
-            model.GetAllDiagnostics(noLinterConfig).Should().SatisfyRespectively(
+            model.GetAllDiagnostics().Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP186", DiagnosticLevel.Error).And.HaveMessage("Unable to parse literal JSON value. Please ensure that it is well-formed.")
             );
         }
@@ -408,7 +408,7 @@ var invalidJson = json('{""prop"": ""value')
         private static TypeSymbol GetTypeForNamedSymbol(SemanticModel model, string symbolName)
         {
             var symbol = model.Root.GetDeclarationsByName(symbolName).Single();
-                
+
             return symbol.Type;
         }
     }

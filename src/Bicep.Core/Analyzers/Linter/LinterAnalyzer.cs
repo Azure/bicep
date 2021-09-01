@@ -21,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter
         public const string AnalyzerName = "core";
         public static string LinterEnabledSetting => $"{SettingsRoot}:{AnalyzerName}:enabled";
         public static string LinterVerboseSetting => $"{SettingsRoot}:{AnalyzerName}:verbose";
-        private ConfigHelper activeConfigHelper;
+        private ConfigHelper configHelper;
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
         private ImmutableArray<IDiagnostic> RuleCreationErrors;
 
@@ -30,12 +30,12 @@ namespace Bicep.Core.Analyzers.Linter
 
         public LinterAnalyzer(ConfigHelper configHelper)
         {
-            this.activeConfigHelper = configHelper;
+            this.configHelper = configHelper;
             (RuleSet, RuleCreationErrors) = CreateLinterRules();
         }
 
-        private bool LinterEnabled => this.activeConfigHelper.GetValue(LinterEnabledSetting, true);
-        private bool LinterVerbose => this.activeConfigHelper.GetValue(LinterVerboseSetting, true);
+        private bool LinterEnabled => this.configHelper.GetValue(LinterEnabledSetting, true);
+        private bool LinterVerbose => this.configHelper.GetValue(LinterVerboseSetting, true);
 
         private (ImmutableArray<IBicepAnalyzerRule> rules, ImmutableArray<IDiagnostic> errors) CreateLinterRules()
         {
@@ -70,18 +70,11 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => RuleSet;
 
-        public IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel) => Analyze(semanticModel, default);
-
-        internal IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel, ConfigHelper? overrideConfig = default)
+        public IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel)
         {
-            if (overrideConfig is not null)
-            {
-                this.activeConfigHelper = overrideConfig;
-            }
-
             var diagnostics = new List<IDiagnostic>();
 
-            this.RuleSet.ForEach(r => r.Configure(this.activeConfigHelper.Config));
+            this.RuleSet.ForEach(r => r.Configure(this.configHelper.Config));
 
             if (this.LinterEnabled)
             {
@@ -106,7 +99,7 @@ namespace Bicep.Core.Analyzers.Linter
                                 new TextSpan(0, 0),
                                 DiagnosticLevel.Info,
                                 "Linter Disabled",
-                                string.Format(CoreResources.LinterDisabledFormatMessage, this.activeConfigHelper.CustomSettingsFileName),
+                                string.Format(CoreResources.LinterDisabledFormatMessage, this.configHelper.CustomSettingsFileName),
                                 null, null));
                 }
             }
@@ -115,9 +108,9 @@ namespace Bicep.Core.Analyzers.Linter
 
         private IDiagnostic GetConfigurationDiagnostic()
         {
-            var configMessage = this.activeConfigHelper.CustomSettingsFileName == default ?
+            var configMessage = this.configHelper.CustomSettingsFileName == default ?
                                     CoreResources.BicepConfigNoCustomSettingsMessage
-                                    : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, this.activeConfigHelper.CustomSettingsFileName);
+                                    : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, this.configHelper.CustomSettingsFileName);
 
             return new AnalyzerDiagnostic(AnalyzerName,
                                             new TextSpan(0, 0),

@@ -41,11 +41,12 @@ namespace Bicep.LangServer.UnitTests
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
-            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, null);
+            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, configHelper);
 
             context.Compilation.Should().NotBeNull();
             // TODO: remove Where when the support of modifiers is dropped.
-            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics(new ConfigHelper().GetDisabledLinterConfig()).Should().BeEmpty();
+            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
             context.LineStarts.Should().NotBeEmpty();
             context.LineStarts[0].Should().Be(0);
         }
