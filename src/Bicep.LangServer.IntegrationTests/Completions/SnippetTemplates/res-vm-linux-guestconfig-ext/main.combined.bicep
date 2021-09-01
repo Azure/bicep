@@ -3,14 +3,14 @@
 
 // Guest configuration extension for Linux virtual machine
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-  name: /*${1:'name'}*/'name'
+  name: 'name'
   location: resourceGroup().location
   identity: {
     type:'SystemAssigned'
   }
 }
 
-resource /*${2:linuxVMGuestConfigExtension}*/linuxVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+resource linuxVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   parent: virtualMachine
   name: 'AzurePolicyforLinux'
   location: resourceGroup().location
