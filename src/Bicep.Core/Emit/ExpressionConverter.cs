@@ -824,7 +824,6 @@ namespace Bicep.Core.Emit
                 return new JTokenExpression(symbolName);
             }
 
-            // TODO - could probably optimize the case where indexExpression is an integer literal and avoid using format() unneccessarily.
             return CreateFunction(
                 "format",
                 new JTokenExpression($"{symbolName}[{{0}}]"),

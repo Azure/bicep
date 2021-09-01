@@ -38,7 +38,6 @@ namespace Bicep.Cli.IntegrationTests
                     TestTypeHelper.CreateEmptyProvider(),
                     @out,
                     err,
-                    EmitterSettingsHelper.DefaultTestSettings,
                     features: settings.Features,
                     clientFactory: settings.ClientFactory)).RunAsync(args));
 

@@ -44,18 +44,10 @@ namespace Bicep.Cli
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
-
-            var settings = new EmitterSettings(ThisAssembly.AssemblyFileVersion, enableSymbolicNames: false);
-            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL"), out var enableSymbolicNames) && enableSymbolicNames)
-            {
-                settings = new EmitterSettings(settings.AssemblyFileVersion, enableSymbolicNames: true);
-            }
-
             var program = new Program(new InvocationContext(
                 AzResourceTypeProvider.CreateWithAzTypes(),
                 Console.Out,
                 Console.Error,
-                settings,
                 features: null,
                 clientFactory: null));
 
