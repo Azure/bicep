@@ -41,7 +41,7 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
             }
 
-            var compilation = await compilationService.CompileAsync(inputPath);
+            var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
             if (diagnosticLogger.ErrorCount < 1)
             {

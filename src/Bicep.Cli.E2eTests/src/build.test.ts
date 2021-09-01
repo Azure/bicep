@@ -1,10 +1,15 @@
-const path = require("path");
-const fs = require("fs");
-const runBicepCommand = require("../command");
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import * as path from "path";
+import * as fs from "fs";
+import { runBicepCommand } from "./command";
 
 const exampleDirectory = path.resolve(__dirname, "../examples/101/aks/");
 
-function getExampleFilePath(exampleFileName, exampleFileExtension) {
+function getExampleFilePath(
+  exampleFileName: string,
+  exampleFileExtension: string
+) {
   return path.join(
     exampleDirectory,
     `${exampleFileName}.${exampleFileExtension}`
@@ -26,7 +31,11 @@ describe("bicep build", () => {
     expect(jsonContents.length).toBeGreaterThan(0);
 
     // Building with --stdout should emit consistent result.
-    const stdoutResult = runBicepCommand(["build", "--stdout", exampleBicepFile]);
+    const stdoutResult = runBicepCommand([
+      "build",
+      "--stdout",
+      exampleBicepFile,
+    ]);
     expect(stdoutResult.status).toBe(0);
     expect(stdoutResult.stdout).toBe(jsonContents);
   });

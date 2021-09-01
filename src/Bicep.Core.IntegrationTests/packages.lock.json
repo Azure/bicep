@@ -15,9 +15,9 @@
       },
       "coverlet.collector": {
         "type": "Direct",
-        "requested": "[3.0.3, )",
-        "resolved": "3.0.3",
-        "contentHash": "PdyhdzG2LK7YUEtccObPql+3OuFODaFNeYayxdPoK1eHb2StZoeQf1WMb16QrKiIdi4fs5Kog8jxXtlZOgAEuA=="
+        "requested": "[3.1.0, )",
+        "resolved": "3.1.0",
+        "contentHash": "YzYqSRrjoP5lULBhTDcTOjuM4IDPPi6PhFsl4w8EI4WdZhE6llt7E38Tg4CHyrS+QKwyu1+9OwkdDgluOdoBTw=="
       },
       "FluentAssertions": {
         "type": "Direct",

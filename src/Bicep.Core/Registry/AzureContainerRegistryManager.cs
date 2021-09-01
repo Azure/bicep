@@ -119,7 +119,7 @@ namespace Bicep.Core.Registry
             }
             catch (Exception exception)
             {
-                throw new AcrManagerException($"Unable to create the local module directory \"{modulePath}\".", exception);
+                throw new AcrManagerException($"Unable to create the local module directory \"{modulePath}\". {exception.Message}", exception);
             }
         }
 
