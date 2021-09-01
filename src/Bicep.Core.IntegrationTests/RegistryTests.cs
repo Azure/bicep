@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -10,15 +15,12 @@ using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -61,7 +63,8 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
+            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configHelper);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 
