@@ -49,6 +49,7 @@ namespace Bicep.Cli
                 AzResourceTypeProvider.CreateWithAzTypes(),
                 Console.Out,
                 Console.Error,
+                ThisAssembly.AssemblyFileVersion,
                 features: null,
                 clientFactory: null));
 

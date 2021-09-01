@@ -15,6 +15,7 @@ namespace Bicep.Cli
             IResourceTypeProvider resourceTypeProvider,
             TextWriter outputWriter,
             TextWriter errorWriter,
+            string assemblyFileVersion,
             IFeatureProvider? features = null,
             IContainerRegistryClientFactory? clientFactory = null)
         {
@@ -22,6 +23,7 @@ namespace Bicep.Cli
             ResourceTypeProvider = resourceTypeProvider;
             OutputWriter = outputWriter;
             ErrorWriter = errorWriter;
+            AssemblyFileVersion = assemblyFileVersion;
             Features = features ?? new FeatureProvider();
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory();
         }
@@ -32,8 +34,10 @@ namespace Bicep.Cli
 
         public TextWriter ErrorWriter { get; }
 
+        public string AssemblyFileVersion { get; }
+
         public EmitterSettings EmitterSettings
-            => new EmitterSettings(ThisAssembly.AssemblyFileVersion, enableSymbolicNames: Features.SymbolicNameCodegenEnabled);
+            => new EmitterSettings(AssemblyFileVersion, enableSymbolicNames: Features.SymbolicNameCodegenEnabled);
 
         public IFeatureProvider Features { get; }
 

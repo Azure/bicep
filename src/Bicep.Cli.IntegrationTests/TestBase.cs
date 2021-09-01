@@ -38,6 +38,7 @@ namespace Bicep.Cli.IntegrationTests
                     TestTypeHelper.CreateEmptyProvider(),
                     @out,
                     err,
+                    BicepTestConstants.DevAssemblyFileVersion,
                     features: settings.Features,
                     clientFactory: settings.ClientFactory)).RunAsync(args));
 

@@ -453,12 +453,20 @@ namespace Bicep.Core.Emit
 
         public FunctionExpression GetModuleOutputsReferenceExpression(ModuleSymbol moduleSymbol, SyntaxBase? indexExpression)
         {
-            var referenceExpression = context.Settings.EnableSymbolicNames ? GenerateSymbolicReference(moduleSymbol.Name, indexExpression) : GetFullyQualifiedResourceId(moduleSymbol);
-
+            if (context.Settings.EnableSymbolicNames)
+            {
+                return AppendProperties(
+                    CreateFunction(
+                        "reference",
+                        GenerateSymbolicReference(moduleSymbol.Name, indexExpression)),
+                    new JTokenExpression("outputs"));
+            }
+            
             return AppendProperties(
                 CreateFunction(
                     "reference",
-                    referenceExpression),
+                    GetFullyQualifiedResourceId(moduleSymbol),
+                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
                 new JTokenExpression("outputs"));
         }
 
