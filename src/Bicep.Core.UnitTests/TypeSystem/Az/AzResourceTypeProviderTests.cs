@@ -15,6 +15,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.Extensions;
 using Moq;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Configuration;
+using Bicep.Core.UnitTests.Configuration;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
@@ -27,6 +29,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName
         }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
+
+        private static ConfigHelper configHelper = new ConfigHelper().GetDisabledLinterConfig();
 
         [DataTestMethod]
         [DataRow(ResourceTypeGenerationFlags.None)]
@@ -107,7 +111,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_should_warn_for_missing_resource_types()
         {
             Compilation createCompilation(string program)
-                => new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), null);
+                    => new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configHelper);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

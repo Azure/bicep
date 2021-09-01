@@ -225,7 +225,7 @@ namespace Bicep.LanguageServer
                 var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
 
                 // convert all the diagnostics to LSP diagnostics
-                var diagnostics = GetDiagnosticsFromContext(context, configHelper).ToDiagnostics(context.LineStarts);
+                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
                 // publish all the diagnostics
                 this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
@@ -290,7 +290,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context, ConfigHelper? configHelper) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics(configHelper);
+        private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<Diagnostic> diagnostics)
         {
