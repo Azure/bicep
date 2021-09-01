@@ -38,7 +38,7 @@ namespace Bicep.Cli.Commands
             var exeName = ThisAssembly.AssemblyName;
             var versionString = GetVersionString();
 
-            var publishText = 
+            var registryText = 
 $@"
   {exeName} publish <file> --target <ref>
     Publishes the .bicep file to the module registry.
@@ -50,9 +50,15 @@ $@"
     Examples:
       bicep publish file.bicep --target oci:example.azurecr.io/hello/world:v1
 
+  {exeName} restore <file>
+    Restores external modules from the specified Bicep file to the local module cache.
+
+    Arguments:
+      <file>        The input file
+
 ";
 
-            var publishPlaceholder = this.invocationContext.Features.RegistryEnabled ? publishText : Environment.NewLine;
+            var registryPlaceholder = this.invocationContext.Features.RegistryEnabled ? registryText : Environment.NewLine;
 
             var output =
 $@"Bicep CLI version {versionString}
@@ -93,7 +99,7 @@ Usage:
       bicep decompile file.json --stdout
       bicep decompile file.json --outdir dir1
       bicep decompile file.json --outfile file.bicep
-{publishPlaceholder}  {exeName} [options]
+{registryPlaceholder}  {exeName} [options]
     Options:
       --version  -v   Shows bicep version information
       --help     -h   Shows this usage information

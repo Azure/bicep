@@ -33,20 +33,32 @@ namespace Bicep.Cli.Services
             this.decompiler = decompiler;
         }
 
-        public async Task<Compilation> CompileAsync(string inputPath)
+        public async Task RestoreAsync(string inputPath)
+        {
+            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri);
+
+            // restore is supposed to only restore the module references that are valid
+            // and not log any other errors
+            await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore));
+        }
+
+        public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri);
-
-            // module references in the file may be malformed
-            // however we still want to surface as many errors as we can for the module refs that are valid
-            // so we will try to restore modules with valid refs and skip everything else
-            // (the diagnostics will be collected during compilation)
-            if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+            if (!skipRestore)
             {
-                // modules had to be restored - recompile
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping);
+                // module references in the file may be malformed
+                // however we still want to surface as many errors as we can for the module refs that are valid
+                // so we will try to restore modules with valid refs and skip everything else
+                // (the diagnostics will be collected during compilation)
+                if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+                {
+                    // modules had to be restored - recompile
+                    sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping);
+                }
             }
 
             var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping);
@@ -70,7 +82,8 @@ namespace Bicep.Cli.Services
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
             }
 
-            _ = await CompileAsync(decompilation.entrypointUri.AbsolutePath); // to verify success we recompile and check for syntax errors.
+            // to verify success we recompile and check for syntax errors.
+            await CompileAsync(decompilation.entrypointUri.AbsolutePath, skipRestore: true); 
 
             return decompilation;
         }

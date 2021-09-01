@@ -27,6 +27,7 @@ namespace Bicep.Cli.Services
                 Constants.Command.Build => new BuildArguments(args[1..]),
                 Constants.Command.Decompile => new DecompileArguments(args[1..]),
                 Constants.Command.Publish => new PublishArguments(args[1..]),
+                Constants.Command.Restore => new RestoreArguments(args[1..]),
                 _ => null,
             };
         }
