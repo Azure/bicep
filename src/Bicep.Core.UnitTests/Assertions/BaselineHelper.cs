@@ -68,7 +68,7 @@ Found diffs between actual and expected:
             if (isBaselineUpdate)
             {
                 output.Append(@"
-Baseline has been updated.
+Baseline {2} has been updated.
 ");
             }
             else

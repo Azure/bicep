@@ -90,7 +90,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
-                JToken.Parse(dataSet.Compiled!),
+                JToken.Parse(dataSet.CompiledWithSymbolicNames!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledWithSymbolicNames),
                 actualLocation: compiledFilePath);
         }
