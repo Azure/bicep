@@ -4,15 +4,15 @@ resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {
   location: resourceGroup().location
 }
 
-resource /*${2:windowsVMGuestConfigAssignment}*/windowsVMGuestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {
+resource /*${2:guestConfigAssignment}*/guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {
   name: /*${3:'name'}*/'name'
   scope: arcEnabledMachine
   location: resourceGroup().location
   properties: {
     guestConfiguration: {
-      name: /*${3:'configurationName'}*/'configurationName'
-      assignmentType: /*${4|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}*/'ApplyAndMonitor'
-      version: /*${5:'version'}*/'1.*'
+      name: /*${4:'configurationName'}*/'configurationName'
+      assignmentType: /*${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}*/'ApplyAndMonitor'
+      version: /*${6:'version'}*/'1.*'
     }
   }
 }
