@@ -87,7 +87,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Publish_ValidFile_ShouldSucceed(DataSet dataSet)
-{
+        {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
             var registryStr = "example.com";
@@ -112,6 +112,16 @@ namespace Bicep.Cli.IntegrationTests
             using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
 
             // verify the module was published
+            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
+
+            // publish the same content again
+            var (output2, error2, result2) = await Bicep(settings, "publish", bicepFilePath, "--target", $"oci:{registryStr}/{repository}:v1");
+            result2.Should().Be(0);
+            output2.Should().BeEmpty();
+            AssertNoErrors(error2);
+
+            // we should still only have 1 module
+            expectedCompiledStream.Position = 0;
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
         }
 
