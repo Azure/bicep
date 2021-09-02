@@ -33,13 +33,13 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepBuildCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IFeatureProvider featureProvider;
+        private readonly EmitterSettings emitterSettings;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider featureProvider)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings)
             : base(LanguageConstants.Build, serializer)
         {
             this.compilationManager = compilationManager;
-            this.featureProvider = featureProvider;
+            this.emitterSettings = emitterSettings;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -85,8 +85,6 @@ namespace Bicep.LanguageServer.Handlers
 
             using (FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite))
             {
-                var emitterSettings = new EmitterSettings(ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled);
-
                 TemplateEmitter emitter = new TemplateEmitter(semanticModel, emitterSettings);
                 EmitResult result = emitter.Emit(fileStream);
 

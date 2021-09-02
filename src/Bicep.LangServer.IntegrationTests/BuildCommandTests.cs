@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using FluentAssertions;
+using Bicep.Core.Samples;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -24,6 +25,41 @@ namespace Bicep.LangServer.IntegrationTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
+
+        [TestMethod]
+        public async Task Build_command_should_generate_template()
+        {
+            var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                this.TestContext,
+                options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
+                new LanguageServer.Server.CreationOptions(
+                    ResourceTypeProvider: BuiltInTestTypes.Create(),
+                    Features: BicepTestConstants.Features,
+                    AssemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion));
+
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
+                TestContext,
+                typeof(ExamplesTests).Assembly,
+                "Bicep.Core.Samples/Resources_CRLF");
+
+            var bicepFilePath = Path.Combine(outputDirectory, "main.bicep");
+            var expectedJson = File.ReadAllText(Path.Combine(outputDirectory, "main.json"));
+
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParamsFromFile(bicepFilePath, 1));
+            await diagnosticsListener.WaitNext();
+
+            await client.Workspace.ExecuteCommand(new Command {
+                Name = "build",
+                Arguments = new JArray {
+                    bicepFilePath,
+                }
+            });
+
+            var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".json"));
+            buildCommandOutput.Should().Match(expectedJson);
+        }
 
         [TestMethod]
         public async Task Build_command_should_generate_template_with_symbolic_names_if_enabled()
@@ -36,46 +72,29 @@ namespace Bicep.LangServer.IntegrationTests
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
                     ResourceTypeProvider: BuiltInTestTypes.Create(),
-                    Features: featuresProvider));
+                    Features: featuresProvider,
+                    AssemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion));
 
-            var bicepContents = @"
-resource res1 'Test.Rp/basicTests@2020-01-01' = {
-  name: 'res1'
-}
-";
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
+                TestContext,
+                typeof(ExamplesTests).Assembly,
+                "Bicep.Core.Samples/Resources_CRLF");
 
-            var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepContents);
-            var bicepDocumentUri = DocumentUri.FromFileSystemPath(bicepFile);
+            var bicepFilePath = Path.Combine(outputDirectory, "main.bicep");
+            var expectedJson = File.ReadAllText(Path.Combine(outputDirectory, "main.symbolicnames.json"));
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepDocumentUri, bicepContents, 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParamsFromFile(bicepFilePath, 1));
             await diagnosticsListener.WaitNext();
 
             await client.Workspace.ExecuteCommand(new Command {
                 Name = "build",
                 Arguments = new JArray {
-                    bicepFile,
+                    bicepFilePath,
                 }
             });
 
-            var expectedJson = File.ReadAllText(Path.ChangeExtension(bicepFile, ".json"));
-            expectedJson.Should().Match(@"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""languageVersion"": ""1.9-experimental"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""metadata"": {
-    ""EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
-    ""_generator"": {*}
-  },
-  ""functions"": [],
-  ""resources"": {
-    ""res1"": {
-      ""type"": ""Test.Rp/basicTests"",
-      ""apiVersion"": ""2020-01-01"",
-      ""name"": ""res1""
-    }
-  }
-}");
-            
+            var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".json"));
+            buildCommandOutput.Should().Match(expectedJson);
         }
     }
 }
