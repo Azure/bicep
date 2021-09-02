@@ -34,8 +34,11 @@ namespace Bicep.Core.Emit
             this.localReplacements = localReplacements;
         }
 
-        public ExpressionConverter AppendReplacement(LocalVariableSymbol symbol, LanguageExpression replacement) =>
-            new(this.context, this.localReplacements.SetItem(symbol, replacement));
+        public ExpressionConverter AppendReplacement(LocalVariableSymbol symbol, LanguageExpression replacement)
+        {
+            // Allow local variable symbol replacements to be overwritten, as there are scenarios where we recursively generate expressions for the same index symbol
+            return new(this.context, this.localReplacements.SetItem(symbol, replacement));
+        }            
 
         /// <summary>
         /// Converts the specified bicep expression tree into an ARM template expression tree.

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Deployments.Templates.Engines;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
@@ -53,13 +54,17 @@ namespace Bicep.Core.IntegrationTests.Emit
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
-            var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
+            var outputFile = File.ReadAllText(compiledFilePath);
+            var actual = JToken.Parse(outputFile);
 
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
+
+            // validate that the template is parseable by the deployment engine
+            TemplateHelper.TemplateShouldBeValid(outputFile);
         }
 
         [DataTestMethod]
@@ -86,13 +91,17 @@ namespace Bicep.Core.IntegrationTests.Emit
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
-            var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
+            var outputFile = File.ReadAllText(compiledFilePath);
+            var actual = JToken.Parse(outputFile);
 
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.CompiledWithSymbolicNames!),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledWithSymbolicNames),
                 actualLocation: compiledFilePath);
+
+            // validate that the template is parseable by the deployment engine
+            TemplateHelper.TemplateShouldBeValid(outputFile);
         }
 
         [TestMethod]

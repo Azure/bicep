@@ -165,6 +165,9 @@ namespace Bicep.Core.Samples
                         exampleExists ? JToken.Parse(File.ReadAllText(jsonFileName)) : new JObject(),
                         example.JsonStreamName,
                         jsonFileName + ".actual");
+
+                    // validate that the template is parseable by the deployment engine
+                    TemplateHelper.TemplateShouldBeValid(generated);
                 }
             }
         }
@@ -228,6 +231,9 @@ namespace Bicep.Core.Samples
                         exampleExists ? JToken.Parse(File.ReadAllText(jsonFileName)) : new JObject(),
                         $"src/Bicep.Core.Samples/Files/{relativeJsonStreamName}",
                         jsonFileName + ".actual");
+
+                    // validate that the template is parseable by the deployment engine
+                    TemplateHelper.TemplateShouldBeValid(generated);
                 }
             }
         }
