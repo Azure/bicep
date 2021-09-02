@@ -3,6 +3,7 @@
 // $3 = 'name'
 // $4 = 'configurationName'
 // $5 = 'ApplyAndMonitor'
+// $6 = '1.*'
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'

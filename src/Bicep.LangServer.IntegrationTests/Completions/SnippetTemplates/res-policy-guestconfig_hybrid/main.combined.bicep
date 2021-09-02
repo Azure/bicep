@@ -3,7 +3,7 @@
 // $3 = 'name'
 // $4 = 'configurationName'
 // $5 = 'ApplyAndMonitor'
-// $6 = 'version'
+// $6 = '1.*'
 
 resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {
   name: 'name'
