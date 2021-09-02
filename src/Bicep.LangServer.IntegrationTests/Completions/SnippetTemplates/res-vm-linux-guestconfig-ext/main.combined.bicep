@@ -1,7 +1,6 @@
 ﻿// $1 = 'name'
 // $2 = 'linuxVMGuestConfigExtension'
 
-// Guest configuration extension for Linux virtual machine
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
   location: resourceGroup().location

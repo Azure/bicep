@@ -5,7 +5,6 @@
 // $5 = 'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'
 // $6 = 'version'
 
-// Guest configuration assignment for virtual machine
 resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {
   name: 'name'
   location: resourceGroup().location

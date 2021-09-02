@@ -4,12 +4,11 @@
 // $4 = 'configurationName'
 // $5 = 'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'
 // $6 = 'version'
-// $7 = 'parameter1[dscResourceType]dscResourceName;propertyNam'
+// $7 = 'parameter1[dscResourceType]dscResourceName;propertyName'
 // $8 = 'parameter1Value'
 // $9 = 'parameter2[dscResourceType]dscResourceName;propertyName'
 // $10 = 'parameter2Value'
 
-// Guest configuration assignment with parameters, for virtual machine
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
   location: resourceGroup().location

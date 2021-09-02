@@ -4,7 +4,6 @@
 // $4 = 'configurationName'
 // $5 = 'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'
 
-// Guest configuration assignment for virtual machine
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
   location: resourceGroup().location
