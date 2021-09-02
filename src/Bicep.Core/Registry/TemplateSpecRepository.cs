@@ -36,7 +36,7 @@ namespace Bicep.Core.Registry
             {
                 if (exception.Status == 404)
                 {
-                    throw new TemplateSpecException($"The referenced template spec does not exist.", exception);
+                    throw new TemplateSpecException($"The referenced template spec does not exist. {exception.Message}", exception);
                 }
 
                 throw new TemplateSpecException(exception.Message, exception);

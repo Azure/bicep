@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.Registry
             Invoking(async () => await repository.FindTemplateSpecByIdAsync("foo"))
                 .Should()
                 .Throw<TemplateSpecException>()
-                .WithMessage("The referenced template spec does not exist.");
+                .WithMessage("The referenced template spec does not exist. Not Found.");
         }
 
         [TestMethod]

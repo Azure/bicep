@@ -1155,7 +1155,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTemplateSpecReference(string invalidReference) => new(
                 TextSpan,
                 "BCP194",
-                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"ts:<resourceGroupName>/<templateSpecName>:<tag>\" or \"ts:<subscriptionId>/<resourceGroupName>/<templateSpecName>:<tag>\".");
+                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<resourceGroupName>/<templateSpecName>:<tag>\" or \"{ModuleReferenceSchemes.TemplateSpecs}:<subscriptionId>/<resourceGroupName>/<templateSpecName>:<tag>\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
