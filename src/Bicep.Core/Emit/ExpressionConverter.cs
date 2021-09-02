@@ -35,7 +35,7 @@ namespace Bicep.Core.Emit
         }
 
         public ExpressionConverter AppendReplacement(LocalVariableSymbol symbol, LanguageExpression replacement) =>
-            new(this.context, this.localReplacements.Add(symbol, replacement));
+            new(this.context, this.localReplacements.SetItem(symbol, replacement));
 
         /// <summary>
         /// Converts the specified bicep expression tree into an ARM template expression tree.
@@ -155,30 +155,38 @@ namespace Bicep.Core.Emit
 
         public ExpressionConverter CreateConverterForIndexReplacement(SyntaxBase nameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(nameSyntax, newContext);
-            var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(local)).Distinct().ToList();
-
-            switch (inaccessibleLocalLoops.Count)
+            try
             {
-                case 0:
-                    // moving the name expression does not produce any inaccessible locals (no locals means no loops)
-                    // regardless if there is an index expression or not, we don't need to append replacements 
-                    return this;
+                var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(nameSyntax, newContext);
+                var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(local)).Distinct().ToList();
 
-                case 1 when indexExpression != null:
-                    // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
-                    var @for = inaccessibleLocalLoops.Single();
-                    var current = this;
-                    foreach (var local in inaccessibleLocals)
-                    {
-                        var replacementValue = GetLoopVariableExpression(local, @for, this.ConvertExpression(indexExpression));
-                        current = current.AppendReplacement(local, replacementValue);
-                    }
+                switch (inaccessibleLocalLoops.Count)
+                {
+                    case 0:
+                        // moving the name expression does not produce any inaccessible locals (no locals means no loops)
+                        // regardless if there is an index expression or not, we don't need to append replacements 
+                        return this;
 
-                    return current;
+                    case 1 when indexExpression != null:
+                        // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
+                        var @for = inaccessibleLocalLoops.Single();
+                        var current = this;
+                        foreach (var local in inaccessibleLocals)
+                        {
+                            var replacementValue = GetLoopVariableExpression(local, @for, this.ConvertExpression(indexExpression));
+                            current = current.AppendReplacement(local, replacementValue);
+                        }
 
-                default:
-                    throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index replacement.");
+                        return current;
+
+                    default:
+                        throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index replacement.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.ToString());
+                throw;
             }
         }
 
