@@ -1,8 +1,8 @@
 ﻿// $1 = 'name'
-// $2 = 'guestConfigAssignment'
+// $2 = guestConfigAssignment
 // $3 = 'name'
 // $4 = 'configurationName'
-// $5 = 'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'
+// $5 = 'ApplyAndMonitor'
 // $6 = 'version'
 
 resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {

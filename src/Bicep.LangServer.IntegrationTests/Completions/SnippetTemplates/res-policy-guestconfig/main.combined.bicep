@@ -1,8 +1,8 @@
 ﻿// $1 = 'name'
-// $2 = 'guestConfigAssignment'
+// $2 = guestConfigAssignment
 // $3 = 'name'
 // $4 = 'configurationName'
-// $5 = 'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'
+// $5 = 'ApplyAndMonitor'
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'

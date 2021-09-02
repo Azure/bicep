@@ -1,5 +1,5 @@
 ﻿// $1 = 'name'
-// $2 = 'windowsVMGuestConfigExtension'
+// $2 = windowsVMGuestConfigExtension
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
