@@ -106,6 +106,15 @@
           "System.Threading.Tasks.Extensions": "4.5.2"
         }
       },
+      "Azure.ResourceManager.Resources": {
+        "type": "Transitive",
+        "resolved": "1.0.0-preview.2",
+        "contentHash": "dCFubyUeVaVGVn8+/gOAZ/Zt3YASDwOrs5eJMJNC3/N4AgDZqlF5LQ5a5gR19L6ZEQcIO/ZkMO1NdOrZzQ3SkQ==",
+        "dependencies": {
+          "Azure.Core": "1.5.0",
+          "System.Text.Json": "4.6.0"
+        }
+      },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
         "resolved": "1.0.0",
@@ -296,6 +305,7 @@
           "Azure.Deployments.Expression": "1.0.207",
           "Azure.Deployments.Templates": "1.0.207",
           "Azure.Identity": "1.4.0",
+          "Azure.ResourceManager.Resources": "1.0.0-preview.2",
           "Bicep.Core.RegistryClient": "1.0.0",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.Configuration.Binder": "5.0.0",

@@ -26,11 +26,14 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        protected record InvocationSettings(IFeatureProvider Features, IContainerRegistryClientFactory ClientFactory);
+        protected record InvocationSettings(IFeatureProvider Features, IContainerRegistryClientFactory ClientFactory, ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory);
 
         protected static Task<(string output, string error, int result)> Bicep(params string[] args) => Bicep(CreateDefaultSettings(), args);
 
-        protected static InvocationSettings CreateDefaultSettings() => new(Features: BicepTestConstants.Features, ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object);
+        protected static InvocationSettings CreateDefaultSettings() => new(
+            Features: BicepTestConstants.Features,
+            ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object,
+            TemplateSpecRepositoryFactory: Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
         protected static Task<(string output, string error, int result)> Bicep(InvocationSettings settings, params string[] args) =>
             TextWriterHelper.InvokeWriterAction((@out, err) =>
@@ -40,7 +43,8 @@ namespace Bicep.Cli.IntegrationTests
                     err,
                     BicepTestConstants.DevAssemblyFileVersion,
                     features: settings.Features,
-                    clientFactory: settings.ClientFactory)).RunAsync(args));
+                    clientFactory: settings.ClientFactory,
+                    templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args));
 
         protected static void AssertNoErrors(string error)
         {
@@ -50,9 +54,9 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        protected static IEnumerable<string> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory)
+        protected static IEnumerable<string> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
         {
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.Features));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.Features));
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping);
 

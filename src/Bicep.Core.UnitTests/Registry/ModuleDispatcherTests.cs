@@ -99,9 +99,9 @@ namespace Bicep.Core.UnitTests.Registry
             mock.Setup(m => m.IsModuleRestoreRequired(validRef2)).Returns(false);
             mock.Setup(m => m.IsModuleRestoreRequired(validRef3)).Returns(true);
 
-            mock.Setup(m => m.TryGetLocalModuleEntryPointPath(It.IsAny<Uri>(), validRef, out @null))
+            mock.Setup(m => m.TryGetLocalModuleEntryPointUri(It.IsAny<Uri>(), validRef, out @null))
                 .Returns(new Uri("untitled://validRef"));
-            mock.Setup(m => m.TryGetLocalModuleEntryPointPath(It.IsAny<Uri>(), validRef3, out @null))
+            mock.Setup(m => m.TryGetLocalModuleEntryPointUri(It.IsAny<Uri>(), validRef3, out @null))
                 .Returns(new Uri("untitled://validRef3"));
 
             mock.Setup(m => m.RestoreModules(It.IsAny<IEnumerable<ModuleReference>>()))

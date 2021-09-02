@@ -104,6 +104,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IFeatureProvider>(services => creationOptions.Features ?? new FeatureProvider());
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
+            services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();

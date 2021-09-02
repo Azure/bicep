@@ -46,12 +46,13 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_SingleFile_ShouldSucceed(DataSet dataSet)
         {
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasModulesToPublish), clientFactory);
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
 
             using (new AssertionScope())
@@ -61,7 +62,7 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
-            if (dataSet.HasModulesToPublish)
+            if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
                 Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();
@@ -86,10 +87,11 @@ namespace Bicep.Cli.IntegrationTests
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasModulesToPublish), clientFactory);
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "build", "--stdout", bicepFilePath);
 
@@ -100,7 +102,7 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
-            if (dataSet.HasModulesToPublish)
+            if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
                 Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();
@@ -120,15 +122,16 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithModulesToPublish), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Valid_SingleFile_After_Restore_Should_Succeed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasModulesToPublish), clientFactory);
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
 
             var (restoreOutput, restoreError, restoreResult) = await Bicep(settings, "restore", bicepFilePath);
             using (new AssertionScope())
@@ -166,7 +169,8 @@ namespace Bicep.Cli.IntegrationTests
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var diagnostics = GetAllDiagnostics(bicepFilePath, CreateDefaultSettings().ClientFactory);
+            var defaultSettings = CreateDefaultSettings();
+            var diagnostics = GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep("build", bicepFilePath);
 
@@ -190,7 +194,8 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Be(1);
             output.Should().BeEmpty();
 
-            var diagnostics = GetAllDiagnostics(bicepFilePath, CreateDefaultSettings().ClientFactory);
+            var defaultSettings = CreateDefaultSettings();
+            var diagnostics = GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
             error.Should().ContainAll(diagnostics);
         }
 
@@ -291,9 +296,9 @@ output myOutput string = 'hello!'
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
 
-        private static IEnumerable<object[]> GetValidDataSetsWithModulesToPublish() => DataSets
+        private static IEnumerable<object[]> GetValidDataSetsWithExternalModules() => DataSets
             .AllDataSets
-            .Where(ds => ds.IsValid && ds.HasModulesToPublish)
+            .Where(ds => ds.IsValid && ds.HasExternalModules)
             .ToDynamicTestData();
     }
 }

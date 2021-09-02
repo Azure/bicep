@@ -11,12 +11,14 @@ namespace Bicep.Core.Registry
     {
         private readonly IFileResolver fileResolver;
         private readonly IContainerRegistryClientFactory clientFactory;
+        private readonly ITemplateSpecRepositoryFactory templateSpecRepositoryFactory;
         private readonly IFeatureProvider features;
 
-        public DefaultModuleRegistryProvider(IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features)
+        public DefaultModuleRegistryProvider(IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProvider features)
         {
             this.fileResolver = fileResolver;
             this.clientFactory = clientFactory;
+            this.templateSpecRepositoryFactory = templateSpecRepositoryFactory;
             this.features = features;
         }
 
@@ -29,6 +31,7 @@ namespace Bicep.Core.Registry
                 if(features.RegistryEnabled)
                 {
                     builder.Add(new OciModuleRegistry(this.fileResolver, this.clientFactory, this.features));
+                    builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.templateSpecRepositoryFactory, this.features));
                 }
 
                 return builder.ToImmutableArray();

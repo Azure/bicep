@@ -4,6 +4,7 @@
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -20,9 +21,11 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false).Object;
 
-        public static readonly IContainerRegistryClientFactory ClientFactory = new Mock<IContainerRegistryClientFactory>(MockBehavior.Strict).Object;
+        public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
-        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, Features);
+        public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
+
+        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features);
 
         public static IFeatureProvider CreateFeaturesProvider(TestContext testContext, bool registryEnabled = false)
         {
@@ -36,7 +39,7 @@ namespace Bicep.Core.UnitTests
 
         private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled)
         {
-            var mock = new Mock<IFeatureProvider>(MockBehavior.Strict);
+            var mock = StrictMock.Of<IFeatureProvider>();
             mock.SetupGet(m => m.RegistryEnabled).Returns(registryEnabled);
 
             return mock;
