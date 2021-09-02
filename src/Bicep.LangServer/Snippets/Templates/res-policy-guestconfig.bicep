@@ -13,9 +13,9 @@ resource /*${2:guestConfigAssignment}*/guestConfigAssignment 'Microsoft.GuestCon
   location: resourceGroup().location
   properties: {
     guestConfiguration: {
-      name: /*${3:'configurationName'}*/'configurationName'
-      assignmentType: /*${4|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}*/'ApplyAndMonitor'
-      version: /*${5:'version'}*/'1.*'
+      name: /*${4:'configurationName'}*/'configurationName'
+      assignmentType: /*${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}*/'ApplyAndMonitor'
+      version: /*${6:'version'}*/'1.*'
     }
   }
 }
