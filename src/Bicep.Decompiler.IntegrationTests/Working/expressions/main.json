@@ -48,6 +48,10 @@
     "coalesceEmptyOutput": {
       "type": "bool",
       "value": "[empty(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2))]"
+    },
+    "emptyFunctionsOutput": {
+      "type": "bool",
+      "value": "[if(equals(null(), json('null')), true(), false())]"
     }
   }
 }
