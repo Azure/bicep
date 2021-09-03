@@ -1,0 +1,897 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16295496111371619308"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "accounts": {
+      "type": "array"
+    },
+    "index": {
+      "type": "int"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "vnetConfigurations": [
+      {
+        "name": "one",
+        "location": "[resourceGroup().location]"
+      },
+      {
+        "name": "two",
+        "location": "westus"
+      }
+    ],
+    "moduleSetup": [
+      "one",
+      "two",
+      "three"
+    ],
+    "regions": [
+      "eastus",
+      "westus"
+    ]
+  },
+  "resources": {
+    "singleResource": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}single-resource-name', parameters('name'))]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    "singleResourceExtension": {
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name')))]",
+      "name": "single-resource-lock",
+      "properties": {
+        "level": "CanNotDelete"
+      },
+      "dependsOn": [
+        "singleResource"
+      ]
+    },
+    "singleResourceCascadeExtension": {
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', 'single-resource-lock')]",
+      "name": "single-resource-cascade-extension",
+      "properties": {
+        "level": "CanNotDelete"
+      },
+      "dependsOn": [
+        "singleResourceExtension"
+      ]
+    },
+    "storageAccounts": {
+      "copy": {
+        "name": "storageAccounts",
+        "count": "[length(parameters('accounts'))]",
+        "mode": "serial",
+        "batchSize": 42
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]",
+      "location": "[parameters('accounts')[copyIndex()].location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "singleResource"
+      ]
+    },
+    "extendSingleResourceInCollection": {
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name))]",
+      "name": "one-resource-collection-item-lock",
+      "properties": {
+        "level": "ReadOnly"
+      },
+      "dependsOn": [
+        "[format('storageAccounts[{0}]', mod(parameters('index'), 2))]"
+      ]
+    },
+    "extensionCollection": {
+      "copy": {
+        "name": "extensionCollection",
+        "count": "[length(range(0, 1))]"
+      },
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name')))]",
+      "name": "[format('lock-{0}', range(0, 1)[copyIndex()])]",
+      "properties": {
+        "level": "[if(equals(range(0, 1)[copyIndex()], 0), 'CanNotDelete', 'ReadOnly')]"
+      },
+      "dependsOn": [
+        "singleResource"
+      ]
+    },
+    "lockTheLocks": {
+      "copy": {
+        "name": "lockTheLocks",
+        "count": "[length(range(0, 1))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[range(0, 1)[copyIndex()]]))]",
+      "name": "[format('lock-the-lock-{0}', range(0, 1)[copyIndex()])]",
+      "properties": {
+        "level": "[if(equals(range(0, 1)[copyIndex()], 0), 'CanNotDelete', 'ReadOnly')]"
+      },
+      "dependsOn": [
+        "[format('extensionCollection[{0}]', range(0, 1)[copyIndex()])]"
+      ]
+    },
+    "storageAccounts2": {
+      "copy": {
+        "name": "storageAccounts2",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]",
+      "location": "[parameters('accounts')[copyIndex()].location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "storageAccounts"
+      ]
+    },
+    "firstSet": {
+      "copy": {
+        "name": "firstSet",
+        "count": "[length(range(0, length(parameters('accounts'))))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-set1-{1}', parameters('name'), range(0, length(parameters('accounts')))[copyIndex()])]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    "secondSet": {
+      "copy": {
+        "name": "secondSet",
+        "count": "[length(range(0, length(parameters('accounts'))))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-set2-{1}', parameters('name'), range(0, length(parameters('accounts')))[copyIndex()])]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "[format('firstSet[{0}]', range(0, length(parameters('accounts')))[copyIndex()])]"
+      ]
+    },
+    "anotherSingleResource": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}single-resource-name', parameters('name'))]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "secondSet"
+      ]
+    },
+    "vnets": {
+      "copy": {
+        "name": "vnets",
+        "count": "[length(variables('vnetConfigurations'))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('vnetConfigurations')[copyIndex()].name]",
+      "location": "[variables('vnetConfigurations')[copyIndex()].location]"
+    },
+    "implicitDependencyOnSingleResourceByIndex": {
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "test",
+      "location": "global",
+      "properties": {
+        "resolutionVirtualNetworks": [
+          {
+            "id": "[resourceInfo(format('vnets[{0}]', add(parameters('index'), 1))).id]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[format('vnets[{0}]', add(parameters('index'), 1))]"
+      ]
+    },
+    "combinedDependencies": {
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "test2",
+      "location": "global",
+      "properties": {
+        "resolutionVirtualNetworks": [
+          {
+            "id": "[resourceInfo(format('vnets[{0}]', sub(parameters('index'), 1))).id]"
+          },
+          {
+            "id": "[resourceInfo(format('vnets[{0}]', mul(parameters('index'), 2))).id]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "vnets"
+      ]
+    },
+    "existingStorageAccounts": {
+      "copy": {
+        "name": "existingStorageAccounts",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-existing-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]",
+      "existing": true
+    },
+    "duplicatedNames": {
+      "copy": {
+        "name": "duplicatedNames",
+        "count": "[length(createArray())]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "no loop variable",
+      "location": "eastus"
+    },
+    "referenceToDuplicateNames": {
+      "copy": {
+        "name": "referenceToDuplicateNames",
+        "count": "[length(createArray())]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "no loop variable 2",
+      "location": "eastus",
+      "dependsOn": [
+        "[format('duplicatedNames[{0}]', parameters('index'))]"
+      ]
+    },
+    "propertyLoopDependencyOnModuleCollection": {
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('name')]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "copy": [
+                {
+                  "name": "backends",
+                  "count": "[length(range(0, length(variables('regions'))))]",
+                  "input": {
+                    "address": "[reference(format('apim[{0}]', range(0, length(variables('regions')))[copyIndex('backends')])).outputs.myOutput.value]",
+                    "backendHostHeader": "[reference(format('apim[{0}]', range(0, length(variables('regions')))[copyIndex('backends')])).outputs.myOutput.value]",
+                    "httpPort": 80,
+                    "httpsPort": 443,
+                    "priority": 1,
+                    "weight": 50
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "apim"
+      ]
+    },
+    "indexedModuleCollectionDependency": {
+      "copy": {
+        "name": "indexedModuleCollectionDependency",
+        "count": "[length(range(0, length(variables('regions'))))]"
+      },
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}-{1}', parameters('name'), range(0, length(variables('regions')))[copyIndex()])]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "backends": [
+                {
+                  "address": "[reference(format('apim[{0}]', range(0, length(variables('regions')))[copyIndex()])).outputs.myOutput.value]",
+                  "backendHostHeader": "[reference(format('apim[{0}]', range(0, length(variables('regions')))[copyIndex()])).outputs.myOutput.value]",
+                  "httpPort": 80,
+                  "httpsPort": 443,
+                  "priority": 1,
+                  "weight": 50
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[format('apim[{0}]', range(0, length(variables('regions')))[copyIndex()])]",
+        "[format('apim[{0}]', range(0, length(variables('regions')))[copyIndex()])]"
+      ]
+    },
+    "propertyLoopDependencyOnResourceCollection": {
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('name')]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "copy": [
+                {
+                  "name": "backends",
+                  "count": "[length(range(0, length(parameters('accounts'))))]",
+                  "input": {
+                    "address": "[reference(format('storageAccounts[{0}]', range(0, length(parameters('accounts')))[copyIndex('backends')])).primaryEndpoints.internetEndpoints.web]",
+                    "backendHostHeader": "[reference(format('storageAccounts[{0}]', range(0, length(parameters('accounts')))[copyIndex('backends')])).primaryEndpoints.internetEndpoints.web]",
+                    "httpPort": 80,
+                    "httpsPort": 443,
+                    "priority": 1,
+                    "weight": 50
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "storageAccounts"
+      ]
+    },
+    "indexedResourceCollectionDependency": {
+      "copy": {
+        "name": "indexedResourceCollectionDependency",
+        "count": "[length(range(0, length(parameters('accounts'))))]"
+      },
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}-{1}', parameters('name'), range(0, length(parameters('accounts')))[copyIndex()])]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "backends": [
+                {
+                  "address": "[reference(format('storageAccounts[{0}]', range(0, length(parameters('accounts')))[copyIndex()])).primaryEndpoints.internetEndpoints.web]",
+                  "backendHostHeader": "[reference(format('storageAccounts[{0}]', range(0, length(parameters('accounts')))[copyIndex()])).primaryEndpoints.internetEndpoints.web]",
+                  "httpPort": 80,
+                  "httpsPort": 443,
+                  "priority": 1,
+                  "weight": 50
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[format('storageAccounts[{0}]', range(0, length(parameters('accounts')))[copyIndex()])]",
+        "[format('storageAccounts[{0}]', range(0, length(parameters('accounts')))[copyIndex()])]"
+      ]
+    },
+    "filteredZones": {
+      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
+      "copy": {
+        "name": "filteredZones",
+        "count": "[length(range(0, 10))]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "[format('zone{0}', range(0, 10)[copyIndex()])]",
+      "location": "[resourceGroup().location]"
+    },
+    "filteredIndexedZones": {
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
+      "copy": {
+        "name": "filteredIndexedZones",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "[format('indexedZone-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]",
+      "location": "[parameters('accounts')[copyIndex()].location]"
+    },
+    "singleModule": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "test",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "hello"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16677402125539667887"
+            }
+          },
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {},
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      }
+    },
+    "moduleCollectionWithSingleDependency": {
+      "copy": {
+        "name": "moduleCollectionWithSingleDependency",
+        "count": "[length(variables('moduleSetup'))]",
+        "mode": "serial",
+        "batchSize": 3
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('moduleSetup')[copyIndex()]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('in-{0}', variables('moduleSetup')[copyIndex()])]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16677402125539667887"
+            }
+          },
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {},
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "singleModule",
+        "singleResource"
+      ]
+    },
+    "moduleCollectionWithCollectionDependencies": {
+      "copy": {
+        "name": "moduleCollectionWithCollectionDependencies",
+        "count": "[length(variables('moduleSetup'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('moduleSetup')[copyIndex()]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('in-{0}', variables('moduleSetup')[copyIndex()])]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16677402125539667887"
+            }
+          },
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {},
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "moduleCollectionWithSingleDependency",
+        "storageAccounts"
+      ]
+    },
+    "singleModuleWithIndexedDependencies": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "hello",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[concat(reference(format('moduleCollectionWithCollectionDependencies[{0}]', parameters('index'))).outputs.myOutput.value, reference(format('storageAccounts[{0}]', mul(parameters('index'), 3))).accessTier)]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16677402125539667887"
+            }
+          },
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {},
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[format('moduleCollectionWithCollectionDependencies[{0}]', parameters('index'))]",
+        "[format('storageAccounts[{0}]', mul(parameters('index'), 3))]",
+        "[format('storageAccounts2[{0}]', sub(parameters('index'), 10))]"
+      ]
+    },
+    "moduleCollectionWithIndexedDependencies": {
+      "copy": {
+        "name": "moduleCollectionWithIndexedDependencies",
+        "count": "[length(variables('moduleSetup'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('moduleSetup')[copyIndex()]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('{0} - {1} - {2}', reference(format('moduleCollectionWithCollectionDependencies[{0}]', parameters('index'))).outputs.myOutput.value, reference(format('storageAccounts[{0}]', mul(parameters('index'), 3))).accessTier, variables('moduleSetup')[copyIndex()])]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16677402125539667887"
+            }
+          },
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {},
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[format('moduleCollectionWithCollectionDependencies[{0}]', parameters('index'))]",
+        "[format('storageAccounts[{0}]', mul(parameters('index'), 3))]",
+        "[format('storageAccounts2[{0}]', sub(parameters('index'), 9))]"
+      ]
+    },
+    "apim": {
+      "copy": {
+        "name": "apim",
+        "count": "[length(variables('regions'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[variables('regions')[copyIndex()]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16677402125539667887"
+            }
+          },
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {},
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      }
+    },
+    "filteredModules": {
+      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
+      "copy": {
+        "name": "filteredModules",
+        "count": "[length(range(0, 6))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('script-{0}', range(0, 6)[copyIndex()])]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16677402125539667887"
+            }
+          },
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {},
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      }
+    },
+    "filteredIndexedModules": {
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
+      "copy": {
+        "name": "filteredIndexedModules",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('stuff-{0}', copyIndex())]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('script-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "16677402125539667887"
+            }
+          },
+          "parameters": {
+            "myInput": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {},
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('myInput')]"
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {
+    "indexedCollectionBlobEndpoint": {
+      "type": "string",
+      "value": "[reference(format('storageAccounts[{0}]', parameters('index'))).primaryEndpoints.blob]"
+    },
+    "indexedCollectionName": {
+      "type": "string",
+      "value": "[resourceInfo(format('storageAccounts[{0}]', parameters('index'))).name]"
+    },
+    "indexedCollectionId": {
+      "type": "string",
+      "value": "[resourceInfo(format('storageAccounts[{0}]', parameters('index'))).id]"
+    },
+    "indexedCollectionType": {
+      "type": "string",
+      "value": "[resourceInfo(format('storageAccounts[{0}]', parameters('index'))).type]"
+    },
+    "indexedCollectionVersion": {
+      "type": "string",
+      "value": "[resourceInfo(format('storageAccounts[{0}]', parameters('index'))).apiVersion]"
+    },
+    "indexedCollectionIdentity": {
+      "type": "object",
+      "value": "[reference('storageAccounts', '2019-06-01', 'full').identity]"
+    },
+    "indexedEndpointPair": {
+      "type": "object",
+      "value": {
+        "primary": "[reference(format('storageAccounts[{0}]', parameters('index'))).primaryEndpoints.blob]",
+        "secondary": "[reference(format('storageAccounts[{0}]', add(parameters('index'), 1))).secondaryEndpoints.blob]"
+      }
+    },
+    "indexViaReference": {
+      "type": "string",
+      "value": "[reference(format('storageAccounts[{0}]', int(reference(format('storageAccounts[{0}]', parameters('index'))).creationTime))).accessTier]"
+    },
+    "indexedModulesName": {
+      "type": "string",
+      "value": "[variables('moduleSetup')[parameters('index')]]"
+    },
+    "indexedModuleOutput": {
+      "type": "string",
+      "value": "[reference(format('moduleCollectionWithSingleDependency[{0}]', mul(parameters('index'), 1))).outputs.myOutput.value]"
+    },
+    "existingIndexedResourceName": {
+      "type": "string",
+      "value": "[resourceInfo(format('existingStorageAccounts[{0}]', mul(parameters('index'), 0))).name]"
+    },
+    "existingIndexedResourceId": {
+      "type": "string",
+      "value": "[resourceInfo(format('existingStorageAccounts[{0}]', mul(parameters('index'), 1))).id]"
+    },
+    "existingIndexedResourceType": {
+      "type": "string",
+      "value": "[resourceInfo(format('existingStorageAccounts[{0}]', add(parameters('index'), 2))).type]"
+    },
+    "existingIndexedResourceApiVersion": {
+      "type": "string",
+      "value": "[resourceInfo(format('existingStorageAccounts[{0}]', sub(parameters('index'), 7))).apiVersion]"
+    },
+    "existingIndexedResourceLocation": {
+      "type": "string",
+      "value": "[reference('existingStorageAccounts', '2019-06-01', 'full').location]"
+    },
+    "existingIndexedResourceAccessTier": {
+      "type": "string",
+      "value": "[reference(format('existingStorageAccounts[{0}]', mod(parameters('index'), 3))).accessTier]"
+    },
+    "lastNameServers": {
+      "type": "array",
+      "value": "[reference(format('filteredIndexedZones[{0}]', sub(length(parameters('accounts')), 1))).nameServers]"
+    },
+    "lastModuleOutput": {
+      "type": "string",
+      "value": "[reference(format('filteredIndexedModules[{0}]', sub(length(parameters('accounts')), 1))).outputs.myOutput.value]"
+    }
+  }
+}

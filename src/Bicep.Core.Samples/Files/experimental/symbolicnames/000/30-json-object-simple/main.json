@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11048355249342662017"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "jsonString": "[\n  \"one\",\n  \"two\",\n  \"three\"\n]\n",
+    "jsonArray": "[json(variables('jsonString'))]",
+    "jsonString2": "[[\"four\",\"five\",\"six\"]",
+    "jsonArray2": "[json(variables('jsonString2'))]"
+  },
+  "resources": {},
+  "outputs": {
+    "jsonArray": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('jsonArray'))]",
+        "input": {
+          "name": "[variables('jsonArray')[copyIndex()]]"
+        }
+      }
+    },
+    "jsonArray2": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('jsonArray2'))]",
+        "input": {
+          "name": "[variables('jsonArray2')[copyIndex()]]"
+        }
+      }
+    }
+  }
+}

@@ -101,6 +101,22 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
+        public void EmitIndexedSymbolReference(ResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
+        {
+            var expression = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext)
+                .GenerateSymbolicReference(resource.Symbol.Name, indexExpression);
+
+            writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
+        }
+
+        public void EmitIndexedSymbolReference(ModuleSymbol moduleSymbol, SyntaxBase indexExpression, SyntaxBase newContext)
+        {
+            var expression = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext)
+                .GenerateSymbolicReference(moduleSymbol.Name, indexExpression);
+
+            writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
+        }
+
         public void EmitResourceIdReference(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
             var converterForContext = this.converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);

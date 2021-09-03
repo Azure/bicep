@@ -1,0 +1,305 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3257616718067046466"
+    }
+  },
+  "parameters": {
+    "actionGroupName": {
+      "type": "string"
+    },
+    "actionGroupRG": {
+      "type": "string"
+    },
+    "actionGroupId": {
+      "type": "string"
+    },
+    "metricAlertResourceNamespace": {
+      "type": "string"
+    },
+    "metricAlertName": {
+      "type": "string"
+    },
+    "metricAlertDimension1": {
+      "type": "string"
+    },
+    "metricAlertDimension2": {
+      "type": "string"
+    },
+    "metricAlertDimension3": {
+      "type": "string"
+    },
+    "metricAlertDescription": {
+      "type": "string"
+    },
+    "metricAlertSeverity": {
+      "type": "string"
+    },
+    "metricAlertEnabled": {
+      "type": "string"
+    },
+    "metricAlertEvaluationFrequency": {
+      "type": "string"
+    },
+    "metricAlertWindowSize": {
+      "type": "string"
+    },
+    "metricAlertSensitivity": {
+      "type": "string"
+    },
+    "metricAlertOperator": {
+      "type": "string"
+    },
+    "metricAlertTimeAggregation": {
+      "type": "string"
+    },
+    "metricAlertCriterionType": {
+      "type": "string"
+    },
+    "metricAlertAutoMitigate": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "policyDefCategory": "Custom",
+    "policySource": "Bicep"
+  },
+  "resources": {
+    "bicepExampleDINEpolicy": {
+      "type": "Microsoft.Authorization/policyDefinitions",
+      "apiVersion": "2020-09-01",
+      "name": "bicepExampleDINEpolicy",
+      "properties": {
+        "displayName": "DINE metric alert to Load Balancer for dipAvailability",
+        "description": "DeployIfNotExists a metric alert to Load Balancers for dipAvailability (Average Load Balancer health probe status per time duration)",
+        "policyType": "Custom",
+        "mode": "All",
+        "metadata": {
+          "category": "[variables('policyDefCategory')]",
+          "source": "[variables('policySource')]",
+          "version": "0.1.0"
+        },
+        "parameters": {},
+        "policyRule": {
+          "if": {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "[parameters('metricAlertResourceNamespace')]"
+              },
+              {
+                "field": "Microsoft.Network/loadBalancers/sku.name",
+                "equals": "Standard"
+              }
+            ]
+          },
+          "then": {
+            "effect": "deployIfNotExists",
+            "details": {
+              "roleDefinitionIds": [
+                "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+              ],
+              "type": "Microsoft.Insights/metricAlerts",
+              "existenceCondition": {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria.allOf[*].metricNamespace",
+                    "equals": "[parameters('metricAlertResourceNamespace')]"
+                  },
+                  {
+                    "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria.allOf[*].metricName",
+                    "equals": "[parameters('metricAlertName')]"
+                  },
+                  {
+                    "field": "Microsoft.Insights/metricalerts/scopes[*]",
+                    "equals": "[format('[concat(subscription().id, ''/resourceGroups/'', resourceGroup().name, ''/providers/{0}/'', field(''fullName''))]', parameters('metricAlertResourceNamespace'))]"
+                  }
+                ]
+              },
+              "deployment": {
+                "properties": {
+                  "mode": "incremental",
+                  "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                      "resourceName": {
+                        "type": "String",
+                        "metadata": {
+                          "displayName": "resourceName",
+                          "description": "Name of the resource"
+                        }
+                      },
+                      "resourceId": {
+                        "type": "String",
+                        "metadata": {
+                          "displayName": "resourceId",
+                          "description": "Resource ID of the resource emitting the metric that will be used for the comparison"
+                        }
+                      },
+                      "resourceLocation": {
+                        "type": "String",
+                        "metadata": {
+                          "displayName": "resourceLocation",
+                          "description": "Location of the resource"
+                        }
+                      },
+                      "actionGroupName": {
+                        "type": "String",
+                        "metadata": {
+                          "displayName": "actionGroupName",
+                          "description": "Name of the Action Group"
+                        }
+                      },
+                      "actionGroupRG": {
+                        "type": "String",
+                        "metadata": {
+                          "displayName": "actionGroupRG",
+                          "description": "Resource Group containing the Action Group"
+                        }
+                      },
+                      "actionGroupId": {
+                        "type": "String",
+                        "metadata": {
+                          "displayName": "actionGroupId",
+                          "description": "The ID of the action group that is triggered when the alert is activated or deactivated"
+                        }
+                      }
+                    },
+                    "variables": {},
+                    "resources": [
+                      {
+                        "type": "Microsoft.Insights/metricAlerts",
+                        "apiVersion": "2018-03-01",
+                        "name": "[format('[concat(parameters(''resourceName''), ''-{0}'')]', parameters('metricAlertName'))]",
+                        "location": "global",
+                        "properties": {
+                          "description": "[parameters('metricAlertDescription')]",
+                          "severity": "[parameters('metricAlertSeverity')]",
+                          "enabled": "[parameters('metricAlertEnabled')]",
+                          "scopes": [
+                            "[[parameters('resourceId')]"
+                          ],
+                          "evaluationFrequency": "[parameters('metricAlertEvaluationFrequency')]",
+                          "windowSize": "[parameters('metricAlertWindowSize')]",
+                          "criteria": {
+                            "allOf": [
+                              {
+                                "alertSensitivity": "[parameters('metricAlertSensitivity')]",
+                                "failingPeriods": {
+                                  "numberOfEvaluationPeriods": "2",
+                                  "minFailingPeriodsToAlert": "1"
+                                },
+                                "name": "Metric1",
+                                "metricNamespace": "[parameters('metricAlertResourceNamespace')]",
+                                "metricName": "[parameters('metricAlertName')]",
+                                "dimensions": [
+                                  {
+                                    "name": "[parameters('metricAlertDimension1')]",
+                                    "operator": "Include",
+                                    "values": [
+                                      "*"
+                                    ]
+                                  },
+                                  {
+                                    "name": "[parameters('metricAlertDimension2')]",
+                                    "operator": "Include",
+                                    "values": [
+                                      "*"
+                                    ]
+                                  },
+                                  {
+                                    "name": "[parameters('metricAlertDimension3')]",
+                                    "operator": "Include",
+                                    "values": [
+                                      "*"
+                                    ]
+                                  }
+                                ],
+                                "operator": "[parameters('metricAlertOperator')]",
+                                "timeAggregation": "[parameters('metricAlertTimeAggregation')]",
+                                "criterionType": "[parameters('metricAlertCriterionType')]"
+                              }
+                            ],
+                            "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                          },
+                          "autoMitigate": "[parameters('metricAlertAutoMitigate')]",
+                          "targetResourceType": "[parameters('metricAlertResourceNamespace')]",
+                          "targetResourceRegion": "[[parameters('resourceLocation')]",
+                          "actions": [
+                            {
+                              "actionGroupId": "[parameters('actionGroupId')]",
+                              "webHookProperties": {}
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "parameters": {
+                    "resourceName": {
+                      "value": "[[field('name')]"
+                    },
+                    "resourceId": {
+                      "value": "[[field('id')]"
+                    },
+                    "resourceLocation": {
+                      "value": "[[field('location')]"
+                    },
+                    "actionGroupName": {
+                      "value": "[parameters('actionGroupName')]"
+                    },
+                    "actionGroupRG": {
+                      "value": "[parameters('actionGroupRG')]"
+                    },
+                    "actionGroupID": {
+                      "value": "[parameters('actionGroupId')]"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "bicepExampleInitiative": {
+      "type": "Microsoft.Authorization/policySetDefinitions",
+      "apiVersion": "2020-09-01",
+      "name": "bicepExampleInitiative",
+      "properties": {
+        "policyType": "Custom",
+        "displayName": "Bicep Example Initiative",
+        "description": "Bicep Example Initiative",
+        "metadata": {
+          "category": "[variables('policyDefCategory')]",
+          "source": "[variables('policySource')]",
+          "version": "0.1.0"
+        },
+        "parameters": {},
+        "policyDefinitions": [
+          {
+            "policyDefinitionId": "[resourceInfo('bicepExampleDINEpolicy').id]",
+            "parameters": {}
+          }
+        ]
+      },
+      "dependsOn": [
+        "bicepExampleDINEpolicy"
+      ]
+    }
+  },
+  "outputs": {
+    "bicepExampleInitiativeId": {
+      "type": "string",
+      "value": "[resourceInfo('bicepExampleInitiative').id]"
+    }
+  }
+}

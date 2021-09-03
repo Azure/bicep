@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12266946764841305208"
+    }
+  },
+  "parameters": {
+    "nicName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "pipId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "ipAllocationMethod": {
+      "type": "string",
+      "defaultValue": "Dynamic",
+      "allowedValues": [
+        "Dynamic",
+        "Static"
+      ]
+    },
+    "staticIpAddress": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "enableIPForwarding": {
+      "type": "bool",
+      "defaultValue": false
+    }
+  },
+  "functions": [],
+  "resources": {
+    "nic": {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('nicName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
+              "privateIPAddress": "[parameters('staticIpAddress')]",
+              "subnet": {
+                "id": "[parameters('subnetId')]"
+              },
+              "publicIPAddress": "[if(equals(parameters('pipId'), ''), null(), createObject('id', parameters('pipId')))]"
+            }
+          }
+        ],
+        "enableIPForwarding": "[parameters('enableIPForwarding')]"
+      }
+    }
+  },
+  "outputs": {
+    "nicId": {
+      "type": "string",
+      "value": "[resourceInfo('nic').id]"
+    },
+    "assignedIp": {
+      "type": "string",
+      "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11326726915184059277"
+    }
+  },
+  "parameters": {
+    "azureSubscriptionID": {
+      "type": "string"
+    },
+    "sigName": {
+      "type": "string"
+    },
+    "sigLocation": {
+      "type": "string"
+    },
+    "imagePublisher": {
+      "type": "string"
+    },
+    "imageDefinitionName": {
+      "type": "string"
+    },
+    "imageOffer": {
+      "type": "string"
+    },
+    "imageSKU": {
+      "type": "string"
+    },
+    "imageLocation": {
+      "type": "string"
+    },
+    "roleNameGalleryImage": {
+      "type": "string"
+    },
+    "principalId": {
+      "type": "string"
+    },
+    "templateImageResourceGroup": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "templateImageResourceGroupId": "[format('/subscriptions/{0}/resourcegroups/{1}', parameters('azureSubscriptionID'), parameters('templateImageResourceGroup'))]"
+  },
+  "resources": {
+    "wvdsig": {
+      "type": "Microsoft.Compute/galleries",
+      "apiVersion": "2020-09-30",
+      "name": "[parameters('sigName')]",
+      "location": "[parameters('sigLocation')]"
+    },
+    "wvdid": {
+      "type": "Microsoft.Compute/galleries/images",
+      "apiVersion": "2020-09-30",
+      "name": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]",
+      "location": "[parameters('imageLocation')]",
+      "properties": {
+        "osState": "Generalized",
+        "osType": "Windows",
+        "identifier": {
+          "publisher": "[parameters('imagePublisher')]",
+          "offer": "[parameters('imageOffer')]",
+          "sku": "[parameters('imageSKU')]"
+        }
+      },
+      "dependsOn": [
+        "wvdsig"
+      ]
+    },
+    "gallerydef": {
+      "type": "Microsoft.Authorization/roleDefinitions",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[guid(parameters('roleNameGalleryImage'))]",
+      "properties": {
+        "roleName": "[parameters('roleNameGalleryImage')]",
+        "description": "Custom role for network read",
+        "permissions": [
+          {
+            "actions": [
+              "Microsoft.Compute/galleries/read",
+              "Microsoft.Compute/galleries/images/read",
+              "Microsoft.Compute/galleries/images/versions/read",
+              "Microsoft.Compute/galleries/images/versions/write",
+              "Microsoft.Compute/images/write",
+              "Microsoft.Compute/images/read",
+              "Microsoft.Compute/images/delete"
+            ]
+          }
+        ],
+        "assignableScopes": [
+          "[variables('templateImageResourceGroupId')]"
+        ]
+      }
+    },
+    "galleryass": {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id, resourceInfo('gallerydef').id, parameters('principalId'))]",
+      "properties": {
+        "roleDefinitionId": "[resourceInfo('gallerydef').id]",
+        "principalId": "[parameters('principalId')]"
+      },
+      "dependsOn": [
+        "gallerydef"
+      ]
+    }
+  }
+}

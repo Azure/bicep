@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "939827246187459718"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "cacheAccountName": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "cacheAccount": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('cacheAccountName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Storage Account"
+      },
+      "sku": {
+        "name": "Premium_LRS"
+      },
+      "kind": "Storage",
+      "properties": {
+        "encryption": {
+          "services": {
+            "blob": {
+              "enabled": false
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      }
+    },
+    "diagsAccount": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('diags{0}', uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Storage Account"
+      },
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {}
+    }
+  },
+  "outputs": {
+    "diagAccountId": {
+      "type": "string",
+      "value": "[resourceInfo('diagsAccount').id]"
+    },
+    "cacheAccountName": {
+      "type": "string",
+      "value": "[resourceInfo('cacheAccount').name]"
+    },
+    "cacheAccountId": {
+      "type": "string",
+      "value": "[resourceInfo('cacheAccount').id]"
+    }
+  }
+}

@@ -206,7 +206,7 @@ namespace Bicep.LanguageServer.Snippets
 
             // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid 
             // cross platform issues, we'll provide a placeholder uri.
-            BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory://snippet.bicep"), template);
+            BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}.bicep"), template);
             SourceFileGrouping sourceFileGrouping = new SourceFileGrouping(
                 fileResolver,
                 bicepFile,

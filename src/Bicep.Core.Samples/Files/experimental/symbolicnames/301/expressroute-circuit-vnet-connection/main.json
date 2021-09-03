@@ -1,0 +1,141 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9161100781122074184"
+    }
+  },
+  "parameters": {
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "vnet-01"
+    },
+    "virtualNetworkPrefix": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "subnetPrefix": {
+      "type": "string"
+    },
+    "gatewaySubnetPrefix": {
+      "type": "string"
+    },
+    "gatewayPublicIPName": {
+      "type": "string"
+    },
+    "gatewayName": {
+      "type": "string"
+    },
+    "connectionName": {
+      "type": "string"
+    },
+    "circuitName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "virtualNetwork": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkPrefix')]"
+          ]
+        }
+      }
+    },
+    "subnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', resourceInfo('virtualNetwork').name, parameters('subnetName'))]",
+      "properties": {
+        "addressPrefix": "[parameters('subnetPrefix')]"
+      },
+      "dependsOn": [
+        "virtualNetwork"
+      ]
+    },
+    "gatewaySubnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/GatewaySubnet', resourceInfo('virtualNetwork').name)]",
+      "properties": {
+        "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
+      },
+      "dependsOn": [
+        "virtualNetwork"
+      ]
+    },
+    "publicIP": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('gatewayPublicIPName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    "virtualNetworkGateway": {
+      "type": "Microsoft.Network/virtualNetworkGateways",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('gatewayName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "vnetGatewayConfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceInfo('gatewaySubnet').id]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceInfo('publicIP').id]"
+              }
+            }
+          }
+        ],
+        "gatewayType": "ExpressRoute"
+      },
+      "dependsOn": [
+        "gatewaySubnet",
+        "publicIP"
+      ]
+    },
+    "connection": {
+      "type": "Microsoft.Network/connections",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('connectionName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "virtualNetworkGateway1": {
+          "id": "[resourceInfo('virtualNetworkGateway').id]",
+          "properties": {}
+        },
+        "peer": {
+          "id": "[resourceId('Microsoft.Network/expressRouteCircuits', parameters('circuitName'))]"
+        },
+        "connectionType": "ExpressRoute",
+        "routingWeight": 3
+      },
+      "dependsOn": [
+        "virtualNetworkGateway"
+      ]
+    }
+  }
+}

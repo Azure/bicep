@@ -1,0 +1,174 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16813686960358328800"
+    }
+  },
+  "parameters": {
+    "vaultName": {
+      "type": "string",
+      "defaultValue": "[format('keyVault{0}', uniqueString(resourceGroup().id))]"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "Standard"
+    },
+    "tenant": {
+      "type": "string",
+      "defaultValue": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+    },
+    "accessPolicies": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "tenantId": "[parameters('tenant')]",
+          "objectId": "caeebed6-cfa8-45ff-9d8a-03dba4ef9a7d",
+          "permissions": {
+            "keys": [
+              "Get",
+              "List",
+              "Update",
+              "Create",
+              "Import",
+              "Delete",
+              "Recover",
+              "Backup",
+              "Restore"
+            ],
+            "secrets": [
+              "Get",
+              "List",
+              "Set",
+              "Delete",
+              "Recover",
+              "Backup",
+              "Restore"
+            ],
+            "certificates": [
+              "Get",
+              "List",
+              "Update",
+              "Create",
+              "Import",
+              "Delete",
+              "Recover",
+              "Backup",
+              "Restore",
+              "ManageContacts",
+              "ManageIssuers",
+              "GetIssuers",
+              "ListIssuers",
+              "SetIssuers",
+              "DeleteIssuers"
+            ]
+          }
+        }
+      ]
+    },
+    "enabledForDeployment": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "enabledForTemplateDeployment": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "enabledForDiskEncryption": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "enableRbacAuthorization": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "softDeleteRetentionInDays": {
+      "type": "int",
+      "defaultValue": 90
+    },
+    "keyName": {
+      "type": "string",
+      "defaultValue": "prodKey"
+    },
+    "secretName": {
+      "type": "string",
+      "defaultValue": "bankAccountPassword"
+    },
+    "secretValue": {
+      "type": "string",
+      "defaultValue": "12345"
+    },
+    "networkAcls": {
+      "type": "object",
+      "defaultValue": {
+        "ipRules": [],
+        "virtualNetworkRules": []
+      }
+    }
+  },
+  "functions": [],
+  "resources": {
+    "keyvault": {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "[parameters('vaultName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "tenantId": "[parameters('tenant')]",
+        "sku": {
+          "family": "A",
+          "name": "[parameters('sku')]"
+        },
+        "accessPolicies": "[parameters('accessPolicies')]",
+        "enabledForDeployment": "[parameters('enabledForDeployment')]",
+        "enabledForDiskEncryption": "[parameters('enabledForDiskEncryption')]",
+        "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
+        "softDeleteRetentionInDays": "[parameters('softDeleteRetentionInDays')]",
+        "enableRbacAuthorization": "[parameters('enableRbacAuthorization')]",
+        "networkAcls": "[parameters('networkAcls')]"
+      }
+    },
+    "key": {
+      "type": "Microsoft.KeyVault/vaults/keys",
+      "apiVersion": "2019-09-01",
+      "name": "[format('{0}/{1}', resourceInfo('keyvault').name, parameters('keyName'))]",
+      "properties": {
+        "kty": "RSA",
+        "keyOps": [
+          "encrypt",
+          "decrypt"
+        ],
+        "keySize": 4096
+      },
+      "dependsOn": [
+        "keyvault"
+      ]
+    },
+    "secret": {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2018-02-14",
+      "name": "[format('{0}/{1}', resourceInfo('keyvault').name, parameters('secretName'))]",
+      "properties": {
+        "value": "[parameters('secretValue')]"
+      },
+      "dependsOn": [
+        "keyvault"
+      ]
+    }
+  },
+  "outputs": {
+    "proxyKey": {
+      "type": "object",
+      "value": "[reference('key', '2019-09-01', 'full')]"
+    }
+  }
+}

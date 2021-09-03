@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16237216576330181006"
+    }
+  },
+  "parameters": {
+    "vnetSuffix": {
+      "type": "string",
+      "defaultValue": "001"
+    },
+    "vnetaddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/15"
+    },
+    "subnetaddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "demoSubNet"
+    },
+    "dnsServer": {
+      "type": "string",
+      "defaultValue": "10.0.0.4"
+    },
+    "createUserDefinedRoutes": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "udrName": {
+      "type": "string",
+      "defaultValue": "demoUserDefinedRoute"
+    },
+    "udrRouteName": {
+      "type": "string",
+      "defaultValue": "demoRoute"
+    },
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": "0.0.0.0/24"
+    },
+    "nextHopType": {
+      "type": "string",
+      "defaultValue": "VirtualAppliance"
+    },
+    "nextHopIpAddress": {
+      "type": "string",
+      "defaultValue": "10.10.3.4"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "vnetName": "[format('vnet-{0}', parameters('vnetSuffix'))]"
+  },
+  "resources": {
+    "udr": {
+      "condition": "[parameters('createUserDefinedRoutes')]",
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('udrName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "[parameters('udrRouteName')]",
+            "properties": {
+              "addressPrefix": "[parameters('addressPrefix')]",
+              "nextHopType": "[parameters('nextHopType')]",
+              "nextHopIpAddress": "[parameters('nextHopIpAddress')]"
+            }
+          }
+        ],
+        "disableBgpRoutePropagation": false
+      }
+    },
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetaddressPrefix')]"
+          ]
+        },
+        "dhcpOptions": {
+          "dnsServers": [
+            "[parameters('dnsServer')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetaddressPrefix')]",
+              "routeTable": {
+                "id": "[resourceInfo('udr').id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "udr"
+      ]
+    }
+  }
+}

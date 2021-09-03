@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15805764205732976860"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "list": "a,b,c,d",
+    "arrayFromString": "[split(variables('list'), ',')]",
+    "find": "findThisInString",
+    "found": "[contains(variables('find'), 'This')]",
+    "index": "[indexOf(variables('find'), 'This')]",
+    "indexNotFound": "[indexOf(variables('find'), 'NotFound')]",
+    "len": "[length(variables('find'))]",
+    "substr": "[substring(variables('find'), variables('index'), sub(variables('len'), variables('index')))]"
+  },
+  "resources": {},
+  "outputs": {
+    "arrayFromString": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('arrayFromString'))]",
+        "input": {
+          "element": "[variables('arrayFromString')[copyIndex()]]"
+        }
+      }
+    },
+    "found": {
+      "type": "string",
+      "value": "[if(equals(variables('found'), true()), 'Found \"this\"', 'Did not find \"This\"')]"
+    },
+    "index": {
+      "type": "int",
+      "value": "[variables('index')]"
+    },
+    "indexNotFound": {
+      "type": "int",
+      "value": "[variables('indexNotFound')]"
+    },
+    "substr": {
+      "type": "string",
+      "value": "[variables('substr')]"
+    }
+  }
+}

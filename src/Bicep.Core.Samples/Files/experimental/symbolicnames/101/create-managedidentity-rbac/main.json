@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16198543403995158819"
+    }
+  },
+  "parameters": {
+    "managedIdentityName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "roleDefinitionId": {
+      "type": "string",
+      "defaultValue": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "msi": {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "name": "[parameters('managedIdentityName')]",
+      "location": "[parameters('location')]"
+    },
+    "roleassignment": {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(parameters('roleDefinitionId'), resourceGroup().id)]",
+      "properties": {
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        "principalId": "[reference('msi').principalId]"
+      },
+      "dependsOn": [
+        "msi"
+      ]
+    }
+  }
+}

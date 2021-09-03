@@ -56,20 +56,20 @@ var dependentVar = {
 //@[1:3) NewLine |\n\n|
 
 var resourceDependency = {
-//@[0:136) VariableDeclarationSyntax
+//@[0:147) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |resourceDependency|
 //@[23:24)  Assignment |=|
-//@[25:136)  ObjectSyntax
+//@[25:147)  ObjectSyntax
 //@[25:26)   LeftBrace |{|
 //@[26:27)   NewLine |\n|
   dependenciesA: [
-//@[2:107)   ObjectPropertySyntax
+//@[2:118)   ObjectPropertySyntax
 //@[2:15)    IdentifierSyntax
 //@[2:15)     Identifier |dependenciesA|
 //@[15:16)    Colon |:|
-//@[17:107)    ArraySyntax
+//@[17:118)    ArraySyntax
 //@[17:18)     LeftSquare |[|
 //@[18:19)     NewLine |\n|
     resA.id
@@ -116,16 +116,20 @@ var resourceDependency = {
 //@[20:30)       IdentifierSyntax
 //@[20:30)        Identifier |deployTime|
 //@[30:31)     NewLine |\n|
-    resA.eTag
-//@[4:13)     ArrayItemSyntax
-//@[4:13)      PropertyAccessSyntax
-//@[4:8)       VariableAccessSyntax
-//@[4:8)        IdentifierSyntax
-//@[4:8)         Identifier |resA|
-//@[8:9)       Dot |.|
-//@[9:13)       IdentifierSyntax
-//@[9:13)        Identifier |eTag|
-//@[13:14)     NewLine |\n|
+    resA.properties.eTag
+//@[4:24)     ArrayItemSyntax
+//@[4:24)      PropertyAccessSyntax
+//@[4:19)       PropertyAccessSyntax
+//@[4:8)        VariableAccessSyntax
+//@[4:8)         IdentifierSyntax
+//@[4:8)          Identifier |resA|
+//@[8:9)        Dot |.|
+//@[9:19)        IdentifierSyntax
+//@[9:19)         Identifier |properties|
+//@[19:20)       Dot |.|
+//@[20:24)       IdentifierSyntax
+//@[20:24)        Identifier |eTag|
+//@[24:25)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -150,14 +154,14 @@ output resourceAType string = resA.type
 //@[35:39)    Identifier |type|
 //@[39:40) NewLine |\n|
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
-//@[0:132) ResourceDeclarationSyntax
+//@[0:134) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |resA|
 //@[14:47)  StringSyntax
 //@[14:47)   StringComplete |'My.Rp/myResourceType@2020-01-01'|
 //@[48:49)  Assignment |=|
-//@[50:132)  ObjectSyntax
+//@[50:134)  ObjectSyntax
 //@[50:51)   LeftBrace |{|
 //@[51:52)   NewLine |\n|
   name: 'resA'
@@ -169,11 +173,11 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[8:14)     StringComplete |'resA'|
 //@[14:15)   NewLine |\n|
   properties: {
-//@[2:48)   ObjectPropertySyntax
+//@[2:65)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
-//@[14:48)    ObjectSyntax
+//@[14:65)    ObjectSyntax
 //@[14:15)     LeftBrace |{|
 //@[15:16)     NewLine |\n|
     deployTime: dependentVar
@@ -185,17 +189,17 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[16:28)       IdentifierSyntax
 //@[16:28)        Identifier |dependentVar|
 //@[28:29)     NewLine |\n|
+    eTag: '1234'
+//@[4:16)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |eTag|
+//@[8:9)      Colon |:|
+//@[10:16)      StringSyntax
+//@[10:16)       StringComplete |'1234'|
+//@[16:17)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:4)   NewLine |\n|
-  eTag: '1234'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |eTag|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'1234'|
-//@[14:15)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -445,4 +449,6 @@ output resourceCProperties object = resC.properties
 //@[40:41)   Dot |.|
 //@[41:51)   IdentifierSyntax
 //@[41:51)    Identifier |properties|
-//@[51:51) EndOfFile ||
+//@[51:52) NewLine |\n|
+
+//@[0:0) EndOfFile ||
