@@ -4,9 +4,12 @@
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
+using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -56,10 +59,15 @@ namespace Bicep.Cli.Commands
 
         private ModuleReference ValidateReference(string targetModuleReference)
         {
-            var moduleReference = this.moduleDispatcher.TryGetModuleReference(targetModuleReference, out _);
+            var moduleReference = this.moduleDispatcher.TryGetModuleReference(targetModuleReference, out var failureBuilder);
             if(moduleReference is null)
             {
-                throw new BicepException($"The specified module target \"{targetModuleReference}\" is not valid.");
+                failureBuilder = failureBuilder ?? throw new InvalidOperationException($"{nameof(moduleDispatcher.TryGetModuleReference)} did not provide an error.");
+
+                // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
+                var message = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0))).Message;
+
+                throw new BicepException(message);
             }
 
             if(!this.moduleDispatcher.GetRegistryCapabilities(moduleReference).HasFlag(RegistryCapabilities.Publish))

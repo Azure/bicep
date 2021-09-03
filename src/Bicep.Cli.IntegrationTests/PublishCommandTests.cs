@@ -60,14 +60,14 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain("The specified module target \"fake:\" is not valid.");
+            error.Should().Contain("The specified module reference scheme \"fake\" is not recognized.");
         }
 
         [TestMethod]
         public async Task Publish_InvalidInputFile_ShouldProduceExpectedError()
         {
             var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-            var (output, error, result) = await Bicep(settings, "publish", "WrongFile.bicep", "--target", "oci:example.azurecr.io/hello/there:v1");
+            var (output, error, result) = await Bicep(settings, "publish", "WrongFile.bicep", "--target", "br:example.azurecr.io/hello/there:v1");
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -92,7 +92,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var registryStr = "example.com";
             var registryUri = new Uri($"https://{registryStr}");
-            var repository = $"test/{dataSet.Name}";
+            var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
@@ -105,7 +105,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
-            var (output, error, result) = await Bicep(settings, "publish", bicepFilePath, "--target", $"oci:{registryStr}/{repository}:v1");
+            var (output, error, result) = await Bicep(settings, "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1");
             result.Should().Be(0);
             output.Should().BeEmpty();
             AssertNoErrors(error);
@@ -116,7 +116,7 @@ namespace Bicep.Cli.IntegrationTests
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
 
             // publish the same content again
-            var (output2, error2, result2) = await Bicep(settings, "publish", bicepFilePath, "--target", $"oci:{registryStr}/{repository}:v1");
+            var (output2, error2, result2) = await Bicep(settings, "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1");
             result2.Should().Be(0);
             output2.Should().BeEmpty();
             AssertNoErrors(error2);
@@ -138,7 +138,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var diagnostics = GetAllDiagnostics(bicepFilePath, settings.ClientFactory, settings.TemplateSpecRepositoryFactory);
 
-            var (output, error, result) = await Bicep(settings, "publish", bicepFilePath, "--target", $"oci:example.com/fail/{dataSet.Name}:v1");
+            var (output, error, result) = await Bicep(settings, "publish", bicepFilePath, "--target", $"br:example.com/fail/{dataSet.Name.ToLowerInvariant()}:v1");
 
             using (new AssertionScope())
             {

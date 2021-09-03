@@ -1147,10 +1147,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP192",
                 $"Unable to restore the module with reference \"{moduleRef}\": {message}");
 
-            public ErrorDiagnostic InvalidOciArtifactReference(string badRef) => new(
-                TextSpan,
-                "BCP193",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. Specify a reference in the format of \"oci:<artifact uri>:<tag>\".");
+            public ErrorDiagnostic InvalidOciArtifactReference(string badRef, string? innerError)
+            {
+                innerError ??= $"Specify a reference in the format of \"{ModuleReferenceSchemes.Oci}:<artifact uri>:<tag>\".";
+                return new(
+                    TextSpan,
+                    "BCP193",
+                    $"The specified OCI artifact reference \"{badRef}\" is not valid. {innerError}");
+            }
 
             public ErrorDiagnostic InvalidTemplateSpecReference(string invalidReference) => new(
                 TextSpan,
